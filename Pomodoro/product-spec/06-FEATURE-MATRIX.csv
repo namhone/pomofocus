@@ -1,0 +1,45 @@
+Feature_ID,Module,Feature_Name,Description,Priority,Source_Label,Target_Phase,Complexity,Zero_Cost_Feasible,Acceptance_Summary
+FEAT-001,Workspace,Desktop Canvas Shell,Toan man hinh 100vw/100vh hien thi anh WebP hoac video loop cuc bo,P0,OBSERVED,MVP,Low,Yes,Man hinh co dinh khong bi thanh cuon trinh duyet
+FEAT-002,Workspace,Draggable Widgets,Cho phep keo tha widget bang chuot tren thanh header co chan bien,P0,USER_REQUIREMENT,MVP,Medium,Yes,Keo muot ma va bi chan boi mep man hinh khong the roi ra ngoai
+FEAT-003,Workspace,Resizable Widgets,Thay doi kich thuoc widget Tasks va Notes qua handle goc duoi phai,P0,OBSERVED,MVP,Medium,Yes,Kich thuoc co gioi han min va max tranh vo giao dien (Timer co dinh)
+FEAT-004,Workspace,Z-Index Stacking,Widget duoc click se tu dong noi len tren cung,P0,USER_REQUIREMENT,MVP,Low,Yes,Widget active luon co z-index cao nhat
+FEAT-005,Workspace,Window Minimize and Dock,Thu nho widget xuong thanh Dock trai va mo lai khi click icon,P0,OBSERVED,MVP,Low,Yes,Nhan '-' thu nho va icon Dock nhap nhay highlight
+FEAT-006,Workspace,Layout Persistence,Luu vi tri toa do va kich thuoc vao LocalStorage voi debounce 300ms,P0,USER_REQUIREMENT,MVP,Low,Yes,Tai lai trang khong bi mat vi tri widget da sap xep
+FEAT-007,Workspace,Mobile Responsive Fallback,Tu dong chuyen thanh Bottom Sheet va Mini-Timer khi chieu rong < 768px,P0,USER_REQUIREMENT,MVP,Medium,Yes,Duyet tren dien thoai khong bi vo giao dien
+FEAT-008,Background,Default Local Wallpapers,Bo suu tap 3 anh WebP phong canh thien nhien chat luong cao nhe < 300KB precache,P0,USER_REQUIREMENT,MVP,Low,Yes,Anh tai nhanh offline tuc thi duoi 2MiB
+FEAT-009,Background,Visual Blur and Dim Filters,Thanh truot lam mo nen va giam do sang de de doc chu,P0,USER_REQUIREMENT,MVP,Low,Yes,CSS backdrop-filter hoat dong muot tren moi card
+FEAT-010,Timer,Personal Pomodoro Mode,Che do dem gio ca nhan Focus va Nghi ngan Nghi dai deadline-based,P0,OBSERVED,MVP,Medium,Yes,Chay dung ti le thoi gian va chuyen hiep chuan
+FEAT-011,Timer,Custom Durations,Tuy chinh so phut Focus/Short/Long Break linh hoat tu 1 den 120 phut,P0,OBSERVED,MVP,Low,Yes,Nhap so phut hop le tu 1 den 120 phut
+FEAT-012,Timer,Auto-Transition,Tu dong chuyen sang gio nghi khi het gio lam va nguoc lai,P0,OBSERVED,MVP,Low,Yes,Tu nhay sang gio nghi sau khi chuong bao dut
+FEAT-013,Timer,Hide Pomodoro Count,Tuy chon an 4 cham tron dem chu ky de giam ap luc,P0,OBSERVED,MVP,Low,Yes,Checkbox an hien cham tien trinh ngay lap tuc
+FEAT-014,Timer,Synthesized Chimes,Phat 6 chuong Twinkle Playtime Sci-fi Slow-Rise Rooster Bird qua Web Audio,P0,USER_REQUIREMENT,MVP,Medium,Yes,Web Audio API phat chuong 100% offline khong loi mang
+FEAT-015,Timer,Volume Control,Thanh truot am luong rieng cho chuong bao timer,P0,OBSERVED,MVP,Low,Yes,Am luong thay doi tuc thi khi keo slider
+FEAT-016,Timer,Background Tab Drift-Proof,Giai thuat targetEndTime delta va performance.now() chong nhay gio he thong,P0,USER_REQUIREMENT,MVP,Medium,Yes,Dem dung tung giay du tab bi trinh duyet throttle sai so duoi 1s/10ph
+FEAT-017,Timer,Web Locks Multi-Tab Leader,Dieu phoi duy nhat 1 Tab Leader giu lock xu ly dem va phat chuong,P0,USER_REQUIREMENT,MVP,High,Yes,Chi 1 tab phat chuong va khong bao gio bi xung dot timer
+FEAT-018,Timer,Atomic Session Idempotency,Giao dich nguyen tu IndexedDB add() voi sessionId UUID v4 chong ghi trung,P0,USER_REQUIREMENT,MVP,Medium,Yes,Khong bao gio duplicate record trong focus_sessions khi reload
+FEAT-019,Timer,Document Title Countdown,Cap nhat thoi gian con lai tren tieu de the trinh duyet,P0,USER_REQUIREMENT,MVP,Low,Yes,Nguoi dung luon nhin thay gio ma khong can bat tab
+FEAT-020,Sounds,Master Volume Slider,Dieu khien tong the cong suat am thanh toan bo app,P0,OBSERVED,MVP,Low,Yes,Master volume giam ve 0 tat ca cac track deu im lang
+FEAT-021,Sounds,Audio Compressor,DynamicsCompressorNode dat truoc destination chong vo tieng khi bat nhieu track,P0,INFERRED,MVP,Medium,Yes,Am thanh luon tron tieng khong bi re hay clipping
+FEAT-022,Sounds,Multi-track Local Mixer,Tron dong thoi 3 am thanh mua roi quan cafe ban phim co cuc bo,P0,OBSERVED,MVP,Medium,Yes,Phat dong thoi khong bi meo tieng chay 100% offline
+FEAT-023,Sounds,Autoplay Error Handling,Tu dong mo khoa AudioContext sau click kem try catch xu ly loi than thien,P0,INFERRED,MVP,Low,Yes,Khong co loi unhandled DOMException trong Console
+FEAT-024,Tasks,Task CRUD,Tao sua xoa danh dau hoan thanh cong viec luu vao IndexedDB,P0,OBSERVED,MVP,Medium,Yes,Luu truc tiep vao IndexedDB cuc bo
+FEAT-025,Tasks,Basic Filter,Loc viec can lam/da xong va loc theo mot du an cu the,P0,OBSERVED,MVP,Low,Yes,Loc nhanh danh sach theo du an hoac trang thai
+FEAT-026,Tasks,Pomodoro Link Button,Nut Play de gan task vao dong ho Pomodoro dang chay,P0,OBSERVED,MVP,Medium,Yes,Ten task hien tren timer va tu dong tang so pomodoro khi hoan thanh
+FEAT-027,Notes,Markdown Notes Widget,Khung ghi chu ho tro Markdown co ban va autosave sau 500ms vao IndexedDB,P0,USER_REQUIREMENT,MVP,Medium,Yes,Go van ban tu do va khong bi mat khi reload
+FEAT-028,Backup,JSON Backup and Restore,Xuat va nhap du lieu IndexedDB ra file JSON co schema validation,P0,USER_REQUIREMENT,MVP,Medium,Yes,Bao toan du lieu 100% chong rui ro xoa cache trinh duyet
+FEAT-029,PWA,Offline App Shell PWA,Service Worker precache toan bo giao dien HTML JS CSS qua Workbox duoi 2MiB,P0,USER_REQUIREMENT,MVP,High,Yes,Load trang thanh cong 100% khi ngat mang internet
+FEAT-030,A11y,Keyboard Navigation,Phim tat Space Start/Pause Alt+M Mute Esc dong modal kem focus ring,P0,USER_REQUIREMENT,MVP,Low,Yes,Dieu khien de dang khong can dung chuot
+FEAT-031,Background,Looping Ambient Video,1 video WebM loop nhe < 4MB mo phong khong gian quan cafe mua roi,P1,OBSERVED,Phase 2,Medium,Yes,Tai qua Runtime Cache neu offline chua co thi fallback anh tinh
+FEAT-032,Media,YouTube Player IFrame,Nhung trinh phat video va danh sach nhac YouTube online,P1,USER_REQUIREMENT,Phase 2,Medium,Yes,Phat duoc video nhac khi online co fallback khi offline
+FEAT-033,Breath,Breathwork Box Breathing,Modal tap tho 4-4-4-4 giup thu gian va phuc hoi tam tri,P1,OBSERVED,Phase 2,Low,Yes,Hieu ung phong to thu nho muot ma 60fps
+FEAT-034,Tasks,Advanced Tasks Reorder,Keo tha sap xep thu tu cong viec va cai dat deadline da the tag,P1,USER_REQUIREMENT,Phase 2,Medium,Yes,Sap xep truc quan muot ma
+FEAT-035,Sounds,Expanded Sound Library,Bo sung song nao Alpha/Delta sam ren lua trai dung luong toi uu,P1,USER_REQUIREMENT,Phase 2,Medium,Yes,Co disclaimer y te ro rang
+FEAT-036,Calendar,Calendar View Widget,Xem lich bieu theo ngay va truc thoi gian 24h,P1,OBSERVED,Phase 2,Medium,Yes,Hien thi timeline va su kien truc quan
+FEAT-037,Calendar,Google Calendar Read-Only,Dong bo su kien tu Google Calendar qua OAuth 2.0 PKCE client-side,P1,USER_REQUIREMENT,Phase 2,High,Yes,Chay client-side khong can backend may chu
+FEAT-038,Timer,Task Countdown Mode,Dem lui theo han chot cong viec cu the,P1,USER_REQUIREMENT,Phase 2,Low,Yes,Dem nguoc den thoi diem deadline
+FEAT-039,Media,Spotify Preview Player,The nhung phat thu 30s bai hat Spotify,P2,OBSERVED,Phase 3,Low,Yes,Hien thi giao dien bai hat va preview
+FEAT-040,Auth,Account and Cloud Sync,Dang nhap Supabase Free tier dong bo 2 chieu co Row Level Security,P2,USER_REQUIREMENT,Phase 3,High,Yes,Goi mien phi Supabase khong phat sinh chi phi
+FEAT-041,Calendar,2-Way Calendar Sync,Tao va sua su kien dong bo nguoc lai Google Calendar,P2,USER_REQUIREMENT,Phase 3,High,Yes,Can cap them quyen write OAuth
+FEAT-042,Rooms,Virtual Co-working Room,Phong hoc chung dong bo trang thai focus cua nhom qua WebSocket,Deferred,USER_REQUIREMENT,Deferred,High,No,Can may chu WebSocket realtime
+FEAT-043,Rooms,Voice Chat and Microphone,Dam thoai thoi gian thuc qua WebRTC STUN/TURN,Deferred,USER_REQUIREMENT,Deferred,Very High,No,Rui ro chi phi bang thong may chu TURN
+FEAT-044,Media,Apple MusicKit Integration,Tich hop trinh phat Apple Music qua token nha phat trien,Deferred,USER_REQUIREMENT,Deferred,High,No,Doi hoi phi duy tri Apple Developer 99 USD/nam
