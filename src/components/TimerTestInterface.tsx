@@ -9,7 +9,13 @@ function formatTime(ms: number): string {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-export const TimerTestInterface: React.FC = () => {
+interface TimerTestInterfaceProps {
+  isEmbeddedInZen?: boolean;
+}
+
+export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
+  isEmbeddedInZen = false
+}) => {
   const {
     phase,
     status,
@@ -26,48 +32,12 @@ export const TimerTestInterface: React.FC = () => {
     setLinkedTask,
     updateSettings,
     requestNotificationPermission,
-    init,
-    destroy
+    init
   } = useTimerStore();
 
   useEffect(() => {
     init();
-    return () => {
-      destroy();
-    };
-  }, [init, destroy]);
-
-  // Xử lý phím tắt bàn phím
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Bỏ qua khi đang focus vào ô input hoặc textarea
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      if (e.code === 'Space') {
-        e.preventDefault();
-        if (status === 'idle') {
-          start();
-        } else if (status === 'running') {
-          pause();
-        } else if (status === 'paused') {
-          resume();
-        }
-      } else if (e.key === 'r' || e.key === 'R') {
-        e.preventDefault();
-        reset();
-      } else if (e.key === 's' || e.key === 'S') {
-        e.preventDefault();
-        skip();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [status, start, pause, resume, reset, skip]);
+  }, [init]);
 
   const getPhaseStyles = (p: TimerPhase) => {
     switch (p) {
@@ -95,7 +65,7 @@ export const TimerTestInterface: React.FC = () => {
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center justify-center">
+    <div className={`flex w-full max-w-md flex-col items-center justify-center ${isEmbeddedInZen ? 'scale-105 transition-transform' : ''}`}>
       <div className="w-full rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
         {/* Header Indicators */}
         <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
