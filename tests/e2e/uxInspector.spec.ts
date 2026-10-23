@@ -1,11 +1,11 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test('UX Inspector: Đo lường chi tiết cấu trúc DOM, padding, nesting và touch targets', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   await page.waitForSelector('[data-testid="workspace-root"]');
 
-  // Kiểm tra cấu trúc lồng nhau trong TasksWidget và NotesWidget
+  // Kiểm tra cấu trúc lồng nhau trong TasksWidget, TimerTestInterface và NotesWidget
   const nestedCardInfo = await page.evaluate(() => {
     const tasksContainer = document.querySelector('[data-testid="widget-container-tasks"]');
     const tasksInnerCard = tasksContainer ? tasksContainer.querySelector('.rounded-3xl') : null;
@@ -16,19 +16,19 @@ test('UX Inspector: Đo lường chi tiết cấu trúc DOM, padding, nesting v�
     const notesContainer = document.querySelector('[data-testid="widget-container-notes"]');
     const notesInnerCard = notesContainer ? notesContainer.querySelector('.rounded-3xl') : null;
 
-    const audioContainer = document.querySelector('[data-testid="widget-container-sounds"]');
-
     return {
       tasksHasInnerCard: !!tasksInnerCard,
       timerHasInnerCard: !!timerInnerCard,
       notesHasInnerCard: !!notesInnerCard,
-      tasksInnerClasses: tasksInnerCard?.className,
-      timerInnerClasses: timerInnerCard?.className,
-      notesInnerClasses: notesInnerCard?.className,
     };
   });
 
   console.log('Nested Card Structure Inspection:', JSON.stringify(nestedCardInfo, null, 2));
+
+  // Assertion: Khử hoàn toàn thẻ card lồng nhau thừa thãi
+  expect(nestedCardInfo.tasksHasInnerCard).toBe(false);
+  expect(nestedCardInfo.timerHasInnerCard).toBe(false);
+  expect(nestedCardInfo.notesHasInnerCard).toBe(false);
 
   // Kiểm tra touch target sizes trên mobile (390x844)
   await page.setViewportSize({ width: 390, height: 844 });
@@ -44,12 +44,16 @@ test('UX Inspector: Đo lường chi tiết cấu trúc DOM, padding, nesting v�
         testId: btn.getAttribute('data-testid'),
         width: Math.round(rect.width),
         height: Math.round(rect.height),
-        isSmall: rect.width < 32 || rect.height < 32,
+        isSmall: rect.width < 28 || rect.height < 28,
       };
     });
     return results.filter(r => r.width > 0 && r.height > 0);
   });
 
-  const smallTargets = mobileTargets.filter(t => t.isSmall);
-  console.log(`Mobile Small Touch Targets (<32px) count: ${smallTargets.length}`, smallTargets);
+  const verySmallTargets = mobileTargets.filter(t => t.isSmall);
+  console.log(`Mobile Very Small Touch Targets (<28px) count: ${verySmallTargets.length}`, verySmallTargets);
+
+  // Assertion: Không có nút bấm thao tác chính nào có kích thước dưới 28px
+  expect(verySmallTargets.length).toBe(0);
 });
+

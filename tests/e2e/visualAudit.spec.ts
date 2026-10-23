@@ -30,6 +30,14 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     expect(timerBox).not.toBeNull();
     expect(tasksBox).not.toBeNull();
     expect(dockBox).not.toBeNull();
+
+    // Assertion: Vị trí Timer nằm bên trái Tasks, không chồng lấn
+    expect(timerBox!.x + timerBox!.width).toBeLessThanOrEqual(tasksBox!.x + 10);
+    // Assertion: DockBar nằm ở phía dưới màn hình
+    expect(dockBox!.y).toBeGreaterThan(600);
+    // Assertion: Không bị tràn ngang màn hình
+    const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= 1440);
+    expect(noOverflow).toBe(true);
   });
 
   test('2. Chụp Desktop: Mở Notes, Sounds, Spaces Widgets', async ({ page }) => {
@@ -39,7 +47,12 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     await page.waitForTimeout(500);
 
     // Notes đã mở sẵn theo mặc định
-    await page.waitForSelector('[data-testid="widget-container-notes"]');
+    const notes = page.locator('[data-testid="widget-container-notes"]');
+    await expect(notes).toBeVisible();
+    const notesBox = await notes.boundingBox();
+    expect(notesBox).not.toBeNull();
+    expect(notesBox!.width).toBeGreaterThanOrEqual(340);
+
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-02-notes-open.png'),
       fullPage: true,
@@ -47,8 +60,11 @@ test.describe('Visual UX Audit & Responsive Review', () => {
 
     // Mở Sounds
     await page.click('[data-testid="dock-btn-sounds"]');
-    await page.waitForSelector('[data-testid="widget-container-sounds"]');
-    await page.waitForTimeout(300);
+    const sounds = page.locator('[data-testid="widget-container-sounds"]');
+    await expect(sounds).toBeVisible();
+    const soundsBox = await sounds.boundingBox();
+    expect(soundsBox).not.toBeNull();
+
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-03-sounds-open.png'),
       fullPage: true,
@@ -56,8 +72,14 @@ test.describe('Visual UX Audit & Responsive Review', () => {
 
     // Mở Spaces
     await page.click('[data-testid="dock-btn-spaces"]');
-    await page.waitForSelector('[data-testid="widget-container-spaces"]');
-    await page.waitForTimeout(300);
+    const spaces = page.locator('[data-testid="widget-container-spaces"]');
+    await expect(spaces).toBeVisible();
+    const spacesBox = await spaces.boundingBox();
+    expect(spacesBox).not.toBeNull();
+
+    // Assertion: Hiệu ứng cascade giúp các cửa sổ so le nhau
+    expect(spacesBox!.x).not.toBe(soundsBox!.x);
+
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-04-spaces-open.png'),
       fullPage: true,
@@ -76,6 +98,10 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     if (await ambientTabBtn.isVisible()) {
       await ambientTabBtn.click();
       await page.waitForTimeout(200);
+
+      // Assertion: Danh sách các track âm thanh môi trường phải xuất hiện
+      await expect(page.locator('[data-testid="track-item-rain"]')).toBeVisible();
+
       await page.screenshot({
         path: path.join(screenshotDir, 'desktop-05-sounds-ambient-tab.png'),
         fullPage: true,
@@ -84,8 +110,17 @@ test.describe('Visual UX Audit & Responsive Review', () => {
 
     // Bật Zen Mode
     await page.keyboard.press('KeyZ');
-    await page.waitForSelector('[data-testid="zen-mode-overlay"]');
-    await page.waitForTimeout(300);
+    const zenOverlay = page.locator('[data-testid="zen-mode-overlay"]');
+    await expect(zenOverlay).toBeVisible();
+
+    // Assertion: Zen Overlay chiếm trọn màn hình 1440x900
+    const zenBox = await zenOverlay.boundingBox();
+    expect(zenBox!.width).toBe(1440);
+    expect(zenBox!.height).toBe(900);
+
+    // Assertion: Nút thoát Zen Mode có mặt và có thể bấm
+    await expect(page.locator('[data-testid="exit-zen-btn"]')).toBeVisible();
+
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-06-zen-mode.png'),
       fullPage: true,
@@ -98,6 +133,10 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     await page.waitForSelector('[data-testid="workspace-root"]');
     await page.waitForTimeout(500);
 
+    // Assertion: Không bị vỡ ngang
+    const noHScroll = await page.evaluate(() => document.documentElement.scrollWidth <= 390);
+    expect(noHScroll).toBe(true);
+
     await page.screenshot({
       path: path.join(screenshotDir, 'mobile-01-default-stack.png'),
       fullPage: true,
@@ -108,6 +147,9 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     await page.click('[data-testid="dock-btn-sounds"]');
     await page.waitForTimeout(400);
 
+    // Assertion: Cả hai widget đều render trong luồng mobile stack
+    await expect(page.locator('[data-testid="widget-container-sounds"]')).toBeVisible();
+
     await page.screenshot({
       path: path.join(screenshotDir, 'mobile-02-scrolled-widgets.png'),
       fullPage: true,
@@ -115,8 +157,12 @@ test.describe('Visual UX Audit & Responsive Review', () => {
 
     // Mobile Zen Mode
     await page.click('[data-testid="dock-btn-zen"]');
-    await page.waitForSelector('[data-testid="zen-mode-overlay"]');
-    await page.waitForTimeout(300);
+    const zenOverlay = page.locator('[data-testid="zen-mode-overlay"]');
+    await expect(zenOverlay).toBeVisible();
+
+    // Assertion: Zen Mode trên mobile vừa khít chiều rộng màn hình 390px
+    const mZenBox = await zenOverlay.boundingBox();
+    expect(mZenBox!.width).toBe(390);
 
     await page.screenshot({
       path: path.join(screenshotDir, 'mobile-03-zen-mode.png'),
