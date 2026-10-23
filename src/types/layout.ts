@@ -1,4 +1,4 @@
-export type WidgetId = 'timer' | 'tasks' | 'notes' | 'calendar' | 'spaces';
+export type WidgetId = 'timer' | 'tasks' | 'notes' | 'calendar' | 'spaces' | 'sounds';
 
 export interface WidgetState {
   id: WidgetId;

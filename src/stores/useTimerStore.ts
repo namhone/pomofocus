@@ -4,6 +4,7 @@ import { NotificationService } from '../services/notificationService';
 import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
 import { DEFAULT_SETTINGS, TimerEngine } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
+import { useAudioStore } from './useAudioStore';
 
 interface TimerStoreState {
   phase: TimerPhase;
@@ -165,6 +166,10 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
             const taskInfo = record.taskTitle ? ` cho việc "${record.taskTitle}"` : '';
             NotificationService.notify(`🎉 ${phaseName}${taskInfo} đã hoàn thành!`, {
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
+            });
+            // Chuông báo kết thúc hiệp (chỉ duy nhất tab ghi nhận thành công mới phát chuông)
+            useAudioStore.getState().playChime().catch((err) => {
+              console.warn('Lỗi phát chuông báo kết thúc hiệp:', err);
             });
           }
 

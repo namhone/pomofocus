@@ -68,6 +68,19 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     minHeight: 450,
     resizable: true,
     zIndex: 13
+  },
+  sounds: {
+    id: 'sounds',
+    title: 'Bảng Âm Thanh & Chuông',
+    isOpen: false,
+    x: 428,
+    y: 70,
+    width: 440,
+    height: 600,
+    minWidth: 360,
+    minHeight: 460,
+    resizable: true,
+    zIndex: 14
   }
 };
 

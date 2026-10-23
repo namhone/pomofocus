@@ -1,9 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { TimerTestInterface } from './components/TimerTestInterface';
 import { TasksWidget } from './components/TasksWidget';
-import { NotesWidget } from './components/NotesWidget';
-import { CalendarWidget } from './components/CalendarWidget';
-import { SpacesWidget } from './components/SpacesWidget';
 import { WidgetContainer } from './components/WidgetContainer';
 import { BackgroundCanvas } from './components/BackgroundCanvas';
 import { DockBar } from './components/DockBar';
@@ -11,6 +8,20 @@ import { ZenOverlay } from './components/ZenOverlay';
 import { useLayoutStore } from './stores/useLayoutStore';
 import { useTimerStore } from './stores/useTimerStore';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
+
+// Lazy-load secondary / heavy floating widgets to reduce initial bundle
+const NotesWidget = lazy(() =>
+  import('./components/NotesWidget').then((m) => ({ default: m.NotesWidget }))
+);
+const CalendarWidget = lazy(() =>
+  import('./components/CalendarWidget').then((m) => ({ default: m.CalendarWidget }))
+);
+const SpacesWidget = lazy(() =>
+  import('./components/SpacesWidget').then((m) => ({ default: m.SpacesWidget }))
+);
+const AudioWidget = lazy(() =>
+  import('./components/AudioWidget').then((m) => ({ default: m.AudioWidget }))
+);
 
 export const App: React.FC = () => {
   const { isZenMode, isMobile, setIsMobile, clampWidgetsToViewport } =
@@ -68,15 +79,27 @@ export const App: React.FC = () => {
               </WidgetContainer>
 
               <WidgetContainer id="notes">
-                <NotesWidget />
+                <Suspense fallback={null}>
+                  <NotesWidget />
+                </Suspense>
               </WidgetContainer>
 
               <WidgetContainer id="calendar">
-                <CalendarWidget />
+                <Suspense fallback={null}>
+                  <CalendarWidget />
+                </Suspense>
               </WidgetContainer>
 
               <WidgetContainer id="spaces">
-                <SpacesWidget />
+                <Suspense fallback={null}>
+                  <SpacesWidget />
+                </Suspense>
+              </WidgetContainer>
+
+              <WidgetContainer id="sounds">
+                <Suspense fallback={null}>
+                  <AudioWidget />
+                </Suspense>
               </WidgetContainer>
             </main>
           ) : (
@@ -90,15 +113,27 @@ export const App: React.FC = () => {
               </WidgetContainer>
 
               <WidgetContainer id="notes">
-                <NotesWidget />
+                <Suspense fallback={null}>
+                  <NotesWidget />
+                </Suspense>
               </WidgetContainer>
 
               <WidgetContainer id="calendar">
-                <CalendarWidget />
+                <Suspense fallback={null}>
+                  <CalendarWidget />
+                </Suspense>
               </WidgetContainer>
 
               <WidgetContainer id="spaces">
-                <SpacesWidget />
+                <Suspense fallback={null}>
+                  <SpacesWidget />
+                </Suspense>
+              </WidgetContainer>
+
+              <WidgetContainer id="sounds">
+                <Suspense fallback={null}>
+                  <AudioWidget />
+                </Suspense>
               </WidgetContainer>
             </main>
           )}
