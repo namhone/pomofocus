@@ -69,13 +69,36 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       coordinatorInstance = new TabCoordinator();
       coordinatorInstance.setOnLeaderChange((isLeader) => {
         set({ isLeader });
+        if (isLeader && engineInstance) {
+          // Tab vừa được thăng cấp lên Leader: Đồng bộ lại trạng thái từ storage
+          // để tiếp tục vận hành Authoritative State
+          engineInstance.restoreFromStorage();
+          const snapshot = engineInstance.getSnapshot();
+          snapshot.fromLeader = true;
+          lastSyncTimestamp = snapshot.timestamp;
+          set({
+            phase: snapshot.phase,
+            status: snapshot.status,
+            currentRound: snapshot.currentRound,
+            remainingMs: snapshot.remainingMs
+          });
+          updateDocumentTitle(snapshot.remainingMs, snapshot.phase, snapshot.status);
+        }
       });
 
       coordinatorInstance.setOnMessage((msg) => {
         if (msg.type === 'SYNC_STATE' || msg.type === 'TRIGGER_ACTION') {
           const payload = msg.payload;
-          // Ngăn ngừa Out-of-Order messages: Chỉ nhận snapshot có timestamp mới hơn hoặc bằng
-          if (payload && payload.timestamp >= lastSyncTimestamp) {
+          if (!payload) return;
+
+          // Conflict Resolution:
+          // 1. Nếu payload mới hơn (timestamp > lastSyncTimestamp) -> Chấp nhận.
+          // 2. Nếu timestamp bằng nhau (Date.now collision) -> Ưu tiên snapshot từ Leader (fromLeader = true).
+          // 3. Nếu timestamp cũ hơn -> Bỏ qua (Stale message).
+          const isNewer = payload.timestamp > lastSyncTimestamp;
+          const isTieBreakerWon = payload.timestamp === lastSyncTimestamp && Boolean(payload.fromLeader);
+
+          if (isNewer || isTieBreakerWon) {
             lastSyncTimestamp = payload.timestamp;
             if (engineInstance) {
               engineInstance.syncFromSnapshot(payload);
@@ -91,9 +114,11 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         } else if (msg.type === 'REQUEST_CURRENT_STATE') {
           // Tab khác mới mở yêu cầu Leader cung cấp state hiện tại
           if (coordinatorInstance && coordinatorInstance.isLeader && engineInstance) {
+            const snapshot = engineInstance.getSnapshot();
+            snapshot.fromLeader = true;
             coordinatorInstance.broadcast({
               type: 'SYNC_STATE',
-              payload: engineInstance.getSnapshot()
+              payload: snapshot
             });
           }
         }
@@ -130,6 +155,14 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
             });
           }
+
+          // Tab Leader đồng bộ trạng thái hiệp kế tiếp tới các tab khác
+          if (get().isLeader && coordinatorInstance && engineInstance) {
+            const snapshot = engineInstance.getSnapshot();
+            snapshot.fromLeader = true;
+            lastSyncTimestamp = snapshot.timestamp;
+            coordinatorInstance.broadcast({ type: 'SYNC_STATE', payload: snapshot });
+          }
         }
       });
 
@@ -160,6 +193,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.start();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
 
       set({
@@ -180,6 +214,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.pause();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
 
       set({
@@ -200,6 +235,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.resume();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
 
       set({
@@ -220,6 +256,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.reset();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
 
       set({
@@ -240,6 +277,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.skip();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
 
       set({

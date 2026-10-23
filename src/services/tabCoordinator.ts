@@ -10,6 +10,7 @@ export interface TimerSyncPayload {
   targetEndTimeMs: number | null;
   pausedRemainingMs: number | null;
   timestamp: number;
+  fromLeader?: boolean;
 }
 
 export type TabMessage =
@@ -112,6 +113,7 @@ export class TabCoordinator {
       this.lockAbortController = null;
     }
     if (this.channel) {
+      this.channel.onmessage = null;
       this.channel.close();
       this.channel = null;
     }
