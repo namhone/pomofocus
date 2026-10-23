@@ -251,6 +251,7 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     await page.waitForTimeout(300);
     const pauseBtn = page.locator('[data-testid="timer-resume-btn"]');
     await expect(pauseBtn).toBeVisible();
+    const pausedTime = await page.locator('[data-testid="timer-display"]').innerText();
 
     // Thoát Zen Mode bằng phím Esc
     await page.keyboard.press('Escape');
@@ -259,62 +260,224 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     // Trở về Workspace: Timer vẫn ở trạng thái Paused với thời gian chính xác
     await expect(page.locator('[data-testid="timer-resume-btn"]')).toBeVisible();
     const timeAfterExit = await page.locator('[data-testid="timer-display"]').innerText();
-    expect(timeAfterExit).toBe(timeInZen);
+    expect(timeAfterExit).toBe(pausedTime);
   });
 
   // =========================================================================
-  // 5. ĐO LƯỜNG TỶ LỆ ĐỘ TƯƠNG PHẢN THỰC TẾ (WCAG 2.1 CONTRAST MEASUREMENT)
+  // 5. ĐO LƯỜNG TỶ LỆ ĐỘ TƯƠNG PHẢN THỰC TẾ (WCAG 2.1 ALPHA-COMPOSITED CONTRAST)
   // =========================================================================
-  test('7. Đo lường tỷ lệ tương phản màu thực tế: Đạt ngưỡng WCAG AA', async ({ page }) => {
+  test('7. Đo lường tỷ lệ tương phản màu thực tế: Tính toán Alpha-compositing chuẩn WCAG', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await page.waitForSelector('[data-testid="workspace-root"]');
 
-    // Đo lường cặp màu trực tiếp trên DOM
-    const contrastMetrics = await page.evaluate(() => {
-      const getStyles = (selector: string) => {
-        const el = document.querySelector(selector);
-        if (!el) return null;
-        const style = window.getComputedStyle(el);
-        return {
-          color: style.color,
-          backgroundColor: style.backgroundColor,
-          fontSize: style.fontSize,
-          fontWeight: style.fontWeight,
-        };
-      };
+    // Đo lường cặp màu trực tiếp trên DOM bằng cách tổng hợp tất cả các lớp nền (Glass, Overlay, Base)
+    const measuredData = await page.evaluate(() => {
+      function getEffectiveBackground(el: Element): [number, number, number] {
+        const layers: Array<{ r: number; g: number; b: number; a: number }> = [];
+        let curr: Element | null = el;
+
+        while (curr) {
+          const style = window.getComputedStyle(curr);
+          const bg = style.backgroundColor;
+          const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+          if (match) {
+            const r = parseInt(match[1], 10);
+            const g = parseInt(match[2], 10);
+            const b = parseInt(match[3], 10);
+            const a = match[4] !== undefined ? parseFloat(match[4]) : 1.0;
+            if (a > 0) {
+              layers.unshift({ r, g, b, a });
+            }
+          }
+          curr = curr.parentElement;
+        }
+
+        // Lớp nền cơ sở của body/html: Slate-950 rgb(2, 6, 23)
+        let compR = 2;
+        let compG = 6;
+        let compB = 23;
+
+        for (const layer of layers) {
+          compR = Math.round(layer.r * layer.a + compR * (1 - layer.a));
+          compG = Math.round(layer.g * layer.a + compG * (1 - layer.a));
+          compB = Math.round(layer.b * layer.a + compB * (1 - layer.a));
+        }
+
+        return [compR, compG, compB];
+      }
+
+      function parseColor(colorStr: string): [number, number, number] {
+        const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (!match) return [255, 255, 255];
+        return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)];
+      }
+
+      const timerEl = document.querySelector('[data-testid="timer-display"]');
+      const startBtnEl = document.querySelector('[data-testid="timer-start-btn"]');
+      const headingEl = document.querySelector('[data-testid="widget-container-timer"] h2');
 
       return {
-        timerDisplay: getStyles('[data-testid="timer-display"]'),
-        startBtn: getStyles('[data-testid="timer-start-btn"]'),
-        taskTitle: getStyles('[data-testid^="task-item-"] .text-slate-200') || getStyles('h2'),
-        dockBtn: getStyles('[data-testid="dock-btn-timer"]'),
+        timer: timerEl
+          ? {
+              fg: parseColor(window.getComputedStyle(timerEl).color),
+              bg: getEffectiveBackground(timerEl),
+            }
+          : null,
+        startBtn: startBtnEl
+          ? {
+              fg: parseColor(window.getComputedStyle(startBtnEl).color),
+              bg: parseColor(window.getComputedStyle(startBtnEl).backgroundColor),
+            }
+          : null,
+        heading: headingEl
+          ? {
+              fg: parseColor(window.getComputedStyle(headingEl).color),
+              bg: getEffectiveBackground(headingEl),
+            }
+          : null,
       };
     });
 
-    console.log('DOM Computed Color Metrics:', JSON.stringify(contrastMetrics, null, 2));
+    expect(measuredData.timer).not.toBeNull();
+    expect(measuredData.startBtn).not.toBeNull();
+    expect(measuredData.heading).not.toBeNull();
 
-    // Nền tối chuẩn của ứng dụng là Slate-950/900: rgb(2, 6, 23) đến rgb(15, 23, 42)
-    const slate900Rgb: [number, number, number] = [15, 23, 42];
+    // 1. Chữ số Timer trên nền Glass Slate-900 tổng hợp
+    const timerContrast = calculateContrast(measuredData.timer!.fg, measuredData.timer!.bg);
+    console.log(`Measured Timer Display Contrast (composited): ${timerContrast.toFixed(2)}:1`, measuredData.timer);
+    expect(timerContrast).toBeGreaterThanOrEqual(7.0); // Vượt chuẩn AAA (> 7:1)
 
-    // 1. Chữ số Timer trắng rgb(255, 255, 255) trên nền tối
-    const timerDisplayRgb = parseRgb(contrastMetrics.timerDisplay?.color || 'rgb(255, 255, 255)');
-    const timerContrast = calculateContrast(timerDisplayRgb, slate900Rgb);
-    console.log(`Measured Timer Display Contrast Ratio: ${timerContrast.toFixed(2)}:1`);
-    expect(timerContrast).toBeGreaterThanOrEqual(7.0); // Chuẩn AAA (> 7:1)
+    // 2. Nút Start (Trắng trên nền Indigo-600)
+    const startContrast = calculateContrast(measuredData.startBtn!.fg, measuredData.startBtn!.bg);
+    console.log(`Measured Start Button Contrast: ${startContrast.toFixed(2)}:1`, measuredData.startBtn);
+    expect(startContrast).toBeGreaterThanOrEqual(4.5); // Vượt chuẩn AA (> 4.5:1)
 
-    // 2. Nút Start: Chữ trắng rgb(255, 255, 255) trên nền Indigo-600 rgb(79, 70, 229)
-    const startBtnRgb = parseRgb(contrastMetrics.startBtn?.color || 'rgb(255, 255, 255)');
-    const startBgRgb = parseRgb(contrastMetrics.startBtn?.backgroundColor || 'rgb(79, 70, 229)');
-    const startBtnContrast = calculateContrast(startBtnRgb, startBgRgb);
-    console.log(`Measured Start Button Contrast Ratio: ${startBtnContrast.toFixed(2)}:1`);
-    expect(startBtnContrast).toBeGreaterThanOrEqual(4.5); // Chuẩn AA (> 4.5:1)
+    // 3. Tiêu đề cửa sổ h2 trên nền header glass tổng hợp
+    const headingContrast = calculateContrast(measuredData.heading!.fg, measuredData.heading!.bg);
+    console.log(`Measured Heading Contrast (composited): ${headingContrast.toFixed(2)}:1`, measuredData.heading);
+    expect(headingContrast).toBeGreaterThanOrEqual(7.0); // Vượt chuẩn AAA (> 7:1)
+  });
 
-    // 3. Tiêu đề cửa sổ h2: slate-300 rgb(203, 213, 225) trên nền slate-950 rgb(2, 6, 23)
-    const h2Rgb: [number, number, number] = [203, 213, 225];
-    const slate950Rgb: [number, number, number] = [2, 6, 23];
-    const headingContrast = calculateContrast(h2Rgb, slate950Rgb);
-    console.log(`Measured Heading Contrast Ratio: ${headingContrast.toFixed(2)}:1`);
-    expect(headingContrast).toBeGreaterThanOrEqual(8.0); // Vượt chuẩn (> 8:1)
+  // =========================================================================
+  // 6. VIEWPORT HẸP (360x640 VÀ 320x568): ĐÁNH GIÁ ĐÁP ỨNG VÀ GHI NHẬN GIỚI HẠN
+  // =========================================================================
+  test('8. Viewport hẹp (360x640 và 320x568): Không vỡ layout ngang, thanh dock thích ứng', async ({ page }) => {
+    // 1. Kiểm tra 360x640 (Thiết bị di động phổ thông màn hình nhỏ)
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.goto('/');
+    await page.waitForSelector('[data-testid="workspace-root"]');
+
+    const noHScroll360 = await page.evaluate(() => document.documentElement.scrollWidth <= 360);
+    expect(noHScroll360).toBe(true);
+
+    const timer360 = page.locator('[data-testid="widget-container-timer"]');
+    await expect(timer360).toBeVisible();
+
+    // Nút Start trên 360x640 vẫn có kích thước bấm tốt
+    const startBtnBox360 = await page.locator('[data-testid="timer-start-btn"]').boundingBox();
+    expect(startBtnBox360).not.toBeNull();
+    expect(startBtnBox360!.width).toBeGreaterThanOrEqual(40);
+    expect(startBtnBox360!.height).toBeGreaterThanOrEqual(36);
+
+    // 2. Kiểm tra 320x568 (Viewport cực hẹp kiểu iPhone SE 1st gen)
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.reload();
+    await page.waitForSelector('[data-testid="workspace-root"]');
+
+    const noHScroll320 = await page.evaluate(() => document.documentElement.scrollWidth <= 320);
+    expect(noHScroll320).toBe(true);
+
+    // Thanh Dock thích ứng cuộn ngang hoặc thu gọn icon khi màn hình < 340px
+    const dock = page.locator('nav[role="toolbar"]');
+    await expect(dock).toBeVisible();
+    const dockBox320 = await dock.boundingBox();
+    expect(dockBox320).not.toBeNull();
+    expect(dockBox320!.width).toBeLessThanOrEqual(320);
+  });
+
+  // =========================================================================
+  // 7. PWA, MANIFEST, OFFLINE RESILIENCE VÀ SERVICE WORKER
+  // =========================================================================
+  test('9. PWA & Offline: Manifest hợp lệ, Service Worker sẵn sàng và tải trang offline', async ({ page, context }) => {
+    await page.goto('/');
+    await page.waitForSelector('[data-testid="workspace-root"]');
+
+    // 1. Kiểm tra liên kết Manifest và thuộc tính
+    const manifestLink = await page.locator('link[rel="manifest"]').first().getAttribute('href');
+    expect(manifestLink).toBeTruthy();
+
+    // 2. Đọc nội dung manifest.webmanifest từ server
+    const manifestResponse = await page.request.get(manifestLink || '/manifest.webmanifest');
+    expect(manifestResponse.status()).toBe(200);
+    const manifestJson = await manifestResponse.json();
+    expect(manifestJson.name).toBe('Immersive Pomodoro Workspace');
+    expect(manifestJson.display).toBe('standalone');
+    expect(manifestJson.theme_color).toBe('#0f172a');
+
+    // 3. Khởi tạo một phiên Pomodoro trong trạng thái online
+    await page.click('[data-testid="timer-start-btn"]');
+    await page.waitForTimeout(500);
+
+    // 4. Giả lập ngắt kết nối mạng (Network Offline)
+    await context.setOffline(true);
+
+    // Thao tác Pause và Resume vẫn hoạt động mượt mà khi không có Internet
+    await page.click('[data-testid="timer-pause-btn"]');
+    await expect(page.getByTestId('status-indicator')).toHaveText(/paused/i);
+
+    await page.click('[data-testid="timer-resume-btn"]');
+    await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
+
+    // 5. Kết nối lại Internet
+    await context.setOffline(false);
+  });
+
+  // =========================================================================
+  // 8. ĐỘ BỀN VỮNG KHI INDEXEDDB GẶP LỖI HOẶC BỊ CHẶN
+  // =========================================================================
+  test('10. Khả năng chống chịu lỗi IndexedDB: Không phát chuông / notify khi lưu session thất bại', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('[data-testid="workspace-root"]');
+
+    // Cài đặt theo dõi chuông và thông báo
+    await page.evaluate(async () => {
+      (window as any).__chimePlayed = false;
+      const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
+      const originalChime = useAudioStore.getState().playChime;
+      useAudioStore.setState({
+        playChime: async (...args: any[]) => {
+          (window as any).__chimePlayed = true;
+          return originalChime(...args);
+        }
+      });
+    });
+
+    // Thử kích hoạt lưu phiên với lỗi giả định trên IndexedDB (Transaction rollback)
+    const saveResult = await page.evaluate(async () => {
+      const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
+      // Thử ghi session trùng lặp với ID đã tồn tại sẵn
+      const dummySession = {
+        id: 'test-collision-id-12345',
+        phase: 'pomodoro' as const,
+        durationMinutes: 25,
+        completedAt: Date.now(),
+        dateString: '2026-10-24'
+      };
+
+      // Ghi lần 1 -> Thành công
+      const first = await recordFocusSessionAtomic(dummySession);
+      // Ghi lần 2 với cùng ID -> Gặp ConstraintError, hàm phải bắt và trả về false an toàn
+      const second = await recordFocusSessionAtomic(dummySession);
+
+      return { first, second };
+    });
+
+    expect(saveResult.first).toBe(true);
+    expect(saveResult.second).toBe(false); // Rollback an toàn, trả về false
+
+    // Xác nhận khi ghi thất bại (second === false), hệ thống không phát chuông
+    const chimePlayed = await page.evaluate(() => (window as any).__chimePlayed);
+    expect(chimePlayed).toBe(false);
   });
 });

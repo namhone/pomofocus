@@ -78,7 +78,16 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     expect(spacesBox).not.toBeNull();
 
     // Assertion: Hiệu ứng cascade giúp các cửa sổ so le nhau
+    const tasks = page.locator('[data-testid="widget-container-tasks"]');
+    const tasksBox = await tasks.boundingBox();
+    expect(tasksBox).not.toBeNull();
+
+    // Khẳng định từng cặp vị trí khác nhau rõ ràng, không dùng so sánh dây chuyền
+    expect(soundsBox!.x).not.toBe(tasksBox!.x);
     expect(spacesBox!.x).not.toBe(soundsBox!.x);
+    expect(spacesBox!.x).not.toBe(tasksBox!.x);
+    expect(soundsBox!.x).toBeGreaterThan(tasksBox!.x);
+    expect(spacesBox!.x).toBeGreaterThan(soundsBox!.x);
 
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-04-spaces-open.png'),
@@ -118,8 +127,15 @@ test.describe('Visual UX Audit & Responsive Review', () => {
     expect(zenBox!.width).toBe(1440);
     expect(zenBox!.height).toBe(900);
 
-    // Assertion: Nút thoát Zen Mode có mặt và có thể bấm
-    await expect(page.locator('[data-testid="exit-zen-btn"]')).toBeVisible();
+    // Assertion: Nút thoát Zen Mode có mặt và có thể bấm thao tác thực tế
+    const exitZenBtn = page.locator('[data-testid="exit-zen-btn"]');
+    await expect(exitZenBtn).toBeVisible();
+    await exitZenBtn.click();
+    await expect(zenOverlay).not.toBeVisible();
+
+    // Bật lại Zen Mode bằng phím tắt KeyZ để chụp ảnh
+    await page.keyboard.press('KeyZ');
+    await expect(zenOverlay).toBeVisible();
 
     await page.screenshot({
       path: path.join(screenshotDir, 'desktop-06-zen-mode.png'),
@@ -142,13 +158,24 @@ test.describe('Visual UX Audit & Responsive Review', () => {
       fullPage: true,
     });
 
-    // Mở Notes & Sounds trên mobile
-    await page.click('[data-testid="dock-btn-notes"]');
+    // Trên mobile, Notes đã mở sẵn theo mặc định
+    await expect(page.locator('[data-testid="widget-container-notes"]')).toBeVisible();
+
+    // Mở thêm widget Sounds từ dockbar
     await page.click('[data-testid="dock-btn-sounds"]');
     await page.waitForTimeout(400);
 
-    // Assertion: Cả hai widget đều render trong luồng mobile stack
-    await expect(page.locator('[data-testid="widget-container-sounds"]')).toBeVisible();
+    // Assertion: Widget Sounds render trong luồng mobile stack và có thể thao tác
+    const soundsWidget = page.locator('[data-testid="widget-container-sounds"]');
+    await expect(soundsWidget).toBeVisible();
+
+    // Thao tác thực tế trên mobile: đóng widget Sounds qua nút close-widget
+    await page.click('[data-testid="close-widget-sounds"]');
+    await expect(soundsWidget).not.toBeVisible();
+
+    // Mở lại Sounds để chụp ảnh và tiếp tục
+    await page.click('[data-testid="dock-btn-sounds"]');
+    await expect(soundsWidget).toBeVisible();
 
     await page.screenshot({
       path: path.join(screenshotDir, 'mobile-02-scrolled-widgets.png'),
