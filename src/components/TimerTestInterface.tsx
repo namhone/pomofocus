@@ -17,12 +17,13 @@ export const TimerTestInterface: React.FC = () => {
     remainingMs,
     settings,
     isLeader,
-    notificationPermission,
+    linkedTaskTitle,
     start,
     pause,
     resume,
     reset,
     skip,
+    setLinkedTask,
     updateSettings,
     requestNotificationPermission,
     init,
@@ -39,7 +40,7 @@ export const TimerTestInterface: React.FC = () => {
   // Xử lý phím tắt bàn phím
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Bỏ qua khi đang focus vào ô input
+      // Bỏ qua khi đang focus vào ô input hoặc textarea
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
@@ -94,10 +95,10 @@ export const TimerTestInterface: React.FC = () => {
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
+    <div className="flex w-full max-w-md flex-col items-center justify-center">
+      <div className="w-full rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
         {/* Header Indicators */}
-        <div className="flex items-center justify-between text-xs text-slate-400 mb-6">
+        <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
           <div className="flex items-center gap-2">
             <span
               data-testid="leader-indicator"
@@ -123,34 +124,62 @@ export const TimerTestInterface: React.FC = () => {
           </span>
         </div>
 
+        {/* Task Đang Liên Kết Banner */}
+        {linkedTaskTitle && (
+          <div
+            data-testid="linked-task-banner"
+            className="mb-4 flex items-center justify-between rounded-2xl bg-indigo-500/15 border border-indigo-500/30 px-3.5 py-2 text-xs text-indigo-300"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <span>🎯</span>
+              <span className="font-semibold truncate">Đang làm: {linkedTaskTitle}</span>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-unlink-timer-task"
+              onClick={() => setLinkedTask(null, null)}
+              className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 transition"
+            >
+              Bỏ gắn
+            </button>
+          </div>
+        )}
+
         {/* Phase Selector Tabs */}
         <div className="flex rounded-xl bg-white/5 p-1 mb-6">
           {(['pomodoro', 'short_break', 'long_break'] as TimerPhase[]).map((p) => {
             const isActive = phase === p;
             const style = getPhaseStyles(p);
+
             return (
               <button
                 key={p}
-                data-testid={`phase-btn-${p}`}
-                disabled={status === 'running'}
+                data-testid={`tab-${p}`}
+                disabled={status !== 'idle'}
                 onClick={() => {
-                  useTimerStore.getState().reset();
-                  // Sẽ reset và đặt phase mới
+                  useTimerStore.setState({
+                    phase: p,
+                    remainingMs:
+                      p === 'pomodoro'
+                        ? settings.pomodoroMinutes * 60 * 1000
+                        : p === 'short_break'
+                        ? settings.shortBreakMinutes * 60 * 1000
+                        : settings.longBreakMinutes * 60 * 1000
+                  });
                 }}
-                className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition-all ${
+                className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition ${
                   isActive ? style.activeTab : 'text-slate-400 hover:text-white'
-                } ${status === 'running' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                {p === 'pomodoro' ? 'Focus' : p === 'short_break' ? 'Short' : 'Long'}
+                {style.label}
               </button>
             );
           })}
         </div>
 
-        {/* Large Timer Display */}
+        {/* Timer Display Display Area */}
         <div
-          data-testid="phase-indicator"
-          className={`rounded-2xl border p-8 text-center transition-all ${currentPhaseStyle.bg}`}
+          className={`flex flex-col items-center justify-center rounded-2xl border p-8 transition-colors ${currentPhaseStyle.bg}`}
         >
           <div
             data-testid="timer-display"
@@ -158,20 +187,20 @@ export const TimerTestInterface: React.FC = () => {
           >
             {formatTime(remainingMs)}
           </div>
-          <div className="mt-2 text-xs font-medium uppercase tracking-widest text-slate-400">
+          <div className="mt-2 text-xs uppercase tracking-widest text-slate-400">
             {currentPhaseStyle.label}
           </div>
         </div>
 
-        {/* Action Controls */}
+        {/* Control Buttons Area */}
         <div className="mt-6 flex items-center justify-center gap-3">
           {status === 'idle' && (
             <button
               data-testid="timer-start-btn"
               onClick={start}
-              className="flex-1 rounded-xl bg-rose-500 py-3 font-semibold text-white shadow-lg shadow-rose-500/25 transition-all hover:bg-rose-600 active:scale-95"
+              className="flex-1 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-500 active:scale-95"
             >
-              Start (Space)
+              Bắt đầu (Space)
             </button>
           )}
 
@@ -179,9 +208,9 @@ export const TimerTestInterface: React.FC = () => {
             <button
               data-testid="timer-pause-btn"
               onClick={pause}
-              className="flex-1 rounded-xl bg-amber-500 py-3 font-semibold text-white shadow-lg shadow-amber-500/25 transition-all hover:bg-amber-600 active:scale-95"
+              className="flex-1 rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white shadow-lg shadow-amber-600/30 transition hover:bg-amber-500 active:scale-95"
             >
-              Pause (Space)
+              Tạm dừng (Space)
             </button>
           )}
 
@@ -189,51 +218,50 @@ export const TimerTestInterface: React.FC = () => {
             <button
               data-testid="timer-resume-btn"
               onClick={resume}
-              className="flex-1 rounded-xl bg-emerald-500 py-3 font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:bg-emerald-600 active:scale-95"
+              className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-95"
             >
-              Resume (Space)
+              Tiếp tục (Space)
             </button>
           )}
 
           <button
             data-testid="timer-reset-btn"
             onClick={reset}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-medium text-slate-300 transition-all hover:bg-white/10 active:scale-95"
-            title="Reset hiệp hiện tại (R)"
+            title="Reset về mặc định (R)"
+            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
           >
-            Reset (R)
+            ↺ Reset
           </button>
 
           <button
             data-testid="timer-skip-btn"
             onClick={skip}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-medium text-slate-300 transition-all hover:bg-white/10 active:scale-95"
-            title="Chuyển sang hiệp tiếp theo (S)"
+            title="Chuyển sang hiệp kế tiếp (S)"
+            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
           >
-            Skip (S)
+            ⏭ Skip
           </button>
         </div>
 
-        {/* Minimal Settings Collapsible */}
-        <div className="mt-8 border-t border-white/10 pt-4 text-xs text-slate-400">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-semibold uppercase tracking-wider text-slate-300">Cấu hình Timer</span>
+        {/* Quick Settings Panel */}
+        <div className="mt-6 border-t border-white/10 pt-4 text-xs text-slate-400 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-slate-300">Cấu hình thời gian (phút):</span>
             <button
+              data-testid="btn-request-notification"
+              type="button"
               onClick={requestNotificationPermission}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium border ${
-                notificationPermission === 'granted'
-                  ? 'border-emerald-500/30 text-emerald-400'
-                  : 'border-slate-600 text-slate-400 hover:text-white'
-              }`}
+              className="text-[11px] text-indigo-400 hover:text-indigo-300 underline"
             >
-              {notificationPermission === 'granted' ? '🔔 Thông báo: Bật' : '🔕 Bật thông báo'}
+              Bật thông báo
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block mb-1 text-[11px]">Focus (phút)</label>
+              <label htmlFor="input-pomodoro-min" className="block mb-1 text-[11px]">Tập trung</label>
               <input
+                id="input-pomodoro-min"
                 data-testid="input-pomodoro-min"
                 type="number"
                 min="1"
@@ -245,8 +273,9 @@ export const TimerTestInterface: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block mb-1 text-[11px]">Nghỉ ngắn</label>
+              <label htmlFor="input-short-min" className="block mb-1 text-[11px]">Nghỉ ngắn</label>
               <input
+                id="input-short-min"
                 data-testid="input-short-min"
                 type="number"
                 min="1"
@@ -258,8 +287,9 @@ export const TimerTestInterface: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block mb-1 text-[11px]">Nghỉ dài</label>
+              <label htmlFor="input-long-min" className="block mb-1 text-[11px]">Nghỉ dài</label>
               <input
+                id="input-long-min"
                 data-testid="input-long-min"
                 type="number"
                 min="1"

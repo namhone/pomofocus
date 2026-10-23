@@ -29,6 +29,10 @@ export class TimerEngine {
   private pausedRemainingMs: number | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
+  // Liên kết task với Pomodoro
+  private linkedTaskId: string | null = null;
+  private linkedTaskTitle: string | null = null;
+
   private settings: TimerSettings;
   private callbacks: TimerCallbacks;
 
@@ -62,6 +66,20 @@ export class TimerEngine {
 
   public getTargetEndTimeMs(): number | null {
     return this.targetEndTimeMs;
+  }
+
+  public getLinkedTaskId(): string | null {
+    return this.linkedTaskId;
+  }
+
+  public getLinkedTaskTitle(): string | null {
+    return this.linkedTaskTitle;
+  }
+
+  public setLinkedTask(taskId: string | null, taskTitle: string | null): void {
+    this.linkedTaskId = taskId;
+    this.linkedTaskTitle = taskTitle;
+    this.persist();
   }
 
   public getSettings(): TimerSettings {
@@ -163,7 +181,9 @@ export class TimerEngine {
       remainingMs: this.remainingMs,
       targetEndTimeMs: this.targetEndTimeMs,
       pausedRemainingMs: this.pausedRemainingMs,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      linkedTaskId: this.linkedTaskId,
+      linkedTaskTitle: this.linkedTaskTitle
     };
   }
 
@@ -175,6 +195,8 @@ export class TimerEngine {
     this.durationMinutes = payload.durationMinutes;
     this.targetEndTimeMs = payload.targetEndTimeMs;
     this.pausedRemainingMs = payload.pausedRemainingMs;
+    this.linkedTaskId = payload.linkedTaskId ?? null;
+    this.linkedTaskTitle = payload.linkedTaskTitle ?? null;
 
     if (this.status === 'running' && this.targetEndTimeMs !== null) {
       const now = Date.now();
@@ -222,6 +244,8 @@ export class TimerEngine {
 
     const record: FocusSessionRecord = {
       id: this.sessionId,
+      taskId: this.linkedTaskId,
+      taskTitle: this.linkedTaskTitle,
       phase: this.phase,
       durationMinutes: this.durationMinutes,
       completedAt: Date.now(),
@@ -321,7 +345,9 @@ export class TimerEngine {
       durationMinutes: this.durationMinutes,
       targetEndTimeMs: this.targetEndTimeMs,
       pausedRemainingMs: this.pausedRemainingMs,
-      lastUpdatedMs: Date.now()
+      lastUpdatedMs: Date.now(),
+      linkedTaskId: this.linkedTaskId,
+      linkedTaskTitle: this.linkedTaskTitle
     };
 
     try {
@@ -343,6 +369,8 @@ export class TimerEngine {
       this.phase = runtime.phase;
       this.currentRound = runtime.currentRound;
       this.durationMinutes = runtime.durationMinutes;
+      this.linkedTaskId = runtime.linkedTaskId ?? null;
+      this.linkedTaskTitle = runtime.linkedTaskTitle ?? null;
 
       if (runtime.status === 'running' && runtime.targetEndTimeMs !== null) {
         const now = Date.now();

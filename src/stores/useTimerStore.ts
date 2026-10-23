@@ -13,6 +13,8 @@ interface TimerStoreState {
   settings: TimerSettings;
   isLeader: boolean;
   notificationPermission: NotificationPermission;
+  linkedTaskId: string | null;
+  linkedTaskTitle: string | null;
 
   // Actions
   start: () => void;
@@ -21,6 +23,7 @@ interface TimerStoreState {
   reset: () => void;
   skip: () => void;
   updateSettings: (newSettings: Partial<TimerSettings>) => void;
+  setLinkedTask: (taskId: string | null, taskTitle: string | null) => void;
   requestNotificationPermission: () => Promise<void>;
   init: () => void;
   destroy: () => void;
@@ -38,13 +41,19 @@ function formatTime(ms: number): string {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function updateDocumentTitle(remainingMs: number, phase: TimerPhase, status: TimerStatus): void {
+function updateDocumentTitle(
+  remainingMs: number,
+  phase: TimerPhase,
+  status: TimerStatus,
+  taskTitle?: string | null
+): void {
   if (typeof document === 'undefined') return;
 
   if (status === 'running') {
     const timeStr = formatTime(remainingMs);
     const label = phase === 'pomodoro' ? 'Focus' : phase === 'short_break' ? 'Short Break' : 'Long Break';
-    document.title = `${timeStr} | ${label} - Pomodoro`;
+    const taskPrefix = taskTitle ? `[${taskTitle}] ` : '';
+    document.title = `${taskPrefix}${timeStr} | ${label} - Pomodoro`;
   } else if (status === 'paused') {
     document.title = `[Tạm dừng] Pomodoro`;
   } else {
@@ -60,6 +69,8 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   isLeader: false,
   notificationPermission: NotificationService.getPermission(),
+  linkedTaskId: null,
+  linkedTaskTitle: null,
 
   init: () => {
     if (typeof window === 'undefined') return;
@@ -71,7 +82,6 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         set({ isLeader });
         if (isLeader && engineInstance) {
           // Tab vừa được thăng cấp lên Leader: Đồng bộ lại trạng thái từ storage
-          // để tiếp tục vận hành Authoritative State
           engineInstance.restoreFromStorage();
           const snapshot = engineInstance.getSnapshot();
           snapshot.fromLeader = true;
@@ -80,9 +90,11 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
             phase: snapshot.phase,
             status: snapshot.status,
             currentRound: snapshot.currentRound,
-            remainingMs: snapshot.remainingMs
+            remainingMs: snapshot.remainingMs,
+            linkedTaskId: snapshot.linkedTaskId ?? null,
+            linkedTaskTitle: snapshot.linkedTaskTitle ?? null
           });
-          updateDocumentTitle(snapshot.remainingMs, snapshot.phase, snapshot.status);
+          updateDocumentTitle(snapshot.remainingMs, snapshot.phase, snapshot.status, snapshot.linkedTaskTitle);
         }
       });
 
@@ -107,12 +119,13 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
               phase: payload.phase,
               status: payload.status,
               currentRound: payload.currentRound,
-              remainingMs: payload.remainingMs
+              remainingMs: payload.remainingMs,
+              linkedTaskId: payload.linkedTaskId ?? null,
+              linkedTaskTitle: payload.linkedTaskTitle ?? null
             });
-            updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+            updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, payload.linkedTaskTitle);
           }
         } else if (msg.type === 'REQUEST_CURRENT_STATE') {
-          // Tab khác mới mở yêu cầu Leader cung cấp state hiện tại
           if (coordinatorInstance && coordinatorInstance.isLeader && engineInstance) {
             const snapshot = engineInstance.getSnapshot();
             snapshot.fromLeader = true;
@@ -138,7 +151,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       engineInstance = new TimerEngine(get().settings, {
         onTick: (remainingMs, phase, status) => {
           set({ remainingMs, phase, status });
-          updateDocumentTitle(remainingMs, phase, status);
+          updateDocumentTitle(remainingMs, phase, status, get().linkedTaskTitle);
         },
         onPhaseChange: (phase, currentRound) => {
           set({ phase, currentRound });
@@ -147,11 +160,10 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
           // Thử ghi nhận phiên vào IndexedDB bằng Atomic Transaction
           const wasRecorded = await recordFocusSessionAtomic(record);
 
-          // CHỈ tab nào ghi thành công (wasRecorded === true) mới được kích hoạt side-effect
-          // Loại bỏ 100% race condition gửi 2 thông báo notification khi có 2 tab cùng mở
           if (wasRecorded) {
             const phaseName = record.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao';
-            NotificationService.notify(`🎉 ${phaseName} đã hoàn thành!`, {
+            const taskInfo = record.taskTitle ? ` cho việc "${record.taskTitle}"` : '';
+            NotificationService.notify(`🎉 ${phaseName}${taskInfo} đã hoàn thành!`, {
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
             });
           }
@@ -174,7 +186,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         status: engineInstance.getStatus(),
         currentRound: engineInstance.getCurrentRound(),
         remainingMs: engineInstance.getRemainingMs(),
-        settings: engineInstance.getSettings()
+        settings: engineInstance.getSettings(),
+        linkedTaskId: engineInstance.getLinkedTaskId(),
+        linkedTaskTitle: engineInstance.getLinkedTaskTitle()
       });
     }
 
@@ -189,6 +203,24 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     }
   },
 
+  setLinkedTask: (taskId: string | null, taskTitle: string | null) => {
+    if (engineInstance) {
+      engineInstance.setLinkedTask(taskId, taskTitle);
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
+      lastSyncTimestamp = payload.timestamp;
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'SYNC_STATE', payload });
+      }
+    }
+    set({
+      linkedTaskId: taskId,
+      linkedTaskTitle: taskTitle
+    });
+    updateDocumentTitle(get().remainingMs, get().phase, get().status, taskTitle);
+  },
+
   start: () => {
     if (engineInstance) {
       engineInstance.start();
@@ -200,9 +232,11 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         phase: payload.phase,
         status: payload.status,
         currentRound: payload.currentRound,
-        remainingMs: payload.remainingMs
+        remainingMs: payload.remainingMs,
+        linkedTaskId: payload.linkedTaskId ?? null,
+        linkedTaskTitle: payload.linkedTaskTitle ?? null
       });
-      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, payload.linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'start', payload });
@@ -223,7 +257,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         currentRound: payload.currentRound,
         remainingMs: payload.remainingMs
       });
-      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'pause', payload });
@@ -244,7 +278,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         currentRound: payload.currentRound,
         remainingMs: payload.remainingMs
       });
-      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'resume', payload });
@@ -265,7 +299,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         currentRound: payload.currentRound,
         remainingMs: payload.remainingMs
       });
-      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset', payload });
@@ -286,7 +320,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         currentRound: payload.currentRound,
         remainingMs: payload.remainingMs
       });
-      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'skip', payload });

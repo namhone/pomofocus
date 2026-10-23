@@ -11,6 +11,8 @@ export interface TimerSyncPayload {
   pausedRemainingMs: number | null;
   timestamp: number;
   fromLeader?: boolean;
+  linkedTaskId?: string | null;
+  linkedTaskTitle?: string | null;
 }
 
 export type TabMessage =

@@ -12,6 +12,8 @@ export interface TimerSettings {
 
 export interface FocusSessionRecord {
   id: string; // UUID v4 - Idempotency Key
+  taskId?: string | null;
+  taskTitle?: string | null;
   phase: TimerPhase;
   durationMinutes: number;
   completedAt: number; // Timestamp ms
@@ -27,4 +29,6 @@ export interface PersistedTimerRuntime {
   targetEndTimeMs: number | null;
   pausedRemainingMs: number | null;
   lastUpdatedMs: number;
+  linkedTaskId?: string | null;
+  linkedTaskTitle?: string | null;
 }
