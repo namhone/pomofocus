@@ -67,6 +67,7 @@ export const App: React.FC = () => {
         <ZenOverlay />
       ) : (
         <>
+          <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
           {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
           {isMobile ? (
             <main className="relative z-10 w-full min-h-screen p-4 pb-28 flex flex-col items-center justify-start overflow-y-auto">

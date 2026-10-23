@@ -70,10 +70,10 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid="btn-toggle-adjustments"
               onClick={() => setShowSliders(!showSliders)}
-              className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+              className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition cursor-pointer min-h-[32px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 showSliders
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  : 'bg-slate-800 text-slate-300 hover:text-white'
               }`}
               title="Tinh chỉnh hiệu ứng nền (Blur, Brightness, Overlay)"
             >
@@ -85,7 +85,7 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid="btn-reset-bg"
               onClick={resetBackground}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 bg-slate-800/80 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 bg-slate-800/80 transition cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               title="Khôi phục nền mặc định"
             >
               <RotateCcw size={13} />
@@ -105,7 +105,7 @@ export const SpacesWidget: React.FC = () => {
         )}
 
         {/* Category Tabs */}
-        <div className="flex rounded-xl bg-slate-950/60 p-1 border border-white/5 text-xs">
+        <div className="flex rounded-xl bg-slate-950/60 p-1 border border-white/5 text-xs gap-1">
           {[
             { id: 'all', label: 'Tất cả' },
             { id: 'video', label: 'Động (Video)' },
@@ -117,10 +117,10 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid={`filter-cat-${id}`}
               onClick={() => setSelectedCategory(id as BackgroundCategory)}
-              className={`flex-1 py-1 rounded-lg font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+              className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer min-h-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 selectedCategory === id
                   ? 'bg-slate-800 text-cyan-400 shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               {label}

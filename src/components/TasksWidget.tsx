@@ -71,17 +71,17 @@ export const TasksWidget: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
+    <div className="w-full h-full flex flex-col text-slate-100">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <span className="text-xl">📋</span>
-          <h2 className="text-base font-semibold text-slate-100">Quản Lý Công Việc</h2>
+          <span className="text-lg">📋</span>
+          <h3 className="text-sm font-semibold text-slate-100">Quản Lý Công Việc</h3>
         </div>
         <button
           type="button"
           onClick={() => setShowAddProject(!showAddProject)}
-          className="text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition cursor-pointer min-h-[32px] inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
         >
           {showAddProject ? 'Đóng' : '+ Dự án'}
         </button>
@@ -96,12 +96,12 @@ export const TasksWidget: React.FC = () => {
             placeholder="Tên dự án mới..."
             value={newProjectName}
             onChange={(e) => setNewProjectName(e.target.value)}
-            className="flex-1 text-xs px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 text-xs px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
           <button
             data-testid="btn-save-project"
             type="submit"
-            className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            className="text-xs px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium cursor-pointer min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             Lưu
           </button>
@@ -111,13 +111,13 @@ export const TasksWidget: React.FC = () => {
       {/* Bộ lọc Dự án & Trạng thái */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-1.5">
-          <label htmlFor="filter-project" className="text-slate-400">Dự án:</label>
+          <label htmlFor="filter-project" className="text-slate-300">Dự án:</label>
           <select
             id="filter-project"
             data-testid="filter-project-select"
             value={selectedProjectId || ''}
             onChange={(e) => setSelectedProjectId(e.target.value || null)}
-            className="bg-slate-950 border border-white/10 rounded-lg px-2 py-1 text-slate-200 focus:outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400"
+            className="bg-slate-950 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none cursor-pointer min-h-[32px] focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             <option value="">Tất cả dự án</option>
             {projects.map((p) => (
@@ -129,13 +129,13 @@ export const TasksWidget: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex rounded-lg bg-slate-950/60 p-0.5 border border-white/5">
+        <div className="flex rounded-lg bg-slate-950/60 p-1 border border-white/5 gap-1">
           <button
             type="button"
             data-testid="filter-status-all"
             onClick={() => setStatusFilter('all')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-              statusFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer min-h-[30px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+              statusFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'
             }`}
           >
             Tất cả
@@ -144,8 +144,8 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-todo"
             onClick={() => setStatusFilter('todo')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-              statusFilter === 'todo' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer min-h-[30px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+              statusFilter === 'todo' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'
             }`}
           >
             Cần làm
@@ -154,8 +154,8 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-completed"
             onClick={() => setStatusFilter('completed')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-              statusFilter === 'completed' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer min-h-[30px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+              statusFilter === 'completed' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'
             }`}
           >
             Đã xong
@@ -172,20 +172,20 @@ export const TasksWidget: React.FC = () => {
             placeholder="Bạn cần tập trung làm gì tiếp theo?..."
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            className="flex-1 text-xs px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 text-xs px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="px-3.5 py-2 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            className="px-4 py-2 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow cursor-pointer min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             + Thêm
           </button>
         </div>
 
         {/* Options khi thêm task: Priority & Estimated */}
-        <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between text-xs text-slate-300 px-1">
+          <div className="flex items-center gap-1.5">
             <span>Ưu tiên:</span>
             {(['p1', 'p2', 'p3'] as TaskPriority[]).map((p) => (
               <button
@@ -193,8 +193,8 @@ export const TasksWidget: React.FC = () => {
                 type="button"
                 data-testid={`priority-btn-${p}`}
                 onClick={() => setPriority(p)}
-                className={`px-2 py-0.5 rounded-full border text-[10px] uppercase font-bold transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 ${
-                  priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300'
+                className={`px-2.5 py-1 rounded-full border text-[10px] uppercase font-bold transition cursor-pointer min-h-[28px] min-w-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 ${
+                  priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {p}
@@ -211,7 +211,7 @@ export const TasksWidget: React.FC = () => {
               max="20"
               value={estimatedPomodoros}
               onChange={(e) => setEstimatedPomodoros(parseInt(e.target.value, 10) || 1)}
-              className="w-10 text-center bg-slate-950 border border-white/10 rounded py-0.5 text-white"
+              className="w-12 text-center bg-slate-950 border border-white/10 rounded-lg py-1 text-white text-xs"
             />
             <span>🍅</span>
           </div>
@@ -221,7 +221,7 @@ export const TasksWidget: React.FC = () => {
       {/* Danh Sách Tasks */}
       <div className="mt-4 space-y-2 max-h-72 overflow-y-auto pr-1">
         {filteredTasks.length === 0 ? (
-          <div className="text-center py-6 text-xs text-slate-500">
+          <div className="text-center py-6 text-xs text-slate-400">
             Chưa có công việc nào trong danh sách.
           </div>
         ) : (
@@ -251,7 +251,7 @@ export const TasksWidget: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <div
                         className={`text-xs font-medium truncate ${
-                          isCompleted ? 'line-through text-slate-500' : 'text-slate-200'
+                          isCompleted ? 'line-through text-slate-400' : 'text-slate-200'
                         }`}
                       >
                         {task.title}
@@ -266,7 +266,7 @@ export const TasksWidget: React.FC = () => {
                         </span>
                         <span
                           data-testid={`pomodoro-count-${task.id}`}
-                          className="text-slate-400 flex items-center gap-0.5"
+                          className="text-slate-300 flex items-center gap-0.5"
                         >
                           🍅 {task.completedPomodoros}/{task.estimatedPomodoros}
                         </span>
@@ -280,7 +280,7 @@ export const TasksWidget: React.FC = () => {
                       type="button"
                       data-testid={isLinked ? `unlink-task-btn-${task.id}` : `link-task-btn-${task.id}`}
                       onClick={() => linkTaskToTimer(isLinked ? null : task.id)}
-                      className={`text-xs px-2.5 py-1 rounded-xl font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                      className={`text-xs px-3 py-1.5 rounded-xl font-medium transition cursor-pointer min-h-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                         isLinked
                           ? 'bg-rose-500 text-white shadow'
                           : 'bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white'
@@ -293,7 +293,7 @@ export const TasksWidget: React.FC = () => {
                       data-testid={`delete-task-btn-${task.id}`}
                       onClick={() => deleteTask(task.id)}
                       aria-label="Xóa công việc"
-                      className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                     >
                       ✕
                     </button>

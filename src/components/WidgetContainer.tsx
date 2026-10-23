@@ -159,14 +159,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       >
         {/* Mobile Header Bar */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-slate-950/40 select-none">
-          <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <h2 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
             {widget.title}
-          </span>
+          </h2>
           <button
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >
@@ -211,9 +211,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       >
         <div className="flex items-center gap-2">
           <GripHorizontal size={14} className="text-slate-500 hover:text-slate-300" />
-          <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <h2 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
             {widget.title}
-          </span>
+          </h2>
         </div>
 
         <div className="flex items-center gap-1">
@@ -221,7 +221,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >

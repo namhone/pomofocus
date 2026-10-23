@@ -78,10 +78,10 @@ export const AudioWidget: React.FC = () => {
             data-testid="master-mute-btn"
             onClick={toggleMasterMute}
             aria-label={settings.isMuted ? 'Bật tiếng Master' : 'Tắt tiếng Master'}
-            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer min-h-[32px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
               settings.isMuted
-                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
             }`}
           >
             {settings.isMuted ? (
@@ -162,7 +162,7 @@ export const AudioWidget: React.FC = () => {
                   type="button"
                   data-testid={`chime-option-${opt.value}`}
                   onClick={() => setSelectedChime(opt.value)}
-                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                  className={`p-3 rounded-xl border text-left transition cursor-pointer min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                     settings.selectedChime === opt.value
                       ? 'bg-cyan-950/60 border-cyan-500/60 shadow-inner'
                       : 'bg-slate-900/40 border-white/5 hover:border-white/20'
@@ -246,14 +246,14 @@ export const AudioWidget: React.FC = () => {
                       type="button"
                       onClick={() => toggleTrack(track.id)}
                       data-testid={`toggle-track-${track.id}`}
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs transition shrink-0 cursor-pointer min-w-[32px] min-h-[32px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                         track.isPlaying
-                          ? 'bg-cyan-600 text-white'
-                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                          ? 'bg-cyan-600 text-white shadow-md'
+                          : 'bg-slate-800 text-slate-300 hover:text-white'
                       }`}
                       aria-label={track.isPlaying ? `Tắt ${track.name}` : `Bật ${track.name}`}
                     >
-                      {track.isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
+                      {track.isPlaying ? <Pause size={13} /> : <Play size={13} className="ml-0.5" />}
                     </button>
                     <div className="truncate">
                       <div className="flex items-center gap-1.5">
@@ -307,12 +307,12 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           onClick={resetToDefaults}
-          className="flex items-center gap-1.5 hover:text-slate-200 transition cursor-pointer text-[11px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded px-1"
+          className="flex items-center gap-1.5 hover:text-slate-200 transition cursor-pointer text-xs min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded-lg px-2 py-1"
         >
-          <RotateCcw size={12} />
+          <RotateCcw size={13} />
           <span>Đặt lại mặc định</span>
         </button>
-        <span className="text-[10px] text-slate-500">100% Offline Procedural Sound</span>
+        <span className="text-[10px] text-slate-400 font-medium">100% Offline Procedural Sound</span>
       </div>
     </div>
   );

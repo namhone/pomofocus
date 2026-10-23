@@ -80,10 +80,10 @@ export const DockBar: React.FC = () => {
               type="button"
               data-testid={testId}
               onClick={() => toggleWidget(id)}
-              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer ${
+              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer min-h-[38px] ${
                 isOpen
                   ? 'bg-slate-800 text-cyan-400 shadow-inner border border-cyan-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
               title={`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}
               aria-pressed={isOpen}
@@ -109,7 +109,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-zen"
           onClick={toggleZenMode}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-white/5 transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-white/5 transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer min-h-[38px]"
           title="Bật chế độ Zen (Phím tắt: Z)"
           aria-label="Bật chế độ Zen"
         >
@@ -124,7 +124,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-reset-layout"
           onClick={resetLayout}
-          className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-amber-300 hover:bg-slate-800/60 transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-amber-300 hover:bg-slate-800/60 transition-all focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer min-h-[38px]"
           title="Khôi phục bố cục mặc định"
           aria-label="Khôi phục bố cục mặc định"
         >
