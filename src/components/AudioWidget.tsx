@@ -297,7 +297,7 @@ export const AudioWidget: React.FC = () => {
             <span className="font-semibold block text-purple-200 mb-0.5">
               ⚠️ Lưu ý y tế (Medical Disclaimer):
             </span>
-            Âm thanh mô phỏng nhịp âm hai tai hỗ trợ thư giãn và tập trung — không phải thiết bị y tế và không có tác dụng thay thế chẩn đoán hay điều trị y khoa.
+            Âm thanh mô phỏng nhịp âm hai tai hỗ trợ thư giãn và tập trung — không phải thiết bị y tế; hiệu quả hỗ trợ tập trung hoặc cải thiện giấc ngủ chưa được chứng minh lâm sàng và không được bảo đảm bởi tính năng này, không có tác dụng thay thế chẩn đoán hay điều trị y khoa.
           </div>
         </div>
       )}

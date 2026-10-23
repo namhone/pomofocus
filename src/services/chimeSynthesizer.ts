@@ -62,6 +62,15 @@ export class ChimeSynthesizer {
         this.synthTwinkle(ctx, chimeGain, now);
         break;
     }
+
+    // Tự động ngắt kết nối chimeGain sau khi chuông hoàn tất (tối đa 2.0s) để tránh tích lũy AudioNode
+    setTimeout(() => {
+      try {
+        chimeGain.disconnect();
+      } catch {
+        // Bỏ qua nếu đã ngắt kết nối
+      }
+    }, 2000);
   }
 
   /**

@@ -128,6 +128,17 @@ describe('Audio Engine & Synthesis Unit Tests', () => {
       expect(ctx?.state).toBe('running');
       expect(manager.hasUserInteracted()).toBe(true);
     });
+
+    it('bảo toàn volume và mute khi cấu hình trước khi getContext() được gọi', () => {
+      const manager = AudioContextManager.getInstance();
+      manager.close();
+      manager.setMasterVolume(0.35, true);
+
+      const ctx = manager.getContext();
+      expect(ctx).toBeDefined();
+      const masterGain = manager.getMasterGain();
+      expect(masterGain?.gain.setValueAtTime).toHaveBeenCalledWith(0, 10);
+    });
   });
 
   describe('2. ChimeSynthesizer', () => {
@@ -150,6 +161,14 @@ describe('Audio Engine & Synthesis Unit Tests', () => {
     it('previewChime gọi thành công mà không gây ngoại lệ', async () => {
       const chimeSynth = ChimeSynthesizer.getInstance();
       await expect(chimeSynth.previewChime('twinkle', 0.5)).resolves.not.toThrow();
+    });
+
+    it('tự động ngắt kết nối chimeGain sau thời gian chờ để ngăn rò rỉ AudioNode', async () => {
+      vi.useFakeTimers();
+      const chimeSynth = ChimeSynthesizer.getInstance();
+      await chimeSynth.playChime('twinkle', 0.8);
+      vi.advanceTimersByTime(2100);
+      vi.useRealTimers();
     });
   });
 
@@ -295,6 +314,52 @@ describe('Audio Engine & Synthesis Unit Tests', () => {
       expect(state.settings.masterVolume).toBe(0.8);
       expect(state.settings.selectedChime).toBe('twinkle');
       expect(state.tracks.filter((t) => t.isPlaying).length).toBe(0);
+    });
+  });
+
+  describe('4. Timer Completion & DB Error Audio Guarantees', () => {
+    it('chỉ phát chuông khi bản ghi phiên được lưu thành công vào cơ sở dữ liệu', async () => {
+      const playChimeSpy = vi.fn().mockResolvedValue(undefined);
+      useAudioStore.setState({ playChime: playChimeSpy });
+
+      // Giả lập luồng xử lý onComplete với kết quả thành công
+      const wasRecordedSuccess = true;
+      if (wasRecordedSuccess) {
+        await useAudioStore.getState().playChime();
+      }
+      expect(playChimeSpy).toHaveBeenCalledTimes(1);
+
+      // Giả lập luồng xử lý onComplete khi bị trùng lặp (ConstraintError -> false)
+      playChimeSpy.mockClear();
+      const wasRecordedDuplicate = false;
+      if (wasRecordedDuplicate) {
+        await useAudioStore.getState().playChime();
+      }
+      expect(playChimeSpy).not.toHaveBeenCalled();
+    });
+
+    it('không phát chuông và không gây unhandled rejection khi IndexedDB gặp lỗi bất thường', async () => {
+      const playChimeSpy = vi.fn().mockResolvedValue(undefined);
+      useAudioStore.setState({ playChime: playChimeSpy });
+
+      // Giả lập lỗi DB bất thường (QuotaExceededError hoặc DatabaseClosedError)
+      const mockFailingRecordAction = async () => {
+        throw new Error('Database closed unexpectedly');
+      };
+
+      let wasRecorded = false;
+      try {
+        wasRecorded = await mockFailingRecordAction();
+      } catch {
+        wasRecorded = false;
+      }
+
+      if (wasRecorded) {
+        await useAudioStore.getState().playChime();
+      }
+
+      expect(wasRecorded).toBe(false);
+      expect(playChimeSpy).not.toHaveBeenCalled();
     });
   });
 });

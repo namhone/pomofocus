@@ -159,6 +159,7 @@ test.describe('Core Timer Engine E2E Tests', () => {
     await page.getByTestId('input-pomodoro-min').fill('1');
     await page.getByTestId('input-pomodoro-min').dispatchEvent('change');
     await page2.reload();
+    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👥 Follower Tab/);
 
     // Bấm Start ở tab 1
     await page.getByTestId('timer-start-btn').click();

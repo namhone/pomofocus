@@ -4,7 +4,6 @@ import { NotificationService } from '../services/notificationService';
 import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
 import { DEFAULT_SETTINGS, TimerEngine } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
-import { useAudioStore } from './useAudioStore';
 
 interface TimerStoreState {
   phase: TimerPhase;
@@ -159,7 +158,13 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         },
         onComplete: async (record: FocusSessionRecord, nextPhase: TimerPhase) => {
           // Thử ghi nhận phiên vào IndexedDB bằng Atomic Transaction
-          const wasRecorded = await recordFocusSessionAtomic(record);
+          let wasRecorded = false;
+          try {
+            wasRecorded = await recordFocusSessionAtomic(record);
+          } catch (err) {
+            console.error('Lỗi khi ghi nhận phiên vào IndexedDB:', err);
+            wasRecorded = false;
+          }
 
           if (wasRecorded) {
             const phaseName = record.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao';
@@ -168,9 +173,14 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
             });
             // Chuông báo kết thúc hiệp (chỉ duy nhất tab ghi nhận thành công mới phát chuông)
-            useAudioStore.getState().playChime().catch((err) => {
-              console.warn('Lỗi phát chuông báo kết thúc hiệp:', err);
-            });
+            try {
+              const { useAudioStore } = await import('./useAudioStore');
+              useAudioStore.getState().playChime().catch((err) => {
+                console.warn('Lỗi phát chuông báo kết thúc hiệp:', err);
+              });
+            } catch (err) {
+              console.warn('Không thể nạp module âm thanh để phát chuông:', err);
+            }
           }
 
           // Tab Leader đồng bộ trạng thái hiệp kế tiếp tới các tab khác

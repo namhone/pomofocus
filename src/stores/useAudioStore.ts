@@ -299,11 +299,17 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     toggleTrack: async (id: AmbientTrackId) => {
-      const tracks = get().tracks;
-      const track = tracks.find((t) => t.id === id);
+      const track = get().tracks.find((t) => t.id === id);
       if (!track) return;
 
       const nextPlaying = !track.isPlaying;
+
+      // Cập nhật trạng thái tức thời (optimistic update) ngăn chặn click lặp gây race condition
+      set((state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, isPlaying: nextPlaying } : t
+        ),
+      }));
 
       if (nextPlaying) {
         const resumed = await audioMgr.ensureResumed();
@@ -316,12 +322,6 @@ export const useAudioStore = create<AudioState>((set, get) => {
       } else {
         ambientSynth.stopTrack(id);
       }
-
-      set((state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === id ? { ...t, isPlaying: nextPlaying } : t
-        ),
-      }));
     },
 
     setTrackVolume: (id: AmbientTrackId, vol: number) => {
@@ -366,3 +366,7 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
   };
 });
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useAudioStore: typeof useAudioStore }).useAudioStore = useAudioStore;
+}

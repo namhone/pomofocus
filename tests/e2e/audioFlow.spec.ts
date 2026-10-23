@@ -150,36 +150,90 @@ test.describe('Audio Engine & Soundboard E2E Tests', () => {
     await pageA.goto('/');
     await pageB.goto('/');
 
-    // Cài đặt listener theo dõi lượt gọi playChime trên 2 tabs
-    await pageA.evaluate(() => {
+    // Cài đặt spy theo dõi lượt gọi playChime trên 2 tabs
+    await pageA.evaluate(async () => {
+      const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
       (window as any).__chimePlayCount = 0;
-      const originalPlay = (window as any).useAudioStore?.getState?.()?.playChime;
-      if (originalPlay) {
-        (window as any).useAudioStore.setState({
-          playChime: async (...args: any[]) => {
-            (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
-            return originalPlay(...args);
-          }
-        });
-      }
+      const original = useAudioStore.getState().playChime;
+      useAudioStore.setState({
+        playChime: async (...args: any[]) => {
+          (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
+          return original(...args);
+        }
+      });
     });
 
-    await pageB.evaluate(() => {
+    await pageB.evaluate(async () => {
+      const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
       (window as any).__chimePlayCount = 0;
-      const originalPlay = (window as any).useAudioStore?.getState?.()?.playChime;
-      if (originalPlay) {
-        (window as any).useAudioStore.setState({
-          playChime: async (...args: any[]) => {
-            (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
-            return originalPlay(...args);
-          }
-        });
-      }
+      const original = useAudioStore.getState().playChime;
+      useAudioStore.setState({
+        playChime: async (...args: any[]) => {
+          (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
+          return original(...args);
+        }
+      });
     });
 
     // Cả 2 tabs đều kết nối bình thường
     await expect(pageA.getByTestId('status-indicator')).toBeVisible();
     await expect(pageB.getByTestId('status-indicator')).toBeVisible();
+
+    // Bắt đầu timer ở tab A
+    await pageA.getByTestId('timer-start-btn').click();
+    await expect(pageA.getByTestId('status-indicator')).toHaveText(/running/i);
+    await expect(pageB.getByTestId('status-indicator')).toHaveText(/running/i);
+
+    // Lấy thông tin runtime chung từ localStorage
+    const sessionInfo = await pageA.evaluate(() => {
+      const raw = localStorage.getItem('pomodoro_timer_runtime');
+      return raw ? JSON.parse(raw) : null;
+    });
+    expect(sessionInfo?.sessionId).toBeTruthy();
+
+    // Giả lập cả hai tab cùng chạm deadline và cùng gọi luồng atomic recording + playChime
+    const [resultA, resultB] = await Promise.all([
+      pageA.evaluate(async (info) => {
+        const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
+        const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
+        const recorded = await recordFocusSessionAtomic({
+          id: info.sessionId,
+          phase: 'pomodoro',
+          durationMinutes: 1,
+          completedAt: Date.now(),
+          dateString: '2026-10-23'
+        });
+        if (recorded) {
+          await useAudioStore.getState().playChime();
+        }
+        return recorded;
+      }, sessionInfo),
+      pageB.evaluate(async (info) => {
+        const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
+        const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
+        const recorded = await recordFocusSessionAtomic({
+          id: info.sessionId,
+          phase: 'pomodoro',
+          durationMinutes: 1,
+          completedAt: Date.now() + 10,
+          dateString: '2026-10-23'
+        });
+        if (recorded) {
+          await useAudioStore.getState().playChime();
+        }
+        return recorded;
+      }, sessionInfo)
+    ]);
+
+    // Chỉ có DUY NHẤT 1 tab ghi thành công vào IndexedDB
+    expect([resultA, resultB].filter(Boolean).length).toBe(1);
+
+    // Kiểm tra số lần gọi playChime trên từng tab
+    const countA = await pageA.evaluate(() => (window as any).__chimePlayCount || 0);
+    const countB = await pageB.evaluate(() => (window as any).__chimePlayCount || 0);
+
+    // Tổng số lượt phát chuông trên toàn bộ các tab chính xác bằng 1
+    expect(countA + countB).toBe(1);
 
     await pageA.close();
     await pageB.close();

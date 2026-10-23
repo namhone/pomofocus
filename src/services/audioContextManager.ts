@@ -5,6 +5,8 @@ export class AudioContextManager {
   private compressor: DynamicsCompressorNode | null = null;
   private isUserInteracted = false;
   private boundInteractionListeners = false;
+  private currentVolume = 0.8;
+  private isMuted = false;
 
   private constructor() {
     this.setupInteractionListeners();
@@ -21,16 +23,23 @@ export class AudioContextManager {
     if (typeof window === 'undefined' || this.boundInteractionListeners) return;
     this.boundInteractionListeners = true;
 
-    const resumeOnInteraction = () => {
-      this.ensureResumed().catch(() => {});
+    const resumeOnInteraction = async () => {
+      const ok = await this.ensureResumed().catch(() => false);
+      if (ok && typeof window !== 'undefined') {
+        window.removeEventListener('pointerdown', resumeOnInteraction);
+        window.removeEventListener('keydown', resumeOnInteraction);
+        this.boundInteractionListeners = false;
+      }
     };
 
-    window.addEventListener('pointerdown', resumeOnInteraction, { once: true, passive: true });
-    window.addEventListener('keydown', resumeOnInteraction, { once: true, passive: true });
+    window.addEventListener('pointerdown', resumeOnInteraction, { passive: true });
+    window.addEventListener('keydown', resumeOnInteraction, { passive: true });
   }
 
   /**
-   * Khởi tạo AudioContext và Audio Graph chống clipping loa
+   * Khởi tạo AudioContext và Audio Graph với DynamicsCompressorNode
+   * giúp kiểm soát dải động và giảm thiểu nguy cơ méo tiếng / clipping khi phối nhiều track.
+   * Lưu ý: Không bảo đảm tuyệt đối 100% trong mọi trường hợp âm lượng hoặc tín hiệu cực đoan.
    */
   public getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -46,11 +55,12 @@ export class AudioContextManager {
 
       this.ctx = new AudioContextClass();
 
-      // Master Gain Node
+      // Master Gain Node - khôi phục âm lượng và mute đã lưu
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+      const initialGain = this.isMuted ? 0 : this.currentVolume;
+      this.masterGain.gain.setValueAtTime(initialGain, this.ctx.currentTime);
 
-      // Dynamics Compressor Node (-6dB Anti-clipping)
+      // Dynamics Compressor Node (-6dB threshold giúp nén dải động)
       this.compressor = this.ctx.createDynamicsCompressor();
       this.compressor.threshold.setValueAtTime(-6, this.ctx.currentTime);
       this.compressor.knee.setValueAtTime(12, this.ctx.currentTime);
@@ -72,8 +82,11 @@ export class AudioContextManager {
   }
 
   public setMasterVolume(volume: number, isMuted: boolean): void {
+    this.currentVolume = Math.max(0, Math.min(1, volume));
+    this.isMuted = isMuted;
+
     if (!this.masterGain || !this.ctx) return;
-    const targetVal = isMuted ? 0 : Math.max(0, Math.min(1, volume));
+    const targetVal = this.isMuted ? 0 : this.currentVolume;
     this.masterGain.gain.setTargetAtTime(targetVal, this.ctx.currentTime, 0.03);
   }
 
@@ -113,6 +126,7 @@ export class AudioContextManager {
       this.ctx = null;
       this.masterGain = null;
       this.compressor = null;
+      this.isUserInteracted = false;
     }
   }
 }
