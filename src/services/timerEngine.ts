@@ -1,4 +1,5 @@
 import { FocusSessionRecord, PersistedTimerRuntime, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
+import { TimerSyncPayload } from './tabCoordinator';
 
 export const DEFAULT_SETTINGS: TimerSettings = {
   pomodoroMinutes: 25,
@@ -26,9 +27,6 @@ export class TimerEngine {
   private remainingMs: number;
   private targetEndTimeMs: number | null = null;
   private pausedRemainingMs: number | null = null;
-
-  private lastWallClockMs: number = Date.now();
-  private lastPerfTimeMs: number = typeof performance !== 'undefined' ? performance.now() : Date.now();
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   private settings: TimerSettings;
@@ -95,7 +93,6 @@ export class TimerEngine {
     this.pausedRemainingMs = null;
     this.status = 'running';
 
-    this.initClockBaselines();
     this.startInterval();
     this.persist();
     this.notifyTick();
@@ -124,7 +121,6 @@ export class TimerEngine {
     this.pausedRemainingMs = null;
     this.status = 'running';
 
-    this.initClockBaselines();
     this.startInterval();
     this.persist();
     this.notifyTick();
@@ -157,24 +153,58 @@ export class TimerEngine {
     this.notifyTick();
   }
 
+  public getSnapshot(): TimerSyncPayload {
+    return {
+      sessionId: this.sessionId,
+      phase: this.phase,
+      status: this.status,
+      currentRound: this.currentRound,
+      durationMinutes: this.durationMinutes,
+      remainingMs: this.remainingMs,
+      targetEndTimeMs: this.targetEndTimeMs,
+      pausedRemainingMs: this.pausedRemainingMs,
+      timestamp: Date.now()
+    };
+  }
+
+  public syncFromSnapshot(payload: TimerSyncPayload): void {
+    this.sessionId = payload.sessionId;
+    this.phase = payload.phase;
+    this.status = payload.status;
+    this.currentRound = payload.currentRound;
+    this.durationMinutes = payload.durationMinutes;
+    this.targetEndTimeMs = payload.targetEndTimeMs;
+    this.pausedRemainingMs = payload.pausedRemainingMs;
+
+    if (this.status === 'running' && this.targetEndTimeMs !== null) {
+      const now = Date.now();
+      if (now < this.targetEndTimeMs) {
+        this.remainingMs = this.targetEndTimeMs - now;
+        this.startInterval();
+      } else {
+        this.remainingMs = 0;
+        this.handleComplete();
+      }
+    } else if (this.status === 'paused') {
+      this.stopInterval();
+      this.remainingMs = payload.remainingMs;
+    } else {
+      this.stopInterval();
+      this.remainingMs = payload.remainingMs;
+    }
+
+    this.persist();
+    this.notifyTick();
+    if (this.callbacks.onPhaseChange) {
+      this.callbacks.onPhaseChange(this.phase, this.currentRound);
+    }
+  }
+
   public tick(): void {
     if (this.status !== 'running' || this.targetEndTimeMs === null) return;
 
     const currentWall = Date.now();
-    const currentPerf = typeof performance !== 'undefined' ? performance.now() : currentWall;
-
-    const wallDelta = currentWall - this.lastWallClockMs;
-    const perfDelta = currentPerf - this.lastPerfTimeMs;
-
-    // Phát hiện Clock Skew: Nếu đồng hồ hệ thống bị chỉnh lệch > 2000ms so với đồng hồ đơn điệu
-    if (Math.abs(wallDelta - perfDelta) > 2000) {
-      const skewAdjustment = wallDelta - perfDelta;
-      this.targetEndTimeMs += skewAdjustment;
-    }
-
-    this.lastWallClockMs = currentWall;
-    this.lastPerfTimeMs = currentPerf;
-
+    // Tính toán thời gian còn lại dựa trên deadline tuyệt đối (Wall-Clock Date.now())
     this.remainingMs = Math.max(0, this.targetEndTimeMs - currentWall);
 
     if (this.remainingMs <= 0) {
@@ -255,11 +285,6 @@ export class TimerEngine {
     }
   }
 
-  private initClockBaselines(): void {
-    this.lastWallClockMs = Date.now();
-    this.lastPerfTimeMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
-  }
-
   private startInterval(): void {
     this.stopInterval();
     this.intervalId = setInterval(() => this.tick(), 200);
@@ -326,7 +351,6 @@ export class TimerEngine {
           this.status = 'running';
           this.targetEndTimeMs = runtime.targetEndTimeMs;
           this.remainingMs = runtime.targetEndTimeMs - now;
-          this.initClockBaselines();
           this.startInterval();
         } else {
           // Đã hết giờ trong lúc đóng tab/máy ngủ

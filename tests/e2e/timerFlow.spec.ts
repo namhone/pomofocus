@@ -82,7 +82,7 @@ test.describe('Core Timer Engine E2E Tests', () => {
     await expect(page.getByTestId('round-indicator')).toHaveText('Round 2 / 4');
   });
 
-  test('Đồng bộ trạng thái giữa 2 tabs thông qua BroadcastChannel & Web Locks', async ({ page, context }) => {
+  test('Đồng bộ trạng thái và Session ID giữa 2 tabs thông qua BroadcastChannel & Web Locks', async ({ page, context }) => {
     const page2 = await context.newPage();
 
     await page.goto('/');
@@ -99,6 +99,18 @@ test.describe('Core Timer Engine E2E Tests', () => {
     await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
     await expect(page2.getByTestId('status-indicator')).toHaveText(/running/i);
 
+    // XÁC MINH CẢ 2 TAB DÙNG CHUNG SESSION ID TRONG LOCALSTORAGE
+    const session1 = await page.evaluate(() => {
+      const raw = localStorage.getItem('pomodoro_timer_runtime');
+      return raw ? JSON.parse(raw).sessionId : null;
+    });
+    const session2 = await page2.evaluate(() => {
+      const raw = localStorage.getItem('pomodoro_timer_runtime');
+      return raw ? JSON.parse(raw).sessionId : null;
+    });
+    expect(session1).toBeTruthy();
+    expect(session1).toBe(session2);
+
     // Tab 2 bấm Pause
     await page2.getByTestId('timer-pause-btn').click();
 
@@ -112,6 +124,26 @@ test.describe('Core Timer Engine E2E Tests', () => {
     await expect(page2.getByTestId('status-indicator')).toHaveText(/idle/i);
     await expect(page.getByTestId('timer-display')).toHaveText('25:00');
     await expect(page2.getByTestId('timer-display')).toHaveText('25:00');
+
+    await page2.close();
+  });
+
+  test('Leader Handoff: Khi Tab Leader đóng, Tab Follower tự động thăng cấp thành Leader', async ({ page, context }) => {
+    const page2 = await context.newPage();
+
+    await page.goto('/');
+    await page2.goto('/');
+
+    // Tab 1 (page) mở trước -> Leader
+    await expect(page.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
+    // Tab 2 mở sau -> Follower
+    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👥 Follower Tab/);
+
+    // Đóng Tab 1 (Leader)
+    await page.close();
+
+    // Tab 2 tự động được Web Locks cấp quyền và trở thành Leader mới
+    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
 
     await page2.close();
   });

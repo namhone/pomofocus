@@ -1,7 +1,21 @@
+import { TimerPhase, TimerStatus } from '../types/timer';
+
+export interface TimerSyncPayload {
+  sessionId: string;
+  phase: TimerPhase;
+  status: TimerStatus;
+  currentRound: number;
+  durationMinutes: number;
+  remainingMs: number;
+  targetEndTimeMs: number | null;
+  pausedRemainingMs: number | null;
+  timestamp: number;
+}
+
 export type TabMessage =
-  | { type: 'STATE_UPDATE'; payload: Record<string, unknown> }
-  | { type: 'TIMER_COMPLETED'; sessionId: string; phase: string }
-  | { type: 'TRIGGER_ACTION'; action: 'start' | 'pause' | 'resume' | 'reset' | 'skip' };
+  | { type: 'SYNC_STATE'; payload: TimerSyncPayload }
+  | { type: 'TRIGGER_ACTION'; action: 'start' | 'pause' | 'resume' | 'reset' | 'skip'; payload: TimerSyncPayload }
+  | { type: 'REQUEST_CURRENT_STATE' };
 
 export class TabCoordinator {
   private channel: BroadcastChannel | null = null;
@@ -35,8 +49,8 @@ export class TabCoordinator {
 
   /**
    * Bắt đầu yêu cầu quyền Leader thông qua Web Locks API.
-   * Nếu trình duyệt không hỗ trợ Web Locks, fallback mặc định là leader (các tab đều hiển thị
-   * và việc chống ghi trùng được bảo vệ nguyên tử bởi IndexedDB constraint).
+   * Nếu trình duyệt không hỗ trợ Web Locks, fallback là leader = true,
+   * và việc chống ghi trùng được bảo vệ hoàn toàn bởi khóa chính duy nhất của IndexedDB.
    */
   public async requestLeadership(): Promise<void> {
     if (typeof navigator !== 'undefined' && 'locks' in navigator && navigator.locks) {

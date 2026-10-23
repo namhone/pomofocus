@@ -1,13 +1,14 @@
+import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TimerEngine } from '../../src/services/timerEngine';
 import { db, recordFocusSessionAtomic } from '../../src/db';
 import { FocusSessionRecord } from '../../src/types/timer';
+import { TimerSyncPayload } from '../../src/services/tabCoordinator';
 
 describe('TimerEngine Core Unit Tests', () => {
   let engine: TimerEngine;
 
   beforeEach(() => {
-    // Cấu hình fake timers cho cả Date và performance để đồng bộ
     vi.useFakeTimers({
       toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance']
     });
@@ -206,37 +207,53 @@ describe('TimerEngine Core Unit Tests', () => {
     restoredEngine.destroy();
   });
 
-  it('11. Clock Skew Protection: Tự động phát hiện và bù trừ khi Date.now() bị nhảy cóc', () => {
+  it('11. Xử lý khi máy tính rơi vào Sleep: Khi thức dậy đã quá deadline thì hoàn tất phiên', () => {
+    const onCompleteMock = vi.fn();
     const startTime = 1700000000000;
     vi.setSystemTime(startTime);
+
+    engine = new TimerEngine({ pomodoroMinutes: 25 }, { onComplete: onCompleteMock });
     engine.start();
 
-    // Giả lập: Date.now() đột ngột nhảy tiến 10 phút (do người dùng chỉnh giờ máy tính)
-    // trong khi performance.now() không nhảy (vì máy không thực sự trôi qua 10 phút)
-    vi.setSystemTime(startTime + 10 * 60 * 1000);
+    // Giả lập máy tính ngủ 30 phút (vượt quá 25 phút của phiên)
+    vi.setSystemTime(startTime + 30 * 60 * 1000);
     engine.tick();
 
-    // Engine phải nhận diện skew > 2000ms và bù trừ targetEndTimeMs tương ứng
-    // để không bị kết thúc sớm 10 phút
+    // Deadline đã qua -> Timer nhận diện completed ngay lập tức, không kéo dài deadline
+    expect(engine.getStatus()).toBe('idle');
+    expect(onCompleteMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('12. Đồng bộ Snapshot trạng thái giữa các Tab (syncFromSnapshot)', () => {
+    const snapshot: TimerSyncPayload = {
+      sessionId: 'sess-shared-xyz-789',
+      phase: 'pomodoro',
+      status: 'running',
+      currentRound: 3,
+      durationMinutes: 25,
+      remainingMs: 12 * 60 * 1000,
+      targetEndTimeMs: Date.now() + 12 * 60 * 1000,
+      pausedRemainingMs: null,
+      timestamp: Date.now()
+    };
+
+    // Tab 2 đồng bộ snapshot nhận từ Tab 1
+    engine.syncFromSnapshot(snapshot);
+
+    expect(engine.getSessionId()).toBe('sess-shared-xyz-789');
+    expect(engine.getPhase()).toBe('pomodoro');
     expect(engine.getStatus()).toBe('running');
-    expect(engine.getRemainingMs()).toBeGreaterThan(20 * 60 * 1000);
+    expect(engine.getCurrentRound()).toBe(3);
+    expect(engine.getTargetEndTimeMs()).toBe(snapshot.targetEndTimeMs);
   });
 });
 
-describe('Database & Idempotency Tests', () => {
+describe('Database & Idempotency Tests (Real IndexedDB via fake-indexeddb)', () => {
   beforeEach(async () => {
-    try {
-      await db.focus_sessions.clear();
-    } catch {
-      // Bỏ qua nếu môi trường JSDOM chưa kích hoạt indexedDB
-    }
+    await db.focus_sessions.clear();
   });
 
-  it('12. Chống ghi trùng bản ghi hoàn thành phiên bằng Atomic Transaction', async () => {
-    if (typeof indexedDB === 'undefined') {
-      return;
-    }
-
+  it('13. Chống ghi trùng bản ghi hoàn thành phiên bằng Atomic Transaction trên IndexedDB thật', async () => {
     const sessionId = 'test-session-uuid-123';
     const record: FocusSessionRecord = {
       id: sessionId,
@@ -257,5 +274,38 @@ describe('Database & Idempotency Tests', () => {
     // Kiểm tra trong DB chỉ có đúng 1 record
     const count = await db.focus_sessions.where('id').equals(sessionId).count();
     expect(count).toBe(1);
+  });
+
+  it('14. Race Condition: Hai tab cùng ghi đồng thời với cùng sessionId', async () => {
+    const sessionId = 'race-session-uuid-concurrent';
+    const record1: FocusSessionRecord = {
+      id: sessionId,
+      phase: 'pomodoro',
+      durationMinutes: 25,
+      completedAt: Date.now(),
+      dateString: '2026-10-23'
+    };
+    const record2: FocusSessionRecord = {
+      id: sessionId,
+      phase: 'pomodoro',
+      durationMinutes: 25,
+      completedAt: Date.now() + 10,
+      dateString: '2026-10-23'
+    };
+
+    // Gọi đồng thời Promise.all từ 2 tab mô phỏng
+    const results = await Promise.all([
+      recordFocusSessionAtomic(record1),
+      recordFocusSessionAtomic(record2)
+    ]);
+
+    // Phải có đúng một kết quả true và một kết quả false
+    expect(results.filter((r) => r === true).length).toBe(1);
+    expect(results.filter((r) => r === false).length).toBe(1);
+
+    // DB chỉ lưu đúng 1 record duy nhất
+    const records = await db.focus_sessions.toArray();
+    expect(records.length).toBe(1);
+    expect(records[0].id).toBe(sessionId);
   });
 });

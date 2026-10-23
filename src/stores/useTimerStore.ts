@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { recordFocusSessionAtomic } from '../db';
 import { NotificationService } from '../services/notificationService';
-import { TabCoordinator } from '../services/tabCoordinator';
+import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
 import { DEFAULT_SETTINGS, TimerEngine } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
 
@@ -28,7 +28,8 @@ interface TimerStoreState {
 
 let engineInstance: TimerEngine | null = null;
 let coordinatorInstance: TabCoordinator | null = null;
-let isInternalSync = false;
+let lastSyncTimestamp = 0;
+let hasBoundUnload = false;
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -57,7 +58,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   currentRound: 1,
   remainingMs: DEFAULT_SETTINGS.pomodoroMinutes * 60 * 1000,
   settings: DEFAULT_SETTINGS,
-  isLeader: true,
+  isLeader: false,
   notificationPermission: NotificationService.getPermission(),
 
   init: () => {
@@ -71,29 +72,29 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       });
 
       coordinatorInstance.setOnMessage((msg) => {
-        if (msg.type === 'TRIGGER_ACTION') {
-          isInternalSync = true;
-          try {
-            const state = get();
-            switch (msg.action) {
-              case 'start':
-                state.start();
-                break;
-              case 'pause':
-                state.pause();
-                break;
-              case 'resume':
-                state.resume();
-                break;
-              case 'reset':
-                state.reset();
-                break;
-              case 'skip':
-                state.skip();
-                break;
+        if (msg.type === 'SYNC_STATE' || msg.type === 'TRIGGER_ACTION') {
+          const payload = msg.payload;
+          // Ngăn ngừa Out-of-Order messages: Chỉ nhận snapshot có timestamp mới hơn hoặc bằng
+          if (payload && payload.timestamp >= lastSyncTimestamp) {
+            lastSyncTimestamp = payload.timestamp;
+            if (engineInstance) {
+              engineInstance.syncFromSnapshot(payload);
             }
-          } finally {
-            isInternalSync = false;
+            set({
+              phase: payload.phase,
+              status: payload.status,
+              currentRound: payload.currentRound,
+              remainingMs: payload.remainingMs
+            });
+            updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+          }
+        } else if (msg.type === 'REQUEST_CURRENT_STATE') {
+          // Tab khác mới mở yêu cầu Leader cung cấp state hiện tại
+          if (coordinatorInstance && coordinatorInstance.isLeader && engineInstance) {
+            coordinatorInstance.broadcast({
+              type: 'SYNC_STATE',
+              payload: engineInstance.getSnapshot()
+            });
           }
         }
       });
@@ -102,6 +103,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       coordinatorInstance.requestLeadership().catch((err) => {
         console.warn('Lỗi request leadership:', err);
       });
+
+      // Hỏi Leader hiện tại về state mới nhất
+      coordinatorInstance.broadcast({ type: 'REQUEST_CURRENT_STATE' });
     }
 
     // 2. Khởi tạo Timer Engine
@@ -115,10 +119,12 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
           set({ phase, currentRound });
         },
         onComplete: async (record: FocusSessionRecord, nextPhase: TimerPhase) => {
-          // Chỉ tab Leader ghi vào IndexedDB và gửi thông báo để tránh trùng lặp
-          if (get().isLeader) {
-            await recordFocusSessionAtomic(record);
+          // Thử ghi nhận phiên vào IndexedDB bằng Atomic Transaction
+          const wasRecorded = await recordFocusSessionAtomic(record);
 
+          // CHỈ tab nào ghi thành công (wasRecorded === true) mới được kích hoạt side-effect
+          // Loại bỏ 100% race condition gửi 2 thông báo notification khi có 2 tab cùng mở
+          if (wasRecorded) {
             const phaseName = record.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao';
             NotificationService.notify(`🎉 ${phaseName} đã hoàn thành!`, {
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
@@ -138,13 +144,34 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         settings: engineInstance.getSettings()
       });
     }
+
+    // Gắn dọn dẹp khi đóng tab
+    if (!hasBoundUnload) {
+      hasBoundUnload = true;
+      window.addEventListener('beforeunload', () => {
+        if (coordinatorInstance) {
+          coordinatorInstance.destroy();
+        }
+      });
+    }
   },
 
   start: () => {
     if (engineInstance) {
       engineInstance.start();
-      if (!isInternalSync && coordinatorInstance) {
-        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'start' });
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'start', payload });
       }
     }
   },
@@ -152,8 +179,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   pause: () => {
     if (engineInstance) {
       engineInstance.pause();
-      if (!isInternalSync && coordinatorInstance) {
-        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'pause' });
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'pause', payload });
       }
     }
   },
@@ -161,8 +199,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   resume: () => {
     if (engineInstance) {
       engineInstance.resume();
-      if (!isInternalSync && coordinatorInstance) {
-        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'resume' });
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'resume', payload });
       }
     }
   },
@@ -170,8 +219,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   reset: () => {
     if (engineInstance) {
       engineInstance.reset();
-      if (!isInternalSync && coordinatorInstance) {
-        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset' });
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset', payload });
       }
     }
   },
@@ -179,8 +239,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   skip: () => {
     if (engineInstance) {
       engineInstance.skip();
-      if (!isInternalSync && coordinatorInstance) {
-        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'skip' });
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'skip', payload });
       }
     }
   },
