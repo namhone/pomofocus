@@ -143,8 +143,8 @@ test.describe('Core Timer Engine E2E Tests', () => {
     // Đóng Tab 1 (Leader)
     await page.close();
 
-    // Tab 2 tự động được Web Locks cấp quyền và trở thành Leader mới
-    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
+    // Tab 2 tự động được Web Locks cấp quyền và trở thành Leader mới (cho phép 10s để Web Locks release trên Chromium)
+    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/, { timeout: 10000 });
 
     await page2.close();
   });

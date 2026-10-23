@@ -55,6 +55,19 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     minHeight: 380,
     resizable: false,
     zIndex: 9
+  },
+  spaces: {
+    id: 'spaces',
+    title: 'Không gian nền (Spaces)',
+    isOpen: false,
+    x: 428,
+    y: 70,
+    width: 440,
+    height: 580,
+    minWidth: 360,
+    minHeight: 450,
+    resizable: true,
+    zIndex: 13
   }
 };
 

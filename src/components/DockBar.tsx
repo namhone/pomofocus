@@ -4,6 +4,7 @@ import {
   CheckSquare,
   FileText,
   Calendar,
+  Palette,
   Maximize2,
   RotateCcw
 } from 'lucide-react';
@@ -47,6 +48,12 @@ export const DockBar: React.FC = () => {
       label: 'Lịch biểu',
       icon: <Calendar size={18} />,
       testId: 'dock-btn-calendar'
+    },
+    {
+      id: 'spaces',
+      label: 'Nền',
+      icon: <Palette size={18} />,
+      testId: 'dock-btn-spaces'
     }
   ];
 
