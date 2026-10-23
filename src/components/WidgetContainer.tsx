@@ -166,7 +166,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >
@@ -221,7 +221,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none cursor-pointer"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >

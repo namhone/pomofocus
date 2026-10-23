@@ -69,7 +69,7 @@ export const NotesWidget: React.FC = () => {
             type="button"
             data-testid="btn-new-note"
             onClick={() => createNote('Ghi chú mới')}
-            className="text-xs px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition"
+            className="text-xs px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             + Ghi chú
           </button>
@@ -84,7 +84,7 @@ export const NotesWidget: React.FC = () => {
             type="button"
             data-testid={`note-tab-${note.id}`}
             onClick={() => setActiveNoteId(note.id)}
-            className={`px-3 py-1 rounded-xl text-xs whitespace-nowrap transition ${
+            className={`px-3 py-1 rounded-xl text-xs whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
               activeNoteId === note.id
                 ? 'bg-indigo-600 text-white font-medium shadow'
                 : 'bg-slate-950/60 text-slate-400 hover:text-slate-200 border border-white/5'
@@ -108,7 +108,7 @@ export const NotesWidget: React.FC = () => {
               }
               onBlur={() => saveNow(activeNote.id)}
               placeholder="Tiêu đề ghi chú..."
-              className="text-sm font-semibold bg-transparent border-b border-transparent hover:border-white/20 focus:border-indigo-500 text-white focus:outline-none flex-1 px-1 py-0.5"
+              className="text-sm font-semibold bg-transparent border-b border-transparent hover:border-white/20 focus:border-indigo-500 text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 rounded-sm flex-1 px-1 py-0.5"
             />
 
             {/* Toggle Edit / Preview */}
@@ -117,7 +117,7 @@ export const NotesWidget: React.FC = () => {
                 type="button"
                 data-testid="tab-note-edit"
                 onClick={() => setActiveTab('edit')}
-                className={`px-2.5 py-1 rounded-md font-medium transition ${
+                className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'edit'
                     ? 'bg-slate-800 text-white shadow'
                     : 'text-slate-400 hover:text-white'
@@ -129,7 +129,7 @@ export const NotesWidget: React.FC = () => {
                 type="button"
                 data-testid="tab-note-preview"
                 onClick={() => setActiveTab('preview')}
-                className={`px-2.5 py-1 rounded-md font-medium transition ${
+                className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'preview'
                     ? 'bg-slate-800 text-white shadow'
                     : 'text-slate-400 hover:text-white'
@@ -144,7 +144,7 @@ export const NotesWidget: React.FC = () => {
               data-testid="btn-delete-note"
               onClick={() => deleteNote(activeNote.id)}
               title="Xóa ghi chú"
-              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
             >
               ✕
             </button>
@@ -170,7 +170,7 @@ export const NotesWidget: React.FC = () => {
                   type="button"
                   data-testid="btn-save-note"
                   onClick={() => saveNow(activeNote.id)}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium"
+                  className="text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 rounded px-1"
                 >
                   Lưu ngay
                 </button>

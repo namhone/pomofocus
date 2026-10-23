@@ -81,7 +81,7 @@ export const TasksWidget: React.FC = () => {
         <button
           type="button"
           onClick={() => setShowAddProject(!showAddProject)}
-          className="text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition"
+          className="text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
         >
           {showAddProject ? 'Đóng' : '+ Dự án'}
         </button>
@@ -101,7 +101,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="btn-save-project"
             type="submit"
-            className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+            className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             Lưu
           </button>
@@ -117,7 +117,7 @@ export const TasksWidget: React.FC = () => {
             data-testid="filter-project-select"
             value={selectedProjectId || ''}
             onChange={(e) => setSelectedProjectId(e.target.value || null)}
-            className="bg-slate-950 border border-white/10 rounded-lg px-2 py-1 text-slate-200 focus:outline-none"
+            className="bg-slate-950 border border-white/10 rounded-lg px-2 py-1 text-slate-200 focus:outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             <option value="">Tất cả dự án</option>
             {projects.map((p) => (
@@ -134,7 +134,7 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-all"
             onClick={() => setStatusFilter('all')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
               statusFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -144,7 +144,7 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-todo"
             onClick={() => setStatusFilter('todo')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
               statusFilter === 'todo' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -154,7 +154,7 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-completed"
             onClick={() => setStatusFilter('completed')}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+            className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
               statusFilter === 'completed' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -177,7 +177,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="px-3.5 py-2 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow"
+            className="px-3.5 py-2 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             + Thêm
           </button>
@@ -193,7 +193,7 @@ export const TasksWidget: React.FC = () => {
                 type="button"
                 data-testid={`priority-btn-${p}`}
                 onClick={() => setPriority(p)}
-                className={`px-2 py-0.5 rounded-full border text-[10px] uppercase font-bold transition ${
+                className={`px-2 py-0.5 rounded-full border text-[10px] uppercase font-bold transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 ${
                   priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -280,7 +280,7 @@ export const TasksWidget: React.FC = () => {
                       type="button"
                       data-testid={isLinked ? `unlink-task-btn-${task.id}` : `link-task-btn-${task.id}`}
                       onClick={() => linkTaskToTimer(isLinked ? null : task.id)}
-                      className={`text-xs px-2.5 py-1 rounded-xl font-medium transition ${
+                      className={`text-xs px-2.5 py-1 rounded-xl font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                         isLinked
                           ? 'bg-rose-500 text-white shadow'
                           : 'bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white'
@@ -293,7 +293,7 @@ export const TasksWidget: React.FC = () => {
                       data-testid={`delete-task-btn-${task.id}`}
                       onClick={() => deleteTask(task.id)}
                       aria-label="Xóa công việc"
-                      className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs"
+                      className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                     >
                       ✕
                     </button>

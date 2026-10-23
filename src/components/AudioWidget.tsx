@@ -78,7 +78,7 @@ export const AudioWidget: React.FC = () => {
             data-testid="master-mute-btn"
             onClick={toggleMasterMute}
             aria-label={settings.isMuted ? 'Bật tiếng Master' : 'Tắt tiếng Master'}
-            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
               settings.isMuted
                 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                 : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
@@ -119,7 +119,7 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('chime')}
-          className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
             activeTab === 'chime'
               ? 'bg-cyan-600 text-white shadow'
               : 'text-slate-400 hover:text-slate-200'
@@ -132,7 +132,7 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('ambient')}
-          className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
             activeTab === 'ambient'
               ? 'bg-cyan-600 text-white shadow'
               : 'text-slate-400 hover:text-slate-200'
@@ -162,7 +162,7 @@ export const AudioWidget: React.FC = () => {
                   type="button"
                   data-testid={`chime-option-${opt.value}`}
                   onClick={() => setSelectedChime(opt.value)}
-                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                     settings.selectedChime === opt.value
                       ? 'bg-cyan-950/60 border-cyan-500/60 shadow-inner'
                       : 'bg-slate-900/40 border-white/5 hover:border-white/20'
@@ -205,7 +205,7 @@ export const AudioWidget: React.FC = () => {
             data-testid="preview-chime-btn"
             onClick={handlePreview}
             disabled={isPlayingPreview}
-            className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             <span>{isPlayingPreview ? '🎶 Đang phát...' : '▶ Nghe Thử Chuông Báo'}</span>
           </button>
@@ -221,7 +221,7 @@ export const AudioWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={stopAllTracks}
-                className="text-[11px] text-rose-400 hover:text-rose-300 transition cursor-pointer font-medium"
+                className="text-[11px] text-rose-400 hover:text-rose-300 transition cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 rounded px-1"
               >
                 Dừng tất cả ({activePlayingCount})
               </button>
@@ -246,7 +246,7 @@ export const AudioWidget: React.FC = () => {
                       type="button"
                       onClick={() => toggleTrack(track.id)}
                       data-testid={`toggle-track-${track.id}`}
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shrink-0 cursor-pointer ${
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                         track.isPlaying
                           ? 'bg-cyan-600 text-white'
                           : 'bg-slate-800 text-slate-400 hover:text-white'
@@ -307,7 +307,7 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           onClick={resetToDefaults}
-          className="flex items-center gap-1.5 hover:text-slate-200 transition cursor-pointer text-[11px]"
+          className="flex items-center gap-1.5 hover:text-slate-200 transition cursor-pointer text-[11px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded px-1"
         >
           <RotateCcw size={12} />
           <span>Đặt lại mặc định</span>

@@ -108,7 +108,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               type="button"
               data-testid="btn-unlink-timer-task"
               onClick={() => setLinkedTask(null, null)}
-              className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 transition"
+              className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
             >
               Bỏ gắn
             </button>
@@ -137,7 +137,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                         : settings.longBreakMinutes * 60 * 1000
                   });
                 }}
-                className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition ${
+                className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   isActive ? style.activeTab : 'text-slate-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
               >
@@ -153,7 +153,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
         >
           <div
             data-testid="timer-display"
-            className="font-mono text-6xl font-bold tracking-tight text-white select-none"
+            className="font-mono tabular-nums text-6xl font-bold tracking-tight text-white select-none"
           >
             {formatTime(remainingMs)}
           </div>
@@ -168,7 +168,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             <button
               data-testid="timer-start-btn"
               onClick={start}
-              className="flex-1 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-500 active:scale-95"
+              className="flex-1 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-500 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               Bắt đầu (Space)
             </button>
@@ -178,7 +178,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             <button
               data-testid="timer-pause-btn"
               onClick={pause}
-              className="flex-1 rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white shadow-lg shadow-amber-600/30 transition hover:bg-amber-500 active:scale-95"
+              className="flex-1 rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white shadow-lg shadow-amber-600/30 transition hover:bg-amber-500 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               Tạm dừng (Space)
             </button>
@@ -188,7 +188,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             <button
               data-testid="timer-resume-btn"
               onClick={resume}
-              className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-95"
+              className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               Tiếp tục (Space)
             </button>
@@ -198,7 +198,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-reset-btn"
             onClick={reset}
             title="Reset về mặc định (R)"
-            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
+            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             ↺ Reset
           </button>
@@ -207,7 +207,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-skip-btn"
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp (S)"
-            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
+            className="rounded-xl border border-white/10 bg-white/5 p-3 text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             ⏭ Skip
           </button>
@@ -221,7 +221,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="btn-request-notification"
               type="button"
               onClick={requestNotificationPermission}
-              className="text-[11px] text-indigo-400 hover:text-indigo-300 underline"
+              className="text-[11px] text-indigo-400 hover:text-indigo-300 underline cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 rounded px-1"
             >
               Bật thông báo
             </button>
@@ -239,7 +239,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                 value={settings.pomodoroMinutes}
                 disabled={status !== 'idle'}
                 onChange={(e) => updateSettings({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -253,7 +253,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                 value={settings.shortBreakMinutes}
                 disabled={status !== 'idle'}
                 onChange={(e) => updateSettings({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -267,7 +267,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                 value={settings.longBreakMinutes}
                 disabled={status !== 'idle'}
                 onChange={(e) => updateSettings({ longBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>

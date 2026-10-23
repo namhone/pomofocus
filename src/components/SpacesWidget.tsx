@@ -70,7 +70,7 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid="btn-toggle-adjustments"
               onClick={() => setShowSliders(!showSliders)}
-              className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition ${
+              className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 showSliders
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                   : 'bg-slate-800 text-slate-400 hover:text-white'
@@ -85,7 +85,7 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid="btn-reset-bg"
               onClick={resetBackground}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 bg-slate-800/80 transition"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 bg-slate-800/80 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               title="Khôi phục nền mặc định"
             >
               <RotateCcw size={13} />
@@ -117,7 +117,7 @@ export const SpacesWidget: React.FC = () => {
               type="button"
               data-testid={`filter-cat-${id}`}
               onClick={() => setSelectedCategory(id as BackgroundCategory)}
-              className={`flex-1 py-1 rounded-lg font-medium transition ${
+              className={`flex-1 py-1 rounded-lg font-medium transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 selectedCategory === id
                   ? 'bg-slate-800 text-cyan-400 shadow'
                   : 'text-slate-400 hover:text-slate-200'
@@ -190,7 +190,7 @@ export const SpacesWidget: React.FC = () => {
                 type="button"
                 data-testid={`preset-card-${preset.id}`}
                 onClick={() => selectPreset(preset.id)}
-                className={`relative group rounded-2xl overflow-hidden border text-left transition-all p-2 flex flex-col justify-between ${
+                className={`relative group rounded-2xl overflow-hidden border text-left transition-all p-2 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                   isSelected
                     ? 'border-cyan-500 bg-cyan-950/20 shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/50'
                     : 'border-white/5 bg-slate-900/60 hover:border-white/20'
@@ -272,7 +272,7 @@ export const SpacesWidget: React.FC = () => {
             type="submit"
             data-testid="btn-apply-custom-bg"
             disabled={!customInputUrl.trim()}
-            className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:hover:bg-cyan-500 text-slate-950 font-semibold text-xs transition"
+            className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:hover:bg-cyan-500 text-slate-950 font-semibold text-xs transition cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
           >
             Dán
           </button>
