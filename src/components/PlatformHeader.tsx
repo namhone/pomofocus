@@ -47,17 +47,17 @@ export const PlatformHeader: React.FC = () => {
     <>
       <header
         data-testid="platform-unified-header"
-        className="sticky top-0 z-40 h-12 w-full border-b border-white/10 bg-[#09090b]/90 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs"
+        className="sticky top-0 z-40 h-12 w-full border-b border-white/10 bg-[#09090b]/90 px-2.5 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs"
       >
         {/* Brand & Plan Badge */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <button
             type="button"
             onClick={() => handleNavigate(isWorkspace ? '/' : '/app')}
-            className="flex items-center gap-2 text-white hover:opacity-90 transition cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 text-white hover:opacity-90 transition cursor-pointer"
             title="PomoFocus Home"
           >
-            <PomoFocusLogo size={26} showWordmark={true} wordmarkClassName="inline-block text-xs sm:text-sm font-bold text-white tracking-tight" />
+            <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="inline-block text-xs sm:text-sm font-bold text-white tracking-tight" />
           </button>
 
           <button
@@ -73,7 +73,8 @@ export const PlatformHeader: React.FC = () => {
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
-            {planLabel}
+            <span className="hidden sm:inline">{planLabel}</span>
+            <span className="sm:hidden">{isLifetime ? 'PRO ★' : isPro ? 'PRO' : 'FREE'}</span>
           </button>
         </div>
 
@@ -108,54 +109,55 @@ export const PlatformHeader: React.FC = () => {
         </nav>
 
         {/* User Actions & Mobile Toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Quick jump to workspace button when outside /app */}
           {!isWorkspace && (
             <button
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white text-black font-semibold text-[11px] sm:text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-white text-black font-semibold text-[11px] sm:text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             >
               <Layout size={12} className="shrink-0" />
-              <span>Vào Học</span>
+              <span className="hidden xs:inline">Vào Học</span>
             </button>
           )}
 
           {/* User profile button */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 data-testid="header-user-profile-btn"
                 onClick={() => handleNavigate('/profile')}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition cursor-pointer shrink-0 max-w-[130px]"
+                className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition cursor-pointer shrink-0"
                 title="Xem và chỉnh sửa hồ sơ & ảnh đại diện"
               >
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
                     alt={user.displayName}
-                    className="w-4 h-4 rounded-full object-cover border border-emerald-400/40 shrink-0"
+                    className="w-5 h-5 sm:w-4 sm:h-4 rounded-full object-cover border border-emerald-400/40 shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-[9px] shrink-0">
+                  <div className="w-5 h-5 sm:w-4 sm:h-4 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-[9px] shrink-0">
                     {user.displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-[11px] text-neutral-200 font-medium truncate hidden sm:inline-block">
+                <span className="text-[11px] text-neutral-200 font-medium truncate hidden md:inline-block max-w-[90px]">
                   {user.displayName}
                 </span>
               </button>
 
+              {/* Hide direct logout on mobile top bar — moved cleanly into mobile menu drawer */}
               <button
                 type="button"
                 data-testid="header-logout-btn"
                 onClick={logout}
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-white/5 transition cursor-pointer"
+                className="hidden sm:flex p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-white/5 transition cursor-pointer"
                 title="Đăng xuất"
               >
                 <LogOut size={13} />
@@ -191,6 +193,30 @@ export const PlatformHeader: React.FC = () => {
       {/* Mobile Drawer / Dropdown Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-12 z-50 bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/15 shadow-2xl p-4 transition-all max-h-[calc(100vh-3rem)] overflow-y-auto">
+          {/* User profile card in drawer on mobile */}
+          {isAuthenticated && user && (
+            <div className="mb-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
+                  {user.displayName.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
+                  <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
+                </div>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
+                isLifetime
+                  ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                  : isPro
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  : 'bg-white/10 text-neutral-300 border-white/10'
+              }`}>
+                {planLabel}
+              </span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-2 mb-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -253,6 +279,21 @@ export const PlatformHeader: React.FC = () => {
               <span>Dữ Liệu</span>
             </button>
           </div>
+
+          {/* Logout in mobile menu */}
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                logout();
+              }}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition cursor-pointer active:scale-98"
+            >
+              <LogOut size={14} />
+              <span>Đăng Xuất Khỏi Tài Khoản</span>
+            </button>
+          )}
         </div>
       )}
     </>
