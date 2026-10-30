@@ -44,8 +44,33 @@ async function testP2PTwoWindows() {
     console.log('✅ Chủ phòng đã vào phòng học!');
     await page1.waitForTimeout(2000);
 
-    // 2. Tab 2: Bạn học thứ 2
-    console.log('[Step 3] Mở Tab 2 (Bạn học)...');
+    // =========================================================================
+    // TEST 1: CHỦ PHÒNG Ở MỘT MÌNH — KHÔNG ĐƯỢC TỰ PHÂN THÂN, SĨ SỐ = 1
+    // =========================================================================
+    console.log('\n--- [TEST 1] Kiểm tra Chủ phòng ở một mình ---');
+    const memberCountAloneText = await page1.locator('text=/\\d+ thành viên/').first().textContent();
+    console.log(`📊 Sĩ số hiển thị khi ở 1 mình: "${memberCountAloneText?.trim()}" (Kỳ vọng: "1 thành viên")`);
+
+    const hostTilesAlone = await page1.locator('.grid > div.relative.aspect-video').count();
+    console.log(`📊 Tổng số khung trên lưới khi ở 1 mình: ${hostTilesAlone} (1 khung camera + 1 khung chờ dashed)`);
+
+    const namHoCards = await page1.locator('.grid').getByText('Chủ Phòng Nam').count();
+    console.log(`📊 Số lần xuất hiện của "Chủ Phòng Nam" trên màn hình: ${namHoCards} (Kỳ vọng: DUY NHẤT 1)`);
+
+    const isWaitingBoxVisible = await page1.getByText('Đang chờ bạn học tham gia...').isVisible();
+    console.log(`📊 Khung dashed "Đang chờ bạn học tham gia...": ${isWaitingBoxVisible ? 'Hiển thị chuẩn' : 'Không thấy'}`);
+
+    await page1.screenshot({ path: `${ARTIFACT_DIR}/p2p-proof-1-host-alone.png` });
+    console.log(`📸 Đã chụp ảnh bằng chứng Host ở một mình: ${ARTIFACT_DIR}/p2p-proof-1-host-alone.png\n`);
+
+    if (namHoCards !== 1) {
+      throw new Error(`❌ BUG: Host bị nhân bản! Số thẻ "Chủ Phòng Nam" xuất hiện = ${namHoCards}`);
+    }
+
+    // =========================================================================
+    // TEST 2: BẠN HỌC THỨ 2 VÀO PHÒNG — SĨ SỐ = 2, MỖI NGƯỜI 1 Ô
+    // =========================================================================
+    console.log('[Step 3] Mở Tab 2 (Bạn học Linh)...');
     const page2 = await context.newPage();
 
     console.log(`[Step 4] Bạn học vào link: ${BASE_URL}/rooms/${roomId}`);
@@ -65,28 +90,33 @@ async function testP2PTwoWindows() {
     await page1.waitForTimeout(4000);
     await page2.waitForTimeout(4000);
 
-    // 3. KIỂM TRA PHÍA CHỦ PHÒNG (PAGE 1)
-    console.log('--- Kiểm tra kết quả Cửa sổ 1 (Chủ phòng) ---');
-    const page1Tiles = await page1.locator('.grid > div.relative.aspect-video').count();
-    console.log(`✅ Số thẻ Video trên màn hình Chủ phòng: ${page1Tiles} (Kỳ vọng: 2)`);
+    // KIỂM TRA PHÍA CHỦ PHÒNG (PAGE 1)
+    console.log('\n--- [TEST 2] Kiểm tra khi có 2 người ---');
+    const hostMemberCount = await page1.locator('text=/\\d+ thành viên/').first().textContent();
+    console.log(`✅ Sĩ số trên Chủ phòng: "${hostMemberCount?.trim()}" (Kỳ vọng: "2 thành viên")`);
 
     const hasPeerOnPage1 = await page1.getByText('Bạn Học Linh').count();
-    console.log(`✅ Thẻ của 'Bạn Học Linh' hiển thị trên Chủ phòng: ${hasPeerOnPage1 > 0}`);
-    await page1.screenshot({ path: `${ARTIFACT_DIR}/p2p-live-proof-host-view.png` });
+    console.log(`✅ Thẻ của "Bạn Học Linh" hiển thị trên Chủ phòng: ${hasPeerOnPage1 > 0}`);
 
-    // 4. KIỂM TRA PHÍA BẠN HỌC (PAGE 2)
-    console.log('--- Kiểm tra kết quả Cửa sổ 2 (Bạn học) ---');
-    const page2Tiles = await page2.locator('.grid > div.relative.aspect-video').count();
-    console.log(`✅ Số thẻ Video trên màn hình Bạn học: ${page2Tiles} (Kỳ vọng: 2)`);
+    const namHoCardsWhenTwo = await page1.locator('.grid').getByText('Chủ Phòng Nam').count();
+    console.log(`✅ Thẻ "Chủ Phòng Nam" trên Chủ phòng: ${namHoCardsWhenTwo} (Kỳ vọng: 1)`);
+    await page1.screenshot({ path: `${ARTIFACT_DIR}/p2p-proof-2-host-two-users.png` });
+
+    // KIỂM TRA PHÍA BẠN HỌC (PAGE 2)
+    const guestMemberCount = await page2.locator('text=/\\d+ thành viên/').first().textContent();
+    console.log(`✅ Sĩ số trên Bạn học: "${guestMemberCount?.trim()}" (Kỳ vọng: "2 thành viên")`);
 
     const hasHostOnPage2 = await page2.getByText('Chủ Phòng Nam').count();
-    console.log(`✅ Thẻ của 'Chủ Phòng Nam' hiển thị trên Bạn học: ${hasHostOnPage2 > 0}`);
-    await page2.screenshot({ path: `${ARTIFACT_DIR}/p2p-live-proof-guest-view.png` });
+    console.log(`✅ Thẻ của "Chủ Phòng Nam" hiển thị trên Bạn học: ${hasHostOnPage2 > 0}`);
 
-    if (page1Tiles >= 2 && page2Tiles >= 2) {
-      console.log('🎉 XÁC NHẬN: Cả 2 cửa sổ trên LIVE Vercel đều hiển thị rõ ràng 2 khung hình (ô của mình + ô của người kia)!');
+    const linhCardsWhenTwo = await page2.locator('.grid').getByText('Bạn Học Linh').count();
+    console.log(`✅ Thẻ "Bạn Học Linh" trên Bạn học: ${linhCardsWhenTwo} (Kỳ vọng: 1)`);
+    await page2.screenshot({ path: `${ARTIFACT_DIR}/p2p-proof-3-guest-two-users.png` });
+
+    if (namHoCardsWhenTwo === 1 && hasPeerOnPage1 > 0 && hasHostOnPage2 > 0 && linhCardsWhenTwo === 1) {
+      console.log('🎉 XÁC NHẬN HOÀN TOÀN: Tuyệt đối không bị nhân bản! Sĩ số 1 khi ở 1 mình, sĩ số 2 khi có bạn học, mỗi người 1 khung hình!');
     } else {
-      console.warn('⚠️ Số lượng thẻ video chưa đạt 2 trên cả 2 màn hình.');
+      console.warn('⚠️ Kiểm tra số lượng thẻ chưa khớp hoàn toàn.');
     }
   } catch (err) {
     console.error('❌ Lỗi kiểm thử:', err);

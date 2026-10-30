@@ -374,18 +374,7 @@ export const studyRoomService = {
           allowFree: false
         }
       },
-      participants: {
-        [params.hostUser.id]: {
-          id: params.hostUser.id,
-          userId: params.hostUser.id,
-          name: params.hostUser.displayName || params.hostUser.email.split('@')[0],
-          avatar: params.hostUser.avatarUrl,
-          role: 'host',
-          isMicOn: true,
-          isVideoOn: true,
-          joinedAt: now
-        }
-      },
+      participants: {},
       guestPermissions: {
         canChat: true,
         canMic: true,
@@ -612,6 +601,22 @@ export const studyRoomService = {
     if (!room) return { success: false };
 
     if (!room.participants) room.participants = {};
+
+    // DỌN DẸP SẠCH: Loại bỏ mọi phiên cũ của cùng user (tránh rác khi refresh/reconnect)
+    if (participant.userId) {
+      Object.keys(room.participants).forEach((key) => {
+        const existing = room.participants[key];
+        if (
+          existing.userId === participant.userId ||
+          key === participant.userId ||
+          key.startsWith(`${participant.userId}_`) ||
+          (participant.role === 'host' && existing.role === 'host')
+        ) {
+          delete room.participants[key];
+        }
+      });
+    }
+
     room.participants[participant.id] = participant;
     this.saveRoom(room);
     this.broadcastEvent({ type: 'PARTICIPANT_JOINED', roomId, participant });

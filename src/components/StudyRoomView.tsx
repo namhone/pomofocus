@@ -212,18 +212,45 @@ export const StudyRoomView: React.FC = () => {
   };
 
   // Danh sách các thành viên khác trong phòng học (hợp nhất từ Storage, Broadcast & Supabase Presence)
+  // Tuyệt đối lọc bỏ chính bản thân người dùng và chỉ cho phép mỗi người xuất hiện DUY NHẤT 1 lần
   const otherParticipants = useMemo(() => {
     const map = new Map<
       string,
-      { id: string; name: string; role: 'host' | 'member' | 'guest'; isMicOn?: boolean; isVideoOn?: boolean; avatar?: string }
+      { id: string; userId?: string; name: string; role: 'host' | 'member' | 'guest'; isMicOn?: boolean; isVideoOn?: boolean; avatar?: string }
     >();
 
-    // 1. Thành viên từ room.participants
+    const isSelf = (p: { id?: string; userId?: string; role?: string; name?: string }) => {
+      if (!p) return true;
+      // 1. Trùng session participantId cục bộ
+      if (p.id === participantId) return true;
+
+      // 2. Trùng userId tài khoản đăng nhập hiện tại
+      if (user?.id) {
+        if (p.userId === user.id) return true;
+        if (p.id === user.id) return true;
+        if (p.id?.startsWith(`${user.id}_`)) return true;
+      }
+
+      // 3. Nếu là Host: Host không bao giờ nhìn thấy chính mình hay một Host khác trong danh sách người ngoài
+      if (userRole === 'host') {
+        if (p.role === 'host') return true;
+        if (room?.hostUserId && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    // 1. Thành viên từ room.participants (lưu trong state/storage)
     if (room?.participants) {
       Object.values(room.participants).forEach((p) => {
-        if (p && p.id && p.id !== participantId) {
-          map.set(p.id, {
+        if (p && !isSelf(p)) {
+          // Định danh duy nhất theo userId (hoặc id nếu là khách vãng lai)
+          const dedupeKey = p.userId || p.id;
+          map.set(dedupeKey, {
             id: p.id,
+            userId: p.userId,
             name: p.name || `Bạn học #${p.id.slice(0, 5)}`,
             role: p.role || 'member',
             isMicOn: p.isMicOn,
@@ -236,10 +263,13 @@ export const StudyRoomView: React.FC = () => {
 
     // 2. Thành viên từ Supabase Presence
     Object.entries(presenceUsers).forEach(([id, p]) => {
-      if (id !== participantId) {
-        const existing = map.get(id);
-        map.set(id, {
+      const pUserId = (p as any).userId || (p as any).user_id;
+      if (!isSelf({ id, userId: pUserId, role: p.role, name: p.name })) {
+        const dedupeKey = pUserId || id;
+        const existing = map.get(dedupeKey);
+        map.set(dedupeKey, {
           id,
+          userId: dedupeKey,
           name: p.name || existing?.name || `Bạn học #${id.slice(0, 5)}`,
           role: (p.role as any) || existing?.role || 'member',
           isMicOn: p.isMicOn !== undefined ? p.isMicOn : existing?.isMicOn,
@@ -249,9 +279,9 @@ export const StudyRoomView: React.FC = () => {
       }
     });
 
-    // 3. Bổ sung nếu có stream nhận được mà chưa có trong danh sách
+    // 3. Bổ sung nếu có stream WebRTC nhận được mà chưa có trong danh sách
     Object.keys(remoteStreams).forEach((peerId) => {
-      if (peerId !== participantId && !map.has(peerId)) {
+      if (!isSelf({ id: peerId }) && !map.has(peerId)) {
         map.set(peerId, {
           id: peerId,
           name: `Bạn học #${peerId.slice(0, 5)}`,
@@ -262,9 +292,47 @@ export const StudyRoomView: React.FC = () => {
     });
 
     return Array.from(map.values());
-  }, [room?.participants, presenceUsers, remoteStreams, participantId]);
+  }, [room?.participants, room?.hostUserId, presenceUsers, remoteStreams, participantId, user?.id, userRole]);
 
-  // Lắng nghe sự kiện đồng bộ thời gian thực qua BroadcastChannel
+  // Dọn dẹp sạch sẽ các session rác của bản thân còn sót lại trong phòng khi mới mở
+  useEffect(() => {
+    if (!roomId) return;
+    const currentRoom = studyRoomService.getRoom(roomId);
+    if (currentRoom && currentRoom.participants) {
+      let changed = false;
+      const myId = user?.id;
+      if (myId) {
+        Object.keys(currentRoom.participants).forEach((key) => {
+          const p = currentRoom.participants[key];
+          if (p.userId === myId || key === myId || key.startsWith(`${myId}_`)) {
+            delete currentRoom.participants[key];
+            changed = true;
+          }
+        });
+      }
+      if (changed) {
+        studyRoomService.saveRoom(currentRoom);
+        setRoom(currentRoom);
+      }
+    }
+  }, [roomId, user?.id]);
+
+  // Tự động dọn dẹp và gửi tín hiệu rời phòng khi unmount hoặc tắt tab
+  useEffect(() => {
+    const handleLeave = () => {
+      if (hasJoined && roomId && participantId) {
+        studyRoomService.leaveParticipant(roomId, participantId);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleLeave);
+    return () => {
+      window.removeEventListener('beforeunload', handleLeave);
+      handleLeave();
+    };
+  }, [hasJoined, roomId, participantId]);
+
+  // Lắng nghe sự kiện đồng bộ thời gian thực qua BroadcastChannel và StorageEvent
   useEffect(() => {
     const handleBroadcast = (e: MessageEvent) => {
       const data = e.data;
@@ -387,7 +455,7 @@ export const StudyRoomView: React.FC = () => {
 
     channel.subscribe();
     channel.track({
-      userId: participantId,
+      userId: user?.id || participantId,
       displayName: participantName,
       role: userRole,
       isMicOn: micEnabled,
