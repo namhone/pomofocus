@@ -2,7 +2,7 @@
  * POMOFOCUS WEBRTC CONNECTION MANAGER
  * ==============================================================================
  * Quản lý kết nối P2P thời gian thực giữa các trình duyệt trong phòng học nhóm
- * qua Supabase Realtime Broadcast & Google STUN servers.
+ * qua Supabase Realtime Broadcast, BroadcastChannel & Google STUN servers.
  */
 
 import type { RealtimeChannel } from '@/lib/supabase';
@@ -18,20 +18,31 @@ const ICE_SERVERS: RTCConfiguration = {
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
     { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
   ],
 };
 
 export class WebRTCConnectionManager {
   private localStream: MediaStream | null = null;
   private peerConnections: Map<string, RTCPeerConnection> = new Map();
+  private pendingCandidates: Map<string, RTCIceCandidateInit[]> = new Map();
   private channel: RealtimeChannel;
   private myUserId: string;
   private callbacks: WebRTCCallbacks;
+  private broadcastChannel: BroadcastChannel | null = null;
 
   constructor(channel: RealtimeChannel, myUserId: string, callbacks: WebRTCCallbacks) {
     this.channel = channel;
     this.myUserId = myUserId;
     this.callbacks = callbacks;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        this.broadcastChannel = new BroadcastChannel(`pomofocus_webrtc_bus_${channel.topic}`);
+      } catch (err) {
+        console.warn('Lỗi khởi tạo BroadcastChannel:', err);
+      }
+    }
     this.setupSignalingListeners();
   }
 
@@ -46,65 +57,107 @@ export class WebRTCConnectionManager {
         if (sender) {
           sender.replaceTrack(track);
         } else {
-          pc.addTrack(track, stream);
+          try {
+            pc.addTrack(track, stream);
+          } catch (err) {
+            console.warn('Lỗi thêm track vào peer:', err);
+          }
         }
       });
     });
   }
 
-  /** Lắng nghe các bản tin Signaling từ Supabase Broadcast */
+  /** Gửi bản tin signaling qua cả Supabase Realtime và BroadcastChannel */
+  private sendSignal(event: string, payload: any) {
+    // 1. Gửi qua Supabase channel
+    this.channel.send({
+      type: 'broadcast',
+      event,
+      payload,
+    });
+
+    // 2. Gửi qua local BroadcastChannel (đảm bảo tab/cửa sổ cùng trình duyệt nhận tức thì)
+    if (this.broadcastChannel) {
+      this.broadcastChannel.postMessage({
+        event,
+        payload,
+      });
+    }
+  }
+
+  /** Lắng nghe các bản tin Signaling từ Supabase Broadcast & BroadcastChannel */
   private setupSignalingListeners() {
-    this.channel
-      .on('broadcast', { event: 'webrtc-offer' }, async (payload: any) => {
-        const data = payload?.payload || payload;
-        if (data.targetId !== this.myUserId) return;
+    const handleSignal = async (event: string, data: any) => {
+      if (!data || data.targetId !== this.myUserId) return;
+      if (data.senderId === this.myUserId) return;
+
+      if (event === 'webrtc-offer') {
         await this.handleOffer(data.senderId, data.sdp);
-      })
-      .on('broadcast', { event: 'webrtc-answer' }, async (payload: any) => {
-        const data = payload?.payload || payload;
-        if (data.targetId !== this.myUserId) return;
+      } else if (event === 'webrtc-answer') {
         await this.handleAnswer(data.senderId, data.sdp);
-      })
-      .on('broadcast', { event: 'webrtc-candidate' }, async (payload: any) => {
-        const data = payload?.payload || payload;
-        if (data.targetId !== this.myUserId) return;
+      } else if (event === 'webrtc-candidate') {
         await this.handleCandidate(data.senderId, data.candidate);
+      }
+    };
+
+    // Supabase Channel listeners
+    this.channel
+      .on('broadcast', { event: 'webrtc-offer' }, (payload: any) => {
+        handleSignal('webrtc-offer', payload?.payload || payload);
+      })
+      .on('broadcast', { event: 'webrtc-answer' }, (payload: any) => {
+        handleSignal('webrtc-answer', payload?.payload || payload);
+      })
+      .on('broadcast', { event: 'webrtc-candidate' }, (payload: any) => {
+        handleSignal('webrtc-candidate', payload?.payload || payload);
       })
       .on('presence', { event: 'leave' }, (payload: any) => {
         const leftPresences = payload?.leftPresences || [];
-        leftPresences.forEach((presence: { user_id?: string; userId?: string }) => {
-          const peerId = presence.user_id || presence.userId;
+        leftPresences.forEach((presence: { user_id?: string; userId?: string; key?: string }) => {
+          const peerId = presence.key || presence.user_id || presence.userId;
           if (peerId) {
             this.closeConnection(peerId);
           }
         });
       });
+
+    // Local BroadcastChannel listener
+    if (this.broadcastChannel) {
+      this.broadcastChannel.onmessage = (e: MessageEvent) => {
+        const msg = e.data;
+        if (msg && msg.event && msg.payload) {
+          handleSignal(msg.event, msg.payload);
+        }
+      };
+    }
   }
 
   /** Khởi tạo kết nối tới một người vừa tham gia phòng */
   public async callPeer(peerId: string) {
-    if (this.peerConnections.has(peerId)) return;
+    if (!peerId || peerId === this.myUserId) return;
+    const existing = this.peerConnections.get(peerId);
+    if (existing && existing.signalingState !== 'closed') return;
 
-    const pc = this.createPeerConnection(peerId);
-    this.peerConnections.set(peerId, pc);
+    try {
+      const pc = this.createPeerConnection(peerId);
+      this.peerConnections.set(peerId, pc);
 
-    // Tạo SDP Offer
-    const offer = await pc.createOffer({
-      offerToReceiveAudio: true,
-      offerToReceiveVideo: true,
-    });
-    await pc.setLocalDescription(offer);
+      // Tạo SDP Offer
+      const offer = await pc.createOffer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
+      });
+      await pc.setLocalDescription(offer);
 
-    // Gửi Offer qua Supabase Broadcast
-    this.channel.send({
-      type: 'broadcast',
-      event: 'webrtc-offer',
-      payload: {
+      // Gửi Offer
+      this.sendSignal('webrtc-offer', {
         senderId: this.myUserId,
         targetId: peerId,
         sdp: offer,
-      },
-    });
+      });
+    } catch (err) {
+      console.warn(`[WebRTC] Lỗi tạo offer tới ${peerId}:`, err);
+    }
   }
 
   private createPeerConnection(peerId: string): RTCPeerConnection {
@@ -113,28 +166,31 @@ export class WebRTCConnectionManager {
     // Thêm các track local (mic + cam) vào kết nối
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, this.localStream!);
+        try {
+          pc.addTrack(track, this.localStream!);
+        } catch (err) {
+          console.warn('Lỗi addTrack:', err);
+        }
       });
     }
 
     // Khi phát hiện ICE Candidate mới -> gửi cho đối phương
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        this.channel.send({
-          type: 'broadcast',
-          event: 'webrtc-candidate',
-          payload: {
-            senderId: this.myUserId,
-            targetId: peerId,
-            candidate: event.candidate,
-          },
+        this.sendSignal('webrtc-candidate', {
+          senderId: this.myUserId,
+          targetId: peerId,
+          candidate: event.candidate,
         });
       }
     };
 
     // Khi nhận được Media Stream từ phía bên kia
     pc.ontrack = (event) => {
-      const [remoteStream] = event.streams;
+      let remoteStream = event.streams?.[0];
+      if (!remoteStream && event.track) {
+        remoteStream = new MediaStream([event.track]);
+      }
       if (remoteStream) {
         this.callbacks.onRemoteStream(peerId, remoteStream);
       }
@@ -151,43 +207,69 @@ export class WebRTCConnectionManager {
     return pc;
   }
 
-  private async handleOffer(peerId: string, sdp: RTCSessionDescriptionInit) {
-    let pc = this.peerConnections.get(peerId);
-    if (!pc) {
-      pc = this.createPeerConnection(peerId);
-      this.peerConnections.set(peerId, pc);
+  private async processPendingCandidates(peerId: string, pc: RTCPeerConnection) {
+    const queue = this.pendingCandidates.get(peerId);
+    if (!queue || queue.length === 0) return;
+    this.pendingCandidates.delete(peerId);
+    for (const candidate of queue) {
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (err) {
+        console.warn(`[WebRTC] Lỗi addIceCandidate cho ${peerId}:`, err);
+      }
     }
+  }
 
-    await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+  private async handleOffer(peerId: string, sdp: RTCSessionDescriptionInit) {
+    try {
+      let pc = this.peerConnections.get(peerId);
+      if (!pc || pc.signalingState === 'closed') {
+        pc = this.createPeerConnection(peerId);
+        this.peerConnections.set(peerId, pc);
+      }
 
-    this.channel.send({
-      type: 'broadcast',
-      event: 'webrtc-answer',
-      payload: {
+      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      await this.processPendingCandidates(peerId, pc);
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      this.sendSignal('webrtc-answer', {
         senderId: this.myUserId,
         targetId: peerId,
         sdp: answer,
-      },
-    });
+      });
+    } catch (err) {
+      console.warn(`[WebRTC] Lỗi xử lý offer từ ${peerId}:`, err);
+    }
   }
 
   private async handleAnswer(peerId: string, sdp: RTCSessionDescriptionInit) {
-    const pc = this.peerConnections.get(peerId);
-    if (pc && pc.signalingState !== 'stable') {
-      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    try {
+      const pc = this.peerConnections.get(peerId);
+      if (pc && pc.signalingState !== 'stable') {
+        await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+        await this.processPendingCandidates(peerId, pc);
+      }
+    } catch (err) {
+      console.warn(`[WebRTC] Lỗi xử lý answer từ ${peerId}:`, err);
     }
   }
 
   private async handleCandidate(peerId: string, candidate: RTCIceCandidateInit) {
+    if (!candidate) return;
     const pc = this.peerConnections.get(peerId);
-    if (pc && pc.remoteDescription) {
+    if (pc && pc.remoteDescription && pc.remoteDescription.type) {
       try {
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch {
-        // Bỏ qua nếu candidate đến sớm hơn RemoteDescription
+      } catch (err) {
+        console.warn(`[WebRTC] Lỗi addIceCandidate:`, err);
       }
+    } else {
+      // Hàng đợi candidate cho đến khi setRemoteDescription hoàn tất
+      const queue = this.pendingCandidates.get(peerId) || [];
+      queue.push(candidate);
+      this.pendingCandidates.set(peerId, queue);
     }
   }
 
@@ -196,6 +278,7 @@ export class WebRTCConnectionManager {
     if (pc) {
       pc.close();
       this.peerConnections.delete(peerId);
+      this.pendingCandidates.delete(peerId);
       this.callbacks.onPeerLeave(peerId);
     }
   }
@@ -207,5 +290,10 @@ export class WebRTCConnectionManager {
       this.callbacks.onPeerLeave(peerId);
     });
     this.peerConnections.clear();
+    this.pendingCandidates.clear();
+    if (this.broadcastChannel) {
+      this.broadcastChannel.close();
+      this.broadcastChannel = null;
+    }
   }
 }

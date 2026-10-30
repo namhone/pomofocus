@@ -85,11 +85,37 @@ export class RealtimeChannel {
         }
       });
     } else if (data.type === 'presence_sync') {
-      const { presences } = data;
-      this.presences = presences || {};
+      const { presences, senderKey, state } = data;
+      const oldKeys = Object.keys(this.presences);
+      // Hợp nhất dữ liệu presence giữa các tab/cửa sổ
+      this.presences = { ...this.presences, ...(presences || {}) };
+      if (senderKey && state) {
+        this.presences[senderKey] = [state];
+      }
+
       this.presenceListeners
         .filter((l) => l.event === 'sync')
         .forEach((l) => l.callback());
+
+      // Kích hoạt event 'join' khi có thành viên mới
+      const newKeys = Object.keys(this.presences).filter((k) => !oldKeys.includes(k) && k !== this.presenceKey);
+      if (newKeys.length > 0) {
+        const newPresences = newKeys.map((k) => this.presences[k]?.[0] || { key: k });
+        this.presenceListeners
+          .filter((l) => l.event === 'join')
+          .forEach((l) => l.callback({ newPresences }));
+      }
+    } else if (data.type === 'presence_leave') {
+      const { key } = data;
+      if (key && this.presences[key]) {
+        delete this.presences[key];
+        this.presenceListeners
+          .filter((l) => l.event === 'sync')
+          .forEach((l) => l.callback());
+        this.presenceListeners
+          .filter((l) => l.event === 'leave')
+          .forEach((l) => l.callback({ leftPresences: [{ key, userId: key }] }));
+      }
     } else if (data.type === 'broadcast') {
       const { event, payload } = data;
       this.broadcastListeners
@@ -140,6 +166,8 @@ export class RealtimeChannel {
       this.broadcastChannel.postMessage({
         type: 'presence_sync',
         presences: this.presences,
+        senderKey: this.presenceKey,
+        state,
       });
     }
 
@@ -190,6 +218,12 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+    if (this.broadcastChannel && this.presenceKey) {
+      this.broadcastChannel.postMessage({
+        type: 'presence_leave',
+        key: this.presenceKey,
+      });
+    }
     this.postgresChangeListeners = [];
     this.presenceListeners = [];
     this.broadcastListeners = [];

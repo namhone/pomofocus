@@ -153,6 +153,9 @@ export const StudyRoomView: React.FC = () => {
 
   // WebRTC Real Remote Streams
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
+  const [presenceUsers, setPresenceUsers] = useState<
+    Record<string, { id: string; name: string; role: string; isMicOn?: boolean; isVideoOn?: boolean }>
+  >({});
   const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
 
   // Vai trò của người dùng trong phòng
@@ -207,6 +210,59 @@ export const StudyRoomView: React.FC = () => {
     const s = (totalSec % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
+
+  // Danh sách các thành viên khác trong phòng học (hợp nhất từ Storage, Broadcast & Supabase Presence)
+  const otherParticipants = useMemo(() => {
+    const map = new Map<
+      string,
+      { id: string; name: string; role: 'host' | 'member' | 'guest'; isMicOn?: boolean; isVideoOn?: boolean; avatar?: string }
+    >();
+
+    // 1. Thành viên từ room.participants
+    if (room?.participants) {
+      Object.values(room.participants).forEach((p) => {
+        if (p && p.id && p.id !== participantId) {
+          map.set(p.id, {
+            id: p.id,
+            name: p.name || `Bạn học #${p.id.slice(0, 5)}`,
+            role: p.role || 'member',
+            isMicOn: p.isMicOn,
+            isVideoOn: p.isVideoOn,
+            avatar: p.avatar,
+          });
+        }
+      });
+    }
+
+    // 2. Thành viên từ Supabase Presence
+    Object.entries(presenceUsers).forEach(([id, p]) => {
+      if (id !== participantId) {
+        const existing = map.get(id);
+        map.set(id, {
+          id,
+          name: p.name || existing?.name || `Bạn học #${id.slice(0, 5)}`,
+          role: (p.role as any) || existing?.role || 'member',
+          isMicOn: p.isMicOn !== undefined ? p.isMicOn : existing?.isMicOn,
+          isVideoOn: p.isVideoOn !== undefined ? p.isVideoOn : existing?.isVideoOn,
+          avatar: existing?.avatar,
+        });
+      }
+    });
+
+    // 3. Bổ sung nếu có stream nhận được mà chưa có trong danh sách
+    Object.keys(remoteStreams).forEach((peerId) => {
+      if (peerId !== participantId && !map.has(peerId)) {
+        map.set(peerId, {
+          id: peerId,
+          name: `Bạn học #${peerId.slice(0, 5)}`,
+          role: 'member',
+          isVideoOn: true,
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [room?.participants, presenceUsers, remoteStreams, participantId]);
 
   // Lắng nghe sự kiện đồng bộ thời gian thực qua BroadcastChannel
   useEffect(() => {
@@ -263,16 +319,59 @@ export const StudyRoomView: React.FC = () => {
       manager.setLocalStream(localStreamRef.current);
     }
 
+    // Đồng bộ danh sách presence và chủ động kết nối WebRTC với các peer đã có hoặc mới vào
+    const syncPeers = () => {
+      const state = channel.presenceState();
+      const updated: Record<string, any> = {};
+
+      Object.entries(state).forEach(([key, presences]) => {
+        if (presences && presences.length > 0) {
+          const p = presences[0] as any;
+          updated[key] = {
+            id: key,
+            name: p.displayName || `Bạn học #${key.slice(0, 5)}`,
+            role: p.role || 'member',
+            isMicOn: p.isMicOn,
+            isVideoOn: p.isVideoOn,
+          };
+          if (key !== participantId) {
+            // Bên có ID nhỏ hơn sẽ chủ động tạo offer
+            if (participantId < key) {
+              manager.callPeer(key);
+            }
+          }
+        }
+      });
+      setPresenceUsers(updated);
+    };
+
+    channel.on('presence', { event: 'sync' }, syncPeers);
+
     // Lắng nghe người mới vào phòng qua Presence và bắt tay WebRTC Call
     channel.on('presence', { event: 'join' }, (payload: any) => {
+      syncPeers();
       const newPresences = payload?.newPresences || [];
       newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
         if (peerId && peerId !== participantId) {
-          // Khử xung đột: Bên có ID nhỏ hơn sẽ chủ động khởi tạo Offer
           if (participantId < peerId) {
             manager.callPeer(peerId);
           }
+        }
+      });
+    });
+
+    channel.on('presence', { event: 'leave' }, (payload: any) => {
+      const leftPresences = payload?.leftPresences || [];
+      leftPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
+        const peerId = presence.key || presence.user_id || presence.userId;
+        if (peerId) {
+          manager.closeConnection(peerId);
+          setPresenceUsers((prev) => {
+            const next = { ...prev };
+            delete next[peerId];
+            return next;
+          });
         }
       });
     });
@@ -285,6 +384,15 @@ export const StudyRoomView: React.FC = () => {
       isMicOn: micEnabled,
       isVideoOn: cameraEnabled
     });
+
+    // Dự phòng bắt tay WebRTC với các thành viên trong room.participants
+    if (room?.participants) {
+      Object.keys(room.participants).forEach((peerId) => {
+        if (peerId !== participantId && participantId < peerId) {
+          manager.callPeer(peerId);
+        }
+      });
+    }
 
     return () => {
       manager.destroy();
@@ -638,14 +746,17 @@ export const StudyRoomView: React.FC = () => {
       joinedAt: Date.now()
     };
 
-    studyRoomService.joinParticipant(roomId, participant);
+    const res = studyRoomService.joinParticipant(roomId, participant);
+    if (res.room) {
+      setRoom(res.room);
+    }
     setHasJoined(true);
   };
 
   // Rời phòng
   const handleLeaveRoom = () => {
     studyRoomService.leaveParticipant(roomId, participantId);
-    router.navigate('/app');
+    router.navigate('/rooms');
   };
 
   // =========================================================================
@@ -1118,7 +1229,7 @@ export const StudyRoomView: React.FC = () => {
 
             <div className="flex items-center gap-1.5 text-xs text-neutral-400">
               <Users size={14} />
-              <span>{Object.keys(room?.participants || {}).length + 1} thành viên</span>
+              <span>{otherParticipants.length + 1} thành viên</span>
             </div>
           </div>
         </div>
@@ -1199,7 +1310,7 @@ export const StudyRoomView: React.FC = () => {
             {/* Participants Count */}
             <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 text-[11px] text-neutral-300 shrink-0">
               <Users size={12} />
-              <span>{Object.keys(room?.participants || {}).length + 1}</span>
+              <span>{otherParticipants.length + 1}</span>
             </div>
           </div>
         </div>
@@ -1336,39 +1447,82 @@ export const StudyRoomView: React.FC = () => {
                 </div>
               </div>
 
-              {/* REMOTE PARTICIPANTS — Chỉ hiển thị người thật kết nối qua WebRTC & Phòng */}
-              {Object.keys(remoteStreams).length > 0 ? (
-                Object.entries(remoteStreams).map(([peerId, stream]) => {
-                  const peerParticipant = room?.participants?.[peerId];
-                  const peerName = peerParticipant?.name || `Bạn học #${peerId.slice(0, 5)}`;
-                  const peerRole = peerParticipant?.role || 'member';
+              {/* REMOTE PARTICIPANTS — Render dựa trên danh sách thành viên thực tế (otherParticipants) */}
+              {otherParticipants.length > 0 ? (
+                otherParticipants.map((peer) => {
+                  const stream = remoteStreams[peer.id];
+                  const hasVideoTrack = Boolean(
+                    stream &&
+                    stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
+                  );
 
                   return (
                     <div
-                      key={peerId}
-                      className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group"
+                      key={peer.id}
+                      data-testid={`peer-tile-${peer.id}`}
+                      className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-white/5"
                     >
-                      <video
-                        autoPlay
-                        playsInline
-                        ref={(el) => {
-                          if (el && el.srcObject !== stream) {
-                            el.srcObject = stream;
-                          }
-                        }}
-                        className="w-full h-full object-cover"
-                      />
+                      {/* Nếu có stream video thật sự đang phát */}
+                      {hasVideoTrack ? (
+                        <video
+                          autoPlay
+                          playsInline
+                          ref={(el) => {
+                            if (el && el.srcObject !== stream) {
+                              el.srcObject = stream;
+                            }
+                          }}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        /* Nếu chưa có stream hoặc người kia tắt Camera: Avatar tròn to + Tên người dùng + Trạng thái */
+                        <div className="flex flex-col items-center gap-2 text-neutral-400 select-none">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-400/80 flex items-center justify-center text-xl font-bold text-cyan-300 shadow-md">
+                            {(peer.name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div className="text-center px-3">
+                            <div className="text-xs font-semibold text-white truncate max-w-[150px]">
+                              {peer.name}
+                            </div>
+                            <div className="text-[10px] text-neutral-400 flex items-center justify-center gap-1 mt-0.5">
+                              <VideoOff size={11} className="text-neutral-500" />
+                              <span>Camera tắt</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
+                      {/* Luôn gắn thẻ audio để nghe âm thanh khi có stream */}
+                      {stream && (
+                        <audio
+                          autoPlay
+                          playsInline
+                          ref={(el) => {
+                            if (el && el.srcObject !== stream) {
+                              el.srcObject = stream;
+                            }
+                          }}
+                        />
+                      )}
+
+                      {/* In-Card Status Bar */}
                       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
                         <div className="flex items-center gap-1.5 truncate">
-                          <span className="font-semibold text-white truncate">{peerName}</span>
-                          <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300">
-                            {peerRole === 'host' ? 'Host' : peerRole === 'guest' ? 'Free' : 'Pro'}
+                          <span className="font-semibold text-white truncate">{peer.name}</span>
+                          <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300 font-medium">
+                            {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
                           </span>
                         </div>
-                        <span className="p-1 rounded bg-white/10 text-white">
-                          <Mic size={11} />
-                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span
+                            className={`p-1 rounded ${
+                              peer.isMicOn !== false ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'
+                            }`}
+                            title={peer.isMicOn !== false ? 'Micro bật' : 'Micro tắt'}
+                          >
+                            {peer.isMicOn !== false ? <Mic size={11} /> : <MicOff size={11} />}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
