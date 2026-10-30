@@ -233,10 +233,13 @@ export const StudyRoomView: React.FC = () => {
         if (p.id?.startsWith(`${user.id}_`)) return true;
       }
 
-      // 3. Nếu là Host: Host không bao giờ nhìn thấy chính mình hay một Host khác trong danh sách người ngoài
+      // 3. Trùng tên hiển thị của bản thân khi là Host
       if (userRole === 'host') {
         if (p.role === 'host') return true;
         if (room?.hostUserId && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
+          return true;
+        }
+        if (p.name && participantName && p.name.trim().toLowerCase() === participantName.trim().toLowerCase()) {
           return true;
         }
       }
@@ -244,13 +247,46 @@ export const StudyRoomView: React.FC = () => {
       return false;
     };
 
+    // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId, session prefix hoặc tên)
+    const findExistingKey = (candidate: { id: string; userId?: string; name?: string }) => {
+      for (const [k, v] of map.entries()) {
+        if (candidate.userId && v.userId && candidate.userId === v.userId) return k;
+        if (candidate.id === v.id) return k;
+        if (candidate.userId && (v.id === candidate.userId || v.id.startsWith(`${candidate.userId}_`))) return k;
+        if (v.userId && (candidate.id === v.userId || candidate.id.startsWith(`${v.userId}_`))) return k;
+        if (candidate.name && v.name && candidate.name.trim().toLowerCase() === v.name.trim().toLowerCase()) return k;
+      }
+      return null;
+    };
+
+    const upsertPeer = (peer: {
+      id: string;
+      userId?: string;
+      name: string;
+      role: 'host' | 'member' | 'guest';
+      isMicOn?: boolean;
+      isVideoOn?: boolean;
+      avatar?: string;
+    }) => {
+      const matchKey = findExistingKey(peer);
+      const targetKey = matchKey || peer.userId || peer.id;
+      const existing = map.get(targetKey);
+      map.set(targetKey, {
+        id: peer.id || existing?.id || targetKey,
+        userId: peer.userId || existing?.userId,
+        name: peer.name || existing?.name || `Bạn học #${peer.id.slice(0, 5)}`,
+        role: peer.role || existing?.role || 'member',
+        isMicOn: peer.isMicOn !== undefined ? peer.isMicOn : existing?.isMicOn,
+        isVideoOn: peer.isVideoOn !== undefined ? peer.isVideoOn : existing?.isVideoOn,
+        avatar: peer.avatar || existing?.avatar,
+      });
+    };
+
     // 1. Thành viên từ room.participants (lưu trong state/storage)
     if (room?.participants) {
       Object.values(room.participants).forEach((p) => {
         if (p && !isSelf(p)) {
-          // Định danh duy nhất theo userId (hoặc id nếu là khách vãng lai)
-          const dedupeKey = p.userId || p.id;
-          map.set(dedupeKey, {
+          upsertPeer({
             id: p.id,
             userId: p.userId,
             name: p.name || `Bạn học #${p.id.slice(0, 5)}`,
@@ -267,34 +303,37 @@ export const StudyRoomView: React.FC = () => {
     Object.entries(presenceUsers).forEach(([id, p]) => {
       const pUserId = (p as any).userId || (p as any).user_id;
       if (!isSelf({ id, userId: pUserId, role: p.role, name: p.name })) {
-        const dedupeKey = pUserId || id;
-        const existing = map.get(dedupeKey);
-        map.set(dedupeKey, {
+        upsertPeer({
           id,
-          userId: dedupeKey,
-          name: p.name || existing?.name || `Bạn học #${id.slice(0, 5)}`,
-          role: (p.role as any) || existing?.role || 'member',
-          isMicOn: p.isMicOn !== undefined ? p.isMicOn : existing?.isMicOn,
-          isVideoOn: p.isVideoOn !== undefined ? p.isVideoOn : existing?.isVideoOn,
-          avatar: existing?.avatar,
+          userId: pUserId,
+          name: p.name || `Bạn học #${id.slice(0, 5)}`,
+          role: (p.role as any) || 'member',
+          isMicOn: p.isMicOn,
+          isVideoOn: p.isVideoOn,
         });
       }
     });
 
     // 3. Bổ sung nếu có stream WebRTC nhận được mà chưa có trong danh sách
     Object.keys(remoteStreams).forEach((peerId) => {
-      if (!isSelf({ id: peerId }) && !map.has(peerId)) {
-        map.set(peerId, {
-          id: peerId,
-          name: `Bạn học #${peerId.slice(0, 5)}`,
-          role: 'member',
-          isVideoOn: true,
-        });
+      if (!isSelf({ id: peerId })) {
+        const match = findExistingKey({ id: peerId });
+        if (match) {
+          const curr = map.get(match)!;
+          curr.isVideoOn = true;
+        } else {
+          upsertPeer({
+            id: peerId,
+            name: `Bạn học #${peerId.slice(0, 5)}`,
+            role: 'member',
+            isVideoOn: true,
+          });
+        }
       }
     });
 
     return Array.from(map.values());
-  }, [room?.participants, room?.hostUserId, presenceUsers, remoteStreams, participantId, user?.id, userRole]);
+  }, [room?.participants, room?.hostUserId, presenceUsers, remoteStreams, participantId, user?.id, userRole, participantName]);
 
   // Dọn dẹp sạch sẽ các session rác của bản thân còn sót lại trong phòng khi mới mở
   useEffect(() => {
@@ -408,6 +447,7 @@ export const StudyRoomView: React.FC = () => {
           const p = presences[0] as any;
           updated[key] = {
             id: key,
+            userId: p.userId || p.user_id,
             name: p.displayName || `Bạn học #${key.slice(0, 5)}`,
             role: p.role || 'member',
             isMicOn: p.isMicOn,
