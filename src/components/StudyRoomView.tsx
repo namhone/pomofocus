@@ -1820,7 +1820,7 @@ export const StudyRoomView: React.FC = () => {
                           Cho phép người dùng Free tham gia qua link mời
                         </div>
                         <div className="text-[11px] text-neutral-400">
-                          Khách Free có thể vào phòng bằng link có token bảo mật, học tập và chat cùng nhóm.
+                          Khách Free có thể vào phòng bằng link mời, học tập và chat cùng nhóm.
                         </div>
                       </div>
 
