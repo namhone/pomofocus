@@ -148,8 +148,8 @@ export const StudyRoomView: React.FC = () => {
   ]);
   const [inputMsg, setInputMsg] = useState('');
 
-  // Sample participants kết hợp người tham gia thực tế
-  const [participantId] = useState(() => user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`);
+  // Sample participants kết hợp người tham gia thực tế (đảm bảo mỗi tab/phiên là 1 peerId duy nhất)
+  const [participantId] = useState(() => `${user?.id || 'guest'}_${Math.random().toString(36).substring(2, 9)}`);
 
   // WebRTC Real Remote Streams
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
@@ -284,9 +284,18 @@ export const StudyRoomView: React.FC = () => {
       }
     };
 
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'pomodoro_study_rooms_store') {
+        const refreshed = studyRoomService.getRoom(roomId);
+        if (refreshed) setRoom(refreshed);
+      }
+    };
+
     studyRoomService.broadcastChannel?.addEventListener('message', handleBroadcast);
+    window.addEventListener('storage', handleStorage);
     return () => {
       studyRoomService.broadcastChannel?.removeEventListener('message', handleBroadcast);
+      window.removeEventListener('storage', handleStorage);
     };
   }, [roomId, router]);
 
