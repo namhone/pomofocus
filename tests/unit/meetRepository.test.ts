@@ -2,11 +2,52 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LocalMeetAdapter } from '../../src/services/meet/localAdapter';
 import { SupabaseMeetAdapter, withRetry } from '../../src/services/meet/supabaseAdapter';
 import { useMeetStore } from '../../src/stores/useMeetStore';
+import { supabase } from '../../src/lib/supabase';
 
 describe('Meet Repository, Adapters & Feature Flag Architecture Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     useMeetStore.getState().reset();
+    vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName: string, params: any) => {
+      if (fnName === 'create_study_room') {
+        return {
+          data: {
+            room_id: '1111-2222-3333',
+            host_user_id: 'usr_test_host',
+            status: 'active',
+            capacity_limit: params.p_capacity_limit || 10,
+          },
+          error: null,
+        };
+      }
+      if (fnName === 'create_room_invite_token') {
+        return {
+          data: {
+            raw_token: 'tok_test_mock_123',
+            expires_at: new Date(Date.now() + 86400000).toISOString(),
+            token_type: params.p_token_type || 'single_use',
+          },
+          error: null,
+        };
+      }
+      if (fnName === 'send_room_message') {
+        return {
+          data: {
+            id: 'msg_rpc_001',
+            room_id: params.p_room_id,
+            sender_user_id: 'usr_test_sender',
+            client_message_id: params.p_client_message_id,
+            content: params.p_content,
+            created_at: new Date().toISOString(),
+          },
+          error: null,
+        };
+      }
+      if (fnName === 'close_study_room' || fnName === 'kick_room_member') {
+        return { data: null, error: null };
+      }
+      return { data: null, error: null };
+    });
   });
 
   describe('1. LocalMeetAdapter Functionality (Offline / Dexie / localStorage)', () => {

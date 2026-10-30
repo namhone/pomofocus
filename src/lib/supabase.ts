@@ -2,7 +2,8 @@
  * SUPABASE CLIENT & REALTIME CHANNEL ADAPTER
  * ==============================================================================
  * Cung cấp client RPC PostgREST và Realtime Channel tương thích Supabase v2.
- * Hỗ trợ đa tab qua BroadcastChannel (Offline & Graceful Fallback) và WebSocket.
+ * Hỗ trợ đồng bộ chéo thiết bị qua Supabase Realtime WebSocket (Production Cloud)
+ * và đa tab nội bộ qua BroadcastChannel.
  */
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
@@ -47,17 +48,141 @@ export class RealtimeChannel {
 
   private presences: Record<string, any[]> = {};
   private broadcastChannel: BroadcastChannel | null = null;
+  private socket: WebSocket | null = null;
+  private heartbeatTimer: any = null;
+  private refCounter: number = 0;
   public isSubscribed: boolean = false;
 
   constructor(topic: string, opts?: ChannelConfig) {
     this.topic = topic;
     this.presenceKey = opts?.config?.presence?.key || 'default_user';
 
+    // 1. Kênh đa tab cục bộ
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-      this.broadcastChannel = new BroadcastChannel(`supabase_rt_${topic}`);
-      this.broadcastChannel.onmessage = (event) => {
-        this.handleInboundMessage(event.data);
+      try {
+        this.broadcastChannel = new BroadcastChannel(`supabase_rt_${topic}`);
+        this.broadcastChannel.onmessage = (event) => {
+          this.handleInboundMessage(event.data);
+        };
+      } catch {
+        // Fallback an toàn nếu BroadcastChannel bị hạn chế
+      }
+    }
+  }
+
+  private initWebSocket(onSubscribed?: (status: string) => void) {
+    if (typeof window === 'undefined' || !('WebSocket' in window)) return;
+    if (this.socket) return;
+
+    try {
+      const cleanUrl = SUPABASE_URL.replace(/^http/, 'ws').replace(/\/+$/, '');
+      const wsUrl = `${cleanUrl}/realtime/v1/websocket?apikey=${encodeURIComponent(SUPABASE_ANON_KEY)}&vsn=1.0.0`;
+
+      this.socket = new WebSocket(wsUrl);
+
+      this.socket.onopen = () => {
+        // Tham gia phòng trên Phoenix Channel của Supabase
+        const joinMsg = {
+          topic: `realtime:${this.topic}`,
+          event: 'phx_join',
+          payload: {
+            config: {
+              broadcast: { self: true },
+              presence: { key: this.presenceKey }
+            }
+          },
+          ref: String(++this.refCounter)
+        };
+        this.socket?.send(JSON.stringify(joinMsg));
+
+        // Bắt đầu heartbeat giữ kết nối mỗi 25s
+        this.heartbeatTimer = setInterval(() => {
+          if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(
+              JSON.stringify({
+                topic: 'phoenix',
+                event: 'heartbeat',
+                payload: {},
+                ref: String(++this.refCounter)
+              })
+            );
+          }
+        }, 25000);
       };
+
+      this.socket.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.event === 'phx_reply') {
+            if (msg.payload?.status === 'ok' && onSubscribed) {
+              onSubscribed('SUBSCRIBED');
+            }
+          } else if (msg.event === 'broadcast') {
+            const ev = msg.payload?.event;
+            const payload = msg.payload?.payload;
+            if (ev) {
+              this.broadcastListeners
+                .filter((l) => l.event === ev || l.event === '*')
+                .forEach((l) => l.callback(payload));
+            }
+          } else if (msg.event === 'presence_state') {
+            const raw = msg.payload || {};
+            Object.keys(raw).forEach((k) => {
+              this.presences[k] = raw[k]?.metas || [raw[k]];
+            });
+            this.presenceListeners
+              .filter((l) => l.event === 'sync')
+              .forEach((l) => l.callback());
+          } else if (msg.event === 'presence_diff') {
+            const { joins, leaves } = msg.payload || {};
+            if (leaves) {
+              Object.keys(leaves).forEach((k) => {
+                delete this.presences[k];
+              });
+              const leftPresences = Object.keys(leaves).map((k) => ({ key: k, userId: k }));
+              this.presenceListeners
+                .filter((l) => l.event === 'leave')
+                .forEach((l) => l.callback({ leftPresences }));
+            }
+            if (joins) {
+              Object.keys(joins).forEach((k) => {
+                this.presences[k] = joins[k]?.metas || [joins[k]];
+              });
+              const newPresences = Object.keys(joins).map((k) => joins[k]?.metas?.[0] || { key: k });
+              this.presenceListeners
+                .filter((l) => l.event === 'join')
+                .forEach((l) => l.callback({ newPresences }));
+            }
+            this.presenceListeners
+              .filter((l) => l.event === 'sync')
+              .forEach((l) => l.callback());
+          } else if (msg.event === 'postgres_changes') {
+            const { table, eventType, newRecord, oldRecord } = msg.payload || {};
+            this.postgresChangeListeners.forEach((listener) => {
+              const matchesTable = !listener.table || listener.table === table;
+              const matchesEvent = listener.event === '*' || listener.event === eventType;
+              if (matchesTable && matchesEvent) {
+                listener.callback({ eventType, new: newRecord, old: oldRecord });
+              }
+            });
+          }
+        } catch {
+          // Bỏ qua lỗi parse frame socket
+        }
+      };
+
+      this.socket.onerror = (err) => {
+        console.warn('[Supabase Realtime WS] Lỗi kết nối socket:', err);
+      };
+
+      this.socket.onclose = () => {
+        if (this.heartbeatTimer) {
+          clearInterval(this.heartbeatTimer);
+          this.heartbeatTimer = null;
+        }
+      };
+    } catch (err) {
+      console.warn('[Supabase Realtime WS] Không thể mở kết nối WebSocket:', err);
     }
   }
 
@@ -87,7 +212,6 @@ export class RealtimeChannel {
     } else if (data.type === 'presence_sync') {
       const { presences, senderKey, state } = data;
       const oldKeys = Object.keys(this.presences);
-      // Hợp nhất dữ liệu presence giữa các tab/cửa sổ
       this.presences = { ...this.presences, ...(presences || {}) };
       if (senderKey && state) {
         this.presences[senderKey] = [state];
@@ -97,7 +221,6 @@ export class RealtimeChannel {
         .filter((l) => l.event === 'sync')
         .forEach((l) => l.callback());
 
-      // Kích hoạt event 'join' khi có thành viên mới
       const newKeys = Object.keys(this.presences).filter((k) => !oldKeys.includes(k) && k !== this.presenceKey);
       if (newKeys.length > 0) {
         const newPresences = newKeys.map((k) => this.presences[k]?.[0] || { key: k });
@@ -152,6 +275,7 @@ export class RealtimeChannel {
 
   subscribe(callback?: (status: string) => void): this {
     this.isSubscribed = true;
+    this.initWebSocket(callback);
     if (callback) {
       setTimeout(() => callback('SUBSCRIBED'), 0);
     }
@@ -161,7 +285,23 @@ export class RealtimeChannel {
   async track(state: any): Promise<'ok' | 'error'> {
     this.presences[this.presenceKey] = [state];
 
-    // Gửi sự kiện presence tới các tab khác
+    // Gửi qua Supabase WebSocket Cloud để toàn bộ mạng thấy
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(
+        JSON.stringify({
+          topic: `realtime:${this.topic}`,
+          event: 'presence',
+          payload: {
+            type: 'presence',
+            event: 'track',
+            payload: state
+          },
+          ref: String(++this.refCounter)
+        })
+      );
+    }
+
+    // Gửi qua BroadcastChannel nội bộ cùng máy
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage({
         type: 'presence_sync',
@@ -171,7 +311,6 @@ export class RealtimeChannel {
       });
     }
 
-    // Tự kích hoạt listener nội bộ
     this.presenceListeners
       .filter((l) => l.event === 'sync')
       .forEach((l) => l.callback());
@@ -184,6 +323,23 @@ export class RealtimeChannel {
   }
 
   async send(params: { type: 'broadcast'; event: string; payload: any }): Promise<'ok' | 'error'> {
+    // 1. Gửi qua WebSocket Supabase Cloud để máy khác nhận được
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(
+        JSON.stringify({
+          topic: `realtime:${this.topic}`,
+          event: 'broadcast',
+          payload: {
+            type: 'broadcast',
+            event: params.event,
+            payload: params.payload
+          },
+          ref: String(++this.refCounter)
+        })
+      );
+    }
+
+    // 2. Gửi qua BroadcastChannel cục bộ cùng máy
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage({
         type: 'broadcast',
@@ -191,9 +347,11 @@ export class RealtimeChannel {
         payload: params.payload,
       });
     }
+
     this.broadcastListeners
       .filter((l) => l.event === params.event)
       .forEach((l) => l.callback(params.payload));
+
     return 'ok';
   }
 
@@ -218,6 +376,30 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+
+    if (this.socket) {
+      if (this.heartbeatTimer) {
+        clearInterval(this.heartbeatTimer);
+        this.heartbeatTimer = null;
+      }
+      try {
+        if (this.socket.readyState === WebSocket.OPEN) {
+          this.socket.send(
+            JSON.stringify({
+              topic: `realtime:${this.topic}`,
+              event: 'phx_leave',
+              payload: {},
+              ref: String(++this.refCounter)
+            })
+          );
+        }
+        this.socket.close();
+      } catch {
+        // Bỏ qua lỗi đóng socket
+      }
+      this.socket = null;
+    }
+
     if (this.broadcastChannel && this.presenceKey) {
       this.broadcastChannel.postMessage({
         type: 'presence_leave',

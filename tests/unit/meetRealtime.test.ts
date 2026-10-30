@@ -12,6 +12,33 @@ describe('Meet Realtime Service & Defense-in-Depth Teardown Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     useMeetStore.getState().reset();
+    vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName: string, params: any) => {
+      if (fnName === 'create_study_room') {
+        return {
+          data: {
+            room_id: '1111-2222-3333',
+            host_user_id: 'usr_test_host',
+            status: 'active',
+            capacity_limit: params.p_capacity_limit || 10,
+          },
+          error: null,
+        };
+      }
+      if (fnName === 'send_room_message') {
+        return {
+          data: {
+            id: 'msg_rpc_001',
+            room_id: params.p_room_id,
+            sender_user_id: 'usr_test_sender',
+            client_message_id: params.p_client_message_id,
+            content: params.p_content,
+            created_at: new Date().toISOString(),
+          },
+          error: null,
+        };
+      }
+      return { data: null, error: null };
+    });
   });
 
   afterEach(() => {

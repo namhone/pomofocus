@@ -1,18 +1,5 @@
 import { supabase } from '@/lib/supabase';
 import type { IMeetRepository, StudyRoom, RoomMessage, InviteTokenResult, JoinRoomResult } from '@/types/meet';
-import { LocalMeetAdapter } from './localAdapter';
-
-function isSchemaCacheError(err: any): boolean {
-  if (!err) return false;
-  const msg = String(err.message || '');
-  const code = String(err.code || '');
-  return (
-    code === 'PGRST202' ||
-    msg.includes('schema cache') ||
-    msg.includes('Could not find the function') ||
-    msg.includes('function public.')
-  );
-}
 
 // Helper retry tự động khi gặp lỗi serialization / timeout mạng
 export async function withRetry<T>(fn: () => Promise<T>, maxAttempts = 3, baseDelayMs = 50): Promise<T> {
@@ -21,9 +8,6 @@ export async function withRetry<T>(fn: () => Promise<T>, maxAttempts = 3, baseDe
     try {
       return await fn();
     } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        throw err;
-      }
       attempt++;
       const isRetryable =
         err?.code === '40P01' ||
@@ -41,36 +25,27 @@ export async function withRetry<T>(fn: () => Promise<T>, maxAttempts = 3, baseDe
 }
 
 export class SupabaseMeetAdapter implements IMeetRepository {
-  private fallbackAdapter = new LocalMeetAdapter();
-
   async createRoom(title: string, capacityLimit = 10): Promise<StudyRoom> {
-    try {
-      return await withRetry(async () => {
-        const { data, error } = await supabase.rpc('create_study_room', {
-          p_title: title,
-          p_capacity_limit: capacityLimit,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
-        return {
-          id: data.room_id,
-          hostUserId: data.host_user_id,
-          title,
-          status: data.status,
-          capacityLimit: data.capacity_limit,
-          createdAt: new Date().toISOString(),
-        };
+    return withRetry(async () => {
+      const { data, error } = await supabase.rpc('create_study_room', {
+        p_title: title,
+        p_capacity_limit: capacityLimit,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        console.warn('[SupabaseMeetAdapter] Cloud RPC not found (deploy_cloud_bundle.sql pending). Falling back to local adapter.');
-        return this.fallbackAdapter.createRoom(title, capacityLimit);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi create_study_room trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+      return {
+        id: data.room_id,
+        hostUserId: data.host_user_id,
+        title,
+        status: data.status,
+        capacityLimit: data.capacity_limit,
+        createdAt: new Date().toISOString(),
+      };
+    });
   }
 
   async createInviteToken(
@@ -79,129 +54,99 @@ export class SupabaseMeetAdapter implements IMeetRepository {
     maxUses = 1,
     durationHours = 24
   ): Promise<InviteTokenResult> {
-    try {
-      return await withRetry(async () => {
-        const { data, error } = await supabase.rpc('create_room_invite_token', {
-          p_room_id: roomId,
-          p_token_type: tokenType,
-          p_max_uses: maxUses,
-          p_duration_hours: durationHours,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
-        return {
-          rawToken: data.raw_token,
-          expiresAt: data.expires_at,
-          tokenType: data.token_type,
-        };
+    return withRetry(async () => {
+      const { data, error } = await supabase.rpc('create_room_invite_token', {
+        p_room_id: roomId,
+        p_token_type: tokenType,
+        p_max_uses: maxUses,
+        p_duration_hours: durationHours,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        return this.fallbackAdapter.createInviteToken(roomId, tokenType, maxUses, durationHours);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi create_room_invite_token trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+      return {
+        rawToken: data.raw_token,
+        expiresAt: data.expires_at,
+        tokenType: data.token_type,
+      };
+    });
   }
 
   async joinRoom(roomId: string, rawToken: string): Promise<JoinRoomResult> {
-    try {
-      return await withRetry(async () => {
-        const { data, error } = await supabase.rpc('join_room', {
-          p_room_id: roomId,
-          p_raw_token: rawToken,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
-        return {
-          success: data.success,
-          roomId: data.room_id,
-          role: data.role,
-          status: data.status,
-          isReconnect: data.is_reconnect,
-        };
+    return withRetry(async () => {
+      const { data, error } = await supabase.rpc('join_room', {
+        p_room_id: roomId,
+        p_raw_token: rawToken,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        return this.fallbackAdapter.joinRoom(roomId, rawToken);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi join_room trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+      return {
+        success: data.success,
+        roomId: data.room_id,
+        role: data.role,
+        status: data.status,
+        isReconnect: data.is_reconnect,
+      };
+    });
   }
 
   async sendMessage(roomId: string, clientMessageId: string, content: string): Promise<RoomMessage> {
-    try {
-      return await withRetry(async () => {
-        const { data, error } = await supabase.rpc('send_room_message', {
-          p_room_id: roomId,
-          p_client_message_id: clientMessageId,
-          p_content: content,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
-        return {
-          id: data.id,
-          roomId: data.room_id,
-          senderUserId: data.sender_user_id,
-          clientMessageId: data.client_message_id,
-          content: data.content,
-          createdAt: data.created_at,
-        };
+    return withRetry(async () => {
+      const { data, error } = await supabase.rpc('send_room_message', {
+        p_room_id: roomId,
+        p_client_message_id: clientMessageId,
+        p_content: content,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        return this.fallbackAdapter.sendMessage(roomId, clientMessageId, content);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi send_room_message trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+      return {
+        id: data.id,
+        roomId: data.room_id,
+        senderUserId: data.sender_user_id,
+        clientMessageId: data.client_message_id,
+        content: data.content,
+        createdAt: data.created_at,
+      };
+    });
   }
 
   async kickMember(roomId: string, targetUserId: string): Promise<void> {
-    try {
-      return await withRetry(async () => {
-        const { error } = await supabase.rpc('kick_room_member', {
-          p_room_id: roomId,
-          p_target_user_id: targetUserId,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
+    return withRetry(async () => {
+      const { error } = await supabase.rpc('kick_room_member', {
+        p_room_id: roomId,
+        p_target_user_id: targetUserId,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        return this.fallbackAdapter.kickMember(roomId, targetUserId);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi kick_room_member trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+    });
   }
 
   async closeRoom(roomId: string): Promise<void> {
-    try {
-      return await withRetry(async () => {
-        const { error } = await supabase.rpc('close_study_room', {
-          p_room_id: roomId,
-        });
-        if (error) {
-          const err: any = new Error(error.message);
-          err.code = error.code;
-          throw err;
-        }
+    return withRetry(async () => {
+      const { error } = await supabase.rpc('close_study_room', {
+        p_room_id: roomId,
       });
-    } catch (err: any) {
-      if (isSchemaCacheError(err)) {
-        return this.fallbackAdapter.closeRoom(roomId);
+      if (error) {
+        console.error('[SupabaseMeetAdapter] Lỗi gọi close_study_room trên Supabase Cloud:', error);
+        const err: any = new Error(error.message);
+        err.code = error.code;
+        throw err;
       }
-      throw err;
-    }
+    });
   }
 }
