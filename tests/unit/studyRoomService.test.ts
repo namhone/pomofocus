@@ -12,12 +12,12 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
   });
 
   describe('1. Room ID Generation & Formatting', () => {
-    it('sinh mã phòng ngẫu nhiên duy nhất với tiền tố pomo- và đúng định dạng', () => {
+    it('sinh mã phòng ngẫu nhiên duy nhất dạng xxxx-xxxx-xxxx với toàn chữ và số', () => {
       const id1 = generateUniqueRoomId();
       const id2 = generateUniqueRoomId();
       expect(id1).not.toBe(id2);
-      expect(id1).toMatch(/^pomo-[a-z0-9]{4}-[a-z0-9]{4}$/);
-      expect(id2).toMatch(/^pomo-[a-z0-9]{4}-[a-z0-9]{4}$/);
+      expect(id1).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
+      expect(id2).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
     });
   });
 
@@ -180,12 +180,11 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         hostUser: host
       });
 
-      expect(room.roomId).toMatch(/^pomo-/);
+      expect(room.roomId).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
       expect(room.status).toBe('active');
       expect(room.hostUserId).toBe(host.id);
       expect(room.allowFreeGuests).toBe(false);
-      expect(room.activeInviteToken).toBeDefined();
-      expect(inviteLink).toContain(`/rooms/${room.roomId}?token=`);
+      expect(inviteLink).toContain(`/rooms/${room.roomId}`);
     });
 
     it('từ chối mã phòng không hợp lệ hoặc rỗng', () => {

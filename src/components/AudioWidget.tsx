@@ -97,12 +97,12 @@ export const AudioWidget: React.FC = () => {
   };
 
   const chimeOptions: { value: ChimeSoundType; label: string; desc: string }[] = [
-    { value: 'twinkle', label: 'Twinkle', desc: 'Arpeggio trong trẻo lấp lánh' },
-    { value: 'playtime', label: 'Playtime', desc: 'Giai điệu vui tươi khởi sắc' },
-    { value: 'scifi', label: 'Sci-fi', desc: 'Âm thanh không gian tương lai' },
-    { value: 'slow_rise', label: 'Slow Rise', desc: 'Hợp âm ngân vang ấm áp' },
-    { value: 'rooster', label: 'Rooster', desc: 'Báo thức vui nhộn điệu gà gáy' },
-    { value: 'bird', label: 'Bird', desc: 'Tiếng chim hót líu lo tự nhiên' },
+    { value: 'twinkle', label: 'Twinkle', desc: 'Arpeggio trong trẻo' },
+    { value: 'playtime', label: 'Playtime', desc: 'Giai điệu vui tươi' },
+    { value: 'scifi', label: 'Sci-fi', desc: 'Âm thanh không gian' },
+    { value: 'slow_rise', label: 'Slow Rise', desc: 'Hợp âm ngân vang' },
+    { value: 'rooster', label: 'Rooster', desc: 'Báo thức gà gáy' },
+    { value: 'bird', label: 'Bird', desc: 'Tiếng chim tự nhiên' },
   ];
 
   const activePlayingCount = tracks.filter((t) => t.isPlaying).length;
@@ -189,7 +189,7 @@ export const AudioWidget: React.FC = () => {
           }`}
         >
           <Bell size={13} />
-          <span>Chuông Báo ({settings.selectedChime})</span>
+          <span>Chuông Báo</span>
         </button>
 
         <button
@@ -574,7 +574,7 @@ export const AudioWidget: React.FC = () => {
           <RotateCcw size={12} />
           <span>Đặt lại mặc định</span>
         </button>
-        <span className="text-[10px] text-neutral-500 font-medium">100% Offline Procedural Sound</span>
+        <span className="text-[10px] text-neutral-500 font-medium">Offline Audio</span>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ describe('Meet Repository, Adapters & Feature Flag Architecture Tests', () => {
     it('tạo phòng thành công với đầy đủ thông tin chuẩn StudyRoom', async () => {
       const room = await adapter.createRoom('Phòng Học Cục Bộ Thử Nghiệm', 10);
       expect(room).toBeDefined();
-      expect(room.id).toMatch(/^pomo-/);
+      expect(room.id).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
       expect(room.title).toBe('Phòng Học Cục Bộ Thử Nghiệm');
       expect(room.status).toBe('active');
       expect(room.capacityLimit).toBe(10);

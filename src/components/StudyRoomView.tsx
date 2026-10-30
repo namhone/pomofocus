@@ -550,7 +550,7 @@ export const StudyRoomView: React.FC = () => {
             {accessResult.code === 'ROOM_CLOSED' && 'Phòng Học Đã Đóng'}
             {accessResult.code === 'INVALID_CODE' && 'Mã Phòng Không Hợp Lệ'}
             {accessResult.code === 'TOKEN_EXPIRED_OR_REVOKED' && 'Liên Kết Mời Đã Hết Hiệu Lực'}
-            {accessResult.code === 'INSUFFICIENT_PERMISSIONS' && 'Chưa Đủ Quyền Tham Gia Phòng'}
+            {accessResult.code === 'INSUFFICIENT_PERMISSIONS' && 'Phòng Chỉ Dành Cho Thành Viên PRO'}
           </h2>
 
           <p className="text-xs text-neutral-300 leading-relaxed mb-6">
@@ -558,23 +558,31 @@ export const StudyRoomView: React.FC = () => {
           </p>
 
           <div className="space-y-2.5">
-            <button
-              type="button"
-              onClick={() => router.navigate('/rooms')}
-              className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
-            >
-              Về Sảnh Phòng Học (Nhập mã khác)
-            </button>
-
-            {accessResult.code === 'INSUFFICIENT_PERMISSIONS' && (
+            {!user ? (
+              <button
+                type="button"
+                onClick={() => router.navigate('/login')}
+                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+              >
+                Đăng Nhập Tài Khoản
+              </button>
+            ) : accessResult.code === 'INSUFFICIENT_PERMISSIONS' ? (
               <button
                 type="button"
                 onClick={() => router.navigate('/billing')}
                 className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-neutral-950 font-bold text-xs transition cursor-pointer"
               >
-                Nâng Cấp Gói PRO (Mở khóa toàn bộ)
+                Nâng Cấp Gói PRO (Mở Khóa Toàn Bộ)
               </button>
-            )}
+            ) : null}
+
+            <button
+              type="button"
+              onClick={() => router.navigate('/rooms')}
+              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
+            >
+              Về Sảnh Phòng Học
+            </button>
 
             <button
               type="button"
@@ -1752,13 +1760,13 @@ export const StudyRoomView: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs text-emerald-300 flex items-center gap-1.5">
                             <Sparkles size={14} />
-                            Liên Kết Mời Khách Free (Đang Hoạt Động)
+                            Liên Kết Mời Phòng Học (Đang Mở)
                           </span>
-                          <span className="text-[10px] font-mono text-emerald-400/80">Token Hex 32-bit</span>
+                          <span className="text-[10px] font-mono text-emerald-400/80">Code #{roomId}</span>
                         </div>
 
                         <div className="p-2 rounded-lg bg-black/40 border border-white/10 font-mono text-[10px] text-neutral-300 break-all select-all">
-                          {typeof window !== 'undefined' ? window.location.origin : ''}/rooms/{roomId}?token={room.activeInviteToken || 'chua_co_token'}
+                          {typeof window !== 'undefined' ? window.location.origin : ''}/rooms/{roomId}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -1778,14 +1786,14 @@ export const StudyRoomView: React.FC = () => {
                             disabled={regeneratingToken}
                             onClick={handleRevokeToken}
                             className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
-                            title="Thu hồi token hiện tại và tạo token mới để link cũ mất hiệu lực"
+                            title="Tạo mới phiên mã token"
                           >
                             <RefreshCw size={13} className={regeneratingToken ? 'animate-spin' : ''} />
-                            <span>Thu Hồi & Tạo Mới</span>
+                            <span>Làm Mới Link</span>
                           </button>
                         </div>
                         <div className="text-[10px] text-neutral-400">
-                          Khách Free chỉ có quyền tham gia phòng và trò chuyện, <strong>không</strong> tự động được cấp quyền PRO trên tài khoản của họ.
+                          Khách Free có thể truy cập vào học và trò chuyện cùng nhóm qua liên kết này.
                         </div>
                       </div>
                     )}
