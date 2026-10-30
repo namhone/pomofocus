@@ -127,21 +127,19 @@ export class RealtimeChannel {
               // Gửi presence state đang chờ nếu có
               if (this.pendingTrackState && this.socket && this.socket.readyState === WebSocket.OPEN) {
                 const pendingJson = JSON.stringify(this.pendingTrackState);
-                if (this.lastTrackedJson !== pendingJson) {
-                  this.lastTrackedJson = pendingJson;
-                  this.socket.send(
-                    JSON.stringify({
-                      topic: `realtime:${this.topic}`,
-                      event: 'presence',
-                      payload: {
-                        type: 'presence',
-                        event: 'track',
-                        payload: this.pendingTrackState
-                      },
-                      ref: String(++this.refCounter)
-                    })
-                  );
-                }
+                this.lastTrackedJson = pendingJson;
+                this.socket.send(
+                  JSON.stringify({
+                    topic: `realtime:${this.topic}`,
+                    event: 'presence',
+                    payload: {
+                      type: 'presence',
+                      event: 'track',
+                      payload: this.pendingTrackState
+                    },
+                    ref: String(++this.refCounter)
+                  })
+                );
               }
               // Xả hàng đợi broadcast
               while (this.outboundQueue.length > 0) {
@@ -348,7 +346,7 @@ export class RealtimeChannel {
 
     // Tránh gửi liên tục các bản tin track trùng lặp làm Supabase ngắt kết nối do rate limit
     const currentJson = JSON.stringify(state);
-    if (this.lastTrackedJson === currentJson) {
+    if (this.lastTrackedJson === currentJson && this.isJoined) {
       return 'ok';
     }
 
@@ -358,9 +356,9 @@ export class RealtimeChannel {
     }
 
     this.trackDebounceTimer = setTimeout(() => {
-      this.lastTrackedJson = currentJson;
       // Gửi qua Supabase WebSocket Cloud để toàn bộ mạng thấy
       if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.lastTrackedJson = currentJson;
         this.socket.send(
           JSON.stringify({
             topic: `realtime:${this.topic}`,

@@ -494,6 +494,13 @@ export const StudyRoomView: React.FC = () => {
     });
 
     channel.subscribe();
+    channel.track({
+      userId: user?.id || participantId,
+      displayName: participantName,
+      role: userRole,
+      isMicOn: micEnabled,
+      isVideoOn: cameraEnabled
+    });
 
     // Dự phòng bắt tay WebRTC với các thành viên trong room.participants
     if (room?.participants) {
