@@ -51,6 +51,9 @@ export class RealtimeChannel {
   private socket: WebSocket | null = null;
   private heartbeatTimer: any = null;
   private refCounter: number = 0;
+  private isJoined: boolean = false;
+  private pendingTrackState: any = null;
+  private outboundQueue: Array<{ event: string; payload: any }> = [];
   public isSubscribed: boolean = false;
 
   constructor(topic: string, opts?: ChannelConfig) {
@@ -114,8 +117,44 @@ export class RealtimeChannel {
         try {
           const msg = JSON.parse(event.data);
           if (msg.event === 'phx_reply') {
-            if (msg.payload?.status === 'ok' && onSubscribed) {
-              onSubscribed('SUBSCRIBED');
+            if (msg.payload?.status === 'ok') {
+              this.isJoined = true;
+              if (onSubscribed) {
+                onSubscribed('SUBSCRIBED');
+              }
+              // Gửi presence state đang chờ nếu có
+              if (this.pendingTrackState && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                this.socket.send(
+                  JSON.stringify({
+                    topic: `realtime:${this.topic}`,
+                    event: 'presence',
+                    payload: {
+                      type: 'presence',
+                      event: 'track',
+                      payload: this.pendingTrackState
+                    },
+                    ref: String(++this.refCounter)
+                  })
+                );
+              }
+              // Xả hàng đợi broadcast
+              while (this.outboundQueue.length > 0) {
+                const item = this.outboundQueue.shift();
+                if (item && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                  this.socket.send(
+                    JSON.stringify({
+                      topic: `realtime:${this.topic}`,
+                      event: 'broadcast',
+                      payload: {
+                        type: 'broadcast',
+                        event: item.event,
+                        payload: item.payload
+                      },
+                      ref: String(++this.refCounter)
+                    })
+                  );
+                }
+              }
             }
           } else if (msg.event === 'broadcast') {
             const ev = msg.payload?.event;
@@ -176,6 +215,7 @@ export class RealtimeChannel {
       };
 
       this.socket.onclose = () => {
+        this.isJoined = false;
         if (this.heartbeatTimer) {
           clearInterval(this.heartbeatTimer);
           this.heartbeatTimer = null;
@@ -284,9 +324,10 @@ export class RealtimeChannel {
 
   async track(state: any): Promise<'ok' | 'error'> {
     this.presences[this.presenceKey] = [state];
+    this.pendingTrackState = state;
 
     // Gửi qua Supabase WebSocket Cloud để toàn bộ mạng thấy
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(
         JSON.stringify({
           topic: `realtime:${this.topic}`,
@@ -324,7 +365,7 @@ export class RealtimeChannel {
 
   async send(params: { type: 'broadcast'; event: string; payload: any }): Promise<'ok' | 'error'> {
     // 1. Gửi qua WebSocket Supabase Cloud để máy khác nhận được
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(
         JSON.stringify({
           topic: `realtime:${this.topic}`,
@@ -337,6 +378,8 @@ export class RealtimeChannel {
           ref: String(++this.refCounter)
         })
       );
+    } else {
+      this.outboundQueue.push(params);
     }
 
     // 2. Gửi qua BroadcastChannel cục bộ cùng máy
