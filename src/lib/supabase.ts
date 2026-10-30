@@ -51,6 +51,7 @@ export class RealtimeChannel {
   private socket: WebSocket | null = null;
   private heartbeatTimer: any = null;
   private refCounter: number = 0;
+  private joinRef: string | null = null;
   private isJoined: boolean = false;
   private pendingTrackState: any = null;
   private outboundQueue: Array<{ event: string; payload: any }> = [];
@@ -87,6 +88,7 @@ export class RealtimeChannel {
 
       this.socket.onopen = () => {
         // Tham gia phòng trên Phoenix Channel của Supabase
+        this.joinRef = String(++this.refCounter);
         const joinMsg = {
           topic: `realtime:${this.topic}`,
           event: 'phx_join',
@@ -96,7 +98,7 @@ export class RealtimeChannel {
               presence: { key: this.presenceKey }
             }
           },
-          ref: String(++this.refCounter)
+          ref: this.joinRef
         };
         this.socket?.send(JSON.stringify(joinMsg));
 
@@ -119,7 +121,8 @@ export class RealtimeChannel {
         try {
           const msg = JSON.parse(event.data);
           if (msg.event === 'phx_reply') {
-            if (msg.payload?.status === 'ok') {
+            // Chỉ xử lý phản hồi cho lượt tham gia phòng (phx_join)
+            if (msg.ref === this.joinRef && msg.payload?.status === 'ok') {
               this.isJoined = true;
               if (onSubscribed) {
                 onSubscribed('SUBSCRIBED');
@@ -128,6 +131,8 @@ export class RealtimeChannel {
               if (this.pendingTrackState && this.socket && this.socket.readyState === WebSocket.OPEN) {
                 const pendingJson = JSON.stringify(this.pendingTrackState);
                 this.lastTrackedJson = pendingJson;
+                const stateToSend = this.pendingTrackState;
+                this.pendingTrackState = null;
                 this.socket.send(
                   JSON.stringify({
                     topic: `realtime:${this.topic}`,
@@ -135,7 +140,7 @@ export class RealtimeChannel {
                     payload: {
                       type: 'presence',
                       event: 'track',
-                      payload: this.pendingTrackState
+                      payload: stateToSend
                     },
                     ref: String(++this.refCounter)
                   })
