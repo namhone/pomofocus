@@ -107,7 +107,12 @@ export const studyRoomService = {
     if (typeof window === 'undefined' || !window.localStorage) return {};
     try {
       const raw = localStorage.getItem(ROOMS_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
+      const rooms: Record<string, StudyRoom> = raw ? JSON.parse(raw) : {};
+      if (rooms['room-alpha-1']) {
+        delete rooms['room-alpha-1'];
+        localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
+      }
+      return rooms;
     } catch {
       return {};
     }
@@ -134,6 +139,9 @@ export const studyRoomService = {
   getRoom(roomId: string): StudyRoom | null {
     if (!roomId) return null;
     const cleanId = roomId.trim().toLowerCase();
+    if (cleanId === 'room-alpha-1') {
+      return null;
+    }
     const rooms = this.getAllRooms();
     if (rooms[cleanId]) {
       return rooms[cleanId];

@@ -79,7 +79,8 @@ async function runLiveAudit() {
     const toggle = page1.locator('[data-testid="toggle-allow-free-guests"]');
     const isChecked = await toggle.isChecked();
     if (!isChecked) {
-      await toggle.check();
+      await toggle.check({ force: true });
+      await page1.waitForTimeout(500);
     }
 
     const inviteLinkBox = page1.locator('button[data-testid="btn-copy-free-invite-link"]').locator('..').locator('..').locator('.p-2.rounded-lg');

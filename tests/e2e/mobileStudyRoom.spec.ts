@@ -5,7 +5,7 @@ test.describe('Mobile Study Room & PomoFocus Layout Suite', () => {
 
   test('390x844 (iPhone 14/15) — Room Prejoin & Active Room Mobile Layout Verification', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/rooms/room-alpha-1');
+    await page.goto('/rooms/pomo-demo-3901');
 
     // 1. Prejoin Screen
     await expect(page.locator('h1')).toContainText('Chuẩn Bị Vào Phòng');
@@ -19,7 +19,7 @@ test.describe('Mobile Study Room & PomoFocus Layout Suite', () => {
     // 3. Verify Mobile Header (no word wrapping, clean layout)
     const mobileHeader = page.locator('header .md\\:hidden');
     await expect(mobileHeader).toBeVisible();
-    await expect(mobileHeader.getByText('#room-alpha-1')).toBeVisible();
+    await expect(mobileHeader.getByText('#pomo-demo-3901')).toBeVisible();
     await expect(mobileHeader.getByText('LIVE')).toBeVisible();
     await expect(mobileHeader).toBeVisible();
 

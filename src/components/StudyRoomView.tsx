@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
+import { isOwnerEmail } from '../services/authService';
 import { supabase } from '../lib/supabase';
 import { WebRTCConnectionManager } from '../services/WebRTCConnectionManager';
 import {
@@ -39,6 +40,8 @@ import {
   ShieldCheck,
   Lock,
   AlertCircle,
+  AlertTriangle,
+  Clock,
   RefreshCw,
   Crown,
   UserCheck
@@ -55,7 +58,7 @@ export const StudyRoomView: React.FC = () => {
   const rawRoomId = router.currentRoute.params?.roomId;
 
   useEffect(() => {
-    if (!rawRoomId || rawRoomId === 'rooms' || rawRoomId === 'room') {
+    if (!rawRoomId || rawRoomId === 'rooms' || rawRoomId === 'room' || rawRoomId === 'room-alpha-1') {
       router.navigate('/rooms', { replace: true });
     }
   }, [rawRoomId, router]);
@@ -168,6 +171,42 @@ export const StudyRoomView: React.FC = () => {
   const eligibility: SubscriptionEligibilityResult = useMemo(() => {
     return studyRoomService.verifyPaidSubscriptionEligibility(user);
   }, [user]);
+
+  // Kiểm tra phòng Free và giới hạn thời lượng 45 phút
+  const isFreeRoom = useMemo(() => {
+    if (!room) return true;
+    if (room.hostEmail && isOwnerEmail(room.hostEmail)) return false;
+    if (user && (user.plan === 'pro' || user.plan === 'pro_lifetime' || isOwnerEmail(user.email))) return false;
+    return true;
+  }, [room, user]);
+
+  const FREE_ROOM_MAX_SECONDS = 45 * 60; // 45 phút = 2700 giây
+  const [remainingFreeSeconds, setRemainingFreeSeconds] = useState(FREE_ROOM_MAX_SECONDS);
+  const [isFreeExpiredModalOpen, setIsFreeExpiredModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hasJoined || !isFreeRoom) return;
+
+    const computeRemaining = () => {
+      const start = room?.createdAt || Date.now();
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const remaining = Math.max(0, FREE_ROOM_MAX_SECONDS - elapsed);
+      setRemainingFreeSeconds(remaining);
+      if (remaining === 0) {
+        setIsFreeExpiredModalOpen(true);
+      }
+    };
+
+    computeRemaining();
+    const interval = setInterval(computeRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [hasJoined, isFreeRoom, room?.createdAt]);
+
+  const formatCountdown = (totalSec: number) => {
+    const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+    const s = (totalSec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   // Lắng nghe sự kiện đồng bộ thời gian thực qua BroadcastChannel
   useEffect(() => {
@@ -948,6 +987,31 @@ export const StudyRoomView: React.FC = () => {
           100% { transform: translateY(-280px) scale(1); opacity: 0; }
         }
       `}</style>
+
+      {/* Cảnh báo trên nóc phòng học 10 phút cuối cho phòng Free */}
+      {isFreeRoom && remainingFreeSeconds <= 600 && remainingFreeSeconds > 0 && (
+        <aside
+          aria-label="Cảnh báo hết hạn phòng"
+          data-testid="free-room-warning-banner"
+          className="sticky top-0 z-50 w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 text-white shadow-lg border-b border-orange-400/30 px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertTriangle size={18} className="text-yellow-200 shrink-0" />
+            <span className="font-semibold truncate">
+              Phòng học Free sẽ đóng sau <span className="font-mono font-bold bg-black/30 px-2 py-0.5 rounded text-yellow-200">[{formatCountdown(remainingFreeSeconds)}]</span>. Nâng cấp PRO để học không giới hạn!
+            </span>
+          </div>
+          <button
+            type="button"
+            data-testid="btn-upgrade-pro-banner"
+            onClick={() => router.navigate('/billing')}
+            className="shrink-0 px-3.5 py-1.5 rounded-lg bg-white text-orange-700 hover:bg-neutral-100 font-bold text-xs shadow-md transition cursor-pointer active:scale-95 flex items-center gap-1.5"
+          >
+            <Sparkles size={14} className="text-amber-500" />
+            <span>Nâng Cấp PRO</span>
+          </button>
+        </aside>
+      )}
 
       {/* Room Header - Responsive: Rich for Desktop (md:), Clean & Compact for Mobile (<md:) */}
       <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
@@ -1940,6 +2004,49 @@ export const StudyRoomView: React.FC = () => {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal Hết Hạn 45 Phút Cho Phòng Free */}
+      {isFreeExpiredModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="free-room-expired-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-amber-500/30 p-6 shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <Clock size={28} />
+            </div>
+            <div>
+              <h3 id="free-room-expired-title" className="text-lg font-bold text-white mb-1">
+                Phiên Học Kết Thúc
+              </h3>
+              <p className="text-xs text-neutral-300 leading-relaxed">
+                Phiên học 45 phút đã kết thúc. Hãy nghỉ ngơi hoặc nâng cấp PRO để tiếp tục!
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 pt-2">
+              <button
+                type="button"
+                data-testid="btn-modal-upgrade-pro"
+                onClick={() => router.navigate('/billing')}
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20"
+              >
+                <Sparkles size={15} />
+                <span>Nâng Cấp PRO Ngay</span>
+              </button>
+              <button
+                type="button"
+                data-testid="btn-modal-return-lobby"
+                onClick={() => router.navigate('/rooms')}
+                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
+              >
+                Về Sảnh Phòng Học
+              </button>
+            </div>
           </div>
         </div>
       )}

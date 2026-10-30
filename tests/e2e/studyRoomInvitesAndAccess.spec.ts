@@ -56,9 +56,9 @@ test.describe('Study Room Meet Invites, Free Guest Access & Security E2E Suite',
 
   // TÌNH HUỐNG 2: Tham gia phòng bằng mã phòng hoặc link mời
   test('Tình huống 2: Người dùng tham gia phòng bằng mã phòng tại Sảnh và qua link có token', async ({ page }) => {
-    // 2.1 Tham gia qua link mời có token (ví dụ khách Free qua link)
-    await page.goto('/rooms/room-alpha-1?token=tok_room_alpha_1_seed');
-    await expect(page.getByText(/#room-alpha-1/)).toBeVisible();
+    // 2.1 Tham gia qua link mời có mã phòng
+    await page.goto('/rooms/pomo-test-guest');
+    await expect(page.getByText(/#pomo-test-guest/)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Tham Gia Phòng Học Ngay' })).toBeVisible();
     await page.getByRole('button', { name: 'Tham Gia Phòng Học Ngay' }).click();
 
@@ -79,10 +79,10 @@ test.describe('Study Room Meet Invites, Free Guest Access & Security E2E Suite',
 
     await page.goto('/rooms');
     const inputCode = page.getByPlaceholder(/vd: pomo-a1b2-c3d4/);
-    await inputCode.fill('room-alpha-1');
+    await inputCode.fill('pomo-test-guest');
     await page.getByTestId('btn-join-room-code').click();
 
-    await page.waitForURL(/\/rooms\/room-alpha-1/);
+    await page.waitForURL(/\/rooms\/pomo-test-guest/);
     await expect(page.getByRole('button', { name: 'Tham Gia Phòng Học Ngay' })).toBeVisible();
 
     await page.screenshot({ path: `${artifactDir}/meet-scenario2-joined-by-code.png` });
@@ -171,8 +171,8 @@ test.describe('Study Room Meet Invites, Free Guest Access & Security E2E Suite',
     await expect(toggle).not.toBeDisabled();
     await toggle.setChecked(true, { force: true });
 
-    // Hiển thị khung link mời với token bảo mật
-    await expect(page.getByText('Liên Kết Mời Khách Free (Đang Hoạt Động)')).toBeVisible();
+    // Hiển thị khung link mời
+    await expect(page.getByText('Liên Kết Mời Phòng Học (Đang Mở)')).toBeVisible();
     await expect(page.getByTestId('btn-copy-free-invite-link')).toBeVisible();
     await expect(page.getByTestId('btn-revoke-invite-token')).toBeVisible();
 
@@ -227,7 +227,7 @@ test.describe('Study Room Meet Invites, Free Guest Access & Security E2E Suite',
   test('Tình huống 7: Kiểm thử giao diện Mobile (390px) và Desktop (1280px) mượt mà, không tràn', async ({ page }) => {
     // 7.1 Mobile 390x844
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/rooms/room-alpha-1?token=tok_room_alpha_1_seed');
+    await page.goto('/rooms/pomo-mob-test');
 
     await page.getByRole('button', { name: 'Tham Gia Phòng Học Ngay' }).click();
 
@@ -247,7 +247,7 @@ test.describe('Study Room Meet Invites, Free Guest Access & Security E2E Suite',
 
     // 7.2 Desktop 1280x800
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/rooms/room-alpha-1?token=tok_room_alpha_1_seed');
+    await page.goto('/rooms/pomo-desk-test');
     await page.getByRole('button', { name: 'Tham Gia Phòng Học Ngay' }).click();
 
     await expect(page.getByTestId('btn-copy-room-id')).toBeVisible();
