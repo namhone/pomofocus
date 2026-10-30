@@ -51,7 +51,8 @@ test.describe('PomoFocus Demo Beta — Comprehensive User Journey & Views', () =
     await expect(headerPlanBadge).toBeVisible();
     await expect(headerPlanBadge).toContainText('PRO BETA');
 
-    // Điều hướng vào trang Profile và kiểm tra thông tin
+    // Điều hướng vào trang Profile qua Avatar Dropdown
+    await page.getByTestId('header-user-avatar-btn').click();
     await page.getByTestId('header-user-profile-btn').click();
     await expect(page.getByTestId('profile-view')).toBeVisible();
 

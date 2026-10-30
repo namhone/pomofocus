@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Users,
@@ -16,16 +17,54 @@ import {
   Shield,
   Database,
   Mail,
-  Home
+  Home,
+  Settings,
+  ChevronDown,
+  CheckCircle2
 } from 'lucide-react';
 
 export const PlatformHeader: React.FC = () => {
   const router = useRouter();
   const currentPath = router.currentRoute.path;
   const { user, isAuthenticated, logout, isPro, isLifetime, planLabel } = useAuthStore();
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const isWorkspace = currentPath === '/app';
+
+  // Lắng nghe Click Outside để đóng Dropdown Avatar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    if (isUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isUserDropdownOpen]);
+
+  // Phím tắt Esc đóng modal và dropdown
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsUserDropdownOpen(false);
+        setIsLogoutModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const navItems = [
     { path: '/app', label: 'Không Gian', icon: Layout, testId: 'header-nav-app' },
@@ -39,7 +78,18 @@ export const PlatformHeader: React.FC = () => {
 
   const handleNavigate = (path: string) => {
     setIsMobileMenuOpen(false);
+    setIsUserDropdownOpen(false);
     router.navigate(path);
+  };
+
+  const handleConfirmLogout = () => {
+    logout();
+    setIsLogoutModalOpen(false);
+    setIsUserDropdownOpen(false);
+    setShowLogoutToast(true);
+    setTimeout(() => {
+      setShowLogoutToast(false);
+    }, 3000);
   };
 
   return (
@@ -77,7 +127,7 @@ export const PlatformHeader: React.FC = () => {
           </button>
         </div>
 
-        {/* Desktop Navigation Links (>= md) */}
+        {/* Desktop Navigation Links (>= lg) */}
         <nav className="hidden lg:flex items-center gap-1 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -122,52 +172,152 @@ export const PlatformHeader: React.FC = () => {
             </button>
           )}
 
-          {/* User profile button */}
+          {/* User state: Avatar Dropdown when logged in, or Login button when guest */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="relative" ref={dropdownRef}>
+              {/* Circular Avatar Trigger */}
               <button
                 type="button"
-                data-testid="header-user-profile-btn"
-                onClick={() => handleNavigate('/profile')}
-                className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition cursor-pointer shrink-0"
-                title="Xem và chỉnh sửa hồ sơ & ảnh đại diện"
+                data-testid="header-user-avatar-btn"
+                onClick={() => setIsUserDropdownOpen((prev) => !prev)}
+                className={`flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl transition cursor-pointer shrink-0 border ${
+                  isUserDropdownOpen
+                    ? 'bg-white/15 border-white/25 text-white ring-2 ring-emerald-500/30'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10 text-neutral-200'
+                }`}
+                title="Tài khoản & Cài đặt"
+                aria-expanded={isUserDropdownOpen}
+                aria-haspopup="menu"
               >
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
                     alt={user.displayName}
-                    className="w-5 h-5 sm:w-4 sm:h-4 rounded-full object-cover border border-emerald-400/40 shrink-0"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover ring-1 ring-emerald-400/40 shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-5 h-5 sm:w-4 sm:h-4 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-[9px] shrink-0">
-                    {user.displayName.charAt(0).toUpperCase()}
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-[10px] sm:text-[11px] shadow-sm shrink-0">
+                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-[11px] text-neutral-200 font-medium truncate hidden md:inline-block max-w-[90px]">
+                <span className="text-[11px] font-medium truncate hidden md:inline-block max-w-[85px]">
                   {user.displayName}
                 </span>
+                <ChevronDown
+                  size={12}
+                  className={`text-neutral-400 transition-transform duration-200 hidden xs:inline-block ${
+                    isUserDropdownOpen ? 'rotate-180 text-white' : ''
+                  }`}
+                />
               </button>
 
-              {/* Hide direct logout on mobile top bar — moved cleanly into mobile menu drawer */}
-              <button
-                type="button"
-                data-testid="header-logout-btn"
-                onClick={logout}
-                className="hidden sm:flex p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-white/5 transition cursor-pointer"
-                title="Đăng xuất"
-              >
-                <LogOut size={13} />
-              </button>
+              {/* User Dropdown Menu */}
+              {isUserDropdownOpen && (
+                <div
+                  data-testid="header-user-dropdown"
+                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                >
+                  {/* Mini Header Profile Info */}
+                  <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.displayName}
+                        className="w-8 h-8 rounded-full object-cover ring-1 ring-emerald-400/40 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                        {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-semibold text-white truncate">
+                        {user.displayName}
+                      </div>
+                      <div className="text-[10px] text-zinc-400 font-mono truncate">
+                        {user.email}
+                      </div>
+                    </div>
+                    <span
+                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
+                        isLifetime
+                          ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                          : isPro
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          : 'bg-white/10 text-neutral-300 border-white/10'
+                      }`}
+                    >
+                      {planLabel}
+                    </span>
+                  </div>
+
+                  {/* Dropdown Options */}
+                  <div className="space-y-0.5">
+                    <button
+                      type="button"
+                      data-testid="header-user-profile-btn"
+                      onClick={() => handleNavigate('/profile')}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <User size={14} className="text-emerald-400 shrink-0" />
+                      <span className="font-medium">Hồ sơ cá nhân &amp; Avatar</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="header-user-settings-btn"
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        if (isWorkspace) {
+                          useLayoutStore.getState().openWidget('settings');
+                        } else {
+                          handleNavigate('/settings');
+                        }
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <Settings size={14} className="text-cyan-400 shrink-0" />
+                      <span className="font-medium">Cài đặt hệ thống</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="header-user-security-btn"
+                      onClick={() => handleNavigate('/account/security')}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <Shield size={14} className="text-amber-400 shrink-0" />
+                      <span className="font-medium">Bảo mật &amp; Phiên đăng nhập</span>
+                    </button>
+                  </div>
+
+                  <div className="border-t border-white/10 my-1.5" />
+
+                  {/* Logout item triggers Confirm Modal */}
+                  <button
+                    type="button"
+                    data-testid="header-logout-btn"
+                    onClick={() => {
+                      setIsUserDropdownOpen(false);
+                      setIsLogoutModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition cursor-pointer text-left font-medium"
+                  >
+                    <LogOut size={14} className="shrink-0" />
+                    <span>Đăng xuất tài khoản</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <button
               type="button"
               data-testid="header-login-btn"
               onClick={() => handleNavigate('/login')}
-              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-neutral-200 text-[11px] sm:text-xs transition cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white text-[11px] sm:text-xs transition cursor-pointer whitespace-nowrap border border-white/10"
               title="Đăng nhập tài khoản"
             >
               <User size={13} className="text-emerald-400 shrink-0" />
@@ -198,7 +348,7 @@ export const PlatformHeader: React.FC = () => {
             <div className="mb-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
-                  {user.displayName.charAt(0).toUpperCase()}
+                  {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
@@ -260,7 +410,7 @@ export const PlatformHeader: React.FC = () => {
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 hover:text-white transition cursor-pointer"
             >
               <User size={14} className="text-emerald-400" />
-              <span>Hồ Sơ & Avt</span>
+              <span>Hồ Sơ &amp; Avt</span>
             </button>
             <button
               type="button"
@@ -280,13 +430,14 @@ export const PlatformHeader: React.FC = () => {
             </button>
           </div>
 
-          {/* Logout in mobile menu */}
+          {/* Logout button in mobile drawer opens confirmation modal */}
           {isAuthenticated ? (
             <button
               type="button"
+              data-testid="drawer-logout-btn"
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                logout();
+                setIsLogoutModalOpen(true);
               }}
               className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition cursor-pointer active:scale-98"
             >
@@ -303,6 +454,69 @@ export const PlatformHeader: React.FC = () => {
               <span>Đăng Nhập / Đăng Ký Tài Khoản</span>
             </button>
           )}
+        </div>
+      )}
+
+      {/* Confirm Logout Dialog (Modal) */}
+      {isLogoutModalOpen && (
+        <div
+          data-testid="confirm-logout-modal-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsLogoutModalOpen(false);
+          }}
+        >
+          <div
+            data-testid="confirm-logout-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-dialog-title"
+            className="relative max-w-sm w-full rounded-2xl border border-zinc-800 bg-[#121216] p-6 shadow-2xl text-left select-none animate-in zoom-in-95 duration-150"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
+              <LogOut size={20} />
+            </div>
+
+            <h3 id="logout-dialog-title" className="text-base sm:text-lg font-bold text-white tracking-tight">
+              Đăng xuất
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed">
+              Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không? Mọi dữ liệu đã lưu trữ cục bộ và đồng bộ sẽ được bảo toàn an toàn.
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                data-testid="btn-cancel-logout"
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition active:scale-95 cursor-pointer"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                data-testid="confirm-logout-btn"
+                onClick={handleConfirmLogout}
+                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+              >
+                <LogOut size={13} />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Success Toast */}
+      {showLogoutToast && (
+        <div
+          data-testid="logout-success-toast"
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-emerald-500/30 text-emerald-300 text-xs shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+        >
+          <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+          <span className="font-medium text-white">Đã đăng xuất thành công.</span>
         </div>
       )}
     </>

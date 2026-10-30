@@ -56,13 +56,15 @@ export const LandingPage: React.FC = () => {
           <span className="whitespace-nowrap text-emerald-400">Miễn Phí 3 Năm PRO</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl leading-[1.25] sm:leading-[1.18] mb-5 sm:mb-6 text-balance">
-          <span className="inline-block whitespace-nowrap">Không Gian Học Tập</span>{' '}
-          <span className="inline-block whitespace-nowrap">Đắm Chìm.</span>{' '}
-          <br className="hidden sm:inline" />
-          <span className="inline-block whitespace-nowrap">Tối Giản,</span>{' '}
-          <span className="inline-block whitespace-nowrap">Khoa Học</span>{' '}
-          <span className="inline-block whitespace-nowrap">&amp; Tập Trung.</span>
+        <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl leading-[1.28] sm:leading-[1.18] mb-5 sm:mb-6">
+          <span className="block sm:inline">
+            <span className="whitespace-nowrap">Không Gian Học Tập</span>{' '}
+            <span className="whitespace-nowrap">Đắm Chìm.</span>
+          </span>{' '}
+          <span className="block sm:inline">
+            <span className="whitespace-nowrap">Tối Giản, Khoa Học</span>{' '}
+            <span className="whitespace-nowrap">&amp; Tập Trung.</span>
+          </span>
         </h1>
 
         <p className="text-xs sm:text-base text-zinc-400 max-w-2xl leading-relaxed mb-8 sm:mb-10 font-normal text-pretty">
@@ -256,8 +258,8 @@ export const LandingPage: React.FC = () => {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-2">
             ĐƠN GIẢN & TẬP TRUNG
           </span>
-          <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight text-balance">
-            3 Bước Bắt Đầu{' '}
+          <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
+            <span className="inline-block whitespace-nowrap">3 Bước Bắt Đầu</span>{' '}
             <span className="inline-block whitespace-nowrap">Học Tập Năng Suất</span>{' '}
             <span className="inline-block whitespace-nowrap">Cùng PomoFocus</span>
           </h2>
@@ -319,9 +321,9 @@ export const LandingPage: React.FC = () => {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-2">
             MINH BẠCH & ĐƠN GIẢN
           </span>
-          <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight text-balance">
-            Gói Dịch Vụ Phù Hợp Với{' '}
-            <span className="inline-block whitespace-nowrap">Nhu Cầu Học Tập</span>
+          <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
+            <span className="inline-block whitespace-nowrap">Gói Dịch Vụ Phù Hợp</span>{' '}
+            <span className="inline-block whitespace-nowrap">Với Nhu Cầu Học Tập</span>
           </h2>
         </div>
 
