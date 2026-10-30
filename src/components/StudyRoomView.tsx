@@ -64,9 +64,11 @@ export const StudyRoomView: React.FC = () => {
   }, [rawRoomId, router]);
 
   const { user: storeUser } = useAuthStore();
-  const user = storeUser || (typeof window !== 'undefined' && window.localStorage
-    ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
-    : null);
+  const user = (typeof window !== 'undefined' && window.sessionStorage && sessionStorage.getItem('pomodoro_study_auth_session')
+    ? JSON.parse(sessionStorage.getItem('pomodoro_study_auth_session') || 'null')
+    : (storeUser || (typeof window !== 'undefined' && window.localStorage
+      ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
+      : null)));
 
   const roomId = (rawRoomId || '').trim().toLowerCase();
   const tokenFromUrl = router.currentRoute.searchParams.get('token');

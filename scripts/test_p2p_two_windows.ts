@@ -32,6 +32,7 @@ async function testP2PTwoWindows() {
 
     await page1.goto(BASE_URL);
     await page1.evaluate((u) => {
+      sessionStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
       localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
     }, hostUser);
 
@@ -72,6 +73,18 @@ async function testP2PTwoWindows() {
     // =========================================================================
     console.log('[Step 3] Mở Tab 2 (Bạn học Linh)...');
     const page2 = await context.newPage();
+
+    const memberUser = {
+      id: 'usr_p2p_member_linh',
+      email: 'linh_study@pomodoro.app',
+      displayName: 'Bạn Học Linh',
+      plan: 'pro',
+      createdAt: Date.now()
+    };
+    await page2.goto(BASE_URL);
+    await page2.evaluate((u) => {
+      sessionStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
+    }, memberUser);
 
     console.log(`[Step 4] Bạn học vào link: ${BASE_URL}/rooms/${roomId}`);
     await page2.goto(`${BASE_URL}/rooms/${roomId}`);
