@@ -26,16 +26,6 @@ function calculateContrast(fgRgb: [number, number, number], bgRgb: [number, numb
 test.describe('POST-AUDIT VERIFICATION SUITE', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      const dbs = await window.indexedDB.databases?.();
-      if (dbs) {
-        for (const db of dbs) {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-    await page.reload();
   });
 
   // =========================================================================
@@ -51,6 +41,8 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
       return document.documentElement.scrollWidth <= window.innerWidth;
     });
     expect(overflowX).toBe(true);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
 
     // Kiểm tra các widget mở mặc định (Timer, Tasks, Notes) xuất hiện trong luồng cuộn
     const timer = page.locator('[data-testid="widget-container-timer"]');
@@ -84,12 +76,14 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     await page.reload();
     await page.waitForSelector('[data-testid="workspace-root"]');
 
-    // Tablet (< 1024px) áp dụng chế độ cuộn dọc mượt mà
-    const isScrollable = await page.evaluate(() => {
+    // Main remains in normal document flow to avoid nested scroll containers
+    const mainUsesDocumentFlow = await page.evaluate(() => {
       const main = document.querySelector('main');
-      return main ? main.classList.contains('overflow-y-auto') : false;
+      return main ? !main.classList.contains('overflow-y-auto') : false;
     });
-    expect(isScrollable).toBe(true);
+    expect(mainUsesDocumentFlow).toBe(true);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
 
     // Không tràn ngang
     const noHOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= 768);
@@ -104,8 +98,8 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     await expect(zen).not.toBeVisible();
   });
 
-  test('3. Responsive Laptop (1366x768): Cửa sổ nổi, Cascade vị trí không chồng khít', async ({ page }) => {
-    await page.setViewportSize({ width: 1366, height: 768 });
+  test('3. Responsive Laptop (1365x768): Cửa sổ nổi, Cascade vị trí không chồng khít', async ({ page }) => {
+    await page.setViewportSize({ width: 1365, height: 768 });
     await page.reload();
     await page.waitForSelector('[data-testid="workspace-root"]');
 
@@ -133,8 +127,25 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
 
     // Không cửa sổ nào bị văng ra khỏi biên màn hình 1366x768
     expect(tasksBox!.x).toBeGreaterThanOrEqual(0);
-    expect(soundsBox!.x + soundsBox!.width).toBeLessThanOrEqual(1366 + 30);
-    expect(spacesBox!.x + spacesBox!.width).toBeLessThanOrEqual(1366 + 30);
+    expect(soundsBox!.x + soundsBox!.width).toBeLessThanOrEqual(1365 + 30);
+    expect(spacesBox!.x + spacesBox!.width).toBeLessThanOrEqual(1365 + 30);
+  });
+
+  test('3a. Responsive compact desktop (1024x768): Widgets chuyển sang stack và không chồng lấn', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.reload();
+    await page.waitForSelector('[data-testid="workspace-root"]');
+
+    await expect(page.getByTestId('mobile-bottom-navigation')).toBeVisible();
+    const boxes = await Promise.all(
+      ['timer', 'tasks', 'notes'].map((id) =>
+        page.getByTestId(`widget-container-${id}`).boundingBox()
+      )
+    );
+    expect(boxes.every((box) => box !== null)).toBe(true);
+    expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(boxes[1]!.y);
+    expect(boxes[1]!.y + boxes[1]!.height).toBeLessThanOrEqual(boxes[2]!.y);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 
   // =========================================================================
@@ -178,7 +189,8 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
 
     const tasksWidget = page.locator('[data-testid="widget-container-tasks"]');
     const dragHandle = tasksWidget.locator('[data-drag-handle="true"]');
-    const resizeHandle = tasksWidget.locator('[data-testid="resize-handle-tasks"]');
+    await page.getByTestId('dock-btn-presets').click();
+    await page.getByTestId('dock-btn-edit-layout').click();
 
     const initialBox = await tasksWidget.boundingBox();
     expect(initialBox).not.toBeNull();
@@ -187,7 +199,7 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     const handleBox = await dragHandle.boundingBox();
     await page.mouse.move(handleBox!.x + 60, handleBox!.y + 10);
     await page.mouse.down();
-    await page.mouse.move(handleBox!.x + 160, handleBox!.y + 70, { steps: 5 });
+    await page.mouse.move(handleBox!.x + 80, handleBox!.y + 190, { steps: 5 });
     await page.mouse.up();
 
     const afterDragBox = await tasksWidget.boundingBox();
@@ -195,12 +207,14 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
     expect(afterDragBox!.y).toBeGreaterThan(initialBox!.y);
 
     // 2. Kéo dãn kích thước (Resize)
+    const resizeHandle = tasksWidget.locator('[data-testid="resize-handle-tasks"]');
     const resizeBox = await resizeHandle.boundingBox();
     await page.mouse.move(resizeBox!.x + 5, resizeBox!.y + 5);
     await page.mouse.down();
     await page.mouse.move(resizeBox!.x + 60, resizeBox!.y + 60, { steps: 5 });
     await page.mouse.up();
 
+    await expect.poll(async () => (await tasksWidget.boundingBox())?.width ?? 0).toBeGreaterThan(afterDragBox!.width);
     const afterResizeBox = await tasksWidget.boundingBox();
     expect(afterResizeBox!.width).toBeGreaterThan(afterDragBox!.width);
     expect(afterResizeBox!.height).toBeGreaterThan(afterDragBox!.height);
@@ -216,8 +230,10 @@ test.describe('POST-AUDIT VERIFICATION SUITE', () => {
 
     // 4. Reset Layout từ Dock
     await page.click('[data-testid="dock-btn-reset-layout"]');
+    await expect(page.getByTestId('reset-layout-confirmation')).toBeVisible();
+    await page.getByTestId('confirm-reset-layout').click();
     const resetBox = await page.locator('[data-testid="widget-container-tasks"]').boundingBox();
-    expect(resetBox!.x).toBe(428); // Tọa độ x chuẩn của tasks
+    expect(resetBox!.x).toBe(515); // Tọa độ x chuẩn cân bằng của tasks trên 1440x900 (căn giữa)
     expect(resetBox!.y).toBe(50);  // Tọa độ y chuẩn của tasks
   });
 

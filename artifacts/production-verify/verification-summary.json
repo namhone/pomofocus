@@ -1,0 +1,61 @@
+{
+  "widgetGlassInfo": {
+    "hasTimer": true,
+    "hasTasks": true,
+    "timerBg": "rgba(12, 15, 22, 0.48)",
+    "timerBackdrop": "blur(40px) saturate(1.8)",
+    "timerBorderTop": "rgba(255, 255, 255, 0.28)",
+    "tasksBg": "rgba(15, 18, 26, 0.42)",
+    "tasksBackdrop": "blur(40px) saturate(1.8)",
+    "activeBgType": "image",
+    "bgImgSrc": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop",
+    "bgImgComplete": true,
+    "bgImgNaturalWidth": 1920
+  },
+  "timerVerification": {
+    "initial": "25:00",
+    "running": "24:58",
+    "reset": "25:00"
+  },
+  "dragResizeVerification": {
+    "initialTasksBox": {
+      "x": 428,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "afterDragBox": {
+      "x": 508,
+      "y": 90,
+      "width": 380,
+      "height": 600
+    },
+    "afterResizeBox": {
+      "x": 508,
+      "y": 90,
+      "width": 440,
+      "height": 650
+    },
+    "positionPreserved": true
+  },
+  "videoStatus": {
+    "hasVideoTag": true,
+    "videoSrc": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "videoPaused": true,
+    "videoReadyState": 0,
+    "videoNetworkState": 2,
+    "hasPosterImage": true,
+    "posterSrc": "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=1920&auto=format&fit=crop",
+    "posterComplete": true,
+    "hasGradientFallback": true
+  },
+  "mobileMetrics": {
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "noHorizontalOverflow": true,
+    "isMobileLayoutActive": true
+  },
+  "networkLogsCount": 15,
+  "networkSuccessCount": 15,
+  "consoleLogs": []
+}

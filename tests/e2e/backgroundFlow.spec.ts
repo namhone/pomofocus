@@ -3,16 +3,6 @@ import { test, expect } from '@playwright/test';
 test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      const dbs = await window.indexedDB.databases?.();
-      if (dbs) {
-        for (const db of dbs) {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-    await page.reload();
   });
 
   test('1. Mở Spaces Widget từ DockBar và hiển thị danh mục presets', async ({ page }) => {
@@ -21,7 +11,9 @@ test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
     await expect(page.getByTestId('widget-container-spaces')).toBeVisible();
 
     // 2. Xác nhận hiển thị tiêu đề và các thẻ preset
-    await expect(page.getByTestId('spaces-widget')).toContainText('Thư Viện Không Gian (Spaces)');
+    await expect(page.getByTestId('spaces-widget')).toContainText('Thư Viện Không Gian', {
+      timeout: 15000
+    });
     await expect(page.getByTestId('preset-card-deep-space')).toBeVisible();
     await expect(page.getByTestId('preset-card-cozy-lofi-room')).toBeVisible();
     await expect(page.getByTestId('preset-card-rainy-window')).toBeVisible();
@@ -82,11 +74,10 @@ test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
     await page.getByTestId('dock-btn-spaces').click();
 
     // Giả lập kích hoạt trạng thái lỗi bằng store action
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       // @ts-expect-error - lấy store trên window nếu có hoặc import
-      import('/src/stores/useBackgroundStore.ts').then(({ useBackgroundStore }) => {
-        useBackgroundStore.getState().setError(true, 'Test error network failure');
-      });
+      const store = (window as any).useBackgroundStore || (await import('/src/stores/useBackgroundStore.ts')).useBackgroundStore;
+      store.getState().setError(true, 'Test error network failure');
     });
 
     // Xác nhận thông báo fallback xuất hiện

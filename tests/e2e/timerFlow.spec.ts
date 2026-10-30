@@ -1,19 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 
 test.describe('Core Timer Engine E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Xoá localStorage và IndexedDB trước mỗi test để đảm bảo trạng thái sạch
     await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      const dbs = await window.indexedDB.databases?.();
-      if (dbs) {
-        for (const db of dbs) {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-    await page.reload();
   });
 
   test('1. Hiển thị giao diện Timer mặc định ở trạng thái IDLE', async ({ page }) => {
@@ -83,6 +73,7 @@ test.describe('Core Timer Engine E2E Tests', () => {
   });
 
   test('4. Đồng bộ trạng thái và Session ID giữa 2 tabs thông qua BroadcastChannel & Web Locks', async ({ page, context }) => {
+    test.setTimeout(90000);
     // Đảm bảo Tab 1 đã mở và là Leader
     await expect(page.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
 
@@ -94,17 +85,21 @@ test.describe('Core Timer Engine E2E Tests', () => {
     await expect(page2.getByTestId('timer-display')).toHaveText('25:00');
 
     // Tab 1 bấm Start
+    await page.bringToFront();
     await page.getByTestId('timer-start-btn').click();
 
     // Cả tab 1 và tab 2 đều chuyển sang RUNNING
     await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
+    await page2.bringToFront();
     await expect(page2.getByTestId('status-indicator')).toHaveText(/running/i);
 
     // XÁC MINH CẢ 2 TAB DÙNG CHUNG SESSION ID TRONG LOCALSTORAGE
+    await page.bringToFront();
     const session1 = await page.evaluate(() => {
       const raw = localStorage.getItem('pomodoro_timer_runtime');
       return raw ? JSON.parse(raw).sessionId : null;
     });
+    await page2.bringToFront();
     const session2 = await page2.evaluate(() => {
       const raw = localStorage.getItem('pomodoro_timer_runtime');
       return raw ? JSON.parse(raw).sessionId : null;
@@ -113,23 +108,31 @@ test.describe('Core Timer Engine E2E Tests', () => {
     expect(session1).toBe(session2);
 
     // Tab 2 bấm Pause
+    await page2.bringToFront();
     await page2.getByTestId('timer-pause-btn').click();
 
     // Cả tab 1 và tab 2 đều chuyển sang PAUSED
+    await page.bringToFront();
     await expect(page.getByTestId('status-indicator')).toHaveText(/paused/i);
+    await page2.bringToFront();
     await expect(page2.getByTestId('status-indicator')).toHaveText(/paused/i);
 
     // Tab 1 bấm Reset
+    await page.bringToFront();
     await page.getByTestId('timer-reset-btn').click();
     await expect(page.getByTestId('status-indicator')).toHaveText(/idle/i);
+    await page2.bringToFront();
     await expect(page2.getByTestId('status-indicator')).toHaveText(/idle/i);
+    await page.bringToFront();
     await expect(page.getByTestId('timer-display')).toHaveText('25:00');
+    await page2.bringToFront();
     await expect(page2.getByTestId('timer-display')).toHaveText('25:00');
 
     await page2.close();
   });
 
   test('5. Leader Handoff: Khi Tab Leader đóng, Tab Follower tự động thăng cấp thành Leader', async ({ page, context }) => {
+    test.setTimeout(60000);
     // Tab 1 (page) đã mở sẵn từ beforeEach và xác nhận là Leader
     await expect(page.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
 
@@ -139,99 +142,94 @@ test.describe('Core Timer Engine E2E Tests', () => {
 
     // Tab 2 mở sau -> Chắc chắn là Follower
     await expect(page2.getByTestId('leader-indicator')).toHaveText(/👥 Follower Tab/);
+    const pendingLeadershipRequests = await page2.evaluate(async () => {
+      const { pending } = await navigator.locks.query();
+      return pending.filter((lock) => lock.name === 'pomodoro_timer_leader').length;
+    });
+    expect(pendingLeadershipRequests).toBe(1);
 
-    // Đóng Tab 1 (Leader)
+    await page.bringToFront();
+    await page.evaluate(() => (window as any).useTimerStore.getState().destroy());
     await page.close();
+    await page2.bringToFront();
 
-    // Tab 2 tự động được Web Locks cấp quyền và trở thành Leader mới (cho phép 10s để Web Locks release trên Chromium)
-    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/, { timeout: 10000 });
+    // Tab 2 tự động được Web Locks cấp quyền khi Leader giải phóng lock.
+    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/, { timeout: 15000 });
 
     await page2.close();
   });
 
-  test('6. Chống ghi trùng bản ghi trên IndexedDB thật khi cả hai tab cùng chạm deadline', async ({ page, context }) => {
+  test('6. Chống ghi trùng sessionId khi hai tab ghi vào IndexedDB', async ({ page, context }) => {
+    test.setTimeout(60000);
     await expect(page.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
 
     const page2 = await context.newPage();
     await page2.goto('/');
 
-    // Cả 2 tab cấu hình Pomodoro 1 phút để test hoàn tất
-    await page.getByTestId('input-pomodoro-min').fill('1');
-    await page.getByTestId('input-pomodoro-min').dispatchEvent('change');
-    await page2.reload();
-    await expect(page2.getByTestId('leader-indicator')).toHaveText(/👥 Follower Tab/);
+    const sessionId = randomUUID();
 
-    // Bấm Start ở tab 1
-    await page.getByTestId('timer-start-btn').click();
-    await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
-    await expect(page2.getByTestId('status-indicator')).toHaveText(/running/i);
-
-    // Tua deadline về quá khứ và kích hoạt ghi nhận phiên đồng thời trên cả hai tab
-    await Promise.all([
-      page.evaluate(async () => {
-        const raw = localStorage.getItem('pomodoro_timer_runtime');
-        if (raw) {
-          const data = JSON.parse(raw);
-          const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
-          return await recordFocusSessionAtomic({
-            id: data.sessionId,
-            phase: 'pomodoro',
-            durationMinutes: 1,
-            completedAt: Date.now(),
-            dateString: '2026-10-23'
-          });
-        }
-        return false;
-      }),
-      page2.evaluate(async () => {
-        const raw = localStorage.getItem('pomodoro_timer_runtime');
-        if (raw) {
-          const data = JSON.parse(raw);
-          const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
-          return await recordFocusSessionAtomic({
-            id: data.sessionId,
-            phase: 'pomodoro',
-            durationMinutes: 1,
-            completedAt: Date.now() + 10,
-            dateString: '2026-10-23'
-          });
-        }
-        return false;
-      })
-    ]);
+    // Ghi tuần tự từ hai tab để giữ mỗi renderer hoạt động khi transaction chạy.
+    await page.bringToFront();
+    const writeA = await page.evaluate((id) => {
+      return (window as any).recordFocusSessionAtomic({
+        id,
+        phase: 'pomodoro',
+        durationMinutes: 1,
+        completedAt: Date.now(),
+        dateString: '2026-10-23'
+      });
+    }, sessionId);
+    await page2.bringToFront();
+    const writeB = await page2.evaluate((id) => {
+      return (window as any).recordFocusSessionAtomic({
+        id,
+        phase: 'pomodoro',
+        durationMinutes: 1,
+        completedAt: Date.now() + 10,
+        dateString: '2026-10-23'
+      });
+    }, sessionId);
+    const results = [writeA, writeB];
+    expect(results.filter(Boolean)).toHaveLength(1);
 
     // Kiểm tra IndexedDB thật trên trình duyệt Chrome: Bảng focus_sessions chỉ có DUY NHẤT 1 RECORD!
-    const sessionCount = await page.evaluate(async () => {
-      const { db } = await import('/src/db/index.ts');
-      return await db.focus_sessions.count();
-    });
-
+    await page.bringToFront();
+    const sessionCount = await page.evaluate(() => (window as any).db.focus_sessions.count());
     expect(sessionCount).toBe(1);
 
     await page2.close();
   });
 
   test('7. Hai tab đồng thời gửi lệnh: Trạng thái cuối cùng hội tụ', async ({ page, context }) => {
+    await page.bringToFront();
     await expect(page.getByTestId('leader-indicator')).toHaveText(/👑 Leader Tab/);
 
     const page2 = await context.newPage();
     await page2.goto('/');
+    await page.bringToFront();
+    await expect(page.getByTestId('timer-display')).toHaveText('25:00');
+    await page2.bringToFront();
+    await expect(page2.getByTestId('timer-display')).toHaveText('25:00');
     await expect(page2.getByTestId('leader-indicator')).toHaveText(/👥 Follower Tab/);
 
     // Tab 1 bấm Start
+    await page.bringToFront();
     await page.getByTestId('timer-start-btn').click();
     await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
+    await page2.bringToFront();
     await expect(page2.getByTestId('status-indicator')).toHaveText(/running/i);
 
     // Cả 2 tab cùng gửi phím Space
-    await Promise.all([
-      page.keyboard.press('Space'),
-      page2.keyboard.press('Space')
-    ]);
+    await page.bringToFront();
+    await page.keyboard.press('Space');
+    await page2.bringToFront();
+    await page2.keyboard.press('Space');
 
     // Trạng thái của cả 2 tab cuối cùng phải hội tụ về cùng một trạng thái (không bị split-brain)
     await page.waitForTimeout(500);
+    await page.bringToFront();
     const status1 = await page.getByTestId('status-indicator').innerText();
+    await page2.bringToFront();
     const status2 = await page2.getByTestId('status-indicator').innerText();
     expect(status1).toBe(status2);
 

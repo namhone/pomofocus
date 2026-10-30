@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
+import { FALLBACK_GRADIENTS } from '../data/backgroundPresets';
 
 export const BackgroundCanvas: React.FC = () => {
   const {
-    getActivePreset,
+    activePresetId,
+    customUrl,
+    customType,
+    presets,
     blurLevel,
     brightnessLevel,
     overlayOpacity,
@@ -14,7 +18,21 @@ export const BackgroundCanvas: React.FC = () => {
     setStaticFallback
   } = useBackgroundStore();
 
-  const preset = getActivePreset();
+  const preset =
+    activePresetId === 'custom' && customUrl
+      ? {
+          id: 'custom',
+          title: 'Nền Tùy Chỉnh',
+          category: (customType || 'image') as 'image' | 'video',
+          url: customUrl,
+          fallbackUrl: 'deep-space',
+          thumbnailUrl: '',
+          author: 'Người dùng',
+          license: 'Custom',
+          description: '',
+          tags: ['custom']
+        }
+      : presets.find((p) => p.id === activePresetId) || presets[0];
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // Lắng nghe chính sách prefers-reduced-motion của hệ điều hành
@@ -38,27 +56,92 @@ export const BackgroundCanvas: React.FC = () => {
     };
   }, [setStaticFallback]);
 
+  useEffect(() => {
+    const syncVideoPlayback = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (document.hidden || useStaticFallback) {
+        video.pause();
+      } else {
+        void video.play().catch(() => {
+          setError(true, 'Không thể phát video nền, tự động chuyển sang nền tĩnh dự phòng');
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', syncVideoPlayback);
+    syncVideoPlayback();
+    return () => document.removeEventListener('visibilitychange', syncVideoPlayback);
+  }, [setError, useStaticFallback, activePresetId, customUrl]);
+
   if (!preset) return null;
 
-  const filterStyle = {
+  const filterStyle: React.CSSProperties = {
     filter: `blur(${blurLevel}px) brightness(${brightnessLevel}%)`,
-    transform: blurLevel > 0 ? 'scale(1.04)' : 'none' // Tránh viền mờ khi có blur
+    transform: blurLevel > 0 ? 'scale(1.04)' : 'none',
+    transition: 'filter 0.3s ease, transform 0.3s ease'
   };
 
-  const isVideo = preset.category === 'video' && !useStaticFallback;
-  const isImage = preset.category === 'image' && !useStaticFallback;
+  const isVideo = preset.category === 'video' && !useStaticFallback && !hasError;
+
+  // Xác định nguồn ảnh tĩnh:
+  // 1. Nếu preset là ảnh: nạp preset.url (nếu có lỗi nạp fallbackUrl nếu là ảnh)
+  // 2. Nếu preset là video: luôn cung cấp fallbackUrl làm ảnh nền móng và poster trước khi video sẵn sàng
+  let imageSrc: string | null = null;
+  if (preset.category === 'image') {
+    if (!hasError) {
+      imageSrc = preset.url;
+    } else if (
+      preset.fallbackUrl?.startsWith('http') ||
+      preset.fallbackUrl?.startsWith('data:') ||
+      preset.fallbackUrl?.startsWith('blob:')
+    ) {
+      imageSrc = preset.fallbackUrl;
+    }
+  } else if (preset.category === 'video') {
+    if (
+      preset.fallbackUrl?.startsWith('http') ||
+      preset.fallbackUrl?.startsWith('data:') ||
+      preset.fallbackUrl?.startsWith('blob:')
+    ) {
+      imageSrc = preset.fallbackUrl;
+    }
+  } else if (
+    preset.url?.startsWith('http') ||
+    preset.url?.startsWith('data:') ||
+    preset.url?.startsWith('blob:')
+  ) {
+    if (!hasError) imageSrc = preset.url;
+  }
+
+  // Luôn đảm bảo gradient CSS hợp lệ (tránh gán URL ảnh vào background shorthand)
+  const validGradient =
+    preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
+      ? preset.fallbackUrl
+      : FALLBACK_GRADIENTS[preset.id as keyof typeof FALLBACK_GRADIENTS] || FALLBACK_GRADIENTS.deepSpace;
 
   return (
     <div
       data-testid="background-canvas"
       aria-hidden="true"
-      className="fixed inset-0 w-full h-full -z-10 overflow-hidden pointer-events-none select-none"
+      className="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none select-none"
     >
-      {/* 1. Nền động Video */}
+      {/* 1. Base Gradient Layer (Luôn hiện diện làm nền móng vững chắc và fallback tức thì) */}
+      <div
+        data-testid="background-gradient-element"
+        className="absolute inset-0 w-full h-full transition-all duration-700"
+        style={{
+          background: validGradient,
+          ...filterStyle
+        }}
+      />
+
+      {/* 2. Nền động Video */}
       {isVideo && (
         <video
           ref={videoRef}
           key={`video-${preset.url}`}
+          poster={preset.fallbackUrl?.startsWith('http') ? preset.fallbackUrl : undefined}
           autoPlay
           loop
           muted
@@ -69,42 +152,30 @@ export const BackgroundCanvas: React.FC = () => {
           onError={() => {
             setError(true, 'Video nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
           }}
-          className="w-full h-full object-cover transition-all duration-700"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
           style={filterStyle}
         >
           <source src={preset.url} type="video/mp4" />
         </video>
       )}
 
-      {/* 2. Nền tĩnh Image */}
-      {isImage && (
+      {/* 3. Nền tĩnh Image: Ảnh thật chất lượng cao */}
+      {imageSrc && (
         <img
-          key={`img-${preset.url}`}
-          src={preset.url}
+          key={`img-${imageSrc}`}
+          src={imageSrc}
           alt=""
           data-testid="background-image-element"
           onLoad={() => setLoading(false)}
           onError={() => {
             setError(true, 'Ảnh nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
           }}
-          className="w-full h-full object-cover transition-all duration-700"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
           style={filterStyle}
         />
       )}
 
-      {/* 3. Nền Gradient / Fallback khi lỗi hoặc bật reduced-motion */}
-      {(!isVideo && !isImage) && (
-        <div
-          data-testid="background-gradient-element"
-          className="w-full h-full transition-all duration-700"
-          style={{
-            background: hasError ? preset.fallbackUrl : preset.url,
-            ...filterStyle
-          }}
-        />
-      )}
-
-      {/* Lớp phủ tối (Overlay) điều chỉnh độ tương phản cho văn bản & timer */}
+      {/* 4. Lớp phủ tối (Overlay) điều chỉnh tương phản */}
       <div
         data-testid="background-overlay"
         className="absolute inset-0 bg-slate-950 transition-opacity duration-300"

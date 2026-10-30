@@ -3,16 +3,6 @@ import { test, expect } from '@playwright/test';
 test.describe('Tasks & Notes Widgets E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      const dbs = await window.indexedDB.databases?.();
-      if (dbs) {
-        for (const db of dbs) {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-    await page.reload();
   });
 
   test('1. Thao tác CRUD Task, tạo dự án và khôi phục sau khi reload', async ({ page }) => {

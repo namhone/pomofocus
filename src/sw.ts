@@ -7,5 +7,5 @@ declare const self: ServiceWorkerGlobalScope;
 clientsClaim();
 cleanupOutdatedCaches();
 
-// Tự động inject danh sách precache manifest khi build
-precacheAndRoute(self.__WB_MANIFEST);
+// Tự động inject danh sách precache manifest khi build, an toàn trong môi trường dev
+precacheAndRoute(self.__WB_MANIFEST || []);

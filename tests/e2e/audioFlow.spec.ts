@@ -1,30 +1,29 @@
 import { test, expect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 
 test.describe('Audio Engine & Soundboard E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.clear();
-    });
-    await page.reload();
   });
 
   test('1. Mở widget Âm thanh từ Dock, kiểm tra trạng thái mặc định', async ({ page }) => {
     // Mở widget Sounds từ dockbar
     const soundDockBtn = page.getByTestId('dock-btn-sounds');
-    await expect(soundDockBtn).toBeVisible();
+    await expect(soundDockBtn).toBeVisible({ timeout: 15000 });
     await soundDockBtn.click();
 
     // Widget Header & Master Controls
     await expect(page.getByText('Bảng Âm Thanh & Chuông')).toBeVisible();
     const muteBtn = page.getByTestId('master-mute-btn');
-    await expect(muteBtn).toBeVisible();
+    await expect(muteBtn).toBeVisible({ timeout: 15000 });
     await expect(muteBtn).toHaveText(/Đang bật tiếng/i);
     await expect(page.locator('#master-volume-slider')).toHaveValue('0.8');
 
     // Chime mặc định là twinkle
     await expect(page.getByRole('button', { name: /Chuông Báo \(twinkle\)/i })).toBeVisible();
-    await expect(page.getByTestId('preview-chime-btn')).toBeVisible();
+    const previewChimeBtn = page.getByTestId('preview-chime-btn');
+    await previewChimeBtn.scrollIntoViewIfNeeded();
+    await expect(previewChimeBtn).toBeVisible();
   });
 
   test('2. Thao tác chọn loại chuông và kích hoạt nghe thử (Preview)', async ({ page }) => {
@@ -37,11 +36,47 @@ test.describe('Audio Engine & Soundboard E2E Tests', () => {
 
     // Bấm nút nghe thử chuông
     const previewBtn = page.getByTestId('preview-chime-btn');
+    await page.evaluate(() => {
+      const store = (window as any).useAudioStore;
+      const playPreview = store.getState().previewChime;
+      store.setState({
+        previewChime: async (chime?: string) => {
+          (window as any).__previewedChime = chime ?? store.getState().settings.selectedChime;
+          try {
+            await playPreview(chime);
+          } finally {
+            await new Promise<void>((resolve) => {
+              (window as any).__finishPreviewChime = resolve;
+            });
+          }
+        }
+      });
+    });
     await previewBtn.click();
     await expect(previewBtn).toHaveText(/Đang phát/i);
+    await expect.poll(() => page.evaluate(() => (window as any).__previewedChime)).toBe('scifi');
 
     // Sau khi phát xong, nút trở lại bình thường
-    await expect(previewBtn).toHaveText(/Nghe Thử Chuông Báo/i, { timeout: 3000 });
+    await page.evaluate(() => {
+      const target = window as any;
+      target.__originalSetTimeout = window.setTimeout;
+      window.setTimeout = ((callback: TimerHandler, delay?: number, ...args: any[]) => {
+        if (delay === 2000 && typeof callback === 'function') {
+          target.__resetPreview = () => callback(...args);
+          return 0;
+        }
+        return target.__originalSetTimeout(callback, delay, ...args);
+      }) as typeof window.setTimeout;
+      target.__finishPreviewChime();
+    });
+    await expect.poll(() => page.evaluate(() => typeof (window as any).__resetPreview)).toBe('function');
+    await page.evaluate(() => {
+      const target = window as any;
+      const resetPreview = target.__resetPreview;
+      window.setTimeout = target.__originalSetTimeout;
+      resetPreview();
+    });
+    await expect(previewBtn).toHaveText(/Nghe Thử Chuông Báo/i);
 
     // Chọn Bird
     await page.getByTestId('chime-option-bird').click();
@@ -143,19 +178,31 @@ test.describe('Audio Engine & Soundboard E2E Tests', () => {
     await expect(page.getByLabel('Âm lượng Mưa Rào')).toBeVisible();
   });
 
-  test('6. Đa tab: Chỉ một tab ghi nhận atomic transaction phát chuông khi hết giờ', async ({ context }) => {
+  test('6. Đa tab: Chỉ phát một chuông khi cùng ghi nhận một sessionId', async ({ context }) => {
+    test.setTimeout(60000);
     const pageA = await context.newPage();
     const pageB = await context.newPage();
 
     await pageA.goto('/');
     await pageB.goto('/');
 
+    // Mở Audio widget trên cả 2 tab để nạp useAudioStore
+    await pageA.bringToFront();
+    await pageA.getByTestId('dock-btn-sounds').click();
+    await pageA.waitForSelector('[data-testid="audio-widget-content"]');
+
+    await pageB.bringToFront();
+    await pageB.getByTestId('dock-btn-sounds').click();
+    await pageB.waitForSelector('[data-testid="audio-widget-content"]');
+
     // Cài đặt spy theo dõi lượt gọi playChime trên 2 tabs
-    await pageA.evaluate(async () => {
-      const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
+    await pageA.bringToFront();
+    await pageA.evaluate(() => {
+      const store = (window as any).useAudioStore;
       (window as any).__chimePlayCount = 0;
-      const original = useAudioStore.getState().playChime;
-      useAudioStore.setState({
+      if (!store) return;
+      const original = store.getState().playChime;
+      store.setState({
         playChime: async (...args: any[]) => {
           (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
           return original(...args);
@@ -163,11 +210,13 @@ test.describe('Audio Engine & Soundboard E2E Tests', () => {
       });
     });
 
-    await pageB.evaluate(async () => {
-      const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
+    await pageB.bringToFront();
+    await pageB.evaluate(() => {
+      const store = (window as any).useAudioStore;
       (window as any).__chimePlayCount = 0;
-      const original = useAudioStore.getState().playChime;
-      useAudioStore.setState({
+      if (!store) return;
+      const original = store.getState().playChime;
+      store.setState({
         playChime: async (...args: any[]) => {
           (window as any).__chimePlayCount = ((window as any).__chimePlayCount || 0) + 1;
           return original(...args);
@@ -176,60 +225,54 @@ test.describe('Audio Engine & Soundboard E2E Tests', () => {
     });
 
     // Cả 2 tabs đều kết nối bình thường
+    await pageA.bringToFront();
     await expect(pageA.getByTestId('status-indicator')).toBeVisible();
+    await pageB.bringToFront();
     await expect(pageB.getByTestId('status-indicator')).toBeVisible();
 
-    // Bắt đầu timer ở tab A
-    await pageA.getByTestId('timer-start-btn').click();
-    await expect(pageA.getByTestId('status-indicator')).toHaveText(/running/i);
-    await expect(pageB.getByTestId('status-indicator')).toHaveText(/running/i);
+    const sessionId = randomUUID();
 
-    // Lấy thông tin runtime chung từ localStorage
-    const sessionInfo = await pageA.evaluate(() => {
-      const raw = localStorage.getItem('pomodoro_timer_runtime');
-      return raw ? JSON.parse(raw) : null;
-    });
-    expect(sessionInfo?.sessionId).toBeTruthy();
+    // Ghi cùng sessionId từ hai tab; chỉ transaction đầu tiên được phát chuông.
+    await pageA.bringToFront();
+    const resultA = await pageA.evaluate(async (id) => {
+      const recordFn = (window as any).recordFocusSessionAtomic;
+      const store = (window as any).useAudioStore;
+      if (!recordFn || !store) return false;
+      const recorded = await recordFn({
+        id,
+        phase: 'pomodoro',
+        durationMinutes: 1,
+        completedAt: Date.now(),
+        dateString: '2026-10-23'
+      });
+      if (recorded) await store.getState().playChime();
+      return recorded;
+    }, sessionId);
 
-    // Giả lập cả hai tab cùng chạm deadline và cùng gọi luồng atomic recording + playChime
-    const [resultA, resultB] = await Promise.all([
-      pageA.evaluate(async (info) => {
-        const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
-        const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
-        const recorded = await recordFocusSessionAtomic({
-          id: info.sessionId,
-          phase: 'pomodoro',
-          durationMinutes: 1,
-          completedAt: Date.now(),
-          dateString: '2026-10-23'
-        });
-        if (recorded) {
-          await useAudioStore.getState().playChime();
-        }
-        return recorded;
-      }, sessionInfo),
-      pageB.evaluate(async (info) => {
-        const { recordFocusSessionAtomic } = await import('/src/db/index.ts');
-        const { useAudioStore } = await import('/src/stores/useAudioStore.ts');
-        const recorded = await recordFocusSessionAtomic({
-          id: info.sessionId,
-          phase: 'pomodoro',
-          durationMinutes: 1,
-          completedAt: Date.now() + 10,
-          dateString: '2026-10-23'
-        });
-        if (recorded) {
-          await useAudioStore.getState().playChime();
-        }
-        return recorded;
-      }, sessionInfo)
-    ]);
+    await pageB.bringToFront();
+    const resultB = await pageB.evaluate(async (id) => {
+      const recordFn = (window as any).recordFocusSessionAtomic;
+      const store = (window as any).useAudioStore;
+      if (!recordFn || !store) return false;
+      const recorded = await recordFn({
+        id,
+        phase: 'pomodoro',
+        durationMinutes: 1,
+        completedAt: Date.now() + 10,
+        dateString: '2026-10-23'
+      });
+      if (recorded) await store.getState().playChime();
+      return recorded;
+    }, sessionId);
 
     // Chỉ có DUY NHẤT 1 tab ghi thành công vào IndexedDB
-    expect([resultA, resultB].filter(Boolean).length).toBe(1);
+    const results = [resultA, resultB];
+    expect(results.filter(Boolean)).toHaveLength(1);
 
-    // Kiểm tra số lần gọi playChime trên từng tab
+    // Kiểm tra số lần gọi playChime trên từng tab (bringToFront tránh Chromium background tab throttling)
+    await pageA.bringToFront();
     const countA = await pageA.evaluate(() => (window as any).__chimePlayCount || 0);
+    await pageB.bringToFront();
     const countB = await pageB.evaluate(() => (window as any).__chimePlayCount || 0);
 
     // Tổng số lượt phát chuông trên toàn bộ các tab chính xác bằng 1

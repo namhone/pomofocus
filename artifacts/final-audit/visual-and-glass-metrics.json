@@ -1,0 +1,275 @@
+{
+  "auditTimestamp": "2026-10-27T14:07:09.567Z",
+  "imageVerification": {
+    "defaultImageStatus": {
+      "src": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop",
+      "complete": true,
+      "naturalWidth": 1920,
+      "naturalHeight": 1278,
+      "visible": true
+    },
+    "persistencePass": true,
+    "presetBeforeReload": "cozy-lofi-room",
+    "presetAfterReload": {
+      "storePresetId": "cozy-lofi-room",
+      "localStoragePresetId": "cozy-lofi-room"
+    },
+    "networkImagesSample": [
+      {
+        "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=300&auto=format&fit=crop",
+        "status": 200,
+        "ok": true
+      }
+    ]
+  },
+  "glassmorphismVerification": {
+    "glassStyles": {
+      "timer": {
+        "backgroundColor": "rgba(12, 15, 22, 0.46)",
+        "backdropFilter": "blur(32px) saturate(1.8)",
+        "opacity": "1",
+        "zIndex": "10",
+        "borderTopColor": "rgba(255, 255, 255, 0.28)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.55) 0px 28px 60px -12px, rgba(255, 255, 255, 0.22) 0px 1px 1px 0px inset, rgba(255, 255, 255, 0.02) 0px 0px 24px 0px inset"
+      },
+      "tasks": {
+        "backgroundColor": "rgba(15, 18, 26, 0.42)",
+        "backdropFilter": "blur(32px) saturate(1.8)",
+        "opacity": "1",
+        "zIndex": "11",
+        "borderTopColor": "rgba(255, 255, 255, 0.2)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.45) 0px 24px 50px -12px, rgba(255, 255, 255, 0.16) 0px 1px 1px 0px inset, rgba(255, 255, 255, 0.016) 0px 0px 20px 0px inset"
+      },
+      "canvasZIndex": "0"
+    },
+    "brightContrastSamples": [
+      {
+        "widget": "Timer Title",
+        "textColor": "rgb(229, 229, 229)",
+        "bgColor": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "widget": "Timer Display",
+        "textColor": "rgb(255, 255, 255)",
+        "bgColor": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "widget": "Tasks Title",
+        "textColor": "rgb(229, 229, 229)",
+        "bgColor": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  "responsiveMetrics": [
+    {
+      "name": "1365x768-laptop",
+      "width": 1365,
+      "height": 768,
+      "isMobile": false,
+      "scrollWidth": 1365,
+      "clientWidth": 1365,
+      "scrollHeight": 768,
+      "clientHeight": 768,
+      "noHorizontalOverflow": true,
+      "timerRect": {
+        "x": 24,
+        "y": 50,
+        "width": 380,
+        "height": 600
+      },
+      "tasksRect": {
+        "x": 428,
+        "y": 50,
+        "width": 380,
+        "height": 600
+      },
+      "dockRect": {
+        "x": 405.953125,
+        "y": 698,
+        "width": 553.09375,
+        "height": 54
+      },
+      "isOverlapping": false,
+      "hasDockOrNav": true,
+      "scrollSuccess": false,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-audit\\07-viewport-1365x768-laptop.png"
+    },
+    {
+      "name": "1024x768-compact",
+      "width": 1024,
+      "height": 768,
+      "isMobile": false,
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "scrollHeight": 1692,
+      "clientHeight": 768,
+      "noHorizontalOverflow": true,
+      "timerRect": {
+        "x": 224,
+        "y": 72,
+        "width": 576,
+        "height": 574
+      },
+      "tasksRect": {
+        "x": 224,
+        "y": 666,
+        "width": 576,
+        "height": 380
+      },
+      "dockRect": {
+        "x": 0,
+        "y": 701,
+        "width": 1024,
+        "height": 67
+      },
+      "isOverlapping": false,
+      "hasDockOrNav": true,
+      "scrollSuccess": false,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-audit\\07-viewport-1024x768-compact.png"
+    },
+    {
+      "name": "768x1024-tablet",
+      "width": 768,
+      "height": 1024,
+      "isMobile": true,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "scrollHeight": 1692,
+      "clientHeight": 1024,
+      "noHorizontalOverflow": true,
+      "timerRect": {
+        "x": 96,
+        "y": 72,
+        "width": 576,
+        "height": 574
+      },
+      "tasksRect": {
+        "x": 96,
+        "y": 666,
+        "width": 576,
+        "height": 380
+      },
+      "dockRect": {
+        "x": 0,
+        "y": 957,
+        "width": 768,
+        "height": 67
+      },
+      "isOverlapping": false,
+      "hasDockOrNav": true,
+      "scrollSuccess": true,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-audit\\07-viewport-768x1024-tablet.png"
+    },
+    {
+      "name": "390x844-mobile",
+      "width": 390,
+      "height": 844,
+      "isMobile": true,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 1780,
+      "clientHeight": 844,
+      "noHorizontalOverflow": true,
+      "timerRect": {
+        "x": 16,
+        "y": 72,
+        "width": 358,
+        "height": 569
+      },
+      "tasksRect": {
+        "x": 16,
+        "y": 661,
+        "width": 358,
+        "height": 460
+      },
+      "dockRect": {
+        "x": 0,
+        "y": 777,
+        "width": 390,
+        "height": 67
+      },
+      "isOverlapping": false,
+      "hasDockOrNav": true,
+      "scrollSuccess": true,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-audit\\07-viewport-390x844-mobile.png"
+    },
+    {
+      "name": "320x568-narrow",
+      "width": 320,
+      "height": 568,
+      "isMobile": true,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "scrollHeight": 1848,
+      "clientHeight": 568,
+      "noHorizontalOverflow": true,
+      "timerRect": {
+        "x": 16,
+        "y": 72,
+        "width": 288,
+        "height": 589
+      },
+      "tasksRect": {
+        "x": 16,
+        "y": 681,
+        "width": 288,
+        "height": 494
+      },
+      "dockRect": {
+        "x": 0,
+        "y": 501,
+        "width": 320,
+        "height": 67
+      },
+      "isOverlapping": false,
+      "hasDockOrNav": true,
+      "scrollSuccess": true,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-audit\\07-viewport-320x568-narrow.png"
+    }
+  ]
+}

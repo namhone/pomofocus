@@ -1,0 +1,96 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { momoService } from '../../src/services/momoService';
+import { authService } from '../../src/services/authService';
+import { PRICING_PLANS } from '../../src/config/pricing';
+import { computeHmacSha256 } from '../../src/utils/crypto';
+
+describe('MoMo Payment & Account Linking Service Tests', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('1. Tạo đơn hàng MoMo gói Hàng tháng với thông tin email và số tiền chính xác (59.000 VNĐ)', () => {
+    const order = momoService.createOrder('test@studyworkspace.io', 'monthly');
+
+    expect(order.orderId).toMatch(/^SW_\d{6}$/);
+    expect(order.email).toBe('test@studyworkspace.io');
+    expect(order.cycle).toBe('monthly');
+    expect(order.durationMonths).toBe(1);
+    expect(order.amount).toBe(PRICING_PLANS.monthly.priceVnd); // 59000
+    expect(order.amount).toBe(59000);
+    expect(order.memo).toContain(order.orderId);
+    expect(order.memo).toContain('1M');
+    expect(order.status).toBe('pending');
+    expect(order.qrUrl).toContain('970422');
+    expect(order.qrUrl).toContain('0704862629');
+    expect(order.qrUrl).toContain('HO%20NGOC%20BAO%20NAM');
+  });
+
+  it('2. Tạo đơn hàng MoMo gói Hàng năm với thông tin email và số tiền 468.000 VNĐ', () => {
+    const order = momoService.createOrder('pro.user@domain.com', 'yearly');
+
+    expect(order.cycle).toBe('yearly');
+    expect(order.durationMonths).toBe(12);
+    expect(order.amount).toBe(PRICING_PLANS.yearly.priceVnd); // 468000
+    expect(order.amount).toBe(468000);
+    expect(order.memo).toContain('12M');
+    expect(order.status).toBe('pending');
+  });
+
+  it('3. Thao tác người dùng bấm chuyển khoản (Fail-Closed): chỉ chuyển sang under_review, KHÔNG cấp PRO', () => {
+    const order = momoService.createOrder('alice@univ.edu', 'yearly');
+    const result = momoService.notifyUserTransferred(order.orderId);
+
+    expect(result.success).toBe(true);
+    expect(result.order?.status).toBe('under_review');
+
+    // Kiểm tra session hiện tại vẫn là guest hoặc free
+    const session = authService.getCurrentSession();
+    expect(session?.plan || 'free').not.toBe('pro');
+  });
+
+  it('4. Kích hoạt Sandbox độc lập: cấp quyền pro_sandbox được cô lập an toàn', () => {
+    const order = momoService.createOrder('bob@tech.com', 'monthly');
+    const result = momoService.simulateSandboxPayment(order.orderId);
+
+    expect(result.success).toBe(true);
+    expect(result.user?.plan).toBe('pro_sandbox');
+
+    const updatedOrder = momoService.getOrder(order.orderId);
+    expect(updatedOrder?.status).toBe('verified_paid');
+    expect(updatedOrder?.isSandbox).toBe(true);
+  });
+
+  it('5. Xác thực Webhook máy chủ với chữ ký HMAC-SHA256 cấp PRO chính thức', async () => {
+    const order = momoService.createOrder('charlie@academic.org', 'monthly');
+    const secretKey = 'TEST_SECRET_KEY';
+    const accessKey = 'TEST_ACCESS_KEY';
+    const transId = Date.now();
+
+    const rawSignature = `accessKey=${accessKey}&amount=${order.amount}&extraData=&message=Success&orderId=${order.orderId}&orderInfo=MoMo Payment&orderType=momo_wallet&partnerCode=MOMO&payType=qr&requestId=${order.orderId}&responseTime=1700000000&resultCode=0&transId=${transId}`;
+    const signature = await computeHmacSha256(secretKey, rawSignature);
+
+    const payload = {
+      partnerCode: 'MOMO',
+      orderId: order.orderId,
+      requestId: order.orderId,
+      amount: order.amount,
+      orderInfo: 'MoMo Payment',
+      orderType: 'momo_wallet',
+      transId,
+      resultCode: 0,
+      message: 'Success',
+      payType: 'qr',
+      responseTime: 1700000000,
+      extraData: '',
+      signature,
+      accessKey
+    };
+
+    const webhookResult = await momoService.verifyServerWebhook(payload, secretKey, accessKey);
+    expect(webhookResult.success).toBe(true);
+    expect(webhookResult.code).toBe('ENTITLEMENT_GRANTED');
+    expect(webhookResult.user?.plan).toBe('pro');
+    expect(webhookResult.user?.email).toBe('charlie@academic.org');
+  });
+});

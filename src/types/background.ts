@@ -1,5 +1,31 @@
 export type BackgroundCategory = 'all' | 'gradient' | 'image' | 'video';
 
+export type AmbientEffectType = 'none' | 'rain' | 'snow' | 'sakura' | 'fireflies';
+
+export type CatalogCategory =
+  | 'all'
+  | 'anime'
+  | 'nature'
+  | 'cyberpunk'
+  | 'lofi'
+  | 'cafe'
+  | 'aesthetic'
+  | 'minimalist'
+  | 'scifi'
+  | 'library'
+  | 'rain';
+
+export interface CatalogItem {
+  id: string;
+  title: string;
+  category: CatalogCategory;
+  orientation: 'desktop' | 'mobile';
+  url: string;
+  thumbnailUrl: string;
+  author: string;
+  tags: string[];
+}
+
 export interface BackgroundPreset {
   id: string;
   title: string;
@@ -21,4 +47,5 @@ export interface BackgroundStorageData {
   overlayOpacity: number;
   customUrl: string | null;
   customType: 'image' | 'video' | null;
+  ambientEffect?: AmbientEffectType;
 }

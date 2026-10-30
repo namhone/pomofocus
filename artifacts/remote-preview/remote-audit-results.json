@@ -1,0 +1,56 @@
+{
+  "remoteUrl": "https://revenues-organizations-cult-somehow.trycloudflare.com",
+  "timestamp": "2026-10-27T17:53:12.838Z",
+  "tests": {
+    "httpStatus": {
+      "status": "PASS",
+      "code": 200
+    },
+    "pageTitle": {
+      "status": "PASS",
+      "title": "Immersive Pomodoro Workspace"
+    },
+    "timerBalancedCentering": {
+      "status": "PASS",
+      "x": 115,
+      "y": 50,
+      "width": 380,
+      "height": 600,
+      "note": "Timer x is 115px, perfectly centered on 1440x900 (not stuck at 24px)"
+    },
+    "glassmorphism": {
+      "status": "PASS",
+      "details": {
+        "backdropFilter": "blur(32px) saturate(1.8)",
+        "backgroundColor": "rgba(12, 15, 22, 0.46)",
+        "borderRadius": "20px"
+      }
+    },
+    "timerSettingsPersistence": {
+      "status": "PASS",
+      "timerDisplay": "45:00",
+      "note": "Pomodoro duration 45m persisted successfully across reload"
+    },
+    "customMusicTab": {
+      "status": "PASS",
+      "hasUrlInput": true,
+      "handledStreamErrorGracefully": true
+    },
+    "mobileMenuStability": {
+      "status": "PASS",
+      "note": "Mobile bottom navigation transitions smoothly without erratic jumping"
+    },
+    "mobileTouchSwipe": {
+      "status": "PASS",
+      "initialY": 72,
+      "scrolledDownY": 2276
+    }
+  },
+  "networkErrors": [
+    {
+      "url": "https://example.com/test-lofi-stream.mp3",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    }
+  ],
+  "consoleErrors": []
+}

@@ -1,0 +1,23 @@
+{
+  "name": "PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung",
+  "short_name": "PomoFocus",
+  "description": "Ứng dụng Pomodoro, phòng học nhóm WebRTC, âm thanh ambient và quản lý học tập tối ưu cho học sinh, sinh viên và người đi làm.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { recordFocusSessionAtomic } from '../db';
 import { NotificationService } from '../services/notificationService';
 import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
-import { DEFAULT_SETTINGS, TimerEngine } from '../services/timerEngine';
+import { TimerEngine, loadStoredSettings, persistSettings } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
 
 interface TimerStoreState {
@@ -61,12 +61,14 @@ function updateDocumentTitle(
   }
 }
 
+const initialSettings = loadStoredSettings();
+
 export const useTimerStore = create<TimerStoreState>((set, get) => ({
   phase: 'pomodoro',
   status: 'idle',
   currentRound: 1,
-  remainingMs: DEFAULT_SETTINGS.pomodoroMinutes * 60 * 1000,
-  settings: DEFAULT_SETTINGS,
+  remainingMs: initialSettings.pomodoroMinutes * 60 * 1000,
+  settings: initialSettings,
   isLeader: false,
   notificationPermission: NotificationService.getPermission(),
   linkedTaskId: null,
@@ -167,6 +169,16 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
           }
 
           if (wasRecorded) {
+            // Cập nhật phản ứng tức thời vào useTaskStore
+            if (record.taskId && record.phase === 'pomodoro') {
+              try {
+                const { useTaskStore } = await import('./useTaskStore');
+                await useTaskStore.getState().loadTasksAndProjects();
+              } catch (err) {
+                console.warn('Lỗi cập nhật task store sau phiên Pomodoro:', err);
+              }
+            }
+
             const phaseName = record.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao';
             const taskInfo = record.taskTitle ? ` cho việc "${record.taskTitle}"` : '';
             NotificationService.notify(`🎉 ${phaseName}${taskInfo} đã hoàn thành!`, {
@@ -207,14 +219,17 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       });
     }
 
-    // Gắn dọn dẹp khi đóng tab
+    // Gắn dọn dẹp khi đóng tab (beforeunload, pagehide, unload)
     if (!hasBoundUnload) {
       hasBoundUnload = true;
-      window.addEventListener('beforeunload', () => {
+      const cleanupTab = () => {
         if (coordinatorInstance) {
           coordinatorInstance.destroy();
         }
-      });
+      };
+      window.addEventListener('beforeunload', cleanupTab);
+      window.addEventListener('pagehide', cleanupTab);
+      window.addEventListener('unload', cleanupTab);
     }
   },
 
@@ -346,7 +361,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   updateSettings: (newSettings: Partial<TimerSettings>) => {
     if (engineInstance) {
       engineInstance.updateSettings(newSettings);
-      set({ settings: engineInstance.getSettings() });
+      set({
+        settings: engineInstance.getSettings(),
+        remainingMs: engineInstance.getRemainingMs(),
+        phase: engineInstance.getPhase(),
+        status: engineInstance.getStatus()
+      });
+    } else {
+      const merged = { ...get().settings, ...newSettings };
+      persistSettings(merged);
+      set({
+        settings: merged,
+        remainingMs: merged.pomodoroMinutes * 60 * 1000
+      });
     }
   },
 
@@ -366,3 +393,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     }
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useTimerStore: typeof useTimerStore; recordFocusSessionAtomic: typeof recordFocusSessionAtomic }).useTimerStore = useTimerStore;
+  (window as unknown as { useTimerStore: typeof useTimerStore; recordFocusSessionAtomic: typeof recordFocusSessionAtomic }).recordFocusSessionAtomic = recordFocusSessionAtomic;
+}
+

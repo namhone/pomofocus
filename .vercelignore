@@ -1,0 +1,22 @@
+# Dependencies & Build Cache
+node_modules
+dist
+dist-ssr
+dev-dist
+.vercel
+*.local
+.env*
+
+# Testing & Artifacts (keep deployment fast and lean)
+artifacts
+Pomodoro
+Pomodoro.zip
+tests
+test-results
+playwright-report
+coverage
+.claude
+scripts
+product-spec
+AGENT_HANDOFF.md
+*.log

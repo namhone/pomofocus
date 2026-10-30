@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
-import { BackgroundPreset, BackgroundStorageData } from '../types/background';
+import { BackgroundPreset, BackgroundStorageData, AmbientEffectType } from '../types/background';
 
 export const BACKGROUND_STORAGE_KEY = 'pomodoro_workspace_background_v1';
 
@@ -10,7 +10,8 @@ export const DEFAULT_BACKGROUND_STATE = {
   brightnessLevel: 100,
   overlayOpacity: 30,
   customUrl: null as string | null,
-  customType: null as 'image' | 'video' | null
+  customType: null as 'image' | 'video' | null,
+  ambientEffect: 'none' as AmbientEffectType
 };
 
 function loadStoredBackground(): typeof DEFAULT_BACKGROUND_STATE {
@@ -39,7 +40,10 @@ function loadStoredBackground(): typeof DEFAULT_BACKGROUND_STATE {
           ? Math.max(0, Math.min(80, data.overlayOpacity))
           : 30,
       customUrl: typeof data.customUrl === 'string' ? data.customUrl : null,
-      customType: data.customType === 'video' || data.customType === 'image' ? data.customType : null
+      customType: data.customType === 'video' || data.customType === 'image' ? data.customType : null,
+      ambientEffect: (['none', 'rain', 'snow', 'sakura', 'fireflies'].includes(data.ambientEffect || '')
+        ? data.ambientEffect
+        : 'none') as AmbientEffectType
     };
   } catch (err) {
     console.warn('Lỗi đọc background từ localStorage:', err);
@@ -57,7 +61,8 @@ function persistBackground(state: typeof DEFAULT_BACKGROUND_STATE): void {
       brightnessLevel: state.brightnessLevel,
       overlayOpacity: state.overlayOpacity,
       customUrl: state.customUrl,
-      customType: state.customType
+      customType: state.customType,
+      ambientEffect: state.ambientEffect
     };
     window.localStorage.setItem(BACKGROUND_STORAGE_KEY, JSON.stringify(data));
   } catch (err) {
@@ -73,6 +78,7 @@ export interface BackgroundStoreState {
   overlayOpacity: number;
   customUrl: string | null;
   customType: 'image' | 'video' | null;
+  ambientEffect: AmbientEffectType;
 
   isLoading: boolean;
   hasError: boolean;
@@ -85,6 +91,7 @@ export interface BackgroundStoreState {
   setBlur: (level: number) => void;
   setBrightness: (level: number) => void;
   setOverlayOpacity: (level: number) => void;
+  setAmbientEffect: (effect: AmbientEffectType) => void;
   setLoading: (loading: boolean) => void;
   setError: (hasError: boolean, message?: string) => void;
   setStaticFallback: (enabled: boolean) => void;
@@ -102,6 +109,7 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
   overlayOpacity: initial.overlayOpacity,
   customUrl: initial.customUrl,
   customType: initial.customType,
+  ambientEffect: initial.ambientEffect,
 
   isLoading: false,
   hasError: false,
@@ -128,7 +136,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       brightnessLevel: get().brightnessLevel,
       overlayOpacity: get().overlayOpacity,
       customUrl: null,
-      customType: null
+      customType: null,
+      ambientEffect: get().ambientEffect
     });
   },
 
@@ -151,7 +160,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       brightnessLevel: get().brightnessLevel,
       overlayOpacity: get().overlayOpacity,
       customUrl: trimmed,
-      customType: type
+      customType: type,
+      ambientEffect: get().ambientEffect
     });
   },
 
@@ -164,7 +174,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       brightnessLevel: get().brightnessLevel,
       overlayOpacity: get().overlayOpacity,
       customUrl: get().customUrl,
-      customType: get().customType
+      customType: get().customType,
+      ambientEffect: get().ambientEffect
     });
   },
 
@@ -177,7 +188,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       brightnessLevel: clamped,
       overlayOpacity: get().overlayOpacity,
       customUrl: get().customUrl,
-      customType: get().customType
+      customType: get().customType,
+      ambientEffect: get().ambientEffect
     });
   },
 
@@ -190,7 +202,21 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       brightnessLevel: get().brightnessLevel,
       overlayOpacity: clamped,
       customUrl: get().customUrl,
-      customType: get().customType
+      customType: get().customType,
+      ambientEffect: get().ambientEffect
+    });
+  },
+
+  setAmbientEffect: (effect: AmbientEffectType) => {
+    set({ ambientEffect: effect });
+    persistBackground({
+      activePresetId: get().activePresetId,
+      blurLevel: get().blurLevel,
+      brightnessLevel: get().brightnessLevel,
+      overlayOpacity: get().overlayOpacity,
+      customUrl: get().customUrl,
+      customType: get().customType,
+      ambientEffect: effect
     });
   },
 
@@ -235,3 +261,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
     return presets.find((p) => p.id === activePresetId) || presets[0];
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useBackgroundStore: typeof useBackgroundStore }).useBackgroundStore = useBackgroundStore;
+}
+

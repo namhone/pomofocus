@@ -1,0 +1,71 @@
+{
+  "settingsWindowManager": {
+    "initiallyClosed": true,
+    "openFromDock": true,
+    "closeFromHeader": true,
+    "dragCoordinatesUpdated": true,
+    "resizeDimensionsUpdated": true,
+    "zIndexFocusElevated": true,
+    "statePersistedAcrossReload": true,
+    "status": "PASS"
+  },
+  "viewportTransitions": {
+    "mobileFlowEngaged": true,
+    "timerCoordinatesPreserved": true,
+    "tasksCoordinatesPreserved": true,
+    "noArbitraryOverlap": true,
+    "status": "PASS"
+  },
+  "mobileTouchSwipes": {
+    "scrollAfterHeader": 165,
+    "scrollAfterBody": 450,
+    "scrollAfterGutter": 785,
+    "scrollAfterNearDock": 1053,
+    "scrollAfterUp": 618,
+    "status": "PASS"
+  },
+  "performanceAndErrors": {
+    "avgFps": 50,
+    "longTaskCount": 3,
+    "longTasksDetails": [
+      {
+        "name": "self",
+        "duration": 59,
+        "startTime": 1706.6000000014901
+      },
+      {
+        "name": "self",
+        "duration": 124,
+        "startTime": 1925.300000000745
+      },
+      {
+        "name": "self",
+        "duration": 56,
+        "startTime": 2159.9000000003725
+      }
+    ],
+    "unrelatedWidgetMutations": 0,
+    "consoleErrorsCount": 0,
+    "consoleErrors": [],
+    "consoleWarningsCount": 0,
+    "status": "PASS"
+  },
+  "screenshots": [
+    {
+      "name": "01-desktop-default-view.png",
+      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-acceptance\\01-desktop-default-view.png"
+    },
+    {
+      "name": "02-desktop-settings-floating-window.png",
+      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-acceptance\\02-desktop-settings-floating-window.png"
+    },
+    {
+      "name": "03-mobile-top-view.png",
+      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-acceptance\\03-mobile-top-view.png"
+    },
+    {
+      "name": "04-mobile-bottom-view.png",
+      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\final-acceptance\\04-mobile-bottom-view.png"
+    }
+  ]
+}

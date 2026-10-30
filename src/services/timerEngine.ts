@@ -10,7 +10,39 @@ export const DEFAULT_SETTINGS: TimerSettings = {
   notificationEnabled: false,
 };
 
+export const SETTINGS_STORAGE_KEY = 'pomodoro_timer_settings_v1';
 export const RUNTIME_STORAGE_KEY = 'pomodoro_timer_runtime';
+
+export function loadStoredSettings(): TimerSettings {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return { ...DEFAULT_SETTINGS };
+  }
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    const parsed = JSON.parse(raw);
+    return {
+      pomodoroMinutes: typeof parsed.pomodoroMinutes === 'number' && parsed.pomodoroMinutes > 0 ? parsed.pomodoroMinutes : DEFAULT_SETTINGS.pomodoroMinutes,
+      shortBreakMinutes: typeof parsed.shortBreakMinutes === 'number' && parsed.shortBreakMinutes > 0 ? parsed.shortBreakMinutes : DEFAULT_SETTINGS.shortBreakMinutes,
+      longBreakMinutes: typeof parsed.longBreakMinutes === 'number' && parsed.longBreakMinutes > 0 ? parsed.longBreakMinutes : DEFAULT_SETTINGS.longBreakMinutes,
+      roundsBeforeLongBreak: typeof parsed.roundsBeforeLongBreak === 'number' && parsed.roundsBeforeLongBreak > 0 ? parsed.roundsBeforeLongBreak : DEFAULT_SETTINGS.roundsBeforeLongBreak,
+      autoTransition: Boolean(parsed.autoTransition),
+      notificationEnabled: Boolean(parsed.notificationEnabled),
+    };
+  } catch (err) {
+    console.warn('Lỗi khi đọc timer settings từ localStorage:', err);
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+export function persistSettings(settings: TimerSettings): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch (err) {
+    console.warn('Lỗi khi lưu timer settings vào localStorage:', err);
+  }
+}
 
 export interface TimerCallbacks {
   onTick?: (remainingMs: number, phase: TimerPhase, status: TimerStatus) => void;
@@ -37,7 +69,8 @@ export class TimerEngine {
   private callbacks: TimerCallbacks;
 
   constructor(settings?: Partial<TimerSettings>, callbacks?: TimerCallbacks) {
-    this.settings = { ...DEFAULT_SETTINGS, ...settings };
+    const stored = loadStoredSettings();
+    this.settings = { ...stored, ...settings };
     this.callbacks = callbacks || {};
     this.sessionId = this.generateId();
     this.durationMinutes = this.settings.pomodoroMinutes;
@@ -88,6 +121,7 @@ export class TimerEngine {
 
   public updateSettings(newSettings: Partial<TimerSettings>): void {
     this.settings = { ...this.settings, ...newSettings };
+    persistSettings(this.settings);
     if (this.status === 'idle') {
       this.durationMinutes = this.getDurationForPhase(this.phase);
       this.remainingMs = this.durationMinutes * 60 * 1000;

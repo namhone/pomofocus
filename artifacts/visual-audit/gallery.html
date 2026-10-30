@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Workspace — Visual Redesign Gallery (LifeAt × Apple)</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: rgba(24, 24, 30, 0.65);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --accent: #6366f1;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 32px 24px;
+      line-height: 1.6;
+    }
+    header {
+      max-width: 1300px;
+      margin: 0 auto 36px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 800px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      max-width: 1300px;
+      margin: 0 auto 36px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      font-feature-settings: "tnum";
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .gallery-container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+    }
+    .screenshot-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-col: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+    }
+    .screenshot-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.7);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .img-box {
+      width: 100%;
+      height: 240px;
+      background: #000;
+      position: relative;
+      cursor: zoom-in;
+      overflow: hidden;
+    }
+    .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.3s;
+    }
+    .screenshot-card:hover .img-box img {
+      transform: scale(1.03);
+    }
+    .card-body {
+      padding: 16px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 10px;
+      font-size: 11px;
+    }
+    .tag {
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e4e4e7;
+    }
+    .btn-view {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .btn-view:hover {
+      text-decoration: underline;
+    }
+    /* Modal Zoom */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      cursor: zoom-out;
+    }
+    .modal img {
+      max-width: 95vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">Kiểm Định Giao Diện Hoàn Tất</div>
+    <h1>Visual Redesign Audit Gallery — LifeAt × Apple</h1>
+    <p class="subtitle">
+      Báo cáo thị giác thực tế sau khi khắc phục triệt để lỗi nền gradient đơn điệu và card đặc. Ứng dụng hiện hoạt động với ảnh nền nhiếp ảnh độ nét cao thực thụ từ Unsplash kết hợp hiệu ứng Liquid Glass siêu trong suốt (52% opacity, saturate 180%, viền specular rim).
+    </p>
+  </header>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">17.50 : 1</div>
+      <div class="stat-label">Độ tương phản Timer (Chuẩn WCAG AAA &ge; 7:1)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">6.29 : 1</div>
+      <div class="stat-label">Độ tương phản Nút Bắt Đầu (WCAG AA &ge; 4.5:1)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">99.31 kB</div>
+      <div class="stat-label">Entry Bundle Gzip (&lt; 100 kB trần hiệu năng)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">67 / 67 + 23/23</div>
+      <div class="stat-label">Vitest & Playwright Tests Vượt Qua Tuyệt Đối</div>
+    </div>
+  </section>
+
+  <main class="gallery-container">
+    <div class="gallery-grid">
+
+      <!-- Item 1 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1440x900-default-nebula.png')">
+          <img src="desktop-1440x900-default-nebula.png" alt="Desktop 1440x900 Mặc định" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">1. Desktop 1440×900 — Không Gian Sâu (Cosmic Nebula)</h2>
+          <p class="card-desc">Ảnh chụp vũ trụ thật từ NASA với đường cong Trái Đất và ánh đèn đêm lung linh lộ rõ xuyên qua các bề mặt kính mờ (Liquid Glass) của cửa sổ.</p>
+          <div class="card-meta">
+            <span class="tag">1440 × 900 • Desktop Default</span>
+            <a href="desktop-1440x900-default-nebula.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 2 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1440x900-cozy-study.png')">
+          <img src="desktop-1440x900-cozy-study.png" alt="Desktop 1440x900 Cozy Study" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">2. Desktop 1440×900 — Thư Viện Không Gian (Spaces)</h2>
+          <p class="card-desc">Widget Spaces nổi trên desktop với các card chọn hình nền kèm thumbnail thực tế và phân loại (Tất cả, Video động, Ảnh tĩnh, Tối giản).</p>
+          <div class="card-meta">
+            <span class="tag">Spaces Gallery • Modal Glass</span>
+            <a href="desktop-1440x900-cozy-study.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 3 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1440x900-command-palette.png')">
+          <img src="desktop-1440x900-command-palette.png" alt="Desktop 1440x900 Command Palette" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">3. Desktop 1440×900 — Raycast / Spotlight Palette</h2>
+          <p class="card-desc">Hộp thoại lệnh nhanh Ctrl+K bán trong suốt cao cấp, phân mục rõ ràng với phím tắt điều hướng nhanh và chức năng xuất/nhập sao lưu.</p>
+          <div class="card-meta">
+            <span class="tag">Ctrl+K • Fast Navigation</span>
+            <a href="desktop-1440x900-command-palette.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 4 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1440x900-mini-pill.png')">
+          <img src="desktop-1440x900-mini-pill.png" alt="Desktop 1440x900 Mini Timer Pill" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">4. Desktop 1440×900 — Mini Timer Pill (Apple Island)</h2>
+          <p class="card-desc">Cửa sổ Pomodoro thu nhỏ thành viên thuốc Dynamic Island (190px × 52px) nổi tự do góc trên, có đèn LED trạng thái phát sáng và nút phát nhanh.</p>
+          <div class="card-meta">
+            <span class="tag">Mini Pill • Dynamic Island</span>
+            <a href="desktop-1440x900-mini-pill.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 5 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1440x900-zen-mode.png')">
+          <img src="desktop-1440x900-zen-mode.png" alt="Desktop 1440x900 Zen Mode" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">5. Desktop 1440×900 — Chế Độ Tập Trung (Zen Mode)</h2>
+          <p class="card-desc">Không gian tập trung sâu toàn màn hình (phím Z / Esc), giữ lại lớp nền mờ mịt phía sau, loại bỏ mọi yếu tố gây xao nhãng.</p>
+          <div class="card-meta">
+            <span class="tag">Zen Mode • Deep Focus</span>
+            <a href="desktop-1440x900-zen-mode.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 6 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('desktop-1366x768-cascade.png')">
+          <img src="desktop-1366x768-cascade.png" alt="Laptop 1366x768 Cascade" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">6. Laptop 1366×768 — Bố Cục Thác Nước (Cascade)</h2>
+          <p class="card-desc">Cửa sổ nổi tự do bố trí so le thông minh, không bị đè che lẫn nhau trên màn hình laptop tiêu chuẩn.</p>
+          <div class="card-meta">
+            <span class="tag">1366 × 768 • Laptop Cascade</span>
+            <a href="desktop-1366x768-cascade.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 7 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('tablet-768x1024-stack.png')">
+          <img src="tablet-768x1024-stack.png" alt="Tablet 768x1024 Stack" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">7. Tablet 768×1024 — Chế Độ Cảm Ứng & Dock Thu Gọn</h2>
+          <p class="card-desc">Tự động chuyển thành luồng cuộn dọc tối ưu ngón tay. Thanh DockBar tự ẩn nhãn chữ để trở thành thanh icon pill thanh mảnh không bị cắt mép.</p>
+          <div class="card-meta">
+            <span class="tag">768 × 1024 • Tablet Touch Stack</span>
+            <a href="tablet-768x1024-stack.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 8 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('mobile-390x844-scrolled-bottom.png')">
+          <img src="mobile-390x844-scrolled-bottom.png" alt="Mobile 390x844 Scrolled Bottom" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">8. Mobile 390×844 — Cuộn Đáy & Không Che Dock</h2>
+          <p class="card-desc">Thử nghiệm cuộn kịch đáy: nút bấm "Lưu ngay" và Markdown hỗ trợ có khoảng đệm an toàn 144px (pb-36), DockBar không che bất kỳ nút nào.</p>
+          <div class="card-meta">
+            <span class="tag">390 × 844 • iPhone 14/15</span>
+            <a href="mobile-390x844-scrolled-bottom.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Item 9 -->
+      <article class="screenshot-card">
+        <div class="img-box" onclick="openModal('mobile-320x568-scrolled-bottom.png')">
+          <img src="mobile-320x568-scrolled-bottom.png" alt="Mobile 320x568 Narrow" loading="lazy">
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">9. Mobile 320×568 — Viewport Hẹp (iPhone SE)</h2>
+          <p class="card-desc">Không phát sinh thanh cuộn ngang, giao diện thích ứng mượt mà và các nút tương tác vẫn giữ kích thước chạm tối thiểu chuẩn WCAG.</p>
+          <div class="card-meta">
+            <span class="tag">320 × 568 • Ultra Narrow Mobile</span>
+            <a href="mobile-320x568-scrolled-bottom.png" target="_blank" class="btn-view">Mở ảnh gốc &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Modal Zoom -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Zoomed Screenshot">
+  </div>
+
+  <script>
+    function openModal(src) {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('modalImg');
+      img.src = src;
+      modal.style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

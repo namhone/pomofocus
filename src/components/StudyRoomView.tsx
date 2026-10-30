@@ -1,0 +1,1857 @@
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useRouter } from '../services/router';
+import { useAuthStore } from '../stores/useAuthStore';
+import {
+  studyRoomService,
+  StudyRoom,
+  RoomParticipant,
+  SubscriptionEligibilityResult
+} from '../services/studyRoomService';
+import {
+  Video,
+  VideoOff,
+  Mic,
+  MicOff,
+  Users,
+  Copy,
+  Check,
+  ArrowLeft,
+  Sparkles,
+  Play,
+  Pause,
+  RotateCcw,
+  Send,
+  Radio,
+  Monitor,
+  MonitorOff,
+  Hand,
+  Settings,
+  Palette,
+  Eraser,
+  Trash2,
+  Download,
+  Smile,
+  X,
+  MessageSquare,
+  Info,
+  ShieldCheck,
+  Lock,
+  AlertCircle,
+  RefreshCw,
+  Crown,
+  UserCheck
+} from 'lucide-react';
+
+interface FloatingReaction {
+  id: string;
+  emoji: string;
+  x: number;
+}
+
+export const StudyRoomView: React.FC = () => {
+  const router = useRouter();
+  const rawRoomId = router.currentRoute.params?.roomId || 'room-alpha-1';
+  const { user: storeUser } = useAuthStore();
+  const user = storeUser || (typeof window !== 'undefined' && window.localStorage
+    ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
+    : null);
+
+  const roomId = rawRoomId.trim().toLowerCase();
+  const tokenFromUrl = router.currentRoute.searchParams.get('token');
+
+  // 2. Xác minh quyền truy cập phòng (Backend Access Verification)
+  const [accessResult, setAccessResult] = useState(() =>
+    studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl)
+  );
+
+  // Cập nhật kết quả xác minh khi user hoặc url thay đổi
+  useEffect(() => {
+    setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl));
+  }, [roomId, user, tokenFromUrl]);
+
+  // Lấy dữ liệu phòng hiện tại
+  const [room, setRoom] = useState<StudyRoom | null>(() =>
+    studyRoomService.getRoom(roomId)
+  );
+
+  // AV pre-join state
+  const [hasJoined, setHasJoined] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(true);
+  const [micEnabled, setMicEnabled] = useState(true);
+  const [participantName, setParticipantName] = useState(
+    user?.displayName || (user?.email ? user.email.split('@')[0] : 'Học viên')
+  );
+  const [micLevel, setMicLevel] = useState(42);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [betaNotice, setBetaNotice] = useState<string | null>(null);
+
+  const showBetaP2PNotice = () => {
+    setBetaNotice('Tính năng Voice & Video P2P đang được hoàn thiện ở bản cập nhật tiếp theo!');
+    setTimeout(() => setBetaNotice(null), 3500);
+  };
+
+  // Local media stream refs
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const preJoinVideoRef = useRef<HTMLVideoElement | null>(null);
+  const mainVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Screen sharing
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const screenStreamRef = useRef<MediaStream | null>(null);
+  const screenVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Hand raise & Reactions
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [floatingReactions, setFloatingReactions] = useState<FloatingReaction[]>([]);
+
+  // Synchronized Room Timer
+  const [roomRemainingSeconds, setRoomRemainingSeconds] = useState(25 * 60);
+  const [isRoomRunning, setIsRoomRunning] = useState(false);
+
+  // Whiteboard
+  const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawColor, setDrawColor] = useState('#FFFFFF');
+  const [brushSize, setBrushSize] = useState(3);
+  const [isEraser, setIsEraser] = useState(false);
+
+  // Settings Modal State (AV + Admin tabs)
+  const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'av' | 'room_admin'>('av');
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>('');
+  const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>('');
+  const [regeneratingToken, setRegeneratingToken] = useState(false);
+  const [adminNotice, setAdminNotice] = useState<string | null>(null);
+
+  // Chat & Mobile Bottom Sheet
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
+  const [messages, setMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
+    { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' },
+    { sender: 'Linh Đan', text: 'Mọi người hôm nay ôn môn gì thế?', time: '10:02' }
+  ]);
+  const [inputMsg, setInputMsg] = useState('');
+
+  // Sample participants kết hợp người tham gia thực tế
+  const [participantId] = useState(() => user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`);
+
+  // Vai trò của người dùng trong phòng
+  const userRole = useMemo<'host' | 'member' | 'guest'>(() => {
+    if (!room) return 'guest';
+    if (user && (room.hostUserId === user.id || room.hostEmail.toLowerCase() === user.email?.toLowerCase())) {
+      return 'host';
+    }
+    if (user && (user.plan === 'pro' || user.plan === 'pro_beta' || user.plan === 'pro_lifetime')) {
+      return 'member';
+    }
+    return 'guest';
+  }, [room, user]);
+
+  // Kiểm tra điều kiện thuê bao trả phí của Host
+  const eligibility: SubscriptionEligibilityResult = useMemo(() => {
+    return studyRoomService.verifyPaidSubscriptionEligibility(user);
+  }, [user]);
+
+  // Lắng nghe sự kiện đồng bộ thời gian thực qua BroadcastChannel
+  useEffect(() => {
+    const handleBroadcast = (e: MessageEvent) => {
+      const data = e.data;
+      if (!data || data.roomId !== roomId) return;
+
+      if (data.type === 'ROOM_CLOSED') {
+        alert('Phòng học đã được đóng bởi chủ phòng.');
+        router.navigate('/rooms');
+      } else if (data.type === 'ROOM_STATE_UPDATED') {
+        if (data.room) setRoom(data.room);
+      } else if (data.type === 'INVITE_TOKEN_REVOKED') {
+        const refreshed = studyRoomService.getRoom(roomId);
+        if (refreshed) setRoom(refreshed);
+      } else if (data.type === 'PARTICIPANT_JOINED' || data.type === 'PARTICIPANT_LEFT') {
+        const refreshed = studyRoomService.getRoom(roomId);
+        if (refreshed) setRoom(refreshed);
+      }
+    };
+
+    studyRoomService.broadcastChannel?.addEventListener('message', handleBroadcast);
+    return () => {
+      studyRoomService.broadcastChannel?.removeEventListener('message', handleBroadcast);
+    };
+  }, [roomId, router]);
+
+  // Request & manage local media stream (camera + mic)
+  const initLocalStream = useCallback(async () => {
+    try {
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      const constraints: MediaStreamConstraints = {
+        video: cameraEnabled
+          ? selectedVideoDevice
+            ? { deviceId: { exact: selectedVideoDevice } }
+            : true
+          : false,
+        audio: micEnabled
+          ? selectedAudioDevice
+            ? { deviceId: { exact: selectedAudioDevice } }
+            : true
+          : false
+      };
+
+      if (!constraints.video && !constraints.audio) {
+        localStreamRef.current = null;
+        if (preJoinVideoRef.current) preJoinVideoRef.current.srcObject = null;
+        if (mainVideoRef.current) mainVideoRef.current.srcObject = null;
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      localStreamRef.current = stream;
+      setMediaError(null);
+
+      if (preJoinVideoRef.current && cameraEnabled) {
+        preJoinVideoRef.current.srcObject = stream;
+      }
+      if (mainVideoRef.current && cameraEnabled) {
+        mainVideoRef.current.srcObject = stream;
+      }
+    } catch (err: unknown) {
+      console.warn('Không thể truy cập camera hoặc micro cục bộ:', err);
+      setMediaError('Chưa cấp quyền truy cập thiết bị hoặc trình duyệt không tìm thấy camera.');
+    }
+  }, [cameraEnabled, micEnabled, selectedAudioDevice, selectedVideoDevice]);
+
+  // Load device list
+  useEffect(() => {
+    if (navigator.mediaDevices?.enumerateDevices) {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) => {
+          const audioInputs = devices.filter((d) => d.kind === 'audioinput');
+          const videoInputs = devices.filter((d) => d.kind === 'videoinput');
+          setAudioDevices(audioInputs);
+          setVideoDevices(videoInputs);
+          if (audioInputs[0] && !selectedAudioDevice) {
+            setSelectedAudioDevice(audioInputs[0].deviceId);
+          }
+          if (videoInputs[0] && !selectedVideoDevice) {
+            setSelectedVideoDevice(videoInputs[0].deviceId);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [selectedAudioDevice, selectedVideoDevice]);
+
+  // Initialize stream on mount or change
+  useEffect(() => {
+    initLocalStream();
+    return () => {
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [initLocalStream]);
+
+  // Connect local stream to video refs when view changes
+  useEffect(() => {
+    if (hasJoined && mainVideoRef.current && localStreamRef.current && cameraEnabled) {
+      mainVideoRef.current.srcObject = localStreamRef.current;
+    } else if (!hasJoined && preJoinVideoRef.current && localStreamRef.current && cameraEnabled) {
+      preJoinVideoRef.current.srcObject = localStreamRef.current;
+    }
+  }, [hasJoined, cameraEnabled]);
+
+  // Timer interval
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRoomRunning) {
+      interval = setInterval(() => {
+        setRoomRemainingSeconds((prev) => {
+          if (prev <= 1) {
+            setIsRoomRunning(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRoomRunning]);
+
+  // Mic level animation
+  useEffect(() => {
+    if (!micEnabled) {
+      setMicLevel(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setMicLevel(Math.floor(20 + Math.random() * 60));
+    }, 200);
+    return () => clearInterval(interval);
+  }, [micEnabled]);
+
+  // Handle Screen Sharing
+  const handleToggleScreenShare = async () => {
+    if (isScreenSharing) {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop());
+        screenStreamRef.current = null;
+      }
+      setIsScreenSharing(false);
+      return;
+    }
+
+    try {
+      if (!navigator.mediaDevices?.getDisplayMedia) {
+        alert('Trình duyệt của bạn không hỗ trợ chia sẻ màn hình qua getDisplayMedia.');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      screenStreamRef.current = stream;
+      setIsScreenSharing(true);
+
+      if (screenVideoRef.current) {
+        screenVideoRef.current.srcObject = stream;
+      }
+
+      const videoTrack = stream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.onended = () => {
+          setIsScreenSharing(false);
+          screenStreamRef.current = null;
+        };
+      }
+    } catch (err) {
+      console.warn('Hủy hoặc lỗi chia sẻ màn hình:', err);
+      setIsScreenSharing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isScreenSharing && screenVideoRef.current && screenStreamRef.current) {
+      screenVideoRef.current.srcObject = screenStreamRef.current;
+    }
+  }, [isScreenSharing]);
+
+  // Floating reactions trigger
+  const handleTriggerReaction = (emoji: string) => {
+    const newReaction: FloatingReaction = {
+      id: Math.random().toString(36).substring(2, 9),
+      emoji,
+      x: 30 + Math.floor(Math.random() * 40)
+    };
+    setFloatingReactions((prev) => [...prev, newReaction]);
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
+    }, 2200);
+  };
+
+  // Sao chép Mã phòng (Room ID)
+  const handleCopyRoomId = () => {
+    navigator.clipboard.writeText(roomId);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2500);
+  };
+
+  // Sao chép Link mời tham gia
+  const handleCopyInviteLink = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const activeToken = room?.activeInviteToken;
+    const url = activeToken
+      ? `${origin}/rooms/${roomId}?token=${activeToken}`
+      : `${origin}/rooms/${roomId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputMsg.trim()) return;
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: participantName,
+        text: inputMsg.trim(),
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+    setInputMsg('');
+  };
+
+  const formatTimer = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // Whiteboard drawing
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.strokeStyle = isEraser ? '#161618' : drawColor;
+    ctx.lineWidth = isEraser ? brushSize * 4 : brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    setIsDrawing(true);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = '#161618';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const downloadWhiteboard = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `whiteboard-${roomId}-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  useEffect(() => {
+    if (activeTab === 'whiteboard' && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#161618';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  }, [activeTab]);
+
+  // Bật/tắt Cho phép khách Free tham gia qua link mời (Chỉ Host)
+  const handleToggleAllowFree = (allow: boolean) => {
+    if (!user || userRole !== 'host') return;
+    setAdminNotice(null);
+    const res = studyRoomService.setAllowFreeGuests(roomId, user, allow);
+    if (res.success && res.room) {
+      setRoom(res.room);
+      setAdminNotice(allow ? 'Đã kích hoạt chế độ mời khách Free.' : 'Đã tắt quyền mời khách Free (chỉ còn PRO).');
+    } else {
+      setAdminNotice(res.error || 'Không thể thay đổi cài đặt.');
+    }
+  };
+
+  // Thu hồi & Tạo link mời mới
+  const handleRevokeToken = () => {
+    if (!user || userRole !== 'host') return;
+    setRegeneratingToken(true);
+    setAdminNotice(null);
+    setTimeout(() => {
+      const res = studyRoomService.revokeAndRegenerateInviteToken(roomId, user);
+      setRegeneratingToken(false);
+      if (res.success) {
+        const refreshed = studyRoomService.getRoom(roomId);
+        if (refreshed) setRoom(refreshed);
+        setAdminNotice('Đã thu hồi link cũ. Link mời mới với token bảo mật đã được tạo!');
+      } else {
+        setAdminNotice(res.error || 'Lỗi thu hồi token.');
+      }
+    }, 400);
+  };
+
+  // Đóng phòng học
+  const handleCloseRoom = () => {
+    if (!user || userRole !== 'host') return;
+    const confirmClose = window.confirm('Bạn có chắc chắn muốn đóng phòng học này? Mọi thành viên sẽ bị ngắt kết nối.');
+    if (!confirmClose) return;
+
+    studyRoomService.closeRoom(roomId, user);
+    router.navigate('/rooms');
+  };
+
+  // Tham gia phòng
+  const handleJoinConfirm = () => {
+    if (!participantName.trim()) {
+      alert('Vui lòng nhập tên hiển thị của bạn.');
+      return;
+    }
+
+    const participant: RoomParticipant = {
+      id: participantId,
+      userId: user?.id,
+      name: participantName.trim(),
+      avatar: user?.avatarUrl,
+      role: userRole,
+      isMicOn: micEnabled,
+      isVideoOn: cameraEnabled,
+      joinedAt: Date.now()
+    };
+
+    studyRoomService.joinParticipant(roomId, participant);
+    setHasJoined(true);
+  };
+
+  // Rời phòng
+  const handleLeaveRoom = () => {
+    studyRoomService.leaveParticipant(roomId, participantId);
+    router.navigate('/app');
+  };
+
+  // =========================================================================
+  // XỬ LÝ LỖI TRUY CẬP (ACCESS REJECTION / ERROR STATES)
+  // =========================================================================
+  if (!accessResult.allowed) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900/90 p-8 shadow-2xl backdrop-blur-2xl text-center">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mx-auto mb-4">
+            <AlertCircle size={32} />
+          </div>
+
+          <div className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-mono text-neutral-400 mb-3">
+            MÃ LỖI: {accessResult.code}
+          </div>
+
+          <h2 className="text-xl font-extrabold text-white mb-2">
+            {accessResult.code === 'ROOM_NOT_FOUND' && 'Phòng Học Không Tồn Tại'}
+            {accessResult.code === 'ROOM_CLOSED' && 'Phòng Học Đã Đóng'}
+            {accessResult.code === 'INVALID_CODE' && 'Mã Phòng Không Hợp Lệ'}
+            {accessResult.code === 'TOKEN_EXPIRED_OR_REVOKED' && 'Liên Kết Mời Đã Hết Hiệu Lực'}
+            {accessResult.code === 'INSUFFICIENT_PERMISSIONS' && 'Chưa Đủ Quyền Tham Gia Phòng'}
+          </h2>
+
+          <p className="text-xs text-neutral-300 leading-relaxed mb-6">
+            {accessResult.message}
+          </p>
+
+          <div className="space-y-2.5">
+            <button
+              type="button"
+              onClick={() => router.navigate('/rooms')}
+              className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+            >
+              Về Sảnh Phòng Học (Nhập mã khác)
+            </button>
+
+            {accessResult.code === 'INSUFFICIENT_PERMISSIONS' && (
+              <button
+                type="button"
+                onClick={() => router.navigate('/billing')}
+                className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-neutral-950 font-bold text-xs transition cursor-pointer"
+              >
+                Nâng Cấp Gói PRO (Mở khóa toàn bộ)
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => router.navigate('/app')}
+              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white text-xs transition cursor-pointer"
+            >
+              Quay lại Không Gian Tập Trung
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // MÀN HÌNH CHUẨN BỊ VÀO PHÒNG (PRE-JOIN SCREEN)
+  // =========================================================================
+  if (!hasJoined) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
+        <div className="w-full max-w-xl rounded-3xl border border-white/15 bg-neutral-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-2xl">
+          {/* Header Prejoin */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => router.navigate('/rooms')}
+              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={14} />
+              <span>Sảnh phòng</span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              {/* Badge vai trò */}
+              {userRole === 'host' && (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
+                  <Crown size={11} />
+                  CHỦ PHÒNG
+                </span>
+              )}
+              {userRole === 'member' && (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">
+                  <Sparkles size={11} />
+                  THÀNH VIÊN PRO
+                </span>
+              )}
+              {userRole === 'guest' && (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
+                  <UserCheck size={11} />
+                  KHÁCH MỜI FREE
+                </span>
+              )}
+
+              {/* Mã phòng kèm copy */}
+              <button
+                type="button"
+                data-testid="btn-copy-room-id-prejoin"
+                onClick={handleCopyRoomId}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/25 transition cursor-pointer"
+                title="Sao chép mã phòng"
+              >
+                <Radio size={12} className="animate-pulse" />
+                <span>#{roomId}</span>
+                {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="text-center mb-5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">Chuẩn Bị Vào Phòng Học</h1>
+            <p className="text-xs text-neutral-400">
+              Kiểm tra camera, micro và đặt tên hiển thị trước khi tham gia học nhóm cùng mọi người
+            </p>
+          </div>
+
+          {/* AV Preview Box */}
+          <div className="relative aspect-video rounded-2xl bg-black/70 border border-white/10 overflow-hidden mb-5 flex flex-col items-center justify-center">
+            {cameraEnabled ? (
+              <video
+                ref={preJoinVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover transform scale-x-[-1]"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-neutral-500">
+                <VideoOff size={36} />
+                <span className="text-xs">Camera đang tắt</span>
+              </div>
+            )}
+
+            {mediaError && (
+              <div className="absolute top-3 left-3 right-3 p-2 bg-rose-500/80 backdrop-blur-md rounded-lg text-[11px] text-white text-center">
+                {mediaError}
+              </div>
+            )}
+
+            {/* Floating AV controls */}
+            <div className="absolute bottom-4 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMicEnabled(!micEnabled);
+                  showBetaP2PNotice();
+                }}
+                className={`p-3 rounded-full transition cursor-pointer shadow-lg ${
+                  micEnabled ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-rose-500 text-white'
+                }`}
+                title={micEnabled ? 'Tắt Micro' : 'Bật Micro'}
+              >
+                {micEnabled ? <Mic size={18} /> : <MicOff size={18} />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCameraEnabled(!cameraEnabled);
+                  showBetaP2PNotice();
+                }}
+                className={`p-3 rounded-full transition cursor-pointer shadow-lg ${
+                  cameraEnabled ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-rose-500 text-white'
+                }`}
+                title={cameraEnabled ? 'Tắt Camera' : 'Bật Camera'}
+              >
+                {cameraEnabled ? <Video size={18} /> : <VideoOff size={18} />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSettingsTab('av');
+                  setIsDeviceModalOpen(true);
+                }}
+                className="p-3 rounded-full bg-white/20 hover:bg-white/30 text-white transition cursor-pointer shadow-lg"
+                title="Cài đặt thiết bị"
+              >
+                <Settings size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Mic level meter */}
+          <div className="mb-4 flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5">
+            <Mic size={15} className={micEnabled ? 'text-emerald-400' : 'text-neutral-500'} />
+            <div className="flex-1">
+              <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-400 transition-all duration-150"
+                  style={{ width: `${micLevel}%` }}
+                />
+              </div>
+            </div>
+            <span className="text-[10px] text-neutral-400 font-mono">
+              {micEnabled ? 'Âm lượng mic OK' : 'Đã tắt mic'}
+            </span>
+          </div>
+
+          {/* Name Input */}
+          <div className="mb-5">
+            <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+              Tên hiển thị của bạn {!user && <span className="text-amber-400 font-normal">(Chưa đăng nhập)</span>}
+            </label>
+            <input
+              type="text"
+              required
+              value={participantName}
+              onChange={(e) => setParticipantName(e.target.value)}
+              placeholder="Nhập tên hiển thị..."
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+            />
+          </div>
+
+          <button
+            type="button"
+            data-testid="btn-join-room-confirm"
+            onClick={handleJoinConfirm}
+            className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
+          >
+            Tham Gia Phòng Học Ngay
+          </button>
+        </div>
+
+        {/* Device Settings Modal */}
+        {isDeviceModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-white/10 p-6 text-white shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-sm">Cài Đặt Camera & Micro</h3>
+                <button
+                  type="button"
+                  onClick={() => setIsDeviceModalOpen(false)}
+                  className="p-1 rounded text-neutral-400 hover:text-white"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-neutral-400 mb-1">Microphone</label>
+                  <select
+                    value={selectedAudioDevice}
+                    onChange={(e) => setSelectedAudioDevice(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                  >
+                    {audioDevices.length > 0 ? (
+                      audioDevices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId} className="bg-neutral-900">
+                          {d.label || `Microphone (${d.deviceId.slice(0, 5)})`}
+                        </option>
+                      ))
+                    ) : (
+                      <option className="bg-neutral-900">Mặc định của hệ thống</option>
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-neutral-400 mb-1">Camera</label>
+                  <select
+                    value={selectedVideoDevice}
+                    onChange={(e) => setSelectedVideoDevice(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                  >
+                    {videoDevices.length > 0 ? (
+                      videoDevices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId} className="bg-neutral-900">
+                          {d.label || `Camera (${d.deviceId.slice(0, 5)})`}
+                        </option>
+                      ))
+                    ) : (
+                      <option className="bg-neutral-900">Mặc định của hệ thống</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDeviceModalOpen(false)}
+                className="mt-6 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+              >
+                Lưu Cài Đặt
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // MÀN HÌNH PHÒNG HỌC ĐANG HOẠT ĐỘNG (ACTIVE ROOM SCREEN)
+  // =========================================================================
+  return (
+    <div className="min-h-screen w-full bg-[#0a0d13] text-white flex flex-col select-none overflow-hidden relative">
+      {/* Toast thông báo tính năng Voice/Video P2P Beta */}
+      {betaNotice && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-amber-500/95 text-neutral-950 font-semibold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-fade-in border border-amber-400 max-w-sm text-center">
+          <Sparkles size={15} className="shrink-0 text-neutral-900" />
+          <span>{betaNotice}</span>
+        </div>
+      )}
+
+      {/* Floating Reaction Bubbles Animation */}
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        {floatingReactions.map((r) => (
+          <div
+            key={r.id}
+            className="absolute bottom-20 text-3xl animate-bounce transition-all duration-1000 ease-out"
+            style={{
+              left: `${r.x}%`,
+              animation: 'floatUp 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+            }}
+          >
+            {r.emoji}
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes floatUp {
+          0% { transform: translateY(0) scale(0.8); opacity: 1; }
+          50% { transform: translateY(-140px) scale(1.2); opacity: 0.9; }
+          100% { transform: translateY(-280px) scale(1); opacity: 0; }
+        }
+      `}</style>
+
+      {/* Room Header - Responsive: Rich for Desktop (md:), Clean & Compact for Mobile (<md:) */}
+      <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
+        {/* Desktop Header */}
+        <div className="hidden md:flex h-14 px-6 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleLeaveRoom}
+              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+              <span>Rời phòng</span>
+            </button>
+            <div className="h-4 w-px bg-white/10" />
+
+            <div className="flex items-center gap-2">
+              <Radio size={16} className="text-emerald-400 animate-pulse" />
+              <span className="text-sm font-bold">#{roomId}</span>
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider">
+                BETA
+              </span>
+
+              {/* Badge Vai trò */}
+              {userRole === 'host' && (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] text-emerald-300 font-bold">
+                  CHỦ PHÒNG
+                </span>
+              )}
+              {userRole === 'member' && (
+                <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
+                  THÀNH VIÊN PRO
+                </span>
+              )}
+              {userRole === 'guest' && (
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-bold">
+                  KHÁCH MỜI FREE
+                </span>
+              )}
+
+              {/* Nút sao chép mã phòng */}
+              <button
+                type="button"
+                data-testid="btn-copy-room-id"
+                onClick={handleCopyRoomId}
+                className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer border border-white/5"
+                title="Sao chép mã phòng"
+              >
+                {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                <span>{copiedCode ? 'Đã sao chép mã' : 'Sao chép mã'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {/* Tab Switcher: Video Grid vs Whiteboard */}
+            <div className="flex items-center p-0.5 rounded-lg bg-white/5 border border-white/10 text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab('grid')}
+                className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                  activeTab === 'grid' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Lưới Video
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('whiteboard')}
+                className={`px-3 py-1 rounded-md flex items-center gap-1 transition cursor-pointer ${
+                  activeTab === 'whiteboard' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <Palette size={13} />
+                <span>Bảng Vẽ Chung</span>
+              </button>
+            </div>
+
+            {/* Nút Sao chép Link mời */}
+            <button
+              type="button"
+              data-testid="btn-copy-invite-link"
+              onClick={handleCopyInviteLink}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs text-emerald-300 transition cursor-pointer font-medium"
+              title="Sao chép link mời bạn học"
+            >
+              {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+              <span>{copiedLink ? 'Đã sao chép link!' : 'Mời bạn học'}</span>
+            </button>
+
+            {/* Nút Cài đặt phòng */}
+            <button
+              type="button"
+              data-testid="btn-room-settings-header"
+              onClick={() => {
+                setActiveSettingsTab('room_admin');
+                setIsDeviceModalOpen(true);
+              }}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer"
+              title="Cài đặt phòng & quyền mời"
+            >
+              <Settings size={15} />
+            </button>
+
+            <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+              <Users size={14} />
+              <span>{Object.keys(room?.participants || {}).length + 1} thành viên</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Header (Zero wrapping, zero truncated lines, touch-optimized) */}
+        <div className="flex md:hidden h-13 px-3 items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={handleLeaveRoom}
+              className="p-2 -ml-1 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 active:scale-95 transition cursor-pointer shrink-0"
+              title="Rời phòng học"
+              aria-label="Rời phòng học"
+            >
+              <ArrowLeft size={17} />
+            </button>
+
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Radio size={13} className="text-emerald-400 animate-pulse shrink-0" />
+              <button
+                type="button"
+                onClick={handleCopyRoomId}
+                className="font-bold text-xs truncate max-w-[95px] text-white hover:text-emerald-300 flex items-center gap-1"
+                title="Bấm để sao chép mã"
+              >
+                <span>#{roomId}</span>
+                {copiedCode && <Check size={11} className="text-emerald-400 shrink-0" />}
+              </button>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 shrink-0 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>LIVE</span>
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/10 text-neutral-300 shrink-0">
+                {userRole === 'host' ? 'HOST' : userRole === 'guest' ? 'FREE' : 'PRO'}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 uppercase">
+                BETA
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Compact Segmented Control */}
+            <div className="flex items-center p-0.5 rounded-lg bg-white/10 border border-white/10 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setActiveTab('grid')}
+                className={`p-1.5 rounded-md transition cursor-pointer ${
+                  activeTab === 'grid' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
+                }`}
+                title="Lưới Video"
+              >
+                <Video size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('whiteboard')}
+                className={`p-1.5 rounded-md transition cursor-pointer ${
+                  activeTab === 'whiteboard' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
+                }`}
+                title="Bảng Vẽ Chung"
+              >
+                <Palette size={13} />
+              </button>
+            </div>
+
+            {/* Quick Share Link */}
+            <button
+              type="button"
+              data-testid="btn-copy-invite-link-mobile"
+              onClick={handleCopyInviteLink}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer shrink-0"
+              title="Sao chép link mời bạn"
+            >
+              {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+            </button>
+
+            {/* Participants Count */}
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 text-[11px] text-neutral-300 shrink-0">
+              <Users size={12} />
+              <span>{Object.keys(room?.participants || {}).length + 1}</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Workspace: Left video/whiteboard stage, Right study chat on desktop */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Main Stage */}
+        <div className="flex-1 flex flex-col p-3 sm:p-5 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6">
+          {/* Synchronized Shared Pomodoro Timer Banner */}
+          <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex items-center justify-between shadow-xl gap-2">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0">
+                <Sparkles size={18} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-neutral-300">Đồng hồ nhóm Pomodoro</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                    HỌC TẬP
+                  </span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
+                  {formatTimer(roomRemainingSeconds)}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                type="button"
+                data-testid="btn-room-timer-toggle"
+                onClick={() => setIsRoomRunning(!isRoomRunning)}
+                className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
+                  isRoomRunning
+                    ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30'
+                    : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
+                }`}
+                title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
+              >
+                {isRoomRunning ? <Pause size={14} /> : <Play size={14} />}
+                <span className="hidden sm:inline">{isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRoomRunning(false);
+                  setRoomRemainingSeconds(25 * 60);
+                }}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                title="Đặt lại đồng hồ phòng"
+              >
+                <RotateCcw size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Connection note */}
+          <div className="mb-3 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] sm:text-[11px] flex items-center justify-between">
+            <span className="truncate flex items-center gap-1.5">
+              <Info size={13} className="text-indigo-400 shrink-0" />
+              <span><strong>Mã phòng:</strong> #{roomId} • WebRTC Live Audio/Video.</span>
+            </span>
+            <span className="text-[10px] text-indigo-400/80 shrink-0 ml-2">
+              {room?.allowFreeGuests ? 'Mở cho khách Free' : 'PRO Only'}
+            </span>
+          </div>
+
+          {/* Screen Share Stage (if active) */}
+          {isScreenSharing && (
+            <div className="mb-4 relative rounded-2xl bg-black border border-emerald-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] flex flex-col items-center justify-center">
+              <video
+                ref={screenVideoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-emerald-500/90 text-neutral-950 text-xs font-bold flex items-center gap-1.5 shadow-md">
+                <Monitor size={14} />
+                <span>Màn hình đang chia sẻ trực tiếp</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleScreenShare}
+                className="absolute top-3 right-3 px-3 py-1 rounded-full bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-md"
+              >
+                <MonitorOff size={14} />
+                <span>Dừng chia sẻ</span>
+              </button>
+            </div>
+          )}
+
+          {/* Stage View: Grid or Whiteboard */}
+          {activeTab === 'grid' ? (
+            /* Participant Video Grid */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {/* CURRENT USER TILE */}
+              <div className="relative aspect-video rounded-2xl bg-neutral-900/90 border border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-emerald-500/20">
+                {cameraEnabled ? (
+                  <video
+                    ref={mainVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover transform scale-x-[-1]"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-neutral-400">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-xl font-bold text-emerald-300">
+                      {participantName.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-xs font-medium">{participantName} (Bạn)</span>
+                  </div>
+                )}
+
+                {/* Status Bar */}
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="font-semibold text-white truncate">{participantName} (Bạn)</span>
+                    <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
+                      {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {isHandRaised && (
+                      <span className="p-1 rounded bg-amber-500 text-neutral-950">
+                        <Hand size={11} />
+                      </span>
+                    )}
+                    <span className={`p-1 rounded ${micEnabled ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'}`}>
+                      {micEnabled ? <Mic size={11} /> : <MicOff size={11} />}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* REMOTE PARTICIPANTS */}
+              {(Object.values(room?.participants || {}).filter((p) => p.id !== participantId).length > 0
+                ? Object.values(room?.participants || {}).filter((p) => p.id !== participantId)
+                : [
+                    {
+                      id: 'usr_demo_peer_1',
+                      name: 'Linh Đan',
+                      role: 'member' as const,
+                      isMicOn: true,
+                      isVideoOn: true,
+                      isHandRaised: false
+                    },
+                    {
+                      id: 'usr_demo_peer_2',
+                      name: 'Minh Trí',
+                      role: 'guest' as const,
+                      isMicOn: false,
+                      isVideoOn: true,
+                      isHandRaised: false
+                    }
+                  ]
+              ).map((p) => (
+                <div
+                  key={p.id}
+                  className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group"
+                >
+                  <div className="flex flex-col items-center gap-2 text-neutral-400">
+                    <div className="w-14 h-14 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-lg font-bold text-neutral-300">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-xs font-medium text-neutral-300">{p.name}</span>
+                  </div>
+
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="font-semibold text-white truncate">{p.name} ({p.role === 'host' ? 'Host' : p.role === 'guest' ? 'Free' : 'Pro'})</span>
+                      <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300">
+                        {p.role === 'host' ? 'Host' : p.role === 'guest' ? 'Free' : 'Pro'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {p.isHandRaised && (
+                        <span className="p-1 rounded bg-amber-500 text-neutral-950">
+                          <Hand size={11} />
+                        </span>
+                      )}
+                      <span className={`p-1 rounded ${p.isMicOn ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'}`}>
+                        {p.isMicOn ? <Mic size={11} /> : <MicOff size={11} />}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Shared Whiteboard Canvas */
+            <div className="flex-1 flex flex-col rounded-2xl bg-neutral-900 border border-white/10 p-3 sm:p-4 min-h-[460px]">
+              {/* Whiteboard Toolbar */}
+              <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/10 flex-wrap gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setIsEraser(false)}
+                      className={`p-1.5 rounded-lg transition ${!isEraser ? 'bg-white/20 text-white' : 'text-neutral-400'}`}
+                      title="Bút vẽ"
+                    >
+                      <Palette size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEraser(true)}
+                      className={`p-1.5 rounded-lg transition ${isEraser ? 'bg-white/20 text-white' : 'text-neutral-400'}`}
+                      title="Tẩy xóa"
+                    >
+                      <Eraser size={15} />
+                    </button>
+                  </div>
+
+                  {!isEraser && (
+                    <div className="flex items-center gap-1.5">
+                      {['#FFFFFF', '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899'].map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setDrawColor(c)}
+                          className={`w-5 h-5 rounded-full transition border ${drawColor === c ? 'scale-125 border-white' : 'border-transparent'}`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={brushSize}
+                    onChange={(e) => setBrushSize(Number(e.target.value))}
+                    className="w-16 accent-emerald-400"
+                    title="Độ dày nét vẽ"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={clearCanvas}
+                    className="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-neutral-400 hover:text-rose-400 transition"
+                    title="Xóa trắng bảng"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadWhiteboard}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white transition text-xs"
+                    title="Tải ảnh bảng vẽ về máy"
+                  >
+                    <Download size={13} />
+                    <span>Lưu ảnh</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Canvas Board */}
+              <div className="flex-1 rounded-xl overflow-hidden bg-[#161618] relative cursor-crosshair">
+                <canvas
+                  ref={canvasRef}
+                  width={900}
+                  height={550}
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
+                  className="w-full h-full block touch-none"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Right Aside: Study Room Chat */}
+        <aside className="w-80 border-l border-white/10 bg-neutral-900/60 backdrop-blur-md hidden md:flex flex-col">
+          <div className="p-3.5 border-b border-white/10 flex items-center justify-between">
+            <span className="font-bold text-xs text-white">Trò chuyện nhóm</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono">
+              {messages.length} tin nhắn
+            </span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-2.5 text-xs">
+            {messages.map((m, i) => (
+              <div key={i} className="flex flex-col gap-0.5">
+                <div className="flex items-center justify-between text-[10px] text-neutral-500">
+                  <span className="font-semibold text-neutral-300">{m.sender}</span>
+                  <span>{m.time}</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-neutral-200 break-words leading-relaxed">
+                  {m.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 flex gap-1.5">
+            <input
+              type="text"
+              value={inputMsg}
+              onChange={(e) => setInputMsg(e.target.value)}
+              placeholder="Nhắn tin trong phòng..."
+              className="flex-1 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400"
+            />
+            <button
+              type="submit"
+              className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold transition cursor-pointer"
+            >
+              <Send size={14} />
+            </button>
+          </form>
+        </aside>
+      </div>
+
+      {/* Mobile Chat Bottom Sheet */}
+      {isMobileChatOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="w-full max-h-[82vh] h-[72vh] rounded-t-3xl bg-neutral-900/98 border-t border-white/15 flex flex-col shadow-2xl p-4 animate-in slide-in-from-bottom duration-300"
+            role="dialog"
+            aria-label="Khung trò chuyện phòng học"
+            data-testid="mobile-chat-bottom-sheet"
+          >
+            <div
+              className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-2 shrink-0 cursor-pointer"
+              onClick={() => setIsMobileChatOpen(false)}
+            />
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-white">Trò chuyện nhóm</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono">
+                  {messages.length} tin
+                </span>
+              </div>
+              <div className="flex items-center gap-1 mr-2">
+                {['🔥', '☕', '📚', '👏'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleTriggerReaction(emoji)}
+                    className="p-1 rounded hover:bg-white/10 text-sm transition active:scale-125 cursor-pointer"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                data-testid="btn-close-mobile-chat"
+                onClick={() => setIsMobileChatOpen(false)}
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 active:scale-95 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2 space-y-2.5 text-xs">
+              {messages.map((m, i) => (
+                <div key={i} className="flex flex-col gap-0.5">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-500">
+                    <span className="font-semibold text-neutral-300">{m.sender}</span>
+                    <span>{m.time}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-neutral-200 break-words">
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleSendMessage} className="pt-2 border-t border-white/10 flex gap-2">
+              <input
+                type="text"
+                value={inputMsg}
+                onChange={(e) => setInputMsg(e.target.value)}
+                placeholder="Nhắn tin trong phòng..."
+                className="flex-1 rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400"
+              />
+              <button
+                type="submit"
+                className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold transition cursor-pointer min-w-[40px] flex items-center justify-center"
+              >
+                <Send size={15} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Bottom Action Toolbar (#room-compact): Docked on Mobile with Safe Area, Floating on Desktop */}
+      <div
+        id="room-compact"
+        data-testid="room-compact"
+        className="fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border"
+        style={{
+          boxSizing: 'border-box',
+          paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        <div className="flex items-center justify-between sm:justify-around gap-1 sm:gap-1.5 md:gap-2 p-1 sm:p-1.5 md:p-2 rounded-2xl bg-neutral-900/90 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
+          {/* Micro */}
+          <button
+            type="button"
+            data-testid="btn-room-mic"
+            onClick={() => {
+              setMicEnabled(!micEnabled);
+              showBetaP2PNotice();
+            }}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+              micEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
+            }`}
+            title={micEnabled ? 'Tắt Micro' : 'Bật Micro'}
+          >
+            {micEnabled ? <Mic size={16} className="sm:w-[18px] sm:h-[18px]" /> : <MicOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
+          </button>
+
+          {/* Camera */}
+          <button
+            type="button"
+            data-testid="btn-room-camera"
+            onClick={() => {
+              setCameraEnabled(!cameraEnabled);
+              showBetaP2PNotice();
+            }}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+              cameraEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
+            }`}
+            title={cameraEnabled ? 'Tắt Camera' : 'Bật Camera'}
+          >
+            {cameraEnabled ? <Video size={16} className="sm:w-[18px] sm:h-[18px]" /> : <VideoOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
+          </button>
+
+          {/* Chia sẻ màn hình */}
+          <button
+            type="button"
+            data-testid="btn-room-screen"
+            onClick={handleToggleScreenShare}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+              isScreenSharing ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-white/10 hover:bg-white/20 text-white'
+            }`}
+            title={isScreenSharing ? 'Dừng chia sẻ màn hình' : 'Chia sẻ màn hình'}
+          >
+            {isScreenSharing ? <MonitorOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Monitor size={16} className="sm:w-[18px] sm:h-[18px]" />}
+          </button>
+
+          {/* Giơ tay phát biểu */}
+          <button
+            type="button"
+            data-testid="btn-room-hand"
+            onClick={() => setIsHandRaised(!isHandRaised)}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+              isHandRaised ? 'bg-amber-500 text-neutral-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
+            }`}
+            title={isHandRaised ? 'Hạ tay xuống' : 'Giơ tay phát biểu'}
+          >
+            <Hand size={16} className="sm:w-[18px] sm:h-[18px]" />
+          </button>
+
+          {/* Reactions Trigger Popup */}
+          <div className="relative flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial flex items-center justify-center shrink-0">
+            <button
+              type="button"
+              data-testid="btn-room-reactions"
+              onClick={() => setIsReactionsMenuOpen(!isReactionsMenuOpen)}
+              className="w-full h-full rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer flex items-center justify-center"
+              title="Thả cảm xúc"
+            >
+              <Smile size={16} className="sm:w-[18px] sm:h-[18px]" />
+            </button>
+            {isReactionsMenuOpen && (
+              <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 p-2 rounded-2xl bg-neutral-900 border border-white/15 shadow-2xl flex items-center gap-1.5 z-50">
+                {['🔥', '☕', '📚', '👏', '❤️'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      handleTriggerReaction(emoji);
+                      setIsReactionsMenuOpen(false);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-lg transition active:scale-125 cursor-pointer"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Chat Button Toggle */}
+          <button
+            type="button"
+            data-testid="btn-room-chat"
+            onClick={() => setIsMobileChatOpen(!isMobileChatOpen)}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer relative md:hidden flex items-center justify-center shrink-0 ${
+              isMobileChatOpen ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-white/10 text-white'
+            }`}
+            title="Mở trò chuyện"
+          >
+            <MessageSquare size={16} className="sm:w-[18px] sm:h-[18px]" />
+            {messages.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 text-neutral-950 font-bold text-[9px] flex items-center justify-center shadow">
+                {messages.length}
+              </span>
+            )}
+          </button>
+
+          {/* Settings Modal Button */}
+          <button
+            type="button"
+            data-testid="btn-room-settings"
+            onClick={() => {
+              setActiveSettingsTab('av');
+              setIsDeviceModalOpen(true);
+            }}
+            className="flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer flex items-center justify-center shrink-0"
+            title="Cài đặt camera & micro"
+          >
+            <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
+          </button>
+
+          {/* Mobile Quick Leave Button */}
+          <button
+            type="button"
+            data-testid="btn-room-leave-mobile"
+            onClick={handleLeaveRoom}
+            className="flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white transition cursor-pointer md:hidden flex items-center justify-center shrink-0"
+            title="Rời phòng học"
+          >
+            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
+          </button>
+        </div>
+      </div>
+
+      {/* Device & Room Administrative Settings Modal */}
+      {isDeviceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-neutral-900 border border-white/15 p-5 sm:p-6 text-white shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Settings size={18} className="text-emerald-400" />
+                <h3 className="font-bold text-sm">Cài Đặt Camera & Micro</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDeviceModalOpen(false);
+                  setAdminNotice(null);
+                }}
+                className="p-1 rounded text-neutral-400 hover:text-white"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="flex items-center gap-2 mb-5 p-1 rounded-xl bg-white/5 border border-white/10 text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveSettingsTab('av')}
+                className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                  activeSettingsTab === 'av' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Thiết Bị AV
+              </button>
+              <button
+                type="button"
+                data-testid="tab-room-admin"
+                onClick={() => setActiveSettingsTab('room_admin')}
+                className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                  activeSettingsTab === 'room_admin' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <Lock size={12} />
+                <span>Quản Trị & Mời Khách Free</span>
+              </button>
+            </div>
+
+            {/* Tab 1: Thiết Bị AV */}
+            {activeSettingsTab === 'av' && (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-neutral-400 mb-1">Microphone</label>
+                  <select
+                    value={selectedAudioDevice}
+                    onChange={(e) => setSelectedAudioDevice(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                  >
+                    {audioDevices.length > 0 ? (
+                      audioDevices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId} className="bg-neutral-900">
+                          {d.label || `Microphone (${d.deviceId.slice(0, 5)})`}
+                        </option>
+                      ))
+                    ) : (
+                      <option className="bg-neutral-900">Mặc định của hệ thống</option>
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-neutral-400 mb-1">Camera</label>
+                  <select
+                    value={selectedVideoDevice}
+                    onChange={(e) => setSelectedVideoDevice(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                  >
+                    {videoDevices.length > 0 ? (
+                      videoDevices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId} className="bg-neutral-900">
+                          {d.label || `Camera (${d.deviceId.slice(0, 5)})`}
+                        </option>
+                      ))
+                    ) : (
+                      <option className="bg-neutral-900">Mặc định của hệ thống</option>
+                    )}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDeviceModalOpen(false)}
+                  className="mt-6 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                >
+                  Lưu Cài Đặt
+                </button>
+              </div>
+            )}
+
+            {/* Tab 2: Quản Trị Phòng & Link Mời Free */}
+            {activeSettingsTab === 'room_admin' && (
+              <div className="space-y-4 text-xs">
+                {/* Thông báo thao tác quản trị */}
+                {adminNotice && (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] flex items-center gap-1.5">
+                    <Check size={14} className="shrink-0" />
+                    <span>{adminNotice}</span>
+                  </div>
+                )}
+
+                {/* Nếu là Chủ phòng (Host) */}
+                {userRole === 'host' ? (
+                  <>
+                    {/* Hộp Trạng thái Quyền hạn Thuê bao Backend */}
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-neutral-300 text-xs">Điều kiện Thuê bao Trả phí:</span>
+                        {eligibility.eligible ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                            <ShieldCheck size={12} />
+                            ĐỦ ĐIỀU KIỆN (≥ 3 THÁNG)
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                            <Lock size={12} />
+                            CHƯA ĐỦ ĐIỀU KIỆN
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-neutral-400 leading-relaxed">
+                        {eligibility.reason}
+                      </p>
+                    </div>
+
+                    {/* Công tắc Bật/Tắt Cho phép khách Free tham gia */}
+                    <div className="p-3.5 rounded-xl bg-neutral-800/60 border border-white/10 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="font-bold text-xs text-white">
+                          Cho phép người dùng Free tham gia qua link mời
+                        </div>
+                        <div className="text-[11px] text-neutral-400">
+                          Khách Free có thể vào phòng bằng link có token bảo mật, học tập và chat cùng nhóm.
+                        </div>
+                      </div>
+
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input
+                          type="checkbox"
+                          data-testid="toggle-allow-free-guests"
+                          disabled={!eligibility.eligible}
+                          checked={Boolean(room?.allowFreeGuests)}
+                          onChange={(e) => handleToggleAllowFree(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed" />
+                      </label>
+                    </div>
+
+                    {/* Quản lý Link Mời có Token */}
+                    {room?.allowFreeGuests && (
+                      <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-emerald-300 flex items-center gap-1.5">
+                            <Sparkles size={14} />
+                            Liên Kết Mời Khách Free (Đang Hoạt Động)
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-400/80">Token Hex 32-bit</span>
+                        </div>
+
+                        <div className="p-2 rounded-lg bg-black/40 border border-white/10 font-mono text-[10px] text-neutral-300 break-all select-all">
+                          {typeof window !== 'undefined' ? window.location.origin : ''}/rooms/{roomId}?token={room.activeInviteToken || 'chua_co_token'}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            data-testid="btn-copy-free-invite-link"
+                            onClick={handleCopyInviteLink}
+                            className="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          >
+                            {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+                            <span>{copiedLink ? 'Đã Sao Chép Link' : 'Sao Chép Link Mời'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            data-testid="btn-revoke-invite-token"
+                            disabled={regeneratingToken}
+                            onClick={handleRevokeToken}
+                            className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                            title="Thu hồi token hiện tại và tạo token mới để link cũ mất hiệu lực"
+                          >
+                            <RefreshCw size={13} className={regeneratingToken ? 'animate-spin' : ''} />
+                            <span>Thu Hồi & Tạo Mới</span>
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-neutral-400">
+                          Khách Free chỉ có quyền tham gia phòng và trò chuyện, <strong>không</strong> tự động được cấp quyền PRO trên tài khoản của họ.
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vùng Nguy Hiểm: Đóng phòng */}
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-xs text-rose-400">Đóng phòng học</div>
+                        <div className="text-[10px] text-neutral-500">Kết thúc phiên học và ngắt kết nối mọi thành viên.</div>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-close-room"
+                        onClick={handleCloseRoom}
+                        className="px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white font-bold text-xs transition cursor-pointer"
+                      >
+                        Đóng Phòng
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  /* Giao diện xem của Thành viên hoặc Khách */
+                  <div className="space-y-3">
+                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400">Mã phòng:</span>
+                        <span className="font-mono font-bold text-white">#{roomId}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400">Chủ phòng:</span>
+                        <span className="text-neutral-200">{room?.hostEmail}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400">Vai trò của bạn:</span>
+                        <span className="font-bold text-emerald-400">
+                          {userRole === 'member' ? 'Thành viên PRO' : 'Khách mời Free'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-neutral-800/50 border border-white/5 text-[11px] text-neutral-400 flex items-start gap-2">
+                      <Info size={14} className="text-neutral-400 shrink-0 mt-0.5" />
+                      <span>
+                        Chỉ Chủ phòng mới có quyền quản trị cài đặt phòng, bật/tắt quyền mời khách Free và đóng phòng học.
+                      </span>
+                    </div>
+
+                    {userRole === 'guest' && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 flex items-center justify-between">
+                        <span>Bạn muốn tự tạo phòng và lưu trữ lịch sử học tập?</span>
+                        <button
+                          type="button"
+                          onClick={() => router.navigate('/billing')}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500 text-neutral-950 font-bold text-[10px] shrink-0 ml-2"
+                        >
+                          Nâng Cấp PRO
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

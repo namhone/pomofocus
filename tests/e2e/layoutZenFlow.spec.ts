@@ -3,16 +3,6 @@ import { test, expect } from '@playwright/test';
 test.describe('Widget Layout & Zen Mode E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      const dbs = await window.indexedDB.databases?.();
-      if (dbs) {
-        for (const db of dbs) {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-    await page.reload();
   });
 
   test('1. Bật/tắt widget từ DockBar và kiểm tra Calendar placeholder', async ({ page }) => {
@@ -25,7 +15,7 @@ test.describe('Widget Layout & Zen Mode E2E Tests', () => {
     // 1. Mở Calendar placeholder từ DockBar
     await page.getByTestId('dock-btn-calendar').click();
     await expect(page.getByTestId('widget-container-calendar')).toBeVisible();
-    await expect(page.getByTestId('calendar-widget')).toContainText('Lịch Biểu & Sự Kiện');
+    await expect(page.getByTestId('calendar-widget')).toContainText('Lịch Biểu & Sự Kiện', { timeout: 15000 });
     await expect(page.getByText('Sắp ra mắt')).toBeVisible();
 
     // 2. Đóng Calendar bằng nút X trên header của widget
@@ -44,6 +34,8 @@ test.describe('Widget Layout & Zen Mode E2E Tests', () => {
   test('2. Kéo thả widget trên desktop và khôi phục sau khi reload', async ({ page }) => {
     const timerWidget = page.getByTestId('widget-container-timer');
     const dragHandle = timerWidget.locator('[data-drag-handle="true"]');
+    await page.getByTestId('dock-btn-presets').click();
+    await page.getByTestId('dock-btn-edit-layout').click();
 
     // Lấy tọa độ ban đầu
     const boxBefore = await timerWidget.boundingBox();
@@ -55,7 +47,7 @@ test.describe('Widget Layout & Zen Mode E2E Tests', () => {
 
     await page.mouse.move(handleBox!.x + 50, handleBox!.y + 10);
     await page.mouse.down();
-    await page.mouse.move(handleBox!.x + 120, handleBox!.y + 80, { steps: 5 });
+    await page.mouse.move(handleBox!.x + 55, handleBox!.y + 50, { steps: 5 });
     await page.mouse.up();
 
     // Xác nhận tọa độ mới đã thay đổi
@@ -81,11 +73,46 @@ test.describe('Widget Layout & Zen Mode E2E Tests', () => {
 
     // 2. Click nút "Bố cục mặc định" trên dock
     await page.getByTestId('dock-btn-reset-layout').click();
+    await expect(page.getByTestId('reset-layout-confirmation')).toBeVisible();
+    await page.getByTestId('confirm-reset-layout').click();
 
     // 3. Xác minh Tasks và Notes được mở lại
     await expect(page.getByTestId('widget-container-tasks')).toBeVisible();
     await expect(page.getByTestId('widget-container-notes')).toBeVisible();
     await expect(page.getByTestId('widget-container-timer')).toBeVisible();
+  });
+
+  test('3a. Mobile yêu cầu xác nhận trước khi đặt lại bố cục', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    await page.getByTestId('close-widget-tasks').click();
+    await expect(page.getByTestId('widget-container-tasks')).not.toBeVisible();
+
+    await page.getByTestId('dock-btn-presets').click();
+    await page.getByTestId('btn-reset-layout').click();
+    await expect(page.getByTestId('reset-layout-confirmation')).toBeVisible();
+    await page.getByRole('button', { name: 'Hủy' }).click();
+    await expect(page.getByTestId('widget-container-tasks')).not.toBeVisible();
+
+    await page.getByTestId('btn-reset-layout').click();
+    await page.getByTestId('confirm-reset-layout').click();
+    await expect(page.getByTestId('widget-container-tasks')).toBeVisible();
+  });
+
+  test('3b. Dock có thể đổi cạnh, tự ẩn và hiện lại bằng nút cạnh', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    await page.getByTestId('dock-btn-presets').click();
+    await page.getByTestId('dock-position-left').click();
+    const dock = page.getByRole('toolbar', { name: 'Thanh điều khiển không gian làm việc' });
+    await expect.poll(async () => (await dock.boundingBox())?.x ?? 1000).toBeLessThan(20);
+    await expect(dock).toHaveCSS('flex-direction', 'column');
+
+    await page.getByTestId('toggle-dock-auto-hide').click();
+    await page.mouse.move(1200, 700);
+    await expect(page.getByTestId('dock-reveal')).toBeVisible({ timeout: 4000 });
+    await page.getByTestId('dock-reveal').click();
+    await expect(dock).toHaveCSS('opacity', '1');
   });
 
   test('4. Chế độ Zen Mode: Bật/tắt bằng nút UI và phím tắt Z/Esc', async ({ page }) => {

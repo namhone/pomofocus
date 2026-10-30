@@ -3,11 +3,32 @@ import { FocusSessionRecord } from '../types/timer';
 import { Task, Project } from '../types/tasks';
 import { Note } from '../types/notes';
 
+export interface CustomBackgroundRecord {
+  id: string;
+  blob: Blob;
+  name: string;
+  mediaType: 'image' | 'video';
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: number;
+}
+
+export interface PlannerBlockRecord {
+  id: string;
+  dateString: string; // YYYY-MM-DD
+  startHour: number; // 6 to 23
+  title: string;
+  taskId?: string | null;
+  completed?: boolean;
+}
+
 export class PomodoroDatabase extends Dexie {
   focus_sessions!: Table<FocusSessionRecord, string>;
   tasks!: Table<Task, string>;
   projects!: Table<Project, string>;
   notes!: Table<Note, string>;
+  custom_backgrounds!: Table<CustomBackgroundRecord, string>;
+  planner_blocks!: Table<PlannerBlockRecord, string>;
 
   constructor() {
     super('ImmersivePomodoroDB');
@@ -23,6 +44,16 @@ export class PomodoroDatabase extends Dexie {
       tasks: '&id, status, projectId, priority, createdAt, updatedAt',
       projects: '&id, name, createdAt',
       notes: '&id, linkedTaskId, linkedProjectId, updatedAt'
+    });
+
+    // Phiên bản 3: Tích hợp Custom Backgrounds (Blob) và Planner Time-blocks
+    this.version(3).stores({
+      focus_sessions: '&id, dateString, completedAt, phase, taskId',
+      tasks: '&id, status, projectId, priority, createdAt, updatedAt',
+      projects: '&id, name, createdAt',
+      notes: '&id, linkedTaskId, linkedProjectId, updatedAt',
+      custom_backgrounds: '&id, createdAt, mediaType',
+      planner_blocks: '&id, dateString, startHour, taskId'
     });
   }
 }
@@ -66,3 +97,9 @@ export async function recordFocusSessionAtomic(record: FocusSessionRecord): Prom
     throw error;
   }
 }
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { db: typeof db; recordFocusSessionAtomic: typeof recordFocusSessionAtomic }).db = db;
+  (window as unknown as { db: typeof db; recordFocusSessionAtomic: typeof recordFocusSessionAtomic }).recordFocusSessionAtomic = recordFocusSessionAtomic;
+}
+

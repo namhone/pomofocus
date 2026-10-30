@@ -1,0 +1,140 @@
+{
+  "buildVerification": {
+    "httpStatus": 200,
+    "activeScriptBundle": "/assets/index-Cnoj10GF.js",
+    "activeCssBundle": "/assets/index-BNdjG4s5.css",
+    "matchesDiskBuild": true
+  },
+  "desktop1920": {
+    "viewport": "1920x1080",
+    "timerBox": {
+      "x": 355,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "tasksBox": {
+      "x": 755,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "isTimerCentered": true,
+    "isTimerStuckAt24": false
+  },
+  "desktop1440": {
+    "viewport": "1440x900",
+    "timerBox": {
+      "x": 355,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "tasksBox": {
+      "x": 755,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "isTimerCentered": false,
+    "isTimerStuckAt24": false
+  },
+  "desktop1366": {
+    "viewport": "1366x768",
+    "timerBox": {
+      "x": 78,
+      "y": 50,
+      "width": 380,
+      "height": 600
+    },
+    "isTimerCentered": true,
+    "isTimerStuckAt24": false
+  },
+  "mobileNavigation": {
+    "navStructure": {
+      "hasBottomNav": false,
+      "buttons": []
+    },
+    "tabHistory": [
+      {
+        "clicked": "Âm thanh",
+        "activeNow": "NONE"
+      },
+      {
+        "clicked": "Nền",
+        "activeNow": "NONE"
+      },
+      {
+        "clicked": "Đồng hồ",
+        "activeNow": "NONE"
+      }
+    ],
+    "touchScroll": {
+      "initialY": 72,
+      "scrolledY": 2531,
+      "canScroll": true
+    }
+  },
+  "spacesCatalog": {
+    "cardCount": 12,
+    "cardIdsSample": [
+      "preset-card-deep-space",
+      "preset-card-cozy-lofi-room",
+      "preset-card-oceans-wave",
+      "preset-card-rainy-window",
+      "preset-card-pine-forest",
+      "preset-card-sintel-nature",
+      "preset-card-tokyo-neon",
+      "preset-card-flower-timelapse",
+      "preset-card-sunset-lake",
+      "preset-card-mountain-sunset"
+    ],
+    "hasUniqueNotice": true,
+    "hasParticlesButton": true
+  },
+  "videoBackground": {
+    "hasVideoTag": false
+  },
+  "audioAndMusicTab": {
+    "tabs": {
+      "hasChimeTab": true,
+      "hasAmbientTab": true,
+      "hasMusicTab": true,
+      "chimeTabText": "Chuông Báo (twinkle)",
+      "ambientTabText": "Âm Thanh Nền",
+      "musicTabText": "Nhạc & Stream"
+    },
+    "form": {
+      "hasUrlInput": true,
+      "hasPlayButton": true
+    },
+    "youtubeEmbed": {
+      "hasIframe": true,
+      "src": "https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1"
+    }
+  },
+  "timerPersistence": {
+    "displayBeforeReload": "35:00",
+    "displayAfterReload": "35:00",
+    "persistedSettingsInLocalStorage": {
+      "pomodoroMinutes": 35,
+      "shortBreakMinutes": 5,
+      "longBreakMinutes": 15,
+      "roundsBeforeLongBreak": 4,
+      "autoTransition": false,
+      "notificationEnabled": false
+    },
+    "isSuccess": true
+  },
+  "consoleErrors": [],
+  "networkFailures": [
+    {
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "error": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "error": "net::ERR_BLOCKED_BY_ORB"
+    }
+  ]
+}

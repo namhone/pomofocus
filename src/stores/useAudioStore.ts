@@ -11,6 +11,105 @@ import { AmbientSynthesizer } from '../services/ambientSynthesizer';
 
 const SETTINGS_KEY = 'pomodoro_audio_settings_v1';
 const TRACKS_CONFIG_KEY = 'pomodoro_audio_tracks_v1';
+export const CUSTOM_MUSIC_KEY = 'pomodoro_custom_music_v1';
+
+export interface CustomMusicItem {
+  id: string;
+  name: string;
+  url: string;
+  type: 'direct_audio' | 'youtube';
+  createdAt: number;
+}
+
+const DEFAULT_MUSIC_ITEMS: CustomMusicItem[] = [
+  {
+    id: 'lofi_girl',
+    name: 'Lofi Girl Live (Chill Study)',
+    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    type: 'youtube',
+    createdAt: Date.now()
+  },
+  {
+    id: 'synthwave',
+    name: 'Synthwave Radio Live',
+    url: 'https://www.youtube.com/watch?v=4xDzrJKXOOY',
+    type: 'youtube',
+    createdAt: Date.now()
+  },
+  {
+    id: 'coffee_jazz',
+    name: 'Coffee Shop Lofi Vibes',
+    url: 'https://www.youtube.com/watch?v=h2zkV-l_TbY',
+    type: 'youtube',
+    createdAt: Date.now()
+  },
+  {
+    id: 'kalimba_mp3',
+    name: 'Giai Điệu Kalimba Thư Giãn (MP3 Trực Tiếp)',
+    url: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+    type: 'direct_audio',
+    createdAt: Date.now()
+  }
+];
+
+function loadSavedCustomMusic(): {
+  url: string;
+  type: 'direct_audio' | 'youtube';
+  volume: number;
+  list: CustomMusicItem[];
+} {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return {
+      url: '',
+      type: 'youtube',
+      volume: 0.8,
+      list: DEFAULT_MUSIC_ITEMS
+    };
+  }
+  try {
+    const raw = localStorage.getItem(CUSTOM_MUSIC_KEY);
+    const legacyUrl = localStorage.getItem('pomodoro_lofi_stream_url') || '';
+    if (!raw) {
+      return {
+        url: legacyUrl,
+        type: legacyUrl.includes('youtube') || legacyUrl.includes('youtu.be') ? 'youtube' : 'direct_audio',
+        volume: 0.8,
+        list: DEFAULT_MUSIC_ITEMS
+      };
+    }
+    const parsed = JSON.parse(raw);
+    return {
+      url: typeof parsed.url === 'string' ? parsed.url : legacyUrl,
+      type: parsed.type === 'direct_audio' || parsed.type === 'youtube' ? parsed.type : 'youtube',
+      volume: typeof parsed.volume === 'number' ? Math.max(0, Math.min(1, parsed.volume)) : 0.8,
+      list: Array.isArray(parsed.list) && parsed.list.length > 0 ? parsed.list : DEFAULT_MUSIC_ITEMS
+    };
+  } catch {
+    return {
+      url: '',
+      type: 'youtube',
+      volume: 0.8,
+      list: DEFAULT_MUSIC_ITEMS
+    };
+  }
+}
+
+function persistCustomMusic(data: {
+  url: string;
+  type: 'direct_audio' | 'youtube';
+  volume: number;
+  list: CustomMusicItem[];
+}): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    localStorage.setItem(CUSTOM_MUSIC_KEY, JSON.stringify(data));
+    if (data.url) {
+      localStorage.setItem('pomodoro_lofi_stream_url', data.url);
+    }
+  } catch {
+    // Ignore
+  }
+}
 
 export const DEFAULT_SETTINGS: AudioSettings = {
   masterVolume: 0.8,
@@ -208,10 +307,18 @@ export interface AudioState {
   settings: AudioSettings;
   tracks: AmbientTrackConfig[];
   isAudioBlocked: boolean;
-  activeTab: 'chime' | 'ambient';
+  activeTab: 'chime' | 'ambient' | 'music';
+
+  // Custom Music / Radio stream
+  customMusicUrl: string;
+  customMusicType: 'direct_audio' | 'youtube';
+  customMusicPlaying: boolean;
+  customMusicVolume: number;
+  customMusicError: string | null;
+  customMusicList: CustomMusicItem[];
 
   // Actions
-  setActiveTab: (tab: 'chime' | 'ambient') => void;
+  setActiveTab: (tab: 'chime' | 'ambient' | 'music') => void;
   setMasterVolume: (vol: number) => void;
   toggleMasterMute: () => void;
   setSelectedChime: (chime: ChimeSoundType) => void;
@@ -223,11 +330,19 @@ export interface AudioState {
   stopAllTracks: () => void;
   resumeAudioContext: () => Promise<boolean>;
   resetToDefaults: () => void;
+
+  setCustomMusicUrl: (url: string, type?: 'direct_audio' | 'youtube') => void;
+  setCustomMusicPlaying: (playing: boolean) => void;
+  setCustomMusicVolume: (volume: number) => void;
+  setCustomMusicError: (error: string | null) => void;
+  addCustomMusicToList: (name: string, url: string, type: 'direct_audio' | 'youtube') => void;
+  removeCustomMusicFromList: (id: string) => void;
 }
 
 export const useAudioStore = create<AudioState>((set, get) => {
   const initialSettings = loadSavedSettings();
   const savedVolumes = loadSavedTrackVolumes();
+  const initialCustomMusic = loadSavedCustomMusic();
   const audioMgr = AudioContextManager.getInstance();
   const chimeSynth = ChimeSynthesizer.getInstance();
   const ambientSynth = AmbientSynthesizer.getInstance();
@@ -246,7 +361,70 @@ export const useAudioStore = create<AudioState>((set, get) => {
     isAudioBlocked: false,
     activeTab: 'chime',
 
-    setActiveTab: (tab: 'chime' | 'ambient') => set({ activeTab: tab }),
+    // Custom Music State
+    customMusicUrl: initialCustomMusic.url,
+    customMusicType: initialCustomMusic.type,
+    customMusicPlaying: false,
+    customMusicVolume: initialCustomMusic.volume,
+    customMusicError: null,
+    customMusicList: initialCustomMusic.list,
+
+    setActiveTab: (tab: 'chime' | 'ambient' | 'music') => set({ activeTab: tab }),
+
+    setCustomMusicUrl: (url: string, type?: 'direct_audio' | 'youtube') => {
+      const detectedType = type || (url.includes('youtube.com') || url.includes('youtu.be') ? 'youtube' : 'direct_audio');
+      set({ customMusicUrl: url, customMusicType: detectedType, customMusicError: null });
+      persistCustomMusic({
+        url,
+        type: detectedType,
+        volume: get().customMusicVolume,
+        list: get().customMusicList
+      });
+    },
+
+    setCustomMusicPlaying: (playing: boolean) => set({ customMusicPlaying: playing }),
+
+    setCustomMusicVolume: (volume: number) => {
+      const safe = Math.max(0, Math.min(1, volume));
+      set({ customMusicVolume: safe });
+      persistCustomMusic({
+        url: get().customMusicUrl,
+        type: get().customMusicType,
+        volume: safe,
+        list: get().customMusicList
+      });
+    },
+
+    setCustomMusicError: (error: string | null) => set({ customMusicError: error }),
+
+    addCustomMusicToList: (name: string, url: string, type: 'direct_audio' | 'youtube') => {
+      const newItem: CustomMusicItem = {
+        id: `music-${Date.now()}`,
+        name: name.trim() || 'Kênh nhạc tùy chỉnh',
+        url: url.trim(),
+        type,
+        createdAt: Date.now()
+      };
+      const updated = [newItem, ...get().customMusicList.filter((m) => m.url !== url.trim())];
+      set({ customMusicList: updated });
+      persistCustomMusic({
+        url: get().customMusicUrl,
+        type: get().customMusicType,
+        volume: get().customMusicVolume,
+        list: updated
+      });
+    },
+
+    removeCustomMusicFromList: (id: string) => {
+      const updated = get().customMusicList.filter((m) => m.id !== id);
+      set({ customMusicList: updated });
+      persistCustomMusic({
+        url: get().customMusicUrl,
+        type: get().customMusicType,
+        volume: get().customMusicVolume,
+        list: updated
+      });
+    },
 
     setMasterVolume: (vol: number) => {
       const safe = Math.max(0, Math.min(1, vol));

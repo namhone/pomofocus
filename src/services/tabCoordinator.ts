@@ -24,6 +24,8 @@ export class TabCoordinator {
   private channel: BroadcastChannel | null = null;
   private isLeaderFlag = false;
   private lockAbortController: AbortController | null = null;
+  private releaseLock: (() => void) | null = null;
+  private destroyed = false;
   private onMessageCallback: ((msg: TabMessage) => void) | null = null;
   private onLeaderChangeCallback: ((isLeader: boolean) => void) | null = null;
 
@@ -56,15 +58,20 @@ export class TabCoordinator {
    * và việc chống ghi trùng được bảo vệ hoàn toàn bởi khóa chính duy nhất của IndexedDB.
    */
   public async requestLeadership(): Promise<void> {
+    if (this.destroyed || this.lockAbortController) return;
+
     if (typeof navigator !== 'undefined' && 'locks' in navigator && navigator.locks) {
-      this.lockAbortController = new AbortController();
+      const abortController = new AbortController();
+      this.lockAbortController = abortController;
 
       // Sử dụng Web Locks API: lock có tên 'pomodoro_timer_leader'
       // Duy nhất một tab có thể giữ lock này tại một thời điểm
       navigator.locks.request(
         'pomodoro_timer_leader',
-        { signal: this.lockAbortController.signal },
+        { signal: abortController.signal },
         async () => {
+          if (abortController.signal.aborted) return;
+
           this.isLeaderFlag = true;
           if (this.onLeaderChangeCallback) {
             this.onLeaderChangeCallback(true);
@@ -72,22 +79,35 @@ export class TabCoordinator {
 
           // Giữ lock cho đến khi tab đóng hoặc abort signal kích hoạt
           return new Promise<void>((resolve) => {
-            if (this.lockAbortController) {
-              this.lockAbortController.signal.addEventListener('abort', () => {
-                this.isLeaderFlag = false;
-                if (this.onLeaderChangeCallback) {
-                  this.onLeaderChangeCallback(false);
-                }
-                resolve();
-              });
+            let released = false;
+            const releaseLeadership = () => {
+              if (released) return;
+              released = true;
+              abortController.signal.removeEventListener('abort', releaseLeadership);
+              if (this.releaseLock === releaseLeadership) this.releaseLock = null;
+              this.isLeaderFlag = false;
+              if (this.onLeaderChangeCallback) {
+                this.onLeaderChangeCallback(false);
+              }
+              resolve();
+            };
+
+            this.releaseLock = releaseLeadership;
+            if (abortController.signal.aborted) {
+              releaseLeadership();
+              return;
             }
+
+            abortController.signal.addEventListener('abort', releaseLeadership, { once: true });
           });
         }
-      ).catch(() => {
-        // Lock bị hủy hoặc từ chối
+      ).catch((err: unknown) => {
         this.isLeaderFlag = false;
         if (this.onLeaderChangeCallback) {
           this.onLeaderChangeCallback(false);
+        }
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          console.warn('Lỗi khi yêu cầu Web Lock cho timer:', err);
         }
       });
     } else {
@@ -110,10 +130,14 @@ export class TabCoordinator {
   }
 
   public destroy(): void {
+    this.destroyed = true;
     if (this.lockAbortController) {
-      this.lockAbortController.abort();
+      const abortController = this.lockAbortController;
       this.lockAbortController = null;
+      abortController.abort();
     }
+    this.releaseLock?.();
+    this.releaseLock = null;
     if (this.channel) {
       this.channel.onmessage = null;
       this.channel.close();

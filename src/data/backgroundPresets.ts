@@ -1,92 +1,169 @@
 import { BackgroundPreset } from '../types/background';
 
-// Data URI SVG dự phòng cho offline và fallback tức thì
+// Data URI SVG & CSS Gradients dự phòng cho offline và fallback tức thì
 export const FALLBACK_GRADIENTS = {
-  deepSpace: 'linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e1b4b 100%)',
+  deepSpace: 'linear-gradient(135deg, #0a0e27 0%, #171b40 40%, #28144b 75%, #0a0b1d 100%)',
   cozyLofi: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #451a03 100%)',
   rainyWindow: 'linear-gradient(135deg, #090d16 0%, #111827 50%, #1e293b 100%)',
   mistyForest: 'linear-gradient(135deg, #022c22 0%, #064e3b 50%, #041f1a 100%)',
   tokyoNeon: 'linear-gradient(135deg, #1e1035 0%, #2e1065 50%, #030712 100%)',
-  sunsetLake: 'linear-gradient(135deg, #451a03 0%, #7c2d12 50%, #1c1917 100%)'
+  sunsetLake: 'linear-gradient(135deg, #451a03 0%, #7c2d12 50%, #1c1917 100%)',
+  oceanWaves: 'linear-gradient(135deg, #082f49 0%, #0c4a6e 50%, #0284c7 100%)'
 };
 
 export const BACKGROUND_PRESETS: BackgroundPreset[] = [
   {
     id: 'deep-space',
-    title: 'Không Gian Sâu (Deep Space)',
-    category: 'gradient',
-    url: FALLBACK_GRADIENTS.deepSpace,
+    title: 'Không Gian Sâu',
+    category: 'image',
+    url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop',
     fallbackUrl: FALLBACK_GRADIENTS.deepSpace,
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%230f172a"/><circle cx="30" cy="20" r="1" fill="%23ffffff"/><circle cx="70" cy="40" r="1.5" fill="%2393c5fd"/><circle cx="50" cy="50" r="1" fill="%23ffffff"/></svg>',
-    author: 'Antigravity Studio',
-    license: 'CC0 / Public Domain',
-    description: 'Bầu trời đêm tối giản sâu thẳm, không gây phân tâm, tiết kiệm pin tối đa.',
-    tags: ['minimal', 'night', 'dark', 'stars']
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop',
+    author: 'NASA / Unsplash',
+    license: 'Unsplash Free Commercial License',
+    description: 'Tinh vân vũ trụ sâu thẳm với ánh sáng cực quang và dải ngân hà huyền bí.',
+    tags: ['space', 'galaxy', 'night', 'stars', 'cosmic']
   },
   {
     id: 'cozy-lofi-room',
-    title: 'Góc Học Tập Lo-Fi (Cozy Study)',
+    title: 'Góc Học Tập Lo-Fi',
     category: 'image',
     url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1920&auto=format&fit=crop',
     fallbackUrl: FALLBACK_GRADIENTS.cozyLofi,
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%23292524"/><rect x="20" y="30" width="60" height="20" rx="3" fill="%2378350f"/><circle cx="50" cy="25" r="8" fill="%23fbbf24" opacity="0.6"/></svg>',
+      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=300&auto=format&fit=crop',
     author: 'Unsplash Community',
     license: 'Unsplash Free Commercial License',
-    description: 'Ánh đèn vàng ấm cúng bên bàn làm việc gỗ và sách vở.',
-    tags: ['cozy', 'warm', 'study', 'lofi']
+    description: 'Ánh đèn vàng ấm cúng bên bàn làm việc gỗ, sách vở và không gian học tập yên tĩnh.',
+    tags: ['cozy', 'warm', 'study', 'lofi', 'hygge']
+  },
+  {
+    id: 'oceans-wave',
+    title: 'Đại Dương Sóng Vỗ',
+    category: 'video',
+    url: 'https://vjs.zencdn.net/v/oceans.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300&auto=format&fit=crop',
+    author: 'VideoJS Open Media Library',
+    license: 'Creative Commons (CC0)',
+    description: 'Video chuyển động sóng biển xanh biếc dạt dào êm ả lặp vòng liên tục.',
+    tags: ['ocean', 'waves', 'video', 'water', 'nature']
   },
   {
     id: 'rainy-window',
-    title: 'Cửa Sổ Mưa Rơi (Rainy Window)',
+    title: 'Cửa Sổ Mưa Rơi',
     category: 'video',
     url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     fallbackUrl: FALLBACK_GRADIENTS.rainyWindow,
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%231e293b"/><line x1="20" y1="10" x2="15" y2="30" stroke="%2360a5fa" stroke-width="2"/><line x1="60" y1="20" x2="55" y2="40" stroke="%2360a5fa" stroke-width="2"/><line x1="80" y1="35" x2="75" y2="55" stroke="%2360a5fa" stroke-width="2"/></svg>',
+      'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=300&auto=format&fit=crop',
     author: 'Wikimedia Commons / Google Test Streams',
     license: 'Creative Commons (CC0 / Open Media)',
     description: 'Video vòng lặp giọt mưa trượt trên mặt kính mờ ảo, tạo không gian tập trung trầm lắng.',
-    tags: ['rain', 'video', 'mood', 'cozy']
+    tags: ['rain', 'video', 'mood', 'cozy', 'water']
   },
   {
     id: 'pine-forest',
-    title: 'Rừng Thông Sương Sớm (Misty Forest)',
+    title: 'Rừng Thông Sương Sớm',
     category: 'image',
     url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1920&auto=format&fit=crop',
     fallbackUrl: FALLBACK_GRADIENTS.mistyForest,
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%23064e3b"/><polygon points="30,50 40,25 50,50" fill="%23022c22"/><polygon points="60,50 70,30 80,50" fill="%23022c22"/></svg>',
+      'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=300&auto=format&fit=crop',
     author: 'Unsplash Community',
     license: 'Unsplash Free Commercial License',
-    description: 'Thiên nhiên hoang dã mát lành với những rặng thông bạt ngàn trong làn sương.',
-    tags: ['nature', 'forest', 'green', 'peaceful']
+    description: 'Thiên nhiên hoang dã mát lành với những rặng thông xanh bạt ngàn trong làn sương sớm.',
+    tags: ['nature', 'forest', 'green', 'peaceful', 'mist']
+  },
+  {
+    id: 'sintel-nature',
+    title: 'Hoạt Cảnh Thiên Nhiên',
+    category: 'video',
+    url: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=300&auto=format&fit=crop',
+    author: 'Blender Foundation (Open Movie)',
+    license: 'Creative Commons CC-BY 3.0',
+    description: 'Video hoạt cảnh đồ họa mở chất lượng cao lặp vòng thiên nhiên và ngọn lửa.',
+    tags: ['animation', 'nature', 'video', 'blender', 'fire']
   },
   {
     id: 'tokyo-neon',
-    title: 'Đêm Phố Tokyo (Tokyo Neon)',
+    title: 'Đêm Phố Tokyo',
     category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    fallbackUrl: FALLBACK_GRADIENTS.tokyoNeon,
+    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%23030712"/><rect x="15" y="15" width="20" height="40" fill="%23be185d"/><rect x="45" y="25" width="15" height="30" fill="%236366f1"/><circle cx="80" cy="20" r="6" fill="%2306b6d4"/></svg>',
-    author: 'Blender Open Foundation',
-    license: 'Creative Commons Attribution 3.0',
-    description: 'Video ánh đèn neon hiện đại và nhịp sống đô thị cyberpunk.',
-    tags: ['neon', 'cyberpunk', 'city', 'video']
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300&auto=format&fit=crop',
+    author: 'Mozilla Open Media / Unsplash Community',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Video ánh đèn neon hiện đại và nhịp sống đô thị cyberpunk về đêm.',
+    tags: ['neon', 'cyberpunk', 'city', 'video', 'tokyo']
+  },
+  {
+    id: 'flower-timelapse',
+    title: 'Hoa Nở Trong Vườn',
+    category: 'video',
+    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=300&auto=format&fit=crop',
+    author: 'Mozilla Open Media',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Video time-lapse cánh hoa nở thư giãn, truyền cảm hứng bình yên.',
+    tags: ['flower', 'bloom', 'timelapse', 'nature', 'video']
   },
   {
     id: 'sunset-lake',
-    title: 'Hồ Chiều Tà (Sunset Lake)',
+    title: 'Hồ Chiều Tà',
     category: 'image',
-    url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop',
+    url: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=1920&auto=format&fit=crop',
     fallbackUrl: FALLBACK_GRADIENTS.sunsetLake,
     thumbnailUrl:
-      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="%237c2d12"/><circle cx="50" cy="30" r="15" fill="%23f97316"/><rect x="0" y="42" width="100" height="18" fill="%23451a03"/></svg>',
+      'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=300&auto=format&fit=crop',
+    author: 'Kalab Teshale / Unsplash',
+    license: 'Unsplash Free Commercial License',
+    description: 'Mặt hồ phẳng lặng phản chiếu ánh hoàng hôn cam vàng tuyệt đẹp giữa lòng thung lũng.',
+    tags: ['sunset', 'water', 'lake', 'mountains', 'calm']
+  },
+  {
+    id: 'mountain-sunset',
+    title: 'Hoàng Hôn Đỉnh Núi',
+    category: 'image',
+    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop',
+    fallbackUrl: FALLBACK_GRADIENTS.sunsetLake,
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop',
     author: 'Unsplash Community',
     license: 'Unsplash Free Commercial License',
-    description: 'Mặt hồ phẳng lặng phản chiếu ánh hoàng hôn buông xuống dịu êm.',
-    tags: ['sunset', 'water', 'lake', 'calm']
+    description: 'Ánh nắng vàng cam buông xuống những đỉnh núi điệp trùng.',
+    tags: ['mountain', 'sunset', 'alpine', 'sky', 'warm']
+  },
+  {
+    id: 'gradient-space',
+    title: 'Gradient Tối Giản Vũ Trụ',
+    category: 'gradient',
+    url: FALLBACK_GRADIENTS.deepSpace,
+    fallbackUrl: FALLBACK_GRADIENTS.deepSpace,
+    thumbnailUrl: '',
+    author: 'System Preset',
+    license: 'MIT',
+    description: 'Nền dải màu tím đen tinh tế, siêu nhẹ, không tốn băng thông mạng.',
+    tags: ['gradient', 'minimal', 'offline', 'dark']
+  },
+  {
+    id: 'gradient-forest',
+    title: 'Gradient Tối Giản Rừng Xanh',
+    category: 'gradient',
+    url: FALLBACK_GRADIENTS.mistyForest,
+    fallbackUrl: FALLBACK_GRADIENTS.mistyForest,
+    thumbnailUrl: '',
+    author: 'System Preset',
+    license: 'MIT',
+    description: 'Nền dải màu xanh ngọc bích đậm thư thái cho đôi mắt.',
+    tags: ['gradient', 'minimal', 'offline', 'green']
   }
 ];

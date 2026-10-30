@@ -1,0 +1,49 @@
+{
+  "metrics": [
+    {
+      "viewport": "1365x768-laptop",
+      "width": 1365,
+      "height": 768,
+      "scrollWidth": 1365,
+      "scrollHeight": 768,
+      "noHorizontalOverflow": true,
+      "domNodeCount": 323,
+      "heapUsedMB": 4.13,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\audit-screenshots\\1365x768-laptop.png"
+    },
+    {
+      "viewport": "1024x768-compact",
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1024,
+      "scrollHeight": 1692,
+      "noHorizontalOverflow": true,
+      "domNodeCount": 299,
+      "heapUsedMB": 4.58,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\audit-screenshots\\1024x768-compact.png"
+    },
+    {
+      "viewport": "768x1024-tablet",
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "scrollHeight": 1692,
+      "noHorizontalOverflow": true,
+      "domNodeCount": 299,
+      "heapUsedMB": 4.3,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\audit-screenshots\\768x1024-tablet.png"
+    },
+    {
+      "viewport": "390x844-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 1780,
+      "noHorizontalOverflow": true,
+      "domNodeCount": 299,
+      "heapUsedMB": 4.35,
+      "screenshot": "D:\\FileCuaNam\\Web'\\Pomodoro\\artifacts\\audit-screenshots\\390x844-mobile.png"
+    }
+  ],
+  "timestamp": "2026-10-27T13:39:00.376Z"
+}
