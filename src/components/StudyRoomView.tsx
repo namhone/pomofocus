@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
+import { supabase } from '../lib/supabase';
+import { WebRTCConnectionManager } from '../services/WebRTCConnectionManager';
 import {
   studyRoomService,
   StudyRoom,
@@ -132,13 +134,16 @@ export const StudyRoomView: React.FC = () => {
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
-    { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' },
-    { sender: 'Linh Đan', text: 'Mọi người hôm nay ôn môn gì thế?', time: '10:02' }
+    { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
   ]);
   const [inputMsg, setInputMsg] = useState('');
 
   // Sample participants kết hợp người tham gia thực tế
   const [participantId] = useState(() => user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`);
+
+  // WebRTC Real Remote Streams
+  const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
+  const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
 
   // Vai trò của người dùng trong phòng
   const userRole = useMemo<'host' | 'member' | 'guest'>(() => {
@@ -183,6 +188,65 @@ export const StudyRoomView: React.FC = () => {
     };
   }, [roomId, router]);
 
+  // Khởi tạo WebRTC Connection Manager sau khi đã tham gia phòng
+  useEffect(() => {
+    if (!hasJoined || !roomId || !participantId) return;
+
+    const channel = supabase.channel(`room:${roomId}`, {
+      config: {
+        presence: { key: participantId }
+      }
+    });
+
+    const manager = new WebRTCConnectionManager(channel, participantId, {
+      onRemoteStream: (peerId, stream) => {
+        setRemoteStreams((prev) => ({ ...prev, [peerId]: stream }));
+      },
+      onPeerLeave: (peerId) => {
+        setRemoteStreams((prev) => {
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+      }
+    });
+
+    rtcManagerRef.current = manager;
+
+    if (localStreamRef.current) {
+      manager.setLocalStream(localStreamRef.current);
+    }
+
+    // Lắng nghe người mới vào phòng qua Presence và bắt tay WebRTC Call
+    channel.on('presence', { event: 'join' }, (payload: any) => {
+      const newPresences = payload?.newPresences || [];
+      newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
+        const peerId = presence.key || presence.user_id || presence.userId;
+        if (peerId && peerId !== participantId) {
+          // Khử xung đột: Bên có ID nhỏ hơn sẽ chủ động khởi tạo Offer
+          if (participantId < peerId) {
+            manager.callPeer(peerId);
+          }
+        }
+      });
+    });
+
+    channel.subscribe();
+    channel.track({
+      userId: participantId,
+      displayName: participantName,
+      role: userRole,
+      isMicOn: micEnabled,
+      isVideoOn: cameraEnabled
+    });
+
+    return () => {
+      manager.destroy();
+      rtcManagerRef.current = null;
+      supabase.removeChannel(`room:${roomId}`);
+    };
+  }, [hasJoined, roomId, participantId, participantName, userRole, micEnabled, cameraEnabled]);
+
   // Request & manage local media stream (camera + mic)
   const initLocalStream = useCallback(async () => {
     try {
@@ -212,6 +276,10 @@ export const StudyRoomView: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       localStreamRef.current = stream;
       setMediaError(null);
+
+      if (rtcManagerRef.current) {
+        rtcManagerRef.current.setLocalStream(stream);
+      }
 
       if (preJoinVideoRef.current && cameraEnabled) {
         preJoinVideoRef.current.srcObject = stream;
@@ -314,6 +382,10 @@ export const StudyRoomView: React.FC = () => {
       screenStreamRef.current = stream;
       setIsScreenSharing(true);
 
+      if (rtcManagerRef.current) {
+        rtcManagerRef.current.setLocalStream(stream);
+      }
+
       if (screenVideoRef.current) {
         screenVideoRef.current.srcObject = stream;
       }
@@ -323,6 +395,9 @@ export const StudyRoomView: React.FC = () => {
         videoTrack.onended = () => {
           setIsScreenSharing(false);
           screenStreamRef.current = null;
+          if (localStreamRef.current && rtcManagerRef.current) {
+            rtcManagerRef.current.setLocalStream(localStreamRef.current);
+          }
         };
       }
     } catch (err) {
@@ -1193,59 +1268,63 @@ export const StudyRoomView: React.FC = () => {
                 </div>
               </div>
 
-              {/* REMOTE PARTICIPANTS */}
-              {(Object.values(room?.participants || {}).filter((p) => p.id !== participantId).length > 0
-                ? Object.values(room?.participants || {}).filter((p) => p.id !== participantId)
-                : [
-                    {
-                      id: 'usr_demo_peer_1',
-                      name: 'Linh Đan',
-                      role: 'member' as const,
-                      isMicOn: true,
-                      isVideoOn: true,
-                      isHandRaised: false
-                    },
-                    {
-                      id: 'usr_demo_peer_2',
-                      name: 'Minh Trí',
-                      role: 'guest' as const,
-                      isMicOn: false,
-                      isVideoOn: true,
-                      isHandRaised: false
-                    }
-                  ]
-              ).map((p) => (
-                <div
-                  key={p.id}
-                  className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group"
-                >
-                  <div className="flex flex-col items-center gap-2 text-neutral-400">
-                    <div className="w-14 h-14 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-lg font-bold text-neutral-300">
-                      {p.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-xs font-medium text-neutral-300">{p.name}</span>
-                  </div>
+              {/* REMOTE PARTICIPANTS — Chỉ hiển thị người thật kết nối qua WebRTC & Phòng */}
+              {Object.keys(remoteStreams).length > 0 ? (
+                Object.entries(remoteStreams).map(([peerId, stream]) => {
+                  const peerParticipant = room?.participants?.[peerId];
+                  const peerName = peerParticipant?.name || `Bạn học #${peerId.slice(0, 5)}`;
+                  const peerRole = peerParticipant?.role || 'member';
 
-                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="font-semibold text-white truncate">{p.name} ({p.role === 'host' ? 'Host' : p.role === 'guest' ? 'Free' : 'Pro'})</span>
-                      <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300">
-                        {p.role === 'host' ? 'Host' : p.role === 'guest' ? 'Free' : 'Pro'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {p.isHandRaised && (
-                        <span className="p-1 rounded bg-amber-500 text-neutral-950">
-                          <Hand size={11} />
+                  return (
+                    <div
+                      key={peerId}
+                      className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group"
+                    >
+                      <video
+                        autoPlay
+                        playsInline
+                        ref={(el) => {
+                          if (el && el.srcObject !== stream) {
+                            el.srcObject = stream;
+                          }
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="font-semibold text-white truncate">{peerName}</span>
+                          <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300">
+                            {peerRole === 'host' ? 'Host' : peerRole === 'guest' ? 'Free' : 'Pro'}
+                          </span>
+                        </div>
+                        <span className="p-1 rounded bg-white/10 text-white">
+                          <Mic size={11} />
                         </span>
-                      )}
-                      <span className={`p-1 rounded ${p.isMicOn ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'}`}>
-                        {p.isMicOn ? <Mic size={11} /> : <MicOff size={11} />}
-                      </span>
+                      </div>
                     </div>
+                  );
+                })
+              ) : (
+                /* Trạng thái phòng trống — Chờ bạn học tham gia */
+                <div className="relative aspect-video rounded-2xl bg-neutral-900/40 border border-dashed border-white/15 overflow-hidden flex flex-col items-center justify-center p-6 text-center select-none">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 mb-3">
+                    <Users size={22} />
                   </div>
+                  <h4 className="text-xs font-semibold text-white mb-1">Đang chờ bạn học tham gia...</h4>
+                  <p className="text-[11px] text-neutral-400 max-w-xs leading-relaxed mb-3">
+                    Sao chép mã phòng <code className="text-emerald-400 font-mono">#{roomId}</code> hoặc gửi liên kết mời để cùng học nhóm trực tuyến.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCopyInviteLink}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+                  >
+                    {copiedLink ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                    <span>{copiedLink ? 'Đã sao chép link' : 'Sao chép link mời'}</span>
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             /* Shared Whiteboard Canvas */
