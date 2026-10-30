@@ -112,11 +112,11 @@ export const SharedFooter: React.FC = () => {
             >
               <PomoFocusLogo size={26} showWordmark={true} wordmarkClassName="text-sm font-bold text-white" />
             </button>
-            <p className="text-[11px] text-zinc-400 leading-relaxed">
-              Không gian học tập & làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực tuyến.
+            <p className="text-[11px] text-zinc-400 leading-relaxed text-pretty">
+              Không gian học tập &amp; làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
             </p>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span>Demo Beta 1.0 — Miễn phí 100%</span>
             </div>
           </div>
@@ -124,11 +124,11 @@ export const SharedFooter: React.FC = () => {
           {/* Col 2: Kênh Liên Hệ Trực Tiếp */}
           <div className="space-y-2.5 md:col-span-1">
             <div className="font-semibold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-              <MessageSquare size={13} className="text-emerald-400" />
-              <span>Liên Hệ Trực Tiếp</span>
+              <MessageSquare size={13} className="text-emerald-400 shrink-0" />
+              <span className="whitespace-nowrap">Liên Hệ Trực Tiếp</span>
             </div>
-            <p className="text-[11px] text-zinc-400">
-              Phát triển bởi <strong className="text-zinc-200 font-medium">Hồ Ngọc Bảo Nam</strong>. Sẵn sàng lắng nghe phản hồi & hỗ trợ kỹ thuật:
+            <p className="text-[11px] text-zinc-400 text-pretty">
+              Phát triển bởi <strong className="text-zinc-200 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam</strong>. Sẵn sàng lắng nghe phản hồi &amp; hỗ trợ kỹ&nbsp;thuật:
             </p>
 
             {/* Email quick item - Compact & Balanced */}
@@ -219,12 +219,12 @@ export const SharedFooter: React.FC = () => {
 
         {/* Bottom Copyright & Badges Bar */}
         <div className="pt-4 sm:pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-zinc-500">
-          <div className="flex items-center gap-1.5 text-center sm:text-left flex-wrap justify-center sm:justify-start">
+          <div className="flex items-center gap-1 text-center sm:text-left flex-wrap justify-center sm:justify-start">
             <span>© 2026 PomoFocus. Bản quyền phát triển bởi</span>
-            <strong className="text-zinc-400 font-medium">Hồ Ngọc Bảo Nam</strong>.
+            <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam.</span>
           </div>
-          <div className="flex items-center gap-2.5 text-[10px] text-zinc-500 font-mono">
-            <span>Local-First & Offline</span>
+          <div className="flex items-center gap-2.5 text-[10px] text-zinc-500 font-mono whitespace-nowrap">
+            <span>Local-First &amp; Offline</span>
             <span>•</span>
             <span className="text-emerald-400">Tặng 3 Năm PRO Beta</span>
           </div>
