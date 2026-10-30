@@ -107,14 +107,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     const nextX = dragStartRef.current.startX + deltaX;
     const nextY = dragStartRef.current.startY + deltaY;
 
-    // Giới hạn biên màn hình để widget không bao giờ bị kéo ra ngoài tầm nhìn
+    // Giới hạn biên màn hình: Cho phép kéo tự do toàn màn hình sát 4 góc không bị vùng chết
     const width = widget.isMiniPill ? 190 : widget.width;
     const height = widget.isMiniPill ? 52 : widget.isCollapsed ? collapsedHeight : widget.height;
-    const maxX = Math.max(10, window.innerWidth - width - 12);
-    const maxY = Math.max(50, window.innerHeight - height - 12);
+    const maxX = Math.max(0, window.innerWidth - width);
+    const maxY = Math.max(0, window.innerHeight - height);
 
-    let targetX = Math.max(10, Math.min(nextX, maxX));
-    let targetY = Math.max(50, Math.min(nextY, maxY));
+    let targetX = Math.max(0, Math.min(nextX, maxX));
+    let targetY = Math.max(0, Math.min(nextY, maxY));
 
     if (snapEnabled && !widget.isMiniPill) {
       // 16px Grid snapping
@@ -142,8 +142,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         }
       }
 
-      targetX = Math.max(10, Math.min(snappedX, maxX));
-      targetY = Math.max(50, Math.min(snappedY, maxY));
+      targetX = Math.max(0, Math.min(snappedX, maxX));
+      targetY = Math.max(0, Math.min(snappedY, maxY));
     }
 
     updateWidgetPosition(id, targetX, targetY, false);
@@ -450,7 +450,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           : {})
       }}
       data-layout-editing={isLayoutEditMode ? 'true' : undefined}
-      className={`rounded-[20px] border-t ${
+      className={`pointer-events-auto rounded-[20px] border-t ${
         id === 'timer'
           ? 'border-t-white/[0.28] shadow-[0_28px_60px_-12px_rgba(0,0,0,0.55),inset_0_1px_1px_0_rgba(255,255,255,0.22),inset_0_0_24px_rgba(255,255,255,0.02)]'
           : 'border-t-white/[0.20] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.45),inset_0_1px_1px_0_rgba(255,255,255,0.16),inset_0_0_20px_rgba(255,255,255,0.015)]'

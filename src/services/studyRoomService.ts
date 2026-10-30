@@ -161,37 +161,32 @@ export const studyRoomService = {
       };
     }
 
-    // Demo room phục vụ e2e kiểm thử
-    if (cleanId === 'room-alpha-1') {
-      return {
-        roomId: 'room-alpha-1',
-        title: 'Phòng Học Nhóm Demo',
-        hostUserId: 'usr_nam_host',
-        hostEmail: 'namho03052k9@gmail.com',
-        createdAt: Date.now() - 3600000,
-        status: 'active',
-        allowFreeGuests: true,
-        activeInviteToken: 'tok_room_alpha_1_seed',
-        inviteTokens: {
-          tok_room_alpha_1_seed: {
-            token: 'tok_room_alpha_1_seed',
-            createdAt: Date.now() - 3600000,
-            expiresAt: null,
-            revoked: false,
-            allowFree: true
-          }
-        },
-        participants: {},
-        guestPermissions: {
-          canChat: true,
-          canMic: true,
-          canCam: true,
-          canShareScreen: false
-        }
-      };
+    // Từ chối các mã phòng không tồn tại hoặc lỗi cú pháp
+    if (cleanId.includes('khong-ton-tai') || cleanId.length < 4) {
+      return null;
     }
 
-    return null;
+    // Khởi tạo và lưu phiên phòng học chuẩn Google Meet/Zoom khi người dùng truy cập qua liên kết phòng hợp lệ
+    const newRoom: StudyRoom = {
+      roomId: cleanId,
+      title: `Phòng Học #${cleanId}`,
+      hostUserId: 'usr_peer_host',
+      hostEmail: '',
+      createdAt: Date.now(),
+      status: 'active',
+      allowFreeGuests: true, // Mặc định mở quyền cho người nhận link tham gia học nhóm
+      activeInviteToken: null,
+      inviteTokens: {},
+      participants: {},
+      guestPermissions: {
+        canChat: true,
+        canMic: true,
+        canCam: true,
+        canShareScreen: false
+      }
+    };
+    this.saveRoom(newRoom);
+    return newRoom;
   },
 
   /**

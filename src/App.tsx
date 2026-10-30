@@ -275,7 +275,7 @@ export const App: React.FC = () => {
                 </div>
               </main>
             ) : (
-              <main className="relative z-10 w-full min-h-screen overflow-hidden">
+              <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible">
                 <WidgetContainer id="timer">
                   <TimerTestInterface />
                 </WidgetContainer>

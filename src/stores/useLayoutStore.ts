@@ -544,14 +544,14 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const nextZ = get().highestZIndex + 1;
     const winW = typeof window !== 'undefined' ? window.innerWidth : 1440;
     const winH = typeof window !== 'undefined' ? window.innerHeight : 900;
-    const maxX = Math.max(10, winW - current.width - 12);
-    const maxY = Math.max(50, winH - current.height - 12);
+    const maxX = Math.max(0, winW - current.width);
+    const maxY = Math.max(0, winH - current.height);
 
     widgets[id] = {
       ...current,
       isOpen: true,
-      x: Math.max(10, Math.min(current.x, maxX)),
-      y: Math.max(50, Math.min(current.y, maxY)),
+      x: Math.max(0, Math.min(current.x, maxX)),
+      y: Math.max(0, Math.min(current.y, maxY)),
       zIndex: nextZ
     };
 
@@ -687,17 +687,17 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 900;
     const width = moving.isMiniPill ? 190 : moving.width;
     const height = moving.isMiniPill ? 52 : moving.isCollapsed ? 48 : moving.height;
-    const minX = 10;
-    const minY = 50;
-    const maxX = Math.max(minX, viewportWidth - width - 12);
-    const maxY = Math.max(minY, viewportHeight - height - 12);
+    const minX = 0;
+    const minY = 0;
+    const maxX = Math.max(minX, viewportWidth - width);
+    const maxY = Math.max(minY, viewportHeight - height);
 
     let nextX = Math.max(minX, Math.min(Math.round(x), maxX));
     let nextY = Math.max(minY, Math.min(Math.round(y), maxY));
 
     if (state.snapEnabled && !moving.isMiniPill) {
-      // 1. Edge Snapping (nếu gần mép màn hình <= 20px thì hút vào mép)
-      const EDGE_SNAP = 20;
+      // 1. Edge Snapping (nếu gần mép màn hình <= 16px thì hút vào mép)
+      const EDGE_SNAP = 16;
       if (nextX - minX < EDGE_SNAP) nextX = minX;
       else if (maxX - nextX < EDGE_SNAP) nextX = maxX;
 
@@ -1027,25 +1027,25 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       const activeWidth = w.isMiniPill ? 190 : w.width;
       const activeHeight = w.isMiniPill ? 52 : w.isCollapsed ? 48 : w.height;
 
-      // Giới hạn tọa độ X hợp lệ
-      const maxAllowedX = Math.max(10, viewportWidth - activeWidth - 12);
+      // Giới hạn tọa độ X hợp lệ: tự do sát mép 0
+      const maxAllowedX = Math.max(0, viewportWidth - activeWidth);
       if (w.x > maxAllowedX) {
         w.x = maxAllowedX;
         changed = true;
       }
-      if (w.x < 10) {
-        w.x = 10;
+      if (w.x < 0) {
+        w.x = 0;
         changed = true;
       }
 
-      // Giới hạn tọa độ Y hợp lệ
-      const maxAllowedY = Math.max(50, viewportHeight - activeHeight - 12);
+      // Giới hạn tọa độ Y hợp lệ: tự do sát mép trên 0
+      const maxAllowedY = Math.max(0, viewportHeight - activeHeight);
       if (w.y > maxAllowedY) {
         w.y = maxAllowedY;
         changed = true;
       }
-      if (w.y < 50) {
-        w.y = 50;
+      if (w.y < 0) {
+        w.y = 0;
         changed = true;
       }
 
