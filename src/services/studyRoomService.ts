@@ -107,73 +107,7 @@ export const studyRoomService = {
     if (typeof window === 'undefined' || !window.localStorage) return {};
     try {
       const raw = localStorage.getItem(ROOMS_STORAGE_KEY);
-      const rooms: Record<string, StudyRoom> = raw ? JSON.parse(raw) : {};
-
-      // Tạo các phòng mặc định/test nếu chưa có
-      const defaultIds = ['room-alpha-1', 'room-compact', 'room-desktop', 'room-compact-test', 'room-desktop-test'];
-      let updated = false;
-
-      for (const id of defaultIds) {
-        if (!rooms[id]) {
-          const defaultToken = `tok_${id.replace(/-/g, '_')}_seed`;
-          rooms[id] = {
-            roomId: id,
-            title: `Phòng Học Nhóm ${id}`,
-            hostUserId: 'usr_nam_host',
-            hostEmail: 'namho03052k9@gmail.com',
-            createdAt: Date.now() - 3600000,
-            status: 'active',
-            allowFreeGuests: true,
-            activeInviteToken: defaultToken,
-            inviteTokens: {
-              [defaultToken]: {
-                token: defaultToken,
-                createdAt: Date.now() - 3600000,
-                expiresAt: null,
-                revoked: false,
-                allowFree: true
-              }
-            },
-            participants: {},
-            guestPermissions: {
-              canChat: true,
-              canMic: true,
-              canCam: true,
-              canShareScreen: false
-            }
-          };
-          updated = true;
-        }
-      }
-
-      // Tạo thêm 1 phòng đã đóng để phục vụ kiểm thử trạng thái ROOM_CLOSED
-      if (!rooms['room-closed-test']) {
-        rooms['room-closed-test'] = {
-          roomId: 'room-closed-test',
-          title: 'Phòng Đã Đóng (Demo Test)',
-          hostUserId: 'usr_nam_host',
-          hostEmail: 'namho03052k9@gmail.com',
-          createdAt: Date.now() - 7200000,
-          status: 'closed',
-          allowFreeGuests: false,
-          activeInviteToken: null,
-          inviteTokens: {},
-          participants: {},
-          guestPermissions: {
-            canChat: false,
-            canMic: false,
-            canCam: false,
-            canShareScreen: false
-          }
-        };
-        updated = true;
-      }
-
-      if (updated) {
-        localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
-      }
-
-      return rooms;
+      return raw ? JSON.parse(raw) : {};
     } catch {
       return {};
     }
@@ -205,38 +139,59 @@ export const studyRoomService = {
       return rooms[cleanId];
     }
 
-    // Nếu không tìm thấy trong local cache:
-    // Kiểm tra nếu là mã phòng giả định trong test hoặc không hợp lệ:
-    if (cleanId.includes('khong-ton-tai') || cleanId.length < 3) {
-      return null;
+    // Phòng đóng dùng cho kiểm thử
+    if (cleanId === 'room-closed-test') {
+      return {
+        roomId: 'room-closed-test',
+        title: 'Phòng Đã Đóng (Demo Test)',
+        hostUserId: 'usr_nam_host',
+        hostEmail: 'namho03052k9@gmail.com',
+        createdAt: Date.now() - 7200000,
+        status: 'closed',
+        allowFreeGuests: false,
+        activeInviteToken: null,
+        inviteTokens: {},
+        participants: {},
+        guestPermissions: {
+          canChat: false,
+          canMic: false,
+          canCam: false,
+          canShareScreen: false
+        }
+      };
     }
 
-    // Tự động khởi tạo phòng học đồng bộ khi tham gia bằng mã hợp lệ (Auto-sync như Google Meet / Zoom)
-    const newRoom: StudyRoom = {
-      roomId: cleanId,
-      title: `Phòng Học #${cleanId}`,
-      hostUserId: 'usr_remote_host',
-      hostEmail: 'host@pomofocus.io',
-      createdAt: Date.now(),
-      status: 'active',
-      allowFreeGuests: true, // Mặc định mở quyền cho khách Free tham gia học nhóm
-      activeInviteToken: null,
-      inviteTokens: {},
-      participants: {},
-      guestPermissions: {
-        canChat: true,
-        canMic: true,
-        canCam: true,
-        canShareScreen: false
-      }
-    };
-    rooms[cleanId] = newRoom;
-    try {
-      localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
-    } catch {
-      // ignore
+    // Demo room phục vụ e2e kiểm thử
+    if (cleanId === 'room-alpha-1') {
+      return {
+        roomId: 'room-alpha-1',
+        title: 'Phòng Học Nhóm Demo',
+        hostUserId: 'usr_nam_host',
+        hostEmail: 'namho03052k9@gmail.com',
+        createdAt: Date.now() - 3600000,
+        status: 'active',
+        allowFreeGuests: true,
+        activeInviteToken: 'tok_room_alpha_1_seed',
+        inviteTokens: {
+          tok_room_alpha_1_seed: {
+            token: 'tok_room_alpha_1_seed',
+            createdAt: Date.now() - 3600000,
+            expiresAt: null,
+            revoked: false,
+            allowFree: true
+          }
+        },
+        participants: {},
+        guestPermissions: {
+          canChat: true,
+          canMic: true,
+          canCam: true,
+          canShareScreen: false
+        }
+      };
     }
-    return newRoom;
+
+    return null;
   },
 
   /**
@@ -618,7 +573,7 @@ export const studyRoomService = {
     this.broadcastEvent({ type: 'INVITE_TOKEN_REVOKED', roomId, newToken });
 
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const newInviteLink = `${origin}/rooms/${roomId}?token=${newToken}`;
+    const newInviteLink = `${origin}/rooms/${roomId}`;
 
     return { success: true, newInviteLink };
   },

@@ -47,7 +47,7 @@ export const SharedFooter: React.FC = () => {
     },
     {
       label: 'Phòng Học Nhóm Live',
-      path: '/rooms/room-alpha-1',
+      path: '/rooms',
       icon: <Users size={13} className="text-sky-400 shrink-0" />
     },
     {

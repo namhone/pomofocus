@@ -69,7 +69,7 @@ export const PlatformHeader: React.FC = () => {
   const navItems = [
     { path: '/app', label: 'Không Gian', icon: Layout, testId: 'header-nav-app' },
     { path: '/billing', label: 'Bảng Giá', icon: CreditCard, testId: 'header-nav-billing' },
-    { path: '/rooms/room-alpha-1', label: 'Phòng Học', icon: Users, testId: 'header-nav-rooms' },
+    { path: '/rooms', label: 'Phòng Học', icon: Users, testId: 'header-nav-rooms' },
     { path: '/calendar', label: 'Lịch Biểu', icon: Calendar, testId: 'header-nav-calendar' },
     { path: '/dashboard', label: 'Thống Kê', icon: BarChart3, testId: 'header-nav-dashboard' },
     { path: '/help', label: 'Trợ Giúp', icon: HelpCircle, testId: 'header-nav-help' },

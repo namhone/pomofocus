@@ -82,7 +82,7 @@ export const LandingPage: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => router.navigate('/rooms/room-alpha-1')}
+            onClick={() => router.navigate('/rooms')}
             className="w-full sm:w-auto px-5 py-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
           >
             <Users size={14} className="shrink-0" />

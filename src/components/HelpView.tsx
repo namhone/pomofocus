@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: 'Làm sao để học nhóm cùng bạn bè?',
-    a: 'Bạn nhấn vào mục "Phòng Học Nhóm" trên thanh tiêu đề, sau đó sao chép đường link phòng (ví dụ: /rooms/room-alpha-1) gửi cho bạn bè để cùng vào phòng và đồng bộ nhịp tập trung.'
+    a: 'Bạn nhấn vào mục "Phòng Học" trên thanh tiêu đề, sau đó sao chép đường link phòng (ví dụ: /rooms/a1b2-c3d4-e5f6) gửi cho bạn bè để cùng vào phòng và đồng bộ nhịp tập trung.'
   },
   {
     q: 'Làm thế nào để xuất dữ liệu sao lưu?',

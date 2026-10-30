@@ -52,13 +52,20 @@ interface FloatingReaction {
 
 export const StudyRoomView: React.FC = () => {
   const router = useRouter();
-  const rawRoomId = router.currentRoute.params?.roomId || 'room-alpha-1';
+  const rawRoomId = router.currentRoute.params?.roomId;
+
+  useEffect(() => {
+    if (!rawRoomId || rawRoomId === 'rooms' || rawRoomId === 'room') {
+      router.navigate('/rooms', { replace: true });
+    }
+  }, [rawRoomId, router]);
+
   const { user: storeUser } = useAuthStore();
   const user = storeUser || (typeof window !== 'undefined' && window.localStorage
     ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
     : null);
 
-  const roomId = rawRoomId.trim().toLowerCase();
+  const roomId = (rawRoomId || '').trim().toLowerCase();
   const tokenFromUrl = router.currentRoute.searchParams.get('token');
 
   // 2. Xác minh quyền truy cập phòng (Backend Access Verification)
@@ -432,13 +439,10 @@ export const StudyRoomView: React.FC = () => {
     setTimeout(() => setCopiedCode(false), 2500);
   };
 
-  // Sao chép Link mời tham gia
+  // Sao chép Link mời tham gia (Chuẩn Google Meet: /rooms/xxxx-xxxx-xxxx)
   const handleCopyInviteLink = () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const activeToken = room?.activeInviteToken;
-    const url = activeToken
-      ? `${origin}/rooms/${roomId}?token=${activeToken}`
-      : `${origin}/rooms/${roomId}`;
+    const url = `${origin}/rooms/${roomId}`;
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
