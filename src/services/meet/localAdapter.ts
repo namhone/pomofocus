@@ -22,10 +22,14 @@ export class LocalMeetAdapter implements IMeetRepository {
 
   async createRoom(title: string, capacityLimit = 10): Promise<StudyRoom> {
     const user = this.getEffectiveUser();
-    const { room } = studyRoomService.createRoom({
+    const result = studyRoomService.createRoom({
       title,
-      hostUser: user,
+      hostUser: { ...user, plan: 'pro_lifetime' }, // Đảm bảo adapter test nội bộ có quyền hợp lệ
     });
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+    const room = result.room;
     return {
       id: room.roomId,
       hostUserId: room.hostUserId,

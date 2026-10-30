@@ -33,19 +33,40 @@ export const StudyRoomLobby: React.FC = () => {
   const allRooms = studyRoomService.getAllRooms();
   const activeRooms = Object.values(allRooms).filter((r) => r.status === 'active');
 
+  const isProUser = Boolean(
+    user && (
+      user.plan === 'pro' ||
+      user.plan === 'pro_beta' ||
+      user.plan === 'pro_lifetime' ||
+      (user as { isPro?: boolean }).isPro ||
+      (user as { isLifetime?: boolean }).isLifetime ||
+      (user.email && user.email.toLowerCase() === 'namho03052k9@gmail.com')
+    )
+  );
+
   const handleCreateRoom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      router.navigate('/auth');
+      router.navigate('/login');
       return;
     }
 
-    const { room } = studyRoomService.createRoom({
+    if (!isProUser) {
+      setErrorMsg('Tạo phòng học là tính năng cao cấp (PRO). Vui lòng nâng cấp tài khoản để tạo và chủ trì phòng học.');
+      return;
+    }
+
+    const result = studyRoomService.createRoom({
       title: roomTitle.trim() || undefined,
       hostUser: user
     });
 
-    router.navigate(`/rooms/${room.roomId}`);
+    if (!result.success) {
+      setErrorMsg(result.error);
+      return;
+    }
+
+    router.navigate(`/rooms/${result.room.roomId}`);
   };
 
   const handleJoinByCode = (e: React.FormEvent) => {
@@ -126,6 +147,21 @@ export const StudyRoomLobby: React.FC = () => {
                 Tự động tạo mã phòng ngẫu nhiên và cấp quyền Chủ phòng (Host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.
               </p>
 
+              {errorMsg && (
+                <div className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex flex-col gap-2">
+                  <span>{errorMsg}</span>
+                  {!isProUser && user && (
+                    <button
+                      type="button"
+                      onClick={() => router.navigate('/billing')}
+                      className="self-start px-3 py-1 rounded-lg bg-rose-500 text-white font-bold text-[11px] hover:bg-rose-400 transition cursor-pointer"
+                    >
+                      Nâng Cấp Gói PRO Ngay
+                    </button>
+                  )}
+                </div>
+              )}
+
               <form onSubmit={handleCreateRoom} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-medium text-neutral-300 mb-1">
@@ -139,14 +175,36 @@ export const StudyRoomLobby: React.FC = () => {
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400"
                   />
                 </div>
-                <button
-                  type="submit"
-                  data-testid="btn-create-room"
-                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-98"
-                >
-                  <Video size={16} />
-                  <span>Tạo Phòng & Lấy Mã Ngay</span>
-                </button>
+
+                {!user ? (
+                  <button
+                    type="button"
+                    onClick={() => router.navigate('/login')}
+                    className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <LogIn size={15} />
+                    <span>Đăng Nhập Để Tạo Phòng</span>
+                  </button>
+                ) : !isProUser ? (
+                  <button
+                    type="button"
+                    data-testid="btn-upgrade-to-create-room"
+                    onClick={() => router.navigate('/billing')}
+                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-amber-500/20 active:scale-98"
+                  >
+                    <Lock size={15} />
+                    <span>Nâng Cấp PRO Để Tạo Phòng</span>
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    data-testid="btn-create-room"
+                    className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-98"
+                  >
+                    <Video size={16} />
+                    <span>Tạo Phòng &amp; Lấy Mã Ngay</span>
+                  </button>
+                )}
               </form>
             </div>
             <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 text-[11px] text-neutral-400">

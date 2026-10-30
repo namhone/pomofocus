@@ -175,10 +175,14 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      const { room, inviteLink } = studyRoomService.createRoom({
+      const result = studyRoomService.createRoom({
         title: 'Phòng Luyện Thi IELTS',
         hostUser: host
       });
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      const { room, inviteLink } = result;
 
       expect(room.roomId).toMatch(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
       expect(room.status).toBe('active');
@@ -219,8 +223,10 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         plan: 'pro_lifetime',
         createdAt: Date.now()
       };
-      const { room } = studyRoomService.createRoom({ hostUser: host });
-      const res = studyRoomService.verifyRoomAccess(room.roomId, host);
+      const result = studyRoomService.createRoom({ hostUser: host });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      const res = studyRoomService.verifyRoomAccess(result.room.roomId, host);
       expect(res.allowed).toBe(true);
       if (res.allowed) {
         expect(res.role).toBe('host');
@@ -235,7 +241,9 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         plan: 'pro_lifetime',
         createdAt: Date.now()
       };
-      const { room } = studyRoomService.createRoom({ hostUser: host });
+      const result = studyRoomService.createRoom({ hostUser: host });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
 
       const memberPro: UserProfile = {
         id: 'usr_member_pro',
@@ -245,7 +253,7 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      const res = studyRoomService.verifyRoomAccess(room.roomId, memberPro);
+      const res = studyRoomService.verifyRoomAccess(result.room.roomId, memberPro);
       expect(res.allowed).toBe(true);
       if (res.allowed) {
         expect(res.role).toBe('member');
@@ -260,7 +268,9 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         plan: 'pro_lifetime',
         createdAt: Date.now()
       };
-      const { room } = studyRoomService.createRoom({ hostUser: host }); // allowFreeGuests = false
+      const result = studyRoomService.createRoom({ hostUser: host }); // allowFreeGuests = false
+      expect(result.success).toBe(true);
+      if (!result.success) return;
 
       const freeUser: UserProfile = {
         id: 'usr_free_guest',
@@ -270,7 +280,7 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      const res = studyRoomService.verifyRoomAccess(room.roomId, freeUser);
+      const res = studyRoomService.verifyRoomAccess(result.room.roomId, freeUser);
       expect(res.allowed).toBe(false);
       if (!res.allowed) {
         expect(res.code).toBe('INSUFFICIENT_PERMISSIONS');
@@ -285,7 +295,10 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         plan: 'pro_lifetime',
         createdAt: Date.now()
       };
-      const { room } = studyRoomService.createRoom({ hostUser: host });
+      const createRes = studyRoomService.createRoom({ hostUser: host });
+      expect(createRes.success).toBe(true);
+      if (!createRes.success) return;
+      const room = createRes.room;
 
       // Host bật allowFreeGuests
       studyRoomService.setAllowFreeGuests(room.roomId, host, true);
@@ -309,7 +322,7 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
   });
 
   describe('4. Bật/Tắt Quyền Mời Free & Thu Hồi Token (Revocation Security)', () => {
-    it('ngăn chặn tài khoản Free tự bật quyền mời Free (chặn ở backend)', () => {
+    it('ngăn chặn tài khoản Free tự tạo phòng và bật quyền mời Free (chặn ở backend)', () => {
       const freeUser: UserProfile = {
         id: 'usr_fake_host',
         email: 'fake_host@example.com',
@@ -318,11 +331,12 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      // Giả sử có phòng
-      const { room } = studyRoomService.createRoom({ hostUser: freeUser });
-      const res = studyRoomService.setAllowFreeGuests(room.roomId, freeUser, true);
-      expect(res.success).toBe(false);
-      expect(res.error).toContain('Tài khoản Free không thể bật');
+      // Tài khoản Free cố tình gọi API tạo phòng
+      const createRes = studyRoomService.createRoom({ hostUser: freeUser });
+      expect(createRes.success).toBe(false);
+      if (!createRes.success) {
+        expect(createRes.error).toContain('đặc quyền dành riêng cho gói PRO');
+      }
     });
 
     it('thu hồi token cũ khiến link cũ bị vô hiệu hóa ngay lập tức (TOKEN_EXPIRED_OR_REVOKED)', () => {
@@ -334,7 +348,11 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      const { room } = studyRoomService.createRoom({ hostUser: host });
+      const createRes = studyRoomService.createRoom({ hostUser: host });
+      expect(createRes.success).toBe(true);
+      if (!createRes.success) return;
+      const room = createRes.room;
+
       studyRoomService.setAllowFreeGuests(room.roomId, host, true);
 
       const oldToken = studyRoomService.getRoom(room.roomId)!.activeInviteToken;
@@ -378,7 +396,11 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
         createdAt: Date.now()
       };
 
-      const { room } = studyRoomService.createRoom({ hostUser: host });
+      const createRes = studyRoomService.createRoom({ hostUser: host });
+      expect(createRes.success).toBe(true);
+      if (!createRes.success) return;
+      const room = createRes.room;
+
       const closeRes = studyRoomService.closeRoom(room.roomId, host);
       expect(closeRes.success).toBe(true);
 

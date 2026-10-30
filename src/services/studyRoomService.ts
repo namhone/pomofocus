@@ -374,11 +374,26 @@ export const studyRoomService = {
 
   /**
    * Tạo phòng học mới
+   * QUY TẮC BẢO MẬT: Chỉ người dùng PRO mới được phép khởi tạo và chủ trì phòng học nhóm!
    */
   createRoom(params: {
     title?: string;
     hostUser: UserProfile;
-  }): { room: StudyRoom; inviteLink: string } {
+  }): { success: true; room: StudyRoom; inviteLink: string } | { success: false; error: string } {
+    const isProUser = params.hostUser && (
+      params.hostUser.plan === 'pro' ||
+      params.hostUser.plan === 'pro_beta' ||
+      params.hostUser.plan === 'pro_lifetime' ||
+      isOwnerEmail(params.hostUser.email)
+    );
+
+    if (!isProUser) {
+      return {
+        success: false,
+        error: 'Khởi tạo phòng học nhóm là đặc quyền dành riêng cho gói PRO. Vui lòng nâng cấp tài khoản để tạo phòng.'
+      };
+    }
+
     const roomId = generateUniqueRoomId();
     const token = generateSecureToken();
     const now = Date.now();
@@ -426,7 +441,7 @@ export const studyRoomService = {
     // Đường dẫn mời phòng chuẩn Google Meet: /rooms/xxxx-xxxx-xxxx
     const inviteLink = `${origin}/rooms/${roomId}`;
 
-    return { room, inviteLink };
+    return { success: true, room, inviteLink };
   },
 
   /**
