@@ -36,6 +36,7 @@ export interface StudyRoom {
   createdAt: number;
   status: 'active' | 'closed';
   allowFreeGuests: boolean;
+  maxParticipants?: number;
   activeInviteToken: string | null;
   inviteTokens: Record<string, RoomInviteToken>;
   participants: Record<string, RoomParticipant>;
@@ -46,6 +47,15 @@ export interface StudyRoom {
     canShareScreen: boolean;
   };
 }
+
+export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
+  const num = (i + 1).toString().padStart(2, '0');
+  return {
+    roomId: `pod-free-${num}`,
+    title: `Phòng Tập Trung ${num}`,
+    maxParticipants: 5
+  };
+});
 
 export interface SubscriptionEligibilityResult {
   eligible: boolean;
@@ -59,7 +69,7 @@ export type AccessCheckResult =
   | { allowed: true; role: 'host' | 'member' | 'guest'; room: StudyRoom }
   | {
       allowed: false;
-      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED';
+      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED' | 'ROOM_FULL';
       message: string;
     };
 
@@ -172,6 +182,32 @@ export const studyRoomService = {
     // Từ chối các mã phòng không tồn tại hoặc lỗi cú pháp
     if (cleanId.includes('khong-ton-tai') || cleanId.length < 4) {
       return null;
+    }
+
+    // Khởi tạo phòng học Free công khai (Public Study Pods)
+    const freePod = PUBLIC_FREE_PODS.find((p) => p.roomId === cleanId);
+    if (freePod) {
+      const podRoom: StudyRoom = {
+        roomId: cleanId,
+        title: freePod.title,
+        hostUserId: 'system_study_pod',
+        hostEmail: 'study-pod@pomodoro.app',
+        createdAt: Date.now(),
+        status: 'active',
+        allowFreeGuests: true,
+        maxParticipants: 5,
+        activeInviteToken: null,
+        inviteTokens: {},
+        participants: {},
+        guestPermissions: {
+          canChat: true,
+          canMic: true,
+          canCam: true,
+          canShareScreen: false
+        }
+      };
+      this.saveRoom(podRoom);
+      return podRoom;
     }
 
     // Khởi tạo và lưu phiên phòng học chuẩn Google Meet/Zoom khi người dùng truy cập qua liên kết phòng hợp lệ
@@ -425,6 +461,24 @@ export const studyRoomService = {
         code: 'ROOM_CLOSED',
         message: 'Phòng học này đã được đóng bởi chủ phòng. Không thể tham gia tiếp.'
       };
+    }
+
+    // 3.5. Kiểm tra sức chứa tối đa của phòng (giới hạn cứng tối đa 5 người/phòng Free công khai)
+    const maxCapacity = room.maxParticipants || (room.roomId.startsWith('pod-free-') ? 5 : undefined);
+    if (maxCapacity) {
+      const activeCount = Object.keys(room.participants || {}).length;
+      const isAlreadyIn = Boolean(
+        currentUser && Object.values(room.participants || {}).some(
+          (p) => p.userId === currentUser.id || p.id === currentUser.id || p.id.startsWith(`${currentUser.id}_`)
+        )
+      );
+      if (activeCount >= maxCapacity && !isAlreadyIn) {
+        return {
+          allowed: false,
+          code: 'ROOM_FULL',
+          message: `Phòng học này đã đạt giới hạn tối đa ${maxCapacity} người (${activeCount}/${maxCapacity}). Vui lòng chọn một phòng khác còn chỗ!`
+        };
+      }
     }
 
     // 4. Nếu người dùng là Chủ phòng: Luôn được phép truy cập

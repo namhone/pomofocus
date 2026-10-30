@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
-import { studyRoomService } from '../services/studyRoomService';
+import { studyRoomService, PUBLIC_FREE_PODS } from '../services/studyRoomService';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
@@ -28,10 +28,39 @@ export const StudyRoomLobby: React.FC = () => {
   const [inputCode, setInputCode] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [, setRefreshTick] = useState(0);
+
+  // Lắng nghe cập nhật sĩ số phòng từ BroadcastChannel và storage
+  useEffect(() => {
+    const handleStorage = () => setRefreshTick((t) => t + 1);
+    window.addEventListener('storage', handleStorage);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('pomofocus_study_room_channel');
+        bc.onmessage = () => setRefreshTick((t) => t + 1);
+      }
+    } catch {
+      // Bỏ qua lỗi khởi tạo BroadcastChannel
+    }
+
+    const interval = setInterval(() => {
+      setRefreshTick((t) => t + 1);
+    }, 3000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      clearInterval(interval);
+      bc?.close();
+    };
+  }, []);
 
   // Lấy danh sách các phòng đang hoạt động
   const allRooms = studyRoomService.getAllRooms();
-  const activeRooms = Object.values(allRooms).filter((r) => r.status === 'active');
+  const activeRooms = Object.values(allRooms).filter(
+    (r) => r.status === 'active' && !r.roomId.startsWith('pod-free-')
+  );
 
   const isProUser = Boolean(
     user && (
@@ -263,6 +292,113 @@ export const StudyRoomLobby: React.FC = () => {
               <Sparkles size={14} className="text-cyan-400 shrink-0" />
               <span>Hỗ trợ cả liên kết mời chứa mã token bảo mật dành cho khách Free.</span>
             </div>
+          </div>
+        </div>
+
+        {/* Section: 10 Phòng Học Tập Trung Công Khai (Public Study Pods) */}
+        <div className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Sparkles size={18} className="text-emerald-400" />
+                <h3 className="font-bold text-base text-white">10 Phòng Học Tập Trung Công Khai (Public Study Pods)</h3>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold uppercase tracking-wider">
+                  MIỄN PHÍ • 1 CHẠM
+                </span>
+              </div>
+              <p className="text-xs text-neutral-400 mt-1">
+                Không cần tạo phòng, không cần gói PRO. Sức chứa tối đa 5 người/phòng. Bấm vào học ngay!
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-400">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Đồng bộ sĩ số trực tiếp</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            {PUBLIC_FREE_PODS.map((pod) => {
+              const room = allRooms[pod.roomId];
+              const participantCount = room ? Object.keys(room.participants || {}).length : 0;
+              const isFull = participantCount >= pod.maxParticipants;
+              const percent = Math.min(100, Math.round((participantCount / pod.maxParticipants) * 100));
+
+              return (
+                <div
+                  key={pod.roomId}
+                  data-testid={`pod-card-${pod.roomId}`}
+                  className={`p-4 rounded-xl border transition flex flex-col justify-between ${
+                    isFull
+                      ? 'bg-neutral-900/40 border-rose-500/30 opacity-80'
+                      : 'bg-neutral-900/80 border-white/10 hover:border-emerald-500/50 hover:bg-neutral-900 shadow-lg'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-white truncate">
+                        {pod.title}
+                      </span>
+                      {isFull ? (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold tracking-tight">
+                          ĐẦY
+                        </span>
+                      ) : (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold tracking-tight flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          SẴN SÀNG
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="text-neutral-400">Sĩ số:</span>
+                        <span className={`font-mono font-bold ${isFull ? 'text-rose-400' : 'text-emerald-400'}`}>
+                          {participantCount}/{pod.maxParticipants} đang học
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            isFull ? 'bg-rose-500' : percent > 60 ? 'bg-amber-400' : 'bg-emerald-400'
+                          }`}
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-2">
+                    {isFull ? (
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] text-center font-bold text-rose-400 py-1 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                          PHÒNG ĐÃ ĐẦY (5/5)
+                        </div>
+                        <button
+                          type="button"
+                          disabled
+                          data-testid={`btn-join-${pod.roomId}`}
+                          className="w-full py-2 px-3 rounded-lg bg-white/5 text-neutral-500 font-bold text-xs cursor-not-allowed text-center"
+                          title="Phòng đã đạt giới hạn 5 người. Vui lòng chọn Pod khác còn chỗ."
+                        >
+                          Đã Đầy (Chọn Pod Khác)
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        data-testid={`btn-join-${pod.roomId}`}
+                        onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
+                        className="w-full py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-neutral-950 text-emerald-300 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-emerald-500/30 group-hover:bg-emerald-500 active:scale-95"
+                      >
+                        <LogIn size={13} />
+                        <span>Vào Học (1 Chạm)</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

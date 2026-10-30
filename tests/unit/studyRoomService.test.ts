@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   studyRoomService,
-  generateUniqueRoomId
+  generateUniqueRoomId,
+  PUBLIC_FREE_PODS
 } from '../../src/services/studyRoomService';
 import { UserProfile, OWNER_EMAIL } from '../../src/services/authService';
 import { momoService } from '../../src/services/momoService';
@@ -409,6 +410,94 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
       if (!res.allowed) {
         expect(res.code).toBe('ROOM_CLOSED');
       }
+    });
+  });
+
+  describe('5. 10 Public Free Study Pods (Sức chứa tối đa 5 người, Free 100%)', () => {
+    it('cung cấp danh sách đúng 10 phòng Public Free Pods cố định (pod-free-01 đến pod-free-10)', () => {
+      expect(PUBLIC_FREE_PODS).toHaveLength(10);
+      expect(PUBLIC_FREE_PODS[0]).toEqual({
+        roomId: 'pod-free-01',
+        title: 'Phòng Tập Trung 01',
+        maxParticipants: 5
+      });
+      expect(PUBLIC_FREE_PODS[9]).toEqual({
+        roomId: 'pod-free-10',
+        title: 'Phòng Tập Trung 10',
+        maxParticipants: 5
+      });
+    });
+
+    it('cho phép người dùng chưa đăng nhập (Guest) hoặc tài khoản Free vào phòng công khai mà không đòi hỏi PRO hay token', () => {
+      const guestAccess = studyRoomService.verifyRoomAccess('pod-free-01', null);
+      expect(guestAccess.allowed).toBe(true);
+      if (guestAccess.allowed) {
+        expect(guestAccess.role).toBe('guest');
+        expect(guestAccess.room.allowFreeGuests).toBe(true);
+        expect(guestAccess.room.maxParticipants).toBe(5);
+      }
+    });
+
+    it('từ chối khi phòng đã đạt đủ 5 người (ROOM_FULL) và bảo vệ sức chứa', () => {
+      const room = studyRoomService.getRoom('pod-free-03')!;
+      expect(room).toBeDefined();
+
+      // Giả lập phòng đã có đủ 5 người đang học
+      for (let i = 1; i <= 5; i++) {
+        room.participants[`p_${i}`] = {
+          id: `p_${i}`,
+          userId: `usr_member_${i}`,
+          name: `Học viên ${i}`,
+          role: 'member',
+          isMicOn: false,
+          isVideoOn: false,
+          joinedAt: Date.now()
+        };
+      }
+      studyRoomService.saveRoom(room);
+
+      const newUser: UserProfile = {
+        id: 'usr_new_person',
+        email: 'person6@example.com',
+        displayName: 'Người thứ 6',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+
+      const checkAccess = studyRoomService.verifyRoomAccess('pod-free-03', newUser);
+      expect(checkAccess.allowed).toBe(false);
+      if (!checkAccess.allowed) {
+        expect(checkAccess.code).toBe('ROOM_FULL');
+        expect(checkAccess.message).toContain('giới hạn tối đa');
+      }
+    });
+
+    it('cho phép thành viên đã ở trong phòng tiếp tục truy cập lại (reconnect) ngay cả khi phòng đang chạm mốc 5 người', () => {
+      const room = studyRoomService.getRoom('pod-free-05')!;
+      for (let i = 1; i <= 5; i++) {
+        room.participants[`p_${i}`] = {
+          id: `p_${i}`,
+          userId: `usr_member_${i}`,
+          name: `Học viên ${i}`,
+          role: 'member',
+          isMicOn: false,
+          isVideoOn: false,
+          joinedAt: Date.now()
+        };
+      }
+      studyRoomService.saveRoom(room);
+
+      // Học viên 2 tải lại trang hoặc reconnect
+      const existingUser: UserProfile = {
+        id: 'usr_member_2',
+        email: 'member2@example.com',
+        displayName: 'Học viên 2',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+
+      const checkAccess = studyRoomService.verifyRoomAccess('pod-free-05', existingUser);
+      expect(checkAccess.allowed).toBe(true);
     });
   });
 });
