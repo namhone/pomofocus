@@ -54,6 +54,8 @@ export class RealtimeChannel {
   private isJoined: boolean = false;
   private pendingTrackState: any = null;
   private outboundQueue: Array<{ event: string; payload: any }> = [];
+  private lastTrackedJson: string | null = null;
+  private trackDebounceTimer: any = null;
   public isSubscribed: boolean = false;
 
   constructor(topic: string, opts?: ChannelConfig) {
@@ -124,18 +126,22 @@ export class RealtimeChannel {
               }
               // Gửi presence state đang chờ nếu có
               if (this.pendingTrackState && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                this.socket.send(
-                  JSON.stringify({
-                    topic: `realtime:${this.topic}`,
-                    event: 'presence',
-                    payload: {
-                      type: 'presence',
-                      event: 'track',
-                      payload: this.pendingTrackState
-                    },
-                    ref: String(++this.refCounter)
-                  })
-                );
+                const pendingJson = JSON.stringify(this.pendingTrackState);
+                if (this.lastTrackedJson !== pendingJson) {
+                  this.lastTrackedJson = pendingJson;
+                  this.socket.send(
+                    JSON.stringify({
+                      topic: `realtime:${this.topic}`,
+                      event: 'presence',
+                      payload: {
+                        type: 'presence',
+                        event: 'track',
+                        payload: this.pendingTrackState
+                      },
+                      ref: String(++this.refCounter)
+                    })
+                  );
+                }
               }
               // Xả hàng đợi broadcast
               while (this.outboundQueue.length > 0) {
@@ -326,23 +332,7 @@ export class RealtimeChannel {
     this.presences[this.presenceKey] = [state];
     this.pendingTrackState = state;
 
-    // Gửi qua Supabase WebSocket Cloud để toàn bộ mạng thấy
-    if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(
-        JSON.stringify({
-          topic: `realtime:${this.topic}`,
-          event: 'presence',
-          payload: {
-            type: 'presence',
-            event: 'track',
-            payload: state
-          },
-          ref: String(++this.refCounter)
-        })
-      );
-    }
-
-    // Gửi qua BroadcastChannel nội bộ cùng máy
+    // Gửi qua BroadcastChannel nội bộ cùng máy ngay lập tức để đồng bộ tab nội bộ
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage({
         type: 'presence_sync',
@@ -355,6 +345,36 @@ export class RealtimeChannel {
     this.presenceListeners
       .filter((l) => l.event === 'sync')
       .forEach((l) => l.callback());
+
+    // Tránh gửi liên tục các bản tin track trùng lặp làm Supabase ngắt kết nối do rate limit
+    const currentJson = JSON.stringify(state);
+    if (this.lastTrackedJson === currentJson) {
+      return 'ok';
+    }
+
+    if (this.trackDebounceTimer) {
+      clearTimeout(this.trackDebounceTimer);
+      this.trackDebounceTimer = null;
+    }
+
+    this.trackDebounceTimer = setTimeout(() => {
+      this.lastTrackedJson = currentJson;
+      // Gửi qua Supabase WebSocket Cloud để toàn bộ mạng thấy
+      if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(
+          JSON.stringify({
+            topic: `realtime:${this.topic}`,
+            event: 'presence',
+            payload: {
+              type: 'presence',
+              event: 'track',
+              payload: state
+            },
+            ref: String(++this.refCounter)
+          })
+        );
+      }
+    }, 200);
 
     return 'ok';
   }
@@ -419,6 +439,11 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+
+    if (this.trackDebounceTimer) {
+      clearTimeout(this.trackDebounceTimer);
+      this.trackDebounceTimer = null;
+    }
 
     if (this.socket) {
       if (this.heartbeatTimer) {

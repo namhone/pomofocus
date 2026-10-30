@@ -159,6 +159,7 @@ export const StudyRoomView: React.FC = () => {
     Record<string, { id: string; name: string; role: string; isMicOn?: boolean; isVideoOn?: boolean }>
   >({});
   const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
+  const channelRef = useRef<any>(null);
 
   // Vai trò của người dùng trong phòng
   const userRole = useMemo<'host' | 'member' | 'guest'>(() => {
@@ -233,13 +234,10 @@ export const StudyRoomView: React.FC = () => {
         if (p.id?.startsWith(`${user.id}_`)) return true;
       }
 
-      // 3. Trùng tên hiển thị của bản thân khi là Host
+      // 3. Trùng vai trò Host của chính bản thân khi là Host
       if (userRole === 'host') {
         if (p.role === 'host') return true;
         if (room?.hostUserId && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
-          return true;
-        }
-        if (p.name && participantName && p.name.trim().toLowerCase() === participantName.trim().toLowerCase()) {
           return true;
         }
       }
@@ -247,14 +245,13 @@ export const StudyRoomView: React.FC = () => {
       return false;
     };
 
-    // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId, session prefix hoặc tên)
+    // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId hoặc session prefix)
     const findExistingKey = (candidate: { id: string; userId?: string; name?: string }) => {
       for (const [k, v] of map.entries()) {
         if (candidate.userId && v.userId && candidate.userId === v.userId) return k;
         if (candidate.id === v.id) return k;
         if (candidate.userId && (v.id === candidate.userId || v.id.startsWith(`${candidate.userId}_`))) return k;
         if (v.userId && (candidate.id === v.userId || candidate.id.startsWith(`${v.userId}_`))) return k;
-        if (candidate.name && v.name && candidate.name.trim().toLowerCase() === v.name.trim().toLowerCase()) return k;
       }
       return null;
     };
@@ -408,7 +405,7 @@ export const StudyRoomView: React.FC = () => {
     };
   }, [roomId, router]);
 
-  // Khởi tạo WebRTC Connection Manager sau khi đã tham gia phòng
+  // Khởi tạo WebRTC Connection Manager & Supabase Realtime Channel sau khi đã tham gia phòng
   useEffect(() => {
     if (!hasJoined || !roomId || !participantId) return;
 
@@ -417,6 +414,7 @@ export const StudyRoomView: React.FC = () => {
         presence: { key: participantId }
       }
     });
+    channelRef.current = channel;
 
     const manager = new WebRTCConnectionManager(channel, participantId, {
       onRemoteStream: (peerId, stream) => {
@@ -496,13 +494,6 @@ export const StudyRoomView: React.FC = () => {
     });
 
     channel.subscribe();
-    channel.track({
-      userId: user?.id || participantId,
-      displayName: participantName,
-      role: userRole,
-      isMicOn: micEnabled,
-      isVideoOn: cameraEnabled
-    });
 
     // Dự phòng bắt tay WebRTC với các thành viên trong room.participants
     if (room?.participants) {
@@ -516,9 +507,23 @@ export const StudyRoomView: React.FC = () => {
     return () => {
       manager.destroy();
       rtcManagerRef.current = null;
+      channelRef.current = null;
       supabase.removeChannel(`room:${roomId}`);
     };
-  }, [hasJoined, roomId, participantId, participantName, userRole, micEnabled, cameraEnabled]);
+  }, [hasJoined, roomId, participantId]);
+
+  // Đồng bộ trạng thái Media / Danh tính lên Supabase Presence (tách riêng để tránh hủy socket channel khi đổi mic/cam)
+  useEffect(() => {
+    if (!hasJoined || !channelRef.current) return;
+
+    channelRef.current.track({
+      userId: user?.id || participantId,
+      displayName: participantName,
+      role: userRole,
+      isMicOn: micEnabled,
+      isVideoOn: cameraEnabled
+    });
+  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled]);
 
   // Request & manage local media stream (camera + mic)
   const initLocalStream = useCallback(async () => {
