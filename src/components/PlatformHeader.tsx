@@ -6,7 +6,6 @@ import {
   Users,
   Calendar,
   CreditCard,
-  LogIn,
   LogOut,
   User,
   Layout,
@@ -53,9 +52,9 @@ export const PlatformHeader: React.FC = () => {
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <button
             type="button"
-            onClick={() => handleNavigate(isWorkspace ? '/' : '/app')}
+            onClick={() => handleNavigate('/')}
             className="flex items-center gap-1.5 sm:gap-2 text-white hover:opacity-90 transition cursor-pointer"
-            title="PomoFocus Home"
+            title="Về Trang Chủ PomoFocus"
           >
             <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="inline-block text-xs sm:text-sm font-bold text-white tracking-tight" />
           </button>
@@ -168,10 +167,11 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-login-btn"
               onClick={() => handleNavigate('/login')}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-neutral-200 text-xs transition cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-neutral-200 text-[11px] sm:text-xs transition cursor-pointer whitespace-nowrap"
+              title="Đăng nhập tài khoản"
             >
-              <LogIn size={13} />
-              <span className="hidden sm:inline">Đăng Nhập</span>
+              <User size={13} className="text-emerald-400 shrink-0" />
+              <span>Đăng Nhập</span>
             </button>
           )}
 
@@ -281,7 +281,7 @@ export const PlatformHeader: React.FC = () => {
           </div>
 
           {/* Logout in mobile menu */}
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <button
               type="button"
               onClick={() => {
@@ -292,6 +292,15 @@ export const PlatformHeader: React.FC = () => {
             >
               <LogOut size={14} />
               <span>Đăng Xuất Khỏi Tài Khoản</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleNavigate('/login')}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-black text-xs font-bold transition cursor-pointer active:scale-98"
+            >
+              <User size={14} className="shrink-0" />
+              <span>Đăng Nhập / Đăng Ký Tài Khoản</span>
             </button>
           )}
         </div>
