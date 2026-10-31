@@ -22,6 +22,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Minimize2,
   Hand,
   BookOpen,
   MousePointer
@@ -70,6 +71,8 @@ interface WhiteboardViewProps {
   channel: RealtimeChannel | null;
   isHost: boolean;
   onDrawerActivity?: (isDrawing: boolean, drawerName?: string) => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
@@ -78,11 +81,39 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
   currentUserName,
   channel,
   isHost,
-  onDrawerActivity
+  onDrawerActivity,
+  isFullscreen,
+  onToggleFullscreen
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Local fallback if fullscreen state not passed from parent
+  const [localIsFullscreen, setLocalIsFullscreen] = useState(false);
+  const isActualFullscreen = isFullscreen !== undefined ? isFullscreen : localIsFullscreen;
+
+  const handleToggleFullscreen = async () => {
+    if (onToggleFullscreen) {
+      onToggleFullscreen();
+      return;
+    }
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setLocalIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setLocalIsFullscreen(false);
+      }
+    } catch {
+      setLocalIsFullscreen((prev) => !prev);
+    }
+  };
 
   // Tools & Appearance State
   const [activeTool, setActiveTool] = useState<ToolType>('pen');
@@ -184,7 +215,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
 
     // Reset transform và xóa sạch nền màn hình
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#121214';
+    ctx.fillStyle = '#09090b';
     ctx.fillRect(0, 0, width, height);
 
     // Áp dụng Camera Viewport (Pan & Zoom)
@@ -1200,7 +1231,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
       data-testid="whiteboard-container"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
-      className="relative w-full h-full flex flex-col overflow-hidden bg-[#121214] select-none"
+      className="relative w-full h-full flex flex-col overflow-hidden bg-zinc-950 select-none"
     >
       {/* Hidden File Picker */}
       <input
@@ -1704,12 +1735,13 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
 
         <button
           type="button"
-          data-testid="btn-fit-reset"
-          onClick={resetView}
-          className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-          title="Căn giữa toàn bộ bảng vẽ"
+          data-testid="btn-toggle-fullscreen"
+          onClick={handleToggleFullscreen}
+          className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
+          title={isActualFullscreen ? 'Thoát toàn màn hình (Esc)' : 'Toàn màn hình (Fullscreen)'}
+          aria-label={isActualFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
         >
-          <Maximize2 size={14} />
+          {isActualFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </button>
       </div>
 

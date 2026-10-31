@@ -137,13 +137,58 @@ export const StudyRoomView: React.FC = () => {
   const [roomRemainingSeconds, setRoomRemainingSeconds] = useState(25 * 60);
   const [isRoomRunning, setIsRoomRunning] = useState(false);
 
-  // Whiteboard View Switcher
+  // Whiteboard View Switcher & Fullscreen Mode
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
   const [isWhiteboardVideoExpanded, setIsWhiteboardVideoExpanded] = useState(true);
+  const [isWhiteboardFullscreen, setIsWhiteboardFullscreen] = useState(false);
   const [whiteboardDrawerInfo, setWhiteboardDrawerInfo] = useState<{
     isDrawing: boolean;
     name?: string;
   }>({ isDrawing: false });
+
+  const toggleWhiteboardFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setIsWhiteboardFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setIsWhiteboardFullscreen(false);
+      }
+    } catch {
+      // Fallback: Nếu trình duyệt chặn Fullscreen API, chuyển sang chế độ Zen Mode CSS
+      setIsWhiteboardFullscreen((prev) => !prev);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsWhiteboardFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isWhiteboardFullscreen) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setIsWhiteboardFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isWhiteboardFullscreen]);
 
   // Settings Modal State (AV + Admin tabs)
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -1820,72 +1865,81 @@ export const StudyRoomView: React.FC = () => {
       )}
 
       {/* Room Header - Responsive: Rich for Desktop (md:), Clean & Compact for Mobile (<md:) */}
-      <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
-        {/* Desktop Header */}
-        <div className="hidden md:flex h-14 px-6 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleLeaveRoom}
-              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
-            >
-              <ArrowLeft size={16} />
-              <span>Rời phòng</span>
-            </button>
-            <div className="h-4 w-px bg-white/10" />
-
-            <div className="flex items-center gap-2">
-              <Radio size={16} className="text-emerald-400 animate-pulse" />
-              <span className="text-sm font-bold">#{roomId}</span>
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider">
-                BETA
-              </span>
-
-              {/* Badge Vai trò */}
-              {isLadyBoss(user?.email) ? (
-                <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-[10px] text-pink-300 font-bold flex items-center gap-1 shadow-sm">
-                  👑 NÓC NHÀ PRO
-                </span>
-              ) : userRole === 'host' ? (
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] text-emerald-300 font-bold">
-                  CHỦ PHÒNG
-                </span>
-              ) : userRole === 'member' ? (
-                <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
-                  THÀNH VIÊN PRO
-                </span>
-              ) : (
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-bold">
-                  KHÁCH MỜI FREE
-                </span>
-              )}
-
-              {/* Nút sao chép mã phòng */}
+      {!(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
+        <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
+          {/* Desktop Header */}
+          <div className="hidden md:flex h-14 px-6 items-center justify-between">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                data-testid="btn-copy-room-id"
-                onClick={handleCopyRoomId}
-                className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer border border-white/5"
-                title="Sao chép mã phòng"
+                onClick={handleLeaveRoom}
+                className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
               >
-                {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                <span>{copiedCode ? 'Đã sao chép mã' : 'Sao chép mã'}</span>
+                <ArrowLeft size={16} />
+                <span>Rời phòng</span>
               </button>
+              <div className="h-4 w-px bg-white/10" />
+
+              <div className="flex items-center gap-2">
+                <Radio size={16} className="text-emerald-400 animate-pulse" />
+                <span className="text-sm font-bold">#{roomId}</span>
+                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider">
+                  BETA
+                </span>
+
+                {/* Badge Vai trò */}
+                {isLadyBoss(user?.email) ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-[10px] text-pink-300 font-bold flex items-center gap-1 shadow-sm">
+                    👑 NÓC NHÀ PRO
+                  </span>
+                ) : userRole === 'host' ? (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] text-emerald-300 font-bold">
+                    CHỦ PHÒNG
+                  </span>
+                ) : userRole === 'member' ? (
+                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
+                    THÀNH VIÊN PRO
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-bold">
+                    KHÁCH MỜI FREE
+                  </span>
+                )}
+
+                {/* Nút sao chép mã phòng */}
+                <button
+                  type="button"
+                  data-testid="btn-copy-room-id"
+                  onClick={handleCopyRoomId}
+                  className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer border border-white/5"
+                  title="Sao chép mã phòng"
+                >
+                  {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  <span>{copiedCode ? 'Đã sao chép mã' : 'Sao chép mã'}</span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2.5">
-            {/* Tab Switcher: Video Grid vs Whiteboard */}
-            <div className="flex items-center p-0.5 rounded-lg bg-white/5 border border-white/10 text-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab('grid')}
-                className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                  activeTab === 'grid' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                Lưới Video
-              </button>
+            <div className="flex items-center gap-2.5">
+              {/* Tab Switcher: Video Grid vs Whiteboard */}
+              <div className="flex items-center p-0.5 rounded-lg bg-white/5 border border-white/10 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isWhiteboardFullscreen) {
+                      if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => {});
+                      }
+                      setIsWhiteboardFullscreen(false);
+                    }
+                    setActiveTab('grid');
+                  }}
+                  className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                    activeTab === 'grid' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  Lưới Video
+                </button>
               <button
                 type="button"
                 data-testid="btn-switch-whiteboard"
@@ -2028,7 +2082,15 @@ export const StudyRoomView: React.FC = () => {
             <div className="flex items-center p-0.5 rounded-lg bg-white/10 border border-white/10 text-[11px]">
               <button
                 type="button"
-                onClick={() => setActiveTab('grid')}
+                onClick={() => {
+                  if (isWhiteboardFullscreen) {
+                    if (document.fullscreenElement) {
+                      document.exitFullscreen().catch(() => {});
+                    }
+                    setIsWhiteboardFullscreen(false);
+                  }
+                  setActiveTab('grid');
+                }}
                 className={`p-1.5 rounded-md transition cursor-pointer ${
                   activeTab === 'grid' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
                 }`}
@@ -2067,6 +2129,7 @@ export const StudyRoomView: React.FC = () => {
           </div>
         </div>
       </header>
+      )}
 
       {/* Main Workspace: Left video/whiteboard stage, Right study chat on desktop */}
       <div className="flex-1 min-h-0 flex overflow-hidden relative">
@@ -2337,7 +2400,11 @@ export const StudyRoomView: React.FC = () => {
             </div>
           ) : (
             /* Shared Collaborative Whiteboard View - FULL WORKSPACE 100% */
-            <div className="flex-1 w-full h-full min-h-0 relative overflow-hidden flex flex-col">
+            <div
+              className={`w-full h-full overflow-hidden bg-zinc-950 ${
+                isWhiteboardFullscreen ? 'fixed inset-0 z-50' : 'absolute inset-0'
+              }`}
+            >
               {/* Floating Mini Video Strip (Ghim nổi góc trái trên, không chiếm diện tích mặt bảng) */}
               <div
                 data-testid="whiteboard-floating-video-strip"
@@ -2441,7 +2508,7 @@ export const StudyRoomView: React.FC = () => {
               </div>
 
               {/* Main Whiteboard Canvas (Chiếm trọn 100% diện tích màn hình) */}
-              <div className="flex-1 w-full h-full min-h-0 overflow-hidden relative">
+              <div className="w-full h-full overflow-hidden relative">
                 <WhiteboardView
                   roomId={roomId}
                   currentUserId={participantId}
@@ -2451,6 +2518,8 @@ export const StudyRoomView: React.FC = () => {
                   onDrawerActivity={(isDrawing, drawerName) => {
                     setWhiteboardDrawerInfo({ isDrawing, name: drawerName });
                   }}
+                  isFullscreen={isWhiteboardFullscreen}
+                  onToggleFullscreen={toggleWhiteboardFullscreen}
                 />
               </div>
             </div>
@@ -2458,7 +2527,7 @@ export const StudyRoomView: React.FC = () => {
         </div>
 
         {/* Study Room Chat Sidebar (Desktop & Mobile) */}
-        {isChatOpen && (
+        {isChatOpen && !(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
           <aside className="w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full overflow-hidden shadow-2xl transition-all duration-300 shrink-0">
             {/* 1. Header cố định */}
             <div className="h-14 shrink-0 border-b border-zinc-800 px-4 flex items-center justify-between bg-zinc-900/50">
@@ -2537,15 +2606,24 @@ export const StudyRoomView: React.FC = () => {
       </div>
 
       {/* Floating Bottom Action Toolbar (#room-compact): Docked on Mobile with Safe Area, Floating on Desktop */}
-      <div
-        id="room-compact"
-        data-testid="room-compact"
-        className="fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border"
-        style={{
-          boxSizing: 'border-box',
-          paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
-        }}
-      >
+      {!(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
+        <div
+          id="room-compact"
+          data-testid="room-compact"
+          className={
+            activeTab === 'whiteboard'
+              ? 'absolute bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto w-auto max-w-[calc(100vw-24px)] flex items-center justify-center'
+              : 'fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border'
+          }
+          style={
+            activeTab === 'whiteboard'
+              ? undefined
+              : {
+                  boxSizing: 'border-box',
+                  paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+                }
+          }
+        >
         <div className="flex items-center justify-between sm:justify-around gap-1 sm:gap-1.5 md:gap-2 p-1 sm:p-1.5 md:p-2 rounded-2xl bg-neutral-900/90 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
           {/* Micro */}
           <button
@@ -2698,6 +2776,7 @@ export const StudyRoomView: React.FC = () => {
           </button>
         </div>
       </div>
+      )}
 
       {/* Device & Room Administrative Settings Modal */}
       {isDeviceModalOpen && (
