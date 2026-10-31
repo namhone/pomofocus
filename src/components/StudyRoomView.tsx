@@ -172,10 +172,41 @@ export const StudyRoomView: React.FC = () => {
   const [peerJoinToast, setPeerJoinToast] = useState<string | null>(null);
 
   const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
-  const [messages, setMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
-    { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
+  const [messages, setMessages] = useState<Array<{ id?: string; clientMessageId?: string; sender: string; senderId?: string; text: string; time: string }>>([
+    { id: 'welcome', clientMessageId: 'welcome', sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
   ]);
   const [inputMsg, setInputMsg] = useState('');
+
+  // Hàm thêm tin nhắn an toàn khử trùng lặp 100% (Deduplication)
+  const appendMessageSafe = useCallback((newMsg: { id?: string; clientMessageId?: string; sender: string; senderId?: string; text: string; time: string }) => {
+    if (!newMsg || !newMsg.text) return;
+    setMessages((prev) => {
+      const isDuplicate = prev.some((m) => {
+        if (newMsg.clientMessageId && m.clientMessageId && m.clientMessageId === newMsg.clientMessageId) {
+          return true;
+        }
+        if (newMsg.id && m.id && m.id === newMsg.id) {
+          return true;
+        }
+        if (m.sender === newMsg.sender && m.text === newMsg.text && m.time === newMsg.time) {
+          return true;
+        }
+        return false;
+      });
+      if (isDuplicate) return prev;
+      return [
+        ...prev,
+        {
+          id: newMsg.id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          clientMessageId: newMsg.clientMessageId || `cmsg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          sender: newMsg.sender,
+          senderId: newMsg.senderId,
+          text: newMsg.text,
+          time: newMsg.time
+        }
+      ];
+    });
+  }, []);
 
   // Âm thanh 'ding' nhẹ êm tai khi có bạn học mới vào phòng (Web Audio API)
   const playGentleDing = useCallback(() => {
@@ -710,6 +741,11 @@ export const StudyRoomView: React.FC = () => {
 
       if (data.event === 'heart-rain') {
         triggerHeartRainRef.current(data.payload?.senderName || 'Nóc Nhà');
+      } else if (data.event === 'chat-message' && data.payload?.text) {
+        appendMessageSafe(data.payload);
+        if (!isChatOpenRef.current) {
+          setHasUnreadChat(true);
+        }
       } else if (data.event === 'room-reaction' && data.payload?.emoji) {
         showReactionBubbleRef.current(data.payload.emoji);
       } else if (data.type === 'ADMIN_ACTION') {
@@ -843,7 +879,7 @@ export const StudyRoomView: React.FC = () => {
     channel.on('broadcast', { event: 'chat-message' }, (payload: any) => {
       const msg = payload?.payload || payload;
       if (msg?.text) {
-        setMessages((prev) => [...prev, msg]);
+        appendMessageSafe(msg);
         if (!isChatOpenRef.current) {
           setHasUnreadChat(true);
         }
@@ -1185,12 +1221,22 @@ export const StudyRoomView: React.FC = () => {
     e.preventDefault();
     const text = inputMsg.trim();
     if (!text) return;
+
+    const msgId = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const clientMessageId = `cmsg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const sender = participantName || user?.displayName || 'Bạn';
+    const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
     const newMsg = {
-      sender: participantName,
+      id: msgId,
+      clientMessageId,
+      sender,
+      senderId: participantId,
       text,
-      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      time
     };
-    setMessages((prev) => [...prev, newMsg]);
+
+    appendMessageSafe(newMsg);
     setInputMsg('');
 
     // Phát sóng tin nhắn thời gian thực qua Supabase và BroadcastChannel
@@ -1741,7 +1787,7 @@ export const StudyRoomView: React.FC = () => {
   // MÀN HÌNH PHÒNG HỌC ĐANG HOẠT ĐỘNG (ACTIVE ROOM SCREEN)
   // =========================================================================
   return (
-    <div className="min-h-screen w-full bg-[#0a0d13] text-white flex flex-col select-none overflow-hidden relative">
+    <div className="h-screen w-screen bg-[#0a0d13] text-white flex flex-col select-none overflow-hidden relative">
       {/* Toast thông báo tính năng Voice/Video P2P Beta */}
       {betaNotice && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-amber-500/95 text-neutral-950 font-semibold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-fade-in border border-amber-400 max-w-sm text-center">
@@ -2046,7 +2092,7 @@ export const StudyRoomView: React.FC = () => {
       </header>
 
       {/* Main Workspace: Left video/whiteboard stage, Right study chat on desktop */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex overflow-hidden relative">
         {/* Main Stage */}
         <div className="flex-1 flex flex-col p-3 sm:p-5 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6">
           {/* Synchronized Shared Pomodoro Timer Banner */}
@@ -2392,8 +2438,9 @@ export const StudyRoomView: React.FC = () => {
 
         {/* Study Room Chat Sidebar (Desktop & Mobile) */}
         {isChatOpen && (
-          <aside className="w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950/95 backdrop-blur-xl flex flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full shadow-2xl transition-all duration-300">
-            <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900/50">
+          <aside className="w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full overflow-hidden shadow-2xl transition-all duration-300 shrink-0">
+            {/* 1. Header cố định */}
+            <div className="h-14 shrink-0 border-b border-zinc-800 px-4 flex items-center justify-between bg-zinc-900/50">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-xs text-zinc-100 tracking-wide uppercase">Tin nhắn phòng</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono">
@@ -2423,11 +2470,12 @@ export const StudyRoomView: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 text-xs">
+            {/* 2. Danh sách tin nhắn: DUY NHẤT VÙNG NÀY ĐƯỢC PHÉP CUỘN */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 text-xs">
               {messages.map((m, i) => {
                 const isMe = m.sender === participantName || m.sender === user?.displayName || m.sender === 'Bạn';
                 return (
-                  <div key={i} className={`flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
+                  <div key={m.id || m.clientMessageId || `${m.sender}_${i}`} className={`flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className="flex items-center gap-2 text-[10px] text-zinc-500 px-1">
                       <span className={`font-medium ${isMe ? 'text-zinc-400' : 'text-zinc-300'}`}>{m.sender}</span>
                       <span>{m.time}</span>
@@ -2446,7 +2494,8 @@ export const StudyRoomView: React.FC = () => {
               })}
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-3 border-t border-zinc-800 flex gap-2 shrink-0 bg-zinc-900/40">
+            {/* 3. Footer ô nhập cố định ở đáy */}
+            <form onSubmit={handleSendMessage} className="shrink-0 p-3 border-t border-zinc-800 flex gap-2 bg-zinc-950">
               <input
                 type="text"
                 value={inputMsg}

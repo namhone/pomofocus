@@ -132,9 +132,9 @@ export const GlobalAudioHost: React.FC = () => {
       const collapsedAnchor = document.getElementById('collapsed-youtube-pip-anchor');
 
       let targetEl: HTMLElement | null = null;
-      if (isSoundsOpen && expandedAnchor) {
+      if (isSoundsOpen && !isSoundsCollapsed && expandedAnchor) {
         targetEl = expandedAnchor;
-      } else if (isSoundsCollapsed && collapsedAnchor) {
+      } else if (isSoundsOpen && isSoundsCollapsed && collapsedAnchor) {
         targetEl = collapsedAnchor;
       }
 
@@ -142,13 +142,13 @@ export const GlobalAudioHost: React.FC = () => {
         const rect = targetEl.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
           container.style.position = 'fixed';
-          container.style.top = `${rect.top}px`;
-          container.style.left = `${rect.left}px`;
-          container.style.width = `${rect.width}px`;
-          container.style.height = `${rect.height}px`;
+          container.style.top = `${Math.round(rect.top)}px`;
+          container.style.left = `${Math.round(rect.left)}px`;
+          container.style.width = `${Math.round(rect.width)}px`;
+          container.style.height = `${Math.round(rect.height)}px`;
           container.style.opacity = '1';
           container.style.pointerEvents = 'auto';
-          container.style.zIndex = isSoundsCollapsed ? '64' : '60';
+          container.style.zIndex = isSoundsCollapsed ? '64' : '30';
         }
       } else {
         // Widget đóng hoặc đang ẩn: giữ nguyên phát offscreen

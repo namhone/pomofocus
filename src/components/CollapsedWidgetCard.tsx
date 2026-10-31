@@ -363,40 +363,50 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     );
   }
 
-  // 4. SOUNDS & AMBIENT (Monochrome Stealth Audio Pill Bar)
+  // 4. SOUNDS & AMBIENT (Monochrome Stealth Audio Pill Bar / Mini Video PiP)
   if (id === 'sounds') {
+    const isYouTube = customMusicType === 'youtube' && Boolean(customMusicUrl);
     const activeAmbientCount = soundTracks.filter((t) => t.isPlaying).length;
     const currentStation = customMusicList.find((item) => item.url === customMusicUrl);
-    const musicTitle = currentStation?.name || (customMusicType === 'youtube' ? 'Video YouTube' : 'Nhạc Lofi / Stream');
+    const musicTitle = currentStation?.name || (isYouTube ? 'Video YouTube' : 'Nhạc Lofi / Stream');
 
     return (
       <div
         data-testid="collapsed-media-bar"
         data-control="collapsed-audio-controls"
-        className="w-full h-full min-h-[64px] p-2.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full h-full min-h-[64px] p-2 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between gap-3 select-none backdrop-blur-md"
       >
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
-            {customMusicPlaying ? (
-              <span className="flex items-end gap-0.5 h-3">
-                <span className="w-0.5 h-3 bg-zinc-200 animate-pulse" />
-                <span className="w-0.5 h-1.5 bg-zinc-200 animate-pulse delay-75" />
-                <span className="w-0.5 h-2.5 bg-zinc-200 animate-pulse delay-150" />
-              </span>
-            ) : (
-              <Volume2 size={15} />
-            )}
-          </div>
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Khi phát YouTube: Hiện Mini PiP 16:9 trực tiếp trên thanh thu gọn */}
+          {isYouTube ? (
+            <div
+              id="collapsed-youtube-pip-anchor"
+              data-testid="collapsed-youtube-pip-anchor"
+              className="w-32 h-[72px] sm:w-36 sm:h-20 rounded-xl overflow-hidden bg-black shrink-0 relative border border-zinc-800 shadow"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
+              {customMusicPlaying ? (
+                <span className="flex items-end gap-0.5 h-3">
+                  <span className="w-0.5 h-3 bg-zinc-200 animate-pulse" />
+                  <span className="w-0.5 h-1.5 bg-zinc-200 animate-pulse delay-75" />
+                  <span className="w-0.5 h-2.5 bg-zinc-200 animate-pulse delay-150" />
+                </span>
+              ) : (
+                <Volume2 size={15} />
+              )}
+            </div>
+          )}
 
           <div className="min-w-0">
-            <div className="text-xs font-semibold text-zinc-100 truncate max-w-[160px] sm:max-w-[240px]">
+            <div className="text-xs font-semibold text-zinc-100 truncate max-w-[140px] sm:max-w-[200px]">
               {customMusicUrl ? musicTitle : 'Âm thanh thư giãn & Lofi'}
             </div>
             <div className="text-[10px] text-zinc-400 mt-0.5 truncate flex items-center gap-1.5">
               {customMusicPlaying ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                  <span>Đang phát nhạc</span>
+                  <span>{isYouTube ? 'Đang phát video' : 'Đang phát nhạc'}</span>
                 </>
               ) : activeAmbientCount > 0 ? (
                 <span>{activeAmbientCount} âm thanh thiên nhiên</span>
@@ -416,12 +426,12 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
               e.stopPropagation();
               setCustomMusicPlaying(!customMusicPlaying);
             }}
-            className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition active:scale-95 cursor-pointer shadow-sm ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition active:scale-95 cursor-pointer shadow-sm ${
               customMusicPlaying
                 ? 'bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700 hover:text-white'
                 : 'bg-white text-black hover:bg-zinc-200'
             }`}
-            title={customMusicPlaying ? 'Tạm dừng nhạc' : 'Phát nhạc'}
+            title={customMusicPlaying ? 'Tạm dừng' : 'Phát'}
           >
             {customMusicPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" />}
             <span className="hidden sm:inline">{customMusicPlaying ? 'Tạm dừng' : 'Phát'}</span>

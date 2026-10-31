@@ -414,10 +414,6 @@ export class RealtimeChannel {
       });
     }
 
-    this.broadcastListeners
-      .filter((l) => l.event === params.event)
-      .forEach((l) => l.callback(params.payload));
-
     return 'ok';
   }
 
