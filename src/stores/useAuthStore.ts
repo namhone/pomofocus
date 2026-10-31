@@ -5,6 +5,8 @@ import {
   UserDataExport,
   hasProEntitlement,
   isOwnerEmail,
+  isLadyBoss,
+  isVipFriend,
   getPlanLabel
 } from '../services/authService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
@@ -23,6 +25,8 @@ export interface AuthState {
   isLifetime: boolean;
   isBetaPro: boolean;
   isOwner: boolean;
+  isLadyBoss: boolean;
+  isVipFriend: boolean;
   planLabel: string;
 
   // Actions
@@ -45,10 +49,12 @@ const initialSession = authService.getCurrentSession();
 
 export const useAuthStore = create<AuthState>((set, get) => {
   const computeDerivedPlanState = (user: UserProfile | null) => ({
-    isPro: hasProEntitlement(user?.plan),
-    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email)),
+    isPro: hasProEntitlement(user?.plan, user?.email),
+    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email)),
     isBetaPro: user?.plan === 'pro_beta',
     isOwner: isOwnerEmail(user?.email),
+    isLadyBoss: isLadyBoss(user?.email),
+    isVipFriend: isVipFriend(user?.email),
     planLabel: getPlanLabel(user)
   });
 

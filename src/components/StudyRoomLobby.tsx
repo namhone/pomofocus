@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { studyRoomService, PUBLIC_FREE_PODS } from '../services/studyRoomService';
+import { isOwnerEmail, isLadyBoss, isVipFriend } from '../services/authService';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
@@ -64,12 +65,14 @@ export const StudyRoomLobby: React.FC = () => {
 
   const isProUser = Boolean(
     user && (
+      isOwnerEmail(user.email) ||
+      isLadyBoss(user.email) ||
+      isVipFriend(user.email) ||
       user.plan === 'pro' ||
       user.plan === 'pro_beta' ||
       user.plan === 'pro_lifetime' ||
       (user as { isPro?: boolean }).isPro ||
-      (user as { isLifetime?: boolean }).isLifetime ||
-      (user.email && user.email.toLowerCase() === 'namho03052k9@gmail.com')
+      (user as { isLifetime?: boolean }).isLifetime
     )
   );
 
@@ -80,14 +83,10 @@ export const StudyRoomLobby: React.FC = () => {
       return;
     }
 
-    if (!isProUser) {
-      setErrorMsg('Tạo phòng học là tính năng cao cấp (PRO). Vui lòng nâng cấp tài khoản để tạo và chủ trì phòng học.');
-      return;
-    }
-
     const result = studyRoomService.createRoom({
       title: roomTitle.trim() || undefined,
-      hostUser: user
+      hostUser: user,
+      isFreeRoom: !isProUser
     });
 
     if (!result.success) {
@@ -215,15 +214,19 @@ export const StudyRoomLobby: React.FC = () => {
                     <span>Đăng Nhập Để Tạo Phòng</span>
                   </button>
                 ) : !isProUser ? (
-                  <button
-                    type="button"
-                    data-testid="btn-upgrade-to-create-room"
-                    onClick={() => router.navigate('/billing')}
-                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-amber-500/20 active:scale-98"
-                  >
-                    <Lock size={15} />
-                    <span>Nâng Cấp PRO Để Tạo Phòng</span>
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      type="submit"
+                      data-testid="btn-create-room"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-98"
+                    >
+                      <Video size={16} />
+                      <span>Tạo Phòng Học Free (45 phút)</span>
+                    </button>
+                    <div className="text-[10px] text-center text-neutral-400">
+                      Tài khoản Free: Còn {Math.max(0, 3 - studyRoomService.getDailyPrivateRoomCount(user.id))}/3 lượt tạo hôm nay
+                    </div>
+                  </div>
                 ) : (
                   <button
                     type="submit"
@@ -231,7 +234,7 @@ export const StudyRoomLobby: React.FC = () => {
                     className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-98"
                   >
                     <Video size={16} />
-                    <span>Tạo Phòng &amp; Lấy Mã Ngay</span>
+                    <span>Tạo Phòng PRO Không Giới Hạn &amp; Lấy Mã</span>
                   </button>
                 )}
               </form>

@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
-import { isOwnerEmail } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, authService } from '../services/authService';
+import { extractYouTubeEmbedUrl } from '../utils/media';
 import { supabase } from '../lib/supabase';
-import { WebRTCConnectionManager } from '../services/WebRTCConnectionManager';
+import {
+  WebRTCConnectionManager,
+  VIDEO_QUALITY_PROFILES,
+  VideoQualityLevel
+} from '../services/WebRTCConnectionManager';
 import {
   studyRoomService,
   StudyRoom,
@@ -44,13 +49,21 @@ import {
   Clock,
   RefreshCw,
   Crown,
-  UserCheck
+  UserCheck,
+  Heart,
+  Sliders,
+  Music,
+  Gift,
+  UserX
 } from 'lucide-react';
 
 interface FloatingReaction {
   id: string;
   emoji: string;
   x: number;
+  size?: number;
+  duration?: number;
+  delay?: number;
 }
 
 export const StudyRoomView: React.FC = () => {
@@ -142,6 +155,15 @@ export const StudyRoomView: React.FC = () => {
   const [regeneratingToken, setRegeneratingToken] = useState(false);
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
 
+  // Cài đặt chất lượng Video & Xử lý Âm thanh chống ồn
+  const [videoQuality, setVideoQuality] = useState<VideoQualityLevel>('standard');
+  const [noiseSuppression, setNoiseSuppression] = useState<boolean>(true);
+  const [echoCancellation, setEchoCancellation] = useState<boolean>(true);
+
+  // Đặc quyền VIP Nóc Nhà & Hiệu ứng Thả Tim Ngập Màn Hình
+  const [showLadyBossToast, setShowLadyBossToast] = useState(false);
+  const [heartRainSender, setHeartRainSender] = useState<string | null>(null);
+
   // Chat & Mobile Bottom Sheet
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
@@ -149,6 +171,15 @@ export const StudyRoomView: React.FC = () => {
     { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
   ]);
   const [inputMsg, setInputMsg] = useState('');
+
+  // Lời chào ngọt ngào độc quyền khi mở app/phòng học cho VIP Nóc Nhà
+  useEffect(() => {
+    if (user && isLadyBoss(user.email)) {
+      setShowLadyBossToast(true);
+      const timer = setTimeout(() => setShowLadyBossToast(false), 9000);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   // Sample participants kết hợp người tham gia thực tế (đảm bảo mỗi tab/phiên là 1 peerId duy nhất)
   const [participantId] = useState(() => `${user?.id || 'guest'}_${Math.random().toString(36).substring(2, 9)}`);
@@ -167,7 +198,7 @@ export const StudyRoomView: React.FC = () => {
     if (user && (room.hostUserId === user.id || room.hostEmail.toLowerCase() === user.email?.toLowerCase())) {
       return 'host';
     }
-    if (user && (user.plan === 'pro' || user.plan === 'pro_beta' || user.plan === 'pro_lifetime')) {
+    if (user && (user.plan === 'pro' || user.plan === 'pro_beta' || user.plan === 'pro_lifetime' || isLadyBoss(user.email))) {
       return 'member';
     }
     return 'guest';
@@ -178,35 +209,164 @@ export const StudyRoomView: React.FC = () => {
     return studyRoomService.verifyPaidSubscriptionEligibility(user);
   }, [user]);
 
-  // Kiểm tra phòng Free và giới hạn thời lượng 45 phút
+  const isProUser = Boolean(
+    user && (
+      isOwnerEmail(user.email) ||
+      isLadyBoss(user.email) ||
+      isVipFriend(user.email) ||
+      user.plan === 'pro' ||
+      user.plan === 'pro_beta' ||
+      user.plan === 'pro_lifetime' ||
+      (user as { isPro?: boolean }).isPro ||
+      (user as { isLifetime?: boolean }).isLifetime
+    )
+  );
+
+  const isPublicPod = useMemo(() => Boolean(roomId && roomId.startsWith('pod-free-')), [roomId]);
+
+  // Kiểm tra phòng Free và giới hạn thời lượng 45 phút (Nóc Nhà & PRO không bao giờ bị giới hạn)
   const isFreeRoom = useMemo(() => {
     if (!room) return true;
-    if (room.hostEmail && isOwnerEmail(room.hostEmail)) return false;
-    if (user && (user.plan === 'pro' || user.plan === 'pro_lifetime' || isOwnerEmail(user.email))) return false;
+    if (room.hostEmail && (isOwnerEmail(room.hostEmail) || isLadyBoss(room.hostEmail) || isVipFriend(room.hostEmail))) return false;
+    if (isProUser) return false;
     return true;
-  }, [room, user]);
+  }, [room, isProUser]);
 
   const FREE_ROOM_MAX_SECONDS = 45 * 60; // 45 phút = 2700 giây
   const [remainingFreeSeconds, setRemainingFreeSeconds] = useState(FREE_ROOM_MAX_SECONDS);
   const [isFreeExpiredModalOpen, setIsFreeExpiredModalOpen] = useState(false);
+  const [graceCountdown, setGraceCountdown] = useState(10);
+  const [expiredReason, setExpiredReason] = useState<string>('Phiên học 45 phút của phòng Free đã kết thúc.');
+
+  // Quản trị thành viên trong phòng (Context menu & modal)
+  const [selectedMemberForAdmin, setSelectedMemberForAdmin] = useState<{
+    id: string;
+    userId?: string;
+    name: string;
+    role: string;
+  } | null>(null);
+
+  // Floating YouTube Widget state
+  const [isYouTubeWidgetOpen, setIsYouTubeWidgetOpen] = useState(false);
+  const [youtubeVideoId, setYoutubeVideoId] = useState('jfKfPfyJRdk');
+  const [youtubeInputUrl, setYoutubeInputUrl] = useState('');
+  const [youtubeWidgetPos, setYoutubeWidgetPos] = useState({ x: 24, y: 72 });
+  const isDraggingYouTube = useRef(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  const handleYouTubeDragStart = (e: React.MouseEvent) => {
+    isDraggingYouTube.current = true;
+    dragOffset.current = {
+      x: e.clientX - youtubeWidgetPos.x,
+      y: e.clientY - youtubeWidgetPos.y
+    };
+  };
 
   useEffect(() => {
-    if (!hasJoined || !isFreeRoom) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingYouTube.current) return;
+      setYoutubeWidgetPos({
+        x: Math.max(10, Math.min(window.innerWidth - 380, e.clientX - dragOffset.current.x)),
+        y: Math.max(10, Math.min(window.innerHeight - 240, e.clientY - dragOffset.current.y))
+      });
+    };
+    const handleMouseUp = () => {
+      isDraggingYouTube.current = false;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
-    const computeRemaining = () => {
-      const start = room?.createdAt || Date.now();
-      const elapsed = Math.floor((Date.now() - start) / 1000);
-      const remaining = Math.max(0, FREE_ROOM_MAX_SECONDS - elapsed);
-      setRemainingFreeSeconds(remaining);
-      if (remaining === 0) {
-        setIsFreeExpiredModalOpen(true);
+  const switchYouTubeVideo = useCallback((videoId: string) => {
+    setYoutubeVideoId(videoId);
+    setIsYouTubeWidgetOpen(true);
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'youtube-sync',
+        payload: { videoId }
+      });
+    }
+    if (studyRoomService.broadcastChannel) {
+      studyRoomService.broadcastChannel.postMessage({
+        roomId,
+        type: 'YOUTUBE_SYNC',
+        videoId
+      });
+    }
+  }, [roomId]);
+
+  const handleApplyYouTubeUrl = () => {
+    const trimmed = youtubeInputUrl.trim();
+    if (!trimmed) return;
+    const embedUrl = extractYouTubeEmbedUrl(trimmed);
+    let extractedId = trimmed;
+    if (embedUrl) {
+      const match = embedUrl.match(/embed\/([a-zA-Z0-9_-]{11})/);
+      if (match && match[1]) {
+        extractedId = match[1];
+      }
+    } else if (trimmed.length === 11) {
+      extractedId = trimmed;
+    }
+    switchYouTubeVideo(extractedId);
+    setYoutubeInputUrl('');
+  };
+
+  // Quản lý thời gian học phòng Free & Public Pod
+  useEffect(() => {
+    if (!hasJoined) return;
+    if (!isFreeRoom && !isPublicPod) return;
+
+    const computeLimits = () => {
+      // 1. Kiểm tra giới hạn 90 phút/ngày của Public Pod
+      if (isPublicPod && !isProUser) {
+        const added = studyRoomService.addDailyPublicStudyTime(user?.id || 'guest', 1);
+        if (added >= 90 * 60) {
+          setExpiredReason('Bạn đã đạt giới hạn 90 phút học tập công cộng hôm nay (reset lúc 00:00).');
+          setIsFreeExpiredModalOpen(true);
+          return;
+        }
+      }
+
+      // 2. Kiểm tra giới hạn 45 phút của Private Free Room
+      if (isFreeRoom) {
+        const start = room?.createdAt || Date.now();
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const remaining = Math.max(0, FREE_ROOM_MAX_SECONDS - elapsed);
+        setRemainingFreeSeconds(remaining);
+        if (remaining <= 0) {
+          setExpiredReason('Phiên học 45 phút của phòng Free đã kết thúc.');
+          setIsFreeExpiredModalOpen(true);
+        }
       }
     };
 
-    computeRemaining();
-    const interval = setInterval(computeRemaining, 1000);
+    computeLimits();
+    const interval = setInterval(computeLimits, 1000);
     return () => clearInterval(interval);
-  }, [hasJoined, isFreeRoom, room?.createdAt]);
+  }, [hasJoined, isFreeRoom, isPublicPod, isProUser, user?.id, room?.createdAt]);
+
+  // Bộ đếm lùi 10s grace period khi hết thời gian
+  useEffect(() => {
+    if (!isFreeExpiredModalOpen) return;
+    setGraceCountdown(10);
+    const interval = setInterval(() => {
+      setGraceCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          router.navigate('/rooms');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isFreeExpiredModalOpen]);
 
   const formatCountdown = (totalSec: number) => {
     const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
@@ -332,6 +492,151 @@ export const StudyRoomView: React.FC = () => {
     return Array.from(map.values());
   }, [room?.participants, room?.hostUserId, presenceUsers, remoteStreams, participantId, user?.id, userRole, participantName]);
 
+  // Hiển thị bóng phản ứng cảm xúc nổi
+  const showReactionBubble = useCallback((emoji: string) => {
+    const rx: FloatingReaction = {
+      id: Math.random().toString(36).substring(2, 9),
+      emoji,
+      x: 25 + Math.floor(Math.random() * 50),
+      duration: 2.2,
+      delay: 0,
+      size: 2.0
+    };
+    setFloatingReactions((prev) => [...prev, rx]);
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((r) => r.id !== rx.id));
+    }, 2200);
+  }, []);
+
+  // Hiệu ứng Cơn Mưa Thả Tim ngập màn hình (Heart Rain Effect độc quyền)
+  const triggerHeartRain = useCallback((sender: string = participantName) => {
+    setHeartRainSender(sender);
+    const count = 48;
+    const burst: FloatingReaction[] = [];
+    const heartEmojis = ['💖', '❤️', '💕', '✨', '🌸', '🥰', '💗', '💞'];
+    for (let i = 0; i < count; i++) {
+      burst.push({
+        id: `heart_${Date.now()}_${i}_${Math.random()}`,
+        emoji: heartEmojis[Math.floor(Math.random() * heartEmojis.length)],
+        x: 4 + Math.floor(Math.random() * 92),
+        size: 1.3 + Math.random() * 1.5,
+        duration: 2.5 + Math.random() * 2,
+        delay: Math.random() * 1.2
+      });
+    }
+    setFloatingReactions((prev) => [...prev, ...burst]);
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((r) => !burst.some((b) => b.id === r.id)));
+    }, 5500);
+    setTimeout(() => {
+      setHeartRainSender(null);
+    }, 4500);
+  }, [participantName]);
+
+  const triggerHeartRainRef = useRef(triggerHeartRain);
+  triggerHeartRainRef.current = triggerHeartRain;
+  const showReactionBubbleRef = useRef(showReactionBubble);
+  showReactionBubbleRef.current = showReactionBubble;
+
+  const handleAdminActionReceived = useCallback((data: any) => {
+    if (!data) return;
+    const myId = user?.id || participantId;
+    if (data.targetId === participantId || data.targetId === myId || data.targetUserId === user?.id) {
+      if (data.action === 'FORCE_MUTE') {
+        setMicEnabled(false);
+        if (localStreamRef.current) {
+          localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
+        }
+        setAdminNotice('Bạn đã bị Quản trị viên tắt Micro.');
+        setTimeout(() => setAdminNotice(null), 5000);
+      } else if (data.action === 'KICK') {
+        alert('Bạn đã bị mời ra khỏi phòng học bởi Quản trị viên.');
+        router.navigate('/rooms');
+      } else if (data.action === 'GIVEAWAY_PRO') {
+        const months = data.durationMonths || 1;
+        authService.upgradeToPro(months);
+        setAdminNotice(`🎉 Bạn vừa được Chủ phòng tặng gói PRO ${months === 999 ? 'Trọn Đời' : months + ' Tháng'}!`);
+        setTimeout(() => setAdminNotice(null), 8000);
+      }
+    }
+  }, [participantId, user?.id, router]);
+
+  const handleGiveawayPro = (target: { id: string; userId?: string; name: string }, durationMonths: number) => {
+    const eventPayload = {
+      action: 'GIVEAWAY_PRO',
+      targetId: target.id,
+      targetUserId: target.userId,
+      durationMonths
+    };
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room-admin-action',
+        payload: eventPayload
+      });
+    }
+    if (studyRoomService.broadcastChannel) {
+      studyRoomService.broadcastChannel.postMessage({
+        roomId,
+        type: 'ADMIN_ACTION',
+        ...eventPayload
+      });
+    }
+    setSelectedMemberForAdmin(null);
+    setAdminNotice(`Đã gửi tặng gói PRO (${durationMonths === 999 ? 'Trọn Đời' : durationMonths + ' Tháng'}) cho ${target.name}! 🎁`);
+    setTimeout(() => setAdminNotice(null), 5000);
+  };
+
+  const handleForceMute = (target: { id: string; userId?: string; name: string }) => {
+    const eventPayload = {
+      action: 'FORCE_MUTE',
+      targetId: target.id,
+      targetUserId: target.userId
+    };
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room-admin-action',
+        payload: eventPayload
+      });
+    }
+    if (studyRoomService.broadcastChannel) {
+      studyRoomService.broadcastChannel.postMessage({
+        roomId,
+        type: 'ADMIN_ACTION',
+        ...eventPayload
+      });
+    }
+    setSelectedMemberForAdmin(null);
+    setAdminNotice(`Đã yêu cầu tắt Micro của ${target.name}. 🔇`);
+    setTimeout(() => setAdminNotice(null), 5000);
+  };
+
+  const handleKickMember = (target: { id: string; userId?: string; name: string }) => {
+    const eventPayload = {
+      action: 'KICK',
+      targetId: target.id,
+      targetUserId: target.userId
+    };
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room-admin-action',
+        payload: eventPayload
+      });
+    }
+    if (studyRoomService.broadcastChannel) {
+      studyRoomService.broadcastChannel.postMessage({
+        roomId,
+        type: 'ADMIN_ACTION',
+        ...eventPayload
+      });
+    }
+    setSelectedMemberForAdmin(null);
+    setAdminNotice(`Đã mời ${target.name} rời khỏi phòng học. 🚫`);
+    setTimeout(() => setAdminNotice(null), 5000);
+  };
+
   // Dọn dẹp sạch sẽ các session rác của bản thân còn sót lại trong phòng khi mới mở
   useEffect(() => {
     if (!roomId) return;
@@ -376,7 +681,16 @@ export const StudyRoomView: React.FC = () => {
       const data = e.data;
       if (!data || data.roomId !== roomId) return;
 
-      if (data.type === 'ROOM_CLOSED') {
+      if (data.event === 'heart-rain') {
+        triggerHeartRainRef.current(data.payload?.senderName || 'Nóc Nhà');
+      } else if (data.event === 'room-reaction' && data.payload?.emoji) {
+        showReactionBubbleRef.current(data.payload.emoji);
+      } else if (data.type === 'ADMIN_ACTION') {
+        handleAdminActionReceived(data);
+      } else if (data.type === 'YOUTUBE_SYNC' && data.videoId) {
+        setYoutubeVideoId(data.videoId);
+        setIsYouTubeWidgetOpen(true);
+      } else if (data.type === 'ROOM_CLOSED') {
         alert('Phòng học đã được đóng bởi chủ phòng.');
         router.navigate('/rooms');
       } else if (data.type === 'ROOM_STATE_UPDATED') {
@@ -493,6 +807,32 @@ export const StudyRoomView: React.FC = () => {
       });
     });
 
+    // Lắng nghe hiệu ứng Thả Tim ngập màn hình & Cảm xúc từ các bạn học khác
+    channel.on('broadcast', { event: 'heart-rain' }, (payload: any) => {
+      const sender = payload?.payload?.senderName || payload?.senderName || 'Nóc Nhà';
+      triggerHeartRainRef.current?.(sender);
+    });
+
+    channel.on('broadcast', { event: 'room-reaction' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.emoji) {
+        showReactionBubbleRef.current?.(data.emoji);
+      }
+    });
+
+    channel.on('broadcast', { event: 'youtube-sync' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.videoId) {
+        setYoutubeVideoId(data.videoId);
+        setIsYouTubeWidgetOpen(true);
+      }
+    });
+
+    channel.on('broadcast', { event: 'room-admin-action' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      handleAdminActionReceived(data);
+    });
+
     channel.subscribe();
     channel.track({
       userId: user?.id || participantId,
@@ -538,17 +878,30 @@ export const StudyRoomView: React.FC = () => {
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
       }
+
+      const profile = VIDEO_QUALITY_PROFILES[videoQuality] || VIDEO_QUALITY_PROFILES.standard;
+
+      const videoConstraints: MediaTrackConstraints | boolean = cameraEnabled
+        ? {
+            ...(selectedVideoDevice ? { deviceId: { exact: selectedVideoDevice } } : {}),
+            width: profile.width,
+            height: profile.height,
+            frameRate: profile.frameRate,
+          }
+        : false;
+
+      const audioConstraints: MediaTrackConstraints | boolean = micEnabled
+        ? {
+            ...(selectedAudioDevice ? { deviceId: { exact: selectedAudioDevice } } : {}),
+            echoCancellation,
+            noiseSuppression,
+            autoGainControl: true,
+          }
+        : false;
+
       const constraints: MediaStreamConstraints = {
-        video: cameraEnabled
-          ? selectedVideoDevice
-            ? { deviceId: { exact: selectedVideoDevice } }
-            : true
-          : false,
-        audio: micEnabled
-          ? selectedAudioDevice
-            ? { deviceId: { exact: selectedAudioDevice } }
-            : true
-          : false
+        video: videoConstraints,
+        audio: audioConstraints,
       };
 
       if (!constraints.video && !constraints.audio) {
@@ -564,6 +917,7 @@ export const StudyRoomView: React.FC = () => {
 
       if (rtcManagerRef.current) {
         rtcManagerRef.current.setLocalStream(stream);
+        rtcManagerRef.current.setVideoBitrate(profile.bitrateKbps);
       }
 
       if (preJoinVideoRef.current && cameraEnabled) {
@@ -576,7 +930,7 @@ export const StudyRoomView: React.FC = () => {
       console.warn('Không thể truy cập camera hoặc micro cục bộ:', err);
       setMediaError('Chưa cấp quyền truy cập thiết bị hoặc trình duyệt không tìm thấy camera.');
     }
-  }, [cameraEnabled, micEnabled, selectedAudioDevice, selectedVideoDevice]);
+  }, [cameraEnabled, micEnabled, selectedAudioDevice, selectedVideoDevice, videoQuality, echoCancellation, noiseSuppression]);
 
   // Load device list
   useEffect(() => {
@@ -697,17 +1051,42 @@ export const StudyRoomView: React.FC = () => {
     }
   }, [isScreenSharing]);
 
-  // Floating reactions trigger
+  // Floating reactions trigger & Heart Rain synchronization
   const handleTriggerReaction = (emoji: string) => {
-    const newReaction: FloatingReaction = {
-      id: Math.random().toString(36).substring(2, 9),
-      emoji,
-      x: 30 + Math.floor(Math.random() * 40)
-    };
-    setFloatingReactions((prev) => [...prev, newReaction]);
-    setTimeout(() => {
-      setFloatingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
-    }, 2200);
+    if (emoji === '❤️' || isLadyBoss(user?.email)) {
+      triggerHeartRain(participantName);
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'heart-rain',
+          payload: { senderName: participantName }
+        });
+      }
+      if (studyRoomService.broadcastChannel) {
+        studyRoomService.broadcastChannel.postMessage({
+          roomId,
+          event: 'heart-rain',
+          payload: { senderName: participantName }
+        });
+      }
+      return;
+    }
+
+    showReactionBubble(emoji);
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room-reaction',
+        payload: { emoji, senderName: participantName }
+      });
+    }
+    if (studyRoomService.broadcastChannel) {
+      studyRoomService.broadcastChannel.postMessage({
+        roomId,
+        event: 'room-reaction',
+        payload: { emoji, senderName: participantName }
+      });
+    }
   };
 
   // Sao chép Mã phòng (Room ID)
@@ -977,19 +1356,21 @@ export const StudyRoomView: React.FC = () => {
 
             <div className="flex items-center gap-2">
               {/* Badge vai trò */}
-              {userRole === 'host' && (
+              {isLadyBoss(user?.email) ? (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-pink-300 text-[10px] font-bold shadow-sm">
+                  👑 NÓC NHÀ PRO
+                </span>
+              ) : userRole === 'host' ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
                   <Crown size={11} />
                   CHỦ PHÒNG
                 </span>
-              )}
-              {userRole === 'member' && (
+              ) : userRole === 'member' ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">
                   <Sparkles size={11} />
                   THÀNH VIÊN PRO
                 </span>
-              )}
-              {userRole === 'guest' && (
+              ) : (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
                   <UserCheck size={11} />
                   KHÁCH MỜI FREE
@@ -1125,11 +1506,15 @@ export const StudyRoomView: React.FC = () => {
         </div>
 
         {/* Device Settings Modal */}
+        {/* Modal Cài Đặt Thiết Bị & Chất Lượng Video/Audio Trước Khi Vào Phòng */}
         {isDeviceModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-white/10 p-6 text-white shadow-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-sm">Cài Đặt Camera & Micro</h3>
+            <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-white/10 p-5 sm:p-6 text-white shadow-2xl max-h-[88vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <Sliders size={18} className="text-emerald-400" />
+                  <h3 className="font-bold text-sm">Cài Đặt Camera, Micro & Chất Lượng</h3>
+                </div>
                 <button
                   type="button"
                   onClick={() => setIsDeviceModalOpen(false)}
@@ -1177,6 +1562,74 @@ export const StudyRoomView: React.FC = () => {
                     )}
                   </select>
                 </div>
+
+                {/* Chất lượng Video & Khóa Bitrate WebRTC */}
+                <div>
+                  <label className="block text-neutral-400 mb-1.5 flex items-center justify-between">
+                    <span>Độ Phân Giải & Khóa Bitrate WebRTC</span>
+                    <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                      {VIDEO_QUALITY_PROFILES[videoQuality].bitrateKbps} kbps
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {(Object.keys(VIDEO_QUALITY_PROFILES) as VideoQualityLevel[]).map((lvl) => {
+                      const prof = VIDEO_QUALITY_PROFILES[lvl];
+                      const isSelected = videoQuality === lvl;
+                      return (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => {
+                            setVideoQuality(lvl);
+                            if (rtcManagerRef.current) {
+                              rtcManagerRef.current.setVideoBitrate(prof.bitrateKbps);
+                            }
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition flex flex-col cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-500/15 border-emerald-400/80 text-white shadow-sm'
+                              : 'bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-xs">{prof.label}</span>
+                            {isSelected && <Check size={13} className="text-emerald-400" />}
+                          </div>
+                          <span className="text-[10px] text-neutral-400 mt-0.5">{prof.sublabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tùy chọn lọc âm thanh học nhóm */}
+                <div className="pt-2 border-t border-white/10 space-y-2">
+                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối Ưu Âm Thanh Học Nhóm</span>
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
+                    <div>
+                      <div className="font-medium text-white">Khử tiếng ồn xung quanh</div>
+                      <div className="text-[10px] text-neutral-400">Lọc tạp âm quạt gió, tiếng gõ phím</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={noiseSuppression}
+                      onChange={(e) => setNoiseSuppression(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
+                    <div>
+                      <div className="font-medium text-white">Chống tiếng vang (Echo Cancellation)</div>
+                      <div className="text-[10px] text-neutral-400">Tránh bị lặp tiếng khi bạn học mở loa ngoài</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={echoCancellation}
+                      onChange={(e) => setEchoCancellation(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                    />
+                  </label>
+                </div>
               </div>
 
               <button
@@ -1211,10 +1664,11 @@ export const StudyRoomView: React.FC = () => {
         {floatingReactions.map((r) => (
           <div
             key={r.id}
-            className="absolute bottom-20 text-3xl animate-bounce transition-all duration-1000 ease-out"
+            className="absolute bottom-20 select-none animate-bounce transition-all ease-out pointer-events-none"
             style={{
               left: `${r.x}%`,
-              animation: 'floatUp 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+              fontSize: r.size ? `${r.size}rem` : '1.875rem',
+              animation: `floatUp ${r.duration || 2.2}s cubic-bezier(0.2, 0.8, 0.2, 1) ${r.delay || 0}s forwards`
             }}
           >
             {r.emoji}
@@ -1225,10 +1679,44 @@ export const StudyRoomView: React.FC = () => {
       <style>{`
         @keyframes floatUp {
           0% { transform: translateY(0) scale(0.8); opacity: 1; }
-          50% { transform: translateY(-140px) scale(1.2); opacity: 0.9; }
-          100% { transform: translateY(-280px) scale(1); opacity: 0; }
+          50% { transform: translateY(-140px) scale(1.2); opacity: 0.95; }
+          100% { transform: translateY(-320px) scale(1); opacity: 0; }
         }
       `}</style>
+
+      {/* Heart Rain Notification Banner */}
+      {heartRainSender && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500/95 via-rose-500/95 to-purple-500/95 text-white font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2 border border-pink-300/40 animate-bounce backdrop-blur-md">
+          <Heart size={16} className="text-white fill-white animate-pulse" />
+          <span>{heartRainSender} vừa thả cơn mưa tim ngập tràn yêu thương!</span>
+          <Sparkles size={16} className="text-yellow-200" />
+        </div>
+      )}
+
+      {/* Lời chào ngọt ngào độc quyền khi mở app/phòng cho Nóc Nhà */}
+      {showLadyBossToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] sm:w-auto p-4 rounded-2xl bg-gradient-to-r from-pink-900/95 via-purple-900/95 to-rose-900/95 text-white shadow-2xl border border-pink-400/40 backdrop-blur-xl flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-pink-500/30 border border-pink-300/50 flex items-center justify-center text-lg shrink-0">
+            👑
+          </div>
+          <div className="flex-1">
+            <h5 className="font-bold text-pink-200 text-xs sm:text-sm flex items-center gap-1.5">
+              <span>Chào mừng Nóc Nhà của Sếp vào bàn học!</span>
+              <Sparkles size={13} className="text-yellow-300" />
+            </h5>
+            <p className="text-[11px] sm:text-xs text-pink-100/90 leading-relaxed mt-0.5">
+              Chúc Chị một ngày học tập và làm việc thật rạng rỡ, ngập tràn niềm vui và năng lượng nha! 🌸💖✨
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowLadyBossToast(false)}
+            className="p-1 rounded-lg text-pink-300 hover:text-white hover:bg-white/10 shrink-0 cursor-pointer"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      )}
 
       {/* Cảnh báo trên nóc phòng học 10 phút cuối cho phòng Free */}
       {isFreeRoom && remainingFreeSeconds <= 600 && remainingFreeSeconds > 0 && (
@@ -1278,17 +1766,19 @@ export const StudyRoomView: React.FC = () => {
               </span>
 
               {/* Badge Vai trò */}
-              {userRole === 'host' && (
+              {isLadyBoss(user?.email) ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-[10px] text-pink-300 font-bold flex items-center gap-1 shadow-sm">
+                  👑 NÓC NHÀ PRO
+                </span>
+              ) : userRole === 'host' ? (
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] text-emerald-300 font-bold">
                   CHỦ PHÒNG
                 </span>
-              )}
-              {userRole === 'member' && (
+              ) : userRole === 'member' ? (
                 <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
                   THÀNH VIÊN PRO
                 </span>
-              )}
-              {userRole === 'guest' && (
+              ) : (
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-bold">
                   KHÁCH MỜI FREE
                 </span>
@@ -1393,9 +1883,15 @@ export const StudyRoomView: React.FC = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>LIVE</span>
               </span>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/10 text-neutral-300 shrink-0">
-                {userRole === 'host' ? 'HOST' : userRole === 'guest' ? 'FREE' : 'PRO'}
-              </span>
+              {isLadyBoss(user?.email) ? (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30 shrink-0">
+                  👑 NÓC NHÀ
+                </span>
+              ) : (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/10 text-neutral-300 shrink-0">
+                  {userRole === 'host' ? 'HOST' : userRole === 'guest' ? 'FREE' : 'PRO'}
+                </span>
+              )}
               <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 uppercase">
                 BETA
               </span>
@@ -1561,9 +2057,15 @@ export const StudyRoomView: React.FC = () => {
                 <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
                   <div className="flex items-center gap-1.5 truncate">
                     <span className="font-semibold text-white truncate">{participantName} (Bạn)</span>
-                    <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
-                      {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
-                    </span>
+                    {isLadyBoss(user?.email) ? (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
+                        👑 Nóc Nhà PRO
+                      </span>
+                    ) : (
+                      <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
+                        {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     {isHandRaised && (
@@ -1591,7 +2093,17 @@ export const StudyRoomView: React.FC = () => {
                     <div
                       key={peer.id}
                       data-testid={`peer-tile-${peer.id}`}
-                      className="relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-white/5"
+                      onClick={() => {
+                        if (isOwnerEmail(user?.email) || userRole === 'host') {
+                          setSelectedMemberForAdmin(peer);
+                        }
+                      }}
+                      className={`relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-white/5 ${
+                        (isOwnerEmail(user?.email) || userRole === 'host') ? 'cursor-pointer hover:border-amber-400/60 transition' : ''
+                      }`}
+                      title={
+                        (isOwnerEmail(user?.email) || userRole === 'host') ? 'Bấm để quản trị thành viên (Tặng PRO, Tắt mic, Mời ra)' : undefined
+                      }
                     >
                       {/* Nếu có stream video thật sự đang phát */}
                       {hasVideoTrack ? (
@@ -1640,9 +2152,15 @@ export const StudyRoomView: React.FC = () => {
                       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
                         <div className="flex items-center gap-1.5 truncate">
                           <span className="font-semibold text-white truncate">{peer.name}</span>
-                          <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300 font-medium">
-                            {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
-                          </span>
+                          {isLadyBoss(peer.userId) || isLadyBoss(peer.name) ? (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
+                              👑 Nóc Nhà PRO
+                            </span>
+                          ) : (
+                            <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300 font-medium">
+                              {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <span
@@ -2017,6 +2535,19 @@ export const StudyRoomView: React.FC = () => {
             <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
+          {/* YouTube Study Beats Button */}
+          <button
+            type="button"
+            data-testid="btn-room-youtube"
+            onClick={() => setIsYouTubeWidgetOpen((prev) => !prev)}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+              isYouTubeWidgetOpen ? 'bg-rose-500/30 border border-rose-400 text-rose-300' : 'bg-white/10 hover:bg-white/20 text-white'
+            }`}
+            title="YouTube Lofi Beats (Phát cùng nhau)"
+          >
+            <Music size={16} className="sm:w-[18px] sm:h-[18px]" />
+          </button>
+
           {/* Mobile Quick Leave Button */}
           <button
             type="button"
@@ -2033,12 +2564,12 @@ export const StudyRoomView: React.FC = () => {
       {/* Device & Room Administrative Settings Modal */}
       {isDeviceModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl bg-neutral-900 border border-white/15 p-5 sm:p-6 text-white shadow-2xl">
+          <div className="w-full max-w-lg rounded-2xl bg-neutral-900 border border-white/15 p-5 sm:p-6 text-white shadow-2xl max-h-[88vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Settings size={18} className="text-emerald-400" />
-                <h3 className="font-bold text-sm">Cài Đặt Camera & Micro</h3>
+                <h3 className="font-bold text-sm">Cài Đặt Camera, Micro & Phòng Học</h3>
               </div>
               <button
                 type="button"
@@ -2061,7 +2592,7 @@ export const StudyRoomView: React.FC = () => {
                   activeSettingsTab === 'av' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Thiết Bị AV
+                Thiết Bị AV & Bitrate
               </button>
               <button
                 type="button"
@@ -2115,6 +2646,74 @@ export const StudyRoomView: React.FC = () => {
                       <option className="bg-neutral-900">Mặc định của hệ thống</option>
                     )}
                   </select>
+                </div>
+
+                {/* Chất lượng Video & Khóa Bitrate WebRTC */}
+                <div>
+                  <label className="block text-neutral-400 mb-1.5 flex items-center justify-between">
+                    <span>Độ Phân Giải & Khóa Bitrate WebRTC</span>
+                    <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                      {VIDEO_QUALITY_PROFILES[videoQuality].bitrateKbps} kbps
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {(Object.keys(VIDEO_QUALITY_PROFILES) as VideoQualityLevel[]).map((lvl) => {
+                      const prof = VIDEO_QUALITY_PROFILES[lvl];
+                      const isSelected = videoQuality === lvl;
+                      return (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => {
+                            setVideoQuality(lvl);
+                            if (rtcManagerRef.current) {
+                              rtcManagerRef.current.setVideoBitrate(prof.bitrateKbps);
+                            }
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition flex flex-col cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-500/15 border-emerald-400/80 text-white shadow-sm'
+                              : 'bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-xs">{prof.label}</span>
+                            {isSelected && <Check size={13} className="text-emerald-400" />}
+                          </div>
+                          <span className="text-[10px] text-neutral-400 mt-0.5">{prof.sublabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tùy chọn lọc âm thanh học nhóm */}
+                <div className="pt-2 border-t border-white/10 space-y-2">
+                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối Ưu Âm Thanh Học Nhóm</span>
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
+                    <div>
+                      <div className="font-medium text-white">Khử tiếng ồn xung quanh</div>
+                      <div className="text-[10px] text-neutral-400">Lọc tạp âm quạt gió, tiếng gõ phím</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={noiseSuppression}
+                      onChange={(e) => setNoiseSuppression(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
+                    <div>
+                      <div className="font-medium text-white">Chống tiếng vang (Echo Cancellation)</div>
+                      <div className="text-[10px] text-neutral-400">Tránh bị lặp tiếng khi bạn học mở loa ngoài</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={echoCancellation}
+                      onChange={(e) => setEchoCancellation(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                    />
+                  </label>
                 </div>
 
                 <button
@@ -2293,7 +2892,181 @@ export const StudyRoomView: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Hết Hạn 45 Phút Cho Phòng Free */}
+      {/* Floating Synchronized YouTube Widget */}
+      {isYouTubeWidgetOpen && (
+        <div
+          data-testid="floating-youtube-widget"
+          className="fixed z-40 rounded-2xl bg-neutral-900/95 border border-white/15 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col w-[360px] sm:w-[420px] max-w-[90vw]"
+          style={{
+            left: `${youtubeWidgetPos.x}px`,
+            top: `${youtubeWidgetPos.y}px`
+          }}
+        >
+          {/* Header bar / Drag handle */}
+          <div
+            className="px-3.5 py-2.5 bg-neutral-800/80 border-b border-white/10 flex items-center justify-between cursor-move select-none"
+            onMouseDown={handleYouTubeDragStart}
+          >
+            <div className="flex items-center gap-2 text-xs font-bold text-white">
+              <Music size={14} className="text-rose-400" />
+              <span>YouTube Lofi Beats (Đồng Bộ Nhóm)</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setIsYouTubeWidgetOpen(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Stream Preset Selectors & Custom Link Input */}
+          <div className="p-2.5 bg-neutral-950/60 border-b border-white/5 space-y-2 text-xs">
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={youtubeInputUrl}
+                onChange={(e) => setYoutubeInputUrl(e.target.value)}
+                placeholder="Dán link hoặc Video ID YouTube..."
+                className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[11px] text-white focus:outline-none focus:border-rose-400"
+              />
+              <button
+                type="button"
+                onClick={handleApplyYouTubeUrl}
+                className="px-2.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-[11px] transition cursor-pointer"
+              >
+                Phát
+              </button>
+            </div>
+            <div className="flex items-center gap-1 flex-wrap text-[10px]">
+              <span className="text-neutral-400">Gợi ý:</span>
+              <button
+                type="button"
+                onClick={() => switchYouTubeVideo('jfKfPfyJRdk')}
+                className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
+              >
+                ☕ Lofi Girl
+              </button>
+              <button
+                type="button"
+                onClick={() => switchYouTubeVideo('4xDzrJKXOOY')}
+                className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
+              >
+                🌆 Synthwave
+              </button>
+              <button
+                type="button"
+                onClick={() => switchYouTubeVideo('h2zkV-l_TbY')}
+                className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
+              >
+                🌧️ Cafe Mưa
+              </button>
+            </div>
+          </div>
+
+          {/* Embedded 16:9 Iframe Player */}
+          <div className="relative aspect-video w-full bg-black">
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&enablejsapi=1`}
+              title="YouTube Study Room Sync"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full border-0"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modal Quản Trị Thành Viên (Owner / Host Super-Powers) */}
+      {selectedMemberForAdmin && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-white/15 p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-base shadow">
+                  {(selectedMemberForAdmin.name || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">{selectedMemberForAdmin.name}</h4>
+                  <div className="text-[10px] text-neutral-400 capitalize">
+                    Vai trò hiện tại: {selectedMemberForAdmin.role}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedMemberForAdmin(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] font-semibold text-neutral-400">Đặc Quyền Quản Trị</div>
+
+              {/* Tặng PRO */}
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                <div className="text-[11px] font-medium text-amber-300 flex items-center gap-1.5">
+                  <Gift size={13} />
+                  <span>Tặng Gói PRO Ngay Lập Tức</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleGiveawayPro(selectedMemberForAdmin, 1)}
+                    className="py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 font-semibold text-[11px] transition cursor-pointer"
+                  >
+                    1 Tháng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleGiveawayPro(selectedMemberForAdmin, 12)}
+                    className="py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 font-semibold text-[11px] transition cursor-pointer"
+                  >
+                    1 Năm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleGiveawayPro(selectedMemberForAdmin, 999)}
+                    className="py-1.5 px-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-neutral-950 font-bold text-[11px] shadow transition cursor-pointer"
+                  >
+                    Trọn Đời
+                  </button>
+                </div>
+              </div>
+
+              {/* Tắt mic bắt buộc */}
+              <button
+                type="button"
+                onClick={() => handleForceMute(selectedMemberForAdmin)}
+                className="w-full p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 text-neutral-200 transition cursor-pointer"
+              >
+                <MicOff size={14} className="text-amber-400" />
+                <span>Tắt Micro Bắt Buộc (Force Mute)</span>
+              </button>
+
+              {/* Mời ra khỏi phòng */}
+              <button
+                type="button"
+                onClick={() => handleKickMember(selectedMemberForAdmin)}
+                className="w-full p-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 flex items-center gap-2 text-rose-300 font-semibold transition cursor-pointer"
+              >
+                <UserX size={14} className="text-rose-400" />
+                <span>Mời Ra Khỏi Phòng (Kick &amp; Ban)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Hết Hạn 45 Phút Cho Phòng Free / 90 Phút Cho Public Pod (Có 10s Grace Period Auto-Kick) */}
       {isFreeExpiredModalOpen && (
         <div
           role="dialog"
@@ -2307,10 +3080,12 @@ export const StudyRoomView: React.FC = () => {
             </div>
             <div>
               <h3 id="free-room-expired-title" className="text-lg font-bold text-white mb-1">
-                Phiên Học Kết Thúc
+                Đã Hết Thời Gian Học Tập!
               </h3>
               <p className="text-xs text-neutral-300 leading-relaxed">
-                Phiên học 45 phút đã kết thúc. Hãy nghỉ ngơi hoặc nâng cấp PRO để tiếp tục!
+                {expiredReason}{' '}
+                Bạn sẽ được tự động đưa ra sảnh sau{' '}
+                <span className="text-amber-400 font-bold font-mono text-sm">[{graceCountdown}s...]</span>
               </p>
             </div>
             <div className="flex flex-col gap-2 pt-2">
@@ -2321,7 +3096,7 @@ export const StudyRoomView: React.FC = () => {
                 className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20"
               >
                 <Sparkles size={15} />
-                <span>Nâng Cấp PRO Ngay</span>
+                <span>Nâng Cấp PRO Để Học Không Giới Hạn</span>
               </button>
               <button
                 type="button"
@@ -2329,7 +3104,7 @@ export const StudyRoomView: React.FC = () => {
                 onClick={() => router.navigate('/rooms')}
                 className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
               >
-                Về Sảnh Phòng Học
+                Rời Phòng Ngay ({graceCountdown}s)
               </button>
             </div>
           </div>

@@ -51,6 +51,10 @@ const PROCESSED_TRANS_KEY = 'pomodoro_study_processed_trans';
 const ORDER_TTL_MS = 15 * 60 * 1000; // 15 phút
 
 export const momoService = {
+  getQrImageUrl(amount: number, memo: string): string {
+    return `https://api.vietqr.io/image/970422-${MOMO_CONFIG.phone}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(MOMO_CONFIG.accountNameNoAccent)}`;
+  },
+
   createOrder(email: string, cycle: 'monthly' | 'yearly', userId?: string, authProvider?: string): MoMoOrder {
     const session = authService.getCurrentSession();
     // Ưu tiên danh tính đã xác thực nếu người dùng đang đăng nhập

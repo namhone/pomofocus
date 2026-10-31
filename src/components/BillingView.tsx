@@ -3,9 +3,10 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
-import { Check, CheckCircle2, Sparkles } from 'lucide-react';
+import { Check, CheckCircle2, Sparkles, Gift, AlertCircle } from 'lucide-react';
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
+import { couponService } from '../services/couponService';
 
 export const BillingView: React.FC = () => {
   const router = useRouter();
@@ -13,7 +14,19 @@ export const BillingView: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success'; text: string } | null>(null);
   const [isMoMoModalOpen, setIsMoMoModalOpen] = useState(false);
 
-  const { upgradeToSandboxPro, downgradeToFree, isPro } = useAuthStore();
+  const { upgradeToSandboxPro, downgradeToFree, isPro, user } = useAuthStore();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponResult, setCouponResult] = useState<{ success: boolean; text: string } | null>(null);
+
+  const handleRedeemCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    const res = couponService.redeemCoupon(couponCode, user);
+    setCouponResult({ success: res.success, text: res.message });
+    if (res.success && (res.coupon?.type === 'free_lifetime' || res.coupon?.type === 'free_days')) {
+      setStatusMessage({ type: 'success', text: res.message });
+    }
+  };
 
   const handleSimulateUpgrade = (durationMonths: number) => {
     upgradeToSandboxPro(durationMonths);
@@ -239,6 +252,42 @@ export const BillingView: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Coupon Redemption Card */}
+        <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-xl mx-auto w-full text-center space-y-3">
+          <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
+            <Gift size={16} className="text-amber-400" />
+            <span>Kích Hoạt Mã Ưu Đãi / Quà Tặng (Coupon)</span>
+          </div>
+          <p className="text-xs text-zinc-400">
+            Bạn có mã quà tặng từ sự kiện hoặc Chủ sở hữu? Nhập mã vào đây để kích hoạt quyền lợi ngay.
+          </p>
+          <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
+              className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+            >
+              Áp Dụng
+            </button>
+          </form>
+          {couponResult && (
+            <div
+              className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
+                couponResult.success ? 'text-emerald-400' : 'text-rose-400'
+              }`}
+            >
+              {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}
+              <span>{couponResult.text}</span>
+            </div>
+          )}
         </div>
       </main>
 

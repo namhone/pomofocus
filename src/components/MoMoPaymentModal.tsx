@@ -3,6 +3,7 @@ import { momoService, MoMoOrder, MOMO_CONFIG } from '../services/momoService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { googleAuthService } from '../services/googleAuthService';
 import { PRICING_PLANS } from '../config/pricing';
+import { couponService } from '../services/couponService';
 import {
   X,
   Copy,
@@ -15,7 +16,8 @@ import {
   ArrowRight,
   AlertCircle,
   FlaskConical,
-  ExternalLink
+  ExternalLink,
+  Gift
 } from 'lucide-react';
 
 interface MoMoPaymentModalProps {
@@ -41,8 +43,33 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   const [isSandboxSuccess, setIsSandboxSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(900); // 15 phút đếm ngược
   const [imgError, setImgError] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
 
   const planConfig = PRICING_PLANS[cycle];
+
+  const handleApplyCoupon = () => {
+    if (!couponInput.trim()) return;
+    const res = couponService.redeemCoupon(couponInput, user);
+    setCouponFeedback({ success: res.success, message: res.message });
+    if (res.success) {
+      if (res.coupon?.type === 'free_lifetime' || res.coupon?.type === 'free_days') {
+        setIsSandboxSuccess(true);
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      } else if (res.discountPercent && order) {
+        setDiscountPercent(res.discountPercent);
+        const newAmount = Math.round(order.amount * (100 - res.discountPercent) / 100);
+        setOrder({
+          ...order,
+          amount: newAmount,
+          qrUrl: momoService.getQrImageUrl(newAmount, order.memo)
+        });
+      }
+    }
+  };
 
   // Khởi tạo đơn hàng MoMo khi modal mở
   useEffect(() => {
@@ -247,6 +274,48 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     className="w-full bg-black/40 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500"
                     placeholder="Nhập email của bạn để nhận hóa đơn"
                   />
+                </div>
+              )}
+            </div>
+
+            {/* Hộp Nhập Mã Coupon / Quà Tặng */}
+            <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 mb-4 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-[11px] text-zinc-300">
+                <span className="font-semibold flex items-center gap-1.5">
+                  <Gift size={13} className="text-amber-400" />
+                  <span>Mã Giảm Giá &amp; Quà Tặng (Coupon)</span>
+                </span>
+                {discountPercent > 0 && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold font-mono">
+                    Đã giảm {discountPercent}%
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                  placeholder="Nhập mã coupon (VD: PRO50)..."
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  type="button"
+                  data-testid="btn-apply-coupon"
+                  onClick={handleApplyCoupon}
+                  className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+                >
+                  Áp Dụng
+                </button>
+              </div>
+              {couponFeedback && (
+                <div
+                  className={`text-[11px] font-medium flex items-center gap-1.5 ${
+                    couponFeedback.success ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
+                >
+                  {couponFeedback.success ? <Check size={12} /> : <AlertCircle size={12} />}
+                  <span>{couponFeedback.message}</span>
                 </div>
               )}
             </div>

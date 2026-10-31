@@ -7,6 +7,44 @@
 
 import type { RealtimeChannel } from '@/lib/supabase';
 
+export type VideoQualityLevel = 'low' | 'standard' | 'high';
+
+export interface VideoQualityProfile {
+  label: string;
+  sublabel: string;
+  width: { ideal: number; max: number };
+  height: { ideal: number; max: number };
+  frameRate: { ideal: number; max: number };
+  bitrateKbps: number;
+}
+
+export const VIDEO_QUALITY_PROFILES: Record<VideoQualityLevel, VideoQualityProfile> = {
+  low: {
+    label: 'Tiết kiệm pin / 4G (360p)',
+    sublabel: '360p @ 15fps, ~250 kbps - Siêu nhẹ, mạng yếu vẫn mượt',
+    width: { ideal: 480, max: 640 },
+    height: { ideal: 360, max: 480 },
+    frameRate: { ideal: 15, max: 15 },
+    bitrateKbps: 250,
+  },
+  standard: {
+    label: 'Tiêu chuẩn học tập (480p - Khuyên dùng)',
+    sublabel: '480p @ 24fps, ~450 kbps - Cân bằng mượt mà, không nóng máy',
+    width: { ideal: 640, max: 854 },
+    height: { ideal: 480, max: 480 },
+    frameRate: { ideal: 24, max: 24 },
+    bitrateKbps: 450,
+  },
+  high: {
+    label: 'Độ nét cao (720p)',
+    sublabel: '720p @ 24fps, ~900 kbps - Rõ nét bảng viết, yêu cầu Wi-Fi tốt',
+    width: { ideal: 1280, max: 1280 },
+    height: { ideal: 720, max: 720 },
+    frameRate: { ideal: 24, max: 30 },
+    bitrateKbps: 900,
+  },
+};
+
 export interface WebRTCCallbacks {
   onRemoteStream: (peerId: string, stream: MediaStream) => void;
   onPeerLeave: (peerId: string) => void;
@@ -31,6 +69,7 @@ export class WebRTCConnectionManager {
   private myUserId: string;
   private callbacks: WebRTCCallbacks;
   private broadcastChannel: BroadcastChannel | null = null;
+  private currentBitrateKbps: number = 450;
 
   constructor(channel: RealtimeChannel, myUserId: string, callbacks: WebRTCCallbacks) {
     this.channel = channel;
@@ -44,6 +83,34 @@ export class WebRTCConnectionManager {
       }
     }
     this.setupSignalingListeners();
+  }
+
+  /** Giới hạn bitrate và tối ưu độ ổn định khung hình cho peer connection */
+  public applyBitrateLimit(pc: RTCPeerConnection, bitrateKbps: number = this.currentBitrateKbps) {
+    try {
+      const senders = pc.getSenders();
+      const videoSender = senders.find((s) => s.track && s.track.kind === 'video');
+      if (videoSender && typeof videoSender.getParameters === 'function') {
+        const params = videoSender.getParameters();
+        if (params && params.encodings && params.encodings.length > 0) {
+          params.encodings[0].maxBitrate = bitrateKbps * 1000;
+          (params.encodings[0] as any).degradationPreference = 'maintain-framerate';
+          videoSender.setParameters(params).catch((err) => {
+            console.debug('[WebRTC] setParameters bitrate warning:', err);
+          });
+        }
+      }
+    } catch (err) {
+      console.debug('[WebRTC] applyBitrateLimit warning:', err);
+    }
+  }
+
+  /** Đặt bitrate và cập nhật ngay lập tức cho tất cả peer connections đang hoạt động */
+  public setVideoBitrate(bitrateKbps: number) {
+    this.currentBitrateKbps = bitrateKbps;
+    this.peerConnections.forEach((pc) => {
+      this.applyBitrateLimit(pc, bitrateKbps);
+    });
   }
 
   /** Cập nhật luồng hình ảnh/âm thanh của máy mình */
@@ -64,6 +131,7 @@ export class WebRTCConnectionManager {
           }
         }
       });
+      this.applyBitrateLimit(pc);
     });
   }
 
@@ -172,6 +240,7 @@ export class WebRTCConnectionManager {
           console.warn('Lỗi addTrack:', err);
         }
       });
+      this.applyBitrateLimit(pc);
     }
 
     // Khi phát hiện ICE Candidate mới -> gửi cho đối phương

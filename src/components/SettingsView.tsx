@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useTimerStore } from '../stores/useTimerStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAudioStore } from '../stores/useAudioStore';
+import { useAuthStore } from '../stores/useAuthStore';
+import { couponService, Coupon } from '../services/couponService';
+import { studyRoomService } from '../services/studyRoomService';
 import { ChimeSoundType } from '../types/audio';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -12,7 +15,13 @@ import {
   Sliders,
   RotateCcw,
   Check,
-  CheckCircle2
+  CheckCircle2,
+  Shield,
+  Trash2,
+  Plus,
+  Copy,
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -28,11 +37,60 @@ export const SettingsView: React.FC = () => {
   const selectedChime = useAudioStore((s) => s.settings.selectedChime);
   const setSelectedChime = useAudioStore((s) => s.setSelectedChime);
 
+  const isOwner = useAuthStore((s) => s.isOwner);
+  const user = useAuthStore((s) => s.user);
+
+  // Coupon & Super-Powers state
+  const [coupons, setCoupons] = useState<Coupon[]>(() => couponService.getCoupons());
+  const [newCode, setNewCode] = useState('');
+  const [newType, setNewType] = useState<'discount_percent' | 'free_days' | 'free_lifetime'>('discount_percent');
+  const [newValue, setNewValue] = useState(30);
+  const [newMaxUses, setNewMaxUses] = useState(50);
+  const [newDesc, setNewDesc] = useState('');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleCreateCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = couponService.createCoupon({
+      code: newCode,
+      type: newType,
+      value: newValue,
+      maxUses: newMaxUses,
+      description: newDesc
+    });
+    if (!res.success) {
+      showToast(res.error || 'Lỗi tạo coupon');
+      return;
+    }
+    setCoupons(couponService.getCoupons());
+    setNewCode('');
+    setNewDesc('');
+    showToast(`Đã tạo mã coupon ${res.coupon?.code} thành công! 🎉`);
+  };
+
+  const handleDeleteCoupon = (code: string) => {
+    couponService.deleteCoupon(code);
+    setCoupons(couponService.getCoupons());
+    showToast(`Đã xóa coupon ${code}`);
+  };
+
+  const handleCopyCoupon = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+    showToast(`Đã copy mã ${code}`);
+  };
+
+  const handlePurgeZombieSessions = () => {
+    const res = studyRoomService.purgeZombieSessions();
+    showToast(`Đã dọn dẹp ${res.purgedParticipants} phiên người dùng ảo và làm sạch ${res.purgedRooms.length} phòng học! 🧹`);
   };
 
   const handlePomodoroChange = (val: number) => {
@@ -296,6 +354,171 @@ export const SettingsView: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Section 4: Owner Super-Powers & Coupon Management */}
+        {(isOwner || user?.email === 'namho03052k9@gmail.com') && (
+          <div data-testid="section-owner-superpowers" className="p-5 sm:p-7 rounded-2xl border border-amber-500/40 bg-amber-950/20 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-500/30">
+              <div className="flex items-center gap-2.5">
+                <Shield size={20} className="text-amber-400 shrink-0" />
+                <div>
+                  <h2 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>Quản Trị Hệ Thống &amp; Kho Coupon</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/30 text-amber-300 border border-amber-500/40">
+                      OWNER SUPER-POWERS
+                    </span>
+                  </h2>
+                  <p className="text-[11px] text-zinc-400">
+                    Đặc quyền tối cao của Chủ sở hữu: Dọn dẹp phòng trống và tạo mã ưu đãi cho học viên.
+                  </p>
+                </div>
+              </div>
+
+              {/* Purge Zombie Sessions Button */}
+              <button
+                type="button"
+                data-testid="btn-purge-zombie"
+                onClick={handlePurgeZombieSessions}
+                className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 self-start sm:self-auto shrink-0"
+              >
+                <RefreshCw size={13} />
+                <span>Dọn Dẹp Phiên Zombie</span>
+              </button>
+            </div>
+
+            {/* Create Coupon Form */}
+            <form onSubmit={handleCreateCoupon} className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-3 text-xs">
+              <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+                <Plus size={14} />
+                <span>Tạo Mã Coupon / Thẻ Ưu Đãi Mới</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-zinc-400 mb-1">Mã Code (viết hoa)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="VD: PRO50, VIP2026..."
+                    value={newCode}
+                    onChange={(e) => setNewCode(e.target.value.toUpperCase())}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono focus:outline-none focus:border-amber-400 uppercase"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 mb-1">Loại ưu đãi</label>
+                  <select
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="discount_percent">% Giảm Giá Đơn Hàng</option>
+                    <option value="free_days">Tặng Số Ngày PRO Miễn Phí</option>
+                    <option value="free_lifetime">PRO Trọn Đời Vĩnh Viễn</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 mb-1">
+                    {newType === 'discount_percent' ? 'Mức giảm (%)' : newType === 'free_days' ? 'Số ngày tặng' : 'Giá trị'}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={newType === 'discount_percent' ? 100 : 3650}
+                    disabled={newType === 'free_lifetime'}
+                    value={newType === 'free_lifetime' ? 0 : newValue}
+                    onChange={(e) => setNewValue(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono focus:outline-none focus:border-amber-400 disabled:opacity-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 mb-1">Giới hạn số lượt dùng</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10000}
+                    value={newMaxUses}
+                    onChange={(e) => setNewMaxUses(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white font-mono focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                <input
+                  type="text"
+                  placeholder="Mô tả ghi chú (ví dụ: Tặng quà sinh nhật bạn học)..."
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                  className="flex-1 w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-white text-xs focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-5 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-neutral-950 font-bold transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  <Sparkles size={13} />
+                  <span>Kích Hoạt Coupon</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Existing Coupons Table */}
+            <div className="space-y-3">
+              <div className="font-semibold text-white text-xs flex items-center justify-between">
+                <span>Danh Sách Coupon Trong Kho ({coupons.length})</span>
+                <span className="text-[10px] text-zinc-400">Lưu trữ tại: pomodoro_coupons_store</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {coupons.map((c) => (
+                  <div
+                    key={c.code}
+                    className="p-3.5 rounded-xl border border-white/10 bg-black/50 flex flex-col justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-mono font-bold text-amber-300 text-sm flex items-center gap-1.5">
+                          <span>{c.code}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyCoupon(c.code)}
+                            className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition"
+                            title="Copy mã"
+                          >
+                            {copiedCode === c.code ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-zinc-400 mt-0.5">
+                          {c.type === 'discount_percent'
+                            ? `Giảm ${c.value}% giá trị đơn hàng`
+                            : c.type === 'free_days'
+                            ? `Tặng ${c.value} ngày PRO miễn phí`
+                            : 'Mở khóa PRO Trọn đời vĩnh viễn'}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCoupon(c.code)}
+                        className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition cursor-pointer"
+                        title="Xóa coupon"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-400">
+                      <span>Đã dùng: <strong className="text-white">{c.usedCount}</strong>/{c.maxUses} lượt</span>
+                      {c.description && <span className="truncate max-w-[120px] text-zinc-500">{c.description}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <SharedFooter />

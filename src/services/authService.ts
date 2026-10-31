@@ -4,6 +4,8 @@ import type { GoogleUserPayload } from './googleAuthService';
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
 
 export const OWNER_EMAIL = 'namho03052k9@gmail.com';
+export const LADY_BOSS_EMAIL = 'huyentrantt09@gmail.com';
+export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
 
 export interface UserProfile {
@@ -53,7 +55,18 @@ export function isOwnerEmail(email?: string | null): boolean {
   return email.trim().toLowerCase() === OWNER_EMAIL;
 }
 
-export function hasProEntitlement(plan?: UserPlan | null): boolean {
+export function isLadyBoss(email?: string | null): boolean {
+  if (!email) return false;
+  return email.trim().toLowerCase() === LADY_BOSS_EMAIL;
+}
+
+export function isVipFriend(email?: string | null): boolean {
+  if (!email) return false;
+  return email.trim().toLowerCase() === VIP_FRIEND_EMAIL;
+}
+
+export function hasProEntitlement(plan?: UserPlan | null, email?: string | null): boolean {
+  if (isLadyBoss(email) || isOwnerEmail(email) || isVipFriend(email)) return true;
   if (!plan) return false;
   return (
     plan === 'pro' ||
@@ -65,7 +78,10 @@ export function hasProEntitlement(plan?: UserPlan | null): boolean {
 
 export function getPlanLabel(user?: UserProfile | null): string {
   if (!user) return 'FREE';
-  if (user.isLifetime || user.plan === 'pro_lifetime' || isOwnerEmail(user.email)) {
+  if (isLadyBoss(user.email)) {
+    return '👑 NÓC NHÀ PRO';
+  }
+  if (user.isLifetime || user.plan === 'pro_lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email)) {
     return 'PRO TRỌN ĐỜI';
   }
   if (user.plan === 'pro_beta') return 'PRO BETA (3 NĂM)';
@@ -82,8 +98,8 @@ export function getPlanLabel(user?: UserProfile | null): string {
 function applyEntitlementPolicy(account: StoredUserAccount): StoredUserAccount {
   const normalized = account.email.trim().toLowerCase();
 
-  // 1. Tài khoản Chủ Sở Hữu: Bất biến Lifetime PRO
-  if (normalized === OWNER_EMAIL) {
+  // 1. Tài khoản Chủ Sở Hữu, Nóc Nhà (Lady Boss) & Bạn Thân Sếp: Bất biến Lifetime PRO
+  if (normalized === OWNER_EMAIL || isLadyBoss(normalized) || isVipFriend(normalized)) {
     return {
       ...account,
       plan: 'pro_lifetime',
@@ -162,7 +178,7 @@ export const authService = {
       if (!raw) return null;
       const parsed: UserProfile = JSON.parse(raw);
       // Áp dụng bảo vệ đặc quyền cho phiên hiện tại
-      if (isOwnerEmail(parsed.email)) {
+      if (isOwnerEmail(parsed.email) || isLadyBoss(parsed.email) || isVipFriend(parsed.email)) {
         parsed.plan = 'pro_lifetime';
         parsed.isLifetime = true;
         parsed.proExpiresAt = null;
@@ -433,6 +449,11 @@ export const authService = {
     localStorage.removeItem(AUTH_SESSION_KEY);
   },
 
+  upgradeToPro(durationMonths = 1): UserProfile {
+    const current = this.getCurrentSession();
+    return this.upgradePlan(current?.id || 'guest', 'pro', durationMonths);
+  },
+
   upgradePlan(userId: string, plan: UserPlan, durationMonths = 1): UserProfile {
     const users = initializeDemoAccounts();
     let current = this.getCurrentSession();
@@ -446,8 +467,8 @@ export const authService = {
       };
     }
 
-    // Bảo vệ bất biến: Nếu là Chủ sở hữu, KHÔNG THỂ bị hạ cấp hoặc đổi sang plan khác
-    if (isOwnerEmail(current.email)) {
+    // Bảo vệ bất biến: Nếu là Chủ sở hữu, Nóc Nhà VIP hoặc Bạn Thân Sếp, KHÔNG THỂ bị hạ cấp hoặc đổi sang plan khác
+    if (isOwnerEmail(current.email) || isLadyBoss(current.email) || isVipFriend(current.email)) {
       current.plan = 'pro_lifetime';
       current.isLifetime = true;
       current.proExpiresAt = null;

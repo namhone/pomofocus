@@ -5,7 +5,7 @@
  * và kiểm soát truy cập dựa trên dữ liệu thuê bao thanh toán thực tế (Backend Verification).
  */
 
-import { UserProfile, isOwnerEmail } from './authService';
+import { UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 import { momoService } from './momoService';
 
 export interface RoomParticipant {
@@ -37,6 +37,8 @@ export interface StudyRoom {
   status: 'active' | 'closed';
   allowFreeGuests: boolean;
   maxParticipants?: number;
+  isFreeRoom?: boolean;
+  maxDurationMinutes?: number;
   activeInviteToken: string | null;
   inviteTokens: Record<string, RoomInviteToken>;
   participants: Record<string, RoomParticipant>;
@@ -244,6 +246,99 @@ export const studyRoomService = {
     }
   },
 
+  /** Lấy ngày hiện tại YYYY-MM-DD theo giờ địa phương */
+  getTodayDateKey(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+
+  /** Số lượng phòng Free đã tạo hôm nay của user (tối đa 3 phòng/ngày) */
+  getDailyPrivateRoomCount(userId: string): number {
+    if (typeof window === 'undefined' || !window.localStorage) return 0;
+    try {
+      const key = `pomodoro_free_rooms_created_${this.getTodayDateKey()}_${userId}`;
+      const count = localStorage.getItem(key);
+      return count ? parseInt(count, 10) : 0;
+    } catch {
+      return 0;
+    }
+  },
+
+  incrementDailyPrivateRoomCount(userId: string): number {
+    if (typeof window === 'undefined' || !window.localStorage) return 1;
+    try {
+      const key = `pomodoro_free_rooms_created_${this.getTodayDateKey()}_${userId}`;
+      const current = this.getDailyPrivateRoomCount(userId);
+      const next = current + 1;
+      localStorage.setItem(key, String(next));
+      return next;
+    } catch {
+      return 1;
+    }
+  },
+
+  /** Tổng thời gian học công cộng hôm nay tính bằng giây (tối đa 90 phút = 5400s) */
+  getDailyPublicStudyTime(userIdOrGuest: string): number {
+    if (typeof window === 'undefined' || !window.localStorage) return 0;
+    try {
+      const key = `pomodoro_public_study_time_${this.getTodayDateKey()}_${userIdOrGuest}`;
+      const sec = localStorage.getItem(key);
+      return sec ? parseInt(sec, 10) : 0;
+    } catch {
+      return 0;
+    }
+  },
+
+  addDailyPublicStudyTime(userIdOrGuest: string, addedSeconds: number): number {
+    if (typeof window === 'undefined' || !window.localStorage) return 0;
+    try {
+      const current = this.getDailyPublicStudyTime(userIdOrGuest);
+      const updated = current + addedSeconds;
+      const key = `pomodoro_public_study_time_${this.getTodayDateKey()}_${userIdOrGuest}`;
+      localStorage.setItem(key, String(updated));
+      return updated;
+    } catch {
+      return 0;
+    }
+  },
+
+  /**
+   * Dọn dẹp phiên zombie (Zombie Sessions Purge):
+   * Reset danh sách người tham gia và đặt lại trạng thái phòng trống
+   */
+  purgeZombieSessions(targetRoomId?: string): { purgedRooms: string[]; purgedParticipants: number } {
+    const allRooms = this.getAllRooms();
+    const purgedRooms: string[] = [];
+    let purgedParticipants = 0;
+
+    Object.keys(allRooms).forEach((id) => {
+      if (targetRoomId && id !== targetRoomId) return;
+      const r = allRooms[id];
+      const pCount = Object.keys(r.participants || {}).length;
+      if (pCount > 0) {
+        purgedParticipants += pCount;
+        r.participants = {};
+        allRooms[id] = r;
+        purgedRooms.push(id);
+      }
+    });
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(allRooms));
+      } catch (e) {
+        console.error('Lỗi lưu sau khi purgeZombieSessions:', e);
+      }
+    }
+
+    this.broadcastEvent({
+      type: 'ROOM_ZOMBIE_PURGED',
+      roomId: targetRoomId || 'all'
+    });
+
+    return { purgedRooms, purgedParticipants };
+  },
+
   /**
    * XÁC MINH QUYỀN THUÊ BAO TRẢ PHÍ (BACKEND SUBSCRIPTION VERIFICATION)
    *
@@ -264,11 +359,15 @@ export const studyRoomService = {
       };
     }
 
-    // 1. Chủ sở hữu hệ thống (namho03052k9@gmail.com): Luôn đủ điều kiện (Lifetime PRO)
-    if (isOwnerEmail(user.email) || user.isLifetime || user.plan === 'pro_lifetime') {
+    // 1. Chủ sở hữu hệ thống, VIP Nóc Nhà hoặc Bạn Thân Sếp: Luôn đủ điều kiện (Lifetime PRO)
+    if (isOwnerEmail(user.email) || isLadyBoss(user.email) || isVipFriend(user.email) || user.isLifetime || user.plan === 'pro_lifetime') {
       return {
         eligible: true,
-        reason: 'Tài khoản Chủ sở hữu / PRO Trọn đời có đặc quyền quản trị đầy đủ.',
+        reason: isLadyBoss(user.email)
+          ? 'Tài khoản VIP Nóc Nhà PRO được mở khóa toàn quyền quản trị trọn đời.'
+          : isVipFriend(user.email)
+          ? 'Tài khoản Bạn Thân Sếp được tặng PRO Trọn Đời vĩnh viễn.'
+          : 'Tài khoản Chủ sở hữu / PRO Trọn đời có đặc quyền quản trị đầy đủ.',
         durationMonths: 999,
         isPaid: true,
         planType: 'PRO_LIFETIME'
@@ -373,19 +472,36 @@ export const studyRoomService = {
   createRoom(params: {
     title?: string;
     hostUser: UserProfile;
+    isFreeRoom?: boolean;
   }): { success: true; room: StudyRoom; inviteLink: string } | { success: false; error: string } {
-    const isProUser = params.hostUser && (
-      params.hostUser.plan === 'pro' ||
-      params.hostUser.plan === 'pro_beta' ||
-      params.hostUser.plan === 'pro_lifetime' ||
-      isOwnerEmail(params.hostUser.email)
+    const isLadyBossUser = Boolean(params.hostUser && isLadyBoss(params.hostUser.email));
+    const isOwner = Boolean(params.hostUser && isOwnerEmail(params.hostUser.email));
+    const isVipFriendUser = Boolean(params.hostUser && isVipFriend(params.hostUser.email));
+    const isProUser = isLadyBossUser || isOwner || isVipFriendUser || Boolean(
+      params.hostUser && (
+        params.hostUser.plan === 'pro' ||
+        params.hostUser.plan === 'pro_beta' ||
+        params.hostUser.plan === 'pro_lifetime'
+      )
     );
 
     if (!isProUser) {
-      return {
-        success: false,
-        error: 'Khởi tạo phòng học nhóm là đặc quyền dành riêng cho gói PRO. Vui lòng nâng cấp tài khoản để tạo phòng.'
-      };
+      if (!params.isFreeRoom) {
+        return {
+          success: false,
+          error: 'Khởi tạo phòng học nhóm là đặc quyền dành riêng cho gói PRO. Vui lòng nâng cấp tài khoản để tạo phòng.'
+        };
+      }
+
+      // Giới hạn 3 phòng Free/ngày
+      const currentDailyCount = this.getDailyPrivateRoomCount(params.hostUser.id);
+      if (currentDailyCount >= 3) {
+        return {
+          success: false,
+          error: 'Bạn đã hết 3 lượt tạo phòng Free hôm nay. Quay lại vào 0h sáng mai hoặc nâng cấp PRO!'
+        };
+      }
+      this.incrementDailyPrivateRoomCount(params.hostUser.id);
     }
 
     const roomId = generateUniqueRoomId();
@@ -399,7 +515,10 @@ export const studyRoomService = {
       hostEmail: params.hostUser.email,
       createdAt: now,
       status: 'active',
-      allowFreeGuests: false, // Mặc định tắt, chỉ chủ phòng đủ điều kiện mới bật được
+      allowFreeGuests: !isProUser ? true : false,
+      maxParticipants: isLadyBossUser ? 50 : 25,
+      isFreeRoom: !isProUser,
+      maxDurationMinutes: !isProUser ? 45 : undefined,
       activeInviteToken: token,
       inviteTokens: {
         [token]: {
@@ -407,7 +526,7 @@ export const studyRoomService = {
           createdAt: now,
           expiresAt: null,
           revoked: false,
-          allowFree: false
+          allowFree: !isProUser ? true : false
         }
       },
       participants: {},
@@ -472,7 +591,7 @@ export const studyRoomService = {
           (p) => p.userId === currentUser.id || p.id === currentUser.id || p.id.startsWith(`${currentUser.id}_`)
         )
       );
-      if (activeCount >= maxCapacity && !isAlreadyIn) {
+      if (activeCount >= maxCapacity && !isAlreadyIn && !isOwnerEmail(currentUser?.email)) {
         return {
           allowed: false,
           code: 'ROOM_FULL',
@@ -500,11 +619,15 @@ export const studyRoomService = {
     }
 
     // 6. Kiểm tra xem người dùng có gói PRO không
-    const isProUser = currentUser && (
-      currentUser.plan === 'pro' ||
-      currentUser.plan === 'pro_beta' ||
-      currentUser.plan === 'pro_lifetime' ||
-      isOwnerEmail(currentUser.email)
+    const isProUser = Boolean(
+      currentUser && (
+        isLadyBoss(currentUser.email) ||
+        isVipFriend(currentUser.email) ||
+        isOwnerEmail(currentUser.email) ||
+        currentUser.plan === 'pro' ||
+        currentUser.plan === 'pro_beta' ||
+        currentUser.plan === 'pro_lifetime'
+      )
     );
 
     // Thành viên PRO luôn được vào phòng ngay lập tức
