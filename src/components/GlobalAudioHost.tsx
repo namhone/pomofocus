@@ -132,9 +132,9 @@ export const GlobalAudioHost: React.FC = () => {
       const collapsedAnchor = document.getElementById('collapsed-youtube-pip-anchor');
 
       let targetEl: HTMLElement | null = null;
-      if (isSoundsOpen && !isSoundsCollapsed && expandedAnchor) {
+      if (isSoundsOpen && expandedAnchor) {
         targetEl = expandedAnchor;
-      } else if (isSoundsOpen && isSoundsCollapsed && collapsedAnchor) {
+      } else if (isSoundsCollapsed && collapsedAnchor) {
         targetEl = collapsedAnchor;
       }
 
@@ -146,9 +146,34 @@ export const GlobalAudioHost: React.FC = () => {
           container.style.left = `${Math.round(rect.left)}px`;
           container.style.width = `${Math.round(rect.width)}px`;
           container.style.height = `${Math.round(rect.height)}px`;
-          container.style.opacity = '1';
           container.style.pointerEvents = 'auto';
-          container.style.zIndex = isSoundsCollapsed ? '64' : '30';
+
+          // Khi mở rộng: kiểm tra xem anchor có bị cuộn lọt lên đè vào header không
+          if (isSoundsOpen && !isSoundsCollapsed) {
+            container.style.zIndex = '15';
+            const widgetContainer = targetEl.closest('[data-testid="widget-container-sounds"]');
+            const headerEl = widgetContainer?.querySelector('[data-drag-handle="true"]');
+            const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
+
+            if (headerBottom > 0 && rect.top < headerBottom) {
+              const overlap = headerBottom - rect.top;
+              if (overlap >= rect.height) {
+                container.style.opacity = '0';
+                container.style.pointerEvents = 'none';
+              } else {
+                container.style.clipPath = `inset(${Math.round(overlap)}px 0 0 0)`;
+                container.style.opacity = '1';
+              }
+            } else {
+              container.style.clipPath = 'none';
+              container.style.opacity = '1';
+            }
+          } else {
+            // Khi thu gọn: hiển thị Mini PiP 16:9 rõ ràng
+            container.style.zIndex = '64';
+            container.style.clipPath = 'none';
+            container.style.opacity = '1';
+          }
         }
       } else {
         // Widget đóng hoặc đang ẩn: giữ nguyên phát offscreen
@@ -160,6 +185,7 @@ export const GlobalAudioHost: React.FC = () => {
         container.style.opacity = '0.001';
         container.style.pointerEvents = 'none';
         container.style.zIndex = '-1';
+        container.style.clipPath = 'none';
       }
 
       animId = requestAnimationFrame(syncPosition);
