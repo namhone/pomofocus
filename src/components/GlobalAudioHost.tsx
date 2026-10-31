@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useRef } from 'react';
 import { useAudioStore } from '../stores/useAudioStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { extractYouTubeEmbedUrl } from '../utils/media';
@@ -7,9 +6,13 @@ import { extractYouTubeEmbedUrl } from '../utils/media';
 /**
  * GlobalAudioHost: Quản lý vòng đời phát âm thanh độc lập toàn cục (App.tsx).
  * Giữ cho nhạc nền hoặc luồng âm thanh tiếp tục phát kể cả khi widget đóng hoặc thu nhỏ.
- * Đối với YouTube Video: sử dụng React Portal để đưa iframe trực tiếp vào vùng nội dung
- * của AudioWidget (thay vì fixed positioning trôi nổi), đảm bảo video di chuyển đồng bộ 100%
- * với khung mà không bị trôi lệch, giật lag hay vỡ bố cục.
+ * Đối với YouTube Video:
+ * - KHÔNG BAO GIỜ unmount iframe hoặc re-parent qua createPortal (vì re-parent iframe làm browser reload từ 0:00).
+ * - Thẻ <iframe> luôn nằm cố định trong 1 DOM node duy nhất tại GlobalAudioHost.
+ * - Sử dụng getBoundingClientRect() đồng bộ liên tục theo requestAnimationFrame:
+ *   + Khi AudioWidget mở: neo vào #youtube-player-anchor (chiếm trọn 100% width aspect-video)
+ *   + Khi thu nhỏ (Collapsed): neo vào #collapsed-youtube-pip-anchor (Mini Player PiP 160x90px)
+ *   + Khi đóng widget: vị trí chuyển sang offscreen (-9999px) mà không unmount, video/nhạc tiếp tục chạy liền mạch từ giây đang phát.
  */
 export const GlobalAudioHost: React.FC = () => {
   const {
@@ -24,10 +27,11 @@ export const GlobalAudioHost: React.FC = () => {
 
   const soundsWidget = useLayoutStore((s) => s.widgets.sounds);
   const isSoundsOpen = Boolean(soundsWidget?.isOpen && !soundsWidget?.isCollapsed);
+  const isSoundsCollapsed = Boolean(soundsWidget?.isOpen && soundsWidget?.isCollapsed);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const offscreenContainerRef = useRef<HTMLDivElement | null>(null);
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   // 1. Đồng bộ luồng Direct Audio (MP3, AAC, Radio Stream)
   useEffect(() => {
@@ -80,45 +84,93 @@ export const GlobalAudioHost: React.FC = () => {
     setCustomMusicPlaying
   ]);
 
-  // 2. Đồng bộ vị trí portal YouTube Video trực tiếp vào anchor của AudioWidget khi mở
-  const isYouTubeActive = customMusicType === 'youtube' && customMusicPlaying && Boolean(customMusicUrl);
-  const youtubeEmbedUrl = isYouTubeActive ? extractYouTubeEmbedUrl(customMusicUrl) : null;
+  // 2. Đồng bộ vị trí YouTube Video độc lập cố định trong DOM
+  const isYouTube = customMusicType === 'youtube' && Boolean(customMusicUrl);
+  const youtubeEmbedUrl = isYouTube ? extractYouTubeEmbedUrl(customMusicUrl) : null;
 
+  // Điều khiển Play / Pause / Volume cho iframe YouTube thông qua postMessage API
   useEffect(() => {
-    if (!isYouTubeActive) {
-      setPortalTarget(null);
+    const iframe = iframeRef.current;
+    if (!iframe || !iframe.contentWindow || !youtubeEmbedUrl) return;
+
+    try {
+      if (customMusicPlaying) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: '' }), '*');
+      } else {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: '' }), '*');
+      }
+
+      const effectiveVolume = settings.isMuted ? 0 : Math.round(customMusicVolume * settings.masterVolume * 100);
+      iframe.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'setVolume', args: [effectiveVolume] }),
+        '*'
+      );
+    } catch {
+      // Ignored if cross-origin message queueing
+    }
+  }, [customMusicPlaying, customMusicVolume, settings.masterVolume, settings.isMuted, youtubeEmbedUrl]);
+
+  // Đồng bộ vị trí container của YouTube Iframe theo từng frame (requestAnimationFrame)
+  useEffect(() => {
+    if (!isYouTube || !youtubeEmbedUrl) {
+      if (playerContainerRef.current) {
+        playerContainerRef.current.style.top = '-9999px';
+        playerContainerRef.current.style.left = '-9999px';
+        playerContainerRef.current.style.opacity = '0.001';
+        playerContainerRef.current.style.pointerEvents = 'none';
+      }
       return;
     }
 
-    if (isSoundsOpen) {
-      const anchorEl = document.getElementById('youtube-player-anchor');
-      if (anchorEl) {
-        setPortalTarget(anchorEl);
-        return;
+    let animId: number;
+
+    const syncPosition = () => {
+      const container = playerContainerRef.current;
+      if (!container) return;
+
+      const expandedAnchor = document.getElementById('youtube-player-anchor');
+      const collapsedAnchor = document.getElementById('collapsed-youtube-pip-anchor');
+
+      let targetEl: HTMLElement | null = null;
+      if (isSoundsOpen && expandedAnchor) {
+        targetEl = expandedAnchor;
+      } else if (isSoundsCollapsed && collapsedAnchor) {
+        targetEl = collapsedAnchor;
       }
-    }
 
-    // Nếu AudioWidget đóng hoặc thu nhỏ: chuyển sang container nền offscreen
-    if (offscreenContainerRef.current) {
-      setPortalTarget(offscreenContainerRef.current);
-    }
-  }, [isYouTubeActive, isSoundsOpen]);
-
-  // Kiểm tra liên tục nếu anchor vừa được mount trong AudioWidget
-  useEffect(() => {
-    if (!isYouTubeActive || !isSoundsOpen) return;
-
-    const checkAnchor = () => {
-      const anchorEl = document.getElementById('youtube-player-anchor');
-      if (anchorEl && portalTarget !== anchorEl) {
-        setPortalTarget(anchorEl);
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          container.style.position = 'fixed';
+          container.style.top = `${rect.top}px`;
+          container.style.left = `${rect.left}px`;
+          container.style.width = `${rect.width}px`;
+          container.style.height = `${rect.height}px`;
+          container.style.opacity = '1';
+          container.style.pointerEvents = 'auto';
+          container.style.zIndex = '60';
+        }
+      } else {
+        // Widget đóng hoặc đang ẩn: giữ nguyên phát offscreen
+        container.style.position = 'fixed';
+        container.style.top = '-9999px';
+        container.style.left = '-9999px';
+        container.style.width = '320px';
+        container.style.height = '180px';
+        container.style.opacity = '0.001';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '-1';
       }
+
+      animId = requestAnimationFrame(syncPosition);
     };
 
-    checkAnchor();
-    const timer = setTimeout(checkAnchor, 100);
-    return () => clearTimeout(timer);
-  }, [isYouTubeActive, isSoundsOpen, portalTarget]);
+    animId = requestAnimationFrame(syncPosition);
+
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, [isYouTube, youtubeEmbedUrl, isSoundsOpen, isSoundsCollapsed]);
 
   return (
     <div
@@ -139,44 +191,36 @@ export const GlobalAudioHost: React.FC = () => {
         onEnded={() => setCustomMusicPlaying(false)}
       />
 
-      {/* Hidden offscreen container để giữ YouTube iframe không unmount khi widget đóng */}
-      <div
-        ref={offscreenContainerRef}
-        data-testid="youtube-offscreen-container"
-        style={{
-          position: 'fixed',
-          top: -9999,
-          left: -9999,
-          width: 320,
-          height: 180,
-          opacity: 0.001,
-          pointerEvents: 'none'
-        }}
-      />
-
-      {/* Persistent YouTube Iframe qua React Portal:
-          Khi AudioWidget mở: hiển thị trực tiếp bên trong vùng nội dung của khung,
-          di chuyển tức thời theo phần cứng GPU mà KHÔNG hề bị lag hoặc trôi lệch.
-          Khi widget đóng/thu nhỏ: chuyển sang container nền mà KHÔNG unmount, giữ nhạc tiếp tục phát. */}
-      {isYouTubeActive &&
-        youtubeEmbedUrl &&
-        portalTarget &&
-        createPortal(
-          <div
-            data-testid="global-youtube-container"
-            className="w-full h-full relative rounded-lg overflow-hidden pointer-events-auto"
-          >
-            <iframe
-              data-testid="youtube-stream-iframe"
-              src={youtubeEmbedUrl}
-              title="YouTube Player"
-              className="w-full h-full border-0 rounded-lg shadow-md"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>,
-          portalTarget
-        )}
+      {/* Persistent YouTube Iframe container: Cố định vĩnh viễn trong DOM, không bao giờ bị reload */}
+      {youtubeEmbedUrl && (
+        <div
+          ref={playerContainerRef}
+          id="global-persistent-youtube-player"
+          data-testid="global-youtube-container"
+          className="fixed rounded-lg overflow-hidden bg-black shadow-xl"
+          style={{
+            position: 'fixed',
+            top: -9999,
+            left: -9999,
+            width: 320,
+            height: 180,
+            opacity: 0.001,
+            pointerEvents: 'none',
+            zIndex: 60,
+            transform: 'translateZ(0)'
+          }}
+        >
+          <iframe
+            ref={iframeRef}
+            data-testid="youtube-stream-iframe"
+            src={youtubeEmbedUrl}
+            title="YouTube Player"
+            className="w-full h-full border-0 rounded-lg"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
     </div>
   );
 };

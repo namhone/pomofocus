@@ -15,7 +15,7 @@ import {
   X
 } from 'lucide-react';
 
-type CalendarViewMode = 'month' | 'week' | 'day';
+type CalendarViewMode = 'day' | 'week';
 
 export const DedicatedCalendarView: React.FC = () => {
   const [viewMode, setViewMode] = useState<CalendarViewMode>(() => {
@@ -62,9 +62,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
   const handlePrev = () => {
     const next = new Date(currentDate);
-    if (viewMode === 'month') {
-      next.setMonth(next.getMonth() - 1);
-    } else if (viewMode === 'week') {
+    if (viewMode === 'week') {
       next.setDate(next.getDate() - 7);
     } else {
       next.setDate(next.getDate() - 1);
@@ -74,9 +72,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
   const handleNext = () => {
     const next = new Date(currentDate);
-    if (viewMode === 'month') {
-      next.setMonth(next.getMonth() + 1);
-    } else if (viewMode === 'week') {
+    if (viewMode === 'week') {
       next.setDate(next.getDate() + 7);
     } else {
       next.setDate(next.getDate() + 1);
@@ -181,15 +177,6 @@ export const DedicatedCalendarView: React.FC = () => {
               }`}
             >
               Tuần
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('month')}
-              className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                viewMode === 'month' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              Tháng
             </button>
           </div>
 
@@ -404,53 +391,7 @@ export const DedicatedCalendarView: React.FC = () => {
             </div>
           )}
 
-          {/* Month View Mode */}
-          {viewMode === 'month' && (
-            <div className="rounded-2xl border border-white/10 bg-neutral-900/40 p-4 md:p-6 backdrop-blur-xl overflow-x-auto shadow-2xl">
-              <div className="min-w-[560px] md:min-w-0">
-                <h2 className="text-lg font-bold text-white mb-4">
-                  Tháng {currentDate.getMonth() + 1}/{currentDate.getFullYear()}
-                </h2>
-                <div className="grid grid-cols-7 gap-2">
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => {
-                    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
-                    const dayStr = String(d).padStart(2, '0');
-                    const dateStr = `${currentDate.getFullYear()}-${m}-${dayStr}`;
-                    const dayBlocks = blocks.filter((b) => b.dateString === dateStr);
 
-                    return (
-                      <div
-                        key={d}
-                        onClick={() => {
-                          setSelectedDateStr(dateStr);
-                          setSelectedHour(9);
-                          setIsAddModalOpen(true);
-                        }}
-                        className="min-h-[90px] p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition flex flex-col justify-between cursor-pointer"
-                      >
-                        <div className="text-xs font-semibold text-neutral-300">{d}</div>
-                        <div className="space-y-1">
-                          {dayBlocks.slice(0, 2).map((b) => (
-                            <div
-                              key={b.id}
-                              className="text-[10px] truncate px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            >
-                              {b.startHour}h: {b.title}
-                            </div>
-                          ))}
-                          {dayBlocks.length > 2 && (
-                            <div className="text-[9px] text-neutral-500">
-                              +{dayBlocks.length - 2} sự kiện khác
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

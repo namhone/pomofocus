@@ -409,17 +409,13 @@ export const AudioWidget: React.FC = () => {
                 </button>
               </div>
 
-              {/* YouTube Player Anchor: Nơi GlobalAudioHost neo iframe cố định vào khi widget mở */}
+              {/* YouTube Player Anchor: Chiếm trọn 100% chiều rộng card, không chữ che khuất */}
               {customMusicType === 'youtube' && youtubeEmbedUrl && (
                 <div
                   id="youtube-player-anchor"
                   data-testid="youtube-player-anchor"
-                  className="relative w-full rounded-lg overflow-hidden aspect-video bg-black/90 border border-white/10 shadow-md flex items-center justify-center select-none"
-                >
-                  <span className="text-[11px] text-neutral-400 animate-pulse">
-                    Đang phát luồng YouTube...
-                  </span>
-                </div>
+                  className="w-full aspect-video rounded-lg overflow-hidden bg-black/95 border border-white/10 shadow-md relative"
+                />
               )}
 
               {/* Direct Audio Controls */}

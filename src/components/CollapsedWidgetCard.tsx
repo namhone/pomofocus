@@ -373,7 +373,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
       <div
         data-testid="collapsed-media-bar"
         data-control="collapsed-audio-controls"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full h-full min-h-[68px] sm:min-h-[88px] p-2 sm:p-2.5 rounded-2xl bg-neutral-900/80 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
@@ -389,7 +389,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
           </div>
 
           <div className="min-w-0">
-            <div className="text-xs font-bold text-white truncate max-w-[180px] sm:max-w-[260px]">
+            <div className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[220px]">
               {customMusicUrl ? musicTitle : 'Âm thanh thư giãn & Lofi'}
             </div>
             <div className="text-[10px] text-neutral-400 mt-0.5 truncate">
@@ -402,8 +402,17 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
           </div>
         </div>
 
-        {/* Play/Pause toggle & Expand */}
-        <div className="flex items-center gap-1.5 shrink-0" data-no-drag="true">
+        {/* Play/Pause toggle, YouTube Mini PiP & Expand */}
+        <div className="flex items-center gap-2 shrink-0" data-no-drag="true">
+          {customMusicType === 'youtube' && customMusicPlaying && (
+            <div
+              id="collapsed-youtube-pip-anchor"
+              data-testid="collapsed-youtube-pip-anchor"
+              className="w-36 h-20 sm:w-40 sm:h-[90px] rounded-lg overflow-hidden bg-black/90 border border-white/10 shadow-md shrink-0"
+              title="YouTube Mini Player"
+            />
+          )}
+
           <button
             type="button"
             data-testid="btn-mini-toggle-audio"
