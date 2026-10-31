@@ -11,7 +11,8 @@ import {
   Sliders,
   Move,
   Target,
-  Minimize
+  Minimize,
+  Film
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { WidgetId } from '../types/layout';
@@ -29,6 +30,7 @@ export const DockBar: React.FC = () => {
   const calendarOpen = useLayoutStore((state) => state.widgets.calendar.isOpen);
   const spacesOpen = useLayoutStore((state) => state.widgets.spaces.isOpen);
   const soundsOpen = useLayoutStore((state) => state.widgets.sounds.isOpen);
+  const mediaOpen = useLayoutStore((state) => state.widgets.media?.isOpen ?? false);
   const settingsOpen = useLayoutStore((state) => state.widgets.settings?.isOpen ?? false);
   const isFocusMode = useLayoutStore((state) => state.isFocusMode);
   const toggleFocusMode = useLayoutStore((state) => state.toggleFocusMode);
@@ -51,6 +53,7 @@ export const DockBar: React.FC = () => {
     calendar: calendarOpen,
     spaces: spacesOpen,
     sounds: soundsOpen,
+    media: mediaOpen,
     settings: settingsOpen
   };
 
@@ -142,6 +145,12 @@ export const DockBar: React.FC = () => {
       label: 'Âm thanh',
       icon: <Volume2 size={16} strokeWidth={1.75} />,
       testId: 'dock-btn-sounds'
+    },
+    {
+      id: 'media',
+      label: 'Media',
+      icon: <Film size={16} strokeWidth={1.75} />,
+      testId: 'dock-btn-media'
     }
   ];
 

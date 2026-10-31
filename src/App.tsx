@@ -52,6 +52,9 @@ const DockBar = lazy(() =>
 const SettingsWidget = lazy(() =>
   import('./components/SettingsWidget').then((m) => ({ default: m.SettingsWidget }))
 );
+const MediaWidget = lazy(() =>
+  import('./components/MediaWidget').then((m) => ({ default: m.MediaWidget }))
+);
 const AmbientOverlay = lazy(() =>
   import('./components/AmbientOverlay').then((m) => ({ default: m.AmbientOverlay }))
 );
@@ -268,6 +271,14 @@ export const App: React.FC = () => {
                   </WidgetContainer>
                 </div>
 
+                <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'media' ? 'hidden' : ''}`}>
+                  <WidgetContainer id="media">
+                    <Suspense fallback={<WidgetSkeleton />}>
+                      <MediaWidget />
+                    </Suspense>
+                  </WidgetContainer>
+                </div>
+
                 <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'settings' ? 'hidden' : ''}`}>
                   <WidgetContainer id="settings">
                     <Suspense fallback={<WidgetSkeleton />}>
@@ -309,6 +320,12 @@ export const App: React.FC = () => {
                 <WidgetContainer id="sounds">
                   <Suspense fallback={<WidgetSkeleton />}>
                     <AudioWidget />
+                  </Suspense>
+                </WidgetContainer>
+
+                <WidgetContainer id="media">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <MediaWidget />
                   </Suspense>
                 </WidgetContainer>
 

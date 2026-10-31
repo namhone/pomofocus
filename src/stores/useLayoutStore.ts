@@ -62,6 +62,11 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
     S: { width: 300, height: 400 },
     M: { width: 380, height: 500 },
     L: { width: 460, height: 620 }
+  },
+  media: {
+    S: { width: 320, height: 216 },
+    M: { width: 480, height: 306 },
+    L: { width: 640, height: 396 }
   }
 };
 
@@ -226,6 +231,22 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     maxHeight: 850,
     resizable: true,
     zIndex: 15
+  },
+  media: {
+    id: 'media',
+    title: 'Media',
+    isOpen: false,
+    isCollapsed: false,
+    x: 480,
+    y: 120,
+    width: 480,
+    height: 306,
+    minWidth: 320,
+    minHeight: 216,
+    maxWidth: 960,
+    maxHeight: 576,
+    resizable: true,
+    zIndex: 18
   }
 };
 
@@ -812,6 +833,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       widgets.calendar.isOpen = false;
       widgets.spaces.isOpen = false;
       widgets.sounds.isOpen = false;
+      if (widgets.media) widgets.media.isOpen = false;
     }
 
     set({ widgets });

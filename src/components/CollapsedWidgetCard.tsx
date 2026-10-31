@@ -54,12 +54,8 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
   const loadNotes = useNoteStore((s) => s.loadNotes);
 
   // 4. Audio Store
-  const customMusicPlaying = useAudioStore((s) => s.customMusicPlaying);
-  const customMusicUrl = useAudioStore((s) => s.customMusicUrl);
-  const customMusicType = useAudioStore((s) => s.customMusicType);
-  const customMusicList = useAudioStore((s) => s.customMusicList);
   const soundTracks = useAudioStore((s) => s.tracks);
-  const setCustomMusicPlaying = useAudioStore((s) => s.setCustomMusicPlaying);
+  const toggleTrack = useAudioStore((s) => s.toggleTrack);
 
   // 5. Background Store
   const activePresetId = useBackgroundStore((s) => s.activePresetId);
@@ -363,12 +359,9 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     );
   }
 
-  // 4. SOUNDS & AMBIENT (Monochrome Stealth Audio Pill Bar / Mini Video PiP)
+  // 4. SOUNDS & AMBIENT (Monochrome Stealth Audio Pill Bar)
   if (id === 'sounds') {
-    const isYouTube = customMusicType === 'youtube' && Boolean(customMusicUrl);
     const activeAmbientCount = soundTracks.filter((t) => t.isPlaying).length;
-    const currentStation = customMusicList.find((item) => item.url === customMusicUrl);
-    const musicTitle = currentStation?.name || (isYouTube ? 'Video YouTube' : 'Nhạc Lofi / Stream');
 
     return (
       <div
@@ -377,39 +370,28 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
         className="w-full h-full min-h-[64px] p-2 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between gap-3 select-none backdrop-blur-md"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          {/* Khi phát YouTube: Hiện Mini PiP 16:9 trực tiếp trên thanh thu gọn */}
-          {isYouTube ? (
-            <div
-              id="collapsed-youtube-pip-anchor"
-              data-testid="collapsed-youtube-pip-anchor"
-              className="w-32 h-[72px] sm:w-36 sm:h-20 rounded-xl overflow-hidden bg-black shrink-0 relative border border-zinc-800 shadow"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
-              {customMusicPlaying ? (
-                <span className="flex items-end gap-0.5 h-3">
-                  <span className="w-0.5 h-3 bg-zinc-200 animate-pulse" />
-                  <span className="w-0.5 h-1.5 bg-zinc-200 animate-pulse delay-75" />
-                  <span className="w-0.5 h-2.5 bg-zinc-200 animate-pulse delay-150" />
-                </span>
-              ) : (
-                <Volume2 size={15} />
-              )}
-            </div>
-          )}
+          <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
+            {activeAmbientCount > 0 ? (
+              <span className="flex items-end gap-0.5 h-3">
+                <span className="w-0.5 h-3 bg-zinc-200 animate-pulse" />
+                <span className="w-0.5 h-1.5 bg-zinc-200 animate-pulse delay-75" />
+                <span className="w-0.5 h-2.5 bg-zinc-200 animate-pulse delay-150" />
+              </span>
+            ) : (
+              <Volume2 size={15} />
+            )}
+          </div>
 
           <div className="min-w-0">
             <div className="text-xs font-semibold text-zinc-100 truncate max-w-[140px] sm:max-w-[200px]">
-              {customMusicUrl ? musicTitle : 'Âm thanh thư giãn & Lofi'}
+              Âm Thanh Nền & Chuông Báo
             </div>
             <div className="text-[10px] text-zinc-400 mt-0.5 truncate flex items-center gap-1.5">
-              {customMusicPlaying ? (
+              {activeAmbientCount > 0 ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                  <span>{isYouTube ? 'Đang phát video' : 'Đang phát nhạc'}</span>
+                  <span>{activeAmbientCount} âm thanh đang phát</span>
                 </>
-              ) : activeAmbientCount > 0 ? (
-                <span>{activeAmbientCount} âm thanh thiên nhiên</span>
               ) : (
                 <span>Chế độ chờ phát</span>
               )}
@@ -419,23 +401,22 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
 
         {/* Play/Pause toggle & Expand (Monochrome Stealth) */}
         <div className="flex items-center gap-1.5 shrink-0" data-no-drag="true">
-          <button
-            type="button"
-            data-testid="btn-mini-toggle-audio"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCustomMusicPlaying(!customMusicPlaying);
-            }}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition active:scale-95 cursor-pointer shadow-sm ${
-              customMusicPlaying
-                ? 'bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700 hover:text-white'
-                : 'bg-white text-black hover:bg-zinc-200'
-            }`}
-            title={customMusicPlaying ? 'Tạm dừng' : 'Phát'}
-          >
-            {customMusicPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" />}
-            <span className="hidden sm:inline">{customMusicPlaying ? 'Tạm dừng' : 'Phát'}</span>
-          </button>
+          {activeAmbientCount > 0 && (
+            <button
+              type="button"
+              data-testid="btn-mini-toggle-audio"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Pause all active ambient sounds
+                soundTracks.filter(t => t.isPlaying).forEach(t => toggleTrack(t.id));
+              }}
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition active:scale-95 cursor-pointer shadow-sm bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700 hover:text-white"
+              title="Dừng âm thanh"
+            >
+              <Pause size={12} fill="currentColor" />
+              <span className="hidden sm:inline">Dừng</span>
+            </button>
+          )}
 
           <button
             type="button"

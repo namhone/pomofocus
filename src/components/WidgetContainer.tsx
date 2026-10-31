@@ -75,6 +75,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Chiều cao khi thu nhỏ: Hiển thị dạng Card thông tin cốt lõi (106px cho mọi widget)
   const collapsedHeight = density === 'compact' ? 100 : 108;
+  const isMedia = id === 'media';
+  const mediaPipWidth = 320;
+  const mediaPipHeight = 216;
 
   // Xử lý kéo thả bằng Pointer Events (Desktop & Mini Pill)
   const handlePointerDownHeader = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -108,8 +111,18 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     const nextY = dragStartRef.current.startY + deltaY;
 
     // Giới hạn biên màn hình: Cho phép kéo tự do toàn màn hình sát 4 góc không bị vùng chết
-    const width = widget.isMiniPill ? 190 : widget.width;
-    const height = widget.isMiniPill ? 52 : widget.isCollapsed ? collapsedHeight : widget.height;
+    const width = widget.isMiniPill
+      ? 190
+      : isMedia && widget.isCollapsed
+      ? mediaPipWidth
+      : widget.width;
+    const height = widget.isMiniPill
+      ? 52
+      : isMedia && widget.isCollapsed
+      ? mediaPipHeight
+      : widget.isCollapsed
+      ? collapsedHeight
+      : widget.height;
     const maxX = Math.max(0, window.innerWidth - width);
     const maxY = Math.max(0, window.innerHeight - height);
 
@@ -306,12 +319,12 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         </div>
 
         {/* Mobile Content: Card thu nhỏ khi isCollapsed, Full children khi mở rộng */}
-        {widget.isCollapsed ? (
+        {widget.isCollapsed && !isMedia ? (
           <div className="p-3 touch-pan-y">
             <CollapsedWidgetCard id={id} isMobile={true} />
           </div>
         ) : (
-          <div className="p-4 flex-1 min-h-0 overflow-visible touch-pan-y">{children}</div>
+          <div className={`${isMedia ? 'p-0 aspect-video' : 'p-4'} flex-1 min-h-0 overflow-visible touch-pan-y`}>{children}</div>
         )}
       </section>
     );
@@ -418,7 +431,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Desktop layout: Cửa sổ nổi tự do (Floating Window)
   const isCollapsed = widget.isCollapsed;
-  const currentHeight = isCollapsed ? collapsedHeight : widget.height;
+  const currentWidth = isMedia && isCollapsed ? mediaPipWidth : widget.width;
+  const currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
 
   return (
     <section
@@ -430,7 +444,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         position: 'absolute',
         left: `${widget.x}px`,
         top: `${widget.y}px`,
-        width: `${widget.width}px`,
+        width: `${currentWidth}px`,
         height: `${currentHeight}px`,
         zIndex: widget.zIndex,
         backgroundColor:
@@ -549,8 +563,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         />
       )}
 
-      {/* Collapsed Widget Card: Render dạng thẻ thông tin cốt lõi cho TẤT CẢ các widget */}
-      {isCollapsed && (
+      {/* Collapsed Widget Card: Render dạng thẻ thông tin cốt lõi cho TẤT CẢ các widget (trừ media tiếp tục chiếu Mini PiP 16:9) */}
+      {isCollapsed && !isMedia && (
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center p-1.5 sm:p-2">
           <CollapsedWidgetCard id={id} isMobile={false} />
         </div>
@@ -559,9 +573,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       {/* Widget Content Body: Giữ mount trong DOM để bảo toàn state, bộ đếm, form input khi thu nhỏ */}
       <div
         className={`relative min-h-0 flex-1 overflow-x-hidden overscroll-contain ${
-          isCollapsed ? 'hidden' : 'flex flex-col'
+          isCollapsed && !isMedia ? 'hidden' : 'flex flex-col'
         } ${
-          density === 'compact' ? 'p-2.5' : 'p-3'
+          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-2.5' : 'p-3'
         } ${
           id === 'timer' ? 'overflow-y-auto items-center justify-start w-full' : 'overflow-y-hidden'
         }`}

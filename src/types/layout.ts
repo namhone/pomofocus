@@ -1,4 +1,4 @@
-export type WidgetId = 'timer' | 'tasks' | 'notes' | 'calendar' | 'spaces' | 'sounds' | 'settings';
+export type WidgetId = 'timer' | 'tasks' | 'notes' | 'calendar' | 'spaces' | 'sounds' | 'settings' | 'media';
 
 export type LayoutPreset = 'default' | 'deep_focus' | 'planning';
 

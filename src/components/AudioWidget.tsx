@@ -8,14 +8,11 @@ import {
   Waves,
   AlertTriangle,
   RotateCcw,
-  Radio,
-  Music,
-  Trash2,
-  Info
+  Film
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 import { ChimeSoundType } from '../types/audio';
-import { extractYouTubeEmbedUrl, isDirectAudioUrl } from '../utils/media';
 
 export const AudioWidget: React.FC = () => {
   const {
@@ -23,12 +20,6 @@ export const AudioWidget: React.FC = () => {
     tracks,
     isAudioBlocked,
     activeTab,
-    customMusicUrl,
-    customMusicType,
-    customMusicPlaying,
-    customMusicVolume,
-    customMusicError,
-    customMusicList,
     setActiveTab,
     setMasterVolume,
     toggleMasterMute,
@@ -39,51 +30,11 @@ export const AudioWidget: React.FC = () => {
     setTrackVolume,
     stopAllTracks,
     resumeAudioContext,
-    resetToDefaults,
-    setCustomMusicUrl,
-    setCustomMusicPlaying,
-    setCustomMusicVolume,
-    setCustomMusicError,
-    addCustomMusicToList,
-    removeCustomMusicFromList
+    resetToDefaults
   } = useAudioStore();
 
+  const openWidget = useLayoutStore((s) => s.openWidget);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
-  const [inputUrl, setInputUrl] = useState(customMusicUrl);
-  const [inputName, setInputName] = useState('');
-
-  const handleApplyMusicUrl = (urlToApply: string, nameToApply?: string) => {
-    const trimmed = urlToApply.trim();
-    if (!trimmed) {
-      setCustomMusicUrl('');
-      setCustomMusicPlaying(false);
-      setCustomMusicError(null);
-      return;
-    }
-
-    setCustomMusicError(null);
-    const ytEmbed = extractYouTubeEmbedUrl(trimmed);
-
-    if (ytEmbed) {
-      setCustomMusicUrl(trimmed, 'youtube');
-      setCustomMusicPlaying(true);
-      if (nameToApply) {
-        addCustomMusicToList(nameToApply, trimmed, 'youtube');
-      }
-    } else {
-      // Direct audio / Web Radio
-      const isDirect = isDirectAudioUrl(trimmed);
-      if (!isDirect && !trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-        setCustomMusicError('Vui lòng nhập đường dẫn URL hợp lệ (http:// hoặc https://)');
-        return;
-      }
-      setCustomMusicUrl(trimmed, 'direct_audio');
-      setCustomMusicPlaying(true);
-      if (nameToApply) {
-        addCustomMusicToList(nameToApply, trimmed, 'direct_audio');
-      }
-    }
-  };
 
   const handlePreview = async () => {
     setIsPlayingPreview(true);
@@ -98,52 +49,55 @@ export const AudioWidget: React.FC = () => {
 
   const chimeOptions: { value: ChimeSoundType; label: string; desc: string }[] = [
     { value: 'twinkle', label: 'Twinkle', desc: 'Arpeggio trong trẻo' },
-    { value: 'playtime', label: 'Playtime', desc: 'Giai điệu vui tươi' },
-    { value: 'scifi', label: 'Sci-fi', desc: 'Âm thanh không gian' },
-    { value: 'slow_rise', label: 'Slow Rise', desc: 'Hợp âm ngân vang' },
-    { value: 'rooster', label: 'Rooster', desc: 'Báo thức gà gáy' },
-    { value: 'bird', label: 'Bird', desc: 'Tiếng chim tự nhiên' },
+    { value: 'playtime', label: 'Playtime', desc: 'Chuông gõ vui tươi' },
+    { value: 'scifi', label: 'Sci-Fi', desc: 'Âm sắc tương lai không gian' },
+    { value: 'slow_rise', label: 'Slow Rise', desc: 'Âm ngân chậm ấm áp' },
+    { value: 'bird', label: 'Tiếng Chim', desc: 'Tiếng chim hót rộn ràng' },
+    { value: 'rooster', label: 'Gà Gáy', desc: 'Tiếng gà ban mai sinh động' }
   ];
 
   const activePlayingCount = tracks.filter((t) => t.isPlaying).length;
-  const youtubeEmbedUrl = customMusicType === 'youtube' ? extractYouTubeEmbedUrl(customMusicUrl) : null;
 
   return (
     <div
-      data-testid="audio-widget-content"
-      className="flex flex-col h-full w-full select-none text-neutral-100"
+      data-testid="audio-widget-root"
+      className="w-full h-full flex flex-col justify-between select-none"
     >
-      {/* Autoplay Warning Banner if blocked by browser policy */}
+      {/* Audio Context Blocked Notice */}
       {isAudioBlocked && (
-        <button
-          type="button"
-          data-testid="resume-audio-banner"
-          onClick={() => resumeAudioContext()}
-          className="mb-3 px-3 py-2 bg-amber-500/15 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center justify-between gap-2 hover:bg-amber-500/25 transition text-left cursor-pointer"
+        <div
+          data-testid="audio-blocked-warning"
+          className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-2"
         >
           <div className="flex items-center gap-2">
             <AlertTriangle size={15} className="text-amber-400 shrink-0" />
-            <span>Trình duyệt đang chặn âm thanh. Nhấn vào đây để bật.</span>
+            <span>Trình duyệt đang chặn âm thanh tự động</span>
           </div>
-          <span className="font-semibold underline shrink-0">Bật ngay</span>
-        </button>
+          <button
+            type="button"
+            data-testid="btn-resume-audio"
+            onClick={resumeAudioContext}
+            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-[11px] transition cursor-pointer shrink-0"
+          >
+            Kích hoạt
+          </button>
+        </div>
       )}
 
       {/* Master Volume Section */}
-      <div className="bg-black/25 border border-white/10 rounded-xl p-3 mb-3">
+      <div className="p-3 bg-black/25 rounded-2xl border border-white/5 mb-3 shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-neutral-300">
-            Master: {Math.round(settings.masterVolume * 100)}%
-          </span>
+          <label htmlFor="master-volume-slider" className="text-xs font-medium text-neutral-300">
+            Âm Lượng Tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
+          </label>
           <button
             type="button"
-            data-testid="master-mute-btn"
+            data-testid="btn-toggle-mute"
             onClick={toggleMasterMute}
-            aria-label={settings.isMuted ? 'Bật tiếng Master' : 'Tắt tiếng Master'}
-            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer min-h-[30px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition cursor-pointer min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
               settings.isMuted
-                ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                : 'bg-white/10 text-neutral-300 hover:bg-white/15 hover:text-white'
             }`}
           >
             {settings.isMuted ? (
@@ -176,8 +130,8 @@ export const AudioWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs Switcher: 3 mục rõ ràng */}
-      <div className="grid grid-cols-3 gap-1 p-0.5 bg-black/30 rounded-xl border border-white/10 mb-3 shrink-0">
+      {/* Tabs Switcher: 2 mục rõ ràng */}
+      <div className="grid grid-cols-2 gap-1 p-0.5 bg-black/30 rounded-xl border border-white/10 mb-3 shrink-0">
         <button
           type="button"
           data-testid="tab-chime"
@@ -210,23 +164,6 @@ export const AudioWidget: React.FC = () => {
             </span>
           )}
         </button>
-
-        <button
-          type="button"
-          data-testid="tab-music"
-          onClick={() => setActiveTab('music')}
-          className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
-            activeTab === 'music'
-              ? 'bg-white/15 text-white shadow-sm'
-              : 'text-neutral-400 hover:text-neutral-200'
-          }`}
-        >
-          <Music size={13} />
-          <span>Nhạc & Stream</span>
-          {customMusicPlaying && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          )}
-        </button>
       </div>
 
       {/* Tab 1: Chimes */}
@@ -249,94 +186,90 @@ export const AudioWidget: React.FC = () => {
                       : 'bg-black/20 border-white/5 hover:border-white/15'
                   }`}
                 >
-                  <div className="text-xs font-medium text-neutral-100 flex items-center justify-between">
-                    <span>{opt.label}</span>
-                    {settings.selectedChime === opt.value && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-neutral-200" />
-                    )}
-                  </div>
-                  <div className="text-[10px] text-neutral-400 mt-0.5 line-clamp-1">{opt.desc}</div>
+                  <div className="font-semibold text-xs text-white mb-0.5">{opt.label}</div>
+                  <div className="text-[10px] text-neutral-400 leading-tight">{opt.desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Chime Volume */}
-          <div className="bg-black/25 border border-white/10 rounded-xl p-2.5">
-            <div className="flex items-center justify-between text-xs text-neutral-400 mb-1.5">
-              <label htmlFor="chime-volume-slider">
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="chime-volume-slider" className="text-xs text-neutral-400 font-medium">
                 Âm lượng chuông: {Math.round(settings.chimeVolume * 100)}%
               </label>
+              <button
+                type="button"
+                data-testid="btn-preview-chime"
+                disabled={isPlayingPreview}
+                onClick={handlePreview}
+                className="px-2.5 py-1 text-xs rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-white/10 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400"
+              >
+                <Play size={11} fill="currentColor" />
+                <span>{isPlayingPreview ? 'Đang phát...' : 'Nghe thử'}</span>
+              </button>
             </div>
             <input
               id="chime-volume-slider"
               type="range"
               min="0"
               max="1"
-              step="0.01"
+              step="0.05"
               value={settings.chimeVolume}
               onChange={(e) => setChimeVolume(parseFloat(e.target.value))}
               className="w-full accent-neutral-200 bg-neutral-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+              aria-label="Chime volume slider"
             />
           </div>
-
-          {/* Preview Button */}
-          <button
-            type="button"
-            data-testid="preview-chime-btn"
-            onClick={handlePreview}
-            disabled={isPlayingPreview}
-            className="w-full py-2 px-4 rounded-xl bg-neutral-100 hover:bg-white text-neutral-900 font-semibold text-xs shadow transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400"
-          >
-            <span>{isPlayingPreview ? '🎶 Đang phát...' : '▶ Nghe Thử Chuông Báo'}</span>
-          </button>
         </div>
       )}
 
-      {/* Tab 2: Ambient Soundscape */}
+      {/* Tab 2: Ambient Sounds */}
       {activeTab === 'ambient' && (
-        <div className="flex-1 overflow-y-auto space-y-2.5 pr-0.5">
+        <div className="flex-1 overflow-y-auto space-y-3 pr-0.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400">Trộn đa âm thanh môi trường:</span>
+            <span className="text-xs text-neutral-400 font-medium">
+              Bộ phối âm thanh tập trung (hỗ trợ phối nhiều âm thanh cùng lúc)
+            </span>
             {activePlayingCount > 0 && (
               <button
                 type="button"
+                data-testid="btn-stop-all-ambient"
                 onClick={stopAllTracks}
-                className="text-[11px] text-rose-400 hover:text-rose-300 transition cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 rounded px-1"
+                className="text-[11px] text-rose-400 hover:text-rose-300 font-medium cursor-pointer"
               >
-                Dừng tất cả ({activePlayingCount})
+                Dừng tất cả
               </button>
             )}
           </div>
 
-          {/* Tracks list */}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {tracks.map((track) => (
               <div
                 key={track.id}
-                data-testid={`track-item-${track.id}`}
-                className={`p-2 rounded-xl border transition ${
+                data-testid={`ambient-track-${track.id}`}
+                className={`p-2.5 rounded-xl border transition ${
                   track.isPlaying
-                    ? 'bg-black/40 border-neutral-400/30 shadow-inner'
+                    ? 'bg-neutral-800/60 border-white/20 shadow-inner'
                     : 'bg-black/20 border-white/5 hover:border-white/10'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <button
                       type="button"
+                      data-testid={`btn-toggle-track-${track.id}`}
                       onClick={() => toggleTrack(track.id)}
-                      data-testid={`toggle-track-${track.id}`}
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shrink-0 cursor-pointer min-w-[28px] min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
                         track.isPlaying
-                          ? 'bg-neutral-100 text-neutral-900 shadow-sm'
-                          : 'bg-neutral-800 text-neutral-300 hover:text-white'
+                          ? 'bg-white text-black shadow-md'
+                          : 'bg-white/10 text-neutral-300 hover:bg-white/20 hover:text-white'
                       }`}
-                      aria-label={track.isPlaying ? `Tắt ${track.name}` : `Bật ${track.name}`}
+                      aria-label={`${track.isPlaying ? 'Dừng' : 'Bật'} ${track.name}`}
                     >
-                      {track.isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
+                      {track.isPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
                     </button>
-                    <div className="truncate">
+                    <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-medium text-neutral-200 truncate">
                           {track.name}
@@ -383,185 +316,25 @@ export const AudioWidget: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Nhạc & Luồng Phát (Custom Music / Stream) */}
-      {activeTab === 'music' && (
-        <div className="flex-1 overflow-y-auto space-y-3 pr-0.5">
-          {/* Active Player Status */}
-          {customMusicUrl ? (
-            <div className="p-3 rounded-xl bg-black/40 border border-emerald-500/30 shadow-inner space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Radio size={14} className="text-emerald-400 animate-pulse" />
-                  <span className="text-xs font-semibold text-emerald-300">
-                    {customMusicType === 'youtube' ? 'YouTube Embed Live' : 'Luồng Âm Thanh Trực Tiếp'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  data-testid="btn-stop-custom-music"
-                  onClick={() => {
-                    setCustomMusicPlaying(false);
-                    setCustomMusicUrl('');
-                  }}
-                  className="text-[10px] text-rose-400 hover:text-rose-300 font-medium px-2 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 transition cursor-pointer"
-                >
-                  Dừng & Xóa
-                </button>
-              </div>
-
-              {/* YouTube Player Anchor: Chiếm trọn 100% chiều rộng card, không chữ che khuất */}
-              {customMusicType === 'youtube' && youtubeEmbedUrl && (
-                <div
-                  id="youtube-player-anchor"
-                  data-testid="youtube-player-anchor"
-                  className="w-full aspect-video rounded-lg overflow-hidden bg-black/95 border border-white/10 shadow-md relative"
-                />
-              )}
-
-              {/* Direct Audio Controls */}
-              {customMusicType === 'direct_audio' && (
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <button
-                      type="button"
-                      data-testid="btn-toggle-direct-audio"
-                      onClick={() => setCustomMusicPlaying(!customMusicPlaying)}
-                      className="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium flex items-center gap-1.5 transition cursor-pointer"
-                    >
-                      {customMusicPlaying ? <Pause size={13} /> : <Play size={13} />}
-                      <span>{customMusicPlaying ? 'Tạm dừng nhạc' : 'Tiếp tục phát'}</span>
-                    </button>
-                  </div>
-
-                  {/* Volume Slider for Custom Music */}
-                  <div className="bg-white/5 p-2 rounded-lg flex items-center gap-2">
-                    <Volume2 size={12} className="text-neutral-400" />
-                    <input
-                      data-testid="slider-custom-music-volume"
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      value={customMusicVolume}
-                      onChange={(e) => setCustomMusicVolume(parseFloat(e.target.value))}
-                      className="w-full accent-emerald-400 bg-neutral-800 h-1.5 rounded-lg appearance-none cursor-pointer"
-                      aria-label="Âm lượng nhạc trực tiếp"
-                    />
-                    <span className="text-[10px] text-neutral-400 font-mono w-8 text-right">
-                      {Math.round(customMusicVolume * 100)}%
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {customMusicError && (
-                <p data-testid="custom-music-error-msg" className="text-[10px] text-rose-400 leading-relaxed bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
-                  ⚠️ {customMusicError}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center text-xs text-neutral-400">
-              Chưa có luồng nhạc nào đang phát. Hãy nhập liên kết bên dưới hoặc chọn một trạm gợi ý.
-            </div>
-          )}
-
-          {/* Form thêm nhạc bằng Link URL */}
-          <div className="bg-black/30 border border-white/10 rounded-xl p-3 space-y-2.5">
-            <span className="text-xs font-semibold text-neutral-200 block">
-              Thêm Nhạc / Luồng Trực Tuyến bằng URL
-            </span>
-
-            <div className="space-y-1.5">
-              <input
-                data-testid="input-custom-music-url"
-                type="text"
-                placeholder="Dán link nhạc (.mp3, .aac, radio stream hoặc link YouTube)..."
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg bg-black/50 border border-white/15 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400/60"
-              />
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Đặt tên bài hát / trạm (tùy chọn)..."
-                  value={inputName}
-                  onChange={(e) => setInputName(e.target.value)}
-                  className="flex-1 text-xs px-3 py-1.5 rounded-lg bg-black/50 border border-white/15 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400/60"
-                />
-                <button
-                  type="button"
-                  data-testid="btn-play-custom-url"
-                  onClick={() => handleApplyMusicUrl(inputUrl, inputName)}
-                  disabled={!inputUrl.trim()}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs transition cursor-pointer disabled:opacity-40"
-                >
-                  Phát ngay
-                </button>
-              </div>
-            </div>
-
-            {/* Hướng dẫn định dạng & CORS */}
-            <div className="p-2 rounded-lg bg-white/[0.03] border border-white/5 text-[10px] text-neutral-400 space-y-1">
-              <div className="flex items-center gap-1.5 text-neutral-300 font-medium">
-                <Info size={11} className="text-sky-400" />
-                <span>Định dạng được hỗ trợ:</span>
-              </div>
-              <p>• <strong>Âm thanh trực tiếp:</strong> File MP3, AAC, OGG, WAV hoặc luồng Web Radio trực tiếp.</p>
-              <p>• <strong>YouTube:</strong> Video, Livestream lofi 24/7 hoặc danh sách phát.</p>
-              <p className="text-neutral-500">
-                * Lưu ý: Nếu phát file MP3 từ máy chủ ngoài bị chặn CORS, hãy chuyển sang nguồn phát hỗ trợ CORS hoặc nhúng luồng YouTube.
-              </p>
-            </div>
-          </div>
-
-          {/* Curated Stations */}
-          <div>
-            <span className="text-[11px] font-semibold text-neutral-300 block mb-1.5">
-              Kênh Gợi Ý 24/7 & Đã Lưu:
-            </span>
-            <div className="grid grid-cols-2 gap-1.5">
-              {customMusicList.map((station) => (
-                <div
-                  key={station.id}
-                  className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 transition group flex flex-col justify-between"
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleApplyMusicUrl(station.url)}
-                    className="text-left cursor-pointer w-full"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-xs text-neutral-200 group-hover:text-emerald-300 truncate">
-                        {station.name}
-                      </span>
-                      <Play size={10} className="text-neutral-400 group-hover:text-emerald-400 shrink-0" />
-                    </div>
-                    <span className="text-[9px] text-neutral-500 block truncate mt-0.5">
-                      {station.type === 'youtube' ? 'YouTube Live Stream' : 'Direct Audio Stream'}
-                    </span>
-                  </button>
-                  {customMusicList.length > 3 && (
-                    <div className="flex justify-end pt-1">
-                      <button
-                        type="button"
-                        onClick={() => removeCustomMusicFromList(station.id)}
-                        className="text-neutral-500 hover:text-rose-400 p-0.5 rounded cursor-pointer"
-                        title="Xóa kênh này khỏi danh sách"
-                      >
-                        <Trash2 size={10} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Media Window Quick Launch Banner */}
+      <div className="my-2 p-2.5 rounded-xl bg-neutral-900/60 border border-white/10 flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <Film size={14} className="text-neutral-400 shrink-0" />
+          <span className="text-[11px] text-neutral-300 truncate">
+            Muốn xem video YouTube hoặc Livestream học tập?
+          </span>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={() => openWidget('media')}
+          className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
+        >
+          Mở Media
+        </button>
+      </div>
 
       {/* Footer: Reset to defaults */}
-      <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">
+      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">
         <button
           type="button"
           onClick={resetToDefaults}

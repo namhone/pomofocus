@@ -115,7 +115,7 @@ export const MobileBottomNav: React.FC = () => {
   useEffect(() => {
     if (mobileViewMode !== 'stack') return;
 
-    const widgetIds: WidgetId[] = ['timer', 'tasks', 'notes', 'sounds', 'spaces'];
+    const widgetIds: WidgetId[] = ['timer', 'tasks', 'notes', 'sounds', 'media', 'spaces'];
     const elements: HTMLElement[] = [];
 
     widgetIds.forEach((id) => {
