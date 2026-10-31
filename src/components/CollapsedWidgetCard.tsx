@@ -363,7 +363,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     );
   }
 
-  // 4. SOUNDS & AMBIENT
+  // 4. SOUNDS & AMBIENT (Monochrome Stealth Audio Pill Bar)
   if (id === 'sounds') {
     const activeAmbientCount = soundTracks.filter((t) => t.isPlaying).length;
     const currentStation = customMusicList.find((item) => item.url === customMusicUrl);
@@ -373,46 +373,42 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
       <div
         data-testid="collapsed-media-bar"
         data-control="collapsed-audio-controls"
-        className="w-full h-full min-h-[68px] sm:min-h-[88px] p-2 sm:p-2.5 rounded-2xl bg-neutral-900/80 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full h-full min-h-[64px] p-2.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between gap-3 select-none backdrop-blur-md"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
             {customMusicPlaying ? (
               <span className="flex items-end gap-0.5 h-3">
-                <span className="w-0.5 h-3 bg-sky-400 animate-pulse" />
-                <span className="w-0.5 h-1.5 bg-sky-400 animate-pulse delay-75" />
-                <span className="w-0.5 h-2.5 bg-sky-400 animate-pulse delay-150" />
+                <span className="w-0.5 h-3 bg-zinc-200 animate-pulse" />
+                <span className="w-0.5 h-1.5 bg-zinc-200 animate-pulse delay-75" />
+                <span className="w-0.5 h-2.5 bg-zinc-200 animate-pulse delay-150" />
               </span>
             ) : (
-              <Volume2 size={16} />
+              <Volume2 size={15} />
             )}
           </div>
 
           <div className="min-w-0">
-            <div className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[220px]">
+            <div className="text-xs font-semibold text-zinc-100 truncate max-w-[160px] sm:max-w-[240px]">
               {customMusicUrl ? musicTitle : 'Âm thanh thư giãn & Lofi'}
             </div>
-            <div className="text-[10px] text-neutral-400 mt-0.5 truncate">
-              {customMusicPlaying
-                ? 'Đang phát nhạc'
-                : activeAmbientCount > 0
-                ? `${activeAmbientCount} âm thanh thiên nhiên`
-                : 'Chế độ chờ phát'}
+            <div className="text-[10px] text-zinc-400 mt-0.5 truncate flex items-center gap-1.5">
+              {customMusicPlaying ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                  <span>Đang phát nhạc</span>
+                </>
+              ) : activeAmbientCount > 0 ? (
+                <span>{activeAmbientCount} âm thanh thiên nhiên</span>
+              ) : (
+                <span>Chế độ chờ phát</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Play/Pause toggle, YouTube Mini PiP & Expand */}
-        <div className="flex items-center gap-2 shrink-0" data-no-drag="true">
-          {customMusicType === 'youtube' && customMusicPlaying && (
-            <div
-              id="collapsed-youtube-pip-anchor"
-              data-testid="collapsed-youtube-pip-anchor"
-              className="w-36 h-20 sm:w-40 sm:h-[90px] rounded-lg overflow-hidden bg-black/90 border border-white/10 shadow-md shrink-0"
-              title="YouTube Mini Player"
-            />
-          )}
-
+        {/* Play/Pause toggle & Expand (Monochrome Stealth) */}
+        <div className="flex items-center gap-1.5 shrink-0" data-no-drag="true">
           <button
             type="button"
             data-testid="btn-mini-toggle-audio"
@@ -420,10 +416,10 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
               e.stopPropagation();
               setCustomMusicPlaying(!customMusicPlaying);
             }}
-            className={`px-3 py-1.5 rounded-xl flex items-center gap-1 text-xs font-bold transition active:scale-95 cursor-pointer shadow-md ${
+            className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium transition active:scale-95 cursor-pointer shadow-sm ${
               customMusicPlaying
-                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white'
-                : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
+                ? 'bg-zinc-800 text-zinc-200 border border-zinc-700 hover:bg-zinc-700 hover:text-white'
+                : 'bg-white text-black hover:bg-zinc-200'
             }`}
             title={customMusicPlaying ? 'Tạm dừng nhạc' : 'Phát nhạc'}
           >
@@ -438,11 +434,11 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
               e.stopPropagation();
               toggleCollapseWidget('sounds');
             }}
-            className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-neutral-300 hover:text-white transition cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/60 active:scale-95 flex items-center justify-center text-zinc-300 hover:text-white transition cursor-pointer"
             title="Mở rộng bảng âm thanh"
             aria-label="Mở rộng bảng âm thanh"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <Maximize2 size={13} strokeWidth={2} />
           </button>
         </div>
       </div>

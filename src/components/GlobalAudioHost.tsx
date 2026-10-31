@@ -148,7 +148,7 @@ export const GlobalAudioHost: React.FC = () => {
           container.style.height = `${rect.height}px`;
           container.style.opacity = '1';
           container.style.pointerEvents = 'auto';
-          container.style.zIndex = '60';
+          container.style.zIndex = isSoundsCollapsed ? '64' : '60';
         }
       } else {
         // Widget đóng hoặc đang ẩn: giữ nguyên phát offscreen

@@ -164,13 +164,40 @@ export const StudyRoomView: React.FC = () => {
   const [showLadyBossToast, setShowLadyBossToast] = useState(false);
   const [heartRainSender, setHeartRainSender] = useState<string | null>(null);
 
-  // Chat & Mobile Bottom Sheet
-  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  // Chat & Realtime State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const isChatOpenRef = useRef(false);
+  isChatOpenRef.current = isChatOpen;
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const [peerJoinToast, setPeerJoinToast] = useState<string | null>(null);
+
   const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
     { sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
   ]);
   const [inputMsg, setInputMsg] = useState('');
+
+  // Âm thanh 'ding' nhẹ êm tai khi có bạn học mới vào phòng (Web Audio API)
+  const playGentleDing = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch {
+      // Bỏ qua lỗi audio context bị chặn trước cử chỉ
+    }
+  }, []);
 
   // Lời chào ngọt ngào độc quyền khi mở app/phòng học cho VIP Nóc Nhà
   useEffect(() => {
@@ -778,13 +805,18 @@ export const StudyRoomView: React.FC = () => {
 
     channel.on('presence', { event: 'sync' }, syncPeers);
 
-    // Lắng nghe người mới vào phòng qua Presence và bắt tay WebRTC Call
+    // Lắng nghe người mới vào phòng qua Presence và bắt tay WebRTC Call (<200ms reactive)
     channel.on('presence', { event: 'join' }, (payload: any) => {
       syncPeers();
       const newPresences = payload?.newPresences || [];
-      newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
+      newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string; displayName?: string; name?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
         if (peerId && peerId !== participantId) {
+          const peerName = presence.displayName || presence.name || `Bạn học #${peerId.slice(0, 5)}`;
+          setPeerJoinToast(`${peerName} vừa vào phòng học`);
+          playGentleDing();
+          setTimeout(() => setPeerJoinToast(null), 4000);
+
           if (participantId < peerId) {
             manager.callPeer(peerId);
           }
@@ -805,6 +837,35 @@ export const StudyRoomView: React.FC = () => {
           });
         }
       });
+    });
+
+    // Lắng nghe tin nhắn phòng học thời gian thực
+    channel.on('broadcast', { event: 'chat-message' }, (payload: any) => {
+      const msg = payload?.payload || payload;
+      if (msg?.text) {
+        setMessages((prev) => [...prev, msg]);
+        if (!isChatOpenRef.current) {
+          setHasUnreadChat(true);
+        }
+      }
+    });
+
+    // Lắng nghe trạng thái Mic / Camera / Giơ tay của peer (<50ms tức thì)
+    channel.on('broadcast', { event: 'peer-media-state' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.peerId && data.peerId !== participantId) {
+        setPresenceUsers((prev) => {
+          if (!prev[data.peerId]) return prev;
+          return {
+            ...prev,
+            [data.peerId]: {
+              ...prev[data.peerId],
+              isMicOn: data.isMicOn,
+              isVideoOn: data.isVideoOn
+            }
+          };
+        });
+      }
     });
 
     // Lắng nghe hiệu ứng Thả Tim ngập màn hình & Cảm xúc từ các bạn học khác
@@ -859,7 +920,7 @@ export const StudyRoomView: React.FC = () => {
     };
   }, [hasJoined, roomId, participantId]);
 
-  // Đồng bộ trạng thái Media / Danh tính lên Supabase Presence (tách riêng để tránh hủy socket channel khi đổi mic/cam)
+  // Đồng bộ trạng thái Media / Danh tính lên Supabase Presence & Broadcast tức thì (<50ms)
   useEffect(() => {
     if (!hasJoined || !channelRef.current) return;
 
@@ -870,7 +931,22 @@ export const StudyRoomView: React.FC = () => {
       isMicOn: micEnabled,
       isVideoOn: cameraEnabled
     });
-  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled]);
+
+    try {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'peer-media-state',
+        payload: {
+          peerId: participantId,
+          isMicOn: micEnabled,
+          isVideoOn: cameraEnabled,
+          isHandRaised
+        }
+      });
+    } catch {
+      // Ignored
+    }
+  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled, isHandRaised]);
 
   // Request & manage local media stream (camera + mic)
   const initLocalStream = useCallback(async () => {
@@ -1107,16 +1183,31 @@ export const StudyRoomView: React.FC = () => {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMsg.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: participantName,
-        text: inputMsg.trim(),
-        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
+    const text = inputMsg.trim();
+    if (!text) return;
+    const newMsg = {
+      sender: participantName,
+      text,
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages((prev) => [...prev, newMsg]);
     setInputMsg('');
+
+    // Phát sóng tin nhắn thời gian thực qua Supabase và BroadcastChannel
+    try {
+      channelRef.current?.send({
+        type: 'broadcast',
+        event: 'chat-message',
+        payload: newMsg
+      });
+      studyRoomService.broadcastChannel?.postMessage({
+        roomId,
+        event: 'chat-message',
+        payload: newMsg
+      });
+    } catch {
+      // Ignored
+    }
   };
 
   const formatTimer = (secs: number) => {
@@ -1743,6 +1834,17 @@ export const StudyRoomView: React.FC = () => {
         </aside>
       )}
 
+      {/* Toast thông báo bạn học mới vào phòng */}
+      {peerJoinToast && (
+        <div
+          data-testid="peer-join-toast"
+          className="fixed top-16 right-4 z-50 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-zinc-800 shadow-2xl text-xs text-zinc-200 flex items-center gap-2.5 animate-in slide-in-from-top duration-300 backdrop-blur-md pointer-events-none"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="font-medium">{peerJoinToast}</span>
+        </div>
+      )}
+
       {/* Room Header - Responsive: Rich for Desktop (md:), Clean & Compact for Mobile (<md:) */}
       <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
         {/* Desktop Header */}
@@ -2288,121 +2390,81 @@ export const StudyRoomView: React.FC = () => {
           )}
         </div>
 
-        {/* Desktop Right Aside: Study Room Chat */}
-        <aside className="w-80 border-l border-white/10 bg-neutral-900/60 backdrop-blur-md hidden md:flex flex-col">
-          <div className="p-3.5 border-b border-white/10 flex items-center justify-between">
-            <span className="font-bold text-xs text-white">Trò chuyện nhóm</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono">
-              {messages.length} tin nhắn
-            </span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-3 space-y-2.5 text-xs">
-            {messages.map((m, i) => (
-              <div key={i} className="flex flex-col gap-0.5">
-                <div className="flex items-center justify-between text-[10px] text-neutral-500">
-                  <span className="font-semibold text-neutral-300">{m.sender}</span>
-                  <span>{m.time}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-neutral-200 break-words leading-relaxed">
-                  {m.text}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 flex gap-1.5">
-            <input
-              type="text"
-              value={inputMsg}
-              onChange={(e) => setInputMsg(e.target.value)}
-              placeholder="Nhắn tin trong phòng..."
-              className="flex-1 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400"
-            />
-            <button
-              type="submit"
-              className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold transition cursor-pointer"
-            >
-              <Send size={14} />
-            </button>
-          </form>
-        </aside>
-      </div>
-
-      {/* Mobile Chat Bottom Sheet */}
-      {isMobileChatOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div
-            className="w-full max-h-[82vh] h-[72vh] rounded-t-3xl bg-neutral-900/98 border-t border-white/15 flex flex-col shadow-2xl p-4 animate-in slide-in-from-bottom duration-300"
-            role="dialog"
-            aria-label="Khung trò chuyện phòng học"
-            data-testid="mobile-chat-bottom-sheet"
-          >
-            <div
-              className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-2 shrink-0 cursor-pointer"
-              onClick={() => setIsMobileChatOpen(false)}
-            />
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+        {/* Study Room Chat Sidebar (Desktop & Mobile) */}
+        {isChatOpen && (
+          <aside className="w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950/95 backdrop-blur-xl flex flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full shadow-2xl transition-all duration-300">
+            <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-sm text-white">Trò chuyện nhóm</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono">
-                  {messages.length} tin
+                <span className="font-semibold text-xs text-zinc-100 tracking-wide uppercase">Tin nhắn phòng</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono">
+                  {messages.length}
                 </span>
               </div>
-              <div className="flex items-center gap-1 mr-2">
-                {['🔥', '☕', '📚', '👏'].map((emoji) => (
+              <div className="flex items-center gap-1">
+                {['🔥', '☕', '📚', '👏', '❤️'].map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => handleTriggerReaction(emoji)}
-                    className="p-1 rounded hover:bg-white/10 text-sm transition active:scale-125 cursor-pointer"
+                    className="p-1 rounded hover:bg-zinc-800 text-xs transition active:scale-125 cursor-pointer"
                   >
                     {emoji}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  data-testid="btn-close-chat"
+                  onClick={() => setIsChatOpen(false)}
+                  className="p-1.5 ml-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 active:scale-95 transition cursor-pointer"
+                  title="Đóng trò chuyện"
+                >
+                  <X size={15} />
+                </button>
               </div>
-              <button
-                type="button"
-                data-testid="btn-close-mobile-chat"
-                onClick={() => setIsMobileChatOpen(false)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 active:scale-95 cursor-pointer"
-              >
-                <X size={16} />
-              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2 space-y-2.5 text-xs">
-              {messages.map((m, i) => (
-                <div key={i} className="flex flex-col gap-0.5">
-                  <div className="flex items-center justify-between text-[10px] text-neutral-500">
-                    <span className="font-semibold text-neutral-300">{m.sender}</span>
-                    <span>{m.time}</span>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 text-xs">
+              {messages.map((m, i) => {
+                const isMe = m.sender === participantName || m.sender === user?.displayName || m.sender === 'Bạn';
+                return (
+                  <div key={i} className={`flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 px-1">
+                      <span className={`font-medium ${isMe ? 'text-zinc-400' : 'text-zinc-300'}`}>{m.sender}</span>
+                      <span>{m.time}</span>
+                    </div>
+                    <div
+                      className={`max-w-[85%] p-2.5 break-words text-xs leading-relaxed ${
+                        isMe
+                          ? 'bg-zinc-800 text-white rounded-2xl rounded-tr-sm border border-zinc-700/60'
+                          : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-2xl rounded-tl-sm'
+                      }`}
+                    >
+                      {m.text}
+                    </div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-neutral-200 break-words">
-                    {m.text}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <form onSubmit={handleSendMessage} className="pt-2 border-t border-white/10 flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-3 border-t border-zinc-800 flex gap-2 shrink-0 bg-zinc-900/40">
               <input
                 type="text"
                 value={inputMsg}
                 onChange={(e) => setInputMsg(e.target.value)}
                 placeholder="Nhắn tin trong phòng..."
-                className="flex-1 rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400"
+                className="flex-1 rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition"
               />
               <button
                 type="submit"
-                className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold transition cursor-pointer min-w-[40px] flex items-center justify-center"
+                className="p-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold transition cursor-pointer shrink-0 flex items-center justify-center min-w-[36px]"
+                title="Gửi tin nhắn"
               >
-                <Send size={15} />
+                <Send size={14} />
               </button>
             </form>
-          </div>
-        </div>
-      )}
+          </aside>
+        )}
+      </div>
 
       {/* Floating Bottom Action Toolbar (#room-compact): Docked on Mobile with Safe Area, Floating on Desktop */}
       <div
@@ -2503,20 +2565,26 @@ export const StudyRoomView: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Chat Button Toggle */}
+          {/* Chat Button Toggle (Visible on Desktop & Mobile) */}
           <button
             type="button"
             data-testid="btn-room-chat"
-            onClick={() => setIsMobileChatOpen(!isMobileChatOpen)}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer relative md:hidden flex items-center justify-center shrink-0 ${
-              isMobileChatOpen ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-white/10 text-white'
+            onClick={() => {
+              setIsChatOpen(!isChatOpen);
+              setHasUnreadChat(false);
+            }}
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer relative flex items-center justify-center shrink-0 ${
+              isChatOpen ? 'bg-white text-zinc-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
-            title="Mở trò chuyện"
+            title="Trò chuyện phòng học"
           >
             <MessageSquare size={16} className="sm:w-[18px] sm:h-[18px]" />
-            {messages.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 text-neutral-950 font-bold text-[9px] flex items-center justify-center shadow">
-                {messages.length}
+            {hasUnreadChat && !isChatOpen && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-zinc-950 animate-pulse" />
+            )}
+            {messages.length > 0 && !hasUnreadChat && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-zinc-700 text-zinc-200 text-[9px] font-mono flex items-center justify-center">
+                {messages.length > 99 ? '99+' : messages.length}
               </span>
             )}
           </button>

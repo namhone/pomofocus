@@ -54,8 +54,8 @@ export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
   const num = (i + 1).toString().padStart(2, '0');
   return {
     roomId: `pod-free-${num}`,
-    title: `Phòng Tập Trung ${num}`,
-    maxParticipants: 5
+    title: `Phòng ${num}`,
+    maxParticipants: 10
   };
 });
 
@@ -197,7 +197,7 @@ export const studyRoomService = {
         createdAt: Date.now(),
         status: 'active',
         allowFreeGuests: true,
-        maxParticipants: 5,
+        maxParticipants: 10,
         activeInviteToken: null,
         inviteTokens: {},
         participants: {},

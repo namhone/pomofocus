@@ -4,6 +4,7 @@ import { WidgetContainer } from './components/WidgetContainer';
 import { BackgroundCanvas } from './components/BackgroundCanvas';
 import { WidgetSkeleton } from './components/WidgetSkeleton';
 import { GlobalAudioHost } from './components/GlobalAudioHost';
+import { FloatingVideoPiP } from './components/FloatingVideoPiP';
 import { PlatformHeader } from './components/PlatformHeader';
 import { AuthView } from './components/AuthView';
 import { BillingView } from './components/BillingView';
@@ -176,8 +177,9 @@ export const App: React.FC = () => {
         {/* Background Canvas: Video / Image / Gradient với bộ lọc và lớp phủ */}
         <BackgroundCanvas />
 
-        {/* Global Background Audio Player (Tách rời vòng đời phát âm thanh khỏi widget UI) */}
+        {/* Global Background Audio Player & Free-Floating PiP Window */}
         <GlobalAudioHost />
+        <FloatingVideoPiP />
 
         {/* Live Ambient Canvas Particles (Rain, Snow, Sakura, Fireflies) */}
         <Suspense fallback={null}>

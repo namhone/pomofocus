@@ -413,18 +413,18 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
     });
   });
 
-  describe('5. 10 Public Free Study Pods (Sức chứa tối đa 5 người, Free 100%)', () => {
+  describe('5. 10 Public Free Study Pods (Sức chứa tối đa 10 người, Free 100%)', () => {
     it('cung cấp danh sách đúng 10 phòng Public Free Pods cố định (pod-free-01 đến pod-free-10)', () => {
       expect(PUBLIC_FREE_PODS).toHaveLength(10);
       expect(PUBLIC_FREE_PODS[0]).toEqual({
         roomId: 'pod-free-01',
-        title: 'Phòng Tập Trung 01',
-        maxParticipants: 5
+        title: 'Phòng 01',
+        maxParticipants: 10
       });
       expect(PUBLIC_FREE_PODS[9]).toEqual({
         roomId: 'pod-free-10',
-        title: 'Phòng Tập Trung 10',
-        maxParticipants: 5
+        title: 'Phòng 10',
+        maxParticipants: 10
       });
     });
 
@@ -434,16 +434,16 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
       if (guestAccess.allowed) {
         expect(guestAccess.role).toBe('guest');
         expect(guestAccess.room.allowFreeGuests).toBe(true);
-        expect(guestAccess.room.maxParticipants).toBe(5);
+        expect(guestAccess.room.maxParticipants).toBe(10);
       }
     });
 
-    it('từ chối khi phòng đã đạt đủ 5 người (ROOM_FULL) và bảo vệ sức chứa', () => {
+    it('từ chối khi phòng đã đạt đủ 10 người (ROOM_FULL) và bảo vệ sức chứa', () => {
       const room = studyRoomService.getRoom('pod-free-03')!;
       expect(room).toBeDefined();
 
-      // Giả lập phòng đã có đủ 5 người đang học
-      for (let i = 1; i <= 5; i++) {
+      // Giả lập phòng đã có đủ 10 người đang học
+      for (let i = 1; i <= 10; i++) {
         room.participants[`p_${i}`] = {
           id: `p_${i}`,
           userId: `usr_member_${i}`,
@@ -458,8 +458,8 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
 
       const newUser: UserProfile = {
         id: 'usr_new_person',
-        email: 'person6@example.com',
-        displayName: 'Người thứ 6',
+        email: 'person11@example.com',
+        displayName: 'Người thứ 11',
         plan: 'free',
         createdAt: Date.now()
       };
@@ -472,9 +472,9 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
       }
     });
 
-    it('cho phép thành viên đã ở trong phòng tiếp tục truy cập lại (reconnect) ngay cả khi phòng đang chạm mốc 5 người', () => {
+    it('cho phép thành viên đã ở trong phòng tiếp tục truy cập lại (reconnect) ngay cả khi phòng đang chạm mốc 10 người', () => {
       const room = studyRoomService.getRoom('pod-free-05')!;
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 10; i++) {
         room.participants[`p_${i}`] = {
           id: `p_${i}`,
           userId: `usr_member_${i}`,
