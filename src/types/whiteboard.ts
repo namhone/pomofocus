@@ -1,4 +1,4 @@
-export type ToolType = 'pen' | 'eraser' | 'line' | 'arrow' | 'rect' | 'circle' | 'text';
+export type ToolType = 'pen' | 'highlighter' | 'whiteout' | 'eraser' | 'line' | 'arrow' | 'rect' | 'circle' | 'text';
 
 export type StrokeSize = 2 | 4 | 8;
 
