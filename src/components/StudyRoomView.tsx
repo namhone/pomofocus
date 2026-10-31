@@ -19,6 +19,8 @@ import { WhiteboardView } from './WhiteboardView';
 import {
   Video,
   VideoOff,
+  ChevronLeft,
+  ChevronRight,
   Mic,
   MicOff,
   Users,
@@ -137,6 +139,7 @@ export const StudyRoomView: React.FC = () => {
 
   // Whiteboard View Switcher
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
+  const [isWhiteboardVideoExpanded, setIsWhiteboardVideoExpanded] = useState(true);
   const [whiteboardDrawerInfo, setWhiteboardDrawerInfo] = useState<{
     isDrawing: boolean;
     name?: string;
@@ -1904,7 +1907,47 @@ export const StudyRoomView: React.FC = () => {
               </button>
             </div>
 
-            {/* Nút Sao chép Link mời */}
+            {/* Mini Pomodoro Timer Pill khi ở chế độ Bảng Vẽ Chung */}
+            {activeTab === 'whiteboard' && (
+              <div
+                data-testid="whiteboard-mini-timer-pill"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-neutral-900 border border-emerald-500/30 text-white shadow-md select-none shrink-0"
+              >
+                <div className="flex items-center gap-1.5 font-mono text-xs font-bold tabular-nums">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isRoomRunning ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'
+                    }`}
+                  />
+                  <span>{formatTimer(roomRemainingSeconds)}</span>
+                </div>
+                <button
+                  type="button"
+                  data-testid="btn-room-mini-timer-toggle"
+                  onClick={() => setIsRoomRunning(!isRoomRunning)}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                    isRoomRunning
+                      ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
+                      : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
+                  }`}
+                  title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
+                >
+                  {isRoomRunning ? <Pause size={10} /> : <Play size={10} />}
+                  <span>{isRoomRunning ? 'Dừng' : 'Chạy'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRoomRunning(false);
+                    setRoomRemainingSeconds(25 * 60);
+                  }}
+                  className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                  title="Đặt lại 25 phút"
+                >
+                  <RotateCcw size={11} />
+                </button>
+              </div>
+            )}
             <button
               type="button"
               data-testid="btn-copy-invite-link"
@@ -2028,65 +2071,78 @@ export const StudyRoomView: React.FC = () => {
       {/* Main Workspace: Left video/whiteboard stage, Right study chat on desktop */}
       <div className="flex-1 min-h-0 flex overflow-hidden relative">
         {/* Main Stage */}
-        <div className="flex-1 flex flex-col p-3 sm:p-5 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6">
-          {/* Synchronized Shared Pomodoro Timer Banner */}
-          <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex items-center justify-between shadow-xl gap-2">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0">
-                <Sparkles size={18} />
+        <div
+          className={`flex-1 flex flex-col min-h-0 ${
+            activeTab === 'whiteboard'
+              ? 'p-0 pb-0 overflow-hidden relative w-full h-full'
+              : 'p-3 sm:p-5 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6'
+          }`}
+        >
+          {/* Synchronized Shared Pomodoro Timer Banner & Notes - CHỈ HIỂN THỊ KHI Ở CHẾ ĐỘ LƯỚI VIDEO */}
+          {activeTab === 'grid' && (
+            <>
+              {/* Synchronized Shared Pomodoro Timer Banner */}
+              <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex items-center justify-between shadow-xl gap-2">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0">
+                    <Sparkles size={18} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-neutral-300">Đồng hồ nhóm Pomodoro</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                        HỌC TẬP
+                      </span>
+                    </div>
+                    <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
+                      {formatTimer(roomRemainingSeconds)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  <button
+                    type="button"
+                    data-testid="btn-room-timer-toggle"
+                    onClick={() => setIsRoomRunning(!isRoomRunning)}
+                    className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
+                      isRoomRunning
+                        ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30'
+                        : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
+                    }`}
+                    title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
+                  >
+                    {isRoomRunning ? <Pause size={14} /> : <Play size={14} />}
+                    <span className="hidden sm:inline">{isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRoomRunning(false);
+                      setRoomRemainingSeconds(25 * 60);
+                    }}
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    title="Đặt lại đồng hồ phòng"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-neutral-300">Đồng hồ nhóm Pomodoro</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
-                    HỌC TẬP
+
+              {/* Connection note */}
+              <div className="mb-3 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] sm:text-[11px] flex items-center justify-between">
+                <span className="truncate flex items-center gap-1.5">
+                  <Info size={13} className="text-indigo-400 shrink-0" />
+                  <span>
+                    <strong>Mã phòng:</strong> #{roomId} • WebRTC Live Audio/Video.
                   </span>
-                </div>
-                <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
-                  {formatTimer(roomRemainingSeconds)}
-                </div>
+                </span>
+                <span className="text-[10px] text-indigo-400/80 shrink-0 ml-2">
+                  {room?.allowFreeGuests ? 'Mở cho khách Free' : 'PRO Only'}
+                </span>
               </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button
-                type="button"
-                data-testid="btn-room-timer-toggle"
-                onClick={() => setIsRoomRunning(!isRoomRunning)}
-                className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
-                  isRoomRunning
-                    ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30'
-                    : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
-                }`}
-                title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              >
-                {isRoomRunning ? <Pause size={14} /> : <Play size={14} />}
-                <span className="hidden sm:inline">{isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRoomRunning(false);
-                  setRoomRemainingSeconds(25 * 60);
-                }}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
-                title="Đặt lại đồng hồ phòng"
-              >
-                <RotateCcw size={14} />
-              </button>
-            </div>
-          </div>
-
-          {/* Connection note */}
-          <div className="mb-3 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] sm:text-[11px] flex items-center justify-between">
-            <span className="truncate flex items-center gap-1.5">
-              <Info size={13} className="text-indigo-400 shrink-0" />
-              <span><strong>Mã phòng:</strong> #{roomId} • WebRTC Live Audio/Video.</span>
-            </span>
-            <span className="text-[10px] text-indigo-400/80 shrink-0 ml-2">
-              {room?.allowFreeGuests ? 'Mở cho khách Free' : 'PRO Only'}
-            </span>
-          </div>
+            </>
+          )}
 
           {/* Screen Share Stage (if active) */}
           {isScreenSharing && (
@@ -2280,95 +2336,112 @@ export const StudyRoomView: React.FC = () => {
               )}
             </div>
           ) : (
-            /* Shared Collaborative Whiteboard View */
-            <div className="flex-1 flex flex-col min-h-0 w-full h-full gap-2 overflow-hidden">
-              {/* Dải video nổi/nằm ngang ở trên cùng khi đang vẽ bảng để vừa vẽ vừa thấy mặt nhau */}
+            /* Shared Collaborative Whiteboard View - FULL WORKSPACE 100% */
+            <div className="flex-1 w-full h-full min-h-0 relative overflow-hidden flex flex-col">
+              {/* Floating Mini Video Strip (Ghim nổi góc trái trên, không chiếm diện tích mặt bảng) */}
               <div
                 data-testid="whiteboard-floating-video-strip"
-                className="flex items-center gap-2 overflow-x-auto pb-1 shrink-0 select-none scrollbar-thin"
+                className="absolute top-3 left-3 z-30 flex items-center gap-1.5 select-none pointer-events-auto"
               >
-                {/* CURRENT USER COMPACT TILE */}
-                <div className="relative w-36 h-20 sm:w-40 sm:h-22 rounded-xl bg-neutral-900 border border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-md">
-                  {cameraEnabled ? (
-                    <video
-                      ref={mainVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover transform scale-x-[-1]"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-1.5 text-neutral-400">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-xs font-bold text-emerald-300">
-                        {participantName.charAt(0).toUpperCase()}
-                      </div>
-                    </div>
-                  )}
-                  <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] text-white">
-                    <span className="truncate max-w-[80px] font-medium">{participantName} (Bạn)</span>
-                    <span className={micEnabled ? 'text-emerald-400' : 'text-rose-400'}>
-                      {micEnabled ? <Mic size={10} /> : <MicOff size={10} />}
-                    </span>
-                  </div>
-                </div>
+                {/* Nút thu gọn / mở rộng Camera */}
+                <button
+                  type="button"
+                  data-testid="btn-toggle-wb-video-strip"
+                  onClick={() => setIsWhiteboardVideoExpanded(!isWhiteboardVideoExpanded)}
+                  className="px-2.5 py-1.5 rounded-xl bg-black/85 hover:bg-neutral-800 border border-white/15 text-white text-[11px] font-medium backdrop-blur-md shadow-2xl flex items-center gap-1.5 transition cursor-pointer"
+                  title={isWhiteboardVideoExpanded ? 'Thu nhỏ Camera' : 'Hiện Camera thành viên'}
+                >
+                  <Video size={13} className="text-emerald-400" />
+                  <span>{otherParticipants.length + 1} Camera</span>
+                  {isWhiteboardVideoExpanded ? <ChevronLeft size={13} /> : <ChevronRight size={13} />}
+                </button>
 
-                {/* REMOTE PARTICIPANTS COMPACT TILES */}
-                {otherParticipants.map((peer) => {
-                  const stream = remoteStreams[peer.id];
-                  const hasVideoTrack = Boolean(
-                    stream &&
-                    stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
-                  );
-
-                  return (
-                    <div
-                      key={`strip-${peer.id}`}
-                      className="relative w-36 h-20 sm:w-40 sm:h-22 rounded-xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-md"
-                    >
-                      {hasVideoTrack ? (
+                {isWhiteboardVideoExpanded && (
+                  <div className="flex items-center gap-1.5 overflow-x-auto max-w-[calc(100vw-360px)] scrollbar-none p-0.5">
+                    {/* CURRENT USER COMPACT TILE */}
+                    <div className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl bg-black/90 border border-emerald-500/50 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl">
+                      {cameraEnabled ? (
                         <video
+                          ref={mainVideoRef}
                           autoPlay
                           playsInline
-                          ref={(el) => {
-                            if (el && el.srcObject !== stream) {
-                              el.srcObject = stream;
-                            }
-                          }}
-                          className="w-full h-full object-cover"
+                          muted
+                          className="w-full h-full object-cover transform scale-x-[-1]"
                         />
                       ) : (
-                        <div className="flex items-center gap-1.5 text-neutral-400">
-                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-xs font-bold text-cyan-300">
-                            {(peer.name || 'U').charAt(0).toUpperCase()}
+                        <div className="flex items-center gap-1 text-neutral-400">
+                          <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-[11px] font-bold text-emerald-300">
+                            {participantName.charAt(0).toUpperCase()}
                           </div>
                         </div>
                       )}
-
-                      {stream && (
-                        <audio
-                          autoPlay
-                          playsInline
-                          ref={(el) => {
-                            if (el && el.srcObject !== stream) {
-                              el.srcObject = stream;
-                            }
-                          }}
-                        />
-                      )}
-
-                      <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] text-white">
-                        <span className="truncate max-w-[80px] font-medium">{peer.name}</span>
-                        <span className={peer.isMicOn !== false ? 'text-emerald-400' : 'text-rose-400'}>
-                          {peer.isMicOn !== false ? <Mic size={10} /> : <MicOff size={10} />}
+                      <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] text-white">
+                        <span className="truncate max-w-[65px] font-medium">{participantName} (Bạn)</span>
+                        <span className={micEnabled ? 'text-emerald-400' : 'text-rose-400'}>
+                          {micEnabled ? <Mic size={9} /> : <MicOff size={9} />}
                         </span>
                       </div>
                     </div>
-                  );
-                })}
+
+                    {/* REMOTE PARTICIPANTS COMPACT TILES */}
+                    {otherParticipants.map((peer) => {
+                      const stream = remoteStreams[peer.id];
+                      const hasVideoTrack = Boolean(
+                        stream &&
+                        stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
+                      );
+
+                      return (
+                        <div
+                          key={`strip-${peer.id}`}
+                          className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl bg-black/90 border border-white/20 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl"
+                        >
+                          {hasVideoTrack ? (
+                            <video
+                              autoPlay
+                              playsInline
+                              ref={(el) => {
+                                if (el && el.srcObject !== stream) {
+                                  el.srcObject = stream;
+                                }
+                              }}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1 text-neutral-400">
+                              <div className="w-7 h-7 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-[11px] font-bold text-cyan-300">
+                                {(peer.name || 'U').charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                          )}
+
+                          {stream && (
+                            <audio
+                              autoPlay
+                              playsInline
+                              ref={(el) => {
+                                if (el && el.srcObject !== stream) {
+                                  el.srcObject = stream;
+                                }
+                              }}
+                            />
+                          )}
+
+                          <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] text-white">
+                            <span className="truncate max-w-[65px] font-medium">{peer.name}</span>
+                            <span className={peer.isMicOn !== false ? 'text-emerald-400' : 'text-rose-400'}>
+                              {peer.isMicOn !== false ? <Mic size={9} /> : <MicOff size={9} />}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
-              {/* Main Whiteboard Canvas */}
-              <div className="flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
+              {/* Main Whiteboard Canvas (Chiếm trọn 100% diện tích màn hình) */}
+              <div className="flex-1 w-full h-full min-h-0 overflow-hidden relative">
                 <WhiteboardView
                   roomId={roomId}
                   currentUserId={participantId}

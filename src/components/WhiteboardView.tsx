@@ -1216,17 +1216,21 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
       />
 
       {/* Floating Minimalist Monochrome Toolbar */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 p-1.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-2xl backdrop-blur-md max-w-[96vw] overflow-x-auto">
+      <div
+        data-testid="whiteboard-floating-toolbar"
+        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md w-max max-w-[calc(100vw-24px)] overflow-x-auto sm:overflow-visible scrollbar-none"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {/* Nút Upload Tài Liệu / Đề Cương */}
         <button
           type="button"
           data-testid="btn-upload-material"
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer shrink-0 border border-white/10"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer shrink-0 border border-white/10 whitespace-nowrap"
           title="Tải lên tài liệu PDF, Word (.docx) hoặc Ảnh đề thi để cùng giải"
         >
-          <FileUp size={14} className="text-emerald-400" />
-          <span className="hidden sm:inline">Tài liệu / Đề cương</span>
+          <FileUp size={14} className="text-emerald-400 shrink-0" />
+          <span className="hidden sm:inline whitespace-nowrap">Tài liệu / Đề cương</span>
         </button>
 
         <span className="w-px h-5 bg-white/10 shrink-0" />
@@ -1474,11 +1478,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
             type="button"
             data-testid="btn-export-png"
             onClick={handleExportPNG}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition cursor-pointer ml-1"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition cursor-pointer ml-1 shrink-0 whitespace-nowrap"
             title="Lưu ảnh bài học về máy"
           >
-            <Download size={13} />
-            <span className="hidden sm:inline">Lưu ảnh</span>
+            <Download size={13} className="shrink-0" />
+            <span className="whitespace-nowrap">Lưu ảnh</span>
           </button>
         </div>
       </div>
