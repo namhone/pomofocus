@@ -15,6 +15,7 @@ import {
   RoomParticipant,
   SubscriptionEligibilityResult
 } from '../services/studyRoomService';
+import { WhiteboardView } from './WhiteboardView';
 import {
   Video,
   VideoOff,
@@ -35,9 +36,6 @@ import {
   Hand,
   Settings,
   Palette,
-  Eraser,
-  Trash2,
-  Download,
   Smile,
   X,
   MessageSquare,
@@ -137,13 +135,8 @@ export const StudyRoomView: React.FC = () => {
   const [roomRemainingSeconds, setRoomRemainingSeconds] = useState(25 * 60);
   const [isRoomRunning, setIsRoomRunning] = useState(false);
 
-  // Whiteboard
+  // Whiteboard View Switcher
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [drawColor, setDrawColor] = useState('#FFFFFF');
-  const [brushSize, setBrushSize] = useState(3);
-  const [isEraser, setIsEraser] = useState(false);
 
   // Settings Modal State (AV + Admin tabs)
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -1262,78 +1255,6 @@ export const StudyRoomView: React.FC = () => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Whiteboard drawing
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.strokeStyle = isEraser ? '#161618' : drawColor;
-    ctx.lineWidth = isEraser ? brushSize * 4 : brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    setIsDrawing(true);
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.fillStyle = '#161618';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const downloadWhiteboard = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = `whiteboard-${roomId}-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  };
-
-  useEffect(() => {
-    if (activeTab === 'whiteboard' && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = '#161618';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-  }, [activeTab]);
-
   // Bật/tắt Cho phép khách Free tham gia qua link mời (Chỉ Host)
   const handleToggleAllowFree = (allow: boolean) => {
     if (!user || userRole !== 'host') return;
@@ -2346,90 +2267,101 @@ export const StudyRoomView: React.FC = () => {
               )}
             </div>
           ) : (
-            /* Shared Whiteboard Canvas */
-            <div className="flex-1 flex flex-col rounded-2xl bg-neutral-900 border border-white/10 p-3 sm:p-4 min-h-[460px]">
-              {/* Whiteboard Toolbar */}
-              <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/10 flex-wrap gap-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setIsEraser(false)}
-                      className={`p-1.5 rounded-lg transition ${!isEraser ? 'bg-white/20 text-white' : 'text-neutral-400'}`}
-                      title="Bút vẽ"
-                    >
-                      <Palette size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsEraser(true)}
-                      className={`p-1.5 rounded-lg transition ${isEraser ? 'bg-white/20 text-white' : 'text-neutral-400'}`}
-                      title="Tẩy xóa"
-                    >
-                      <Eraser size={15} />
-                    </button>
-                  </div>
-
-                  {!isEraser && (
-                    <div className="flex items-center gap-1.5">
-                      {['#FFFFFF', '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899'].map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setDrawColor(c)}
-                          className={`w-5 h-5 rounded-full transition border ${drawColor === c ? 'scale-125 border-white' : 'border-transparent'}`}
-                          style={{ backgroundColor: c }}
-                        />
-                      ))}
+            /* Shared Collaborative Whiteboard View */
+            <div className="flex-1 flex flex-col min-h-0 w-full h-full gap-2 overflow-hidden">
+              {/* Dải video nổi/nằm ngang ở trên cùng khi đang vẽ bảng để vừa vẽ vừa thấy mặt nhau */}
+              <div
+                data-testid="whiteboard-floating-video-strip"
+                className="flex items-center gap-2 overflow-x-auto pb-1 shrink-0 select-none scrollbar-thin"
+              >
+                {/* CURRENT USER COMPACT TILE */}
+                <div className="relative w-36 h-20 sm:w-40 sm:h-22 rounded-xl bg-neutral-900 border border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-md">
+                  {cameraEnabled ? (
+                    <video
+                      ref={mainVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover transform scale-x-[-1]"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-neutral-400">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-xs font-bold text-emerald-300">
+                        {participantName.charAt(0).toUpperCase()}
+                      </div>
                     </div>
                   )}
-
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={brushSize}
-                    onChange={(e) => setBrushSize(Number(e.target.value))}
-                    className="w-16 accent-emerald-400"
-                    title="Độ dày nét vẽ"
-                  />
+                  <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] text-white">
+                    <span className="truncate max-w-[80px] font-medium">{participantName} (Bạn)</span>
+                    <span className={micEnabled ? 'text-emerald-400' : 'text-rose-400'}>
+                      {micEnabled ? <Mic size={10} /> : <MicOff size={10} />}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={clearCanvas}
-                    className="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-neutral-400 hover:text-rose-400 transition"
-                    title="Xóa trắng bảng"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={downloadWhiteboard}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white transition text-xs"
-                    title="Tải ảnh bảng vẽ về máy"
-                  >
-                    <Download size={13} />
-                    <span>Lưu ảnh</span>
-                  </button>
-                </div>
+                {/* REMOTE PARTICIPANTS COMPACT TILES */}
+                {otherParticipants.map((peer) => {
+                  const stream = remoteStreams[peer.id];
+                  const hasVideoTrack = Boolean(
+                    stream &&
+                    stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
+                  );
+
+                  return (
+                    <div
+                      key={`strip-${peer.id}`}
+                      className="relative w-36 h-20 sm:w-40 sm:h-22 rounded-xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-md"
+                    >
+                      {hasVideoTrack ? (
+                        <video
+                          autoPlay
+                          playsInline
+                          ref={(el) => {
+                            if (el && el.srcObject !== stream) {
+                              el.srcObject = stream;
+                            }
+                          }}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-neutral-400">
+                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-xs font-bold text-cyan-300">
+                            {(peer.name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                      )}
+
+                      {stream && (
+                        <audio
+                          autoPlay
+                          playsInline
+                          ref={(el) => {
+                            if (el && el.srcObject !== stream) {
+                              el.srcObject = stream;
+                            }
+                          }}
+                        />
+                      )}
+
+                      <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] text-white">
+                        <span className="truncate max-w-[80px] font-medium">{peer.name}</span>
+                        <span className={peer.isMicOn !== false ? 'text-emerald-400' : 'text-rose-400'}>
+                          {peer.isMicOn !== false ? <Mic size={10} /> : <MicOff size={10} />}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Canvas Board */}
-              <div className="flex-1 rounded-xl overflow-hidden bg-[#161618] relative cursor-crosshair">
-                <canvas
-                  ref={canvasRef}
-                  width={900}
-                  height={550}
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
-                  className="w-full h-full block touch-none"
+              {/* Main Whiteboard Canvas */}
+              <div className="flex-1 min-h-[460px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
+                <WhiteboardView
+                  roomId={roomId}
+                  currentUserId={participantId}
+                  currentUserName={participantName}
+                  channel={channelRef.current}
+                  isHost={userRole === 'host'}
                 />
               </div>
             </div>
