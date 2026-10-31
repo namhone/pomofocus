@@ -137,6 +137,10 @@ export const StudyRoomView: React.FC = () => {
 
   // Whiteboard View Switcher
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
+  const [whiteboardDrawerInfo, setWhiteboardDrawerInfo] = useState<{
+    isDrawing: boolean;
+    name?: string;
+  }>({ isDrawing: false });
 
   // Settings Modal State (AV + Admin tabs)
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -1881,13 +1885,22 @@ export const StudyRoomView: React.FC = () => {
               </button>
               <button
                 type="button"
+                data-testid="btn-switch-whiteboard"
                 onClick={() => setActiveTab('whiteboard')}
-                className={`px-3 py-1 rounded-md flex items-center gap-1 transition cursor-pointer ${
-                  activeTab === 'whiteboard' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
+                className={`px-3 py-1 rounded-md flex items-center gap-1.5 transition cursor-pointer ${
+                  activeTab === 'whiteboard'
+                    ? 'bg-white/15 text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 <Palette size={13} />
                 <span>Bảng Vẽ Chung</span>
+                {whiteboardDrawerInfo.isDrawing && activeTab !== 'whiteboard' && (
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-normal">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="hidden lg:inline">{whiteboardDrawerInfo.name || 'Bạn học'} đang vẽ</span>
+                  </span>
+                )}
               </button>
             </div>
 
@@ -2362,6 +2375,9 @@ export const StudyRoomView: React.FC = () => {
                   currentUserName={participantName}
                   channel={channelRef.current}
                   isHost={userRole === 'host'}
+                  onDrawerActivity={(isDrawing, drawerName) => {
+                    setWhiteboardDrawerInfo({ isDrawing, name: drawerName });
+                  }}
                 />
               </div>
             </div>

@@ -9,6 +9,7 @@ export interface StudyMaterial {
   file?: File;
   totalPages?: number;
   currentPage: number;
+  viewMode?: 'single' | 'book';
   extractedContent?: string;
   uploadedBy: string;
   uploadedAt: number;

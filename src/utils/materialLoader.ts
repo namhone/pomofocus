@@ -83,6 +83,97 @@ export async function renderPdfPageToCanvas(
   return { width: viewport.width, height: viewport.height };
 }
 
+// 3b. Render chế độ Quyển Sách mở 2 trang song song (Book Spread View)
+export async function renderPdfBookSpreadToCanvas(
+  pdfDoc: any,
+  leftPageNum: number,
+  rightPageNum: number,
+  targetCanvas: HTMLCanvasElement
+): Promise<{ width: number; height: number; leftWidth: number }> {
+  // 1. Render Trang Trái
+  const leftPage = await pdfDoc.getPage(leftPageNum);
+  const leftUnscaled = leftPage.getViewport({ scale: 1 });
+  const maxSpreadW = 1600;
+  const singleMaxW = maxSpreadW / 2;
+  const scaleLeft = Math.min(2.0, singleMaxW / leftUnscaled.width);
+  const leftViewport = leftPage.getViewport({ scale: scaleLeft });
+
+  const canvasLeft = document.createElement('canvas');
+  canvasLeft.width = leftViewport.width;
+  canvasLeft.height = leftViewport.height;
+  const ctxLeft = canvasLeft.getContext('2d');
+  if (ctxLeft) {
+    await leftPage.render({ canvasContext: ctxLeft, viewport: leftViewport }).promise;
+  }
+
+  // 2. Render Trang Phải (nếu có trong tổng số trang)
+  let canvasRight: HTMLCanvasElement | null = null;
+  if (rightPageNum <= pdfDoc.numPages) {
+    const rightPage = await pdfDoc.getPage(rightPageNum);
+    const rightUnscaled = rightPage.getViewport({ scale: 1 });
+    const scaleRight = Math.min(2.0, singleMaxW / rightUnscaled.width);
+    const rightViewport = rightPage.getViewport({ scale: scaleRight });
+
+    canvasRight = document.createElement('canvas');
+    canvasRight.width = rightViewport.width;
+    canvasRight.height = rightViewport.height;
+    const ctxRight = canvasRight.getContext('2d');
+    if (ctxRight) {
+      await rightPage.render({ canvasContext: ctxRight, viewport: rightViewport }).promise;
+    }
+  }
+
+  const totalW = canvasLeft.width + (canvasRight ? canvasRight.width : canvasLeft.width);
+  const totalH = Math.max(canvasLeft.height, canvasRight ? canvasRight.height : canvasLeft.height);
+
+  targetCanvas.width = totalW;
+  targetCanvas.height = totalH;
+  const ctx = targetCanvas.getContext('2d');
+  if (!ctx) throw new Error('Không lấy được context 2D');
+
+  // Vẽ nền trang
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, totalW, totalH);
+
+  // Vẽ Trang Trái
+  ctx.drawImage(canvasLeft, 0, 0);
+
+  // Vẽ Trang Phải (nếu trang cuối là số lẻ thì để trang phải màu giấy trắng có watermark nhẹ)
+  const spineX = canvasLeft.width;
+  if (canvasRight) {
+    ctx.drawImage(canvasRight, spineX, 0);
+  } else {
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(spineX, 0, canvasLeft.width, canvasLeft.height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('(Hết trang tài liệu)', spineX + canvasLeft.width / 2, canvasLeft.height / 2);
+    ctx.textAlign = 'start';
+  }
+
+  // Hiệu ứng Đổ bóng gáy sách (Spine Shadow Gradient)
+  const spineShadowW = 32;
+  const grad = ctx.createLinearGradient(spineX - spineShadowW, 0, spineX + spineShadowW, 0);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  grad.addColorStop(0.44, 'rgba(0, 0, 0, 0.08)');
+  grad.addColorStop(0.5, 'rgba(0, 0, 0, 0.28)');
+  grad.addColorStop(0.56, 'rgba(0, 0, 0, 0.08)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(spineX - spineShadowW, 0, spineShadowW * 2, totalH);
+
+  // Đường chỉ gáy sách mảnh
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(spineX, 0);
+  ctx.lineTo(spineX, totalH);
+  ctx.stroke();
+
+  return { width: totalW, height: totalH, leftWidth: canvasLeft.width };
+}
+
 // 4. Trích xuất toàn bộ văn bản từ PDF thành đề cương chữ
 export async function extractTextFromPdf(pdfDoc: any): Promise<string> {
   const pagesText: string[] = [];

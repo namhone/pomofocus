@@ -42,3 +42,23 @@ export interface WhiteboardSyncSnapshotPayload {
   targetId: string;
   strokes: WhiteboardStroke[];
 }
+
+export interface WhiteboardCursorPayload {
+  userId: string;
+  userName: string;
+  x: number;
+  y: number;
+  isDrawing: boolean;
+  color?: string;
+  lastActive: number;
+}
+
+export interface WhiteboardDrawStreamPayload {
+  userId: string;
+  userName?: string;
+  tool: ToolType;
+  color: string;
+  size: number;
+  points: NormalizedPoint[];
+  isFinished?: boolean;
+}
