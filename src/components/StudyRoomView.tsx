@@ -795,6 +795,24 @@ export const StudyRoomView: React.FC = () => {
     });
   }, [otherParticipants, speakingMap]);
 
+  // Responsive Video Grid: Tự động tính toán số cột và giới hạn độ rộng dựa trên tổng sĩ số 1 đến 10 học viên
+  const gridLayoutClass = useMemo(() => {
+    const count = sortedOtherParticipants.length + 1;
+    if (count <= 1) {
+      return 'grid grid-cols-1 max-w-3xl mx-auto w-full';
+    }
+    if (count === 2) {
+      return 'grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto w-full';
+    }
+    if (count <= 4) {
+      return 'grid grid-cols-1 sm:grid-cols-2 max-w-6xl mx-auto w-full';
+    }
+    if (count <= 6) {
+      return 'grid grid-cols-2 md:grid-cols-3 max-w-7xl mx-auto w-full';
+    }
+    return 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 w-full';
+  }, [sortedOtherParticipants.length]);
+
   // Hiển thị bóng phản ứng cảm xúc nổi
   const showReactionBubble = useCallback((emoji: string) => {
     const rx: FloatingReaction = {
@@ -1044,10 +1062,26 @@ export const StudyRoomView: React.FC = () => {
       },
       onPeerLeave: (peerId) => {
         setRemoteStreams((prev) => {
+          if (!prev[peerId]) return prev;
           const next = { ...prev };
           delete next[peerId];
           return next;
         });
+        setSpeakingMap((prev) => {
+          if (!prev[peerId]) return prev;
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+        const entry = analysersRef.current.get(peerId);
+        if (entry) {
+          try {
+            entry.source.disconnect();
+          } catch {
+            // Ignored
+          }
+          analysersRef.current.delete(peerId);
+        }
       }
     });
 
@@ -1057,10 +1091,11 @@ export const StudyRoomView: React.FC = () => {
       manager.setLocalStream(localStreamRef.current);
     }
 
-    // Đồng bộ danh sách presence và chủ động kết nối WebRTC với các peer đã có hoặc mới vào
+    // Đồng bộ danh sách presence và chủ động kết nối WebRTC Full-Mesh với các peer
     const syncPeers = () => {
       const state = channel.presenceState();
       const updated: Record<string, any> = {};
+      const activePeerIds: string[] = [];
 
       Object.entries(state).forEach(([key, presences]) => {
         if (presences && presences.length > 0) {
@@ -1074,19 +1109,17 @@ export const StudyRoomView: React.FC = () => {
             isVideoOn: p.isVideoOn,
           };
           if (key !== participantId) {
-            // Bên có ID nhỏ hơn sẽ chủ động tạo offer
-            if (participantId < key) {
-              manager.callPeer(key);
-            }
+            activePeerIds.push(key);
           }
         }
       });
       setPresenceUsers(updated);
+      manager.syncMeshPeers(activePeerIds);
     };
 
     channel.on('presence', { event: 'sync' }, syncPeers);
 
-    // Lắng nghe người mới vào phòng qua Presence và bắt tay WebRTC Call (<200ms reactive)
+    // Lắng nghe người mới vào phòng qua Presence và cập nhật Mesh Topology (<200ms reactive)
     channel.on('presence', { event: 'join' }, (payload: any) => {
       syncPeers();
       const newPresences = payload?.newPresences || [];
@@ -1097,14 +1130,11 @@ export const StudyRoomView: React.FC = () => {
           setPeerJoinToast(`${peerName} vừa vào phòng học`);
           playGentleDing();
           setTimeout(() => setPeerJoinToast(null), 4000);
-
-          if (participantId < peerId) {
-            manager.callPeer(peerId);
-          }
         }
       });
     });
 
+    // Dọn dẹp kết nối sạch sẽ khi có người rời phòng (Peer Teardown)
     channel.on('presence', { event: 'leave' }, (payload: any) => {
       const leftPresences = payload?.leftPresences || [];
       leftPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
@@ -1112,6 +1142,13 @@ export const StudyRoomView: React.FC = () => {
         if (peerId) {
           manager.closeConnection(peerId);
           setPresenceUsers((prev) => {
+            if (!prev[peerId]) return prev;
+            const next = { ...prev };
+            delete next[peerId];
+            return next;
+          });
+          setRemoteStreams((prev) => {
+            if (!prev[peerId]) return prev;
             const next = { ...prev };
             delete next[peerId];
             return next;
@@ -2447,8 +2484,8 @@ export const StudyRoomView: React.FC = () => {
 
           {/* Stage View: Grid or Whiteboard */}
           {activeTab === 'grid' ? (
-            /* Participant Video Grid */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            /* Participant Video Grid (Tự động co giãn theo sĩ số 1 đến 10 học viên) */
+            <div className={`${gridLayoutClass} gap-3 sm:gap-4 transition-all duration-300`}>
               {/* CURRENT USER TILE */}
               {(() => {
                 const isLocalSpeaking = Boolean(speakingMap[participantId] && micEnabled);
