@@ -23,7 +23,8 @@ import {
   ZoomOut,
   Maximize2,
   Minimize2,
-  Hand,
+  Move,
+  Sliders,
   BookOpen,
   MousePointer
 } from 'lucide-react';
@@ -119,6 +120,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
   const [activeTool, setActiveTool] = useState<ToolType>('pen');
   const [currentColor, setCurrentColor] = useState<string>('#ffffff');
   const [currentSize, setCurrentSize] = useState<StrokeSize>(2);
+  const [isStylePickerOpen, setIsStylePickerOpen] = useState(false);
 
   // Stroke History
   const [strokes, setStrokes] = useState<WhiteboardStroke[]>([]);
@@ -1257,11 +1259,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
           type="button"
           data-testid="btn-upload-material"
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer shrink-0 border border-white/10 whitespace-nowrap"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer shrink-0 border border-white/10 whitespace-nowrap"
           title="Tải lên tài liệu PDF, Word (.docx) hoặc Ảnh đề thi để cùng giải"
         >
           <FileUp size={14} className="text-emerald-400 shrink-0" />
-          <span className="hidden sm:inline whitespace-nowrap">Tài liệu / Đề cương</span>
+          <span className="hidden sm:inline whitespace-nowrap">Tài liệu</span>
         </button>
 
         <span className="w-px h-5 bg-white/10 shrink-0" />
@@ -1424,49 +1426,90 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
           </button>
         </div>
 
-        {/* Stroke Size Selector */}
-        {activeTool !== 'text' && activeTool !== 'whiteout' && !isPanMode && (
-          <div className="flex items-center gap-1 px-1.5 py-1 bg-white/5 rounded-xl border border-white/5 shrink-0">
-            {STROKE_SIZES.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                data-testid={`size-${item.size}`}
-                onClick={() => setCurrentSize(item.size)}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition cursor-pointer ${
-                  currentSize === item.size
-                    ? 'bg-white/20 text-white font-bold'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-                title={`Độ dày nét: ${item.label}`}
-              >
-                <span
-                  className="rounded-full bg-current block"
-                  style={{ width: item.dotPx, height: item.dotPx }}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Color Palette */}
+        {/* Style Popover Button (Gom Màu sắc & Nét vẽ chuẩn Figma / Excalidraw) */}
         {activeTool !== 'eraser' && activeTool !== 'whiteout' && !isPanMode && (
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5 shrink-0">
-            {COLOR_PALETTE.map((c) => (
-              <button
-                key={c.hex}
-                type="button"
-                data-testid={`color-${c.hex}`}
-                onClick={() => setCurrentColor(c.hex)}
-                className={`w-5 h-5 rounded-full transition-transform cursor-pointer border ${
-                  currentColor === c.hex
-                    ? 'scale-125 border-white ring-2 ring-white/30'
-                    : 'border-transparent hover:scale-110 opacity-75 hover:opacity-100'
-                }`}
-                style={{ backgroundColor: c.hex }}
-                title={c.name}
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              data-testid="btn-style-popover"
+              onClick={() => setIsStylePickerOpen(!isStylePickerOpen)}
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl border transition cursor-pointer ${
+                isStylePickerOpen
+                  ? 'bg-white text-black font-semibold border-white shadow-md'
+                  : 'bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10'
+              }`}
+              title="Tùy chỉnh Màu sắc & Độ dày nét vẽ"
+            >
+              <span
+                className="w-3.5 h-3.5 rounded-full border border-white/40 block shadow-xs"
+                style={{ backgroundColor: currentColor }}
               />
-            ))}
+              <span className="hidden sm:inline text-xs font-medium">Nét & Màu</span>
+              <Sliders size={12} className="opacity-75" />
+            </button>
+
+            {/* Popover Menu: Màu sắc & Độ dày nét */}
+            {isStylePickerOpen && (
+              <div
+                data-testid="whiteboard-style-popover"
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-40 p-3 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col gap-2.5 min-w-[210px]"
+              >
+                <div>
+                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                    Màu sắc
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {COLOR_PALETTE.map((c) => (
+                      <button
+                        key={c.hex}
+                        type="button"
+                        data-testid={`color-${c.hex}`}
+                        onClick={() => {
+                          setCurrentColor(c.hex);
+                        }}
+                        className={`w-6 h-6 rounded-full transition-transform cursor-pointer border ${
+                          currentColor === c.hex
+                            ? 'scale-125 border-white ring-2 ring-white/30'
+                            : 'border-transparent hover:scale-110 opacity-75 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-white/10">
+                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                    Độ dày nét
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {STROKE_SIZES.map((item) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        data-testid={`size-${item.size}`}
+                        onClick={() => {
+                          setCurrentSize(item.size);
+                        }}
+                        className={`flex-1 py-1 px-2 rounded-lg flex items-center justify-center gap-1.5 transition cursor-pointer text-xs ${
+                          currentSize === item.size
+                            ? 'bg-white text-black font-bold'
+                            : 'bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                        title={`Độ dày nét: ${item.label}`}
+                      >
+                        <span
+                          className="rounded-full bg-current block"
+                          style={{ width: item.dotPx, height: item.dotPx }}
+                        />
+                        <span className="text-[10px]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1518,11 +1561,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
         </div>
       </div>
 
-      {/* Top-Right Material Bar (Khi có tài liệu đang chiếu) */}
+      {/* Central Material Bar (Khi có tài liệu đang chiếu — Căn giữa dưới thanh toolbar, giải phóng góc phải cho Camera) */}
       {material && (
         <div
           data-testid="active-material-indicator"
-          className="absolute top-16 right-4 z-30 flex items-center gap-2 p-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md text-xs text-white"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-25 flex items-center gap-2 p-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md text-xs text-white max-w-[calc(100vw-32px)]"
         >
           <div className="flex items-center gap-1.5 px-2 py-1 max-w-[200px] truncate">
             <FileText size={13} className="text-emerald-400 shrink-0" />
@@ -1692,9 +1735,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
               ? 'bg-emerald-500 text-black font-bold shadow-md'
               : 'text-zinc-400 hover:text-white hover:bg-white/10'
           }`}
-          title="Công cụ Di chuyển (Pan Canvas - Giữ phím Space hoặc cuộn chuột giữa để kéo)"
+          title="Kéo bảng (Space + Kéo)"
+          aria-label="Kéo bảng vẽ"
         >
-          <Hand size={15} />
+          <Move size={15} />
         </button>
 
         <span className="w-px h-4 bg-white/10 mx-0.5" />
@@ -1837,8 +1881,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
         )}
 
         {/* Empty Canvas Initial Material Hint */}
-        {!material && strokes.length === 0 && (
-          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center text-center p-6 select-none opacity-40">
+        {!material && strokes.length === 0 && currentPointsRef.current.length === 0 && (
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center text-center p-6 select-none opacity-30 transition-opacity duration-300">
             <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 mb-2">
               <FileUp size={22} />
             </div>

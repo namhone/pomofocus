@@ -54,7 +54,8 @@ import {
   Sliders,
   Music,
   Gift,
-  UserX
+  UserX,
+  GripHorizontal
 } from 'lucide-react';
 
 interface FloatingReaction {
@@ -141,6 +142,55 @@ export const StudyRoomView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
   const [isWhiteboardVideoExpanded, setIsWhiteboardVideoExpanded] = useState(true);
   const [isWhiteboardFullscreen, setIsWhiteboardFullscreen] = useState(false);
+  const [wbCameraCoords, setWbCameraCoords] = useState<{ x: number; y: number } | null>(null);
+  const [isDraggingWbCamera, setIsDraggingWbCamera] = useState(false);
+  const wbCameraDragRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
+    startX: 0,
+    startY: 0,
+    initX: 0,
+    initY: 0
+  });
+
+  const handleWbCameraPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button, a, input, [data-no-drag="true"]')) return;
+    const elem = e.currentTarget;
+    const rect = elem.getBoundingClientRect();
+    const curX = wbCameraCoords?.x ?? rect.left;
+    const curY = wbCameraCoords?.y ?? rect.top;
+
+    setIsDraggingWbCamera(true);
+    wbCameraDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initX: curX,
+      initY: curY
+    };
+    try {
+      elem.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignored
+    }
+  }, [wbCameraCoords]);
+
+  const handleWbCameraPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingWbCamera) return;
+    const deltaX = e.clientX - wbCameraDragRef.current.startX;
+    const deltaY = e.clientY - wbCameraDragRef.current.startY;
+    const nextX = Math.max(8, Math.min(window.innerWidth - 180, wbCameraDragRef.current.initX + deltaX));
+    const nextY = Math.max(8, Math.min(window.innerHeight - 100, wbCameraDragRef.current.initY + deltaY));
+    setWbCameraCoords({ x: nextX, y: nextY });
+  }, [isDraggingWbCamera]);
+
+  const handleWbCameraPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (isDraggingWbCamera) {
+      setIsDraggingWbCamera(false);
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignored
+      }
+    }
+  }, [isDraggingWbCamera]);
   const [whiteboardDrawerInfo, setWhiteboardDrawerInfo] = useState<{
     isDrawing: boolean;
     name?: string;
@@ -189,6 +239,12 @@ export const StudyRoomView: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isWhiteboardFullscreen]);
+
+  // Active Speaker & Voice Activity Detection (VAD)
+  const [speakingMap, setSpeakingMap] = useState<Record<string, boolean>>({});
+  const lastSpokeMapRef = useRef<Record<string, number>>({});
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analysersRef = useRef<Map<string, { analyser: AnalyserNode; source: MediaStreamAudioSourceNode }>>(new Map());
 
   // Settings Modal State (AV + Admin tabs)
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -294,6 +350,139 @@ export const StudyRoomView: React.FC = () => {
   >({});
   const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
   const channelRef = useRef<any>(null);
+
+  // Voice Activity Detection (VAD) via AudioContext & AnalyserNode
+  useEffect(() => {
+    if (!hasJoined) return;
+
+    let animId: number;
+    let isRunning = true;
+
+    const getAudioContext = () => {
+      if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          audioContextRef.current = new AudioCtx();
+        }
+      }
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume().catch(() => {});
+      }
+      return audioContextRef.current;
+    };
+
+    const attachStreamAnalyser = (id: string, stream: MediaStream) => {
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0 || !audioTracks.some((t) => t.enabled)) {
+        return;
+      }
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      if (!analysersRef.current.has(id)) {
+        try {
+          const source = ctx.createMediaStreamSource(stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          analyser.smoothingTimeConstant = 0.3;
+          source.connect(analyser);
+          analysersRef.current.set(id, { analyser, source });
+        } catch {
+          // Stream might be closed or not yet active
+        }
+      }
+    };
+
+    if (localStreamRef.current && micEnabled) {
+      attachStreamAnalyser(participantId, localStreamRef.current);
+    } else {
+      const localEntry = analysersRef.current.get(participantId);
+      if (localEntry) {
+        localEntry.source.disconnect();
+        analysersRef.current.delete(participantId);
+      }
+    }
+
+    Object.entries(remoteStreams).forEach(([peerId, stream]) => {
+      attachStreamAnalyser(peerId, stream);
+    });
+
+    Array.from(analysersRef.current.keys()).forEach((id) => {
+      if (id !== participantId && !remoteStreams[id]) {
+        const entry = analysersRef.current.get(id);
+        if (entry) {
+          entry.source.disconnect();
+          analysersRef.current.delete(id);
+        }
+      }
+    });
+
+    const dataArray = new Uint8Array(128);
+    const VAD_THRESHOLD = 0.045;
+    const HANGOVER_MS = 400; // Hangover timer ~400ms
+
+    const checkAudioLevels = () => {
+      if (!isRunning) return;
+      const now = Date.now();
+      const nextSpeakingMap: Record<string, boolean> = {};
+
+      analysersRef.current.forEach(({ analyser }, id) => {
+        try {
+          analyser.getByteTimeDomainData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            const normalized = (dataArray[i] - 128) / 128;
+            sum += normalized * normalized;
+          }
+          const rms = Math.sqrt(sum / dataArray.length);
+          if (rms > VAD_THRESHOLD) {
+            lastSpokeMapRef.current[id] = now;
+          }
+        } catch {
+          // Ignore analysis errors
+        }
+      });
+
+      const allIds = [participantId, ...Object.keys(remoteStreams)];
+      allIds.forEach((id) => {
+        const lastSpoke = lastSpokeMapRef.current[id] || 0;
+        nextSpeakingMap[id] = now - lastSpoke < HANGOVER_MS;
+      });
+
+      setSpeakingMap((prev) => {
+        const keys = Object.keys(nextSpeakingMap);
+        const changed = keys.some((k) => prev[k] !== nextSpeakingMap[k]);
+        return changed ? nextSpeakingMap : prev;
+      });
+
+      animId = requestAnimationFrame(checkAudioLevels);
+    };
+
+    animId = requestAnimationFrame(checkAudioLevels);
+
+    return () => {
+      isRunning = false;
+      cancelAnimationFrame(animId);
+    };
+  }, [hasJoined, micEnabled, participantId, remoteStreams]);
+
+  // Broadcast local speaking status across realtime channel
+  useEffect(() => {
+    if (!channelRef.current || !hasJoined) return;
+    const isSpeaking = Boolean(speakingMap[participantId] && micEnabled);
+    try {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'user-speaking',
+        payload: {
+          peerId: participantId,
+          isSpeaking
+        }
+      });
+    } catch {
+      // Ignore broadcast errors
+    }
+  }, [speakingMap[participantId], micEnabled, hasJoined, participantId]);
 
   // Vai trò của người dùng trong phòng
   const userRole = useMemo<'host' | 'member' | 'guest'>(() => {
@@ -594,6 +783,17 @@ export const StudyRoomView: React.FC = () => {
 
     return Array.from(map.values());
   }, [room?.participants, room?.hostUserId, presenceUsers, remoteStreams, participantId, user?.id, userRole, participantName]);
+
+  // Dynamic Sorting: Ưu tiên Active Speaker (người đang nói) lên vị trí đầu tiên
+  const sortedOtherParticipants = useMemo(() => {
+    return [...otherParticipants].sort((a, b) => {
+      const aSpeaking = Boolean(speakingMap[a.id]);
+      const bSpeaking = Boolean(speakingMap[b.id]);
+      if (aSpeaking && !bSpeaking) return -1;
+      if (!aSpeaking && bSpeaking) return 1;
+      return 0;
+    });
+  }, [otherParticipants, speakingMap]);
 
   // Hiển thị bóng phản ứng cảm xúc nổi
   const showReactionBubble = useCallback((emoji: string) => {
@@ -946,6 +1146,20 @@ export const StudyRoomView: React.FC = () => {
             }
           };
         });
+      }
+    });
+
+    // Lắng nghe trạng thái nói (Active Speaker VAD) của peer
+    channel.on('broadcast', { event: 'user-speaking' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.peerId && data.peerId !== participantId) {
+        if (data.isSpeaking) {
+          lastSpokeMapRef.current[data.peerId] = Date.now();
+        }
+        setSpeakingMap((prev) => ({
+          ...prev,
+          [data.peerId]: Boolean(data.isSpeaking)
+        }));
       }
     });
 
@@ -2236,59 +2450,80 @@ export const StudyRoomView: React.FC = () => {
             /* Participant Video Grid */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* CURRENT USER TILE */}
-              <div className="relative aspect-video rounded-2xl bg-neutral-900/90 border border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-emerald-500/20">
-                {cameraEnabled ? (
-                  <video
-                    ref={mainVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover transform scale-x-[-1]"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-neutral-400">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-xl font-bold text-emerald-300">
-                      {participantName.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-xs font-medium">{participantName} (Bạn)</span>
-                  </div>
-                )}
-
-                {/* Status Bar */}
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="font-semibold text-white truncate">{participantName} (Bạn)</span>
-                    {isLadyBoss(user?.email) ? (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
-                        👑 Nóc Nhà PRO
-                      </span>
+              {(() => {
+                const isLocalSpeaking = Boolean(speakingMap[participantId] && micEnabled);
+                return (
+                  <div
+                    className={`relative aspect-video rounded-2xl bg-neutral-900/90 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
+                      isLocalSpeaking
+                        ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
+                        : 'border border-emerald-500/40 ring-1 ring-emerald-500/20'
+                    }`}
+                  >
+                    {cameraEnabled ? (
+                      <video
+                        ref={mainVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover transform scale-x-[-1]"
+                      />
                     ) : (
-                      <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
-                        {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
-                      </span>
+                      <div className="flex flex-col items-center gap-2 text-neutral-400">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-xl font-bold text-emerald-300">
+                          {participantName.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-xs font-medium">{participantName} (Bạn)</span>
+                      </div>
                     )}
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {isHandRaised && (
-                      <span className="p-1 rounded bg-amber-500 text-neutral-950">
-                        <Hand size={11} />
-                      </span>
-                    )}
-                    <span className={`p-1 rounded ${micEnabled ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'}`}>
-                      {micEnabled ? <Mic size={11} /> : <MicOff size={11} />}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              {/* REMOTE PARTICIPANTS — Render dựa trên danh sách thành viên thực tế (otherParticipants) */}
-              {otherParticipants.length > 0 ? (
-                otherParticipants.map((peer) => {
+                    {/* Status Bar */}
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className="font-semibold text-white truncate">{participantName} (Bạn)</span>
+                        {isLadyBoss(user?.email) ? (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
+                            👑 Nóc Nhà PRO
+                          </span>
+                        ) : (
+                          <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
+                            {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isHandRaised && (
+                          <span className="p-1 rounded bg-amber-500 text-neutral-950">
+                            <Hand size={11} />
+                          </span>
+                        )}
+                        <span
+                          className={`p-1 rounded transition-colors ${
+                            micEnabled
+                              ? isLocalSpeaking
+                                ? 'bg-emerald-500 text-neutral-950 animate-pulse'
+                                : 'bg-white/10 text-white'
+                              : 'bg-rose-500/80 text-white'
+                          }`}
+                          title={micEnabled ? (isLocalSpeaking ? 'Đang nói' : 'Micro bật') : 'Micro tắt'}
+                        >
+                          {micEnabled ? <Mic size={11} /> : <MicOff size={11} />}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* REMOTE PARTICIPANTS — Render dựa trên danh sách sắp xếp ưu tiên người đang phát biểu (sortedOtherParticipants) */}
+              {sortedOtherParticipants.length > 0 ? (
+                sortedOtherParticipants.map((peer) => {
                   const stream = remoteStreams[peer.id];
                   const hasVideoTrack = Boolean(
                     stream &&
                     stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
                   );
+                  const isPeerSpeaking = Boolean(speakingMap[peer.id] && peer.isMicOn !== false);
 
                   return (
                     <div
@@ -2299,7 +2534,11 @@ export const StudyRoomView: React.FC = () => {
                           setSelectedMemberForAdmin(peer);
                         }
                       }}
-                      className={`relative aspect-video rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden flex flex-col items-center justify-center shadow-lg group ring-1 ring-white/5 ${
+                      className={`relative aspect-video rounded-2xl bg-neutral-900 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
+                        isPeerSpeaking
+                          ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
+                          : 'border border-white/10 ring-1 ring-white/5'
+                      } ${
                         (isOwnerEmail(user?.email) || userRole === 'host') ? 'cursor-pointer hover:border-amber-400/60 transition' : ''
                       }`}
                       title={
@@ -2365,10 +2604,14 @@ export const StudyRoomView: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <span
-                            className={`p-1 rounded ${
-                              peer.isMicOn !== false ? 'bg-white/10 text-white' : 'bg-rose-500/80 text-white'
+                            className={`p-1 rounded transition-colors ${
+                              peer.isMicOn !== false
+                                ? isPeerSpeaking
+                                  ? 'bg-emerald-500 text-neutral-950 animate-pulse'
+                                  : 'bg-white/10 text-white'
+                                : 'bg-rose-500/80 text-white'
                             }`}
-                            title={peer.isMicOn !== false ? 'Micro bật' : 'Micro tắt'}
+                            title={peer.isMicOn !== false ? (isPeerSpeaking ? 'Đang nói' : 'Micro bật') : 'Micro tắt'}
                           >
                             {peer.isMicOn !== false ? <Mic size={11} /> : <MicOff size={11} />}
                           </span>
@@ -2405,63 +2648,111 @@ export const StudyRoomView: React.FC = () => {
                 isWhiteboardFullscreen ? 'fixed inset-0 z-50' : 'absolute inset-0'
               }`}
             >
-              {/* Floating Mini Video Strip (Ghim nổi góc trái trên, không chiếm diện tích mặt bảng) */}
+              {/* Floating Mini Video Strip (Góc trên bên phải, có thể kéo thả tự do khắp màn hình) */}
               <div
                 data-testid="whiteboard-floating-video-strip"
-                className="absolute top-3 left-3 z-30 flex items-center gap-1.5 select-none pointer-events-auto"
+                style={
+                  wbCameraCoords
+                    ? {
+                        position: 'fixed',
+                        left: `${wbCameraCoords.x}px`,
+                        top: `${wbCameraCoords.y}px`,
+                        zIndex: 45
+                      }
+                    : {
+                        position: 'absolute',
+                        top: '12px',
+                        right: '16px',
+                        zIndex: 35
+                      }
+                }
+                className={`flex items-center gap-2 select-none pointer-events-auto p-1.5 rounded-2xl bg-zinc-950/90 backdrop-blur-md border border-zinc-800 shadow-[0_16px_40px_rgba(0,0,0,0.7)] transition-shadow ${
+                  isDraggingWbCamera ? 'cursor-grabbing ring-2 ring-emerald-400' : 'cursor-grab'
+                }`}
+                onPointerDown={handleWbCameraPointerDown}
+                onPointerMove={handleWbCameraPointerMove}
+                onPointerUp={handleWbCameraPointerUp}
+                onPointerCancel={handleWbCameraPointerUp}
               >
-                {/* Nút thu gọn / mở rộng Camera */}
+                {/* Nút thu gọn / mở rộng Camera kèm Drag Handle */}
                 <button
                   type="button"
                   data-testid="btn-toggle-wb-video-strip"
                   onClick={() => setIsWhiteboardVideoExpanded(!isWhiteboardVideoExpanded)}
-                  className="px-2.5 py-1.5 rounded-xl bg-black/85 hover:bg-neutral-800 border border-white/15 text-white text-[11px] font-medium backdrop-blur-md shadow-2xl flex items-center gap-1.5 transition cursor-pointer"
-                  title={isWhiteboardVideoExpanded ? 'Thu nhỏ Camera' : 'Hiện Camera thành viên'}
+                  className="px-2.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/60 text-white text-[11px] font-semibold backdrop-blur-md shadow-lg flex items-center gap-1.5 transition cursor-pointer shrink-0"
+                  title={isWhiteboardVideoExpanded ? 'Thu nhỏ Camera' : 'Hiện Camera thành viên (Kéo thả để di chuyển)'}
                 >
-                  <Video size={13} className="text-emerald-400" />
-                  <span>{otherParticipants.length + 1} Camera</span>
-                  {isWhiteboardVideoExpanded ? <ChevronLeft size={13} /> : <ChevronRight size={13} />}
+                  <GripHorizontal size={13} className="text-zinc-500 shrink-0" />
+                  <Video size={13} className="text-emerald-400 shrink-0" />
+                  <span className="font-mono">{sortedOtherParticipants.length + 1}</span>
+                  {isWhiteboardVideoExpanded ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
                 </button>
 
                 {isWhiteboardVideoExpanded && (
-                  <div className="flex items-center gap-1.5 overflow-x-auto max-w-[calc(100vw-360px)] scrollbar-none p-0.5">
+                  <div className="flex items-center gap-2 overflow-x-auto max-w-[calc(100vw-380px)] scrollbar-none p-0.5">
                     {/* CURRENT USER COMPACT TILE */}
-                    <div className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl bg-black/90 border border-emerald-500/50 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl">
-                      {cameraEnabled ? (
-                        <video
-                          ref={mainVideoRef}
-                          autoPlay
-                          playsInline
-                          muted
-                          className="w-full h-full object-cover transform scale-x-[-1]"
-                        />
-                      ) : (
-                        <div className="flex items-center gap-1 text-neutral-400">
-                          <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-[11px] font-bold text-emerald-300">
-                            {participantName.charAt(0).toUpperCase()}
+                    {(() => {
+                      const isLocalSpeaking = Boolean(speakingMap[participantId] && micEnabled);
+                      return (
+                        <div
+                          className={`relative w-36 h-22 sm:w-40 sm:h-24 rounded-xl bg-black/95 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl transition-all duration-200 ${
+                            isLocalSpeaking
+                              ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.45)]'
+                              : 'border border-emerald-500/50'
+                          }`}
+                        >
+                          {cameraEnabled ? (
+                            <video
+                              ref={mainVideoRef}
+                              autoPlay
+                              playsInline
+                              muted
+                              className="w-full h-full object-cover transform scale-x-[-1]"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1 text-neutral-400">
+                              <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-xs font-bold text-emerald-300">
+                                {participantName.charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                          )}
+                          <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-xs text-[10px] text-white border border-white/5">
+                            <span className="truncate max-w-[90px] sm:max-w-[105px] font-semibold" title={`${participantName} (Bạn)`}>
+                              {participantName} (Bạn)
+                            </span>
+                            <span
+                              className={`p-0.5 rounded ${
+                                micEnabled
+                                  ? isLocalSpeaking
+                                    ? 'text-emerald-300 animate-pulse'
+                                    : 'text-emerald-400'
+                                  : 'text-rose-400'
+                              }`}
+                            >
+                              {micEnabled ? <Mic size={10} /> : <MicOff size={10} />}
+                            </span>
                           </div>
                         </div>
-                      )}
-                      <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] text-white">
-                        <span className="truncate max-w-[65px] font-medium">{participantName} (Bạn)</span>
-                        <span className={micEnabled ? 'text-emerald-400' : 'text-rose-400'}>
-                          {micEnabled ? <Mic size={9} /> : <MicOff size={9} />}
-                        </span>
-                      </div>
-                    </div>
+                      );
+                    })()}
 
-                    {/* REMOTE PARTICIPANTS COMPACT TILES */}
-                    {otherParticipants.map((peer) => {
+                    {/* REMOTE PARTICIPANTS COMPACT TILES (Ưu tiên người đang phát biểu) */}
+                    {sortedOtherParticipants.map((peer) => {
                       const stream = remoteStreams[peer.id];
                       const hasVideoTrack = Boolean(
                         stream &&
                         stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
                       );
+                      const isPeerSpeaking = Boolean(speakingMap[peer.id] && peer.isMicOn !== false);
 
                       return (
                         <div
                           key={`strip-${peer.id}`}
-                          className="relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl bg-black/90 border border-white/20 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl"
+                          className={`relative w-36 h-22 sm:w-40 sm:h-24 rounded-xl bg-black/95 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl transition-all duration-200 ${
+                            isPeerSpeaking
+                              ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.45)]'
+                              : 'border border-zinc-700/60'
+                          }`}
                         >
                           {hasVideoTrack ? (
                             <video
@@ -2476,7 +2767,7 @@ export const StudyRoomView: React.FC = () => {
                             />
                           ) : (
                             <div className="flex items-center gap-1 text-neutral-400">
-                              <div className="w-7 h-7 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-[11px] font-bold text-cyan-300">
+                              <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-xs font-bold text-cyan-300">
                                 {(peer.name || 'U').charAt(0).toUpperCase()}
                               </div>
                             </div>
@@ -2494,10 +2785,20 @@ export const StudyRoomView: React.FC = () => {
                             />
                           )}
 
-                          <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] text-white">
-                            <span className="truncate max-w-[65px] font-medium">{peer.name}</span>
-                            <span className={peer.isMicOn !== false ? 'text-emerald-400' : 'text-rose-400'}>
-                              {peer.isMicOn !== false ? <Mic size={9} /> : <MicOff size={9} />}
+                          <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-xs text-[10px] text-white border border-white/5">
+                            <span className="truncate max-w-[90px] sm:max-w-[105px] font-semibold" title={peer.name}>
+                              {peer.name}
+                            </span>
+                            <span
+                              className={`p-0.5 rounded ${
+                                peer.isMicOn !== false
+                                  ? isPeerSpeaking
+                                    ? 'text-emerald-300 animate-pulse'
+                                    : 'text-emerald-400'
+                                  : 'text-rose-400'
+                              }`}
+                            >
+                              {peer.isMicOn !== false ? <Mic size={10} /> : <MicOff size={10} />}
                             </span>
                           </div>
                         </div>
@@ -2679,6 +2980,7 @@ export const StudyRoomView: React.FC = () => {
               isHandRaised ? 'bg-amber-500 text-neutral-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={isHandRaised ? 'Hạ tay xuống' : 'Giơ tay phát biểu'}
+            aria-label="Giơ tay phát biểu"
           >
             <Hand size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
