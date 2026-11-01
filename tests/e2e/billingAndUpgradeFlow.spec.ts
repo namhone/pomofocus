@@ -179,7 +179,7 @@ test.describe('Billing & Freemium Upgrade Flow E2E Tests', () => {
 
     // Quay lại /app kiểm tra Header hiển thị PRO
     await page.getByTestId('billing-back-btn').click();
-    await expect(page.getByText('PRO')).toBeVisible();
+    await expect(page.getByTestId('header-plan-badge')).toContainText('PRO');
 
     // Quay lại /billing và hạ cấp về Miễn phí để dọn dẹp state
     await page.goto('/billing');
