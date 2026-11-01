@@ -1176,33 +1176,38 @@ export const StudyRoomView: React.FC = () => {
       });
     });
 
-    // Xử lý sự kiện leave từ Presence có thời gian ân hạn 90s (Zombie / Mobile screen sleep protection)
+    // Dọn dẹp kết nối sạch sẽ khi có người rời phòng (Peer Teardown qua Supabase Presence leave thật sự)
     channel.on('presence', { event: 'leave' }, (payload: any) => {
       const leftPresences = payload?.leftPresences || [];
-      const now = Date.now();
       leftPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
         if (peerId && peerId !== participantId) {
-          const lastSeen = lastHeartbeatMapRef.current.get(peerId) || 0;
-          // Chỉ ngắt kết nối nếu thực sự không nhận được heartbeat quá 90 giây
-          if (now - lastSeen > 90000) {
-            console.warn(`[StudyRoom] Presence leave xác nhận cho ${peerId} (vắng mặt > 90s)`);
-            manager.closeConnection(peerId);
-            setPresenceUsers((prev) => {
-              if (!prev[peerId]) return prev;
-              const next = { ...prev };
-              delete next[peerId];
-              return next;
-            });
-            setRemoteStreams((prev) => {
-              if (!prev[peerId]) return prev;
-              const next = { ...prev };
-              delete next[peerId];
-              return next;
-            });
-          } else {
-            console.log(`[StudyRoom] Bỏ qua Presence leave tạm thời từ ${peerId} (vừa hoạt động ${Math.round((now - lastSeen) / 1000)}s trước)`);
-          }
+          lastHeartbeatMapRef.current.delete(peerId);
+          manager.closeConnection(peerId);
+          setPresenceUsers((prev) => {
+            if (!prev[peerId]) return prev;
+            const next = { ...prev };
+            delete next[peerId];
+            return next;
+          });
+          setRemoteStreams((prev) => {
+            if (!prev[peerId]) return prev;
+            const next = { ...prev };
+            delete next[peerId];
+            return next;
+          });
+          setRoom((prevRoom) => {
+            if (!prevRoom?.participants || !prevRoom.participants[peerId]) return prevRoom;
+            const nextParts = { ...prevRoom.participants };
+            delete nextParts[peerId];
+            return { ...prevRoom, participants: nextParts };
+          });
+          setSpeakingMap((prev) => {
+            if (!prev[peerId]) return prev;
+            const next = { ...prev };
+            delete next[peerId];
+            return next;
+          });
         }
       });
     });
