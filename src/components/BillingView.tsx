@@ -3,20 +3,23 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
-import { Check, CheckCircle2, Sparkles, Gift, AlertCircle } from 'lucide-react';
+import { Check, CheckCircle2, Sparkles, Gift, AlertCircle, Zap } from 'lucide-react';
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import { couponService } from '../services/couponService';
+import { PRICING_PLANS, PlanCycle } from '../config/pricing';
 
 export const BillingView: React.FC = () => {
   const router = useRouter();
-  const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [cycle, setCycle] = useState<PlanCycle>('yearly');
   const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success'; text: string } | null>(null);
   const [isMoMoModalOpen, setIsMoMoModalOpen] = useState(false);
 
   const { upgradeToSandboxPro, downgradeToFree, isPro, user } = useAuthStore();
   const [couponCode, setCouponCode] = useState('');
   const [couponResult, setCouponResult] = useState<{ success: boolean; text: string } | null>(null);
+
+  const currentPlan = PRICING_PLANS[cycle];
 
   const handleRedeemCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +35,7 @@ export const BillingView: React.FC = () => {
     upgradeToSandboxPro(durationMonths);
     setStatusMessage({
       type: 'success',
-      text: `Đã kích hoạt gói PRO Sandbox (${durationMonths === 12 ? '1 Năm' : '1 Tháng'}) thành công để trải nghiệm thử nghiệm tính năng.`
+      text: `Đã kích hoạt gói PRO Sandbox (${durationMonths === 12 ? '1 Năm' : durationMonths === 999 ? 'Trọn Đời' : '1 Tháng'}) thành công để trải nghiệm thử nghiệm tính năng.`
     });
     setTimeout(() => setStatusMessage(null), 5000);
   };
@@ -44,7 +47,7 @@ export const BillingView: React.FC = () => {
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-10">
+      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10">
         {/* Title & Billing Cycle */}
         <div className="text-center flex flex-col items-center space-y-3">
           <PomoFocusLogo size={36} showWordmark={true} showSubtitle={true} wordmarkClassName="text-xl font-bold tracking-tight text-white" />
@@ -52,14 +55,14 @@ export const BillingView: React.FC = () => {
             ĐẦU TƯ CHO SỰ TẬP TRUNG
           </span>
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Bảng Giá Dịch Vụ PomoFocus
+            Bảng Giá Dịch Vụ PomoFocus PRO
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            Chọn gói phù hợp với mục tiêu học tập cá nhân hoặc lập nhóm học trực tuyến.
+            Nâng tầm hiệu suất với phòng học Meet không giới hạn, Bảng vẽ chung thời gian thực, và kho âm thanh chất lượng cao.
           </p>
 
-          {/* Billing Cycle Switch */}
-          <div className="mt-4 inline-flex items-center p-1 rounded-xl border border-zinc-800 bg-zinc-900/60 text-xs">
+          {/* Billing Cycle Switch (3 gói: 1T / 1N / Trọn Đời) */}
+          <div className="mt-4 inline-flex items-center p-1 rounded-xl border border-zinc-800 bg-zinc-900/80 text-xs">
             <button
               type="button"
               data-testid="billing-cycle-monthly"
@@ -80,13 +83,24 @@ export const BillingView: React.FC = () => {
             >
               <span>Hàng năm</span>
               <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold uppercase tracking-wider">
-                -30%
+                -34%
               </span>
+            </button>
+            <button
+              type="button"
+              data-testid="billing-cycle-lifetime"
+              onClick={() => setCycle('lifetime')}
+              className={`px-4 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                cycle === 'lifetime' ? 'bg-white text-black font-semibold shadow-sm' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Zap size={12} className={cycle === 'lifetime' ? 'text-black' : 'text-amber-400'} />
+              <span>Trọn đời</span>
             </button>
           </div>
         </div>
 
-        {/* Demo Beta 3-Year Free Callout */}
+        {/* Beta Notice Banner */}
         <div data-testid="billing-beta-banner" className="p-4 sm:p-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
@@ -96,11 +110,11 @@ export const BillingView: React.FC = () => {
               <div className="text-sm font-bold text-white flex items-center gap-2 flex-wrap">
                 <span>Chương Trình Trải Nghiệm Demo Beta</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
-                  KHÔNG THU TIỀN THẬT — 3 NĂM PRO MIỄN PHÍ
+                  HỖ TRỢ THANH TOÁN TỰ ĐỘNG & SANDBOX TEST
                 </span>
               </div>
               <p className="text-xs text-zinc-300 mt-0.5 leading-relaxed">
-                Đăng ký tài khoản trong giai đoạn thử nghiệm để được tự động nâng cấp 3 năm gói PRO trị giá 828.000đ hoàn toàn miễn phí.
+                Đăng ký tài khoản trong giai đoạn thử nghiệm để được tự động nâng cấp 3 năm gói PRO hoàn toàn miễn phí hoặc trải nghiệm cổng MoMo QR tự động.
               </p>
             </div>
           </div>
@@ -147,7 +161,7 @@ export const BillingView: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-zinc-400 shrink-0" />
-                  <span className="text-zinc-300">Quản lý nhiệm vụ (Tasks) & Ghi chú (Notes)</span>
+                  <span className="text-zinc-300">Quản lý nhiệm vụ (Tasks) &amp; Ghi chú (Notes)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-zinc-400 shrink-0" />
@@ -155,7 +169,7 @@ export const BillingView: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-zinc-400 shrink-0" />
-                  <span className="text-zinc-300">Lưu trữ cục bộ IndexedDB trên thiết bị</span>
+                  <span className="text-zinc-300">Phòng học công cộng tối đa 30 phút</span>
                 </div>
               </div>
             </div>
@@ -179,51 +193,66 @@ export const BillingView: React.FC = () => {
           </div>
 
           {/* PRO Tier */}
-          <div className="p-6 sm:p-8 rounded-2xl border-2 border-white bg-zinc-900/70 relative flex flex-col justify-between space-y-6 shadow-2xl">
-            <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-wider shadow">
-              PHỔ BIẾN NHẤT
-            </div>
+          <div className="p-6 sm:p-8 rounded-2xl border-2 border-white bg-zinc-900/80 relative flex flex-col justify-between space-y-6 shadow-2xl">
+            {cycle === 'yearly' && (
+              <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-wider shadow">
+                PHỔ BIẾN NHẤT
+              </div>
+            )}
+            {cycle === 'lifetime' && (
+              <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-bold uppercase tracking-wider shadow">
+                GIÁ TRỊ NHẤT
+              </div>
+            )}
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400">GÓI CHUYÊN NGHIỆP</span>
+                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400">
+                  {cycle === 'lifetime' ? 'GÓI PRO TRỌN ĐỜI' : 'GÓI CHUYÊN NGHIỆP'}
+                </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
-                  {cycle === 'yearly' ? 'Tiết kiệm 30%' : 'Linh hoạt'}
+                  {cycle === 'yearly' ? 'Tiết kiệm ~34%' : cycle === 'lifetime' ? 'Một lần duy nhất' : 'Linh hoạt'}
                 </span>
               </div>
 
               <div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl sm:text-4xl font-extrabold text-white">
-                    {cycle === 'yearly' ? '69.000₫' : '89.000₫'}
+                    {cycle === 'lifetime'
+                      ? '799.000₫'
+                      : cycle === 'yearly'
+                      ? '39.000₫'
+                      : '59.000₫'}
                   </span>
-                  <span className="text-xs text-zinc-500">/ tháng</span>
+                  <span className="text-xs text-zinc-500">
+                    {cycle === 'lifetime' ? '/ vĩnh viễn' : '/ tháng'}
+                  </span>
                 </div>
                 <p className="text-xs text-zinc-400 mt-1">
-                  {cycle === 'yearly' ? 'Thanh toán 828.000₫ hàng năm' : 'Thanh toán 89.000₫ mỗi tháng'}
+                  {currentPlan.description}
                 </p>
               </div>
 
               <div className="space-y-2.5 pt-4 border-t border-zinc-800 text-xs">
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
-                  <span className="text-white font-medium">Toàn bộ tính năng của Gói Cơ Bản</span>
+                  <span className="text-white font-medium">Bảng Vẽ Chung Thời Gian Thực (Collaborative Whiteboard)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
-                  <span className="text-white font-medium">101+ Không gian học tập HD thực tế</span>
+                  <span className="text-white font-medium">Chú thích &amp; Đọc tài liệu PDF dạng quyển sách</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
-                  <span className="text-white font-medium">Phòng học nhóm trực tuyến WebRTC</span>
+                  <span className="text-white font-medium">WebRTC Full-Mesh kết nối không giới hạn thời gian</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
-                  <span className="text-white font-medium">Lịch biểu Time-blocking chuyên sâu</span>
+                  <span className="text-white font-medium">Widget Media độc lập &amp; Chế độ Mini PiP</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
-                  <span className="text-white font-medium">Tải lên video & âm thanh cá nhân</span>
+                  <span className="text-white font-medium">101+ Không gian học tập HD thực tế &amp; Âm thanh Lo-Fi</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Check size={14} className="text-emerald-400 shrink-0" />
@@ -239,13 +268,13 @@ export const BillingView: React.FC = () => {
                 onClick={() => setIsMoMoModalOpen(true)}
                 className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
               >
-                <span>Nâng Cấp Bằng MoMo QR (Demo)</span>
+                <span>Nâng Cấp Bằng MoMo QR</span>
               </button>
 
               <button
                 type="button"
                 data-testid="billing-upgrade-sandbox-btn"
-                onClick={() => handleSimulateUpgrade(cycle === 'yearly' ? 12 : 1)}
+                onClick={() => handleSimulateUpgrade(currentPlan.durationMonths)}
                 className="w-full py-2 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-[11px] font-medium transition cursor-pointer"
               >
                 Kích hoạt Giả lập (Sandbox Test)
@@ -299,7 +328,7 @@ export const BillingView: React.FC = () => {
         onSuccess={() => {
           setStatusMessage({
             type: 'success',
-            text: `Thanh toán MoMo thành công! Đã kích hoạt gói PRO (${cycle === 'yearly' ? '1 Năm' : '1 Tháng'}) cho tài khoản của bạn.`
+            text: `Thanh toán MoMo thành công! Đã kích hoạt gói PRO (${currentPlan.label}) cho tài khoản của bạn.`
           });
         }}
       />

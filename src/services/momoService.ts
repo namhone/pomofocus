@@ -9,11 +9,13 @@ export interface MoMoOrder {
   email: string;
   userId?: string;
   authProvider?: string;
-  cycle: 'monthly' | 'yearly';
+  cycle: 'monthly' | 'yearly' | 'lifetime';
   durationMonths: number;
   amount: number;
   memo: string;
   qrUrl: string;
+  payUrl?: string;
+  deeplink?: string;
   status: OrderStatus;
   createdAt: number;
   expiresAt: number;
@@ -55,25 +57,24 @@ export const momoService = {
     return `https://api.vietqr.io/image/970422-${MOMO_CONFIG.phone}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(MOMO_CONFIG.accountNameNoAccent)}`;
   },
 
-  createOrder(email: string, cycle: 'monthly' | 'yearly', userId?: string, authProvider?: string): MoMoOrder {
+  createOrder(email: string, cycle: 'monthly' | 'yearly' | 'lifetime', userId?: string, authProvider?: string): MoMoOrder {
     const session = authService.getCurrentSession();
     // Ưu tiên danh tính đã xác thực nếu người dùng đang đăng nhập
     const boundUserId = userId || (session ? session.id : undefined);
     const boundAuthProvider = authProvider || (session ? session.authProvider : undefined);
     const cleanEmail = (session ? session.email : email).trim().toLowerCase();
 
-    const plan = PRICING_PLANS[cycle];
+    const plan = PRICING_PLANS[cycle] || PRICING_PLANS.monthly;
     const durationMonths = plan.durationMonths;
     const amount = plan.priceVnd;
     const shortCode = Math.floor(100000 + Math.random() * 900000);
-    const orderId = `SW_${shortCode}`;
+    const orderId = `POMO_${shortCode}`;
     const now = Date.now();
     
-    // Cú pháp chuyển khoản chuẩn: SW [Mã_Đơn] [Email] [Số_Tháng]M
-    const memo = `SW ${orderId} ${cleanEmail.split('@')[0]} ${durationMonths}M`;
+    // Cú pháp chuyển khoản chuẩn: POMO [Mã_Đơn] [Email]
+    const memo = `POMO ${orderId} ${cleanEmail.split('@')[0]}`;
 
     // Sinh mã VietQR chuyển khoản ngân hàng / MoMo NAPAS
-    // LƯU Ý: Đây là mã VietQR cho chuyển khoản thủ công, chưa phải API MoMo Merchant All-in-One
     const qrUrl = `https://api.vietqr.io/image/970422-${MOMO_CONFIG.phone}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(MOMO_CONFIG.accountNameNoAccent)}`;
 
     const order: MoMoOrder = {
@@ -86,6 +87,8 @@ export const momoService = {
       amount,
       memo,
       qrUrl,
+      payUrl: qrUrl,
+      deeplink: `momo://app?action=pay&amount=${amount}&comment=${encodeURIComponent(memo)}`,
       status: 'pending',
       createdAt: now,
       expiresAt: now + ORDER_TTL_MS
@@ -93,6 +96,98 @@ export const momoService = {
 
     this.saveOrder(order);
     return order;
+  },
+
+  async createOnlinePayment(params: {
+    userId?: string;
+    userEmail?: string;
+    cycle: 'monthly' | 'yearly' | 'lifetime';
+    couponCode?: string;
+    returnUrl?: string;
+  }): Promise<{
+    success: boolean;
+    orderId: string;
+    amount: number;
+    payUrl: string;
+    qrCodeUrl: string;
+    deeplink?: string;
+    memo?: string;
+    freeGranted?: boolean;
+    isSandbox?: boolean;
+    message?: string;
+  }> {
+    const planKey = params.cycle === 'yearly' ? '1_year' : params.cycle === 'lifetime' ? 'lifetime' : '1_month';
+    try {
+      const res = await fetch('/api/momo/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: params.userId,
+          userEmail: params.userEmail,
+          planId: planKey,
+          couponCode: params.couponCode,
+          returnUrl: params.returnUrl
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          return data;
+        }
+      }
+    } catch (err) {
+      console.warn('Không thể gọi API /api/momo/create-payment, chuyển sang fallback cục bộ:', err);
+    }
+
+    // Fallback nếu API Vercel không kết nối được
+    const localOrder = this.createOrder(params.userEmail || 'student@studyworkspace.io', params.cycle, params.userId);
+    return {
+      success: true,
+      orderId: localOrder.orderId,
+      amount: localOrder.amount,
+      payUrl: localOrder.qrUrl,
+      qrCodeUrl: localOrder.qrUrl,
+      deeplink: localOrder.deeplink,
+      memo: localOrder.memo,
+      isSandbox: true
+    };
+  },
+
+  async checkPaymentStatus(orderId: string, userId?: string): Promise<{ isPaid: boolean; isPro: boolean; proExpiresAt?: string | null }> {
+    try {
+      const res = await fetch(`/api/momo/check-status?orderId=${encodeURIComponent(orderId)}&userId=${encodeURIComponent(userId || '')}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // offline fallback
+    }
+
+    const order = this.getOrder(orderId);
+    return {
+      isPaid: order?.status === 'verified_paid',
+      isPro: order?.status === 'verified_paid'
+    };
+  },
+
+  async simulateOnlinePayment(params: {
+    orderId: string;
+    userId: string;
+    planType: string;
+    durationDays: number | null;
+    amount: number;
+  }): Promise<boolean> {
+    try {
+      await fetch('/api/momo/simulate-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      });
+      return true;
+    } catch {
+      return false;
+    }
   },
 
   getOrders(): Record<string, MoMoOrder> {

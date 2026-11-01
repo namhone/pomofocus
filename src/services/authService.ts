@@ -501,6 +501,64 @@ export const authService = {
     return updated;
   },
 
+  activateProFromPayment(userId: string, planType: string, proExpiresAt?: number | string | null): UserProfile {
+    const users = initializeDemoAccounts();
+    let current = this.getCurrentSession();
+    if (!current) {
+      current = {
+        id: userId && userId !== 'guest' ? userId : `usr_${Date.now()}`,
+        email: 'student@studyworkspace.io',
+        displayName: 'Học viên Pro',
+        plan: 'pro',
+        createdAt: Date.now()
+      };
+    }
+
+    // Bảo vệ bất biến: Nếu là Chủ sở hữu, Nóc Nhà VIP hoặc Bạn Thân Sếp
+    if (isOwnerEmail(current.email) || isLadyBoss(current.email) || isVipFriend(current.email)) {
+      current.plan = 'pro_lifetime';
+      current.isLifetime = true;
+      current.proExpiresAt = null;
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(current));
+      return current;
+    }
+
+    const isLifetime = planType === 'lifetime' || planType === 'pro_lifetime' || proExpiresAt === null;
+    let computedExpires: number | null = null;
+    if (!isLifetime) {
+      if (typeof proExpiresAt === 'number') {
+        computedExpires = proExpiresAt;
+      } else if (typeof proExpiresAt === 'string') {
+        computedExpires = new Date(proExpiresAt).getTime();
+      } else {
+        const days = planType === '1_year' || planType === 'yearly' ? 365 : 30;
+        computedExpires = Date.now() + days * 24 * 60 * 60 * 1000;
+      }
+    }
+
+    const updated: UserProfile = {
+      ...current,
+      plan: isLifetime ? 'pro_lifetime' : 'pro',
+      isLifetime,
+      proExpiresAt: computedExpires
+    };
+
+    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
+
+    // Cập nhật persistent user store
+    for (const key of Object.keys(users)) {
+      if (users[key].id === current.id || users[key].email.toLowerCase() === current.email.toLowerCase()) {
+        users[key].plan = updated.plan;
+        users[key].isLifetime = isLifetime;
+        users[key].proExpiresAt = computedExpires;
+        break;
+      }
+    }
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+    return updated;
+  },
+
   async syncLocalDataToCloud(userId: string): Promise<{ tasks: number; notes: number; sessions: number }> {
     try {
       const [tasks, notes, sessions, planner] = await Promise.all([

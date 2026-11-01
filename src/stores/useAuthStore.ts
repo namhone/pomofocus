@@ -40,6 +40,7 @@ export interface AuthState {
   clearUserData: () => Promise<boolean>;
   upgradeToPro: (durationMonths?: number) => void;
   upgradeToSandboxPro: (durationMonths?: number) => void;
+  activateProFromPayment: (planType: string, proExpiresAt?: number | string | null) => void;
   downgradeToFree: () => void;
   syncToCloud: () => Promise<void>;
   clearError: () => void;
@@ -217,6 +218,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
       const updated = authService.upgradePlan(user.id, 'pro_sandbox', durationMonths);
       set({
         user: updated,
+        ...computeDerivedPlanState(updated)
+      });
+    },
+
+    activateProFromPayment: (planType: string, proExpiresAt?: number | string | null) => {
+      const { user } = get();
+      const updated = authService.activateProFromPayment(user?.id || 'guest', planType, proExpiresAt);
+      set({
+        user: updated,
+        isAuthenticated: true,
         ...computeDerivedPlanState(updated)
       });
     },
