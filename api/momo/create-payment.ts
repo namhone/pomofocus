@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   callSupabaseActivatePro,
   savePendingOrder
@@ -28,21 +27,19 @@ export default async function handler(req: any, res: any) {
 
   try {
     const body: RequestBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const { userId = 'guest_user', userEmail = 'student@studyworkspace.io', planId = '1_month', couponCode, returnUrl } = body;
+    const { userId = 'guest_user', planId = '1_month', couponCode } = body;
 
     // Xác định thông tin gói
     let basePrice = 59000;
     let durationDays: number | null = 30;
-    let planTitle = '1 Tháng';
 
     if (planId === '1_year') {
       basePrice = 468000;
       durationDays = 365;
-      planTitle = '1 Năm';
     } else if (planId === 'lifetime') {
       basePrice = 799000;
       durationDays = null;
-      planTitle = 'Trọn Đời';
+    }
     }
 
     // Xử lý mã coupon
