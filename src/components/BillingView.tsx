@@ -268,7 +268,7 @@ export const BillingView: React.FC = () => {
                 onClick={() => setIsMoMoModalOpen(true)}
                 className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
               >
-                <span>Chuyển Khoản Ngân Hàng (VietQR 24/7)</span>
+                <span>Nâng Cấp PRO (VietQR 24/7)</span>
               </button>
 
               <button
