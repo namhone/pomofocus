@@ -2123,6 +2123,7 @@ export const StudyRoomView: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 type="button"
+                data-testid="btn-room-leave"
                 onClick={handleLeaveRoom}
                 className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
               >
@@ -2485,12 +2486,16 @@ export const StudyRoomView: React.FC = () => {
           {/* Stage View: Grid or Whiteboard */}
           {activeTab === 'grid' ? (
             /* Participant Video Grid (Tự động co giãn theo sĩ số 1 đến 10 học viên) */
-            <div className={`${gridLayoutClass} gap-3 sm:gap-4 transition-all duration-300`}>
+            <div
+              data-testid="video-grid-container"
+              className={`${gridLayoutClass} gap-3 sm:gap-4 transition-all duration-300`}
+            >
               {/* CURRENT USER TILE */}
               {(() => {
                 const isLocalSpeaking = Boolean(speakingMap[participantId] && micEnabled);
                 return (
                   <div
+                    data-testid="local-video-tile"
                     className={`relative aspect-video rounded-2xl bg-neutral-900/90 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
                       isLocalSpeaking
                         ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
