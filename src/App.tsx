@@ -143,7 +143,7 @@ export const App: React.FC = () => {
   if (currentPath === '/account/security' || currentPath === '/security') {
     return <AccountSecurityView />;
   }
-  if (currentPath === '/dashboard' || currentPath === '/history') {
+  if (currentPath === '/dashboard' || currentPath === '/history' || currentPath === '/stats') {
     return <DashboardView />;
   }
   if (currentPath === '/settings') {
