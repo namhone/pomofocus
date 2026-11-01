@@ -18,7 +18,7 @@ test.describe('Live Production E2E Verification Suite', () => {
       ]
     });
 
-    const roomId = 'pod-free-01';
+    const roomId = 'pod-free-08';
 
     // 1. Tạo 3 context độc lập với quyền camera & microphone
     const context1 = await browser.newContext({
@@ -77,25 +77,25 @@ test.describe('Live Production E2E Verification Suite', () => {
     await expect(localTile1).toBeVisible();
 
     const peerTiles1 = page1.locator('[data-testid^="peer-tile-"]');
+    await expect(peerTiles1).toHaveCount(2, { timeout: 10000 });
     const peerCount1 = await peerTiles1.count();
     console.log(`Client 1 nhìn thấy ${peerCount1} peer tiles (tổng cộng ${peerCount1 + 1} thành viên)`);
-    expect(peerCount1).toBeGreaterThanOrEqual(2);
 
     // KIỂM TRA TRÊN CLIENT 2:
     const localTile2 = page2.getByTestId('local-video-tile');
     await expect(localTile2).toBeVisible();
     const peerTiles2 = page2.locator('[data-testid^="peer-tile-"]');
+    await expect(peerTiles2).toHaveCount(2, { timeout: 10000 });
     const peerCount2 = await peerTiles2.count();
     console.log(`Client 2 nhìn thấy ${peerCount2} peer tiles`);
-    expect(peerCount2).toBeGreaterThanOrEqual(2);
 
     // KIỂM TRA TRÊN CLIENT 3:
     const localTile3 = page3.getByTestId('local-video-tile');
     await expect(localTile3).toBeVisible();
     const peerTiles3 = page3.locator('[data-testid^="peer-tile-"]');
+    await expect(peerTiles3).toHaveCount(2, { timeout: 10000 });
     const peerCount3 = await peerTiles3.count();
     console.log(`Client 3 nhìn thấy ${peerCount3} peer tiles`);
-    expect(peerCount3).toBeGreaterThanOrEqual(2);
 
     // Chụp 3 ảnh màn hình bằng chứng
     await page1.screenshot({ path: `${ARTIFACT_DIR}/proof-meet-3p-client1.png` });
@@ -106,11 +106,14 @@ test.describe('Live Production E2E Verification Suite', () => {
     // THỬ NGHIỆM CLIENT 3 RỜI PHÒNG:
     console.log('-> Client 3 rời phòng...');
     const leaveBtn3 = page3.getByTestId('btn-room-leave');
+    console.log('leaveBtn3 visible:', await leaveBtn3.isVisible());
     await leaveBtn3.click();
+    await page3.waitForTimeout(1000);
+    console.log('page3 url after click:', page3.url());
 
-    // Chờ sự kiện presence leave và WebRTC close được xử lý (Client 1 và Client 2 giảm đúng 1 người)
-    await expect(page1.locator('[data-testid^="peer-tile-"]')).toHaveCount(peerCount1 - 1, { timeout: 10000 });
-    await expect(page2.locator('[data-testid^="peer-tile-"]')).toHaveCount(peerCount2 - 1, { timeout: 10000 });
+    // Chờ sự kiện presence leave và WebRTC close được xử lý (Client 1 và Client 2 co về đúng 1 peer tile)
+    await expect(page1.locator('[data-testid^="peer-tile-"]')).toHaveCount(1, { timeout: 15000 });
+    await expect(page2.locator('[data-testid^="peer-tile-"]')).toHaveCount(1, { timeout: 15000 });
 
     const remainingPeers1 = await page1.locator('[data-testid^="peer-tile-"]').count();
     console.log(`Client 1 sau khi Client 3 rời: còn ${remainingPeers1} peer tile (tổng cộng ${remainingPeers1 + 1} người)`);
