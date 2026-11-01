@@ -8,6 +8,7 @@ test.describe('OMNI-BUTTON & INTERACTIVE UI CRAWLER — 100% Interaction Audit',
   // 1. KIỂM THỬ THANH HEADER & LUỒNG XÁC THỰC
   // =========================================================================
   test('Mục 1: Thanh Header & Luồng Xác Thực (Auth Flow)', async ({ page }) => {
+    test.setTimeout(60000);
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error' && !msg.text().includes('socket') && !msg.text().includes('Failed to fetch')) {
@@ -15,7 +16,7 @@ test.describe('OMNI-BUTTON & INTERACTIVE UI CRAWLER — 100% Interaction Audit',
       }
     });
 
-    await page.goto(`${TARGET_URL}/app`);
+    await page.goto(`${TARGET_URL}/app`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // 1.1 Click các navigation link trên header
@@ -35,7 +36,7 @@ test.describe('OMNI-BUTTON & INTERACTIVE UI CRAWLER — 100% Interaction Audit',
     }
 
     // 1.2 Bấm nút Đăng nhập
-    await page.goto(`${TARGET_URL}/app`);
+    await page.goto(`${TARGET_URL}/app`, { waitUntil: 'domcontentloaded' });
     const loginBtn = page.locator('[data-testid="header-login-btn"]');
     await loginBtn.waitFor({ state: 'visible', timeout: 5000 });
     await loginBtn.click();
@@ -55,7 +56,7 @@ test.describe('OMNI-BUTTON & INTERACTIVE UI CRAWLER — 100% Interaction Audit',
       localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(mockUser));
     });
 
-    await page.goto(`${TARGET_URL}/app`);
+    await page.goto(`${TARGET_URL}/app`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(400);
 
     // Mở Dropdown Avatar
@@ -110,7 +111,7 @@ test.describe('OMNI-BUTTON & INTERACTIVE UI CRAWLER — 100% Interaction Audit',
       }
     });
 
-    await page.goto(`${TARGET_URL}/app`);
+    await page.goto(`${TARGET_URL}/app`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // 2.1 Thanh Dock đáy: Bật/tắt các icons

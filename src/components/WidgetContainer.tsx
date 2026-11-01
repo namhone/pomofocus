@@ -77,7 +77,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   const collapsedHeight = density === 'compact' ? 100 : 108;
   const isMedia = id === 'media';
   const mediaPipWidth = 320;
-  const mediaPipHeight = 216;
+  const mediaPipHeight = 180;
 
   // Xử lý kéo thả bằng Pointer Events (Desktop & Mini Pill)
   const handlePointerDownHeader = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -521,7 +521,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 e.stopPropagation();
                 toggleMiniPill('timer');
               }}
-              className="flex min-h-8 min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+              className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
               title="Thu nhỏ thành Mini Pill"
               aria-label="Thu nhỏ thành Mini Pill"
             >
@@ -536,7 +536,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               e.stopPropagation();
               toggleCollapseWidget(id);
             }}
-            className="flex min-h-8 min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+            className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
             title={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
             aria-label={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
           >
@@ -546,7 +546,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="flex min-h-8 min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+            className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >
@@ -575,7 +575,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         className={`relative min-h-0 flex-1 overflow-x-hidden overscroll-contain ${
           isCollapsed && !isMedia ? 'hidden' : 'flex flex-col'
         } ${
-          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-2.5' : 'p-3'
+          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-4' : 'p-5'
         } ${
           id === 'timer' ? 'overflow-y-auto items-center justify-start w-full' : 'overflow-y-hidden'
         }`}

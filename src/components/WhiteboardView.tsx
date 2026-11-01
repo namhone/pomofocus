@@ -1248,10 +1248,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         }}
       />
 
-      {/* Floating Minimalist Monochrome Toolbar */}
+      {/* Floating Minimalist Monochrome Toolbar (Chuẩn h-12 48px, gọn 420px-460px) */}
       <div
         data-testid="whiteboard-floating-toolbar"
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md w-max max-w-[calc(100vw-24px)] overflow-x-auto sm:overflow-visible scrollbar-none"
+        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center h-12 max-w-[460px] gap-1 sm:gap-1.5 px-2.5 py-1 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md overflow-x-auto sm:overflow-visible scrollbar-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* Nút Upload Tài Liệu / Đề Cương */}

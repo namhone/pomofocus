@@ -124,7 +124,7 @@ export const AudioWidget: React.FC = () => {
             value={settings.masterVolume}
             disabled={settings.isMuted}
             onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
-            className="w-full accent-neutral-200 bg-neutral-800 h-1.5 rounded-lg appearance-none cursor-pointer disabled:opacity-40"
+            className="w-full accent-white bg-neutral-800 h-2 rounded-lg appearance-none cursor-pointer disabled:opacity-40 [&::-webkit-slider-thumb]:w-4.5 [&::-webkit-slider-thumb]:h-4.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:w-4.5 [&::-moz-range-thumb]:h-4.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white"
             aria-label="Master volume slider"
           />
         </div>
@@ -217,7 +217,7 @@ export const AudioWidget: React.FC = () => {
               step="0.05"
               value={settings.chimeVolume}
               onChange={(e) => setChimeVolume(parseFloat(e.target.value))}
-              className="w-full accent-neutral-200 bg-neutral-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+              className="w-full accent-white bg-neutral-800 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-4.5 [&::-webkit-slider-thumb]:h-4.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:w-4.5 [&::-moz-range-thumb]:h-4.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white"
               aria-label="Chime volume slider"
             />
           </div>
@@ -248,7 +248,7 @@ export const AudioWidget: React.FC = () => {
               <div
                 key={track.id}
                 data-testid={`ambient-track-${track.id}`}
-                className={`p-2.5 rounded-xl border transition ${
+                className={`min-h-[48px] p-2.5 sm:p-3 rounded-xl border transition-all duration-150 ${
                   track.isPlaying
                     ? 'bg-neutral-800/60 border-white/20 shadow-inner'
                     : 'bg-black/20 border-white/5 hover:border-white/10'
@@ -260,18 +260,18 @@ export const AudioWidget: React.FC = () => {
                       type="button"
                       data-testid={`btn-toggle-track-${track.id}`}
                       onClick={() => toggleTrack(track.id)}
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+                      className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-lg flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
                         track.isPlaying
                           ? 'bg-white text-black shadow-md'
                           : 'bg-white/10 text-neutral-300 hover:bg-white/20 hover:text-white'
                       }`}
                       aria-label={`${track.isPlaying ? 'Dừng' : 'Bật'} ${track.name}`}
                     >
-                      {track.isPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
+                      {track.isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
                     </button>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-medium text-neutral-200 truncate">
+                        <span className="text-xs font-medium text-neutral-200 truncate" title={track.name}>
                           {track.name}
                         </span>
                         {track.category === 'binaural' && (
@@ -281,7 +281,7 @@ export const AudioWidget: React.FC = () => {
                         )}
                       </div>
                       {track.description && (
-                        <p className="text-[10px] text-neutral-400 truncate">{track.description}</p>
+                        <p className="text-[10px] text-neutral-400 truncate" title={track.description}>{track.description}</p>
                       )}
                     </div>
                   </div>
@@ -296,7 +296,7 @@ export const AudioWidget: React.FC = () => {
                         step="0.05"
                         value={track.volume}
                         onChange={(e) => setTrackVolume(track.id, parseFloat(e.target.value))}
-                        className="w-full accent-neutral-200 bg-neutral-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-white bg-neutral-800 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white"
                         aria-label={`Âm lượng ${track.name}`}
                       />
                     </div>

@@ -364,26 +364,31 @@ export const DedicatedCalendarView: React.FC = () => {
                             <div
                               key={blk.id}
                               onClick={(e) => e.stopPropagation()}
-                              className={`px-3 py-1.5 rounded-lg text-xs border flex items-center gap-2 ${
+                              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ${
                                 blk.completed
-                                  ? 'bg-neutral-800 border-white/5 text-neutral-500 line-through'
+                                  ? 'bg-neutral-800/80 border-white/5 text-neutral-500 line-through'
                                   : 'bg-emerald-950/70 border-emerald-500/30 text-emerald-200'
                               }`}
                             >
-                              <button
-                                type="button"
-                                onClick={() => handleToggleBlock(blk.id, blk.completed)}
-                              >
-                                {blk.completed ? <CheckCircle2 size={13} /> : <Circle size={13} />}
-                              </button>
-                              <span>{blk.title}</span>
+                              <div className="flex items-center gap-2 min-w-0">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleBlock(blk.id, blk.completed)}
+                                  className="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
+                                  title={blk.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
+                                >
+                                  {blk.completed ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                                </button>
+                                <span className="truncate" title={blk.title}>{blk.title}</span>
+                              </div>
                               <button
                                 type="button"
                                 data-testid="btn-delete-schedule"
                                 onClick={() => handleDeleteBlock(blk.id)}
-                                className="text-neutral-500 hover:text-rose-400 ml-1"
+                                className="min-w-[32px] min-h-[32px] flex items-center justify-center p-1 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer shrink-0"
+                                title="Xóa lịch học này"
                               >
-                                <X size={12} />
+                                <X size={14} />
                               </button>
                             </div>
                           ))

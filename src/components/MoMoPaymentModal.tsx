@@ -261,13 +261,13 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       data-testid="momo-payment-modal"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
     >
-      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl p-6 my-auto selection:bg-white selection:text-black">
+      <div className="relative w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/95 backdrop-blur-xl text-zinc-100 shadow-2xl p-5 sm:p-6 my-auto max-h-[88vh] overflow-y-auto selection:bg-white selection:text-black">
         {/* Nút đóng */}
         <button
           type="button"
           data-testid="btn-close-payment-modal"
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition cursor-pointer"
+          className="absolute top-3 right-3 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition cursor-pointer"
         >
           <X size={18} />
         </button>
@@ -406,10 +406,10 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                       type="button"
                       data-testid="btn-copy-amount"
                       onClick={() => handleCopy(order.amount.toString(), 'amount')}
-                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white text-zinc-400 transition cursor-pointer"
                       title="Sao chép số tiền"
                     >
-                      {copiedAmount ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      {copiedAmount ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>
                   </div>
                 </div>
@@ -430,10 +430,10 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                       type="button"
                       data-testid="btn-copy-stk"
                       onClick={() => handleCopy(BANKING_CONFIG.accountNumber, 'account')}
-                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white text-zinc-400 transition cursor-pointer"
                       title="Sao chép số tài khoản"
                     >
-                      {copiedAccount ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      {copiedAccount ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>
                   </div>
                 </div>
@@ -445,10 +445,10 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleCopy(BANKING_CONFIG.recipientName, 'name')}
-                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white text-zinc-400 transition cursor-pointer"
                       title="Sao chép tên chủ tài khoản"
                     >
-                      {copiedName ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      {copiedName ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>
                   </div>
                 </div>
@@ -461,10 +461,10 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                       type="button"
                       data-testid="btn-copy-momo-memo"
                       onClick={() => handleCopy(cleanMemo, 'memo')}
-                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
+                      className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-lg hover:bg-zinc-800 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
                       title="Sao chép nội dung chuyển khoản"
                     >
-                      {copiedMemo ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      {copiedMemo ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>
                   </div>
                 </div>

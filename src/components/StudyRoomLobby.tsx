@@ -340,8 +340,8 @@ export const StudyRoomLobby: React.FC = () => {
             </div>
           </div>
 
-          {/* Bố cục 4 cột thoáng đãng */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* Bố cục 4 cột thoáng đãng (chuẩn 8-point grid gap-5 đến gap-6) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
             {PUBLIC_FREE_PODS.map((pod) => {
               const room = allRooms[pod.roomId];
               const storageCount = room ? Object.keys(room.participants || {}).length : 0;
@@ -353,10 +353,10 @@ export const StudyRoomLobby: React.FC = () => {
                 <div
                   key={pod.roomId}
                   data-testid={`pod-card-${pod.roomId}`}
-                  className={`p-4 rounded-xl border transition flex flex-col justify-between ${
+                  className={`p-5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
                     isFull
                       ? 'bg-zinc-900/40 border-rose-500/30 opacity-80'
-                      : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/90 shadow-md'
+                      : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700/80 hover:bg-zinc-900/90 shadow-md'
                   }`}
                 >
                   <div>
@@ -412,9 +412,9 @@ export const StudyRoomLobby: React.FC = () => {
                         type="button"
                         data-testid={`btn-join-${pod.roomId}`}
                         onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
-                        className="w-full py-2 px-3 rounded-lg bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow active:scale-95"
+                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 shadow active:scale-[0.98]"
                       >
-                        <LogIn size={13} />
+                        <LogIn size={14} />
                         <span>Vào Học (1 Chạm)</span>
                       </button>
                     )}

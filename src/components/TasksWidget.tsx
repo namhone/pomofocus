@@ -245,8 +245,8 @@ export const TasksWidget: React.FC = () => {
         </div>
       </form>
 
-      {/* Danh Sách Tasks (khoảng cách 6px chuẩn layout spec) */}
-      <div className="space-y-1.5 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+      {/* Danh Sách Tasks (khoảng cách 8px chuẩn 8-point grid, min-h 48px) */}
+      <div className="space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-0.5">
         {filteredTasks.length === 0 ? (
           <div className="text-center py-6 px-3 rounded-xl border border-dashed border-white/[0.08] text-neutral-400">
             <p className="text-xs mb-3 text-neutral-400">Chưa có công việc nào trong danh sách.</p>
@@ -282,14 +282,14 @@ export const TasksWidget: React.FC = () => {
               <div
                 key={task.id}
                 data-testid={`task-item-${task.id}`}
-                className={`p-2.5 rounded-xl border transition ${
+                className={`min-h-[48px] p-2.5 sm:p-3 rounded-xl border transition-all duration-150 flex items-center justify-between gap-2.5 ${
                   isLinked
                     ? 'bg-white/[0.08] border-white/25 shadow-sm'
-                    : 'bg-black/20 border-white/[0.08] hover:border-white/15 hover:bg-black/30'
+                    : 'bg-black/20 border-white/[0.08] hover:border-white/20 hover:bg-black/30'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <label className="flex items-center justify-center min-w-[32px] min-h-[32px] cursor-pointer -m-1 p-1">
                     <input
                       data-testid={`toggle-task-${task.id}`}
                       type="checkbox"
@@ -297,67 +297,68 @@ export const TasksWidget: React.FC = () => {
                       onChange={() => toggleTaskComplete(task.id)}
                       className="w-4 h-4 rounded border-neutral-600 bg-neutral-800 text-white focus:ring-0 cursor-pointer"
                     />
-                    <div className="min-w-0 flex-1">
-                      <div
-                        className={`text-xs font-medium truncate ${
-                          isCompleted ? 'line-through text-neutral-500' : 'text-neutral-200'
-                        }`}
-                      >
-                        {task.title}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-[10px]">
-                        <span
-                          className={`px-1.5 py-0.2 rounded border uppercase font-bold text-[9px] ${getPriorityStyle(
-                            task.priority
-                          )}`}
-                        >
-                          {task.priority}
-                        </span>
-                        <span
-                          data-testid={`pomodoro-count-${task.id}`}
-                          className="text-neutral-300 flex items-center gap-1"
-                        >
-                          <Timer size={11} className="text-rose-400 shrink-0" />
-                          <span>{task.completedPomodoros}/{task.estimatedPomodoros}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions: Link to timer & Delete */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      data-testid={isLinked ? `unlink-task-btn-${task.id}` : `link-task-btn-${task.id}`}
-                      onClick={() => linkTaskToTimer(isLinked ? null : task.id)}
-                      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition cursor-pointer min-h-[28px] flex items-center gap-1 justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-                        isLinked
-                          ? 'bg-rose-500/20 text-rose-200 border border-rose-500/35 shadow-xs'
-                          : 'bg-white/8 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/5'
+                  </label>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      title={task.title}
+                      className={`text-xs font-medium truncate ${
+                        isCompleted ? 'line-through text-neutral-500' : 'text-neutral-200'
                       }`}
                     >
-                      {isLinked ? (
-                        <>
-                          <Target size={12} className="text-rose-400 shrink-0" />
-                          <span>Đang làm</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play size={10} className="text-neutral-400 shrink-0" />
-                          <span>Gắn Timer</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid={`delete-task-btn-${task.id}`}
-                      onClick={() => deleteTask(task.id)}
-                      aria-label="Xóa công việc"
-                      className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400"
-                    >
-                      <Trash2 size={13} strokeWidth={1.75} />
-                    </button>
+                      {task.title}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px]">
+                      <span
+                        className={`px-1.5 py-0.2 rounded border uppercase font-bold text-[9px] ${getPriorityStyle(
+                          task.priority
+                        )}`}
+                      >
+                        {task.priority}
+                      </span>
+                      <span
+                        data-testid={`pomodoro-count-${task.id}`}
+                        className="text-neutral-300 flex items-center gap-1"
+                      >
+                        <Timer size={11} className="text-rose-400 shrink-0" />
+                        <span>{task.completedPomodoros}/{task.estimatedPomodoros}</span>
+                      </span>
+                    </div>
                   </div>
+                </div>
+
+                {/* Actions: Link to timer & Delete */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    data-testid={isLinked ? `unlink-task-btn-${task.id}` : `link-task-btn-${task.id}`}
+                    onClick={() => linkTaskToTimer(isLinked ? null : task.id)}
+                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[32px] flex items-center gap-1 justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                      isLinked
+                        ? 'bg-rose-500/20 text-rose-200 border border-rose-500/35 shadow-xs'
+                        : 'bg-white/8 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/5'
+                    }`}
+                  >
+                    {isLinked ? (
+                      <>
+                        <Target size={12} className="text-rose-400 shrink-0" />
+                        <span>Đang làm</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play size={10} className="text-neutral-400 shrink-0" />
+                        <span>Gắn Timer</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid={`delete-task-btn-${task.id}`}
+                    onClick={() => deleteTask(task.id)}
+                    aria-label="Xóa công việc"
+                    className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-[0.98] text-xs cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400"
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} />
+                  </button>
                 </div>
               </div>
             );

@@ -3332,7 +3332,7 @@ export const StudyRoomView: React.FC = () => {
                 }
           }
         >
-        <div className="flex items-center justify-between sm:justify-around gap-1 sm:gap-1.5 md:gap-2 p-1 sm:p-1.5 md:p-2 rounded-2xl bg-neutral-900/90 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
+        <div className="flex items-center justify-between sm:justify-around gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-neutral-900/90 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
           {/* Micro */}
           <button
             type="button"
@@ -3341,12 +3341,12 @@ export const StudyRoomView: React.FC = () => {
               setMicEnabled(!micEnabled);
               showBetaP2PNotice();
             }}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0 ${
               micEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
             }`}
             title={micEnabled ? 'Tắt Micro' : 'Bật Micro'}
           >
-            {micEnabled ? <Mic size={16} className="sm:w-[18px] sm:h-[18px]" /> : <MicOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
+            {micEnabled ? <Mic size={18} /> : <MicOff size={18} />}
           </button>
 
           {/* Camera */}
@@ -3357,12 +3357,12 @@ export const StudyRoomView: React.FC = () => {
               setCameraEnabled(!cameraEnabled);
               showBetaP2PNotice();
             }}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0 ${
               cameraEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
             }`}
             title={cameraEnabled ? 'Tắt Camera' : 'Bật Camera'}
           >
-            {cameraEnabled ? <Video size={16} className="sm:w-[18px] sm:h-[18px]" /> : <VideoOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
+            {cameraEnabled ? <Video size={18} /> : <VideoOff size={18} />}
           </button>
 
           {/* Chia sẻ màn hình */}
@@ -3370,12 +3370,12 @@ export const StudyRoomView: React.FC = () => {
             type="button"
             data-testid="btn-room-screen"
             onClick={handleToggleScreenShare}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0 ${
               isScreenSharing ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={isScreenSharing ? 'Dừng chia sẻ màn hình' : 'Chia sẻ màn hình'}
           >
-            {isScreenSharing ? <MonitorOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Monitor size={16} className="sm:w-[18px] sm:h-[18px]" />}
+            {isScreenSharing ? <MonitorOff size={18} /> : <Monitor size={18} />}
           </button>
 
           {/* Giơ tay phát biểu */}
@@ -3383,25 +3383,25 @@ export const StudyRoomView: React.FC = () => {
             type="button"
             data-testid="btn-room-hand"
             onClick={() => setIsHandRaised(!isHandRaised)}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0 ${
               isHandRaised ? 'bg-amber-500 text-neutral-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={isHandRaised ? 'Hạ tay xuống' : 'Giơ tay phát biểu'}
             aria-label="Giơ tay phát biểu"
           >
-            <Hand size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <Hand size={18} />
           </button>
 
           {/* Reactions Trigger Popup */}
-          <div className="relative flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial flex items-center justify-center shrink-0">
+          <div className="relative flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial flex items-center justify-center shrink-0">
             <button
               type="button"
               data-testid="btn-room-reactions"
               onClick={() => setIsReactionsMenuOpen(!isReactionsMenuOpen)}
-              className="w-full h-full rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer flex items-center justify-center"
+              className="w-full h-full rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center"
               title="Thả cảm xúc"
             >
-              <Smile size={16} className="sm:w-[18px] sm:h-[18px]" />
+              <Smile size={18} />
             </button>
             {isReactionsMenuOpen && (
               <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 p-2 rounded-2xl bg-neutral-900 border border-white/15 shadow-2xl flex items-center gap-1.5 z-50">
@@ -3430,12 +3430,12 @@ export const StudyRoomView: React.FC = () => {
               setIsChatOpen(!isChatOpen);
               setHasUnreadChat(false);
             }}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer relative flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer relative flex items-center justify-center shrink-0 ${
               isChatOpen ? 'bg-white text-zinc-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title="Trò chuyện phòng học"
           >
-            <MessageSquare size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <MessageSquare size={18} />
             {hasUnreadChat && !isChatOpen && (
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-zinc-950 animate-pulse" />
             )}
@@ -3454,10 +3454,10 @@ export const StudyRoomView: React.FC = () => {
               setActiveSettingsTab('av');
               setIsDeviceModalOpen(true);
             }}
-            className="flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer flex items-center justify-center shrink-0"
+            className="flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0"
             title="Cài đặt camera & micro"
           >
-            <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <Settings size={18} />
           </button>
 
           {/* YouTube Study Beats Button */}
@@ -3465,7 +3465,7 @@ export const StudyRoomView: React.FC = () => {
             type="button"
             data-testid="btn-room-youtube"
             onClick={() => setIsYouTubeWidgetOpen((prev) => !prev)}
-            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center justify-center shrink-0 ${
               isYouTubeWidgetOpen ? 'bg-rose-500/30 border border-rose-400 text-rose-300' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title="YouTube Lofi Beats (Phát cùng nhau)"

@@ -114,8 +114,8 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           </div>
         )}
 
-        {/* Phase Selector Segmented Control (Min-Height: 32px for touch accessibility) */}
-        <div className="flex rounded-lg bg-neutral-900/60 p-0.5 border border-white/[0.06] mb-4 min-h-[32px] items-stretch">
+        {/* Phase Selector Segmented Control (Min-Height: 36px for touch accessibility) */}
+        <div className="flex rounded-xl bg-neutral-900/70 p-1 border border-white/[0.08] mb-4 min-h-[36px] items-stretch gap-1">
           {(['pomodoro', 'short_break', 'long_break'] as TimerPhase[]).map((p) => {
             const isActive = phase === p;
             const style = getPhaseStyles(p);
@@ -136,7 +136,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                         : settings.longBreakMinutes * 60 * 1000
                   });
                 }}
-                className={`flex-1 rounded-[6px] text-[11px] font-medium transition cursor-pointer flex items-center justify-center min-h-[28px] px-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`flex-1 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[34px] px-2.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                   isActive ? style.activeTab : 'text-neutral-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
               >
@@ -148,15 +148,15 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
 
         {/* Timer Display Display Area */}
         <div
-          className={`w-full flex flex-col items-center justify-center rounded-[16px] border py-5 px-4 text-center transition-colors ${currentPhaseStyle.bg}`}
+          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-6 px-4 text-center transition-colors ${currentPhaseStyle.bg}`}
         >
           <div
             data-testid="timer-display"
-            className="font-mono tabular-nums text-5xl sm:text-6xl font-light tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)]"
+            className="font-mono tabular-nums text-6xl sm:text-7xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)]"
           >
             {formatTime(remainingMs)}
           </div>
-          <div className="mt-1 text-[11px] uppercase tracking-widest text-neutral-400 font-medium">
+          <div className="mt-2 text-xs uppercase tracking-widest text-neutral-400 font-medium">
             {currentPhaseStyle.label}
           </div>
 
@@ -238,7 +238,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-reset-btn"
             onClick={reset}
             title="Đặt lại về mặc định"
-            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition hover:bg-white/[0.12] hover:text-white active:scale-95 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 hover:bg-white/[0.12] hover:text-white active:scale-[0.98] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             <RotateCcw size={15} />
             <span className="text-xs">Đặt lại</span>
@@ -248,7 +248,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-skip-btn"
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp"
-            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition hover:bg-white/[0.12] hover:text-white active:scale-95 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 hover:bg-white/[0.12] hover:text-white active:scale-[0.98] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             <FastForward size={15} />
             <span className="text-xs">Skip</span>
