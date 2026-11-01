@@ -18,6 +18,7 @@ export interface RoomParticipant {
   isVideoOn: boolean;
   isHandRaised?: boolean;
   joinedAt: number;
+  lastSeen?: number;
 }
 
 export interface RoomInviteToken {
@@ -812,5 +813,46 @@ export const studyRoomService = {
     delete room.participants[participantId];
     this.saveRoom(room);
     this.broadcastEvent({ type: 'PARTICIPANT_LEFT', roomId, participantId });
+  },
+
+  /**
+   * Cập nhật thời điểm hoạt động gần nhất (Heartbeat) của người tham gia
+   */
+  heartbeatParticipant(roomId: string, participantId: string): void {
+    const room = this.getRoom(roomId);
+    if (!room || !room.participants || !room.participants[participantId]) return;
+
+    room.participants[participantId].lastSeen = Date.now();
+    this.saveRoom(room);
+  },
+
+  /**
+   * Tự động dọn dẹp các thành viên không còn hoạt động quá ngưỡng cho phép (Zombie Purge)
+   * Mặc định ngưỡng timeout là 90 giây (90000ms) để bảo vệ các thiết bị di động tiết kiệm pin
+   */
+  cleanupZombieParticipants(roomId: string, maxInactiveMs: number = 90000): { removedCount: number; removedIds: string[] } {
+    const room = this.getRoom(roomId);
+    if (!room || !room.participants) return { removedCount: 0, removedIds: [] };
+
+    const now = Date.now();
+    const removedIds: string[] = [];
+
+    Object.keys(room.participants).forEach((id) => {
+      const p = room.participants[id];
+      const lastActive = p.lastSeen || p.joinedAt || 0;
+      if (now - lastActive > maxInactiveMs) {
+        delete room.participants[id];
+        removedIds.push(id);
+      }
+    });
+
+    if (removedIds.length > 0) {
+      this.saveRoom(room);
+      removedIds.forEach((pid) => {
+        this.broadcastEvent({ type: 'PARTICIPANT_LEFT', roomId, participantId: pid });
+      });
+    }
+
+    return { removedCount: removedIds.length, removedIds };
   }
 };

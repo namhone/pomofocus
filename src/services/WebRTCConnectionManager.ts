@@ -80,6 +80,9 @@ export class WebRTCConnectionManager {
   private broadcastChannel: BroadcastChannel | null = null;
   private currentBitrateKbps: number = 450;
   private makingOfferMap: Map<string, boolean> = new Map();
+  private disconnectTimers: Map<string, any> = new Map();
+  private dataChannels: Map<string, RTCDataChannel> = new Map();
+  private natKeepAliveInterval: any = null;
 
   constructor(channel: RealtimeChannel, myUserId: string, callbacks: WebRTCCallbacks) {
     this.channel = channel;
@@ -93,6 +96,7 @@ export class WebRTCConnectionManager {
       }
     }
     this.setupSignalingListeners();
+    this.startKeepAlive();
   }
 
   /**
@@ -286,8 +290,62 @@ export class WebRTCConnectionManager {
   }
 
   /**
+   * Bắt đầu gửi ping giữ kết nối NAT qua DataChannel và WebSocket (Keep-Alive)
+   * Giúp các cổng NAT trên mạng 4G/Wi-Fi của điện thoại không bị timeout/đóng cổng
+   */
+  private startKeepAlive() {
+    if (this.natKeepAliveInterval) clearInterval(this.natKeepAliveInterval);
+    this.natKeepAliveInterval = setInterval(() => {
+      // 1. Gói tin ping giữ đục lỗ NAT UDP/SCTP qua DataChannel
+      this.dataChannels.forEach((dc) => {
+        if (dc && dc.readyState === 'open') {
+          try {
+            dc.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+          } catch {
+            // Bỏ qua lỗi gửi socket
+          }
+        }
+      });
+
+      // 2. Gói tin ping giữ cổng NAT WebSocket trên 4G/Wifi qua Supabase Realtime Channel
+      try {
+        this.channel.send({
+          type: 'broadcast',
+          event: 'p2p-keepalive',
+          payload: {
+            fromPeerId: this.myUserId,
+            timestamp: Date.now(),
+          },
+        });
+      } catch {
+        // Bỏ qua lỗi gửi socket
+      }
+    }, 20000); // 20 giây một lần theo yêu cầu
+  }
+
+  /**
+   * Kích hoạt ICE Restart để tự động đục lỗ lại mạng khi bị ngắt kết nối (4G/Wi-Fi jitter)
+   */
+  public async restartIceForPeer(peerId: string) {
+    const pc = this.peerConnections.get(peerId);
+    if (!pc || pc.signalingState === 'closed') return;
+    try {
+      console.log(`[WebRTC] Kích hoạt ICE Restart cho peer ${peerId}`);
+      this.makingOfferMap.set(peerId, true);
+      const offer = await pc.createOffer({ iceRestart: true });
+      await pc.setLocalDescription(offer);
+      this.sendTargetedSignal('OFFER', peerId, offer);
+    } catch (err) {
+      console.warn(`[WebRTC] Lỗi createOffer với iceRestart cho ${peerId}:`, err);
+    } finally {
+      this.makingOfferMap.set(peerId, false);
+    }
+  }
+
+  /**
    * Đồng bộ toàn diện danh sách thành viên trong phòng (Mesh Topology Sync)
    * Tự động bắt tay theo Deterministic Polite Peer Pattern (Chuỗi ID lớn hơn sẽ gọi offer)
+   * LƯU Ý: Tuyệt đối KHÔNG tự ý đóng kết nối peer khi presence chập chờn 1-2s
    */
   public syncMeshPeers(activePeerIds: string[]) {
     // 1. Kết nối với các peer mới
@@ -302,14 +360,7 @@ export class WebRTCConnectionManager {
       }
     });
 
-    // 2. Dọn dẹp kết nối của những người không còn trong phòng
-    Array.from(this.peerConnections.keys()).forEach((peerId) => {
-      if (!activePeerIds.includes(peerId)) {
-        this.closeConnection(peerId);
-      }
-    });
-
-    // 3. Tự động cân đối băng thông theo sĩ số phòng
+    // 2. Tự động cân đối băng thông theo sĩ số phòng
     this.updateMeshBandwidth(activePeerIds.length + 1);
   }
 
@@ -346,6 +397,26 @@ export class WebRTCConnectionManager {
   private createPeerConnection(peerId: string): RTCPeerConnection {
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
+    // Tạo DataChannel keepalive để giữ NAT bindings và trao đổi ping/pong P2P
+    try {
+      if (typeof pc.createDataChannel === 'function') {
+        const dc = pc.createDataChannel('keepalive', { negotiated: true, id: 0 });
+        dc.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            if (parsed?.type === 'ping' && dc.readyState === 'open') {
+              dc.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+            }
+          } catch {
+            // Ignored
+          }
+        };
+        this.dataChannels.set(peerId, dc);
+      }
+    } catch (err) {
+      console.debug('[WebRTC] DataChannel keepalive init info:', err);
+    }
+
     // Thêm các track local (mic + cam) vào kết nối
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => {
@@ -376,15 +447,48 @@ export class WebRTCConnectionManager {
       }
     };
 
-    // Theo dõi trạng thái kết nối
+    // Theo dõi trạng thái kết nối và xử lý ngắt mạng thông minh (ICE Restart)
     pc.onconnectionstatechange = () => {
-      this.callbacks.onConnectionStateChange?.(peerId, pc.connectionState);
-      if (
-        pc.connectionState === 'disconnected' ||
-        pc.connectionState === 'failed' ||
-        pc.connectionState === 'closed'
-      ) {
-        this.closeConnection(peerId);
+      const state = pc.connectionState;
+      this.callbacks.onConnectionStateChange?.(peerId, state);
+
+      if (state === 'connected') {
+        // Mạng đã kết nối thành công hoặc tự phục hồi -> Xóa bộ đếm hủy
+        const t = this.disconnectTimers.get(peerId);
+        if (t) {
+          clearTimeout(t);
+          this.disconnectTimers.delete(peerId);
+        }
+        console.log(`[P2P] Peer ${peerId} kết nối P2P thành công / phục hồi`);
+      } else if (state === 'disconnected') {
+        // TUYỆT ĐỐI KHÔNG XÓA PEER NGAY LẬP TỨC!
+        // Chờ 10 giây xem mạng có tự phục hồi không trước khi ICE Restart
+        console.warn(`[P2P] Peer ${peerId} disconnected, chờ 10 giây để mạng tự phục hồi...`);
+        if (this.disconnectTimers.has(peerId)) {
+          clearTimeout(this.disconnectTimers.get(peerId));
+        }
+        const timer = setTimeout(() => {
+          this.disconnectTimers.delete(peerId);
+          if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+            console.log(`[P2P] Kích hoạt ICE Restart cho ${peerId} sau 10s disconnected`);
+            this.restartIceForPeer(peerId);
+          }
+        }, 10000);
+        this.disconnectTimers.set(peerId, timer);
+      } else if (state === 'failed') {
+        console.warn(`[P2P] Peer ${peerId} kết nối failed -> Kích hoạt ICE Restart ngay`);
+        this.restartIceForPeer(peerId);
+      }
+    };
+
+    // Theo dõi trạng thái ICE Connection
+    pc.oniceconnectionstatechange = () => {
+      const iceState = pc.iceConnectionState;
+      if (iceState === 'disconnected') {
+        console.warn(`[WebRTC ICE] Peer ${peerId} iceConnectionState: disconnected`);
+      } else if (iceState === 'failed') {
+        console.warn(`[WebRTC ICE] Peer ${peerId} iceConnectionState: failed -> Gọi restartIceForPeer`);
+        this.restartIceForPeer(peerId);
       }
     };
 
@@ -483,6 +587,20 @@ export class WebRTCConnectionManager {
    * Dọn dẹp kết nối khi có người rời phòng (Peer Teardown sạch sẽ)
    */
   public closeConnection(peerId: string) {
+    const timer = this.disconnectTimers.get(peerId);
+    if (timer) {
+      clearTimeout(timer);
+      this.disconnectTimers.delete(peerId);
+    }
+    const dc = this.dataChannels.get(peerId);
+    if (dc) {
+      try {
+        dc.close();
+      } catch {
+        // Ignored
+      }
+      this.dataChannels.delete(peerId);
+    }
     const pc = this.peerConnections.get(peerId);
     if (pc) {
       try {
@@ -504,6 +622,20 @@ export class WebRTCConnectionManager {
 
   /** Giải phóng toàn bộ ma trận P2P khi bản thân rời phòng */
   public destroy() {
+    if (this.natKeepAliveInterval) {
+      clearInterval(this.natKeepAliveInterval);
+      this.natKeepAliveInterval = null;
+    }
+    this.disconnectTimers.forEach((t) => clearTimeout(t));
+    this.disconnectTimers.clear();
+    this.dataChannels.forEach((dc) => {
+      try {
+        dc.close();
+      } catch {
+        // Ignored
+      }
+    });
+    this.dataChannels.clear();
     this.peerConnections.forEach((pc, peerId) => {
       try {
         pc.close();

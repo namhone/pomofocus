@@ -499,5 +499,51 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
       const checkAccess = studyRoomService.verifyRoomAccess('pod-free-05', existingUser);
       expect(checkAccess.allowed).toBe(true);
     });
+
+    it('heartbeat & cleanupZombieParticipants: Bảo vệ thiết bị di động với ngưỡng timeout 90 giây', () => {
+      const room = studyRoomService.getRoom('pod-free-01')!;
+      const now = Date.now();
+
+      // Client 1: Vừa gửi heartbeat 30 giây trước (chưa quá 90s -> Giữ lại)
+      room.participants['client_active'] = {
+        id: 'client_active',
+        userId: 'usr_active',
+        name: 'Bạn Học Mobile',
+        role: 'member',
+        isMicOn: false,
+        isVideoOn: false,
+        joinedAt: now - 30000,
+        lastSeen: now - 30000
+      };
+
+      // Client 2: Đã im lặng 95 giây (> 90s -> Zombie, cần dọn dẹp)
+      room.participants['client_zombie'] = {
+        id: 'client_zombie',
+        userId: 'usr_zombie',
+        name: 'Bạn Học Rớt Mạng',
+        role: 'member',
+        isMicOn: false,
+        isVideoOn: false,
+        joinedAt: now - 120000,
+        lastSeen: now - 95000
+      };
+
+      studyRoomService.saveRoom(room);
+
+      // Cập nhật heartbeat cho client active
+      studyRoomService.heartbeatParticipant('pod-free-01', 'client_active');
+      const updatedRoomBeforePurge = studyRoomService.getRoom('pod-free-01')!;
+      expect(updatedRoomBeforePurge.participants['client_active'].lastSeen).toBeGreaterThanOrEqual(now);
+
+      // Chạy dọn dẹp Zombie với ngưỡng 90s (90000ms)
+      const res = studyRoomService.cleanupZombieParticipants('pod-free-01', 90000);
+
+      expect(res.removedCount).toBe(1);
+      expect(res.removedIds).toContain('client_zombie');
+
+      const updatedRoomAfterPurge = studyRoomService.getRoom('pod-free-01')!;
+      expect(updatedRoomAfterPurge.participants['client_active']).toBeDefined();
+      expect(updatedRoomAfterPurge.participants['client_zombie']).toBeUndefined();
+    });
   });
 });

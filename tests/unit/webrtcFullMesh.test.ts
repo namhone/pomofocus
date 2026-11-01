@@ -223,4 +223,49 @@ describe('WebRTC Full-Mesh Multi-Peer Architecture (3 đến 10 học viên)', (
     expect(mockCallbacks.onPeerLeave).toHaveBeenCalledWith('p1');
     expect(mockCallbacks.onPeerLeave).toHaveBeenCalledWith('p2');
   });
+
+  it('6. Smart disconnected & ICE Restart: Không xóa peer khi disconnected, tự động kích hoạt ICE Restart sau 10s', async () => {
+    vi.useFakeTimers();
+    const manager = new WebRTCConnectionManager(mockChannel, 'user_desktop', mockCallbacks);
+    const mockPc = (manager as any).createPeerConnection('peer_mobile');
+    (manager as any).peerConnections.set('peer_mobile', mockPc);
+
+    const restartIceSpy = vi.spyOn(manager, 'restartIceForPeer').mockResolvedValue(undefined);
+
+    // Giả lập trạng thái chuyển sang disconnected (do 4G/Wifi chập chờn)
+    mockPc.connectionState = 'disconnected';
+    mockPc.onconnectionstatechange();
+
+    // KHÔNG được xóa peer hay gọi onPeerLeave ngay lập tức
+    expect(mockCallbacks.onPeerLeave).not.toHaveBeenCalled();
+    expect(mockPc.close).not.toHaveBeenCalled();
+    expect(restartIceSpy).not.toHaveBeenCalled();
+
+    // Sau 10 giây nếu vẫn disconnected -> Tự động gọi ICE Restart
+    vi.advanceTimersByTime(10000);
+    expect(restartIceSpy).toHaveBeenCalledWith('peer_mobile');
+    expect(mockCallbacks.onPeerLeave).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
+
+  it('7. NAT Keep-Alive: Định kỳ phát sóng gói tin giữ cổng NAT mỗi 20 giây', () => {
+    vi.useFakeTimers();
+    const manager = new WebRTCConnectionManager(mockChannel, 'user_host', mockCallbacks);
+
+    vi.advanceTimersByTime(20000);
+
+    expect(mockChannel.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'broadcast',
+        event: 'p2p-keepalive',
+        payload: expect.objectContaining({
+          fromPeerId: 'user_host',
+        }),
+      })
+    );
+
+    manager.destroy();
+    vi.useRealTimers();
+  });
 });

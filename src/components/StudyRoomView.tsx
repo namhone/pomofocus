@@ -350,6 +350,7 @@ export const StudyRoomView: React.FC = () => {
   >({});
   const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
   const channelRef = useRef<any>(null);
+  const lastHeartbeatMapRef = useRef<Map<string, number>>(new Map());
 
   // Voice Activity Detection (VAD) via AudioContext & AnalyserNode
   useEffect(() => {
@@ -1147,6 +1148,9 @@ export const StudyRoomView: React.FC = () => {
           };
           if (key !== participantId) {
             activePeerIds.push(key);
+            if (!lastHeartbeatMapRef.current.has(key)) {
+              lastHeartbeatMapRef.current.set(key, Date.now());
+            }
           }
         }
       });
@@ -1163,6 +1167,7 @@ export const StudyRoomView: React.FC = () => {
       newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string; displayName?: string; name?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
         if (peerId && peerId !== participantId) {
+          lastHeartbeatMapRef.current.set(peerId, Date.now());
           const peerName = presence.displayName || presence.name || `Bạn học #${peerId.slice(0, 5)}`;
           setPeerJoinToast(`${peerName} vừa vào phòng học`);
           playGentleDing();
@@ -1171,33 +1176,65 @@ export const StudyRoomView: React.FC = () => {
       });
     });
 
-    // Dọn dẹp kết nối sạch sẽ khi có người rời phòng (Peer Teardown)
+    // Xử lý sự kiện leave từ Presence có thời gian ân hạn 90s (Zombie / Mobile screen sleep protection)
     channel.on('presence', { event: 'leave' }, (payload: any) => {
       const leftPresences = payload?.leftPresences || [];
+      const now = Date.now();
       leftPresences.forEach((presence: { key?: string; user_id?: string; userId?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
-        if (peerId) {
-          manager.closeConnection(peerId);
-          setPresenceUsers((prev) => {
-            if (!prev[peerId]) return prev;
-            const next = { ...prev };
-            delete next[peerId];
-            return next;
-          });
-          setRemoteStreams((prev) => {
-            if (!prev[peerId]) return prev;
-            const next = { ...prev };
-            delete next[peerId];
-            return next;
-          });
+        if (peerId && peerId !== participantId) {
+          const lastSeen = lastHeartbeatMapRef.current.get(peerId) || 0;
+          // Chỉ ngắt kết nối nếu thực sự không nhận được heartbeat quá 90 giây
+          if (now - lastSeen > 90000) {
+            console.warn(`[StudyRoom] Presence leave xác nhận cho ${peerId} (vắng mặt > 90s)`);
+            manager.closeConnection(peerId);
+            setPresenceUsers((prev) => {
+              if (!prev[peerId]) return prev;
+              const next = { ...prev };
+              delete next[peerId];
+              return next;
+            });
+            setRemoteStreams((prev) => {
+              if (!prev[peerId]) return prev;
+              const next = { ...prev };
+              delete next[peerId];
+              return next;
+            });
+          } else {
+            console.log(`[StudyRoom] Bỏ qua Presence leave tạm thời từ ${peerId} (vừa hoạt động ${Math.round((now - lastSeen) / 1000)}s trước)`);
+          }
         }
       });
+    });
+
+    // Lắng nghe gói tin Heartbeat từ các bạn học khác (chu kỳ 15s)
+    channel.on('broadcast', { event: 'peer-heartbeat' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.peerId && data.peerId !== participantId) {
+        lastHeartbeatMapRef.current.set(data.peerId, Date.now());
+        if (data.userId && data.userId !== 'guest') {
+          lastHeartbeatMapRef.current.set(data.userId, Date.now());
+        }
+      }
+    });
+
+    // Lắng nghe gói tin NAT Keep-Alive P2P
+    channel.on('broadcast', { event: 'p2p-keepalive' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      const fromId = data?.fromPeerId || data?.peerId;
+      if (fromId && fromId !== participantId) {
+        lastHeartbeatMapRef.current.set(fromId, Date.now());
+      }
     });
 
     // Lắng nghe tín hiệu chào phòng và đồng bộ danh sách thành viên hai chiều tức thì
     channel.on('broadcast', { event: 'peer-announce' }, (payload: any) => {
       const data = payload?.payload || payload;
       if (data?.peerId && data.peerId !== participantId) {
+        lastHeartbeatMapRef.current.set(data.peerId, Date.now());
+        if (data.userId && data.userId !== 'guest') {
+          lastHeartbeatMapRef.current.set(data.userId, Date.now());
+        }
         setPresenceUsers((prev) => {
           const updated = {
             ...prev,
@@ -1414,6 +1451,86 @@ export const StudyRoomView: React.FC = () => {
       // Ignored
     }
   }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled, isHandRaised]);
+
+  // Chu kỳ Heartbeat (15s) và Quét dọn Zombie Sessions (> 90s) bảo vệ mạng Mobile/4G/Wi-Fi
+  useEffect(() => {
+    if (!hasJoined) return;
+
+    // Heartbeat khởi động ban đầu
+    studyRoomService.heartbeatParticipant(roomId, participantId);
+
+    const heartbeatInterval = setInterval(() => {
+      // 1. Cập nhật heartbeat cục bộ trong studyRoomService
+      studyRoomService.heartbeatParticipant(roomId, participantId);
+
+      // 2. Phát sóng Heartbeat tới tất cả các bạn học qua Realtime Broadcast
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'peer-heartbeat',
+          payload: {
+            peerId: participantId,
+            userId: user?.id,
+            timestamp: Date.now()
+          }
+        });
+
+        // 3. Giữ track Supabase presence luôn tươi mới (chống bị server đánh dấu stale)
+        channelRef.current.track({
+          userId: user?.id,
+          displayName: participantName,
+          role: userRole,
+          isMicOn: micEnabled,
+          isVideoOn: cameraEnabled
+        }).catch(() => {});
+      }
+    }, 15000); // 15 giây gửi 1 lần theo yêu cầu
+
+    // Quét dọn Zombie timeout (tối thiểu 90 giây) định kỳ mỗi 10 giây
+    const zombieSweepInterval = setInterval(() => {
+      const now = Date.now();
+      const ZOMBIE_TIMEOUT_MS = 90000; // Ngưỡng 90 giây tuyệt đối
+
+      // Dọn dẹp trong studyRoomService
+      studyRoomService.cleanupZombieParticipants(roomId, ZOMBIE_TIMEOUT_MS);
+
+      // Dọn dẹp trong state nếu một peer thực sự bặt vô âm tín quá 90s
+      setPresenceUsers((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        Object.keys(next).forEach((pid) => {
+          if (pid === participantId) return;
+          const lastSeen = lastHeartbeatMapRef.current.get(pid);
+          if (lastSeen && now - lastSeen > ZOMBIE_TIMEOUT_MS) {
+            console.warn(`[StudyRoom] Peer ${pid} không có heartbeat quá 90s -> Dọn dẹp khỏi phòng.`);
+            delete next[pid];
+            changed = true;
+            rtcManagerRef.current?.closeConnection(pid);
+          }
+        });
+        return changed ? next : prev;
+      });
+
+      setRemoteStreams((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        Object.keys(next).forEach((pid) => {
+          if (pid === participantId) return;
+          const lastSeen = lastHeartbeatMapRef.current.get(pid);
+          if (lastSeen && now - lastSeen > ZOMBIE_TIMEOUT_MS) {
+            delete next[pid];
+            changed = true;
+          }
+        });
+        return changed ? next : prev;
+      });
+    }, 10000);
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      clearInterval(zombieSweepInterval);
+    };
+  }, [hasJoined, roomId, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled]);
 
   // Request & manage local media stream (camera + mic)
   const initLocalStream = useCallback(async () => {

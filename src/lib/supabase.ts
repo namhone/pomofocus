@@ -57,6 +57,8 @@ export class RealtimeChannel {
   private outboundQueue: Array<{ event: string; payload: any }> = [];
   private lastTrackedJson: string | null = null;
   private trackDebounceTimer: any = null;
+  private reconnectTimer: any = null;
+  private onSubscribedCallback?: (status: string) => void;
   public isSubscribed: boolean = false;
 
   constructor(topic: string, opts?: ChannelConfig) {
@@ -79,6 +81,9 @@ export class RealtimeChannel {
   private initWebSocket(onSubscribed?: (status: string) => void) {
     if (typeof window === 'undefined' || !('WebSocket' in window)) return;
     if (this.socket) return;
+    if (onSubscribed) {
+      this.onSubscribedCallback = onSubscribed;
+    }
 
     try {
       const cleanUrl = SUPABASE_URL.replace(/^http/, 'ws').replace(/\/+$/, '');
@@ -102,7 +107,7 @@ export class RealtimeChannel {
         };
         this.socket?.send(JSON.stringify(joinMsg));
 
-        // Bắt đầu heartbeat giữ kết nối mỗi 25s
+        // Bắt đầu heartbeat giữ kết nối Phoenix mỗi 15s (đảm bảo không bị gateway 4G rớt)
         this.heartbeatTimer = setInterval(() => {
           if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(
@@ -114,7 +119,7 @@ export class RealtimeChannel {
               })
             );
           }
-        }, 25000);
+        }, 15000);
       };
 
       this.socket.onmessage = (event) => {
@@ -225,9 +230,20 @@ export class RealtimeChannel {
 
       this.socket.onclose = () => {
         this.isJoined = false;
+        this.socket = null;
         if (this.heartbeatTimer) {
           clearInterval(this.heartbeatTimer);
           this.heartbeatTimer = null;
+        }
+        // Tự động kết nối lại nếu đang trong trạng thái đã subscribe (Bảo vệ khi điện thoại tắt/bật màn hình)
+        if (this.isSubscribed) {
+          if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+          this.reconnectTimer = setTimeout(() => {
+            if (this.isSubscribed) {
+              console.log('[Supabase Realtime WS] Tự động kết nối lại socket sau ngắt kết nối...');
+              this.initWebSocket(this.onSubscribedCallback);
+            }
+          }, 2000);
         }
       };
     } catch (err) {
@@ -438,6 +454,11 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
 
     if (this.trackDebounceTimer) {
       clearTimeout(this.trackDebounceTimer);
