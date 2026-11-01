@@ -54,9 +54,12 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
   const planConfig = PRICING_PLANS[cycle] || PRICING_PLANS.monthly;
 
-  // 1. Khởi tạo đơn hàng khi mở modal
+  // 1. Khởi tạo đơn hàng khi mở modal & Khóa cuộn trang web bên ngoài (Chống lỗi 2 thanh cuộn)
   useEffect(() => {
     if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
       const initialEmail = user?.email || email;
       const initialOrder = momoService.createOrder(
         initialEmail,
@@ -69,7 +72,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       setTimeLeft(600); // 10:00
       setImgError(false);
 
-      // Gọi backend tạo link online API
+      // Gọi backend tạo mã đơn
       momoService.createOnlinePayment({
         userId: user?.id,
         userEmail: initialEmail,
@@ -80,9 +83,6 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
           setOrder((prev) => prev ? {
             ...prev,
             orderId: res.orderId,
-            qrUrl: res.qrCodeUrl || prev.qrUrl,
-            payUrl: res.payUrl || prev.payUrl,
-            deeplink: res.deeplink || prev.deeplink,
             amount: res.amount || prev.amount,
             memo: res.memo || prev.memo
           } : null);
@@ -94,6 +94,11 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       }).catch((err) => {
         console.warn('Lỗi gọi API create-payment:', err);
       });
+
+      return () => {
+        document.body.style.overflow = originalOverflow || 'unset';
+        if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      };
     }
 
     return () => {
@@ -244,15 +249,19 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     }
   };
 
-  // VietQR thật 100% tới Vietcombank 1066633885 - HO NGOC BAO NAM
-  const realVietQrUrl = order.qrUrl || `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(order.memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
+  // Cấu hình link VietQR chuẩn xác 100% Vietcombank 1066633885 - HO NGOC BAO NAM
+  const bankCode = 'vietcombank';
+  const accountNo = '1066633885';
+  const accountName = 'HO NGOC BAO NAM';
+  const cleanMemo = order.memo.startsWith('POMO_') ? order.memo : `POMO_${order.memo}`;
+  const realVietQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(accountName)}`;
 
   return (
     <div
       data-testid="momo-payment-modal"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
     >
-      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl p-6 my-auto max-h-[90vh] overflow-y-auto selection:bg-white selection:text-black">
+      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl p-6 my-auto selection:bg-white selection:text-black">
         {/* Nút đóng */}
         <button
           type="button"
@@ -354,7 +363,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
               {/* Nút bấm trên thiết bị di động */}
               <a
-                href={order.deeplink || realVietQrUrl}
+                href={realVietQrUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full max-w-xs py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
@@ -389,7 +398,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-zinc-400">Số tiền thanh toán:</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-base font-extrabold text-white">
+                    <span className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                       {formatCurrency(order.amount)}
                     </span>
                     <button
@@ -442,13 +451,13 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 </div>
 
                 <div>
-                  <span className="text-zinc-500 block text-[11px] mb-1">Nội dung chuyển khoản (Bắt buộc):</span>
+                  <span className="text-zinc-400 block text-[11px] mb-1">Nội dung chuyển khoản (Bắt buộc):</span>
                   <div className="flex items-center justify-between gap-1 bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-white text-xs">
-                    <span className="truncate font-semibold text-amber-300">{order.memo}</span>
+                    <span className="truncate font-semibold text-emerald-300 text-sm tracking-wide">{cleanMemo}</span>
                     <button
                       type="button"
                       data-testid="btn-copy-momo-memo"
-                      onClick={() => handleCopy(order.memo, 'memo')}
+                      onClick={() => handleCopy(cleanMemo, 'memo')}
                       className="p-1 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
                       title="Sao chép nội dung chuyển khoản"
                     >

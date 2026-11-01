@@ -1,7 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
-  DEFAULT_MOMO_CONFIG,
-  buildCreatePaymentSignature,
   callSupabaseActivatePro,
   savePendingOrder
 } from './_utils.js';
@@ -66,15 +64,16 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    const orderId = `POMO_${Date.now()}_${userId.slice(0, 6)}`;
-    const requestId = `REQ_${Date.now()}_${Math.floor(100 + Math.random() * 900)}`;
+    const shortCode = Math.floor(100000 + Math.random() * 900000);
+    const orderId = `POMO_${shortCode}`;
+    const memo = `POMO_${shortCode}`;
 
     // Nếu mã giảm giá 100% (Coupon miễn phí) -> Tự động kích hoạt PRO trực tiếp không cần cổng MoMo
     if (is100PercentFree || finalPrice <= 0) {
       if (userId && userId !== 'guest_user') {
         await callSupabaseActivatePro({
           userId,
-          orderId,
+          orderId: `POMO_${orderId}`,
           amount: 0,
           planType: planId,
           durationDays
@@ -96,84 +95,17 @@ export default async function handler(req: any, res: any) {
     if (userId && userId !== 'guest_user') {
       await savePendingOrder({
         userId,
-        orderId,
+        orderId: `POMO_${orderId}`,
         amount: finalPrice,
         planType: planId
       });
     }
 
-    // Chuẩn bị dữ liệu gửi sang MoMo API v2
-    const config = DEFAULT_MOMO_CONFIG;
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'pomodoro-workspace-three.vercel.app';
-    const baseUrl = `${protocol}://${host}`;
-
-    const redirectUrl = returnUrl || `${baseUrl}/billing?orderId=${orderId}`;
-    const ipnUrl = `${baseUrl}/api/momo/ipn`;
-    const orderInfo = `PomoFocus PRO ${planTitle} - ${orderId}`;
-    const extraData = Buffer.from(
-      JSON.stringify({ userId, planType: planId, durationDays, userEmail })
-    ).toString('base64');
-    const requestType = 'captureWallet';
-
-    const signature = buildCreatePaymentSignature({
-      accessKey: config.accessKey,
-      amount: finalPrice,
-      extraData,
-      ipnUrl,
-      orderId,
-      orderInfo,
-      partnerCode: config.partnerCode,
-      redirectUrl,
-      requestId,
-      requestType,
-      secretKey: config.secretKey
-    });
-
-    const momoPayload = {
-      partnerCode: config.partnerCode,
-      partnerName: 'PomoFocus Meet',
-      storeId: 'PomoFocusStore',
-      requestId,
-      amount: finalPrice,
-      orderId,
-      orderInfo,
-      redirectUrl,
-      ipnUrl,
-      lang: 'vi',
-      extraData,
-      requestType,
-      signature
-    };
-
-    // Gọi MoMo Gateway
-    try {
-      const momoRes = await fetch(config.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(momoPayload)
-      });
-
-      const momoData = await momoRes.json();
-
-      if (momoData.resultCode === 0 && (momoData.payUrl || momoData.qrCodeUrl)) {
-        return res.status(200).json({
-          success: true,
-          orderId,
-          amount: finalPrice,
-          payUrl: momoData.payUrl,
-          qrCodeUrl: momoData.qrCodeUrl || momoData.payUrl,
-          deeplink: momoData.deeplink || momoData.payUrl,
-          isSandbox: false
-        });
-      }
-    } catch (momoErr) {
-      console.warn('MoMo Gateway API error, fallback to VietQR/Sandbox:', momoErr);
-    }
-
-    // Mã VietQR chuẩn ngân hàng Vietcombank tài khoản thực của chủ sở hữu
-    const memo = `POMO_${orderId}`;
-    const vcbQrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`;
+    // Mã VietQR chuẩn ngân hàng Vietcombank 1066633885 - HO NGOC BAO NAM (Tuyệt đối không dùng MB Bank)
+    const bankCode = 'vietcombank';
+    const accountNo = '1066633885';
+    const accountName = 'HO NGOC BAO NAM';
+    const vcbQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(accountName)}`;
 
     return res.status(200).json({
       success: true,
@@ -183,14 +115,13 @@ export default async function handler(req: any, res: any) {
       durationDays,
       payUrl: vcbQrUrl,
       qrCodeUrl: vcbQrUrl,
-      deeplink: `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`,
+      deeplink: vcbQrUrl,
       memo,
       bankInfo: {
         bankName: 'Vietcombank',
-        accountNumber: '1066633885',
-        accountName: 'HO NGOC BAO NAM'
+        accountNumber: accountNo,
+        accountName
       },
-      isSandbox: true,
       message: 'Khởi tạo mã VietQR Vietcombank thành công'
     });
   } catch (error: any) {

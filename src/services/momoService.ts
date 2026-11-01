@@ -63,7 +63,9 @@ const ORDER_TTL_MS = 15 * 60 * 1000; // 15 phút
 
 export const momoService = {
   getQrImageUrl(amount: number, memo: string): string {
-    return `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
+    const rawCode = memo.replace(/^POMO_/, '');
+    const cleanMemo = `POMO_${rawCode}`;
+    return `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
   },
 
   createOrder(email: string, cycle: 'monthly' | 'yearly' | 'lifetime', userId?: string, authProvider?: string): MoMoOrder {
@@ -81,7 +83,7 @@ export const momoService = {
     const now = Date.now();
     
     // Cú pháp chuyển khoản chuẩn: POMO_[Mã_Đơn]
-    const memo = `POMO_${orderId}`;
+    const memo = `POMO_${shortCode}`;
 
     // Sinh mã VietQR chuyển khoản trực tiếp ngân hàng Vietcombank 1066633885
     const qrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
