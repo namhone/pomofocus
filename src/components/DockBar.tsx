@@ -172,10 +172,10 @@ export const DockBar: React.FC = () => {
         type="button"
         data-testid={testId}
         onClick={() => toggleWidget(id)}
-        className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+        className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
           isOpen
             ? 'bg-white/15 text-white border border-white/10 shadow-sm'
-            : 'text-neutral-300 hover:text-white hover:bg-white/10'
+            : 'text-neutral-300 hover:text-white hover:bg-white/10 hover:border-zinc-700/60'
         }`}
         title={`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}
         aria-label={`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}

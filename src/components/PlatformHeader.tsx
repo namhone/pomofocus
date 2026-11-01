@@ -471,10 +471,10 @@ export const PlatformHeader: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="logout-dialog-title"
-            className="relative max-w-sm w-full rounded-2xl border border-zinc-800 bg-[#121216] p-6 shadow-2xl text-left select-none animate-in zoom-in-95 duration-150"
+            className="relative max-w-sm w-full rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_24px_64px_rgba(0,0,0,0.6)] text-left select-none animate-in zoom-in-95 duration-150"
           >
             <div className="w-11 h-11 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
-              <LogOut size={20} />
+              <LogOut size={20} className="-translate-y-[0.5px]" />
             </div>
 
             <h3 id="logout-dialog-title" className="text-base sm:text-lg font-bold text-white tracking-tight">
@@ -489,7 +489,7 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid="btn-cancel-logout"
                 onClick={() => setIsLogoutModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition active:scale-95 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Hủy
               </button>
@@ -497,9 +497,9 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid="confirm-logout-btn"
                 onClick={handleConfirmLogout}
-                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer shadow-lg shadow-rose-600/30 flex items-center justify-center gap-1.5 min-h-[44px]"
               >
-                <LogOut size={13} />
+                <LogOut size={13} className="-translate-y-[0.5px]" />
                 <span>Đăng xuất</span>
               </button>
             </div>

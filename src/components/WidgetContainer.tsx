@@ -521,7 +521,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 e.stopPropagation();
                 toggleMiniPill('timer');
               }}
-              className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+              className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
               title="Thu nhỏ thành Mini Pill"
               aria-label="Thu nhỏ thành Mini Pill"
             >
@@ -536,7 +536,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               e.stopPropagation();
               toggleCollapseWidget(id);
             }}
-            className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+            className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
             title={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
             aria-label={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
           >
@@ -546,7 +546,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+            className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
             title={`Đóng ${widget.title}`}
             aria-label={`Đóng ${widget.title}`}
           >

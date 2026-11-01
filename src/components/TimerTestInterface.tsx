@@ -146,13 +146,13 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           })}
         </div>
 
-        {/* Timer Display Display Area */}
+        {/* Timer Display Display Area (Specular Highlight + Tabular Figures Không Rung) */}
         <div
-          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-6 px-4 text-center transition-colors ${currentPhaseStyle.bg}`}
+          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-6 px-4 text-center transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg}`}
         >
           <div
             data-testid="timer-display"
-            className="font-mono tabular-nums text-6xl sm:text-7xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)]"
+            className="font-mono tabular-nums text-6xl sm:text-7xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]"
           >
             {formatTime(remainingMs)}
           </div>
@@ -196,16 +196,16 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           </div>
         </div>
 
-        {/* Control Buttons Area */}
+        {/* Control Buttons Area (Snappy Spring Motion + Optical Cap-Height Alignment) */}
         <div className="mt-4 flex w-full items-center justify-center gap-2">
           {status === 'idle' && (
             <button
               data-testid="timer-start-btn"
               onClick={start}
               title="Bắt đầu phiên tập trung"
-              className="flex-1 rounded-xl bg-white p-3 text-sm font-semibold text-neutral-900 shadow-[0_4px_20px_rgba(255,255,255,0.18)] transition hover:bg-neutral-100 active:scale-[0.98] cursor-pointer min-h-[44px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+              className="flex-1 rounded-xl bg-white p-3 text-sm font-semibold text-neutral-900 shadow-[0_4px_20px_rgba(255,255,255,0.18)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-neutral-100 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
-              <Play size={16} fill="currentColor" />
+              <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Bắt đầu</span>
             </button>
           )}
@@ -215,9 +215,9 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="timer-pause-btn"
               onClick={pause}
               title="Tạm dừng phiên tập trung"
-              className="flex-1 rounded-xl bg-amber-400 p-3 text-sm font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(251,191,36,0.25)] transition hover:bg-amber-300 active:scale-[0.98] cursor-pointer min-h-[44px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              className="flex-1 rounded-xl bg-amber-400 p-3 text-sm font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(251,191,36,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-amber-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
             >
-              <Pause size={16} fill="currentColor" />
+              <Pause size={16} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Tạm dừng</span>
             </button>
           )}
@@ -227,9 +227,9 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="timer-resume-btn"
               onClick={resume}
               title="Tiếp tục phiên tập trung"
-              className="flex-1 rounded-xl bg-emerald-400 p-3 text-sm font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(52,211,153,0.25)] transition hover:bg-emerald-300 active:scale-[0.98] cursor-pointer min-h-[44px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="flex-1 rounded-xl bg-emerald-400 p-3 text-sm font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(52,211,153,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
-              <Play size={16} fill="currentColor" />
+              <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Tiếp tục</span>
             </button>
           )}
@@ -238,9 +238,9 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-reset-btn"
             onClick={reset}
             title="Đặt lại về mặc định"
-            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 hover:bg-white/[0.12] hover:text-white active:scale-[0.98] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
-            <RotateCcw size={15} />
+            <RotateCcw size={15} className="-translate-y-[0.5px]" />
             <span className="text-xs">Đặt lại</span>
           </button>
 
@@ -248,9 +248,9 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-skip-btn"
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp"
-            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 hover:bg-white/[0.12] hover:text-white active:scale-[0.98] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="rounded-xl border border-white/10 bg-white/[0.05] p-3 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
-            <FastForward size={15} />
+            <FastForward size={15} className="-translate-y-[0.5px]" />
             <span className="text-xs">Skip</span>
           </button>
         </div>

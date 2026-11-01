@@ -364,7 +364,7 @@ export const DedicatedCalendarView: React.FC = () => {
                             <div
                               key={blk.id}
                               onClick={(e) => e.stopPropagation()}
-                              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ${
+                              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ${
                                 blk.completed
                                   ? 'bg-neutral-800/80 border-white/5 text-neutral-500 line-through'
                                   : 'bg-emerald-950/70 border-emerald-500/30 text-emerald-200'
@@ -374,7 +374,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleToggleBlock(blk.id, blk.completed)}
-                                  className="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
+                                  className="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition-all duration-150 active:scale-[0.97] cursor-pointer"
                                   title={blk.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
                                 >
                                   {blk.completed ? <CheckCircle2 size={15} /> : <Circle size={15} />}
@@ -385,7 +385,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 type="button"
                                 data-testid="btn-delete-schedule"
                                 onClick={() => handleDeleteBlock(blk.id)}
-                                className="min-w-[32px] min-h-[32px] flex items-center justify-center p-1 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer shrink-0"
+                                className="hit-slop-48 min-w-[32px] min-h-[32px] flex items-center justify-center p-1 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-[0.97] cursor-pointer shrink-0"
                                 title="Xóa lịch học này"
                               >
                                 <X size={14} />

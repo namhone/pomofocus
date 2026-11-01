@@ -356,7 +356,7 @@ export const StudyRoomLobby: React.FC = () => {
                   className={`p-5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
                     isFull
                       ? 'bg-zinc-900/40 border-rose-500/30 opacity-80'
-                      : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700/80 hover:bg-zinc-900/90 shadow-md'
+                      : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700/80 hover:bg-zinc-900/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.35)]'
                   }`}
                 >
                   <div>
@@ -412,9 +412,9 @@ export const StudyRoomLobby: React.FC = () => {
                         type="button"
                         data-testid={`btn-join-${pod.roomId}`}
                         onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
-                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 shadow active:scale-[0.98]"
+                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow"
                       >
-                        <LogIn size={14} />
+                        <LogIn size={14} className="-translate-y-[0.5px]" />
                         <span>Vào Học (1 Chạm)</span>
                       </button>
                     )}

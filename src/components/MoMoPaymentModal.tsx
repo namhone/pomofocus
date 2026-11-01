@@ -261,13 +261,13 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       data-testid="momo-payment-modal"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
     >
-      <div className="relative w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/95 backdrop-blur-xl text-zinc-100 shadow-2xl p-5 sm:p-6 my-auto max-h-[88vh] overflow-y-auto selection:bg-white selection:text-black">
-        {/* Nút đóng */}
+      <div className="relative w-full max-w-md rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_24px_64px_rgba(0,0,0,0.6)] p-5 sm:p-6 my-auto max-h-[88vh] overflow-y-auto selection:bg-white selection:text-black">
+        {/* Nút đóng (Hit slop >= 48px + Snappy spring) */}
         <button
           type="button"
           data-testid="btn-close-payment-modal"
           onClick={onClose}
-          className="absolute top-3 right-3 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition cursor-pointer"
+          className="hit-slop-48 absolute top-3.5 right-3.5 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer"
         >
           <X size={18} />
         </button>
