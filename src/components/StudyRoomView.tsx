@@ -679,8 +679,8 @@ export const StudyRoomView: React.FC = () => {
       // 1. Trùng session participantId cục bộ
       if (p.id === participantId) return true;
 
-      // 2. Trùng userId tài khoản đăng nhập hiện tại
-      if (user?.id) {
+      // 2. Trùng userId tài khoản đăng nhập hiện tại (chỉ áp dụng khi user thật đã đăng nhập, không dùng cho guest)
+      if (user?.id && user.id !== 'guest') {
         if (p.userId === user.id) return true;
         if (p.id === user.id) return true;
         if (p.id?.startsWith(`${user.id}_`)) return true;
@@ -689,7 +689,7 @@ export const StudyRoomView: React.FC = () => {
       // 3. Trùng vai trò Host của chính bản thân khi là Host
       if (userRole === 'host') {
         if (p.role === 'host') return true;
-        if (room?.hostUserId && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
+        if (room?.hostUserId && room.hostUserId !== 'system_study_pod' && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
           return true;
         }
       }
@@ -700,10 +700,30 @@ export const StudyRoomView: React.FC = () => {
     // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId hoặc session prefix)
     const findExistingKey = (candidate: { id: string; userId?: string; name?: string }) => {
       for (const [k, v] of map.entries()) {
-        if (candidate.userId && v.userId && candidate.userId === v.userId) return k;
-        if (candidate.id === v.id) return k;
-        if (candidate.userId && (v.id === candidate.userId || v.id.startsWith(`${candidate.userId}_`))) return k;
-        if (v.userId && (candidate.id === v.userId || candidate.id.startsWith(`${v.userId}_`))) return k;
+        if (candidate.id === v.id || candidate.id === k) return k;
+        if (
+          candidate.userId &&
+          candidate.userId !== 'guest' &&
+          v.userId &&
+          v.userId !== 'guest' &&
+          candidate.userId === v.userId
+        ) {
+          return k;
+        }
+        if (
+          candidate.userId &&
+          candidate.userId !== 'guest' &&
+          (v.id === candidate.userId || v.id.startsWith(`${candidate.userId}_`))
+        ) {
+          return k;
+        }
+        if (
+          v.userId &&
+          v.userId !== 'guest' &&
+          (candidate.id === v.userId || candidate.id.startsWith(`${v.userId}_`))
+        ) {
+          return k;
+        }
       }
       return null;
     };
@@ -1183,7 +1203,7 @@ export const StudyRoomView: React.FC = () => {
             ...prev,
             [data.peerId]: {
               id: data.peerId,
-              userId: data.userId || data.peerId,
+              userId: data.userId,
               name: data.displayName || `Bạn học #${data.peerId.slice(0, 5)}`,
               role: data.role || 'member',
               isMicOn: data.isMicOn,
@@ -1201,7 +1221,7 @@ export const StudyRoomView: React.FC = () => {
             event: 'peer-announce',
             payload: {
               peerId: participantId,
-              userId: user?.id || participantId,
+              userId: user?.id,
               displayName: participantName,
               role: userRole,
               isMicOn: micEnabled,
@@ -1324,7 +1344,7 @@ export const StudyRoomView: React.FC = () => {
       if (status === 'SUBSCRIBED') {
         try {
           await channel.track({
-            userId: user?.id || participantId,
+            userId: user?.id,
             displayName: participantName,
             role: userRole,
             isMicOn: micEnabled,
@@ -1339,7 +1359,7 @@ export const StudyRoomView: React.FC = () => {
           event: 'peer-announce',
           payload: {
             peerId: participantId,
-            userId: user?.id || participantId,
+            userId: user?.id,
             displayName: participantName,
             role: userRole,
             isMicOn: micEnabled,
@@ -1372,7 +1392,7 @@ export const StudyRoomView: React.FC = () => {
     if (!hasJoined || !channelRef.current) return;
 
     channelRef.current.track({
-      userId: user?.id || participantId,
+      userId: user?.id,
       displayName: participantName,
       role: userRole,
       isMicOn: micEnabled,
