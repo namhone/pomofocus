@@ -1157,6 +1157,66 @@ export const StudyRoomView: React.FC = () => {
       });
     });
 
+    // Lắng nghe tín hiệu chào phòng và đồng bộ danh sách thành viên hai chiều tức thì
+    channel.on('broadcast', { event: 'peer-announce' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.peerId && data.peerId !== participantId) {
+        setPresenceUsers((prev) => {
+          const updated = {
+            ...prev,
+            [data.peerId]: {
+              id: data.peerId,
+              userId: data.userId || data.peerId,
+              name: data.displayName || `Bạn học #${data.peerId.slice(0, 5)}`,
+              role: data.role || 'member',
+              isMicOn: data.isMicOn,
+              isVideoOn: data.isVideoOn
+            }
+          };
+          const allActive = Object.keys(updated).filter((k) => k !== participantId);
+          manager.syncMeshPeers(allActive);
+          return updated;
+        });
+
+        if (data.isGreeting) {
+          channel.send({
+            type: 'broadcast',
+            event: 'peer-announce',
+            payload: {
+              peerId: participantId,
+              userId: user?.id || participantId,
+              displayName: participantName,
+              role: userRole,
+              isMicOn: micEnabled,
+              isVideoOn: cameraEnabled,
+              isGreeting: false
+            }
+          });
+        }
+      }
+    });
+
+    // Lắng nghe tín hiệu chủ động rời phòng từ thành viên khác
+    channel.on('broadcast', { event: 'peer-left' }, (payload: any) => {
+      const data = payload?.payload || payload;
+      const peerId = data?.peerId;
+      if (peerId && peerId !== participantId) {
+        manager.closeConnection(peerId);
+        setPresenceUsers((prev) => {
+          if (!prev[peerId]) return prev;
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+        setRemoteStreams((prev) => {
+          if (!prev[peerId]) return prev;
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+      }
+    });
+
     // Lắng nghe tin nhắn phòng học thời gian thực
     channel.on('broadcast', { event: 'chat-message' }, (payload: any) => {
       const msg = payload?.payload || payload;
@@ -1226,13 +1286,34 @@ export const StudyRoomView: React.FC = () => {
       handleAdminActionReceived(data);
     });
 
-    channel.subscribe();
-    channel.track({
-      userId: user?.id || participantId,
-      displayName: participantName,
-      role: userRole,
-      isMicOn: micEnabled,
-      isVideoOn: cameraEnabled
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        try {
+          await channel.track({
+            userId: user?.id || participantId,
+            displayName: participantName,
+            role: userRole,
+            isMicOn: micEnabled,
+            isVideoOn: cameraEnabled
+          });
+        } catch {
+          // ignore track error
+        }
+
+        channel.send({
+          type: 'broadcast',
+          event: 'peer-announce',
+          payload: {
+            peerId: participantId,
+            userId: user?.id || participantId,
+            displayName: participantName,
+            role: userRole,
+            isMicOn: micEnabled,
+            isVideoOn: cameraEnabled,
+            isGreeting: true
+          }
+        });
+      }
     });
 
     // Dự phòng bắt tay WebRTC với các thành viên trong room.participants
@@ -1626,6 +1707,17 @@ export const StudyRoomView: React.FC = () => {
 
   // Rời phòng
   const handleLeaveRoom = () => {
+    if (channelRef.current) {
+      try {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'peer-left',
+          payload: { peerId: participantId }
+        });
+      } catch {
+        // ignore
+      }
+    }
     studyRoomService.leaveParticipant(roomId, participantId);
     router.navigate('/rooms');
   };
