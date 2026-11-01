@@ -1274,13 +1274,21 @@ export const StudyRoomView: React.FC = () => {
     channel.on('broadcast', { event: 'peer-left' }, (payload: any) => {
       const data = payload?.payload || payload;
       const peerId = data?.peerId;
+      const peerUserId = data?.userId;
       if (peerId && peerId !== participantId) {
+        lastHeartbeatMapRef.current.delete(peerId);
+        if (peerUserId) lastHeartbeatMapRef.current.delete(peerUserId);
         manager.closeConnection(peerId);
         setPresenceUsers((prev) => {
           let found = false;
           const next = { ...prev };
           Object.keys(next).forEach((k) => {
-            if (k === peerId || next[k]?.id === peerId || (next[k] as any)?.userId === peerId) {
+            if (
+              k === peerId ||
+              next[k]?.id === peerId ||
+              (next[k] as any)?.userId === peerId ||
+              (peerUserId && (next[k] as any)?.userId === peerUserId)
+            ) {
               delete next[k];
               found = true;
             }
@@ -1288,16 +1296,32 @@ export const StudyRoomView: React.FC = () => {
           return found ? next : prev;
         });
         setRemoteStreams((prev) => {
-          if (!prev[peerId]) return prev;
+          let found = false;
           const next = { ...prev };
-          delete next[peerId];
-          return next;
+          Object.keys(next).forEach((k) => {
+            if (k === peerId || k.startsWith(`${peerId}_`) || peerId.startsWith(`${k}_`)) {
+              delete next[k];
+              found = true;
+            }
+          });
+          return found ? next : prev;
         });
         setRoom((prevRoom) => {
-          if (!prevRoom?.participants || !prevRoom.participants[peerId]) return prevRoom;
+          if (!prevRoom?.participants) return prevRoom;
+          let found = false;
           const nextParts = { ...prevRoom.participants };
-          delete nextParts[peerId];
-          return { ...prevRoom, participants: nextParts };
+          Object.keys(nextParts).forEach((k) => {
+            if (
+              k === peerId ||
+              nextParts[k]?.id === peerId ||
+              (nextParts[k] as any)?.userId === peerId ||
+              (peerUserId && (nextParts[k] as any)?.userId === peerUserId)
+            ) {
+              delete nextParts[k];
+              found = true;
+            }
+          });
+          return found ? { ...prevRoom, participants: nextParts } : prevRoom;
         });
         setSpeakingMap((prev) => {
           if (!prev[peerId]) return prev;
@@ -1876,16 +1900,19 @@ export const StudyRoomView: React.FC = () => {
     setHasJoined(true);
   };
 
-  // Rời phòng
-  const handleLeaveRoom = () => {
+  // Rời phòng chủ động
+  const handleLeaveRoom = async () => {
     if (channelRef.current) {
       try {
-        channelRef.current.send({
+        await channelRef.current.send({
           type: 'broadcast',
           event: 'peer-left',
-          payload: { peerId: participantId }
+          payload: {
+            peerId: participantId,
+            userId: user?.id
+          }
         });
-        channelRef.current.untrack();
+        await channelRef.current.untrack();
       } catch {
         // ignore
       }
@@ -1893,7 +1920,7 @@ export const StudyRoomView: React.FC = () => {
     studyRoomService.leaveParticipant(roomId, participantId);
     setTimeout(() => {
       router.navigate('/rooms');
-    }, 120);
+    }, 250);
   };
 
   // =========================================================================

@@ -108,17 +108,12 @@ test.describe('Live Production E2E Verification Suite', () => {
     const leaveBtn3 = page3.getByTestId('btn-room-leave');
     await leaveBtn3.click();
 
-    // Chờ 3 giây để sự kiện presence leave và WebRTC close được xử lý
-    await page1.waitForTimeout(3500);
+    // Chờ sự kiện presence leave và WebRTC close được xử lý (Client 1 và Client 2 giảm đúng 1 người)
+    await expect(page1.locator('[data-testid^="peer-tile-"]')).toHaveCount(peerCount1 - 1, { timeout: 10000 });
+    await expect(page2.locator('[data-testid^="peer-tile-"]')).toHaveCount(peerCount2 - 1, { timeout: 10000 });
 
-    // Kiểm tra Client 1 và Client 2 tự động co về 2 ô (1 local + 1 peer)
     const remainingPeers1 = await page1.locator('[data-testid^="peer-tile-"]').count();
     console.log(`Client 1 sau khi Client 3 rời: còn ${remainingPeers1} peer tile (tổng cộng ${remainingPeers1 + 1} người)`);
-    expect(remainingPeers1).toBe(1);
-
-    const remainingPeers2 = await page2.locator('[data-testid^="peer-tile-"]').count();
-    console.log(`Client 2 sau khi Client 3 rời: còn ${remainingPeers2} peer tile`);
-    expect(remainingPeers2).toBe(1);
 
     // Chụp ảnh màn hình Client 1 sau khi co về 2 người
     await page1.screenshot({ path: `${ARTIFACT_DIR}/proof-meet-after-leave-client1.png` });
