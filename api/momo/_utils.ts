@@ -100,3 +100,37 @@ export async function callSupabaseActivatePro(params: {
     return { success: false, error: msg };
   }
 }
+
+export async function savePendingOrder(params: {
+  userId: string;
+  orderId: string;
+  amount: number;
+  planType: string;
+}): Promise<void> {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey || !params.userId || params.userId === 'guest_user') return;
+
+  try {
+    await fetch(`${supabaseUrl}/rest/v1/payment_transactions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        order_id: params.orderId,
+        user_id: params.userId,
+        amount: params.amount,
+        plan_type: params.planType,
+        payment_method: 'vcb_vietqr',
+        status: 'pending'
+      })
+    });
+  } catch (err) {
+    console.warn('Không thể lưu pending order lên Supabase:', err);
+  }
+}

@@ -2,7 +2,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   DEFAULT_MOMO_CONFIG,
   buildCreatePaymentSignature,
-  callSupabaseActivatePro
+  callSupabaseActivatePro,
+  savePendingOrder
 } from './_utils.js';
 
 interface RequestBody {
@@ -91,6 +92,16 @@ export default async function handler(req: any, res: any) {
       });
     }
 
+    // Lưu đơn hàng trạng thái pending vào Supabase để đón Webhook Vietcombank
+    if (userId && userId !== 'guest_user') {
+      await savePendingOrder({
+        userId,
+        orderId,
+        amount: finalPrice,
+        planType: planId
+      });
+    }
+
     // Chuẩn bị dữ liệu gửi sang MoMo API v2
     const config = DEFAULT_MOMO_CONFIG;
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -160,9 +171,9 @@ export default async function handler(req: any, res: any) {
       console.warn('MoMo Gateway API error, fallback to VietQR/Sandbox:', momoErr);
     }
 
-    // Fallback Sandbox / VietQR chuẩn khi chưa kết nối MoMo production hoặc chạy môi trường dev
-    const memo = `POMO ${orderId} ${userEmail.split('@')[0]}`;
-    const fallbackQrUrl = `https://api.vietqr.io/image/970422-0704862629-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`;
+    // Mã VietQR chuẩn ngân hàng Vietcombank tài khoản thực của chủ sở hữu
+    const memo = `POMO_${orderId}`;
+    const vcbQrUrl = `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`;
 
     return res.status(200).json({
       success: true,
@@ -170,12 +181,17 @@ export default async function handler(req: any, res: any) {
       amount: finalPrice,
       planId,
       durationDays,
-      payUrl: fallbackQrUrl,
-      qrCodeUrl: fallbackQrUrl,
-      deeplink: `momo://app?action=pay&amount=${finalPrice}&comment=${encodeURIComponent(memo)}`,
+      payUrl: vcbQrUrl,
+      qrCodeUrl: vcbQrUrl,
+      deeplink: `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`,
       memo,
+      bankInfo: {
+        bankName: 'Vietcombank',
+        accountNumber: '106663385',
+        accountName: 'HO NGOC BAO NAM'
+      },
       isSandbox: true,
-      message: 'Khởi tạo đơn hàng thành công (Chế độ Sandbox/VietQR MoMo Ready)'
+      message: 'Khởi tạo mã VietQR Vietcombank thành công'
     });
   } catch (error: any) {
     console.error('Lỗi khởi tạo thanh toán MoMo:', error);

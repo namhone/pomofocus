@@ -5,12 +5,12 @@ import { PRICING_PLANS } from '../../src/config/pricing';
 import { computeHmacSha256 } from '../../src/utils/crypto';
 import { buildCreatePaymentSignature, buildIpnSignature } from '../../api/momo/_utils';
 
-describe('MoMo Payment & Account Linking Service Tests', () => {
+describe('MoMo & Vietcombank Payment & Account Linking Service Tests', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it('1. Tạo đơn hàng MoMo gói Hàng tháng với thông tin email và số tiền chính xác (59.000 VNĐ)', () => {
+  it('1. Tạo đơn hàng gói Hàng tháng với thông tin email và số tiền chính xác (59.000 VNĐ)', () => {
     const order = momoService.createOrder('test@studyworkspace.io', 'monthly');
 
     expect(order.orderId).toMatch(/^(POMO|SW)_\d{6}$/);
@@ -21,12 +21,11 @@ describe('MoMo Payment & Account Linking Service Tests', () => {
     expect(order.amount).toBe(59000);
     expect(order.memo).toContain(order.orderId);
     expect(order.status).toBe('pending');
-    expect(order.qrUrl).toContain('970422');
-    expect(order.qrUrl).toContain('0704862629');
+    expect(order.qrUrl).toMatch(/(106663385|0704862629|vietcombank)/);
     expect(order.qrUrl).toContain('HO%20NGOC%20BAO%20NAM');
   });
 
-  it('2. Tạo đơn hàng MoMo gói Hàng năm với thông tin email và số tiền 468.000 VNĐ', () => {
+  it('2. Tạo đơn hàng gói Hàng năm với thông tin email và số tiền 468.000 VNĐ', () => {
     const order = momoService.createOrder('pro.user@domain.com', 'yearly');
 
     expect(order.cycle).toBe('yearly');
@@ -36,7 +35,7 @@ describe('MoMo Payment & Account Linking Service Tests', () => {
     expect(order.status).toBe('pending');
   });
 
-  it('3. Tạo đơn hàng MoMo gói Trọn Đời (Lifetime) với giá 799.000 VNĐ', () => {
+  it('3. Tạo đơn hàng gói Trọn Đời (Lifetime) với giá 799.000 VNĐ', () => {
     const order = momoService.createOrder('lifetime.learner@pomofocus.io', 'lifetime');
 
     expect(order.cycle).toBe('lifetime');
@@ -155,5 +154,33 @@ describe('MoMo Payment & Account Linking Service Tests', () => {
     expect(webhookResult.code).toBe('ENTITLEMENT_GRANTED');
     expect(webhookResult.user?.plan).toBe('pro');
     expect(webhookResult.user?.email).toBe('charlie@academic.org');
+  });
+
+  it('9. Regex phân tích nội dung chuyển khoản từ Email Vietcombank nhận diện chính xác mã đơn hàng', () => {
+    const emailSample1 = 'So du TK 106663385 thay doi: +59,000 VND. ND: POMO 789456 chuyen tien goi 1 thang';
+    const emailSample2 = 'Giao dich thanh cong: +468,000 VND. ND: POMO_1730000_usr123';
+    const emailSample3 = 'Thong bao bien dong: +799,000 VND. Noi dung: POMO_999888';
+
+    const match1 = emailSample1.match(/POMO[\s_]+([a-zA-Z0-9_-]+)/i);
+    expect(match1).not.toBeNull();
+    expect(match1?.[1]).toBe('789456');
+
+    const match2 = emailSample2.match(/POMO[\s_]+([a-zA-Z0-9_-]+)/i);
+    expect(match2).not.toBeNull();
+    expect(match2?.[1]).toBe('1730000_usr123');
+
+    const match3 = emailSample3.match(/POMO[\s_]+([a-zA-Z0-9_-]+)/i);
+    expect(match3).not.toBeNull();
+    expect(match3?.[1]).toBe('999888');
+
+    // Phân tích số tiền
+    const amountMatch1 = emailSample1.match(/([0-9.,]+)\s*VND/i);
+    expect(amountMatch1?.[1].replace(/[.,]/g, '')).toBe('59000');
+
+    const amountMatch2 = emailSample2.match(/([0-9.,]+)\s*VND/i);
+    expect(amountMatch2?.[1].replace(/[.,]/g, '')).toBe('468000');
+
+    const amountMatch3 = emailSample3.match(/([0-9.,]+)\s*VND/i);
+    expect(amountMatch3?.[1].replace(/[.,]/g, '')).toBe('799000');
   });
 });

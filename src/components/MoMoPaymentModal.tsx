@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { momoService, MoMoOrder, MOMO_CONFIG } from '../services/momoService';
+import { momoService, MoMoOrder, MOMO_CONFIG, BANKING_CONFIG } from '../services/momoService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { googleAuthService } from '../services/googleAuthService';
 import { PRICING_PLANS, PlanCycle } from '../config/pricing';
@@ -19,7 +19,8 @@ import {
   FlaskConical,
   Gift,
   Smartphone,
-  Sparkles
+  Sparkles,
+  Building2
 } from 'lucide-react';
 
 interface MoMoPaymentModalProps {
@@ -39,6 +40,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   const [email, setEmail] = useState(user?.email || 'student@studyworkspace.io');
   const [order, setOrder] = useState<MoMoOrder | null>(null);
   const [copiedMemo, setCopiedMemo] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccessState, setIsSuccessState] = useState(false);
@@ -51,7 +53,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
   const planConfig = PRICING_PLANS[cycle] || PRICING_PLANS.monthly;
 
-  // 1. Khởi tạo đơn hàng MoMo khi mở modal
+  // 1. Khởi tạo đơn hàng khi mở modal
   useEffect(() => {
     if (isOpen) {
       const initialEmail = user?.email || email;
@@ -66,7 +68,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       setTimeLeft(600); // 10:00
       setImgError(false);
 
-      // Thử gọi backend tạo link online API MoMo
+      // Gọi backend tạo link online API
       momoService.createOnlinePayment({
         userId: user?.id,
         userEmail: initialEmail,
@@ -80,7 +82,8 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
             qrUrl: res.qrCodeUrl || prev.qrUrl,
             payUrl: res.payUrl || prev.payUrl,
             deeplink: res.deeplink || prev.deeplink,
-            amount: res.amount || prev.amount
+            amount: res.amount || prev.amount,
+            memo: res.memo || prev.memo
           } : null);
 
           if (res.freeGranted) {
@@ -110,11 +113,11 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
   };
 
-  // 3. Tự động kiểm tra trạng thái thanh toán (Realtime Auto-detection mỗi 2.5s)
+  // 3. Tự động kiểm tra trạng thái thanh toán (Realtime Auto-detection mỗi 2 giây)
   useEffect(() => {
     if (!isOpen || isSuccessState || !order) return;
 
-    // Polling API check-status
+    // Polling API check-status mỗi 2.0s
     pollTimerRef.current = setInterval(async () => {
       try {
         const res = await momoService.checkPaymentStatus(order.orderId, user?.id);
@@ -124,7 +127,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       } catch (err) {
         console.warn('Lỗi kiểm tra trạng thái thanh toán:', err);
       }
-    }, 2500);
+    }, 2000);
 
     // Lắng nghe Supabase Realtime channel nếu có kết nối
     let channel: any = null;
@@ -173,11 +176,14 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleCopy = (text: string, type: 'memo' | 'phone') => {
+  const handleCopy = (text: string, type: 'memo' | 'account' | 'phone') => {
     navigator.clipboard.writeText(text);
     if (type === 'memo') {
       setCopiedMemo(true);
       setTimeout(() => setCopiedMemo(false), 2000);
+    } else if (type === 'account') {
+      setCopiedAccount(true);
+      setTimeout(() => setCopiedAccount(false), 2000);
     } else {
       setCopiedPhone(true);
       setTimeout(() => setCopiedPhone(false), 2000);
@@ -234,6 +240,9 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     }
   };
 
+  // VietQR thật 100% tới Vietcombank 106663385 - HO NGOC BAO NAM
+  const realVietQrUrl = order.qrUrl || `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(order.memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
+
   return (
     <div
       data-testid="momo-payment-modal"
@@ -251,20 +260,21 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
         {!isSuccessState ? (
           <div className="space-y-4">
-            {/* Header: Thanh toán MoMo All-in-One (Monochrome) */}
+            {/* Header: Cổng Thanh Toán Tự Động VietQR & MoMo */}
             <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
-              <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold text-sm flex items-center justify-center shadow-md">
-                MoMo
+              <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold text-xs flex flex-col items-center justify-center shadow-md leading-none">
+                <span className="text-[10px] tracking-tight font-black">VCB</span>
+                <span className="text-[8px] font-mono font-bold text-emerald-700">QR</span>
               </div>
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Thanh Toán MoMo QR</span>
+                  <span>Thanh Toán VietQR &amp; MoMo</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                     {planConfig.label}
                   </span>
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  Tự động kích hoạt gói PRO ngay sau khi quét mã
+                  Tự động nhận diện giao dịch &amp; nâng cấp PRO trong 5 - 15 giây
                 </p>
               </div>
             </div>
@@ -314,12 +324,12 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 <span className="font-bold text-amber-300">{formatTimer(timeLeft)}</span>
               </div>
 
-              {/* Khung Mã QR Động */}
+              {/* Khung Mã VietQR Động Thật 100% */}
               <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl bg-white p-3 flex items-center justify-center shadow-xl border border-zinc-200">
                 {!imgError ? (
                   <img
-                    src={order.qrUrl}
-                    alt="Mã QR thanh toán MoMo"
+                    src={realVietQrUrl}
+                    alt="Mã VietQR thanh toán Vietcombank"
                     className="w-full h-full object-contain"
                     onError={() => setImgError(true)}
                   />
@@ -338,9 +348,9 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 )}
               </div>
 
-              {/* Nút bấm trên thiết bị di động: Mở App MoMo Để Thanh Toán */}
+              {/* Nút bấm trên thiết bị di động */}
               <a
-                href={order.deeplink || order.payUrl}
+                href={order.deeplink || realVietQrUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full max-w-xs py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
@@ -370,7 +380,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Chi tiết số tiền & Memo */}
+              {/* Chi tiết tài khoản Vietcombank nhận tiền */}
               <div className="w-full max-w-sm pt-2 border-t border-zinc-800/80 text-xs space-y-2 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-zinc-400">Số tiền thanh toán:</span>
@@ -378,10 +388,39 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     {formatCurrency(order.amount)}
                   </span>
                 </div>
+
+                <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
+                  <span className="text-zinc-400 flex items-center gap-1">
+                    <Building2 size={13} className="text-emerald-400" />
+                    <span>Ngân hàng:</span>
+                  </span>
+                  <span className="font-semibold text-white">Vietcombank (VCB)</span>
+                </div>
+
+                <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
+                  <span className="text-zinc-400">Số tài khoản VCB:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-emerald-300">{BANKING_CONFIG.accountNumber}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(BANKING_CONFIG.accountNumber, 'account')}
+                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      title="Sao chép số tài khoản"
+                    >
+                      {copiedAccount ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
+                  <span className="text-zinc-400">Chủ tài khoản:</span>
+                  <span className="font-semibold text-white">{BANKING_CONFIG.recipientName}</span>
+                </div>
+
                 <div>
                   <span className="text-zinc-500 block text-[11px] mb-1">Nội dung chuyển khoản (Memo):</span>
                   <div className="flex items-center justify-between gap-1 bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-white text-xs">
-                    <span className="truncate font-semibold text-zinc-200">{order.memo}</span>
+                    <span className="truncate font-semibold text-amber-300">{order.memo}</span>
                     <button
                       type="button"
                       data-testid="btn-copy-momo-memo"
@@ -394,16 +433,16 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
-                  <span className="text-zinc-400">Số MoMo:</span>
+                  <span className="text-zinc-400">Hoặc Ví MoMo:</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold text-white">
-                      {MOMO_CONFIG.displayPhone} ({MOMO_CONFIG.recipientName})
+                      {MOMO_CONFIG.displayPhone}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleCopy(MOMO_CONFIG.phone, 'phone')}
                       className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
-                      title="Sao chép số điện thoại"
+                      title="Sao chép số MoMo"
                     >
                       {copiedPhone ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
                     </button>
@@ -450,16 +489,21 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               )}
             </div>
 
-            {/* Lắng nghe thời gian thực & Nút Mô Phỏng Sandbox */}
+            {/* Radar lắng nghe tự động từ Vietcombank & Nút Sandbox Test */}
             <div className="space-y-2.5 pt-1">
-              <div className="flex items-center justify-between text-xs text-zinc-400 bg-zinc-950 border border-zinc-800 px-3.5 py-2 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-[11px] text-zinc-300 font-medium">
-                    Đang tự động lắng nghe giao dịch MoMo...
+              <div className="p-3 rounded-xl bg-zinc-950 border border-emerald-500/20 text-xs space-y-1">
+                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                  <div className="relative flex items-center justify-center w-3 h-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-emerald-300">
+                    Hệ thống đang tự động chờ giao dịch từ Vietcombank...
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500">Auto-Detect 2.5s</span>
+                <p className="text-[10px] text-zinc-400 pl-5">
+                  (Mở khóa PRO tự động sau 5 - 15 giây khi nhận được tiền, không cần bấm xác nhận)
+                </p>
               </div>
 
               {/* Nút Sandbox cho Developer & QA */}

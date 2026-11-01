@@ -35,8 +35,8 @@ DECLARE
     v_expires_at TIMESTAMPTZ;
     v_current_expires TIMESTAMPTZ;
 BEGIN
-    -- Kiểm tra idempotency: Nếu order_id đã xử lý rồi thì bỏ qua ngay!
-    IF EXISTS (SELECT 1 FROM public.payment_transactions WHERE order_id = p_order_id) THEN
+    -- Kiểm tra idempotency: Nếu order_id đã xử lý completed rồi thì bỏ qua ngay!
+    IF EXISTS (SELECT 1 FROM public.payment_transactions WHERE order_id = p_order_id AND status = 'completed') THEN
         RETURN jsonb_build_object(
             'success', true, 
             'message', 'ALREADY_PROCESSED',
@@ -44,9 +44,14 @@ BEGIN
         );
     END IF;
 
-    -- Lưu vết giao dịch
+    -- Lưu vết hoặc cập nhật giao dịch thành completed
     INSERT INTO public.payment_transactions (order_id, user_id, amount, plan_type, status)
-    VALUES (p_order_id, p_user_id, p_amount, p_plan_type, 'completed');
+    VALUES (p_order_id, p_user_id, p_amount, p_plan_type, 'completed')
+    ON CONFLICT (order_id)
+    DO UPDATE SET 
+        status = 'completed',
+        amount = p_amount,
+        plan_type = p_plan_type;
 
     -- Tính toán thời hạn PRO
     IF p_duration_days IS NULL THEN

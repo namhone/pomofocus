@@ -41,6 +41,15 @@ export interface MoMoWebhookPayload {
   accessKey?: string;
 }
 
+export const BANKING_CONFIG = {
+  bankName: 'Vietcombank',
+  bankId: 'vietcombank',
+  accountNumber: '106663385',
+  displayAccountNumber: '106663385',
+  recipientName: 'HỒ NGỌC BẢO NAM',
+  accountNameNoAccent: 'HO NGOC BAO NAM'
+} as const;
+
 export const MOMO_CONFIG = {
   phone: '0704862629',
   displayPhone: '0704 862 629',
@@ -54,7 +63,7 @@ const ORDER_TTL_MS = 15 * 60 * 1000; // 15 phút
 
 export const momoService = {
   getQrImageUrl(amount: number, memo: string): string {
-    return `https://api.vietqr.io/image/970422-${MOMO_CONFIG.phone}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(MOMO_CONFIG.accountNameNoAccent)}`;
+    return `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
   },
 
   createOrder(email: string, cycle: 'monthly' | 'yearly' | 'lifetime', userId?: string, authProvider?: string): MoMoOrder {
@@ -71,11 +80,11 @@ export const momoService = {
     const orderId = `POMO_${shortCode}`;
     const now = Date.now();
     
-    // Cú pháp chuyển khoản chuẩn: POMO [Mã_Đơn] [Email]
-    const memo = `POMO ${orderId} ${cleanEmail.split('@')[0]}`;
+    // Cú pháp chuyển khoản chuẩn: POMO_[Mã_Đơn]
+    const memo = `POMO_${orderId}`;
 
-    // Sinh mã VietQR chuyển khoản ngân hàng / MoMo NAPAS
-    const qrUrl = `https://api.vietqr.io/image/970422-${MOMO_CONFIG.phone}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(MOMO_CONFIG.accountNameNoAccent)}`;
+    // Sinh mã VietQR chuyển khoản trực tiếp ngân hàng Vietcombank 106663385
+    const qrUrl = `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
 
     const order: MoMoOrder = {
       orderId,
@@ -88,7 +97,7 @@ export const momoService = {
       memo,
       qrUrl,
       payUrl: qrUrl,
-      deeplink: `momo://app?action=pay&amount=${amount}&comment=${encodeURIComponent(memo)}`,
+      deeplink: qrUrl,
       status: 'pending',
       createdAt: now,
       expiresAt: now + ORDER_TTL_MS
