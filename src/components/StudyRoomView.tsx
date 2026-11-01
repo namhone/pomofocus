@@ -2154,6 +2154,7 @@ export const StudyRoomView: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <button
               type="button"
+              data-testid="btn-prejoin-back"
               onClick={() => router.navigate('/rooms')}
               className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
             >
@@ -2238,6 +2239,7 @@ export const StudyRoomView: React.FC = () => {
             <div className="absolute bottom-4 flex items-center gap-3">
               <button
                 type="button"
+                data-testid="btn-prejoin-mic"
                 onClick={() => {
                   setMicEnabled(!micEnabled);
                   showBetaP2PNotice();
@@ -2251,6 +2253,7 @@ export const StudyRoomView: React.FC = () => {
               </button>
               <button
                 type="button"
+                data-testid="btn-prejoin-camera"
                 onClick={() => {
                   setCameraEnabled(!cameraEnabled);
                   showBetaP2PNotice();

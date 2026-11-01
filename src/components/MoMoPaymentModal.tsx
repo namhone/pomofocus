@@ -265,6 +265,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
         {/* Nút đóng */}
         <button
           type="button"
+          data-testid="btn-close-payment-modal"
           onClick={onClose}
           className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition cursor-pointer"
         >
@@ -403,6 +404,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     </span>
                     <button
                       type="button"
+                      data-testid="btn-copy-amount"
                       onClick={() => handleCopy(order.amount.toString(), 'amount')}
                       className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
                       title="Sao chép số tiền"
@@ -426,6 +428,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     <span className="font-semibold text-emerald-300 font-mono text-sm tracking-wider">{BANKING_CONFIG.accountNumber}</span>
                     <button
                       type="button"
+                      data-testid="btn-copy-stk"
                       onClick={() => handleCopy(BANKING_CONFIG.accountNumber, 'account')}
                       className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
                       title="Sao chép số tài khoản"
@@ -484,6 +487,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               <div className="flex items-center gap-2">
                 <input
                   type="text"
+                  data-testid="input-coupon-code"
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                   placeholder="Nhập mã coupon (VD: PRO50)..."

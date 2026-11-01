@@ -160,6 +160,7 @@ export const DedicatedCalendarView: React.FC = () => {
           <div className="flex rounded-lg bg-white/5 p-0.5 border border-white/10 text-xs">
             <button
               type="button"
+              data-testid="calendar-view-day"
               onClick={() => setViewMode('day')}
               className={`px-3 py-1 rounded-md transition cursor-pointer ${
                 viewMode === 'day' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
@@ -169,6 +170,7 @@ export const DedicatedCalendarView: React.FC = () => {
             </button>
             <button
               type="button"
+              data-testid="calendar-view-week"
               onClick={() => setViewMode('week')}
               className={`px-3 py-1 rounded-md transition cursor-pointer ${
                 viewMode === 'week' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
@@ -181,6 +183,7 @@ export const DedicatedCalendarView: React.FC = () => {
           <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
             <button
               type="button"
+              data-testid="calendar-prev-btn"
               onClick={handlePrev}
               className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
               title="Kỳ trước"
@@ -189,6 +192,7 @@ export const DedicatedCalendarView: React.FC = () => {
             </button>
             <button
               type="button"
+              data-testid="calendar-today-btn"
               onClick={handleToday}
               className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white hover:bg-white/10 rounded transition cursor-pointer"
             >
@@ -196,6 +200,7 @@ export const DedicatedCalendarView: React.FC = () => {
             </button>
             <button
               type="button"
+              data-testid="calendar-next-btn"
               onClick={handleNext}
               className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
               title="Kỳ sau"
@@ -206,6 +211,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
           <button
             type="button"
+            data-testid="btn-add-schedule"
             onClick={() => {
               setSelectedDateStr(formatDateYMD(new Date()));
               setSelectedHour(new Date().getHours());
@@ -373,6 +379,7 @@ export const DedicatedCalendarView: React.FC = () => {
                               <span>{blk.title}</span>
                               <button
                                 type="button"
+                                data-testid="btn-delete-schedule"
                                 onClick={() => handleDeleteBlock(blk.id)}
                                 className="text-neutral-500 hover:text-rose-400 ml-1"
                               >
@@ -415,6 +422,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 </label>
                 <input
                   type="text"
+                  data-testid="input-schedule-title"
                   required
                   autoFocus
                   value={newTitle}
@@ -479,6 +487,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
+                  data-testid="btn-submit-schedule"
                   className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs transition"
                 >
                   Lưu Khung Giờ
