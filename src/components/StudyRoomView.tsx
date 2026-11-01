@@ -1067,6 +1067,23 @@ export const StudyRoomView: React.FC = () => {
           delete next[peerId];
           return next;
         });
+        setPresenceUsers((prev) => {
+          let found = false;
+          const next = { ...prev };
+          Object.keys(next).forEach((k) => {
+            if (k === peerId || next[k]?.id === peerId || (next[k] as any)?.userId === peerId) {
+              delete next[k];
+              found = true;
+            }
+          });
+          return found ? next : prev;
+        });
+        setRoom((prevRoom) => {
+          if (!prevRoom?.participants || !prevRoom.participants[peerId]) return prevRoom;
+          const nextParts = { ...prevRoom.participants };
+          delete nextParts[peerId];
+          return { ...prevRoom, participants: nextParts };
+        });
         setSpeakingMap((prev) => {
           if (!prev[peerId]) return prev;
           const next = { ...prev };
@@ -1203,12 +1220,29 @@ export const StudyRoomView: React.FC = () => {
       if (peerId && peerId !== participantId) {
         manager.closeConnection(peerId);
         setPresenceUsers((prev) => {
+          let found = false;
+          const next = { ...prev };
+          Object.keys(next).forEach((k) => {
+            if (k === peerId || next[k]?.id === peerId || (next[k] as any)?.userId === peerId) {
+              delete next[k];
+              found = true;
+            }
+          });
+          return found ? next : prev;
+        });
+        setRemoteStreams((prev) => {
           if (!prev[peerId]) return prev;
           const next = { ...prev };
           delete next[peerId];
           return next;
         });
-        setRemoteStreams((prev) => {
+        setRoom((prevRoom) => {
+          if (!prevRoom?.participants || !prevRoom.participants[peerId]) return prevRoom;
+          const nextParts = { ...prevRoom.participants };
+          delete nextParts[peerId];
+          return { ...prevRoom, participants: nextParts };
+        });
+        setSpeakingMap((prev) => {
           if (!prev[peerId]) return prev;
           const next = { ...prev };
           delete next[peerId];
@@ -1714,12 +1748,15 @@ export const StudyRoomView: React.FC = () => {
           event: 'peer-left',
           payload: { peerId: participantId }
         });
+        channelRef.current.untrack();
       } catch {
         // ignore
       }
     }
     studyRoomService.leaveParticipant(roomId, participantId);
-    router.navigate('/rooms');
+    setTimeout(() => {
+      router.navigate('/rooms');
+    }, 120);
   };
 
   // =========================================================================

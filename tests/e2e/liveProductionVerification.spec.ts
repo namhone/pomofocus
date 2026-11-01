@@ -148,6 +148,14 @@ test.describe('Live Production E2E Verification Suite', () => {
     const mediaIframe = page.getByTestId('media-youtube-iframe');
     await expect(mediaIframe).toBeVisible({ timeout: 5000 });
 
+    // Di chuyển Media sang bên phải (x: 880) để có không gian mở song song với Âm thanh
+    const mediaHeader = mediaContainer.locator('[data-drag-handle="true"]');
+    await mediaHeader.hover();
+    await page.mouse.down();
+    await page.mouse.move(920, 160);
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+
     // Chụp ảnh bằng chứng Media mở rộng độc lập
     await page.screenshot({ path: `${ARTIFACT_DIR}/proof-media-expanded.png` });
     console.log('-> Đã lưu ảnh proof-media-expanded.png');
@@ -176,6 +184,10 @@ test.describe('Live Production E2E Verification Suite', () => {
     await page.screenshot({ path: `${ARTIFACT_DIR}/proof-media-pip.png` });
     console.log('-> Đã lưu ảnh proof-media-pip.png');
 
+    // Mở lại to ra trước khi mở thêm Bảng Âm Thanh
+    await collapseBtn.click();
+    await page.waitForTimeout(500);
+
     // 3. Mở song song Bảng Âm Thanh & Chuông và MediaWidget
     const soundsDockBtn = page.getByTestId('dock-btn-sounds');
     await soundsDockBtn.click();
@@ -183,13 +195,17 @@ test.describe('Live Production E2E Verification Suite', () => {
     const soundsContainer = page.getByTestId('widget-container-sounds');
     await expect(soundsContainer).toBeVisible({ timeout: 5000 });
 
+    // Di chuyển Sounds sang vị trí thích hợp (x: 440)
+    const soundsHeader = soundsContainer.locator('[data-drag-handle="true"]');
+    await soundsHeader.hover();
+    await page.mouse.down();
+    await page.mouse.move(440, 120);
+    await page.mouse.up();
+    await page.waitForTimeout(1000);
+
     // Kiểm tra cả 2 widget đều visible và tách rời
     await expect(soundsContainer).toBeVisible();
     await expect(mediaContainer).toBeVisible();
-
-    // Mở lại Media to ra để kiểm tra 2 cửa sổ độc lập
-    await collapseBtn.click();
-    await page.waitForTimeout(1000);
 
     // Chụp ảnh bằng chứng cả Media và Sounds cùng mở độc lập, không che đè
     await page.screenshot({ path: `${ARTIFACT_DIR}/proof-media-and-sounds.png` });
