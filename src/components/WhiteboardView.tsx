@@ -76,7 +76,7 @@ interface WhiteboardViewProps {
   onToggleFullscreen?: () => void;
 }
 
-export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
+export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   roomId,
   currentUserId,
   currentUserName,
@@ -1944,4 +1944,4 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = ({
       )}
     </div>
   );
-};
+});

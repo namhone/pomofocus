@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../db';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 import { useRouter } from '../services/router';
 import { FocusSessionRecord } from '../types/timer';
 import { PlatformHeader } from './PlatformHeader';
@@ -43,8 +44,7 @@ export const DashboardView: React.FC = () => {
 
         if (!isMounted) return;
 
-        const now = new Date();
-        const todayStr = now.toISOString().slice(0, 10);
+        const todayStr = getVietnamTodayDateKey();
         const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
         let totalMinutes = 0;

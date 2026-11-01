@@ -34,8 +34,8 @@ export default async function handler(req: any, res: any) {
     const numAmount = typeof amount === 'string' ? parseInt(amount.replace(/[^\d]/g, ''), 10) : Number(amount);
 
     // 2. Phân tích cú pháp nội dung chuyển khoản bằng Regex
-    // Tìm chuỗi dạng POMO_123456 hoặc POMO 123456 hoặc POMO_1730000_usr123
-    const match = description.match(/POMO[\s_]+([a-zA-Z0-9_-]+)/i);
+    // Hỗ trợ: POMO_123456, POMO 123456, POMO123456, SW_123456 hoặc có chữ kèm theo (VD: POMO_123456 chuyen tien mua pro)
+    const match = description.match(/(?:POMO|SW)[\s_]*(\d{6})/i) || description.match(/(?:POMO|SW)[\s_]*([a-zA-Z0-9_-]+)/i);
     if (!match) {
       console.warn('[VCB Webhook] Bỏ qua: Không tìm thấy cú pháp mã đơn POMO trong nội dung:', description);
       return res.status(400).json({ success: false, error: 'Không tìm thấy mã đơn POMO trong nội dung chuyển khoản' });
@@ -84,6 +84,18 @@ export default async function handler(req: any, res: any) {
           const txList = await orderQuery.json();
           if (Array.isArray(txList) && txList.length > 0) {
             const found = txList[0];
+
+            // IDEMPOTENCY CHECK: Nếu đơn hàng đã hoàn tất trước đó, trả lời 200 ngay và không cộng dồn thời hạn
+            if (found.status === 'completed' || found.status === 'verified_paid') {
+              console.log(`[VCB Webhook] Đơn hàng ${found.order_id} đã được kích hoạt trước đó (Idempotent). Bỏ qua.`);
+              return res.status(200).json({
+                success: true,
+                alreadyProcessed: true,
+                orderId: found.order_id,
+                message: 'Đơn hàng này đã được kích hoạt thành công trước đó (Idempotent response)'
+              });
+            }
+
             resolvedOrderId = found.order_id;
             targetUserId = found.user_id;
             targetPlanType = found.plan_type || targetPlanType;
@@ -103,13 +115,12 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 4. Kiểm tra số tiền nhận được (amount >= order.amount)
-    // Cho phép dung sai nhỏ nếu người dùng trả dư hoặc đúng
-    if (numAmount < expectedAmount * 0.95 && numAmount < 50000) {
-      console.warn(`[VCB Webhook] Số tiền không đủ: Nhận ${numAmount} VNĐ, dự kiến ${expectedAmount} VNĐ`);
+    // 4. Kiểm tra số tiền nhận được: Tuyệt đối KHÔNG kích hoạt nếu chuyển thiếu tiền so với expectedAmount
+    if (numAmount < expectedAmount) {
+      console.warn(`[VCB Webhook] Chuyển thiếu tiền: Nhận ${numAmount} VNĐ, giá trị gói yêu cầu ${expectedAmount} VNĐ`);
       return res.status(400).json({
         success: false,
-        error: `Số tiền thanh toán (${numAmount} VNĐ) nhỏ hơn giá trị gói cước (${expectedAmount} VNĐ).`
+        error: `Số tiền thanh toán (${numAmount.toLocaleString('vi-VN')} VNĐ) nhỏ hơn giá trị gói cước (${expectedAmount.toLocaleString('vi-VN')} VNĐ). Không thể kích hoạt PRO.`
       });
     }
 
@@ -159,6 +170,26 @@ export default async function handler(req: any, res: any) {
         planType: targetPlanType,
         durationDays: targetDurationDays
       });
+      // Cập nhật trạng thái đơn hàng thành completed để bảo đảm tính Idempotent
+      if (supabaseUrl && supabaseKey) {
+        try {
+          await fetch(`${supabaseUrl}/rest/v1/payment_transactions?order_id=eq.${encodeURIComponent(resolvedOrderId)}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              status: 'completed',
+              updated_at: new Date().toISOString()
+            })
+          });
+        } catch (patchErr) {
+          console.warn('[VCB Webhook] Không thể cập nhật trạng thái đơn hàng completed:', patchErr);
+        }
+      }
     }
 
     console.log(`[VCB Webhook] Kích hoạt thành công đơn hàng ${resolvedOrderId}: ${numAmount} VNĐ -> Gói ${targetPlanType}`);

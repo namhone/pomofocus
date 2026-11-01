@@ -7,6 +7,7 @@
 
 import { UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 import { momoService } from './momoService';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 
 export interface RoomParticipant {
   id: string;
@@ -247,10 +248,9 @@ export const studyRoomService = {
     }
   },
 
-  /** Lấy ngày hiện tại YYYY-MM-DD theo giờ địa phương */
+  /** Lấy ngày hiện tại YYYY-MM-DD theo chuẩn múi giờ Việt Nam (GMT+7) để đảm bảo reset đúng 00:00 */
   getTodayDateKey(): string {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return getVietnamTodayDateKey();
   },
 
   /** Số lượng phòng Free đã tạo hôm nay của user (tối đa 3 phòng/ngày) */
@@ -583,8 +583,8 @@ export const studyRoomService = {
       };
     }
 
-    // 3.5. Kiểm tra sức chứa tối đa của phòng (giới hạn cứng tối đa 5 người/phòng Free công khai)
-    const maxCapacity = room.maxParticipants || (room.roomId.startsWith('pod-free-') ? 5 : undefined);
+    // 3.5. Kiểm tra sức chứa tối đa của phòng (giới hạn tối đa 10 người cho phòng học chung)
+    const maxCapacity = room.maxParticipants || 10;
     if (maxCapacity) {
       const activeCount = Object.keys(room.participants || {}).length;
       const isAlreadyIn = Boolean(
@@ -779,6 +779,16 @@ export const studyRoomService = {
     if (!room) return { success: false };
 
     if (!room.participants) room.participants = {};
+
+    // Khóa sức chứa nguyên tử: Ngăn chặn Race Condition khi nhiều client join đồng thời
+    const maxCapacity = room.maxParticipants || 10;
+    const isAlreadyMember = Boolean(
+      room.participants[participant.id] ||
+      (participant.userId && Object.values(room.participants).some(p => p.userId === participant.userId))
+    );
+    if (!isAlreadyMember && Object.keys(room.participants).length >= maxCapacity && !isOwnerEmail(participant.userId)) {
+      return { success: false };
+    }
 
     // DỌN DẸP SẠCH: Loại bỏ mọi phiên cũ của cùng user (tránh rác khi refresh/reconnect)
     if (participant.userId) {

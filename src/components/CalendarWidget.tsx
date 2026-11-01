@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, Plus, Check, Trash2, ArrowRight } from 'lucide-react';
 import { db, PlannerBlockRecord } from '../db';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
 
@@ -17,7 +18,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
   const [newTitle, setNewTitle] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string>('');
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getVietnamTodayDateKey();
   const currentHour = new Date().getHours();
 
   // Load blocks from Dexie

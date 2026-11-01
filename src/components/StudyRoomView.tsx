@@ -67,6 +67,113 @@ interface FloatingReaction {
   delay?: number;
 }
 
+interface RemotePeerTileProps {
+  peer: { id: string; name: string; isMicOn?: boolean; role?: string; userId?: string };
+  stream?: MediaStream;
+  isPeerSpeaking: boolean;
+  canAdmin: boolean;
+  onAdminClick: (peer: any) => void;
+}
+
+const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
+  peer,
+  stream,
+  isPeerSpeaking,
+  canAdmin,
+  onAdminClick
+}) => {
+  const hasVideoTrack = Boolean(
+    stream && stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
+  );
+
+  return (
+    <div
+      data-testid={`peer-tile-${peer.id}`}
+      onClick={() => {
+        if (canAdmin) {
+          onAdminClick(peer);
+        }
+      }}
+      className={`relative aspect-video rounded-2xl bg-zinc-900 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
+        isPeerSpeaking
+          ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
+          : 'border border-zinc-800 ring-1 ring-white/5'
+      } ${canAdmin ? 'cursor-pointer hover:border-zinc-600 transition' : ''}`}
+      title={canAdmin ? 'Bấm để quản trị thành viên (Tặng PRO, Tắt mic, Mời ra)' : undefined}
+    >
+      {hasVideoTrack ? (
+        <video
+          autoPlay
+          playsInline
+          ref={(el) => {
+            if (el && el.srcObject !== stream) {
+              el.srcObject = stream || null;
+            }
+          }}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="flex flex-col items-center gap-2 text-zinc-400 select-none">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-xl font-bold text-zinc-200 shadow-md">
+            {(peer.name || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div className="text-center px-3">
+            <div className="text-xs font-semibold text-white truncate max-w-[150px]">
+              {peer.name || 'Bạn học'}
+            </div>
+            <div className="text-[10px] text-zinc-500 flex items-center justify-center gap-1 mt-0.5">
+              <VideoOff size={11} className="text-zinc-600" />
+              <span>Camera tắt</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {stream && (
+        <audio
+          autoPlay
+          playsInline
+          ref={(el) => {
+            if (el && el.srcObject !== stream) {
+              el.srcObject = stream || null;
+            }
+          }}
+        />
+      )}
+
+      {/* In-Card Status Bar */}
+      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px]">
+        <div className="flex items-center gap-1.5 truncate">
+          <span className="font-semibold text-white truncate">{peer.name}</span>
+          {isLadyBoss(peer.userId) || isLadyBoss(peer.name) ? (
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-200 font-bold border border-zinc-700 flex items-center gap-0.5 shadow-sm">
+              👑 Nóc Nhà PRO
+            </span>
+          ) : (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-medium border border-zinc-700">
+              {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <span
+            className={`p-1 rounded transition-colors ${
+              peer.isMicOn !== false
+                ? isPeerSpeaking
+                  ? 'bg-emerald-500 text-neutral-950 animate-pulse'
+                  : 'bg-zinc-800 text-white'
+                : 'bg-rose-500/80 text-white'
+            }`}
+            title={peer.isMicOn !== false ? (isPeerSpeaking ? 'Đang nói' : 'Micro bật') : 'Micro tắt'}
+          >
+            {peer.isMicOn !== false ? <Mic size={11} /> : <MicOff size={11} />}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export const StudyRoomView: React.FC = () => {
   const router = useRouter();
   const rawRoomId = router.currentRoute.params?.roomId;
@@ -1648,9 +1755,17 @@ export const StudyRoomView: React.FC = () => {
       if (mainVideoRef.current && cameraEnabled) {
         mainVideoRef.current.srcObject = stream;
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.warn('Không thể truy cập camera hoặc micro cục bộ:', err);
-      setMediaError('Chưa cấp quyền truy cập thiết bị hoặc trình duyệt không tìm thấy camera.');
+      // Fallback mượt mà: Tắt switch và hiển thị avatar tròn thay thế
+      setCameraEnabled(false);
+      setMicEnabled(false);
+      const isDenied = err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError';
+      setMediaError(
+        isDenied
+          ? 'Bạn đã tắt quyền Micro/Camera. Bạn vẫn có thể xem và nghe bạn học bình thường.'
+          : 'Chưa cấp quyền truy cập thiết bị hoặc trình duyệt không tìm thấy camera.'
+      );
     }
   }, [cameraEnabled, micEnabled, selectedAudioDevice, selectedVideoDevice, videoQuality, echoCancellation, noiseSuppression]);
 
@@ -2033,8 +2148,8 @@ export const StudyRoomView: React.FC = () => {
   // =========================================================================
   if (!hasJoined) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
-        <div className="w-full max-w-xl rounded-3xl border border-white/15 bg-neutral-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-2xl">
+      <div className="min-h-screen w-full flex items-center justify-center p-3 sm:p-4 bg-zinc-950 text-white select-none overflow-y-auto">
+        <div className="w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-zinc-900/90 p-5 sm:p-8 shadow-2xl backdrop-blur-2xl">
           {/* Header Prejoin */}
           <div className="flex items-center justify-between mb-4">
             <button
@@ -2049,22 +2164,22 @@ export const StudyRoomView: React.FC = () => {
             <div className="flex items-center gap-2">
               {/* Badge vai trò */}
               {isLadyBoss(user?.email) ? (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-pink-300 text-[10px] font-bold shadow-sm">
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold shadow-sm">
                   👑 NÓC NHÀ PRO
                 </span>
               ) : userRole === 'host' ? (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
-                  <Crown size={11} />
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold">
+                  <Crown size={11} className="text-zinc-400" />
                   CHỦ PHÒNG
                 </span>
               ) : userRole === 'member' ? (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">
-                  <Sparkles size={11} />
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-bold">
+                  <Sparkles size={11} className="text-zinc-400" />
                   THÀNH VIÊN PRO
                 </span>
               ) : (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
-                  <UserCheck size={11} />
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold">
+                  <UserCheck size={11} className="text-zinc-400" />
                   KHÁCH MỜI FREE
                 </span>
               )}
@@ -2102,14 +2217,19 @@ export const StudyRoomView: React.FC = () => {
                 className="w-full h-full object-cover transform scale-x-[-1]"
               />
             ) : (
-              <div className="flex flex-col items-center gap-2 text-neutral-500">
-                <VideoOff size={36} />
-                <span className="text-xs">Camera đang tắt</span>
+              <div className="flex flex-col items-center gap-3 text-zinc-400 select-none">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-2xl font-bold text-zinc-200 shadow-xl">
+                  {(participantName || 'H').charAt(0).toUpperCase()}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
+                  <VideoOff size={14} className="text-zinc-500" />
+                  <span>Camera đang tắt</span>
+                </div>
               </div>
             )}
 
             {mediaError && (
-              <div className="absolute top-3 left-3 right-3 p-2 bg-rose-500/80 backdrop-blur-md rounded-lg text-[11px] text-white text-center">
+              <div className="absolute top-3 left-3 right-3 p-2.5 bg-zinc-900/90 border border-zinc-700/80 backdrop-blur-md rounded-xl text-[11px] text-zinc-300 text-center shadow-lg leading-relaxed">
                 {mediaError}
               </div>
             )}
@@ -2472,19 +2592,19 @@ export const StudyRoomView: React.FC = () => {
 
                 {/* Badge Vai trò */}
                 {isLadyBoss(user?.email) ? (
-                  <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/25 to-purple-500/25 border border-pink-500/40 text-[10px] text-pink-300 font-bold flex items-center gap-1 shadow-sm">
+                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-200 font-bold flex items-center gap-1 shadow-sm">
                     👑 NÓC NHÀ PRO
                   </span>
                 ) : userRole === 'host' ? (
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] text-emerald-300 font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-200 font-bold">
                     CHỦ PHÒNG
                   </span>
                 ) : userRole === 'member' ? (
-                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-300 font-bold">
                     THÀNH VIÊN PRO
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-400 font-bold">
                     KHÁCH MỜI FREE
                   </span>
                 )}
@@ -2646,7 +2766,7 @@ export const StudyRoomView: React.FC = () => {
                 <span>LIVE</span>
               </span>
               {isLadyBoss(user?.email) ? (
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30 shrink-0">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-200 border border-zinc-700 shrink-0">
                   👑 NÓC NHÀ
                 </span>
               ) : (
@@ -2888,111 +3008,18 @@ export const StudyRoomView: React.FC = () => {
                 );
               })()}
 
-              {/* REMOTE PARTICIPANTS — Render dựa trên danh sách sắp xếp ưu tiên người đang phát biểu (sortedOtherParticipants) */}
+              {/* REMOTE PARTICIPANTS — Render qua RemotePeerTile (Memoized, chống re-render khi đếm giờ) */}
               {sortedOtherParticipants.length > 0 ? (
-                sortedOtherParticipants.map((peer) => {
-                  const stream = remoteStreams[peer.id];
-                  const hasVideoTrack = Boolean(
-                    stream &&
-                    stream.getVideoTracks().some((t) => t.enabled && t.readyState === 'live')
-                  );
-                  const isPeerSpeaking = Boolean(speakingMap[peer.id] && peer.isMicOn !== false);
-
-                  return (
-                    <div
-                      key={peer.id}
-                      data-testid={`peer-tile-${peer.id}`}
-                      onClick={() => {
-                        if (isOwnerEmail(user?.email) || userRole === 'host') {
-                          setSelectedMemberForAdmin(peer);
-                        }
-                      }}
-                      className={`relative aspect-video rounded-2xl bg-neutral-900 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
-                        isPeerSpeaking
-                          ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
-                          : 'border border-white/10 ring-1 ring-white/5'
-                      } ${
-                        (isOwnerEmail(user?.email) || userRole === 'host') ? 'cursor-pointer hover:border-amber-400/60 transition' : ''
-                      }`}
-                      title={
-                        (isOwnerEmail(user?.email) || userRole === 'host') ? 'Bấm để quản trị thành viên (Tặng PRO, Tắt mic, Mời ra)' : undefined
-                      }
-                    >
-                      {/* Nếu có stream video thật sự đang phát */}
-                      {hasVideoTrack ? (
-                        <video
-                          autoPlay
-                          playsInline
-                          ref={(el) => {
-                            if (el && el.srcObject !== stream) {
-                              el.srcObject = stream;
-                            }
-                          }}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        /* Nếu chưa có stream hoặc người kia tắt Camera: Avatar tròn to + Tên người dùng + Trạng thái */
-                        <div className="flex flex-col items-center gap-2 text-neutral-400 select-none">
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-400/80 flex items-center justify-center text-xl font-bold text-cyan-300 shadow-md">
-                            {(peer.name || 'U').charAt(0).toUpperCase()}
-                          </div>
-                          <div className="text-center px-3">
-                            <div className="text-xs font-semibold text-white truncate max-w-[150px]">
-                              {peer.name}
-                            </div>
-                            <div className="text-[10px] text-neutral-400 flex items-center justify-center gap-1 mt-0.5">
-                              <VideoOff size={11} className="text-neutral-500" />
-                              <span>Camera tắt</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Luôn gắn thẻ audio để nghe âm thanh khi có stream */}
-                      {stream && (
-                        <audio
-                          autoPlay
-                          playsInline
-                          ref={(el) => {
-                            if (el && el.srcObject !== stream) {
-                              el.srcObject = stream;
-                            }
-                          }}
-                        />
-                      )}
-
-                      {/* In-Card Status Bar */}
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-[11px]">
-                        <div className="flex items-center gap-1.5 truncate">
-                          <span className="font-semibold text-white truncate">{peer.name}</span>
-                          {isLadyBoss(peer.userId) || isLadyBoss(peer.name) ? (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
-                              👑 Nóc Nhà PRO
-                            </span>
-                          ) : (
-                            <span className="text-[9px] px-1 rounded bg-white/10 text-neutral-300 font-medium">
-                              {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <span
-                            className={`p-1 rounded transition-colors ${
-                              peer.isMicOn !== false
-                                ? isPeerSpeaking
-                                  ? 'bg-emerald-500 text-neutral-950 animate-pulse'
-                                  : 'bg-white/10 text-white'
-                                : 'bg-rose-500/80 text-white'
-                            }`}
-                            title={peer.isMicOn !== false ? (isPeerSpeaking ? 'Đang nói' : 'Micro bật') : 'Micro tắt'}
-                          >
-                            {peer.isMicOn !== false ? <Mic size={11} /> : <MicOff size={11} />}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                sortedOtherParticipants.map((peer) => (
+                  <RemotePeerTile
+                    key={peer.id}
+                    peer={peer}
+                    stream={remoteStreams[peer.id]}
+                    isPeerSpeaking={Boolean(speakingMap[peer.id] && peer.isMicOn !== false)}
+                    canAdmin={Boolean(isOwnerEmail(user?.email) || userRole === 'host')}
+                    onAdminClick={setSelectedMemberForAdmin}
+                  />
+                ))
               ) : (
                 /* Trạng thái phòng trống — Chờ bạn học tham gia */
                 <div className="relative aspect-video rounded-2xl bg-neutral-900/40 border border-dashed border-white/15 overflow-hidden flex flex-col items-center justify-center p-6 text-center select-none">
@@ -3140,7 +3167,7 @@ export const StudyRoomView: React.FC = () => {
                             />
                           ) : (
                             <div className="flex items-center gap-1 text-neutral-400">
-                              <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-xs font-bold text-cyan-300">
+                              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
                                 {(peer.name || 'U').charAt(0).toUpperCase()}
                               </div>
                             </div>

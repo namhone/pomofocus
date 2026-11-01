@@ -24,6 +24,7 @@ import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
 import { db, PlannerBlockRecord } from '../db';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 
 interface CollapsedWidgetCardProps {
   id: WidgetId;
@@ -78,7 +79,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
       loadNotes();
     }
     if (id === 'calendar') {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getVietnamTodayDateKey();
       db.planner_blocks
         .where('dateString')
         .equals(todayStr)

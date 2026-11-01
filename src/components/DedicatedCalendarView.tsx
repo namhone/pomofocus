@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db, PlannerBlockRecord } from '../db';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 import { Task } from '../types/tasks';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -54,10 +55,7 @@ export const DedicatedCalendarView: React.FC = () => {
   }, []);
 
   const formatDateYMD = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
+    return getVietnamTodayDateKey(d);
   };
 
   const handlePrev = () => {
