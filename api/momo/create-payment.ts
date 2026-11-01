@@ -173,7 +173,7 @@ export default async function handler(req: any, res: any) {
 
     // Mã VietQR chuẩn ngân hàng Vietcombank tài khoản thực của chủ sở hữu
     const memo = `POMO_${orderId}`;
-    const vcbQrUrl = `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`;
+    const vcbQrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`;
 
     return res.status(200).json({
       success: true,
@@ -183,11 +183,11 @@ export default async function handler(req: any, res: any) {
       durationDays,
       payUrl: vcbQrUrl,
       qrCodeUrl: vcbQrUrl,
-      deeplink: `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`,
+      deeplink: `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent('HO NGOC BAO NAM')}`,
       memo,
       bankInfo: {
         bankName: 'Vietcombank',
-        accountNumber: '106663385',
+        accountNumber: '1066633885',
         accountName: 'HO NGOC BAO NAM'
       },
       isSandbox: true,

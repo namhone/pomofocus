@@ -240,8 +240,8 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     }
   };
 
-  // VietQR thật 100% tới Vietcombank 106663385 - HO NGOC BAO NAM
-  const realVietQrUrl = order.qrUrl || `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(order.memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
+  // VietQR thật 100% tới Vietcombank 1066633885 - HO NGOC BAO NAM
+  const realVietQrUrl = order.qrUrl || `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(order.memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
 
   return (
     <div

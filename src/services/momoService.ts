@@ -44,8 +44,8 @@ export interface MoMoWebhookPayload {
 export const BANKING_CONFIG = {
   bankName: 'Vietcombank',
   bankId: 'vietcombank',
-  accountNumber: '106663385',
-  displayAccountNumber: '106663385',
+  accountNumber: '1066633885',
+  displayAccountNumber: '1066633885',
   recipientName: 'HỒ NGỌC BẢO NAM',
   accountNameNoAccent: 'HO NGOC BAO NAM'
 } as const;
@@ -63,7 +63,7 @@ const ORDER_TTL_MS = 15 * 60 * 1000; // 15 phút
 
 export const momoService = {
   getQrImageUrl(amount: number, memo: string): string {
-    return `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
+    return `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
   },
 
   createOrder(email: string, cycle: 'monthly' | 'yearly' | 'lifetime', userId?: string, authProvider?: string): MoMoOrder {
@@ -83,8 +83,8 @@ export const momoService = {
     // Cú pháp chuyển khoản chuẩn: POMO_[Mã_Đơn]
     const memo = `POMO_${orderId}`;
 
-    // Sinh mã VietQR chuyển khoản trực tiếp ngân hàng Vietcombank 106663385
-    const qrUrl = `https://img.vietqr.io/image/vietcombank-106663385-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
+    // Sinh mã VietQR chuyển khoản trực tiếp ngân hàng Vietcombank 1066633885
+    const qrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
 
     const order: MoMoOrder = {
       orderId,

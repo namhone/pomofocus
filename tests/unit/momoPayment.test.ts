@@ -21,7 +21,7 @@ describe('MoMo & Vietcombank Payment & Account Linking Service Tests', () => {
     expect(order.amount).toBe(59000);
     expect(order.memo).toContain(order.orderId);
     expect(order.status).toBe('pending');
-    expect(order.qrUrl).toMatch(/(106663385|0704862629|vietcombank)/);
+    expect(order.qrUrl).toMatch(/(1066633885|0704862629|vietcombank)/);
     expect(order.qrUrl).toContain('HO%20NGOC%20BAO%20NAM');
   });
 
@@ -157,7 +157,7 @@ describe('MoMo & Vietcombank Payment & Account Linking Service Tests', () => {
   });
 
   it('9. Regex phân tích nội dung chuyển khoản từ Email Vietcombank nhận diện chính xác mã đơn hàng', () => {
-    const emailSample1 = 'So du TK 106663385 thay doi: +59,000 VND. ND: POMO 789456 chuyen tien goi 1 thang';
+    const emailSample1 = 'Bien lai chuyen tien: So du TK 1066633885 thay doi: +59,000 VND. ND: POMO 789456 chuyen tien goi 1 thang';
     const emailSample2 = 'Giao dich thanh cong: +468,000 VND. ND: POMO_1730000_usr123';
     const emailSample3 = 'Thong bao bien dong: +799,000 VND. Noi dung: POMO_999888';
 
