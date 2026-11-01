@@ -40,7 +40,6 @@ export default async function handler(req: any, res: any) {
       basePrice = 799000;
       durationDays = null;
     }
-    }
 
     // Xử lý mã coupon
     let finalPrice = basePrice;
@@ -70,7 +69,7 @@ export default async function handler(req: any, res: any) {
       if (userId && userId !== 'guest_user') {
         await callSupabaseActivatePro({
           userId,
-          orderId: `POMO_${orderId}`,
+          orderId,
           amount: 0,
           planType: planId,
           durationDays
@@ -92,7 +91,7 @@ export default async function handler(req: any, res: any) {
     if (userId && userId !== 'guest_user') {
       await savePendingOrder({
         userId,
-        orderId: `POMO_${orderId}`,
+        orderId,
         amount: finalPrice,
         planType: planId
       });
