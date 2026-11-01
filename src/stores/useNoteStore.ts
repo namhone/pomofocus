@@ -189,3 +189,7 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
     }
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useNoteStore: typeof useNoteStore }).useNoteStore = useNoteStore;
+}

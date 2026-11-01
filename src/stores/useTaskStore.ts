@@ -218,3 +218,7 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     set({ selectedProjectId: projectId });
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useTaskStore: typeof useTaskStore }).useTaskStore = useTaskStore;
+}
