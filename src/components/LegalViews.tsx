@@ -101,7 +101,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
             <section className="space-y-2">
               <h2 className="text-sm font-semibold text-white">3. Chính Sách Demo Beta & Không Thu Tiền Thật</h2>
               <p>
-                Trong giai đoạn Demo Beta, toàn bộ tính năng cao cấp (Gói PRO 3 Năm) được cung cấp miễn phí cho người dùng thử nghiệm. Mọi liên kết thanh toán MoMo hay sandbox chỉ mang tính chất mô phỏng quy trình kiểm thử; PomoFocus cam kết không phát sinh bất kỳ khoản phí bắt buộc nào.
+                Trong giai đoạn Demo Beta, toàn bộ tính năng cao cấp (Gói PRO 3 Năm) được cung cấp miễn phí cho người dùng thử nghiệm. Mọi liên kết thanh toán chuyển khoản VietQR hay sandbox chỉ mang tính chất mô phỏng quy trình kiểm thử; PomoFocus cam kết không phát sinh bất kỳ khoản phí bắt buộc nào.
               </p>
             </section>
 

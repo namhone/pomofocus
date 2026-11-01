@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { momoService, MoMoOrder, MOMO_CONFIG, BANKING_CONFIG } from '../services/momoService';
+import { momoService, MoMoOrder, BANKING_CONFIG } from '../services/momoService';
 import { useAuthStore } from '../stores/useAuthStore';
 import { googleAuthService } from '../services/googleAuthService';
 import { PRICING_PLANS, PlanCycle } from '../config/pricing';
@@ -41,7 +41,8 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   const [order, setOrder] = useState<MoMoOrder | null>(null);
   const [copiedMemo, setCopiedMemo] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
-  const [copiedPhone, setCopiedPhone] = useState(false);
+  const [copiedName, setCopiedName] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccessState, setIsSuccessState] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 phút đếm ngược (600 giây)
@@ -176,7 +177,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleCopy = (text: string, type: 'memo' | 'account' | 'phone') => {
+  const handleCopy = (text: string, type: 'memo' | 'account' | 'name' | 'amount') => {
     navigator.clipboard.writeText(text);
     if (type === 'memo') {
       setCopiedMemo(true);
@@ -184,9 +185,12 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     } else if (type === 'account') {
       setCopiedAccount(true);
       setTimeout(() => setCopiedAccount(false), 2000);
-    } else {
-      setCopiedPhone(true);
-      setTimeout(() => setCopiedPhone(false), 2000);
+    } else if (type === 'name') {
+      setCopiedName(true);
+      setTimeout(() => setCopiedName(false), 2000);
+    } else if (type === 'amount') {
+      setCopiedAmount(true);
+      setTimeout(() => setCopiedAmount(false), 2000);
     }
   };
 
@@ -248,7 +252,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       data-testid="momo-payment-modal"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
     >
-      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl p-6 my-8 selection:bg-white selection:text-black">
+      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl p-6 my-auto max-h-[90vh] overflow-y-auto selection:bg-white selection:text-black">
         {/* Nút đóng */}
         <button
           type="button"
@@ -260,21 +264,21 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
         {!isSuccessState ? (
           <div className="space-y-4">
-            {/* Header: Cổng Thanh Toán Tự Động VietQR & MoMo */}
+            {/* Header: Chuyển Khoản Ngân Hàng (VietQR 24/7) */}
             <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
-              <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold text-xs flex flex-col items-center justify-center shadow-md leading-none">
+              <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold text-xs flex flex-col items-center justify-center shadow-md leading-none shrink-0">
                 <span className="text-[10px] tracking-tight font-black">VCB</span>
                 <span className="text-[8px] font-mono font-bold text-emerald-700">QR</span>
               </div>
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Thanh Toán VietQR &amp; MoMo</span>
+                  <span>Chuyển Khoản Ngân Hàng (VietQR 24/7)</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                     {planConfig.label}
                   </span>
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  Tự động nhận diện giao dịch &amp; nâng cấp PRO trong 5 - 15 giây
+                  Mở bất kỳ App Ngân Hàng nào quét mã QR • Tự động kích hoạt PRO trong 5 - 15 giây
                 </p>
               </div>
             </div>
@@ -356,7 +360,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 className="w-full max-w-xs py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
               >
                 <Smartphone size={15} />
-                <span>Mở App MoMo Để Thanh Toán</span>
+                <span>Mở App Ngân Hàng Để Quét QR</span>
               </a>
 
               {/* Hướng dẫn 3 bước chuẩn */}
@@ -367,7 +371,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
                     <span className="block text-[10px] font-mono text-zinc-500 mb-0.5">BƯỚC 1</span>
-                    <span className="text-[11px] font-medium text-zinc-200">Mở app MoMo</span>
+                    <span className="text-[11px] font-medium text-zinc-200">Mở app Ngân hàng</span>
                   </div>
                   <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
                     <span className="block text-[10px] font-mono text-zinc-500 mb-0.5">BƯỚC 2</span>
@@ -384,9 +388,19 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               <div className="w-full max-w-sm pt-2 border-t border-zinc-800/80 text-xs space-y-2 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-zinc-400">Số tiền thanh toán:</span>
-                  <span className="text-base font-extrabold text-white">
-                    {formatCurrency(order.amount)}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base font-extrabold text-white">
+                      {formatCurrency(order.amount)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(order.amount.toString(), 'amount')}
+                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      title="Sao chép số tiền"
+                    >
+                      {copiedAmount ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
@@ -400,7 +414,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
                   <span className="text-zinc-400">Số tài khoản VCB:</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-emerald-300">{BANKING_CONFIG.accountNumber}</span>
+                    <span className="font-semibold text-emerald-300 font-mono text-sm tracking-wider">{BANKING_CONFIG.accountNumber}</span>
                     <button
                       type="button"
                       onClick={() => handleCopy(BANKING_CONFIG.accountNumber, 'account')}
@@ -414,11 +428,21 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
                   <span className="text-zinc-400">Chủ tài khoản:</span>
-                  <span className="font-semibold text-white">{BANKING_CONFIG.recipientName}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-white">{BANKING_CONFIG.recipientName}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(BANKING_CONFIG.recipientName, 'name')}
+                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
+                      title="Sao chép tên chủ tài khoản"
+                    >
+                      {copiedName ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
-                  <span className="text-zinc-500 block text-[11px] mb-1">Nội dung chuyển khoản (Memo):</span>
+                  <span className="text-zinc-500 block text-[11px] mb-1">Nội dung chuyển khoản (Bắt buộc):</span>
                   <div className="flex items-center justify-between gap-1 bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-white text-xs">
                     <span className="truncate font-semibold text-amber-300">{order.memo}</span>
                     <button
@@ -426,25 +450,9 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                       data-testid="btn-copy-momo-memo"
                       onClick={() => handleCopy(order.memo, 'memo')}
                       className="p-1 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
+                      title="Sao chép nội dung chuyển khoản"
                     >
                       {copiedMemo ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
-                  <span className="text-zinc-400">Hoặc Ví MoMo:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-white">
-                      {MOMO_CONFIG.displayPhone}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(MOMO_CONFIG.phone, 'phone')}
-                      className="p-1 hover:text-white text-zinc-400 transition cursor-pointer"
-                      title="Sao chép số MoMo"
-                    >
-                      {copiedPhone ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
                     </button>
                   </div>
                 </div>

@@ -278,6 +278,39 @@ export const StudyRoomView: React.FC = () => {
   ]);
   const [inputMsg, setInputMsg] = useState('');
 
+  // Chat scroll lock prevention: chỉ tự động cuộn xuống khi đang ở đáy hoặc do chính mình gửi
+  const chatMessagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const isChatAtBottomRef = useRef(true);
+
+  const handleChatScroll = useCallback(() => {
+    const el = chatMessagesContainerRef.current;
+    if (!el) return;
+    const isBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    isChatAtBottomRef.current = isBottom;
+  }, []);
+
+  useEffect(() => {
+    const el = chatMessagesContainerRef.current;
+    if (!el || messages.length === 0) return;
+    const lastMsg = messages[messages.length - 1];
+    const isMe = lastMsg && (lastMsg.sender === participantName || lastMsg.sender === user?.displayName || lastMsg.sender === 'Bạn');
+    if (isChatAtBottomRef.current || isMe) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, participantName, user?.displayName]);
+
+  useEffect(() => {
+    if (isChatOpen) {
+      requestAnimationFrame(() => {
+        const el = chatMessagesContainerRef.current;
+        if (el) {
+          el.scrollTop = el.scrollHeight;
+          isChatAtBottomRef.current = true;
+        }
+      });
+    }
+  }, [isChatOpen]);
+
   // Hàm thêm tin nhắn an toàn khử trùng lặp 100% (Deduplication)
   const appendMessageSafe = useCallback((newMsg: { id?: string; clientMessageId?: string; sender: string; senderId?: string; text: string; time: string }) => {
     if (!newMsg || !newMsg.text) return;
@@ -3201,8 +3234,12 @@ export const StudyRoomView: React.FC = () => {
               </div>
             </div>
 
-            {/* 2. Danh sách tin nhắn: DUY NHẤT VÙNG NÀY ĐƯỢC PHÉP CUỘN */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 text-xs">
+            {/* 2. Danh sách tin nhắn: DUY NHẤT VÙNG NÀY ĐƯỢC PHÉP CUỘN (Chống Scroll Lock) */}
+            <div
+              ref={chatMessagesContainerRef}
+              onScroll={handleChatScroll}
+              className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 text-xs overscroll-contain"
+            >
               {messages.map((m, i) => {
                 const isMe = m.sender === participantName || m.sender === user?.displayName || m.sender === 'Bạn';
                 return (

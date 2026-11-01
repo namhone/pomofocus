@@ -34,17 +34,17 @@ test.describe('MoMo QR Payment & Auto-Upgrade PRO Verification', () => {
     await expect(modal).toBeVisible();
 
     // Kiểm tra 3 bước hướng dẫn chuẩn
-    await expect(page.getByText('Mở app MoMo', { exact: true })).toBeVisible();
+    await expect(page.getByText('Mở app Ngân hàng', { exact: true })).toBeVisible();
     await expect(page.getByText('Quét mã QR', { exact: true })).toBeVisible();
     await expect(page.getByText('Hoàn tất', { exact: true })).toBeVisible();
 
-    // Chụp ảnh bằng chứng Modal MoMo QR Monochrome
+    // Chụp ảnh bằng chứng Modal VietQR Monochrome
     await page.screenshot({
       path: 'C:/Users/Nam/.gemini/antigravity/brain/f0e4fa42-ea0b-4ff3-83da-6875921843c2/proof-momo-qr-modal.png'
     });
 
-    // Kiểm tra nút mở app MoMo di động
-    await expect(page.getByText('Mở App MoMo Để Thanh Toán')).toBeVisible();
+    // Kiểm tra nút mở app ngân hàng / quét QR
+    await expect(page.getByText('Mở App Ngân Hàng Để Quét QR')).toBeVisible();
 
     // Kiểm tra bộ đếm ngược 10:00
     await expect(page.getByText('Mã QR hết hạn sau:')).toBeVisible();
@@ -74,6 +74,6 @@ test.describe('MoMo QR Payment & Auto-Upgrade PRO Verification', () => {
 
     // Xác nhận tài khoản được hiển thị trạng thái PRO (Nút gói miễn phí đổi thành "Chuyển về Gói Cơ Bản")
     await expect(page.getByText('Chuyển về Gói Cơ Bản')).toBeVisible();
-    await expect(page.getByText('Thanh toán MoMo thành công!')).toBeVisible();
+    await expect(page.getByText('Thanh toán chuyển khoản thành công!')).toBeVisible();
   });
 });

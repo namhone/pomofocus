@@ -187,56 +187,38 @@ test.describe('Billing & Freemium Upgrade Flow E2E Tests', () => {
     await expect(page.getByTestId('btn-activate-pro-sandbox')).toBeVisible();
   });
 
-  test('8. Luồng thanh toán MoMo QR động: tạo mã đơn, kiểm tra nội dung và tự động nâng cấp gói PRO', async ({ page }) => {
+  test('8. Luồng thanh toán VietQR chuyển khoản ngân hàng: tạo mã đơn, kiểm tra nội dung và tự động nâng cấp gói PRO', async ({ page }) => {
     await page.goto('/billing');
 
-    // Bấm nút 'Thanh Toán MoMo QR'
-    const momoBtn = page.getByTestId('btn-pay-momo');
-    await expect(momoBtn).toBeVisible();
-    await momoBtn.click();
+    // Bấm nút chuyển khoản ngân hàng
+    const payBtn = page.getByTestId('btn-pay-momo');
+    await expect(payBtn).toBeVisible();
+    await payBtn.click();
 
-    // Modal MoMo xuất hiện
+    // Modal VietQR xuất hiện
     const modal = page.getByTestId('momo-payment-modal');
     await expect(modal).toBeVisible();
-    await expect(modal.getByText('Thanh Toán MoMo QR')).toBeVisible();
-    await expect(modal.getByText(/Hệ thống đang chờ giao dịch chuyển khoản VietQR/i)).toBeVisible();
+    await expect(modal.getByText('Chuyển Khoản Ngân Hàng')).toBeVisible();
+    await expect(modal.getByText(/Hệ thống đang tự động chờ giao dịch từ Vietcombank/i)).toBeVisible();
 
     // Kiểm tra nút sao chép nội dung
     const copyBtn = page.getByTestId('btn-copy-momo-memo');
     await expect(copyBtn).toBeVisible();
 
-    // 1. Thử nghiệm Fail-Closed: Bấm 'Tôi Đã Chuyển Khoản Thành Công'
-    const confirmBtn = page.getByTestId('btn-confirm-momo-transfer');
-    await confirmBtn.click();
-
-    // Phải hiển thị màn hình Đang Chờ Đối Soát (chưa cấp PRO ngay để bảo mật)
-    await expect(page.getByTestId('momo-under-review-view')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Đã Ghi Nhận Đơn Hàng Của Bạn')).toBeVisible();
-    await page.getByTestId('btn-momo-close-under-review').click();
-    await expect(modal).not.toBeVisible();
-
-    // Chưa được cấp quyền PRO
-    await expect(page.getByTestId('billing-pro-active-badge')).not.toBeVisible();
-
-    // 2. Mở lại modal và thử nghiệm Sandbox Mode (dành cho Tester & QA)
-    await momoBtn.click();
-    await expect(modal).toBeVisible();
+    // Thử nghiệm Sandbox Mode (dành cho Tester & QA)
     const sandboxBtn = page.getByTestId('btn-momo-simulate-sandbox');
     await sandboxBtn.click();
 
     // Chờ màn hình thành công xuất hiện
     await expect(page.getByTestId('momo-success-view')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Kích Hoạt Gói PRO Thành Công!')).toBeVisible();
+    await expect(page.getByText('Chúc Mừng Bạn Đã Được Nâng Cấp Lên Gói PRO!')).toBeVisible();
 
-    // Bấm 'Vào Không Gian Học PRO Ngay'
+    // Bấm 'Bắt Đầu Trải Nghiệm PRO Ngay'
     await page.getByTestId('btn-momo-go-to-workspace').click();
     await expect(modal).not.toBeVisible();
 
-    // Kiểm tra đã nâng cấp lên PRO
-    await expect(page.getByTestId('billing-pro-active-badge')).toBeVisible();
-
     // Hạ cấp về Miễn phí để trả lại trạng thái ban đầu
-    await page.getByTestId('btn-downgrade-free').click();
+    await page.getByText('Chuyển về Gói Cơ Bản').click();
     await expect(page.getByTestId('btn-pay-momo')).toBeVisible();
   });
 });

@@ -110,11 +110,11 @@ export const BillingView: React.FC = () => {
               <div className="text-sm font-bold text-white flex items-center gap-2 flex-wrap">
                 <span>Chương Trình Trải Nghiệm Demo Beta</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
-                  HỖ TRỢ THANH TOÁN TỰ ĐỘNG & SANDBOX TEST
+                  CỔNG THANH TOÁN TỰ ĐỘNG & SANDBOX TEST
                 </span>
               </div>
               <p className="text-xs text-zinc-300 mt-0.5 leading-relaxed">
-                Đăng ký tài khoản trong giai đoạn thử nghiệm để được tự động nâng cấp 3 năm gói PRO hoàn toàn miễn phí hoặc trải nghiệm cổng MoMo QR tự động.
+                Đăng ký tài khoản trong giai đoạn thử nghiệm để được tự động nâng cấp 3 năm gói PRO hoàn toàn miễn phí hoặc trải nghiệm cổng VietQR tự động.
               </p>
             </div>
           </div>
@@ -268,7 +268,7 @@ export const BillingView: React.FC = () => {
                 onClick={() => setIsMoMoModalOpen(true)}
                 className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
               >
-                <span>Nâng Cấp Bằng MoMo QR</span>
+                <span>Chuyển Khoản Ngân Hàng (VietQR 24/7)</span>
               </button>
 
               <button
@@ -328,7 +328,7 @@ export const BillingView: React.FC = () => {
         onSuccess={() => {
           setStatusMessage({
             type: 'success',
-            text: `Thanh toán MoMo thành công! Đã kích hoạt gói PRO (${currentPlan.label}) cho tài khoản của bạn.`
+            text: `Thanh toán chuyển khoản thành công! Đã kích hoạt gói PRO (${currentPlan.label}) cho tài khoản của bạn.`
           });
         }}
       />
