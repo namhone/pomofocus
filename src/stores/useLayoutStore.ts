@@ -1101,3 +1101,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     }
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { useLayoutStore: typeof useLayoutStore }).useLayoutStore = useLayoutStore;
+}

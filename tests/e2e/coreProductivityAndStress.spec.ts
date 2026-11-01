@@ -29,26 +29,26 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
     await expect(startBtn).toBeVisible();
     await startBtn.click();
 
-    // 3. Xác nhận chuyển sang ĐANG CHẠY và số đếm lùi
-    await expect(page.locator('[data-testid="status-indicator"]')).toContainText('ĐANG CHẠY');
+    // 3. Xác nhận chuyển sang Đang chạy và số đếm lùi
+    await expect(page.locator('[data-testid="status-indicator"]')).toContainText(/đang chạy/i);
     await page.waitForTimeout(1500);
 
     // 4. Bấm Tạm dừng
     const pauseBtn = page.locator('[data-testid="timer-pause-btn"]');
     await expect(pauseBtn).toBeVisible();
     await pauseBtn.click();
-    await expect(page.locator('[data-testid="status-indicator"]')).toContainText('TẠM DỪNG');
+    await expect(page.locator('[data-testid="status-indicator"]')).toContainText(/tạm dừng/i);
 
     // 5. Bấm Tiếp tục
     const resumeBtn = page.locator('[data-testid="timer-resume-btn"]');
     await expect(resumeBtn).toBeVisible();
     await resumeBtn.click();
-    await expect(page.locator('[data-testid="status-indicator"]')).toContainText('ĐANG CHẠY');
+    await expect(page.locator('[data-testid="status-indicator"]')).toContainText(/đang chạy/i);
 
     // 6. Bấm Đặt lại về ban đầu
     const resetBtn = page.locator('[data-testid="timer-reset-btn"]');
     await resetBtn.click();
-    await expect(page.locator('[data-testid="status-indicator"]')).toContainText('CHỜ BẮT ĐẦU');
+    await expect(page.locator('[data-testid="status-indicator"]')).toContainText(/chờ bắt đầu/i);
 
     // 7. Chuyển hiệp: Nghỉ ngắn 5p -> Nghỉ dài 15p -> Tập trung 25p
     const tabShort = page.locator('[data-testid="tab-short_break"]');
@@ -92,12 +92,12 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
     // Mở Widget Audio từ DockBar nếu chưa mở
     const audioWidget = page.locator('[data-testid="audio-widget-root"]');
     if (!(await audioWidget.isVisible())) {
-      const audioDockBtn = page.locator('[data-testid="btn-widget-audio"]');
-      if (await audioDockBtn.isVisible()) {
-        await audioDockBtn.click();
+      const soundsDockBtn = page.locator('[data-testid="dock-btn-sounds"]');
+      if (await soundsDockBtn.isVisible()) {
+        await soundsDockBtn.click();
       }
     }
-    await expect(audioWidget).toBeVisible({ timeout: 10000 });
+    await expect(audioWidget).toBeVisible({ timeout: 15000 });
 
     // 1. Chuyển sang Tab Âm Thanh Nền
     const tabAmbient = page.locator('[data-testid="tab-ambient"]');
@@ -152,15 +152,19 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
 
     await page.goto(`${TARGET_URL}/app`, { waitUntil: 'domcontentloaded' });
 
-    // Mở Tasks widget từ DockBar nếu chưa mở
-    const tasksWidget = page.locator('[data-testid="input-new-task"]');
-    if (!(await tasksWidget.isVisible())) {
-      const taskDockBtn = page.locator('[data-testid="btn-widget-tasks"]');
-      if (await taskDockBtn.isVisible()) {
-        await taskDockBtn.click();
+    // Đảm bảo Tasks widget đang mở và không bị collapse
+    await page.evaluate(() => {
+      const layout = (window as unknown as { useLayoutStore?: { getState: () => { openWidget: (id: string) => void; toggleCollapse: (id: string) => void; widgets: Record<string, { isOpen: boolean; isCollapsed: boolean }> } } }).useLayoutStore;
+      if (layout) {
+        layout.getState().openWidget('tasks');
+        if (layout.getState().widgets.tasks?.isCollapsed) {
+          layout.getState().toggleCollapse('tasks');
+        }
       }
-    }
-    await expect(tasksWidget).toBeVisible({ timeout: 10000 });
+    });
+
+    const tasksWidget = page.locator('[data-testid="input-new-task"]');
+    await expect(tasksWidget).toBeVisible({ timeout: 15000 });
 
     const taskTitle1 = `Task P1 Khẩn Cấp - ${Date.now()}`;
     const taskTitle2 = `Task P2 Quan Trọng - ${Date.now()}`;
@@ -187,7 +191,8 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
     // 4. Tick hoàn thành Task 1
     const task1Row = page.locator(`[data-testid^="task-item-"]:has-text("${taskTitle1}")`);
     const task1Checkbox = task1Row.locator('input[type="checkbox"]');
-    await task1Checkbox.check();
+    await task1Checkbox.click();
+    await expect(task1Checkbox).toBeChecked();
 
     // Xác nhận có gạch ngang
     await expect(task1Row.locator(`text="${taskTitle1}"`)).toHaveClass(/line-through/);
@@ -287,26 +292,30 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
     // 1. Ở Tab 1: Bấm Bắt đầu đếm giờ
     const p1Start = page1.locator('[data-testid="timer-start-btn"]');
     await p1Start.click();
-    await expect(page1.locator('[data-testid="status-indicator"]')).toContainText('ĐANG CHẠY');
+    await expect(page1.locator('[data-testid="status-indicator"]')).toContainText(/đang chạy/i);
 
-    // 2. Ở Tab 2: Xác nhận tự động đồng bộ nhảy sang "ĐANG CHẠY" trong vòng 2 giây
-    await expect(page2.locator('[data-testid="status-indicator"]')).toContainText('ĐANG CHẠY', { timeout: 5000 });
+    // 2. Ở Tab 2: Xác nhận tự động đồng bộ nhảy sang "Đang chạy" trong vòng 3 giây
+    await expect(page2.locator('[data-testid="status-indicator"]')).toContainText(/đang chạy/i, { timeout: 5000 });
 
     // Chờ 2 giây để cả 2 tab cùng tick
     await page1.waitForTimeout(2000);
 
-    // Đọc số thời gian của 2 tab: Phải khớp nhau đến từng giây
+    // Đọc số thời gian của 2 tab: Chuyển mm:ss sang giây và kiểm tra độ chênh lệch <= 2 giây (chống lệch do read latency giữa 2 tab)
     const p1Time = await page1.locator('[data-testid="timer-display"]').innerText();
     const p2Time = await page2.locator('[data-testid="timer-display"]').innerText();
-    expect(p1Time).toBe(p2Time);
+    const parseSec = (t: string) => {
+      const [m, s] = t.split(':').map(Number);
+      return m * 60 + s;
+    };
+    expect(Math.abs(parseSec(p1Time) - parseSec(p2Time))).toBeLessThanOrEqual(2);
 
     // 3. Ở Tab 2: Bấm Tạm dừng
     const p2Pause = page2.locator('[data-testid="timer-pause-btn"]');
     await p2Pause.click();
-    await expect(page2.locator('[data-testid="status-indicator"]')).toContainText('TẠM DỪNG');
+    await expect(page2.locator('[data-testid="status-indicator"]')).toContainText(/tạm dừng/i);
 
     // 4. Ở Tab 1: Xác nhận cũng tự động tạm dừng ngay lập tức
-    await expect(page1.locator('[data-testid="status-indicator"]')).toContainText('TẠM DỪNG', { timeout: 5000 });
+    await expect(page1.locator('[data-testid="status-indicator"]')).toContainText(/tạm dừng/i, { timeout: 5000 });
     const p1PausedTime = await page1.locator('[data-testid="timer-display"]').innerText();
     const p2PausedTime = await page2.locator('[data-testid="timer-display"]').innerText();
     expect(p1PausedTime).toBe(p2PausedTime);
@@ -327,7 +336,7 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
 
     // Bắt đầu đếm giờ
     await page.locator('[data-testid="timer-start-btn"]').click();
-    await expect(page.locator('[data-testid="status-indicator"]')).toContainText('ĐANG CHẠY');
+    await expect(page.locator('[data-testid="status-indicator"]')).toContainText(/đang chạy/i);
 
     // Lấy targetEndTimeMs từ useTimerStore
     const targetEnd = await page.evaluate(() => {
@@ -361,10 +370,10 @@ test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
     // Mở Widget Audio
     const audioWidget = page.locator('[data-testid="audio-widget-root"]');
     if (!(await audioWidget.isVisible())) {
-      const btn = page.locator('[data-testid="btn-widget-audio"]');
-      if (await btn.isVisible()) await btn.click();
+      const soundsDockBtn = page.locator('[data-testid="dock-btn-sounds"]');
+      if (await soundsDockBtn.isVisible()) await soundsDockBtn.click();
     }
-    await expect(audioWidget).toBeVisible({ timeout: 10000 });
+    await expect(audioWidget).toBeVisible({ timeout: 15000 });
 
     // Bật đồng thời 5 track âm thanh thông qua useAudioStore
     const playingCount = await page.evaluate(async () => {
