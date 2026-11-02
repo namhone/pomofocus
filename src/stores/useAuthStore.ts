@@ -11,6 +11,7 @@ import {
   isVipFriend,
   getPlanLabel
 } from '../services/authService';
+import { smsSecurityService } from '../services/smsSecurityService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
 
 export interface AuthState {
@@ -40,6 +41,11 @@ export interface AuthState {
   changePassword: (oldPass: string, newPass: string) => Promise<boolean>;
   deleteAccount: () => Promise<boolean>;
   signOutOtherDevices: () => Promise<{ success: boolean; message: string }>;
+  // SMS 2FA actions
+  sendSmsOtp: (phone: string) => Promise<{ success: boolean; message: string; cooldownSeconds?: number; demoCode?: string }>;
+  verifyAndLinkPhone: (phone: string, code: string) => Promise<{ success: boolean; message: string }>;
+  unlinkPhone: () => Promise<{ success: boolean; message: string }>;
+  toggleTwoFactor: (enabled: boolean) => Promise<{ success: boolean; message: string }>;
   exportUserData: () => Promise<UserDataExport | null>;
   clearUserData: () => Promise<boolean>;
   upgradeToPro: (durationMonths?: number) => void;
@@ -211,6 +217,49 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     signOutOtherDevices: async () => {
       return await authService.signOutOtherDevices();
+    },
+
+    sendSmsOtp: async (phone: string) => {
+      return await smsSecurityService.sendSmsOtp(phone);
+    },
+
+    verifyAndLinkPhone: async (phone: string, code: string) => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Vui lòng đăng nhập trước khi liên kết.' };
+      const res = await smsSecurityService.verifyAndLinkPhone(user.id, phone, code);
+      if (res.success && res.user) {
+        set({
+          user: res.user,
+          ...computeDerivedPlanState(res.user)
+        });
+      }
+      return { success: res.success, message: res.message };
+    },
+
+    unlinkPhone: async () => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Chưa đăng nhập.' };
+      const res = await smsSecurityService.unlinkPhone(user.id);
+      if (res.success && res.user) {
+        set({
+          user: res.user,
+          ...computeDerivedPlanState(res.user)
+        });
+      }
+      return { success: res.success, message: res.message };
+    },
+
+    toggleTwoFactor: async (enabled: boolean) => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Chưa đăng nhập.' };
+      const res = await smsSecurityService.toggleTwoFactor(user.id, enabled);
+      if (res.success && res.user) {
+        set({
+          user: res.user,
+          ...computeDerivedPlanState(res.user)
+        });
+      }
+      return { success: res.success, message: res.message };
     },
 
     exportUserData: async () => {

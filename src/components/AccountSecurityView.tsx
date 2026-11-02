@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
@@ -18,12 +18,28 @@ import {
   CreditCard,
   Trash2,
   AlertTriangle,
-  X
+  X,
+  Phone,
+  MessageSquare,
+  ShieldCheck,
+  RotateCcw
 } from 'lucide-react';
+import { maskPhoneNumber } from '../services/smsSecurityService';
 
 export const AccountSecurityView: React.FC = () => {
   const router = useRouter();
-  const { user, isAuthenticated, changePassword, logout, deleteAccount, signOutOtherDevices } = useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    changePassword,
+    logout,
+    deleteAccount,
+    signOutOtherDevices,
+    sendSmsOtp,
+    verifyAndLinkPhone,
+    unlinkPhone,
+    toggleTwoFactor
+  } = useAuthStore();
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -32,10 +48,32 @@ export const AccountSecurityView: React.FC = () => {
   const [isSigningOutOthers, setIsSigningOutOthers] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // SMS 2FA & Phone State
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone');
+  const [otpCooldown, setOtpCooldown] = useState(0);
+  const [demoCodeNotice, setDemoCodeNotice] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [showUnlinkModal, setShowUnlinkModal] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
+
   // Danger Zone - Xóa tài khoản
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCooldown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCooldown]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -62,6 +100,7 @@ export const AccountSecurityView: React.FC = () => {
   }
 
   const isGoogleAccount = user.authProvider === 'google';
+  const hasLinkedPhone = Boolean(user.phoneNumber && user.phoneVerified);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +140,67 @@ export const AccountSecurityView: React.FC = () => {
     setIsSigningOutOthers(false);
     setStatusMessage({ type: 'success', text: res.message });
     setTimeout(() => setStatusMessage(null), 4000);
+  };
+
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setPhoneError(null);
+    setIsSendingOtp(true);
+    const res = await sendSmsOtp(phoneInput);
+    setIsSendingOtp(false);
+    if (!res.success) {
+      setPhoneError(res.message);
+      if (res.cooldownSeconds) setOtpCooldown(res.cooldownSeconds);
+      return;
+    }
+    setOtpStep('otp');
+    setOtpCooldown(res.cooldownSeconds || 60);
+    if (res.demoCode) {
+      setDemoCodeNotice(res.demoCode);
+    }
+    setStatusMessage({ type: 'success', text: res.message });
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPhoneError(null);
+    setIsVerifyingOtp(true);
+    const res = await verifyAndLinkPhone(phoneInput, otpInput);
+    setIsVerifyingOtp(false);
+    if (!res.success) {
+      setPhoneError(res.message);
+      return;
+    }
+    setShowPhoneModal(false);
+    setPhoneInput('');
+    setOtpInput('');
+    setOtpStep('phone');
+    setDemoCodeNotice(null);
+    setStatusMessage({ type: 'success', text: res.message });
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
+  const handleToggle2Fa = async () => {
+    const nextState = !user.twoFactorEnabled;
+    const res = await toggleTwoFactor(nextState);
+    if (res.success) {
+      setStatusMessage({ type: 'success', text: res.message });
+    } else {
+      setStatusMessage({ type: 'error', text: res.message });
+    }
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
+  const handleConfirmUnlink = async () => {
+    setIsUnlinking(true);
+    const res = await unlinkPhone();
+    setIsUnlinking(false);
+    setShowUnlinkModal(false);
+    setStatusMessage({
+      type: res.success ? 'success' : 'error',
+      text: res.message
+    });
+    setTimeout(() => setStatusMessage(null), 5000);
   };
 
   const handleConfirmDeleteAccount = async () => {
@@ -180,7 +280,7 @@ export const AccountSecurityView: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Kiểm tra phương thức xác thực đã liên kết, đổi mật khẩu an toàn và quản lý các phiên đăng nhập.
+            Kiểm tra phương thức xác thực đã liên kết, kích hoạt xác thực 2 bước (SMS 2FA) và quản lý phiên đăng nhập.
           </p>
         </div>
 
@@ -200,6 +300,144 @@ export const AccountSecurityView: React.FC = () => {
             <span className="font-medium">{statusMessage.text}</span>
           </div>
         )}
+
+        {/* ========================================================================= */}
+        {/* MỤC MỚI: XÁC THỰC 2 LỚP & LIÊN KẾT SMS (SMS 2FA SECURITY)                */}
+        {/* ========================================================================= */}
+        <div data-testid="sms-security-card" className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <MessageSquare size={16} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-white">Xác Thực 2 Bước &amp; Liên Kết Số Điện Thoại (SMS 2FA)</h2>
+                <div className="text-[11px] text-zinc-400">Tăng cường lớp bảo vệ thứ hai cho tài khoản qua mã xác minh OTP.</div>
+              </div>
+            </div>
+
+            <span
+              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 whitespace-nowrap ${
+                hasLinkedPhone
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+              }`}
+            >
+              {hasLinkedPhone ? 'ĐÃ LIÊN KẾT SỐ' : 'CHƯA LIÊN KẾT'}
+            </span>
+          </div>
+
+          {hasLinkedPhone ? (
+            /* Trạng thái đã liên kết số điện thoại */
+            <div className="space-y-3 pt-2">
+              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <Phone size={18} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center gap-2">
+                      <span className="font-mono text-sm tracking-wider">{maskPhoneNumber(user.phoneNumber)}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-mono">
+                        XÁC MINH SMS HOÀN TẤT
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-zinc-400">
+                      Số điện thoại dùng để nhận mã OTP khi đăng nhập từ thiết bị lạ.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-testid="btn-change-phone"
+                    onClick={() => {
+                      setPhoneInput('');
+                      setOtpInput('');
+                      setOtpStep('phone');
+                      setPhoneError(null);
+                      setDemoCodeNotice(null);
+                      setShowPhoneModal(true);
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
+                  >
+                    Đổi Số Khác
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="btn-unlink-phone"
+                    onClick={() => setShowUnlinkModal(true)}
+                    className="px-3 py-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition cursor-pointer"
+                  >
+                    Hủy Liên Kết
+                  </button>
+                </div>
+              </div>
+
+              {/* Toggle switch 2FA SMS */}
+              <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck size={18} className={user.twoFactorEnabled ? 'text-emerald-400' : 'text-zinc-500'} />
+                  <div>
+                    <div className="text-xs font-semibold text-white">Kích Hoạt Bảo Vệ Đăng Nhập 2FA (SMS OTP)</div>
+                    <div className="text-[11px] text-zinc-400">
+                      {user.twoFactorEnabled
+                        ? 'Đang bật: Bắt buộc nhập mã OTP gửi về SMS khi đăng nhập thiết bị mới.'
+                        : 'Đang tắt: Không yêu cầu mã OTP khi đăng nhập.'}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  data-testid="toggle-two-factor"
+                  onClick={handleToggle2Fa}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out ${
+                    user.twoFactorEnabled ? 'bg-emerald-500' : 'bg-zinc-700'
+                  }`}
+                >
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+                      user.twoFactorEnabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Trạng thái chưa liên kết số điện thoại */
+            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <div className="font-semibold text-white">Chưa Liên Kết Số Điện Thoại Bảo Vệ</div>
+                  <div className="text-[11px] text-zinc-400">
+                    Liên kết số điện thoại để nhận mã OTP SMS khi đăng nhập và ngăn chặn truy cập trái phép.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                data-testid="btn-open-link-phone"
+                onClick={() => {
+                  setPhoneInput('');
+                  setOtpInput('');
+                  setOtpStep('phone');
+                  setPhoneError(null);
+                  setDemoCodeNotice(null);
+                  setShowPhoneModal(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition cursor-pointer shrink-0 shadow"
+              >
+                Liên Kết Số &amp; Bật 2FA
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Identity & Linked Providers */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
@@ -256,7 +494,7 @@ export const AccountSecurityView: React.FC = () => {
           <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-2 leading-relaxed">
             <Info size={14} className="text-zinc-500 shrink-0 mt-0.5" />
             <span>
-              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm hoặc mật khẩu tài khoản tùy ý.
+              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu hoặc số điện thoại OTP để bảo vệ dữ liệu.
             </span>
           </div>
         </div>
@@ -413,7 +651,209 @@ export const AccountSecurityView: React.FC = () => {
         </div>
       </main>
 
-      {/* Modal xác nhận xóa tài khoản */}
+      {/* ========================================================================= */}
+      {/* MODAL 1: LIÊN KẾT SỐ ĐIỆN THOẠI & NHẬP MÃ OTP SMS                        */}
+      {/* ========================================================================= */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                <Smartphone size={18} />
+                <span>Liên Kết Số Điện Thoại &amp; Bật SMS 2FA</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPhoneModal(false);
+                  setPhoneError(null);
+                  setDemoCodeNotice(null);
+                }}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {phoneError && (
+              <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-950/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0 text-rose-400" />
+                <span>{phoneError}</span>
+              </div>
+            )}
+
+            {/* Thông báo mã Demo/Sandbox */}
+            {demoCodeNotice && (
+              <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-950/30 text-amber-200 text-xs space-y-1">
+                <div className="font-semibold flex items-center gap-1.5 text-amber-300">
+                  <CheckCircle2 size={14} className="text-amber-400" />
+                  <span>Tin nhắn SMS mô phỏng đã đến:</span>
+                </div>
+                <div className="font-mono text-sm tracking-widest text-white bg-black/40 p-1.5 rounded-lg text-center">
+                  Mã OTP: <strong>{demoCodeNotice}</strong>
+                </div>
+              </div>
+            )}
+
+            {otpStep === 'phone' ? (
+              /* Bước 1: Nhập số điện thoại */
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Nhập số điện thoại di động của bạn để nhận mã xác minh OTP qua tin nhắn SMS:
+                </p>
+
+                <div>
+                  <label className="block text-zinc-300 text-xs font-medium mb-1.5">
+                    Số Điện Thoại (Việt Nam)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono">
+                      +84
+                    </span>
+                    <input
+                      type="tel"
+                      autoFocus
+                      data-testid="input-phone-number"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      placeholder="0987654321..."
+                      className="w-full pl-12 pr-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-emerald-400 transition"
+                      required
+                    />
+                  </div>
+                  <span className="text-[10px] text-zinc-500 mt-1 block">
+                    Hỗ trợ các nhà mạng Viettel, Vinaphone, Mobifone, Vietnamobile, Wintel...
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setShowPhoneModal(false)}
+                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+                  >
+                    Hủy Bỏ
+                  </button>
+                  <button
+                    type="submit"
+                    data-testid="btn-send-sms-otp"
+                    disabled={isSendingOtp}
+                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    {isSendingOtp ? 'Đang gửi...' : 'Gửi Mã Xác Minh OTP'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Bước 2: Nhập mã OTP 6 số */
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Mã OTP gồm 6 chữ số đã được gửi tới số <strong>{maskPhoneNumber(phoneInput)}</strong>. Vui lòng nhập mã để hoàn tất:
+                </p>
+
+                <div>
+                  <label className="block text-zinc-300 text-xs font-medium mb-1.5">
+                    Mã Xác Thực OTP (6 chữ số)
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    autoFocus
+                    data-testid="input-sms-otp"
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                    placeholder="••••••"
+                    className="w-full px-3.5 py-3 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-center font-mono text-lg tracking-widest focus:outline-none focus:border-emerald-400 transition"
+                    required
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-zinc-400">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpStep('phone');
+                      setOtpInput('');
+                    }}
+                    className="text-zinc-400 hover:text-white transition cursor-pointer"
+                  >
+                    ← Đổi số khác
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={otpCooldown > 0 || isSendingOtp}
+                    onClick={() => handleSendOtp()}
+                    className="text-emerald-400 hover:text-emerald-300 disabled:text-zinc-600 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <RotateCcw size={12} />
+                    <span>{otpCooldown > 0 ? `Gửi lại sau ${otpCooldown}s` : 'Gửi lại mã'}</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setShowPhoneModal(false)}
+                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+                  >
+                    Hủy Bỏ
+                  </button>
+                  <button
+                    type="submit"
+                    data-testid="btn-verify-sms-otp"
+                    disabled={otpInput.length !== 6 || isVerifyingOtp}
+                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    {isVerifyingOtp ? 'Đang kiểm tra...' : 'Xác Nhận & Kích Hoạt 2FA'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: XÁC NHẬN HỦY LIÊN KẾT SỐ ĐIỆN THOẠI                            */}
+      {/* ========================================================================= */}
+      {showUnlinkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+              <AlertTriangle size={18} />
+              <span>Hủy Liên Kết Số Điện Thoại</span>
+            </div>
+
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              Bạn có chắc chắn muốn hủy liên kết số <strong>{maskPhoneNumber(user.phoneNumber)}</strong>? Tính năng xác thực 2 bước (SMS 2FA) sẽ tự động bị tắt.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setShowUnlinkModal(false)}
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+              >
+                Giữ Lại
+              </button>
+              <button
+                type="button"
+                data-testid="btn-confirm-unlink"
+                disabled={isUnlinking}
+                onClick={handleConfirmUnlink}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer shadow-md"
+              >
+                {isUnlinking ? 'Đang hủy...' : 'Xác Nhận Hủy'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: XÁC NHẬN XÓA TÀI KHOẢN VĨNH VIỄN (GDPR)                         */}
+      {/* ========================================================================= */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-6 text-white shadow-2xl space-y-4">

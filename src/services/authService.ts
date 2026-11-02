@@ -27,6 +27,10 @@ export interface UserProfile {
   focusGoal?: string;
   hideEmailInRoom?: boolean;
   incognitoJoinRoom?: boolean;
+  // SMS 2FA & Phone Security
+  phoneNumber?: string;
+  phoneVerified?: boolean;
+  twoFactorEnabled?: boolean;
 }
 
 export interface ProfileUpdates {
@@ -37,6 +41,9 @@ export interface ProfileUpdates {
   focusGoal?: string;
   hideEmailInRoom?: boolean;
   incognitoJoinRoom?: boolean;
+  phoneNumber?: string | null;
+  phoneVerified?: boolean;
+  twoFactorEnabled?: boolean;
 }
 
 export interface StoredUserAccount extends UserProfile {
@@ -363,8 +370,16 @@ export const authService = {
       ...(updates.bio !== undefined ? { bio: updates.bio.trim() } : {}),
       ...(updates.focusGoal !== undefined ? { focusGoal: updates.focusGoal.trim() } : {}),
       ...(updates.hideEmailInRoom !== undefined ? { hideEmailInRoom: Boolean(updates.hideEmailInRoom) } : {}),
-      ...(updates.incognitoJoinRoom !== undefined ? { incognitoJoinRoom: Boolean(updates.incognitoJoinRoom) } : {})
+      ...(updates.incognitoJoinRoom !== undefined ? { incognitoJoinRoom: Boolean(updates.incognitoJoinRoom) } : {}),
+      ...(updates.phoneVerified !== undefined ? { phoneVerified: Boolean(updates.phoneVerified) } : {}),
+      ...(updates.twoFactorEnabled !== undefined ? { twoFactorEnabled: Boolean(updates.twoFactorEnabled) } : {})
     };
+
+    if (updates.phoneNumber === null || updates.phoneNumber === '') {
+      delete updatedProfile.phoneNumber;
+    } else if (updates.phoneNumber !== undefined) {
+      updatedProfile.phoneNumber = updates.phoneNumber.trim();
+    }
 
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updatedProfile));
 
@@ -376,6 +391,9 @@ export const authService = {
           ...users[key],
           ...updatedProfile
         };
+        if (!updatedProfile.phoneNumber) {
+          delete users[key].phoneNumber;
+        }
       }
     }
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
