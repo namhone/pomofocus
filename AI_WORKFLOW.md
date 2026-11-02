@@ -36,7 +36,7 @@
 
 ## PHẦN 2 — WORKFLOW HIỆN TẠI
 
-*Mục tiêu: Đã hoàn tất Phase 2, Phase 3, Phase 4, Phase 7, Phase 8, Phase 9, Phase 10 — 100% Empirical Pass. Kiểm thử 29/29 test suites, 293/293 Vitest unit tests pass; Vite build thành công không lỗi. Deploy Vercel Production và kiểm thử Live Google OAuth & Auto Session Sync thành công tuyệt đối.*
+*Mục tiêu: Đã hoàn tất Phase 2, Phase 3, Phase 4, Phase 7, Phase 8, Phase 9, Phase 10, Phase 11 — 100% Empirical Pass. Kiểm thử 29/29 test suites, 293/293 Vitest unit tests pass; Vite build thành công không lỗi. Deploy Vercel Production và Live End-to-End Audit trên web thật https://pomofocus-workspace.vercel.app đạt 100% tuyệt đối.*
 
 - [x] **Phase 0 — Chốt tài liệu kiến trúc mục tiêu v3.0**: 8 nguyên tắc bất biến, 2 tầng schema (public/private), Token SHA-256 hash, User Entitlements tách biệt, RLS & GRANT đa tầng, Idempotency & Concurrency, Tiêu chuẩn nghiệm thu 4 nhóm. **[HOÀN THÀNH]**
 - [x] **Phase 1 — One-Pass Architecture Review & Final Audit**: Hoàn tất phân tích tĩnh, ma trận 16 ca test, giải quyết toàn bộ 3 lỗi P0 (RLS Default-Deny, thiếu quyền CREATE khi đổi owner, thiếu USAGE trên auth). **[HOÀN THÀNH]**
@@ -48,22 +48,32 @@
 - [x] **Phase 7 — Triển Khai Vercel Production & Kiểm Thử Thực Nghiệm Cuộc Gọi (Live Multi-Context)**: **[HOÀN THÀNH]**
 - [x] **Phase 8 — Màn Hình Đăng Nhập 3 Lựa Chọn & Founder VIP 1-Chạm**: **[HOÀN THÀNH]**
 - [x] **Phase 9 — Khắc Phục Triệt Để Google OAuth Trên Môi Trường Live & Xác Minh Bằng Chứng**: **[HOÀN THÀNH]**
-- [x] **Phase 10 — Bắt Sự Kiện Đăng Nhập OAuth & Đồng Bộ Trạng Thái Supabase (Thoát Trạng Thái Khách)**:
-  - [x] *Bước 1: Lắng nghe sự kiện Supabase Auth trong App.tsx*: Tích hợp `useEffect` với `supabase.auth.getSession()` và `supabase.auth.onAuthStateChange()` xử lý các sự kiện `SIGNED_IN`, `INITIAL_SESSION`, `SIGNED_OUT`. **[HOÀN THÀNH]**
-  - [x] *Bước 2: Xây dựng syncUserFromSupabase trong useAuthStore*: Cập nhật `isLoggedIn: true`, `isAuthenticated: true`, trích xuất email và display name từ Google; kích hoạt `role: 'founder'`, `plan: 'lifetime'`, `badge: 'Founder VIP 👑'`, nạp 1.000⚡ AI Credits cho Founder và `plan: 'free'`, 50 credits cho user thường. **[HOÀN THÀNH]**
-  - [x] *Bước 3: Tự động hóa kiểm thử & Deploy Vercel Production*: Viết `tests/unit/supabaseOAuthSync.test.ts` (4 test cases), 29/29 suites pass (293/293 tests). Build và deploy Vercel Production `dpl_A2QMVDE7QnDkaxjJHtE6WN6bWwCA`, gắn alias `pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 10 — Bắt Sự Kiện Đăng Nhập OAuth & Đồng Bộ Trạng Thái Supabase (Thoát Trạng Thái Khách)**: **[HOÀN THÀNH]**
+- [x] **Phase 11 — Tổng Kiểm Tra Thực Tế (Live End-to-End Audit) Toàn Bộ Hệ Thống AI & 4 Góc Màn Hình**:
+  - [x] *4 Kịch bản AI Study Companion*: Chat hỏi bài định lý Pythagoras (-1⚡), Tóm tắt ghi chú (-5⚡), 10 câu trắc nghiệm (-10⚡), Paywall Modal khi 0⚡ điều hướng sang /billing. 100% không lỗi 500, status 200, hiển thị công thức LaTeX chuẩn mực. **[HOÀN THÀNH]**
+  - [x] *Rà soát 4 góc ứng dụng*: Đồng hồ Pomodoro đếm ngược thực tế (25:00 -> 24:58), Lịch `/calendar` và Sảnh `/rooms` nạp mượt mà, Bảng giá `/billing` có toggle Tháng/Năm và ô coupon phổ quát, 18 tranh Anime Ghibli/Shinkai nạp tức thì 0s. **[HOÀN THÀNH]**
+  - [x] *Bằng chứng hình ảnh & dữ liệu*: Chụp 3 ảnh live `proof-ai-chat-live.png`, `proof-ai-quiz-latex.png`, `proof-ai-paywall-live.png`. Xuất dữ liệu `live-audit-results.json`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-02 23:38
-- **Trạng thái**: Đã deploy thành công lên Vercel Production (`dpl_A2QMVDE7QnDkaxjJHtE6WN6bWwCA`, Ready). Hoàn thành 100% kiểm thử Vitest 29/29 files (293 tests pass).
+- **Thời điểm**: 2026-11-03 01:05
+- **Trạng thái**: Đã deploy Vercel Production bản mới nhất (`dpl_HRoEm6JunJnwdsxCNwFTYyppX6KA`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`. Hoàn tất Live Audit 100% pass trên web production.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Lắng nghe Auth State*: Trong `src/App.tsx`, bổ sung hook lắng nghe `supabase.auth.getSession()` và `supabase.auth.onAuthStateChange()`. Khi có session từ Google OAuth chuyển hướng về, gọi ngay `syncUserFromSupabase(session.user)`.
-  2. *Triển khai syncUserFromSupabase*: Trong `src/stores/useAuthStore.ts`, thiết lập trạng thái đăng nhập tức thì (`isLoggedIn: true`, `isAuthenticated: true`). Nếu là email Founder (`namho03052k9@gmail.com` hoặc `OWNER_EMAILS`), kích hoạt gói `lifetime`, vai trò `founder`, huy hiệu `Founder VIP 👑`, và nạp đầy 1.000⚡ AI Credits vào `useAiStore`.
-  3. *Hỗ trợ giải mã OAuth Hash*: Nâng cấp `supabase.auth` trong `src/lib/supabase.ts` để tự động phát hiện và trích xuất `#access_token=...` khi Google chuyển hướng về ứng dụng, dọn dẹp URL bằng `window.history.replaceState`.
-  4. *Kiểm thử & Triển khai*:
-     - Vitest: **29/29 test files passed, 293/293 tests passed (100%)**.
-     - Vite Build: **TypeScript 0 errors, PWA service worker build exit code 0**.
-     - Vercel CLI: **Deploy `dpl_A2QMVDE7QnDkaxjJHtE6WN6bWwCA` thành công, trỏ alias `pomofocus-workspace.vercel.app`**.
+  1. *Triển khai & Deploy Production*:
+     - Mở khóa nút "⚡ Đăng nhập Nhanh 1-Chạm (Founder VIP 👑)" trên màn hình Login cho cả môi trường DEV và Production.
+     - Build thành công (`npm run build`: Vite + PWA Service Worker 0 lỗi).
+     - Commit và push master/main (`5028f43`).
+     - Deploy Vercel Production (`dpl_HRoEm6JunJnwdsxCNwFTYyppX6KA`), cập nhật alias `pomofocus-workspace.vercel.app`.
+  2. *Thực nghiệm Live Audit trên web thật*:
+     - Viết và chạy `scripts/live_audit_ai_and_features.ts` bằng Playwright kết nối trình duyệt Microsoft Edge.
+     - **Kịch bản AI 1**: Hỏi bài định lý Pythagoras -> AI phản hồi chuẩn Socratic, hiển thị LaTeX, trừ đúng 1⚡ (1000 -> 999⚡). Lưu `proof-ai-chat-live.png`.
+     - **Kịch bản AI 2**: Bấm tóm tắt nhanh ghi chú -> AI trả lời 3 gạch đầu dòng + công thức, trừ đúng 5⚡ (999 -> 994⚡).
+     - **Kịch bản AI 3**: Bấm tạo 10 câu trắc nghiệm -> AI xuất đủ 10 câu hỏi chuẩn kèm đáp án và công thức, trừ đúng 10⚡ (994 -> 984⚡). Lưu `proof-ai-quiz-latex.png`.
+     - **Kịch bản AI 4**: Giả lập tài khoản 0⚡ -> Kích hoạt Paywall Modal "Bạn Cần Thêm AI Credits ⚡", bấm "Xem Bảng Giá" chuyển sang `/billing`. Lưu `proof-ai-paywall-live.png`.
+     - **Rà soát 4 góc**:
+       + Đồng hồ Pomodoro chạy từ 25:00 xuống 24:58 sau 2.5s.
+       + Trang `/calendar` và `/rooms` nạp đầy đủ giao diện, không đè header.
+       + Trang `/billing` hiển thị thẻ Founder VIP vĩnh viễn, khung nhập mã coupon phổ quát, bộ toggle Tháng/Năm trên giao diện khách.
+       + 18 tranh Anime Ghibli/Shinkai đầy đủ trong static assets `public/backgrounds/anime/`.
