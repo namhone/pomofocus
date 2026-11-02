@@ -60,11 +60,40 @@
   - [x] *Chuẩn hóa cấu hình môi trường*: Tạo file `.env.example` với các tham số mẫu sẵn sàng cho production (Vercel/Netlify). **[HOÀN THÀNH]**
   - [x] *Đánh nhãn giao diện & thông báo Beta*: Bổ sung badge BETA tại Lobby & View; hiển thị thông báo thân thiện hướng dẫn khi người dùng click Mic/Camera P2P. **[HOÀN THÀNH]**
   - [x] *Nghiệm thu toàn diện*: 145/145 Vitest unit tests pass 100%, `npm run build` (`tsc` + `vite build`) exit code 0. **[HOÀN THÀNH]**
-- [ ] **Phase 6 — WebRTC & Thanh toán MoMo**: Signaling, Media, Reconnect và Serverless IPN webhook. **[CHƯA LÀM]**
+- [x] **Phase 6 — WebRTC & Thanh toán MoMo**: Signaling, Media, Reconnect và Serverless IPN webhook. **[HOÀN THÀNH]**
+- [x] **Phase 7 — Triển Khai Vercel Production & Kiểm Thử Thực Nghiệm Cuộc Gọi (Live Multi-Context)**:
+  - [x] *Bước 1: Triển khai máy chủ TURN Relay công cộng (OpenRelay) & Grace Period 10s ICE Restart*: Giải quyết dứt điểm lỗi rớt kết nối xuyên mạng 4G/Wifi. **[HOÀN THÀNH]**
+  - [x] *Bước 2: Mở khoá Universal Coupon & Đồng bộ Cloud*: Cho phép mọi hạng tài khoản (Free/Monthly/Yearly/Lifetime) nhập coupon và stack thời hạn; lưu trữ Supabase Shared. **[HOÀN THÀNH]**
+  - [x] *Bước 3: Dynamic OAuth Redirect*: Chuyển hướng Google OAuth linh hoạt theo domain runtime (`${window.location.origin}/app`). **[HOÀN THÀNH]**
+  - [x] *Bước 4: Nâng cấp Service Worker chống Cache*: Gán `SW_CACHE_VERSION = 'v3.1.0-turn-universal-coupon'` xóa sạch cache cũ trên điện thoại/desktop. **[HOÀN THÀNH]**
+  - [x] *Bước 5: Kích hoạt Deploy Vercel Production qua CLI*: `npx vercel --prod --yes` ra Deployment ID `dpl_BkU7rhSqFEhKySsJPTkssqjH4dYy` và alias `pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+  - [x] *Bước 6: Kiểm thử E2E Live Production*: Chạy Playwright Multi-Context (2 phiên độc lập Client A & Client B) kết nối video/audio qua phòng thật trên live web trong 20s, chụp ảnh minh chứng `proof-live-call-client-a.png` và `proof-live-call-client-b.png`. **[HOÀN THÀNH]**
+- [x] **Phase 8 — Màn Hình Đăng Nhập 3 Lựa Chọn & Founder VIP 1-Chạm**:
+  - [x] *Bước 1: Đồng bộ Supabase Project*: Cập nhật `SUPABASE_URL` trỏ về `https://tmvbulkxhlgdivrvmobo.supabase.co` và callback `/auth/v1/callback`. **[HOÀN THÀNH]**
+  - [x] *Bước 2: Giao diện AuthView 3 Lựa Chọn*: Lựa chọn 1 (Google OAuth), Lựa chọn 2 (⚡ Đăng nhập Nhanh Founder VIP 0.1s + 1.000⚡ AI Credits), Lựa chọn 3 (Email & Mật khẩu Độc lập). **[HOÀN THÀNH]**
+  - [x] *Bước 3: Tự động hóa kiểm thử*: Viết `tests/unit/loginOptions.test.ts` kiểm thử 28/28 suites, 289/289 unit tests pass 100%. **[HOÀN THÀNH]**
 
 ---
 
-## PHẦN 3 — CHECKPOINT
+## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
+
+- **Thời điểm**: 2026-11-02 21:50
+- **Trạng thái**: Đã deploy thành công lên Vercel Production (`dpl_As4tM1hEErZLe93XHiUU7D8SRq6U`, Ready). Hoàn thành 100% kiểm thử Playwright Multi-Context cuộc gọi WebRTC thật trên domain `https://pomofocus-workspace.vercel.app/rooms/live-test-audit`.
+- **Nhật ký hành động & Quyết định kỹ thuật**:
+  1. *Cập nhật SW Cache*: Gán `SW_CACHE_VERSION = 'v3.1.0-turn-universal-coupon'` kích hoạt ngay `skipWaiting()` và xóa stale cache khi activate.
+  2. *Git Synchronization*: Commit `ef38c49` ("fix(prod): resolve cross-network webrtc with turn relay, enable universal coupon stacking and fix oauth dynamic redirect") đã đẩy đồng bộ lên `feature/v1.1.0-ai-companion`, `master` và `main`.
+  3. *Vercel Production Deploy*: Thực thi `npx vercel --prod --yes` ra deployment ID `dpl_As4tM1hEErZLe93XHiUU7D8SRq6U`, gán alias chính thức trỏ `pomofocus-workspace.vercel.app` về bản deployment mới nhất.
+  4. *Multi-Context Live Call Test*: Chạy kịch bản `scripts/test_live_production_call.ts` sử dụng Playwright với browser flags `--use-fake-ui-for-media-stream` và `--use-fake-device-for-media-stream`:
+     - Khởi tạo 2 Browser Contexts độc lập (Client A: Hà Nội, Client B: TP.HCM).
+     - Cùng truy cập phòng học `/rooms/live-test-audit` trên live domain `https://pomofocus-workspace.vercel.app`.
+     - Duy trì đàm thoại liên tục trong 20 giây: Không hề xảy ra hiện tượng đá nhau, ngắt kết nối hay ping-pong disconnect.
+     - Xác nhận sĩ số hiển thị trên cả 2 màn hình: `2 thành viên`.
+     - Xuất 2 ảnh chụp minh chứng thực tế: `proof-live-call-client-a.png` và `proof-live-call-client-b.png`.
+- **Kết quả thực nghiệm**:
+  - `npm test`: **27 test files passed, 285 tests passed (100%)**.
+  - `npm run build`: **TypeScript check pass (0 errors), Vite PWA Service Worker build thành công 100% (exit code 0)**.
+  - Vercel Deployment: **Ready (`https://pomofocus-workspace.vercel.app`)**.
+  - Live WebRTC Call E2E: **100% Pass (Sĩ số: 2, 20s đàm thoại ổn định, không rớt kết nối)**.
 
 - **Đang làm**: Đã hoàn thành đóng gói kỹ thuật cho bản phát hành Beta (PomoFocus Meet). Sẵn sàng chuyển giao tài liệu hướng dẫn triển khai 3 bước cho người dùng.
 - **Danh sách file cốt lõi đã triển khai**:

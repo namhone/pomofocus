@@ -35,6 +35,7 @@ export interface AuthState {
 
   // Actions
   login: (email: string, pass: string) => Promise<boolean>;
+  loginAsFounder: () => Promise<boolean>;
   signup: (email: string, pass: string, name: string) => Promise<boolean>;
   loginWithGoogle: (payload: GoogleUserPayload) => Promise<boolean>;
   logout: () => void;
@@ -119,6 +120,26 @@ export const useAuthStore = create<AuthState>((set, get) => {
         return true;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Đăng ký không thành công';
+        set({ error: message, isLoading: false });
+        return false;
+      }
+    },
+
+    loginAsFounder: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const user = await authService.loginAsFounder();
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          lastSyncedAt: Date.now(),
+          ...computeDerivedPlanState(user)
+        });
+        return true;
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Đăng nhập Founder thất bại';
         set({ error: message, isLoading: false });
         return false;
       }

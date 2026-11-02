@@ -356,6 +356,52 @@ export const authService = {
    * Đảm bảo tham số redirectTo sử dụng động theo domain hiện tại (${window.location.origin}/app),
    * tuyệt đối không hardcode tên miền cũ.
    */
+  /**
+   * Đăng nhập Nhanh 1-Chạm (Chính chủ Founder VIP 👑)
+   * Lập tức tạo session tài khoản chính chủ namho03052k9@gmail.com với đặc quyền Lifetime Founder VIP.
+   * Nạp sẵn 1.000⚡ AI Credits vào useAiStore.
+   */
+  async loginAsFounder(): Promise<UserProfile> {
+    const founderProfile: UserProfile = {
+      id: 'usr_founder_owner',
+      email: OWNER_EMAIL,
+      displayName: 'Hồ Ngọc Bảo Nam (Founder 👑)',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+      plan: 'pro_lifetime',
+      isLifetime: true,
+      proExpiresAt: null,
+      emailVerified: true,
+      authProvider: 'google',
+      createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
+    };
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(founderProfile));
+      sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(founderProfile));
+
+      try {
+        const raw = localStorage.getItem(USERS_STORAGE_KEY);
+        const users = raw ? JSON.parse(raw) : {};
+        users[OWNER_EMAIL] = {
+          ...founderProfile,
+          passwordHash: 'founder_vip_session'
+        };
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      } catch {}
+    }
+
+    // Nạp sẵn 1.000⚡ AI Credits vào useAiStore
+    try {
+      const { useAiStore } = await import('../stores/useAiStore');
+      useAiStore.setState({
+        aiPlan: 'lifetime',
+        aiCreditsBalance: Math.max(useAiStore.getState().aiCreditsBalance, 1000)
+      });
+    } catch {}
+
+    return founderProfile;
+  },
+
   async signInWithOAuth(provider: 'google' = 'google', customRedirectTo?: string): Promise<{ data: { provider: string; url: string } | null; error: any }> {
     const defaultRedirect = typeof window !== 'undefined' && window.location.origin
       ? `${window.location.origin}/app`
