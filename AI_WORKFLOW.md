@@ -36,7 +36,7 @@
 
 ## PHẦN 2 — WORKFLOW HIỆN TẠI
 
-*Mục tiêu: Đã hoàn tất Phase 2 đến Phase 12 — 100% Empirical Pass. Kiểm thử 29/29 test suites, 293/293 Vitest unit tests pass; Vite build thành công không lỗi. Deploy Vercel Production và Master Deep Audit A-Z trên web thật https://pomofocus-workspace.vercel.app đạt 35/35 tiêu chí (100%).*
+*Mục tiêu: Đã hoàn tất Phase 2 đến Phase 13 — 100% Empirical Pass. Kiểm thử 30/30 test suites, 295/295 Vitest unit tests pass; Vite build thành công không lỗi. Deploy Vercel Production và cập nhật GEMINI_API_KEY cùng bộ lọc Greeting Intent thông minh.*
 
 - [x] **Phase 0 — Chốt tài liệu kiến trúc mục tiêu v3.0**: 8 nguyên tắc bất biến, 2 tầng schema (public/private), Token SHA-256 hash, User Entitlements tách biệt, RLS & GRANT đa tầng, Idempotency & Concurrency, Tiêu chuẩn nghiệm thu 4 nhóm. **[HOÀN THÀNH]**
 - [x] **Phase 1 — One-Pass Architecture Review & Final Audit**: Hoàn tất phân tích tĩnh, ma trận 16 ca test, giải quyết toàn bộ 3 lỗi P0 (RLS Default-Deny, thiếu quyền CREATE khi đổi owner, thiếu USAGE trên auth). **[HOÀN THÀNH]**
@@ -50,29 +50,26 @@
 - [x] **Phase 9 — Khắc Phục Triệt Để Google OAuth Trên Môi Trường Live & Xác Minh Bằng Chứng**: **[HOÀN THÀNH]**
 - [x] **Phase 10 — Bắt Sự Kiện Đăng Nhập OAuth & Đồng Bộ Trạng Thái Supabase (Thoát Trạng Thái Khách)**: **[HOÀN THÀNH]**
 - [x] **Phase 11 — Tổng Kiểm Tra Thực Tế (Live End-to-End Audit) Toàn Bộ Hệ Thống AI & 4 Góc Màn Hình**: **[HOÀN THÀNH]**
-- [x] **Phase 12 — Tổng Kiểm Tra Chuyên Sâu Toàn Năng Từ A Đến Z (Master Deep Audit A-Z)**:
-  - [x] *Quét sạch 7 Phân hệ*: Auth (5 tiêu chí), Workspace (5 tiêu chí), AI Companion (5 tiêu chí), Spaces (5 tiêu chí), WebRTC Meet (5 tiêu chí), Calendar (5 tiêu chí), Billing & Payment (5 tiêu chí). **[HOÀN THÀNH]**
-  - [x] *Đạt 35/35 tiêu chí (100%)*: Toàn bộ kịch bản tự động hóa trên script `scripts/masterDeepAuditAtoZ.ts` kết nối trực tiếp đến production. **[HOÀN THÀNH]**
-  - [x] *Bắt lỗi & Phân tích chuyên sâu*: Ghi nhận 0 lỗi sập ứng dụng, 0 lỗi JavaScript unhandled, mạng 401 trên Supabase được fallback mượt mà. **[HOÀN THÀNH]**
+- [x] **Phase 12 — Tổng Kiểm Tra Chuyên Sâu Toàn Năng Từ A Đến Z (Master Deep Audit A-Z)**: **[HOÀN THÀNH]**
+- [x] **Phase 13 — Cấu Hình GEMINI_API_KEY Lên Vercel & Bộ Lọc Chào Hỏi Tự Nhiên (Greeting Intent)**:
+  - [x] *Bộ lọc Greeting Intent*: Tách biệt câu chào hỏi ("xin chào", "hi", "hello", "alo",...) với câu hỏi bài tập. Đáp lại thân thiện tự nhiên, tuyệt đối không đưa công thức số e hay thuật toán chia để trị khi chào hỏi. **[HOÀN THÀNH]**
+  - [x] *Đồng bộ GEMINI_API_KEY*: Đẩy biến môi trường lên Vercel Production & Preview qua CLI (`AQ.Ab8RN6K9...KA`). **[HOÀN THÀNH]**
+  - [x] *Kiểm thử & Deploy Live*: Vitest 30/30 suites pass (295 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_GDLS6rsegRRv7qEHvh18xk6gJhEV` trỏ alias `https://pomofocus-workspace.vercel.app`. Kiểm tra trực tiếp API HTTP 200 trả về câu chào hỏi chuẩn mực. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 01:30
-- **Trạng thái**: Đã thực thi Master Deep Audit A-Z trên web production (`https://pomofocus-workspace.vercel.app`), kết quả: **35/35 Tiêu chí ĐẠT (100%)**.
+- **Thời điểm**: 2026-11-03 06:10
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_GDLS6rsegRRv7qEHvh18xk6gJhEV`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Xây dựng Kịch bản Master Deep Audit A-Z*:
-     - Viết script `scripts/masterDeepAuditAtoZ.ts` kiểm thử Playwright tự động bao quát 7 phân hệ cốt lõi với 35 tiêu chí kiểm tra độc lập.
-     - Lắng nghe sự kiện console và network responses để bắt toàn bộ lỗi 4xx/5xx hoặc lỗi tràn layout.
-  2. *Kết quả thực nghiệm 7 phân hệ*:
-     - **Phân hệ 1 (Auth)**: Google OAuth, Đăng nhập 1-chạm Founder VIP, Form Email, 2FA TOTP, Profile view đạt 5/5.
-     - **Phân hệ 2 (Workspace)**: Pomodoro đếm ngược (25:00 -> 24:58), Pause/Resume, Notes Markdown, Tasks workflow, Zen Mode đạt 5/5.
-     - **Phân hệ 3 (AI Companion)**: Chat Socratic (-1⚡), Tóm tắt (-5⚡), Trắc nghiệm 10 câu (-10⚡), Render LaTeX (3 khối/dòng), Paywall modal khi 0⚡ đạt 5/5.
-     - **Phân hệ 4 (Spaces)**: 18 tranh anime local nạp 0s, Canvas nền, Slider Blur, Slider Brightness/Overlay, Hạt thời tiết đạt 5/5.
-     - **Phân hệ 5 (WebRTC Meet)**: TURN Relay server trong `meetService.ts`/`WebRTCConnectionManager.ts`, Sảnh `/rooms`, 2 Client A/B kết nối đồng thời, duy trì kết nối ổn định không ngắt quãng đạt 5/5.
-     - **Phân hệ 6 (Calendar)**: Nạp route `/calendar`, Header không che khuất thanh công cụ (y >= 48px), Toggle Day/Week, Add Event Modal, Mobile Responsive (387px vừa vặn) đạt 5/5.
-     - **Phân hệ 7 (Billing)**: Bảng so sánh 3 gói, Toggle Tháng/Năm, Khung coupon phổ quát, Modal VietQR/MoMo 24/7, Ảnh QR & thông tin chuyển khoản đạt 5/5.
-  3. *Phân tích Console & Network Log*:
-     - Lỗi mạng 401 ghi nhận trên endpoint `rest/v1/user_entitlements` của Supabase do anon key publishable, hệ thống tự động fallback an toàn về verified session state, không gây gián đoạn hay ảnh hưởng trải nghiệm người dùng.
-     - 0 lỗi JavaScript làm sập giao diện (0 unhandled exceptions).
+  1. *Cập nhật GEMINI_API_KEY*:
+     - Ghi key vào `.env`.
+     - Chạy Vercel CLI nạp bí danh cho cả hai môi trường Production và Preview.
+  2. *Bộ lọc Greeting Intent*:
+     - Thêm hàm `isGreetingIntent()` trong `api/ai/companion.ts` và `src/stores/useAiStore.ts`.
+     - Khi người dùng gửi lời chào ("xin chào", "chào bạn", "hi", "hello", "alo", "ê",...): phản hồi ngay lập tức: *"Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?"*.
+     - Bổ sung chỉ dẫn vào `SYSTEM_INSTRUCTION` của Gemini để xử lý chuẩn mực.
+  3. *Kiểm thử thực nghiệm*:
+     - Vitest: **30/30 test files passed, 295/295 tests passed (100%)**.
+     - Live Endpoint test: Gửi `"xin chào"` ➔ nhận câu chào thân thiện (0ms formula); gửi bài toán Pythagoras ➔ nhận công thức $a^2 + b^2 = c^2$.
