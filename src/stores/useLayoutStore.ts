@@ -18,30 +18,30 @@ export const LAYOUT_STORAGE_KEY = 'pomodoro_workspace_layout_v1';
 export const DEFAULT_GLASS_SETTINGS: GlassSettings = {
   preset: 'balanced',
   opacity: 46,
-  blur: 32
+  blur: 28
 };
 
 export const GLASS_PRESETS: Record<GlassPreset, GlassSettings> = {
   clear: { preset: 'clear', opacity: 32, blur: 20 },
-  balanced: { preset: 'balanced', opacity: 46, blur: 32 },
+  balanced: { preset: 'balanced', opacity: 46, blur: 28 },
   high_contrast: { preset: 'high_contrast', opacity: 78, blur: 44 }
 };
 
 export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: number; height: number }>> = {
   timer: {
-    S: { width: 300, height: 440 },
-    M: { width: 340, height: 520 },
-    L: { width: 420, height: 620 }
+    S: { width: 280, height: 360 },
+    M: { width: 320, height: 400 },
+    L: { width: 380, height: 480 }
   },
   tasks: {
-    S: { width: 300, height: 440 },
-    M: { width: 340, height: 500 },
-    L: { width: 440, height: 620 }
+    S: { width: 280, height: 360 },
+    M: { width: 320, height: 400 },
+    L: { width: 400, height: 500 }
   },
   notes: {
-    S: { width: 300, height: 440 },
-    M: { width: 360, height: 500 },
-    L: { width: 460, height: 620 }
+    S: { width: 280, height: 360 },
+    M: { width: 330, height: 400 },
+    L: { width: 420, height: 500 }
   },
   calendar: {
     S: { width: 320, height: 400 },
@@ -75,14 +75,14 @@ export function computeBalancedDefaultLayout(
   _winHeight: number = 900
 ): Record<WidgetId, WidgetState> {
   const topY = 48;
-  const timerW = 340;
-  const tasksW = 340;
-  const notesW = 360;
-  const gap = 18;
+  const timerW = 320;
+  const tasksW = 320;
+  const notesW = 330;
+  const gap = 16;
   const totalRowWidth = timerW + gap + tasksW + gap + notesW;
   
   let startX = 24;
-  if (winWidth >= 1200) {
+  if (winWidth >= 1100) {
     startX = Math.max(24, Math.round((winWidth - totalRowWidth) / 2));
   } else {
     startX = 24;
@@ -104,14 +104,14 @@ export function computeBalancedDefaultLayout(
     tasks: {
       ...DEFAULT_WIDGETS.tasks,
       x: tasksX <= winWidth - tasksW - 12 ? tasksX : 24,
-      y: tasksX <= winWidth - tasksW - 12 ? topY : 560,
+      y: tasksX <= winWidth - tasksW - 12 ? topY : 480,
       width: tasksW,
       height: DEFAULT_WIDGETS.tasks.height,
     },
     notes: {
       ...DEFAULT_WIDGETS.notes,
       x: notesX <= winWidth - notesW - 12 ? notesX : 24,
-      y: notesX <= winWidth - notesW - 12 ? topY : 560,
+      y: notesX <= winWidth - notesW - 12 ? topY : 480,
       width: notesW,
       height: DEFAULT_WIDGETS.notes.height,
     }
@@ -126,10 +126,10 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isCollapsed: false,
     x: 24,
     y: 48,
-    width: 340,
-    height: 520,
+    width: 320,
+    height: 400,
     minWidth: 280,
-    minHeight: 360,
+    minHeight: 300,
     maxWidth: 520,
     maxHeight: 760,
     resizable: true,
@@ -140,12 +140,12 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     title: 'Danh sách công việc',
     isOpen: true,
     isCollapsed: false,
-    x: 382,
+    x: 360,
     y: 48,
-    width: 340,
-    height: 480,
-    minWidth: 300,
-    minHeight: 340,
+    width: 320,
+    height: 400,
+    minWidth: 280,
+    minHeight: 300,
     maxWidth: 850,
     maxHeight: 900,
     resizable: true,
@@ -156,12 +156,12 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     title: 'Ghi chú công việc',
     isOpen: true,
     isCollapsed: false,
-    x: 740,
+    x: 696,
     y: 48,
-    width: 360,
-    height: 480,
-    minWidth: 300,
-    minHeight: 340,
+    width: 330,
+    height: 400,
+    minWidth: 280,
+    minHeight: 300,
     maxWidth: 900,
     maxHeight: 900,
     resizable: true,

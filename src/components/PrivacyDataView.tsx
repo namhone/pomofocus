@@ -131,11 +131,11 @@ export const PrivacyDataView: React.FC = () => {
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
         {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
             <button
               type="button"
               onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
@@ -143,7 +143,7 @@ export const PrivacyDataView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
@@ -151,14 +151,14 @@ export const PrivacyDataView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-200" />
               <span>Quyền Riêng Tư</span>

@@ -275,7 +275,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         data-testid={`widget-container-${id}`}
         aria-label={widget.title}
         style={{
-          backgroundColor: `rgba(14, 17, 25, ${glassSettings.opacity / 100})`,
+          backgroundColor: `rgba(12, 15, 22, ${Math.min(0.60, glassSettings.opacity / 100)})`,
           backdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
           WebkitBackdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
           ...(glassSettings.preset === 'high_contrast'
@@ -449,8 +449,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         zIndex: widget.zIndex,
         backgroundColor:
           id === 'timer'
-            ? `rgba(12, 15, 22, ${glassSettings.opacity / 100})`
-            : `rgba(15, 18, 26, ${Math.max(0.18, (glassSettings.opacity - 4) / 100)})`,
+            ? `rgba(10, 12, 18, ${Math.min(0.55, glassSettings.opacity / 100)})`
+            : `rgba(12, 15, 22, ${Math.min(0.50, Math.max(0.18, (glassSettings.opacity - 4) / 100))})`,
         backdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
         WebkitBackdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
         ...(glassSettings.preset === 'high_contrast'
@@ -575,7 +575,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         className={`relative min-h-0 flex-1 overflow-x-hidden overscroll-contain ${
           isCollapsed && !isMedia ? 'hidden' : 'flex flex-col'
         } ${
-          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-4' : 'p-5'
+          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-3' : 'p-3.5 sm:p-4'
         } ${
           id === 'timer'
             ? 'overflow-y-auto items-center justify-start w-full'

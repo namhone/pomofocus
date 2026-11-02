@@ -94,11 +94,11 @@ export const BillingView: React.FC = () => {
       <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10">
         {/* Navigation Breadcrumb & Back to App */}
         <div className="w-full flex items-center justify-between pb-3 border-b border-zinc-800/60">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
             <button
               type="button"
               onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
@@ -106,14 +106,14 @@ export const BillingView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-200" />
               <span>Gói Cước</span>
@@ -121,7 +121,7 @@ export const BillingView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>
@@ -152,16 +152,16 @@ export const BillingView: React.FC = () => {
         {isUserLifetime ? (
           <div data-testid="billing-founder-card" className="space-y-8 animate-in fade-in duration-200">
             {/* Thẻ Hội Viên Danh Dự Kim Loại Đen */}
-            <div className="relative rounded-3xl border border-amber-400/40 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black p-6 sm:p-10 shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl sm:rounded-3xl border border-amber-400/40 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black p-5 sm:p-7 shadow-2xl overflow-hidden">
               {/* Ánh sáng kim loại & vầng hào quang */}
               <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
               <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
 
               {/* Header của thẻ */}
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800/80">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shadow-inner shrink-0">
-                    <Crown size={24} className="animate-pulse" />
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shadow-inner shrink-0">
+                    <Crown size={20} className="animate-pulse" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -175,7 +175,7 @@ export const BillingView: React.FC = () => {
                         🟢 Đang Kích Hoạt Vĩnh Viễn
                       </span>
                     </div>
-                    <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+                    <h1 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight mt-0.5">
                       Thành Viên PRO Trọn Đời (Lifetime Founder)
                     </h1>
                   </div>
@@ -319,7 +319,7 @@ export const BillingView: React.FC = () => {
             </div>
 
             {/* Thẻ hiển thị số ngày còn lại & ngày hết hạn */}
-            <div className="p-6 sm:p-8 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl relative overflow-hidden">
+            <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl relative overflow-hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">

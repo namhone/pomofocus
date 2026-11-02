@@ -232,19 +232,19 @@ export const AccountSecurityView: React.FC = () => {
       <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
         {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
             <button
               type="button"
               data-testid="nav-tab-profile"
               onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-200" />
               <span>Bảo Mật</span>
@@ -253,7 +253,7 @@ export const AccountSecurityView: React.FC = () => {
               type="button"
               data-testid="nav-tab-billing"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
@@ -262,14 +262,17 @@ export const AccountSecurityView: React.FC = () => {
               type="button"
               data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>
             </button>
           </div>
 
-          <span className="text-xs text-zinc-500 font-mono hidden sm:inline-block">
+          <span
+            className="text-xs text-zinc-500 font-mono truncate max-w-[140px] sm:max-w-xs inline-block"
+            title={user.id}
+          >
             ID: {user.id.slice(0, 12)}...
           </span>
         </div>
@@ -590,7 +593,10 @@ export const AccountSecurityView: React.FC = () => {
                     Phiên Hiện Tại
                   </span>
                 </div>
-                <div className="text-[11px] text-zinc-400 font-mono break-all line-clamp-1 max-w-sm mt-0.5">
+                <div
+                  className="text-[11px] text-zinc-400 font-mono truncate max-w-[200px] sm:max-w-xs mt-0.5"
+                  title={typeof navigator !== 'undefined' ? navigator.userAgent : 'Client Session'}
+                >
                   {typeof navigator !== 'undefined' ? navigator.userAgent : 'Client Session'}
                 </div>
               </div>

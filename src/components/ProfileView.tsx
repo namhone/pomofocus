@@ -172,10 +172,10 @@ export const ProfileView: React.FC = () => {
       <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
         {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-200" />
               <span>Hồ Sơ Cá Nhân</span>
@@ -184,7 +184,7 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-security"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
@@ -193,7 +193,7 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-billing"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
@@ -202,7 +202,7 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>

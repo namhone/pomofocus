@@ -52,6 +52,13 @@ export const DedicatedCalendarView: React.FC = () => {
 
   useEffect(() => {
     reloadData();
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode('day');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const formatDateYMD = (d: Date) => {
@@ -147,91 +154,91 @@ export const DedicatedCalendarView: React.FC = () => {
       <PlatformHeader />
 
       {/* Calendar Sub-bar */}
-      <div className="border-b border-white/10 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-neutral-900/50 backdrop-blur-md shrink-0">
-        <div className="flex items-center gap-2">
-          <CalendarIcon size={18} className="text-emerald-400 shrink-0" />
-          <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
-            Lịch Học & Kế Hoạch Time-Blocking
-          </h1>
-        </div>
-
-        {/* View Switch & Navigation Controls */}
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-lg bg-white/5 p-0.5 border border-white/10 text-xs">
-            <button
-              type="button"
-              data-testid="calendar-view-day"
-              onClick={() => setViewMode('day')}
-              className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                viewMode === 'day' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              Ngày
-            </button>
-            <button
-              type="button"
-              data-testid="calendar-view-week"
-              onClick={() => setViewMode('week')}
-              className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                viewMode === 'week' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              Tuần
-            </button>
+      <main className="flex-1 w-full max-w-7xl mx-auto pt-16 sm:pt-20 pb-12 px-3 sm:px-6 flex flex-col space-y-4">
+        <div className="rounded-2xl border border-white/10 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 backdrop-blur-md shrink-0 shadow-lg">
+          <div className="flex items-center gap-2">
+            <CalendarIcon size={18} className="text-emerald-400 shrink-0" />
+            <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
+              Lịch Học & Kế Hoạch Time-Blocking
+            </h1>
           </div>
 
-          <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
+          {/* View Switch & Navigation Controls */}
+          <div className="flex items-center gap-3">
+            <div className="flex rounded-lg bg-white/5 p-0.5 border border-white/10 text-xs">
+              <button
+                type="button"
+                data-testid="calendar-view-day"
+                onClick={() => setViewMode('day')}
+                className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                  viewMode === 'day' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Ngày
+              </button>
+              <button
+                type="button"
+                data-testid="calendar-view-week"
+                onClick={() => setViewMode('week')}
+                className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                  viewMode === 'week' ? 'bg-white/15 text-white font-medium shadow' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Tuần
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
+              <button
+                type="button"
+                data-testid="calendar-prev-btn"
+                onClick={handlePrev}
+                className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+                title="Kỳ trước"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                data-testid="calendar-today-btn"
+                onClick={handleToday}
+                className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white hover:bg-white/10 rounded transition cursor-pointer"
+              >
+                Hôm nay
+              </button>
+              <button
+                type="button"
+                data-testid="calendar-next-btn"
+                onClick={handleNext}
+                className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+                title="Kỳ sau"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+
             <button
               type="button"
-              data-testid="calendar-prev-btn"
-              onClick={handlePrev}
-              className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
-              title="Kỳ trước"
+              data-testid="btn-add-schedule"
+              onClick={() => {
+                setSelectedDateStr(formatDateYMD(new Date()));
+                setSelectedHour(new Date().getHours());
+                setIsAddModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs transition shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
             >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              data-testid="calendar-today-btn"
-              onClick={handleToday}
-              className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white hover:bg-white/10 rounded transition cursor-pointer"
-            >
-              Hôm nay
-            </button>
-            <button
-              type="button"
-              data-testid="calendar-next-btn"
-              onClick={handleNext}
-              className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
-              title="Kỳ sau"
-            >
-              <ChevronRight size={16} />
+              <Plus size={15} />
+              <span>Thêm Lịch Học</span>
             </button>
           </div>
-
-          <button
-            type="button"
-            data-testid="btn-add-schedule"
-            onClick={() => {
-              setSelectedDateStr(formatDateYMD(new Date()));
-              setSelectedHour(new Date().getHours());
-              setIsAddModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs transition shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
-          >
-            <Plus size={15} />
-            <span>Thêm Lịch Học</span>
-          </button>
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-auto p-4 md:p-6">
-        <div className="max-w-7xl mx-auto">
+        {/* Content Area */}
+        <div className="w-full">
           {/* Week View Mode */}
           {viewMode === 'week' && (
             <div className="rounded-2xl border border-white/10 bg-neutral-900/40 backdrop-blur-xl overflow-x-auto shadow-2xl">
-              <div className="min-w-[640px] md:min-w-0">
+              <div className="min-w-[760px]">
               {/* Header Days */}
               <div className="grid grid-cols-8 border-b border-white/10 bg-white/5 text-xs text-neutral-300 divide-x divide-white/5">
                 <div className="p-3 text-center text-neutral-500 font-medium">Giờ</div>
@@ -403,7 +410,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
 
         </div>
-      </div>
+      </main>
 
       {/* Add Study Block Modal */}
       {isAddModalOpen && (

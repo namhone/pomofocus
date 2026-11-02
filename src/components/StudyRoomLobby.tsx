@@ -307,20 +307,20 @@ export const StudyRoomLobby: React.FC = () => {
         </div>
 
         {/* Action Grid: Tạo phòng & Tham gia phòng (Monochrome Stealth) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
           {/* Box 1: Tạo phòng mới */}
-          <div className="p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
+          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
             <div>
-              <div className="w-11 h-11 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-4">
-                <PlusCircle size={22} />
+              <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-2.5">
+                <PlusCircle size={18} />
               </div>
-              <h2 className="text-base font-bold text-white mb-1.5 flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <span>Khởi Tạo Phòng Học Mới</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
                   MÃ DUY NHẤT
                 </span>
               </h2>
-              <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
+              <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
                 Tự động tạo mã phòng ngẫu nhiên và cấp quyền Chủ phòng (Host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.
               </p>
 
@@ -507,18 +507,18 @@ export const StudyRoomLobby: React.FC = () => {
           </div>
 
           {/* Box 2: Tham gia bằng mã hoặc link */}
-          <div className="p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
+          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
             <div>
-              <div className="w-11 h-11 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-4">
-                <LogIn size={22} />
+              <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-2.5">
+                <LogIn size={18} />
               </div>
-              <h2 className="text-base font-bold text-white mb-1.5 flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <span>Tham Gia Phòng Có Sẵn</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
                   MÃ HOẶC LINK
                 </span>
               </h2>
-              <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
+              <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
                 Được bạn bè gửi mã phòng hoặc link mời? Nhập vào đây để tham gia ngay mà không cần tạo phòng mới.
               </p>
 

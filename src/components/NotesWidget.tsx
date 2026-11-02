@@ -76,12 +76,12 @@ export const NotesWidget: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col text-neutral-100">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-        <div className="flex items-center gap-2">
-          <FileText size={16} strokeWidth={1.75} className="text-neutral-400" />
-          <h3 className="text-[13px] font-medium text-neutral-200">Ghi Chú Nhanh</h3>
+      <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2 min-w-0">
+          <FileText size={16} strokeWidth={1.75} className="text-neutral-400 shrink-0" />
+          <h3 className="text-[13px] font-medium text-neutral-200 whitespace-nowrap">Ghi Chú Nhanh</h3>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {getStatusBadge()}
           <button
             type="button"
@@ -129,7 +129,7 @@ export const NotesWidget: React.FC = () => {
               }
               onBlur={() => saveNow(activeNote.id)}
               placeholder="Tiêu đề ghi chú..."
-              className="text-xs font-semibold bg-transparent border-b border-transparent hover:border-white/20 focus:border-white/40 text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded-sm flex-1 px-1 py-1"
+              className="text-xs font-semibold bg-transparent border-b border-transparent hover:border-white/20 focus:border-white/40 text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded-sm flex-1 min-w-0 px-2 py-1"
             />
 
             {/* Toggle Edit / Preview */}
@@ -215,8 +215,8 @@ export const NotesWidget: React.FC = () => {
                 }
                 onBlur={() => saveNow(activeNote.id)}
                 placeholder="Nhập nội dung Markdown tại đây (hỗ trợ # header, **in đậm**, - checklist, [link](url))..."
-                rows={7}
-                className={`w-full text-xs p-3 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono resize-none leading-relaxed transition-colors ${stickyStyles}`}
+                rows={5}
+                className={`w-full text-xs p-3 pl-3.5 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono resize-none leading-relaxed transition-colors ${stickyStyles}`}
               />
               <div className="flex items-center justify-between text-[11px] text-neutral-400 mt-1.5 pb-2 px-1">
                 <span className="font-mono">Markdown Hỗ Trợ</span>
