@@ -183,7 +183,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     free: '0₫',
     monthly: '59.000₫ / tháng',
     yearly: '468.000₫ / năm (~39k/tháng)',
-    lifetime: '799.000₫ (1 lần duy nhất)',
+    lifetime: '799.000 VNĐ (1 lần duy nhất)',
     highlightLifetime: true
   },
   {

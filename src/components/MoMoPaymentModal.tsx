@@ -293,6 +293,17 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               </div>
             </div>
 
+            {/* Cảnh báo Demo Beta */}
+            <div data-testid="momo-beta-warning" className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs flex items-start gap-2.5">
+              <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-amber-300">DEMO BETA — KHÔNG THU TIỀN THẬT</div>
+                <div className="text-[11px] text-amber-200/80 mt-0.5">
+                  Đây là môi trường thử nghiệm. Bạn có thể bấm &quot;Xác Nhận Đã Chuyển Khoản&quot; hoặc quét mã để kiểm thử quy trình nâng cấp tự động.
+                </div>
+              </div>
+            </div>
+
             {/* Thông tin tài khoản nhận PRO */}
             <div className="bg-zinc-950/60 border border-zinc-800 p-3 rounded-xl text-xs">
               {user ? (

@@ -24,7 +24,7 @@ import {
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import { couponService } from '../services/couponService';
-import { PRICING_PLANS, COMPARISON_FEATURES, SAAS_PRICING_TIERS, PlanCycle } from '../config/pricing';
+import { PRICING_PLANS, COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
 import { isOwnerEmail, isLadyBoss, isVipFriend } from '../services/authService';
 
 export const BillingView: React.FC = () => {
@@ -497,189 +497,353 @@ export const BillingView: React.FC = () => {
                 Nâng tầm hiệu suất với phòng học Meet không giới hạn, Bảng vẽ chung thời gian thực, và kho âm thanh chất lượng cao.
               </p>
 
-              {/* Billing Cycle Switch (3 gói: 1T / 1N / Trọn Đời) */}
-              <div className="mt-4 inline-flex items-center p-1 rounded-xl border border-zinc-800 bg-zinc-900/80 text-xs">
+              {/* Billing Cycle Switch (2 chế độ: Tháng và Năm chuẩn Stripe/Linear) */}
+              <div className="mt-4 inline-flex items-center p-1 rounded-xl border border-zinc-800 bg-zinc-900/90 text-xs shadow-inner">
                 <button
                   type="button"
                   data-testid="billing-cycle-monthly"
                   onClick={() => setCycle('monthly')}
-                  className={`px-4 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                    cycle === 'monthly' ? 'bg-white text-black font-semibold shadow-sm' : 'text-zinc-400 hover:text-white'
+                  className={`px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
+                    cycle === 'monthly'
+                      ? 'bg-white text-zinc-950 shadow-md font-bold'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
-                  Hàng tháng
+                  Thanh toán theo tháng
                 </button>
                 <button
                   type="button"
                   data-testid="billing-cycle-yearly"
                   onClick={() => setCycle('yearly')}
-                  className={`px-4 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer ${
-                    cycle === 'yearly' ? 'bg-white text-black font-semibold shadow-sm' : 'text-zinc-400 hover:text-white'
+                  className={`px-4 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                    cycle === 'yearly' || cycle === 'lifetime'
+                      ? 'bg-white text-zinc-950 shadow-md font-bold'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
-                  <span>Hàng năm</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold uppercase tracking-wider">
-                    -34%
+                  <span>Thanh toán theo năm</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
+                    Tiết kiệm 34% 🔥
                   </span>
                 </button>
+              </div>
+
+              {/* Beta Notice Pill Banner (Thu gọn tinh tế ở đầu trang) */}
+              <div
+                data-testid="billing-beta-banner"
+                className="mt-2 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/30 text-xs text-zinc-300 shadow-sm backdrop-blur-sm"
+              >
+                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px] uppercase tracking-wider">
+                  <Sparkles size={12} className="shrink-0 animate-pulse text-emerald-400" />
+                  Cổng thanh toán tự động &amp; Sandbox test: KHÔNG THU TIỀN THẬT
+                </span>
+                <span className="text-zinc-600 hidden sm:inline">•</span>
+                <span className="text-zinc-300 text-[11px]">
+                  Đăng ký nhận ngay <strong className="text-emerald-300 font-bold">3 NĂM PRO MIỄN PHÍ</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => router.navigate('/signup')}
+                  className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-medium cursor-pointer"
+                >
+                  Đăng ký ngay &rarr;
+                </button>
+              </div>
+            </div>
+
+            {/* Pricing Cards Grid - 3 Cột Cân Đối Chuẩn SaaS (Free | PRO | Founder VIP) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch max-w-6xl mx-auto w-full pt-2">
+              {/* THẺ 1: GÓI FREE (0Đ) - XÁM TỐI GIẢN */}
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col justify-between hover:border-zinc-700 transition shadow-lg relative">
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 font-semibold block">
+                      Gói Free
+                    </span>
+                    <span className="text-[11px] text-zinc-500">Tự học cá nhân tối giản</span>
+                  </div>
+
+                  <div className="pt-1">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-extrabold text-white">0₫</span>
+                      <span className="text-xs text-zinc-400">/ vĩnh viễn</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 mt-1 font-mono leading-tight">
+                      Miễn phí trọn đời • Không cần thẻ thanh toán
+                    </p>
+                  </div>
+
+                  <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
+                    <div className="flex items-start gap-2">
+                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug font-medium">50⚡ AI Study Credits dùng thử ban đầu</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Thời lượng phòng riêng: Tối đa 45 phút/phiên (Reset sau 5p)</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Sức chứa phòng học: Tối đa 6 người/phòng</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Chất lượng WebRTC: 480p Chuẩn</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Kho âm thanh &amp; Hình nền: 5 âm thanh cơ bản &amp; 3 hình nền tĩnh</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Bảng vẽ Whiteboard: 1 trang nháp (Không xuất file)</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Đường dẫn phòng học: Ngẫu nhiên dạng mã số</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 mt-auto">
+                  <button
+                    type="button"
+                    data-testid="btn-downgrade-free"
+                    disabled={!isPro}
+                    onClick={() => {
+                      downgradeToFree();
+                      setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
+                      setTimeout(() => setStatusMessage(null), 4000);
+                    }}
+                    className={`w-full py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      !isPro
+                        ? 'bg-zinc-800/80 text-zinc-500 cursor-default border border-zinc-800'
+                        : 'border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                    }`}
+                  >
+                    {!isPro ? 'Bắt Đầu Miễn Phí' : 'Chuyển về Gói Cơ Bản'}
+                  </button>
+                </div>
+              </div>
+
+              {/* THẺ 2: GÓI PRO (TÂM ĐIỂM - CHUYỂN ĐỔI THEO TOGGLE) */}
+              <div className="relative rounded-2xl border-2 border-indigo-500/70 bg-gradient-to-b from-indigo-950/40 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-indigo-500/10 ring-1 ring-indigo-500/30 scale-100 lg:scale-[1.02] z-10 transition-all">
+                {/* Nhãn nổi bật */}
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] font-extrabold uppercase tracking-wider shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                  <Flame size={12} className="fill-white" />
+                  <span>GÓI PHỔ BIẾN NHẤT 🔥</span>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-mono uppercase tracking-widest text-indigo-300 font-bold block">
+                        Gói PRO {cycle === 'monthly' ? 'Tháng' : 'Năm'}
+                      </span>
+                      <span className="text-[11px] text-zinc-400">
+                        {cycle === 'monthly' ? 'Học tập cá nhân linh hoạt' : 'Gói Khuyên Dùng Tiết Kiệm 🔥'}
+                      </span>
+                    </div>
+                    <Flame size={18} className="text-indigo-400 shrink-0" />
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="pt-1">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold text-white">
+                        {cycle === 'monthly' ? '59.000₫' : '39.000₫'}
+                      </span>
+                      <span className="text-xs text-zinc-400 font-mono">
+                        {cycle === 'monthly' ? '59.000 VNĐ' : '39.000 VNĐ'}
+                      </span>
+                      <span className="text-xs text-zinc-400">/ tháng</span>
+                    </div>
+                    <p className="text-[11px] text-indigo-300/90 mt-1 font-mono leading-tight">
+                      {cycle === 'monthly'
+                        ? 'Thanh toán 59.000 VNĐ / tháng, hủy bất kỳ lúc nào'
+                        : 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm 34% 🔥)'}
+                    </p>
+                  </div>
+
+                  {/* Feature List */}
+                  <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
+                    <div className="flex items-start gap-2">
+                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-white leading-snug font-semibold">
+                        {cycle === 'monthly'
+                          ? '1.500⚡ AI Study Credits / tháng'
+                          : '20.000⚡ AI Study Credits / năm (Ưu đãi tối đa)'}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Thời lượng phòng riêng: <strong>Không giới hạn thời gian</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Sức chứa phòng học: <strong>Tối đa {cycle === 'monthly' ? '25' : '35'} người/phòng</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Chất lượng WebRTC: <strong>{cycle === 'monthly' ? 'HD 720p mượt mà' : 'Full HD 1080p sắc nét'}</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Kho âm thanh &amp; <strong>1.000+ Hình nền 4K Pinterest</strong> &amp; YouTube Sync
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Bảng vẽ Whiteboard: {cycle === 'monthly' ? 'Đầy đủ công cụ & Xuất PNG' : 'Đầy đủ công cụ & Xuất PDF đa trang'}
+                      </span>
+                    </div>
+                    {cycle !== 'monthly' && (
+                      <>
+                        <div className="flex items-start gap-2">
+                          <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <span className="text-zinc-200 leading-snug">
+                            Đường dẫn phòng học riêng: Đặt URL cố định theo nickname
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <span className="text-zinc-200 leading-snug">
+                            Ưu tiên băng thông máy chủ VIP &amp; Báo cáo 1 năm
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <div className="pt-6 mt-auto">
+                  <button
+                    type="button"
+                    data-testid="btn-pay-momo"
+                    onClick={() => handleSelectPlanAndCheckout(cycle === 'lifetime' ? 'lifetime' : cycle === 'monthly' ? 'monthly' : 'yearly')}
+                    className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xl active:scale-98"
+                  >
+                    <span>
+                      {cycle === 'lifetime'
+                        ? 'Nâng Cấp Gói Trọn Đời (VietQR)'
+                        : cycle === 'monthly'
+                        ? 'Nâng Cấp Gói Tháng (VietQR)'
+                        : 'Nâng Cấp Gói Năm (VietQR)'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* THẺ 3: GÓI TRỌN ĐỜI (FOUNDER VIP 👑 - CỐ ĐỊNH THANH TOÁN 1 LẦN) */}
+              <div className="relative rounded-2xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-950/30 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-amber-500/10 ring-1 ring-amber-500/20 hover:border-amber-400/70 transition-all">
+                {/* Nhãn nổi bật với data-testid="billing-cycle-lifetime" */}
                 <button
                   type="button"
                   data-testid="billing-cycle-lifetime"
                   onClick={() => setCycle('lifetime')}
-                  className={`px-4 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer ${
-                    cycle === 'lifetime' ? 'bg-white text-black font-semibold shadow-sm' : 'text-zinc-400 hover:text-white'
-                  }`}
+                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
                 >
-                  <Zap size={12} className={cycle === 'lifetime' ? 'text-black' : 'text-amber-400'} />
-                  <span>Trọn đời</span>
+                  <Crown size={12} className="fill-black" />
+                  <span>FOUNDER VIP ĐỘC QUYỀN 👑</span>
                 </button>
-              </div>
-            </div>
 
-            {/* Beta Notice Banner */}
-            <div data-testid="billing-beta-banner" className="p-4 sm:p-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-white flex items-center gap-2 flex-wrap">
-                    <span>Chương Trình Trải Nghiệm Demo Beta</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
-                      CỔNG THANH TOÁN TỰ ĐỘNG &amp; SANDBOX TEST
-                    </span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold block">
+                        Gói Trọn Đời
+                      </span>
+                      <span className="text-[11px] text-zinc-400">Lifetime Founder VIP 👑</span>
+                    </div>
+                    <Crown size={18} className="text-amber-400 shrink-0" />
                   </div>
-                  <p className="text-xs text-zinc-300 mt-0.5 leading-relaxed">
-                    Đăng ký tài khoản trong giai đoạn thử nghiệm để được tự động nâng cấp 3 năm gói PRO hoàn toàn miễn phí hoặc trải nghiệm cổng VietQR tự động.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => router.navigate('/signup')}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition cursor-pointer whitespace-nowrap shadow shrink-0"
-              >
-                Nhận 3 Năm PRO Ngay
-              </button>
-            </div>
 
-            {/* Pricing Cards Grid - 4 Tiers SaaS Freemium */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
-              {SAAS_PRICING_TIERS.map((tier) => {
-                const isSelected = tier.cycleKey ? cycle === tier.cycleKey : false;
-                return (
-                  <div
-                    key={tier.id}
-                    className={`rounded-2xl flex flex-col justify-between p-5 sm:p-6 transition-all relative ${
-                      tier.isPopular
-                        ? 'border-2 border-white bg-zinc-900/90 shadow-2xl ring-1 ring-white/10'
-                        : tier.isFounder
-                        ? 'border-2 border-zinc-700 hover:border-zinc-500 bg-zinc-900/80 shadow-xl'
-                        : isSelected
-                        ? 'border border-zinc-600 bg-zinc-900/60 shadow-lg'
-                        : 'border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
-                    }`}
+                  {/* Pricing */}
+                  <div className="pt-1">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-extrabold text-white tracking-tight">799.000₫</span>
+                      <span className="text-xs text-amber-400/90 font-mono">/ một lần duy nhất</span>
+                    </div>
+                    <p className="text-[11px] text-amber-300/80 mt-1 font-mono leading-tight">
+                      Sở hữu vĩnh viễn trọn đời • Không gia hạn • 1 lần duy nhất
+                    </p>
+                  </div>
+
+                  {/* Feature List */}
+                  <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
+                    <div className="flex items-start gap-2">
+                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-amber-200 leading-snug font-semibold">
+                        1.000⚡ / tuần (Tự động nạp đầy lại mỗi thứ Hai vĩnh viễn)
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Thời lượng phòng riêng: <strong>Không giới hạn thời gian</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Sức chứa phòng học: <strong>Lên đến 60 người (Dạy học / Workshop)</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Trợ lý AI Study: <strong>Sử dụng AI Study Companion không giới hạn</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Huy hiệu hồ sơ: <strong>Founder VIP mạ vàng độc quyền vĩnh viễn</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Đặc quyền cộng đồng: <strong>Tặng 01 Giftcode PRO 3 tháng</strong> cho bạn cùng tiến
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Truy cập sớm: <strong>Early Access Labs 100% tính năng mới trọn đời</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug">
+                        Chất lượng WebRTC: <strong>2K Ultra HD cao cấp nhất</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <div className="pt-6 mt-auto">
+                  <button
+                    type="button"
+                    data-testid="btn-upgrade-lifetime"
+                    onClick={() => handleSelectPlanAndCheckout('lifetime')}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-amber-500/20 active:scale-98"
                   >
-                    {/* Badge nổi bật */}
-                    {tier.badge && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-white text-zinc-950 text-[10px] font-bold uppercase tracking-wider shadow-md whitespace-nowrap">
-                        {tier.badge}
-                      </div>
-                    )}
-
-                    <div className="space-y-4">
-                      {/* Header tier */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 font-semibold block">
-                            {tier.name}
-                          </span>
-                          <span className="text-[11px] text-zinc-500">{tier.tagline}</span>
-                        </div>
-                        {tier.isFounder && (
-                          <Crown size={15} className="text-zinc-300 shrink-0" />
-                        )}
-                        {tier.isPopular && (
-                          <Flame size={15} className="text-zinc-200 shrink-0" />
-                        )}
-                      </div>
-
-                      {/* Pricing */}
-                      <div className="pt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl sm:text-3xl font-extrabold text-white">
-                            {tier.price}
-                          </span>
-                          <span className="text-xs text-zinc-400">{tier.period}</span>
-                        </div>
-                        {tier.subPrice && (
-                          <p className="text-[11px] text-zinc-400 mt-1 font-mono leading-tight">{tier.subPrice}</p>
-                        )}
-                      </div>
-
-                      {/* Feature Bullet List */}
-                      <div className="space-y-2.5 pt-3.5 border-t border-zinc-800/80 text-xs">
-                        {tier.features.map((feature, fIdx) => (
-                          <div key={fIdx} className="flex items-start gap-2">
-                            <Check size={13} className="text-zinc-300 shrink-0 mt-0.5" />
-                            <span className="text-zinc-300 leading-snug">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="pt-5 mt-auto">
-                      {tier.id === 'free' ? (
-                        <button
-                          type="button"
-                          data-testid="btn-downgrade-free"
-                          disabled={!isPro}
-                          onClick={() => {
-                            downgradeToFree();
-                            setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
-                            setTimeout(() => setStatusMessage(null), 4000);
-                          }}
-                          className={`w-full py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                            !isPro
-                              ? 'bg-zinc-800/80 text-zinc-500 cursor-default border border-zinc-800'
-                              : 'border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                          }`}
-                        >
-                          {!isPro ? 'Đang Sử Dụng' : 'Chuyển về Gói Cơ Bản'}
-                        </button>
-                      ) : tier.id === 'yearly' ? (
-                        <button
-                          type="button"
-                          data-testid="btn-pay-momo"
-                          onClick={() => handleSelectPlanAndCheckout('yearly')}
-                          className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-98"
-                        >
-                          <span>{tier.ctaLabel} (VietQR)</span>
-                        </button>
-                      ) : tier.id === 'lifetime' ? (
-                        <button
-                          type="button"
-                          data-testid="btn-upgrade-lifetime"
-                          onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-98"
-                        >
-                          <Zap size={13} className="fill-zinc-950" />
-                          <span>{tier.ctaLabel}</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleSelectPlanAndCheckout('monthly')}
-                          className="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/90 hover:bg-zinc-800 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer"
-                        >
-                          <span>{tier.ctaLabel}</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                    <Crown size={14} className="fill-black" />
+                    <span>Sở Hữu Trọn Đời Founder (799k)</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Sandbox Simulation Bar */}
@@ -720,16 +884,16 @@ export const BillingView: React.FC = () => {
                       <th className="py-4 px-4 w-[28%] text-zinc-300 font-semibold">Tính Năng &amp; Đặc Quyền</th>
                       <th className="py-4 px-3 w-[16%] text-center text-zinc-400">Gói Free (0₫)</th>
                       <th className="py-4 px-3 w-[18%] text-center text-zinc-300">Gói Tháng (59k)</th>
-                      <th className="py-4 px-3 w-[18%] text-center text-zinc-100 bg-white/[0.03]">
+                      <th className="py-4 px-3 w-[18%] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-indigo-500/20">
                         Gói Năm (-34%)
-                        <span className="text-[9px] text-zinc-300 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
+                        <span className="text-[9px] text-indigo-400 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
                       </th>
-                      <th className="py-4 px-3 w-[20%] text-center text-zinc-100 bg-white/[0.05] border-l border-zinc-800">
+                      <th className="py-4 px-3 w-[20%] text-center text-amber-200 bg-amber-500/[0.04] border-l border-amber-500/25">
                         <span className="inline-flex items-center gap-1">
-                          <Crown size={12} className="text-zinc-300" />
+                          <Crown size={12} className="text-amber-400" />
                           Gói Trọn Đời
                         </span>
-                        <span className="text-[9px] text-zinc-300 font-bold block normal-case">FOUNDER VIP</span>
+                        <span className="text-[9px] text-amber-400 font-bold block normal-case">FOUNDER VIP</span>
                       </th>
                     </tr>
                   </thead>
@@ -742,10 +906,10 @@ export const BillingView: React.FC = () => {
                         <td className="py-3.5 px-4 font-medium text-zinc-200">
                           <div className="flex items-center gap-1.5">
                             {item.id === 'badge' && (
-                              <Crown size={13} className="text-zinc-400 shrink-0" />
+                              <Crown size={13} className="text-amber-400 shrink-0" />
                             )}
                             {item.id === 'early_access' && (
-                              <Sparkles size={13} className="text-zinc-400 shrink-0" />
+                              <Sparkles size={13} className="text-amber-400 shrink-0" />
                             )}
                             <span>{item.feature}</span>
                           </div>
@@ -755,7 +919,10 @@ export const BillingView: React.FC = () => {
                           {item.free === '❌' ? (
                             <span className="text-zinc-600 font-bold text-sm">✕</span>
                           ) : (
-                            <span>{item.free}</span>
+                            <span className="inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0" />
+                              <span>{item.free}</span>
+                            </span>
                           )}
                         </td>
 
@@ -763,44 +930,55 @@ export const BillingView: React.FC = () => {
                           {item.monthly === '❌' ? (
                             <span className="text-zinc-600 font-bold text-sm">✕</span>
                           ) : item.monthly === 'Không giới hạn thời gian' || item.monthly === 'Không giới hạn' ? (
-                            <span className="text-zinc-200 font-semibold inline-flex items-center gap-1">
-                              <Check size={13} /> Không giới hạn
+                            <span className="text-zinc-200 font-semibold inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
                             </span>
                           ) : (
-                            <span>{item.monthly}</span>
+                            <span className="inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
+                              <span>{item.monthly}</span>
+                            </span>
                           )}
                         </td>
 
-                        <td className="py-3.5 px-3 text-center text-zinc-200 bg-white/[0.02]">
+                        <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20 text-indigo-100">
                           {item.yearly === 'Ưu tiên Beta' ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-200 border border-zinc-700">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 inline-flex items-center gap-1">
+                              <Check size={12} className="text-emerald-400 shrink-0 font-semibold" />
                               Ưu tiên Beta
                             </span>
                           ) : item.yearly === 'Không giới hạn thời gian' || item.yearly === 'Không giới hạn' ? (
-                            <span className="text-zinc-200 font-semibold inline-flex items-center gap-1">
-                              <Check size={13} /> Không giới hạn
+                            <span className="text-indigo-100 font-semibold inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
                             </span>
                           ) : (
-                            <span>{item.yearly}</span>
+                            <span className="inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
+                              <span>{item.yearly}</span>
+                            </span>
                           )}
                         </td>
 
-                        <td className="py-3.5 px-3 text-center bg-white/[0.04] border-l border-zinc-800">
+                        <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25 text-amber-100">
                           {item.id === 'early_access' ? (
-                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-zinc-800 text-zinc-200 border border-zinc-600 shadow-sm inline-flex items-center gap-1 whitespace-nowrap">
-                              <Sparkles size={11} className="text-zinc-300" />
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm inline-flex items-center gap-1 whitespace-nowrap">
+                              <Sparkles size={11} className="text-amber-400" />
                               {item.lifetime}
                             </span>
                           ) : item.id === 'badge' ? (
-                            <span className="text-zinc-200 font-bold text-[11px] inline-flex items-center gap-1">
+                            <span className="text-amber-200 font-bold text-[11px] inline-flex items-center justify-center gap-1">
+                              <Crown size={12} className="text-amber-400 shrink-0" />
                               {item.lifetime}
                             </span>
                           ) : item.lifetime === 'Không giới hạn thời gian' || item.lifetime === 'Không giới hạn' ? (
-                            <span className="text-zinc-200 font-semibold inline-flex items-center gap-1">
-                              <Check size={13} /> Không giới hạn
+                            <span className="text-amber-100 font-semibold inline-flex items-center justify-center gap-1">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
                             </span>
                           ) : (
-                            <span className="text-zinc-200 font-medium">{item.lifetime}</span>
+                            <span className="inline-flex items-center justify-center gap-1 font-medium">
+                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
+                              <span>{item.lifetime}</span>
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -836,22 +1014,22 @@ export const BillingView: React.FC = () => {
                           Chọn Gói Tháng
                         </button>
                       </td>
-                      <td className="py-4 px-3 text-center bg-white/[0.02]">
+                      <td className="py-4 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
                         <button
                           type="button"
                           onClick={() => handleSelectPlanAndCheckout('yearly')}
-                          className="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-[11px] text-zinc-950 font-bold transition cursor-pointer shadow-sm"
+                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-sm"
                         >
                           Chọn Gói Năm
                         </button>
                       </td>
-                      <td className="py-4 px-3 text-center bg-white/[0.04] border-l border-zinc-800">
+                      <td className="py-4 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
                         <button
                           type="button"
                           onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                          className="px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-[11px] text-zinc-950 font-bold transition cursor-pointer shadow-md inline-flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
                         >
-                          <Zap size={11} className="fill-zinc-950" />
+                          <Crown size={11} className="fill-black" />
                           Sở Hữu Trọn Đời
                         </button>
                       </td>

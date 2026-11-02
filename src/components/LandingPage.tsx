@@ -74,12 +74,19 @@ export const LandingPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <button
             type="button"
-            data-testid="landing-cta-upgrade-hero"
-            onClick={() => router.navigate('/billing')}
+            onClick={() => router.navigate('/app')}
             className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black text-xs font-bold hover:bg-zinc-200 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-2xl active:scale-[0.98]"
           >
             <span className="whitespace-nowrap">Bắt Đầu Học Ngay (Miễn Phí)</span>
             <ArrowRight size={14} className="shrink-0" />
+          </button>
+          <button
+            type="button"
+            data-testid="landing-cta-upgrade-hero"
+            onClick={() => router.navigate('/billing')}
+            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 hover:text-white text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
+          >
+            <span className="whitespace-nowrap">Xem Các Gói Dịch Vụ</span>
           </button>
           <button
             type="button"
