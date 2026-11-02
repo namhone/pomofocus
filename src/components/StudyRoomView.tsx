@@ -13,7 +13,8 @@ import {
   studyRoomService,
   StudyRoom,
   RoomParticipant,
-  SubscriptionEligibilityResult
+  SubscriptionEligibilityResult,
+  ROOM_CATEGORIES
 } from '../services/studyRoomService';
 import { WhiteboardView } from './WhiteboardView';
 import {
@@ -55,7 +56,9 @@ import {
   Music,
   Gift,
   UserX,
-  GripHorizontal
+  GripHorizontal,
+  Trash2,
+  Pencil
 } from 'lucide-react';
 
 interface FloatingReaction {
@@ -193,16 +196,20 @@ export const StudyRoomView: React.FC = () => {
 
   const roomId = (rawRoomId || '').trim().toLowerCase();
   const tokenFromUrl = router.currentRoute.searchParams.get('token');
+  const passcodeFromUrl = router.currentRoute.searchParams.get('passcode') || router.currentRoute.searchParams.get('pin');
+  const [passcodeAttempt, setPasscodeAttempt] = useState<string | null>(passcodeFromUrl);
+  const [passcodeInputValue, setPasscodeInputValue] = useState('');
+  const [passcodeError, setPasscodeError] = useState<string | null>(null);
 
   // 2. Xác minh quyền truy cập phòng (Backend Access Verification)
   const [accessResult, setAccessResult] = useState(() =>
-    studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl)
+    studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt)
   );
 
   // Cập nhật kết quả xác minh khi user hoặc url thay đổi
   useEffect(() => {
-    setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl));
-  }, [roomId, user, tokenFromUrl]);
+    setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt));
+  }, [roomId, user, tokenFromUrl, passcodeAttempt]);
 
   // Lấy dữ liệu phòng hiện tại
   const [room, setRoom] = useState<StudyRoom | null>(() =>
@@ -362,6 +369,30 @@ export const StudyRoomView: React.FC = () => {
   const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>('');
   const [regeneratingToken, setRegeneratingToken] = useState(false);
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
+
+  // Tùy biến tên phòng & cài đặt chuyên sâu
+  const [editingTitle, setEditingTitle] = useState(room?.title || '');
+  const [editingPasscode, setEditingPasscode] = useState(room?.passcode || '');
+  const [editingGoal, setEditingGoal] = useState(room?.roomGoal || '');
+  const [editingCategory, setEditingCategory] = useState(room?.roomCategory || 'tech');
+  const [editingSilentMode, setEditingSilentMode] = useState(Boolean(room?.silentMode));
+  const [editingRequireCam, setEditingRequireCam] = useState(Boolean(room?.requireCam));
+  const [editingHostOnlyTimer, setEditingHostOnlyTimer] = useState(Boolean(room?.hostOnlyTimer));
+  const [editingMaxParticipants, setEditingMaxParticipants] = useState(room?.maxParticipants || 10);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (room) {
+      setEditingTitle(room.title);
+      setEditingPasscode(room.passcode || '');
+      setEditingGoal(room.roomGoal || '');
+      setEditingCategory(room.roomCategory || 'tech');
+      setEditingSilentMode(Boolean(room.silentMode));
+      setEditingRequireCam(Boolean(room.requireCam));
+      setEditingHostOnlyTimer(Boolean(room.hostOnlyTimer));
+      setEditingMaxParticipants(room.maxParticipants || 10);
+    }
+  }, [room?.title, room?.passcode, room?.roomGoal, room?.roomCategory, room?.silentMode, room?.requireCam, room?.hostOnlyTimer, room?.maxParticipants]);
 
   // Cài đặt chất lượng Video & Xử lý Âm thanh chống ồn
   const [videoQuality, setVideoQuality] = useState<VideoQualityLevel>('standard');
@@ -1180,7 +1211,10 @@ export const StudyRoomView: React.FC = () => {
       } else if (data.type === 'ROOM_CLOSED') {
         alert('Phòng học đã được đóng bởi chủ phòng.');
         router.navigate('/rooms');
-      } else if (data.type === 'ROOM_STATE_UPDATED') {
+      } else if (data.type === 'ROOM_DELETED') {
+        alert('Phòng học này đã bị xóa bởi chủ phòng.');
+        router.navigate('/rooms');
+      } else if (data.type === 'ROOM_STATE_UPDATED' || data.type === 'ROOM_UPDATED') {
         if (data.room) setRoom(data.room);
       } else if (data.type === 'INVITE_TOKEN_REVOKED') {
         const refreshed = studyRoomService.getRoom(roomId);
@@ -2028,6 +2062,42 @@ export const StudyRoomView: React.FC = () => {
     router.navigate('/rooms');
   };
 
+  // Lưu tùy biến tên phòng & cài đặt chuyên sâu
+  const handleSaveRoomCustomization = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user || userRole !== 'host') return;
+    const res = studyRoomService.updateRoom(roomId, user, {
+      title: editingTitle,
+      passcode: editingPasscode,
+      roomGoal: editingGoal,
+      roomCategory: editingCategory,
+      silentMode: editingSilentMode,
+      requireCam: editingRequireCam,
+      hostOnlyTimer: editingHostOnlyTimer,
+      maxParticipants: editingMaxParticipants
+    });
+    if (res.success && res.room) {
+      setRoom(res.room);
+      setAdminNotice('Đã cập nhật cài đặt & thông tin phòng thành công!');
+      setTimeout(() => setAdminNotice(null), 3000);
+    } else {
+      alert(res.error || 'Cập nhật thất bại.');
+    }
+  };
+
+  // Xóa bỏ phòng học vĩnh viễn
+  const handleConfirmDeleteRoomInView = () => {
+    if (!user || userRole !== 'host') return;
+    const res = studyRoomService.deleteRoom(roomId, user);
+    if (!res.success) {
+      alert(res.error || 'Lỗi khi xóa phòng.');
+      return;
+    }
+    setIsConfirmDeleteModalOpen(false);
+    setIsDeviceModalOpen(false);
+    router.navigate('/rooms');
+  };
+
   // Tham gia phòng
   const handleJoinConfirm = () => {
     if (!participantName.trim()) {
@@ -2080,6 +2150,74 @@ export const StudyRoomView: React.FC = () => {
   // XỬ LÝ LỖI TRUY CẬP (ACCESS REJECTION / ERROR STATES)
   // =========================================================================
   if (!accessResult.allowed) {
+    if (accessResult.code === 'PASSCODE_REQUIRED') {
+      return (
+        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
+          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-neutral-900/90 p-8 shadow-2xl backdrop-blur-2xl text-center">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto mb-4">
+              <Lock size={32} />
+            </div>
+            <h2 className="text-xl font-extrabold text-white mb-2">
+              Phòng Học Có Mật Khẩu (PIN)
+            </h2>
+            <p className="text-xs text-neutral-300 leading-relaxed mb-5">
+              Phòng <strong>{accessResult.room?.title || `#${roomId}`}</strong> yêu cầu mật khẩu PIN do chủ phòng cấp để tham gia.
+            </p>
+
+            {passcodeError && (
+              <div className="mb-4 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                {passcodeError}
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const pin = passcodeInputValue.trim();
+                const check = studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, pin);
+                if (!check.allowed && check.code === 'PASSCODE_REQUIRED') {
+                  setPasscodeError('Mật khẩu PIN không chính xác. Vui lòng thử lại!');
+                  return;
+                }
+                setPasscodeAttempt(pin);
+                setPasscodeError(null);
+              }}
+              className="space-y-3"
+            >
+              <input
+                type="text"
+                autoFocus
+                data-testid="input-passcode-view"
+                value={passcodeInputValue}
+                onChange={(e) => {
+                  setPasscodeInputValue(e.target.value);
+                  setPasscodeError(null);
+                }}
+                placeholder="Nhập mã PIN..."
+                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm font-mono text-center tracking-widest text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400"
+              />
+
+              <button
+                type="submit"
+                data-testid="btn-submit-passcode-view"
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+              >
+                Xác Nhận PIN &amp; Vào Phòng
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.navigate('/rooms')}
+                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
+              >
+                Về Sảnh Phòng Học
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900/90 p-8 shadow-2xl backdrop-blur-2xl text-center">
@@ -2587,9 +2725,25 @@ export const StudyRoomView: React.FC = () => {
               <div className="h-4 w-px bg-white/10" />
 
               <div className="flex items-center gap-2">
-                <Radio size={16} className="text-emerald-400 animate-pulse" />
-                <span className="text-sm font-bold">#{roomId}</span>
-                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider">
+                <Radio size={16} className="text-emerald-400 animate-pulse shrink-0" />
+                <span className="text-sm font-bold truncate max-w-[160px] sm:max-w-[240px]" title={room?.title || `#${roomId}`}>
+                  {room?.title || `#${roomId}`}
+                </span>
+                {userRole === 'host' && (
+                  <button
+                    type="button"
+                    data-testid="btn-header-edit-room"
+                    onClick={() => {
+                      setActiveSettingsTab('room_admin');
+                      setIsDeviceModalOpen(true);
+                    }}
+                    className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+                    title="Đổi tên & tùy chỉnh phòng"
+                  >
+                    <Pencil size={12} />
+                  </button>
+                )}
+                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider shrink-0">
                   BETA
                 </span>
 
@@ -2834,6 +2988,28 @@ export const StudyRoomView: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Banner Mục tiêu buổi học & Thể loại */}
+        {room?.roomGoal && (
+          <div className="bg-zinc-950/90 border-t border-white/5 px-4 py-1.5 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 overflow-hidden">
+              {room.roomCategory && (
+                <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-semibold uppercase shrink-0">
+                  {ROOM_CATEGORIES.find((c) => c.id === room.roomCategory)?.icon || '📚'}{' '}
+                  {ROOM_CATEGORIES.find((c) => c.id === room.roomCategory)?.label || room.roomCategory}
+                </span>
+              )}
+              <span className="text-zinc-200 truncate font-medium text-[11px] sm:text-xs">
+                🎯 {room.roomGoal}
+              </span>
+            </div>
+            {room.passcode && (
+              <span className="text-[10px] text-amber-400 flex items-center gap-1 shrink-0 font-mono ml-2">
+                <Lock size={10} /> PIN
+              </span>
+            )}
+          </div>
+        )}
       </header>
       )}
 
@@ -3755,20 +3931,173 @@ export const StudyRoomView: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Vùng Nguy Hiểm: Đóng phòng */}
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                      <div>
-                        <div className="font-bold text-xs text-rose-400">Đóng phòng học</div>
-                        <div className="text-[10px] text-neutral-500">Kết thúc phiên học và ngắt kết nối mọi thành viên.</div>
+                    {/* Tùy Chỉnh Thông Tin & Tên Phòng Học */}
+                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                      <div className="font-bold text-xs text-white flex items-center gap-1.5">
+                        <Sliders size={14} className="text-emerald-400" />
+                        <span>Tùy Chỉnh &amp; Đổi Tên Phòng Học</span>
                       </div>
+
+                      {/* 1. Tên phòng */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                          Tên phòng học <span className="text-rose-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="input-update-room-title"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          placeholder="Nhập tên phòng học..."
+                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* 2. Mục tiêu buổi học */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                          Mục tiêu buổi học (Hiển thị ghim đầu phòng)
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="input-update-room-goal"
+                          value={editingGoal}
+                          onChange={(e) => setEditingGoal(e.target.value)}
+                          placeholder="vd: Cùng giải đề JLPT N2, 25m học / 5m nghỉ..."
+                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* 3. Thể loại không gian */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-300 mb-1">Thể loại không gian</label>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {ROOM_CATEGORIES.map((cat) => (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setEditingCategory(cat.id)}
+                              className={`px-2 py-1.5 rounded-lg text-left text-[11px] flex items-center gap-1.5 border transition cursor-pointer ${
+                                editingCategory === cat.id
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                                  : 'bg-white/5 text-neutral-400 border-white/5 hover:text-white'
+                              }`}
+                            >
+                              <span>{cat.icon}</span>
+                              <span className="truncate">{cat.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 4. Mật khẩu PIN & Sức chứa */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-[11px] font-medium text-neutral-300">Mật khẩu PIN</label>
+                            <span className="text-[9px] text-neutral-500">Trống = mở</span>
+                          </div>
+                          <input
+                            type="text"
+                            data-testid="input-update-room-passcode"
+                            value={editingPasscode}
+                            onChange={(e) => setEditingPasscode(e.target.value)}
+                            placeholder="vd: 1234"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-medium text-neutral-300 mb-1">Sức chứa tối đa</label>
+                          <select
+                            value={editingMaxParticipants}
+                            onChange={(e) => setEditingMaxParticipants(parseInt(e.target.value, 10))}
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                          >
+                            <option value={2}>2 người</option>
+                            <option value={4}>4 người</option>
+                            <option value={6}>6 người</option>
+                            <option value={10}>10 người</option>
+                            <option value={25}>25 người</option>
+                            <option value={50}>50 người</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* 5. Quy định chuyên sâu */}
+                      <div className="space-y-1.5 pt-1.5 border-t border-white/10 text-[11px]">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingSilentMode}
+                            onChange={(e) => setEditingSilentMode(e.target.checked)}
+                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                          />
+                          <span className="text-neutral-300">Siêu Tập Trung (Tự động tắt Micro khi tham gia)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingRequireCam}
+                            onChange={(e) => setEditingRequireCam(e.target.checked)}
+                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                          />
+                          <span className="text-neutral-300">Yêu cầu bật Camera (Study With Me)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingHostOnlyTimer}
+                            onChange={(e) => setEditingHostOnlyTimer(e.target.checked)}
+                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                          />
+                          <span className="text-neutral-300">Chỉ Chủ phòng điều khiển Pomodoro</span>
+                        </label>
+                      </div>
+
                       <button
                         type="button"
-                        data-testid="btn-close-room"
-                        onClick={handleCloseRoom}
-                        className="px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white font-bold text-xs transition cursor-pointer"
+                        data-testid="btn-save-room-customization"
+                        onClick={handleSaveRoomCustomization}
+                        className="w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
                       >
-                        Đóng Phòng
+                        Lưu Thay Đổi Phòng Học
                       </button>
+                    </div>
+
+                    {/* Vùng Nguy Hiểm: Đóng phòng & Xóa phòng */}
+                    <div className="pt-3 border-t border-white/10 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-xs text-rose-400">Đóng phòng học</div>
+                          <div className="text-[10px] text-neutral-500">Tạm dừng phiên học và ngắt kết nối mọi thành viên.</div>
+                        </div>
+                        <button
+                          type="button"
+                          data-testid="btn-close-room"
+                          onClick={handleCloseRoom}
+                          className="px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white font-bold text-xs transition cursor-pointer"
+                        >
+                          Đóng Phòng
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                        <div>
+                          <div className="font-bold text-xs text-rose-500 flex items-center gap-1">
+                            <Trash2 size={13} />
+                            <span>Xóa phòng vĩnh viễn</span>
+                          </div>
+                          <div className="text-[10px] text-neutral-500">Xóa sạch phòng khỏi hệ thống và hủy bỏ liên kết.</div>
+                        </div>
+                        <button
+                          type="button"
+                          data-testid="btn-delete-room"
+                          onClick={() => setIsConfirmDeleteModalOpen(true)}
+                          className="px-3.5 py-1.5 rounded-xl bg-rose-600/30 border border-rose-600/50 text-rose-200 hover:bg-rose-600 hover:text-white font-bold text-xs transition cursor-pointer"
+                        >
+                          Xóa Vĩnh Viễn
+                        </button>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -4031,6 +4360,37 @@ export const StudyRoomView: React.FC = () => {
                 className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
               >
                 Rời Phòng Ngay ({graceCountdown}s)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal xác nhận xóa phòng vĩnh viễn */}
+      {isConfirmDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/30 p-6 text-white shadow-2xl">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
+              <Trash2 size={24} />
+            </div>
+            <h3 className="text-base font-bold text-white mb-2">Xác Nhận Xóa Phòng Vĩnh Viễn</h3>
+            <p className="text-xs text-zinc-300 mb-5 leading-relaxed">
+              Bạn có chắc chắn muốn xóa vĩnh viễn phòng <strong>{room?.title || `#${roomId}`}</strong>? Mọi người trong phòng sẽ bị ngắt kết nối và phòng sẽ bị gỡ bỏ hoàn toàn khỏi hệ thống.
+            </p>
+            <div className="flex items-center gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setIsConfirmDeleteModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                data-testid="confirm-delete-room-in-view-btn"
+                onClick={handleConfirmDeleteRoomInView}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition cursor-pointer shadow-lg shadow-rose-950/50"
+              >
+                Xóa Vĩnh Viễn
               </button>
             </div>
           </div>

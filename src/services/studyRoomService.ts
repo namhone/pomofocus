@@ -50,6 +50,13 @@ export interface StudyRoom {
     canCam: boolean;
     canShareScreen: boolean;
   };
+  // Tùy chỉnh phòng học chuyên sâu
+  passcode?: string | null;            // Mật khẩu phòng (PIN)
+  roomGoal?: string | null;            // Mục tiêu buổi học / Thông báo ghim
+  roomCategory?: string | null;        // Thể loại không gian (Coding, IELTS, Cafe...)
+  silentMode?: boolean;                // Chế độ siêu tập trung (Tự động tắt mic khi vào)
+  requireCam?: boolean;                // Yêu cầu bật camera (Study With Me)
+  hostOnlyTimer?: boolean;             // Chỉ host được điều khiển đồng hồ Pomodoro
 }
 
 export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
@@ -60,6 +67,15 @@ export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
     maxParticipants: 10
   };
 });
+
+export const ROOM_CATEGORIES = [
+  { id: 'tech', label: 'Lập trình & CNTT', icon: '💻' },
+  { id: 'exam', label: 'Ôn thi Học thuật', icon: '📚' },
+  { id: 'lang', label: 'Ngoại ngữ (IELTS/JLPT)', icon: '🎯' },
+  { id: 'cafe', label: 'Tiệm Cafe Yên Tĩnh', icon: '☕' },
+  { id: 'design', label: 'Thiết kế & Sáng tạo', icon: '🎨' },
+  { id: 'work', label: 'Làm việc Tập trung', icon: '💼' }
+];
 
 export interface SubscriptionEligibilityResult {
   eligible: boolean;
@@ -73,11 +89,13 @@ export type AccessCheckResult =
   | { allowed: true; role: 'host' | 'member' | 'guest'; room: StudyRoom }
   | {
       allowed: false;
-      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED' | 'ROOM_FULL';
+      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED' | 'ROOM_FULL' | 'PASSCODE_REQUIRED';
       message: string;
+      room?: StudyRoom;
     };
 
 const ROOMS_STORAGE_KEY = 'pomodoro_study_rooms_store';
+const DELETED_ROOMS_KEY = 'pomodoro_deleted_rooms_store';
 const CHANNEL_NAME = 'pomofocus_meet_realtime_bus';
 
 /**
@@ -115,6 +133,34 @@ export const studyRoomService = {
     : null,
 
   /**
+   * Lấy danh sách ID các phòng đã bị xóa vĩnh viễn
+   */
+  getDeletedRoomIds(): Set<string> {
+    if (typeof window === 'undefined' || !window.localStorage) return new Set();
+    try {
+      const raw = localStorage.getItem(DELETED_ROOMS_KEY);
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      return new Set(list.map((id) => id.toLowerCase()));
+    } catch {
+      return new Set();
+    }
+  },
+
+  /**
+   * Đánh dấu phòng đã bị xóa vĩnh viễn
+   */
+  markRoomAsDeleted(roomId: string): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    try {
+      const set = this.getDeletedRoomIds();
+      set.add(roomId.toLowerCase());
+      localStorage.setItem(DELETED_ROOMS_KEY, JSON.stringify(Array.from(set)));
+    } catch {
+      // Bỏ qua lỗi
+    }
+  },
+
+  /**
    * Lấy danh sách tất cả các phòng
    */
   getAllRooms(): Record<string, StudyRoom> {
@@ -124,6 +170,17 @@ export const studyRoomService = {
       const rooms: Record<string, StudyRoom> = raw ? JSON.parse(raw) : {};
       if (rooms['room-alpha-1']) {
         delete rooms['room-alpha-1'];
+        localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
+      }
+      const deleted = this.getDeletedRoomIds();
+      let changed = false;
+      for (const id of deleted) {
+        if (rooms[id]) {
+          delete rooms[id];
+          changed = true;
+        }
+      }
+      if (changed) {
         localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
       }
       return rooms;
@@ -138,6 +195,13 @@ export const studyRoomService = {
   saveRoom(room: StudyRoom): void {
     if (typeof window === 'undefined' || !window.localStorage) return;
     try {
+      // Nếu phòng đang lưu từng nằm trong danh sách đã xóa, gỡ khỏi danh sách đã xóa
+      const deletedSet = this.getDeletedRoomIds();
+      if (deletedSet.has(room.roomId.toLowerCase())) {
+        deletedSet.delete(room.roomId.toLowerCase());
+        localStorage.setItem(DELETED_ROOMS_KEY, JSON.stringify(Array.from(deletedSet)));
+      }
+
       const rooms = this.getAllRooms();
       rooms[room.roomId] = room;
       localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
@@ -154,6 +218,9 @@ export const studyRoomService = {
     if (!roomId) return null;
     const cleanId = roomId.trim().toLowerCase();
     if (cleanId === 'room-alpha-1') {
+      return null;
+    }
+    if (this.getDeletedRoomIds().has(cleanId)) {
       return null;
     }
     const rooms = this.getAllRooms();
@@ -474,6 +541,13 @@ export const studyRoomService = {
     title?: string;
     hostUser: UserProfile;
     isFreeRoom?: boolean;
+    passcode?: string | null;
+    roomGoal?: string | null;
+    roomCategory?: string | null;
+    silentMode?: boolean;
+    requireCam?: boolean;
+    hostOnlyTimer?: boolean;
+    maxParticipants?: number;
   }): { success: true; room: StudyRoom; inviteLink: string } | { success: false; error: string } {
     const isLadyBossUser = Boolean(params.hostUser && isLadyBoss(params.hostUser.email));
     const isOwner = Boolean(params.hostUser && isOwnerEmail(params.hostUser.email));
@@ -517,7 +591,7 @@ export const studyRoomService = {
       createdAt: now,
       status: 'active',
       allowFreeGuests: !isProUser ? true : false,
-      maxParticipants: isLadyBossUser ? 50 : 25,
+      maxParticipants: params.maxParticipants ? Math.min(50, Math.max(2, params.maxParticipants)) : (isLadyBossUser ? 50 : 25),
       isFreeRoom: !isProUser,
       maxDurationMinutes: !isProUser ? 45 : undefined,
       activeInviteToken: token,
@@ -536,7 +610,13 @@ export const studyRoomService = {
         canMic: true,
         canCam: true,
         canShareScreen: false
-      }
+      },
+      passcode: params.passcode?.trim() || null,
+      roomGoal: params.roomGoal?.trim() || null,
+      roomCategory: params.roomCategory?.trim() || null,
+      silentMode: Boolean(params.silentMode),
+      requireCam: Boolean(params.requireCam),
+      hostOnlyTimer: Boolean(params.hostOnlyTimer)
     };
 
     this.saveRoom(room);
@@ -553,7 +633,8 @@ export const studyRoomService = {
   verifyRoomAccess(
     roomId: string,
     currentUser: UserProfile | null,
-    inviteToken?: string | null
+    inviteToken?: string | null,
+    passcode?: string | null
   ): AccessCheckResult {
     // 1. Kiểm tra mã phòng hợp lệ về cú pháp
     if (!roomId || typeof roomId !== 'string' || roomId.trim().length < 3) {
@@ -617,6 +698,18 @@ export const studyRoomService = {
         code: 'TOKEN_EXPIRED_OR_REVOKED',
         message: 'Liên kết mời tham gia này đã bị chủ phòng thu hồi hoặc hết hiệu lực.'
       };
+    }
+
+    // 5.5. Kiểm tra Mật khẩu phòng (Passcode / Room PIN)
+    if (room.passcode) {
+      if (!passcode || passcode.trim() !== room.passcode.trim()) {
+        return {
+          allowed: false,
+          code: 'PASSCODE_REQUIRED',
+          message: passcode ? 'Mật khẩu phòng (PIN) không chính xác.' : 'Phòng học này yêu cầu mật khẩu truy cập (PIN).',
+          room
+        };
+      }
     }
 
     // 6. Kiểm tra xem người dùng có gói PRO không
@@ -765,6 +858,109 @@ export const studyRoomService = {
     this.saveRoom(room);
     this.broadcastEvent({ type: 'ROOM_CLOSED', roomId });
 
+    return { success: true };
+  },
+
+  /**
+   * Tùy chỉnh phòng họp chuyên sâu (Tên phòng, Mật khẩu PIN, Mục tiêu, Chế độ siêu tập trung...)
+   * Chỉ Chủ phòng hoặc Owner mới có quyền thay đổi
+   */
+  updateRoom(
+    roomId: string,
+    currentUser: UserProfile,
+    updates: Partial<Pick<StudyRoom, 'title' | 'passcode' | 'roomGoal' | 'roomCategory' | 'silentMode' | 'requireCam' | 'hostOnlyTimer' | 'maxParticipants'>>
+  ): { success: boolean; room?: StudyRoom; error?: string } {
+    const cleanId = roomId.trim().toLowerCase();
+    const room = this.getRoom(cleanId);
+    if (!room) {
+      return { success: false, error: 'Phòng không tồn tại.' };
+    }
+
+    const isHost =
+      room.hostUserId === currentUser.id ||
+      room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase() ||
+      isOwnerEmail(currentUser.email);
+
+    if (!isHost) {
+      return { success: false, error: 'Chỉ chủ phòng mới có quyền tùy chỉnh phòng học này.' };
+    }
+
+    if (updates.title !== undefined) {
+      const trimmed = updates.title.trim();
+      if (!trimmed) {
+        return { success: false, error: 'Tên phòng không được để trống.' };
+      }
+      room.title = trimmed.slice(0, 60);
+    }
+
+    if (updates.passcode !== undefined) {
+      room.passcode = updates.passcode ? updates.passcode.trim() : null;
+    }
+
+    if (updates.roomGoal !== undefined) {
+      room.roomGoal = updates.roomGoal ? updates.roomGoal.trim().slice(0, 120) : null;
+    }
+
+    if (updates.roomCategory !== undefined) {
+      room.roomCategory = updates.roomCategory || null;
+    }
+
+    if (updates.silentMode !== undefined) {
+      room.silentMode = Boolean(updates.silentMode);
+    }
+
+    if (updates.requireCam !== undefined) {
+      room.requireCam = Boolean(updates.requireCam);
+    }
+
+    if (updates.hostOnlyTimer !== undefined) {
+      room.hostOnlyTimer = Boolean(updates.hostOnlyTimer);
+    }
+
+    if (updates.maxParticipants !== undefined && updates.maxParticipants > 0) {
+      room.maxParticipants = Math.min(50, Math.max(2, updates.maxParticipants));
+    }
+
+    this.saveRoom(room);
+    this.broadcastEvent({ type: 'ROOM_UPDATED', roomId: room.roomId, room });
+    return { success: true, room };
+  },
+
+  /**
+   * Xóa bỏ phòng học đã tạo
+   * Chỉ Chủ phòng hoặc Owner mới có quyền xóa. Ngăn xóa các phòng công khai (Public Pods).
+   */
+  deleteRoom(
+    roomId: string,
+    currentUser: UserProfile
+  ): { success: boolean; error?: string } {
+    const cleanId = roomId.trim().toLowerCase();
+    if (cleanId.startsWith('pod-free-')) {
+      return { success: false, error: 'Không thể xóa phòng học công khai của hệ thống.' };
+    }
+
+    const room = this.getRoom(cleanId);
+    if (!room) {
+      return { success: false, error: 'Phòng không tồn tại hoặc đã bị xóa.' };
+    }
+
+    const isHost =
+      room.hostUserId === currentUser.id ||
+      room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase() ||
+      isOwnerEmail(currentUser.email);
+
+    if (!isHost) {
+      return { success: false, error: 'Chỉ chủ phòng mới có quyền xóa phòng này.' };
+    }
+
+    const rooms = this.getAllRooms();
+    delete rooms[cleanId];
+    this.markRoomAsDeleted(cleanId);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
+    }
+
+    this.broadcastEvent({ type: 'ROOM_DELETED', roomId: cleanId });
     return { success: true };
   },
 
