@@ -14,10 +14,15 @@ import {
 import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
+import { useAiStore } from './useAiStore';
 
 export interface AuthState {
   user: UserProfile | null;
   isAuthenticated: boolean;
+  isLoggedIn: boolean;
+  role?: string;
+  badge?: string;
+  credits?: number;
   isLoading: boolean;
   isGoogleLoading: boolean;
   error: string | null;
@@ -38,6 +43,7 @@ export interface AuthState {
   loginAsFounder: () => Promise<boolean>;
   signup: (email: string, pass: string, name: string) => Promise<boolean>;
   loginWithGoogle: (payload: GoogleUserPayload) => Promise<boolean>;
+  syncUserFromSupabase: (supabaseUser: any) => void;
   logout: () => void;
   updateProfile: (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => Promise<boolean>;
   changePassword: (oldPass: string, newPass: string) => Promise<boolean>;
@@ -67,7 +73,7 @@ const initialSession = authService.getCurrentSession();
 export const useAuthStore = create<AuthState>((set, get) => {
   const computeDerivedPlanState = (user: UserProfile | null) => ({
     isPro: hasProEntitlement(user?.plan, user?.email),
-    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email)),
+    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email) || user?.plan === 'lifetime'),
     isBetaPro: user?.plan === 'pro_beta',
     isOwner: isOwnerEmail(user?.email),
     isLadyBoss: isLadyBoss(user?.email),
@@ -78,6 +84,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
   return {
     user: initialSession,
     isAuthenticated: Boolean(initialSession),
+    isLoggedIn: Boolean(initialSession),
+    role: initialSession?.role,
+    badge: initialSession?.badge,
+    credits: initialSession?.credits,
     isLoading: false,
     isGoogleLoading: false,
     error: null,
@@ -92,6 +102,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           user,
           isAuthenticated: true,
+          isLoggedIn: true,
           isLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
@@ -112,6 +123,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           user,
           isAuthenticated: true,
+          isLoggedIn: true,
           isLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
@@ -132,6 +144,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           user,
           isAuthenticated: true,
+          isLoggedIn: true,
           isLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
@@ -152,6 +165,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({
           user,
           isAuthenticated: true,
+          isLoggedIn: true,
           isGoogleLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
@@ -167,11 +181,110 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
+    syncUserFromSupabase: (supabaseUser: any) => {
+      if (!supabaseUser) return;
+
+      const email = (supabaseUser.email || '').trim().toLowerCase();
+      const displayName =
+        supabaseUser.user_metadata?.full_name ||
+        supabaseUser.user_metadata?.name ||
+        supabaseUser.displayName ||
+        (email ? email.split('@')[0] : 'Người dùng');
+      const avatarUrl =
+        supabaseUser.user_metadata?.avatar_url ||
+        supabaseUser.user_metadata?.picture ||
+        supabaseUser.avatarUrl ||
+        '';
+      const userId = supabaseUser.id || `g_${Date.now()}`;
+
+      const isFounder = isOwnerEmail(email);
+
+      let profile: UserProfile;
+
+      if (isFounder) {
+        profile = {
+          id: userId,
+          email,
+          displayName,
+          avatarUrl,
+          role: 'founder',
+          plan: 'lifetime',
+          badge: 'Founder VIP 👑',
+          isLifetime: true,
+          proExpiresAt: null,
+          createdAt: Date.now(),
+          authProvider: 'google',
+          emailVerified: true
+        };
+        // Nạp đầy 1.000⚡ AI Credits vào ví useAiStore
+        try {
+          useAiStore.setState({
+            aiCreditsBalance: 1000,
+            aiPlan: 'lifetime',
+            lastWeeklyReset: Date.now()
+          });
+          useAiStore.getState().setAiPlan('lifetime');
+        } catch (e) {
+          console.warn('[syncUserFromSupabase] AI store update error:', e);
+        }
+      } else {
+        profile = {
+          id: userId,
+          email,
+          displayName,
+          avatarUrl,
+          role: 'user',
+          plan: 'free',
+          badge: 'Thành viên Free',
+          credits: 50,
+          isLifetime: false,
+          proExpiresAt: null,
+          createdAt: Date.now(),
+          authProvider: 'google',
+          emailVerified: Boolean(supabaseUser.email_confirmed_at || supabaseUser.user_metadata?.email_verified)
+        };
+        // Gói Free: 50 credits
+        try {
+          useAiStore.setState({
+            aiCreditsBalance: 50,
+            aiPlan: 'free'
+          });
+          useAiStore.getState().setAiPlan('free');
+        } catch (e) {
+          console.warn('[syncUserFromSupabase] AI store update error:', e);
+        }
+      }
+
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(profile));
+      }
+
+      set({
+        user: profile,
+        isAuthenticated: true,
+        isLoggedIn: true,
+        role: profile.role,
+        badge: profile.badge,
+        credits: profile.credits,
+        isLoading: false,
+        isGoogleLoading: false,
+        error: null,
+        lastSyncedAt: Date.now(),
+        ...computeDerivedPlanState(profile)
+      });
+
+      get().syncEntitlementsFromCloud();
+    },
+
     logout: () => {
       authService.logout();
       set({
         user: null,
         isAuthenticated: false,
+        isLoggedIn: false,
+        role: undefined,
+        badge: undefined,
+        credits: undefined,
         error: null,
         syncStats: null,
         ...computeDerivedPlanState(null)

@@ -507,6 +507,49 @@ export class RealtimeChannel {
 
 const activeChannels = new Map<string, RealtimeChannel>();
 
+
+const authSubscribers = new Set<(event: string, session: any) => void>();
+
+function parseOAuthHashSession(): any {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash || '';
+  if (hash.includes('access_token=')) {
+    try {
+      const params = new URLSearchParams(hash.replace(/^#/, ''));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token') || '';
+      if (accessToken) {
+        const parts = accessToken.split('.');
+        if (parts.length >= 2) {
+          const base64Url = parts[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
+          const user = {
+            id: decoded.sub || `g_${Date.now()}`,
+            email: decoded.email || '',
+            user_metadata: {
+              full_name: decoded.user_metadata?.full_name || decoded.user_metadata?.name || (decoded.email ? decoded.email.split('@')[0] : 'Người dùng'),
+              avatar_url: decoded.user_metadata?.avatar_url || decoded.user_metadata?.picture || '',
+              ...decoded.user_metadata,
+            },
+            app_metadata: decoded.app_metadata || {},
+            aud: decoded.aud,
+            role: decoded.role,
+          };
+          return {
+            user,
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('[Supabase Auth] Lỗi giải mã token OAuth từ hash:', e);
+    }
+  }
+  return null;
+}
+
 export const supabase = {
   channel: (topic: string, opts?: ChannelConfig): RealtimeChannel => {
     let chan = activeChannels.get(topic);
@@ -608,6 +651,11 @@ export const supabase = {
     signOut: async (options?: { scope?: 'global' | 'local' | 'others' }) => {
       if (typeof window !== 'undefined' && options?.scope !== 'others') {
         localStorage.removeItem('pomodoro_study_auth_session');
+        authSubscribers.forEach((cb) => {
+          try {
+            cb('SIGNED_OUT', null);
+          } catch {}
+        });
       }
       return { error: null };
     },
@@ -618,11 +666,34 @@ export const supabase = {
 
     getSession: async () => {
       if (typeof window === 'undefined') return { data: { session: null }, error: null };
+
+      // 1. Kiểm tra URL hash fragment nếu vừa chuyển hướng từ Google OAuth
+      const oauthSession = parseOAuthHashSession();
+      if (oauthSession) {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        return { data: { session: oauthSession }, error: null };
+      }
+
+      // 2. Đọc session đã lưu trong localStorage
       const raw = localStorage.getItem('pomodoro_study_auth_session');
       if (!raw) return { data: { session: null }, error: null };
       try {
         const parsed = JSON.parse(raw);
-        return { data: { session: { user: parsed, access_token: parsed.token || 'mock_token' } }, error: null };
+        const user = {
+          id: parsed.id,
+          email: parsed.email,
+          user_metadata: {
+            full_name: parsed.displayName,
+            name: parsed.displayName,
+            avatar_url: parsed.avatarUrl,
+            picture: parsed.avatarUrl,
+            ...parsed.user_metadata,
+          },
+          ...parsed,
+        };
+        return { data: { session: { user, access_token: parsed.token || 'mock_token' } }, error: null };
       } catch {
         return { data: { session: null }, error: null };
       }
@@ -634,19 +705,44 @@ export const supabase = {
     },
 
     onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      authSubscribers.add(callback);
+
       if (typeof window !== 'undefined') {
-        const raw = localStorage.getItem('pomodoro_study_auth_session');
-        if (raw) {
-          try {
-            const user = JSON.parse(raw);
-            callback('SIGNED_IN', { user, access_token: user.token });
-          } catch {}
+        const oauthSession = parseOAuthHashSession();
+        if (oauthSession) {
+          setTimeout(() => callback('SIGNED_IN', oauthSession), 0);
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        } else {
+          const raw = localStorage.getItem('pomodoro_study_auth_session');
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              const user = {
+                id: parsed.id,
+                email: parsed.email,
+                user_metadata: {
+                  full_name: parsed.displayName,
+                  name: parsed.displayName,
+                  avatar_url: parsed.avatarUrl,
+                  picture: parsed.avatarUrl,
+                  ...parsed.user_metadata,
+                },
+                ...parsed,
+              };
+              setTimeout(() => callback('INITIAL_SESSION', { user, access_token: parsed.token || 'mock_token' }), 0);
+            } catch {}
+          }
         }
       }
+
       return {
         data: {
           subscription: {
-            unsubscribe: () => {}
+            unsubscribe: () => {
+              authSubscribers.delete(callback);
+            }
           }
         }
       };

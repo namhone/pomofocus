@@ -128,7 +128,7 @@ export const PlatformHeader: React.FC = () => {
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
-            <span className="hidden sm:inline">{planLabel}</span>
+            <span className="hidden sm:inline">{user?.badge || planLabel}</span>
             <span className="sm:hidden">{isLifetime ? 'PRO ★' : isPro ? 'PRO' : 'FREE'}</span>
           </button>
         </div>
@@ -282,7 +282,7 @@ export const PlatformHeader: React.FC = () => {
                           : 'bg-white/10 text-neutral-300 border-white/10'
                       }`}
                     >
-                      {planLabel}
+                      {user?.badge || planLabel}
                     </span>
                   </div>
 
@@ -409,7 +409,7 @@ export const PlatformHeader: React.FC = () => {
                   ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                   : 'bg-white/10 text-neutral-300 border-white/10'
               }`}>
-                {planLabel}
+                {user?.badge || planLabel}
               </span>
             </div>
           )}

@@ -5,6 +5,7 @@ import type { GoogleUserPayload } from './googleAuthService';
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
 
 export const OWNER_EMAIL = 'namho03052k9@gmail.com';
+export const OWNER_EMAILS = [OWNER_EMAIL, 'nam.studyworkspace@gmail.com'];
 export const LADY_BOSS_EMAIL = 'huyentrantt09@gmail.com';
 export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
@@ -14,7 +15,10 @@ export interface UserProfile {
   email: string;
   displayName: string;
   avatarUrl?: string;
-  plan: UserPlan;
+  plan: UserPlan | 'lifetime';
+  role?: string;
+  badge?: string;
+  credits?: number;
   isLifetime?: boolean;
   proExpiresAt?: number | null;
   createdAt: number;
@@ -80,7 +84,8 @@ const CLOUD_SYNC_PREFIX = 'pomodoro_cloud_sync_';
 
 export function isOwnerEmail(email?: string | null): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === OWNER_EMAIL;
+  const normalized = email.trim().toLowerCase();
+  return normalized === OWNER_EMAIL || OWNER_EMAILS.includes(normalized);
 }
 
 export function isLadyBoss(email?: string | null): boolean {
@@ -93,14 +98,15 @@ export function isVipFriend(email?: string | null): boolean {
   return email.trim().toLowerCase() === VIP_FRIEND_EMAIL;
 }
 
-export function hasProEntitlement(plan?: UserPlan | null, email?: string | null): boolean {
+export function hasProEntitlement(plan?: UserPlan | string | null, email?: string | null): boolean {
   if (isLadyBoss(email) || isOwnerEmail(email) || isVipFriend(email)) return true;
   if (!plan) return false;
   return (
     plan === 'pro' ||
     plan === 'pro_beta' ||
     plan === 'pro_lifetime' ||
-    plan === 'pro_sandbox'
+    plan === 'pro_sandbox' ||
+    plan === 'lifetime'
   );
 }
 
@@ -109,7 +115,10 @@ export function getPlanLabel(user?: UserProfile | null): string {
   if (isLadyBoss(user.email)) {
     return '👑 NÓC NHÀ PRO';
   }
-  if (user.isLifetime || user.plan === 'pro_lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email)) {
+  if (user.role === 'founder' || user.badge === 'Founder VIP 👑') {
+    return 'Founder VIP 👑';
+  }
+  if (user.isLifetime || user.plan === 'pro_lifetime' || user.plan === 'lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email)) {
     return 'PRO TRỌN ĐỜI';
   }
   if (user.plan === 'pro_beta') return 'PRO BETA (3 NĂM)';
