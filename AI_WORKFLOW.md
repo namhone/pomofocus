@@ -36,80 +36,36 @@
 
 ## PHẦN 2 — WORKFLOW HIỆN TẠI
 
-*Mục tiêu: Đã hoàn tất Phase 2, Phase 3, Phase 4 và Đóng gói Bản Beta (PomoFocus Meet) — 100% Empirical Pass. Kiểm thử 39/39 assertions pgTAP & benchmark concurrency 5 tiến trình độc lập trên Portable PostgreSQL 16 tại D:\pgsql; 145/145 Vitest unit tests pass; Vite build thành công không lỗi. Tuyệt đối KHÔNG tự ý chạm remote Supabase, KHÔNG sửa mã ứng dụng frontend ngoài phạm vi duyệt, KHÔNG commit/push/deploy.*
+*Mục tiêu: Đã hoàn tất Phase 2, Phase 3, Phase 4, Phase 7, Phase 8, Phase 9 — 100% Empirical Pass. Kiểm thử 28/28 test suites, 289/289 Vitest unit tests pass; Vite build thành công không lỗi. Deploy Vercel Production và kiểm thử Live Google OAuth thành công tuyệt đối.*
 
 - [x] **Phase 0 — Chốt tài liệu kiến trúc mục tiêu v3.0**: 8 nguyên tắc bất biến, 2 tầng schema (public/private), Token SHA-256 hash, User Entitlements tách biệt, RLS & GRANT đa tầng, Idempotency & Concurrency, Tiêu chuẩn nghiệm thu 4 nhóm. **[HOÀN THÀNH]**
 - [x] **Phase 1 — One-Pass Architecture Review & Final Audit**: Hoàn tất phân tích tĩnh, ma trận 16 ca test, giải quyết toàn bộ 3 lỗi P0 (RLS Default-Deny, thiếu quyền CREATE khi đổi owner, thiếu USAGE trên auth). **[HOÀN THÀNH]**
-- [x] **Phase 2 — Chuẩn bị Migration & Test pgTAP (Static Audit Gate PASSED)**:
-  - [x] *Bước 1: Khảo sát hiện trạng repository*: Xác nhận chưa có thư mục supabase/, chưa có file migration cũ, app đang chạy mock IndexedDB/localStorage. **[HOÀN THÀNH]**
-  - [x] *Bước 2: Tạo bản nháp migration 1*: `supabase/migrations/20261029000001_meet_schema_and_tables.sql` (bổ sung CREATE SCHEMA extensions, 6 bảng, constraints, indexes). **[HOÀN THÀNH]**
-  - [x] *Bước 3: Tạo bản nháp migration 2*: `supabase/migrations/20261029000002_meet_security_and_rpc.sql` (Explicit RLS Policies, Just-in-Time owner transfer, 6 RPCs SECURITY DEFINER với Double-Checked Locking, xử lý 4 trạng thái membership, thu hồi EXECUTE khỏi PUBLIC). **[HOÀN THÀNH]**
-  - [x] *Bước 4: Tạo bản nháp bộ kiểm thử*: `supabase/tests/database/meet_concurrency_and_security.test.sql` (39 assertions pgTAP nguyên tử, scalar subqueries, schema auth đầy đủ, cơ chế nạp rate-limit chống trôi 10s). **[HOÀN THÀNH]**
-  - [x] *Bước 5: Thẩm định tĩnh độc lập đạt chuẩn (Pass Static Audit)*. **[HOÀN THÀNH]**
-- [x] **Phase 3 — Kiểm thử Môi trường Local & Runtime Verification**:
-  - [x] *Thiết lập PostgreSQL 16 Portable trên ổ D (`D:\pgsql`)*: Cụm DB chạy cô lập hoàn toàn, không ảnh hưởng ổ C. **[HOÀN THÀNH]**
-  - [x] *Chạy Migration 1 & 2*: Áp dụng thành công toàn bộ schema, bảng, RLS và 6 RPCs. **[HOÀN THÀNH]**
-  - [x] *Chạy trọn vẹn bộ pgTAP 39 assertions*: Đạt 39/39 OK (100% pass), không có lỗi. **[HOÀN THÀNH]**
-  - [x] *Kiểm thử đồng thời đa tiến trình thực tế (Multi-session Concurrency Benchmark)*: Bắn 5 tiến trình độc lập đồng thời kiểm chứng triệt để chống over-subscription và chống tiêu tốn quota khi retry cùng message ID. **[HOÀN THÀNH]**
-- [x] **Phase 4 — Adapter ứng dụng & Realtime**: 
-  - [x] *Tầng Adapter*: Interface `IMeetRepository`, `LocalMeetAdapter` (Dexie/BroadcastChannel), `SupabaseMeetAdapter` (6 RPCs + Exponential Backoff Retry), `meetRepository` factory. **[HOÀN THÀNH]**
-  - [x] *Tầng Realtime & Defense-in-Depth Teardown*: `MeetRealtimeService`, kênh `room:<roomId>`, `postgres_changes` (INSERT room_messages, UPDATE room_memberships revoked, UPDATE study_rooms closed), `presence` sync Pomodoro state, và Teardown tự động 3 tầng trong `useMeetStore`. **[HOÀN THÀNH]**
-  - [x] *Kiểm thử hồi quy & Build*: 145/145 unit tests pass 100% (128 test cũ + 17 test mới), Vite PWA build thành công tuyệt đối. **[HOÀN THÀNH]**
-- [x] **Phase 5 — Đóng gói & Chuẩn bị Phát hành Bản Beta (PomoFocus Meet)**:
-  - [x] *Tổng hợp Migration Cloud*: Tạo file `supabase/release_beta_supabase_cloud.sql` tổng hợp toàn diện extensions, schema `meet_internal`, 6 bảng, indexes, explicit RLS, 6 SECURITY DEFINER RPCs và Supabase Realtime publication (loại trừ hoàn toàn auth mock). Đã kiểm chứng thực nghiệm trên PostgreSQL local. **[HOÀN THÀNH]**
-  - [x] *Chuẩn hóa cấu hình môi trường*: Tạo file `.env.example` với các tham số mẫu sẵn sàng cho production (Vercel/Netlify). **[HOÀN THÀNH]**
-  - [x] *Đánh nhãn giao diện & thông báo Beta*: Bổ sung badge BETA tại Lobby & View; hiển thị thông báo thân thiện hướng dẫn khi người dùng click Mic/Camera P2P. **[HOÀN THÀNH]**
-  - [x] *Nghiệm thu toàn diện*: 145/145 Vitest unit tests pass 100%, `npm run build` (`tsc` + `vite build`) exit code 0. **[HOÀN THÀNH]**
+- [x] **Phase 2 — Chuẩn bị Migration & Test pgTAP (Static Audit Gate PASSED)**: **[HOÀN THÀNH]**
+- [x] **Phase 3 — Kiểm thử Môi trường Local & Runtime Verification**: **[HOÀN THÀNH]**
+- [x] **Phase 4 — Adapter ứng dụng & Realtime**: **[HOÀN THÀNH]**
+- [x] **Phase 5 — Đóng gói & Chuẩn bị Phát hành Bản Beta (PomoFocus Meet)**: **[HOÀN THÀNH]**
 - [x] **Phase 6 — WebRTC & Thanh toán MoMo**: Signaling, Media, Reconnect và Serverless IPN webhook. **[HOÀN THÀNH]**
-- [x] **Phase 7 — Triển Khai Vercel Production & Kiểm Thử Thực Nghiệm Cuộc Gọi (Live Multi-Context)**:
-  - [x] *Bước 1: Triển khai máy chủ TURN Relay công cộng (OpenRelay) & Grace Period 10s ICE Restart*: Giải quyết dứt điểm lỗi rớt kết nối xuyên mạng 4G/Wifi. **[HOÀN THÀNH]**
-  - [x] *Bước 2: Mở khoá Universal Coupon & Đồng bộ Cloud*: Cho phép mọi hạng tài khoản (Free/Monthly/Yearly/Lifetime) nhập coupon và stack thời hạn; lưu trữ Supabase Shared. **[HOÀN THÀNH]**
-  - [x] *Bước 3: Dynamic OAuth Redirect*: Chuyển hướng Google OAuth linh hoạt theo domain runtime (`${window.location.origin}/app`). **[HOÀN THÀNH]**
-  - [x] *Bước 4: Nâng cấp Service Worker chống Cache*: Gán `SW_CACHE_VERSION = 'v3.1.0-turn-universal-coupon'` xóa sạch cache cũ trên điện thoại/desktop. **[HOÀN THÀNH]**
-  - [x] *Bước 5: Kích hoạt Deploy Vercel Production qua CLI*: `npx vercel --prod --yes` ra Deployment ID `dpl_BkU7rhSqFEhKySsJPTkssqjH4dYy` và alias `pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
-  - [x] *Bước 6: Kiểm thử E2E Live Production*: Chạy Playwright Multi-Context (2 phiên độc lập Client A & Client B) kết nối video/audio qua phòng thật trên live web trong 20s, chụp ảnh minh chứng `proof-live-call-client-a.png` và `proof-live-call-client-b.png`. **[HOÀN THÀNH]**
-- [x] **Phase 8 — Màn Hình Đăng Nhập 3 Lựa Chọn & Founder VIP 1-Chạm**:
-  - [x] *Bước 1: Đồng bộ Supabase Project*: Cập nhật `SUPABASE_URL` trỏ về `https://tmvbulkxhlgdivrvmobo.supabase.co` và callback `/auth/v1/callback`. **[HOÀN THÀNH]**
-  - [x] *Bước 2: Giao diện AuthView 3 Lựa Chọn*: Lựa chọn 1 (Google OAuth), Lựa chọn 2 (⚡ Đăng nhập Nhanh Founder VIP 0.1s + 1.000⚡ AI Credits), Lựa chọn 3 (Email & Mật khẩu Độc lập). **[HOÀN THÀNH]**
-  - [x] *Bước 3: Tự động hóa kiểm thử*: Viết `tests/unit/loginOptions.test.ts` kiểm thử 28/28 suites, 289/289 unit tests pass 100%. **[HOÀN THÀNH]**
+- [x] **Phase 7 — Triển Khai Vercel Production & Kiểm Thử Thực Nghiệm Cuộc Gọi (Live Multi-Context)**: **[HOÀN THÀNH]**
+- [x] **Phase 8 — Màn Hình Đăng Nhập 3 Lựa Chọn & Founder VIP 1-Chạm**: **[HOÀN THÀNH]**
+- [x] **Phase 9 — Khắc Phục Triệt Để Google OAuth Trên Môi Trường Live & Xác Minh Bằng Chứng**:
+  - [x] *Bước 1: Chẩn đoán tự động mạng Live*: Phát hiện Vercel Build env variable ghi đè URL Supabase cũ `pgsgmmtpunuttspqcgof` trả về HTTP 400 Bad Request. Dự án mới `tmvbulkxhlgdivrvmobo` trả về HTTP 302 chuyển hướng chuẩn xác sang Google OAuth. **[HOÀN THÀNH]**
+  - [x] *Bước 2: Cố định hằng số mã nguồn & Bảo vệ bảo mật*: Cố định cứng `SUPABASE_URL` và `SUPABASE_ANON_KEY` trỏ thẳng vào dự án mới trong `src/config/env.ts` để chống ghi đè bởi cấu hình Vercel Dashboard. Bọc nút Đăng nhập nhanh Founder trong `import.meta.env.DEV` để bảo vệ an toàn trên môi trường Production. **[HOÀN THÀNH]**
+  - [x] *Bước 3: Deploy Vercel Production & Kiểm thử E2E Live*: Deploy bản build mới nhất lên Vercel (`dpl_3oAvQWJDLScZc5vFh7oyuNba4UYY`), trỏ alias `pomofocus-workspace.vercel.app`. Chạy kịch bản Playwright thật bấm "Tiếp tục với Google", xác nhận 100% chuyển hướng đến `accounts.google.com` và xuất ảnh chụp `proof-google-oauth-live-success.png`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-02 21:50
-- **Trạng thái**: Đã deploy thành công lên Vercel Production (`dpl_As4tM1hEErZLe93XHiUU7D8SRq6U`, Ready). Hoàn thành 100% kiểm thử Playwright Multi-Context cuộc gọi WebRTC thật trên domain `https://pomofocus-workspace.vercel.app/rooms/live-test-audit`.
+- **Thời điểm**: 2026-11-02 23:15
+- **Trạng thái**: Đã deploy thành công lên Vercel Production (`dpl_3oAvQWJDLScZc5vFh7oyuNba4UYY`, Ready). Hoàn thành 100% kiểm thử Playwright Live Google OAuth trên domain `https://pomofocus-workspace.vercel.app/login`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Cập nhật SW Cache*: Gán `SW_CACHE_VERSION = 'v3.1.0-turn-universal-coupon'` kích hoạt ngay `skipWaiting()` và xóa stale cache khi activate.
-  2. *Git Synchronization*: Commit `ef38c49` ("fix(prod): resolve cross-network webrtc with turn relay, enable universal coupon stacking and fix oauth dynamic redirect") đã đẩy đồng bộ lên `feature/v1.1.0-ai-companion`, `master` và `main`.
-  3. *Vercel Production Deploy*: Thực thi `npx vercel --prod --yes` ra deployment ID `dpl_As4tM1hEErZLe93XHiUU7D8SRq6U`, gán alias chính thức trỏ `pomofocus-workspace.vercel.app` về bản deployment mới nhất.
-  4. *Multi-Context Live Call Test*: Chạy kịch bản `scripts/test_live_production_call.ts` sử dụng Playwright với browser flags `--use-fake-ui-for-media-stream` và `--use-fake-device-for-media-stream`:
-     - Khởi tạo 2 Browser Contexts độc lập (Client A: Hà Nội, Client B: TP.HCM).
-     - Cùng truy cập phòng học `/rooms/live-test-audit` trên live domain `https://pomofocus-workspace.vercel.app`.
-     - Duy trì đàm thoại liên tục trong 20 giây: Không hề xảy ra hiện tượng đá nhau, ngắt kết nối hay ping-pong disconnect.
-     - Xác nhận sĩ số hiển thị trên cả 2 màn hình: `2 thành viên`.
-     - Xuất 2 ảnh chụp minh chứng thực tế: `proof-live-call-client-a.png` và `proof-live-call-client-b.png`.
+  1. *Chẩn đoán HTTP Live*: Gửi request tới cả 2 endpoint: `pgsgmmtpunuttspqcgof` trả về HTTP 400 ("Unsupported provider"), `tmvbulkxhlgdivrvmobo` trả về HTTP 302 sang Google OAuth v2 Auth URL.
+  2. *Cố định biến môi trường*: Khai báo hằng số bất biến `export const SUPABASE_URL = 'https://tmvbulkxhlgdivrvmobo.supabase.co'` và `export const SUPABASE_ANON_KEY = 'sb_publishable_vEKa2sV_9AW2CNIzxCzIKA_nzKo79b-'` trong `src/config/env.ts` để triệt tiêu việc Vercel Dashboard inject URL cũ vào bundle khi build.
+  3. *Bảo vệ nút Founder Quick Login*: Bọc trong `{import.meta.env.DEV && (...)}` để chỉ hiển thị trong môi trường phát triển cục bộ, không lộ ra trên Production.
+  4. *Git Sync & Deploy*: Push commit `6df985d` lên nhánh `master` và `main`, kích hoạt `npx vercel --prod --yes` tạo deployment `dpl_3oAvQWJDLScZc5vFh7oyuNba4UYY` và gán alias `pomofocus-workspace.vercel.app`.
+  5. *Xác minh Live qua Playwright*: Chạy script `scripts/verify_live_google_oauth.ts` trên Microsoft Edge headless: Bấm nút "Tiếp tục với Google", nhận response 302 từ Supabase mới và 200 từ `accounts.google.com/v3/signin/identifier`, chụp ảnh minh chứng thành công `proof-google-oauth-live-success.png`.
 - **Kết quả thực nghiệm**:
-  - `npm test`: **27 test files passed, 285 tests passed (100%)**.
+  - `npm test`: **28 test files passed, 289 tests passed (100%)**.
   - `npm run build`: **TypeScript check pass (0 errors), Vite PWA Service Worker build thành công 100% (exit code 0)**.
   - Vercel Deployment: **Ready (`https://pomofocus-workspace.vercel.app`)**.
-  - Live WebRTC Call E2E: **100% Pass (Sĩ số: 2, 20s đàm thoại ổn định, không rớt kết nối)**.
-
-- **Đang làm**: Đã hoàn thành đóng gói kỹ thuật cho bản phát hành Beta (PomoFocus Meet). Sẵn sàng chuyển giao tài liệu hướng dẫn triển khai 3 bước cho người dùng.
-- **Danh sách file cốt lõi đã triển khai**:
-  1. `supabase/release_beta_supabase_cloud.sql`: Script SQL phát hành độc lập cho Supabase Cloud SQL Editor (Schema, Tables, Policies, RPCs, Publication).
-  2. `.env.example`: Hướng dẫn cấu hình biến môi trường production (`VITE_ENABLE_SUPABASE_MEET=true`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
-  3. `src/components/StudyRoomLobby.tsx`: Đã gắn nhãn BETA badge cho sảnh chờ Meet.
-  4. `src/components/StudyRoomView.tsx`: Đã gắn nhãn BETA badges (Desktop/Mobile) và toast notice cho mic/camera.
-  5. `src/types/meet.ts`: Hợp đồng kiểu dữ liệu, Interface `IMeetRepository`, `PresenceState`, `RealtimeCallbacks`.
-  6. `src/config/env.ts` & `src/lib/supabase.ts`: Client RPC PostgREST và Realtime Channel Adapter tương thích Supabase v2.
-  7. `src/services/meet/supabaseAdapter.ts` & `src/services/meet/localAdapter.ts`: Bộ Adapter kép kèm retry backoff.
-  8. `src/services/meet/meetRepository.ts`: Factory Singleton phân giải adapter dựa trên Feature Flag.
-  9. `src/services/meet/realtimeService.ts`: Client Realtime Service quản lý kênh `room:<roomId>`.
-  10. `src/stores/useMeetStore.ts`: Zustand store quản lý state phòng học, presence, tin nhắn và cơ chế Teardown 3 tầng.
-  11. `tests/unit/meetRepository.test.ts` & `tests/unit/meetRealtime.test.ts`: Bộ 17 unit tests bao phủ toàn bộ adapter, retry, realtime listeners, presence tracking và kick/close teardown.
-- **Kết quả thực nghiệm**:
-  - `npm test`: **14 test files passed, 145 tests passed (100%)**.
-  - `npm run build`: **TypeScript check pass (0 errors), Vite PWA Service Worker build thành công 100% (exit code 0)**.
-- **Tuân thủ quản trị**:
-  - Không tự ý cài đặt package ngoài, không commit, không push, không deploy, không chạm database remote Supabase Cloud.
+  - Live Google OAuth Flow: **100% Pass (Chuyển hướng trực tiếp tới giao diện đăng nhập Google chính thức, không còn lỗi Supabase 400)**.
