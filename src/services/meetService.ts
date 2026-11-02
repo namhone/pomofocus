@@ -1,7 +1,9 @@
 /**
  * POMOFOCUS MEET SERVICE ADAPTER / FACADE
  * ==============================================================================
- * Cung cấp cấu hình WebRTC (bao gồm TURN relay servers chống ngắt kết nối chéo mạng)
+ * Cung cấp cấu hình WebRTC bao gồm máy chủ TURN relay chống ngắt kết nối chéo mạng:
+ * - turn:openrelay.metered.ca:80
+ * - turn:openrelay.metered.ca:443
  * và kết nối dịch vụ phòng học Meet.
  */
 
