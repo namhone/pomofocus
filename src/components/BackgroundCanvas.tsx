@@ -152,25 +152,35 @@ export const BackgroundCanvas: React.FC = () => {
           onError={() => {
             setError(true, 'Video nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
           }}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
           style={filterStyle}
         >
           <source src={preset.url} type="video/mp4" />
         </video>
       )}
 
-      {/* 3. Nền tĩnh Image: Ảnh thật chất lượng cao */}
+      {/* 3. Nền tĩnh Image: Ảnh thật chất lượng cao responsive */}
       {imageSrc && (
         <img
           key={`img-${imageSrc}`}
           src={imageSrc}
           alt=""
+          referrerPolicy="no-referrer"
           data-testid="background-image-element"
           onLoad={() => setLoading(false)}
-          onError={() => {
-            setError(true, 'Ảnh nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
+          onError={(e) => {
+            if (
+              e.currentTarget.src !==
+              'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80'
+            ) {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src =
+                'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80';
+            } else {
+              setError(true, 'Ảnh nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
+            }
           }}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
           style={filterStyle}
         />
       )}

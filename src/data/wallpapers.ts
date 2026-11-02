@@ -11,7 +11,7 @@ export interface WallpaperItem {
   id: string;
   title: string;
   category: WallpaperCategory;
-  orientation: '16:9' | '9:16';
+  orientation?: '16:9' | '9:16' | 'responsive';
   thumbnailUrl: string;
   fullUrl: string;
   author: string;
@@ -213,7 +213,9 @@ const CATEGORY_SEEDS: Record<
 
 /**
  * Sinh bộ 1.000+ hình nền chất lượng cao được tuyển chọn theo 5 gu thẩm mỹ Pinterest:
- * 200 ảnh mỗi danh mục (200 x 5 = 1.000 ảnh), phân bổ cân đối giữa 16:9 Landscape và 9:16 Mobile.
+ * 200 ảnh mỗi danh mục (200 x 5 = 1.000 ảnh).
+ * Toàn bộ ảnh được chuẩn hóa responsive: Thumbnail đồng nhất 16:9, ảnh gốc tự động co giãn
+ * hoàn hảo trên cả máy tính lẫn điện thoại nhờ CSS object-fit: cover & object-position: center.
  */
 function buildWallpapers(): WallpaperItem[] {
   const categories: Array<keyof typeof CATEGORY_SEEDS> = [
@@ -239,29 +241,19 @@ function buildWallpapers(): WallpaperItem[] {
       // Unique wallpaper ID
       const id = `wp-${cat}-${i + 1}`;
 
-      // Xen kẽ cân đối 16:9 và 9:16
-      const orientation: '16:9' | '9:16' = i % 2 === 0 ? '16:9' : '9:16';
-
-      // Thumbnail nhẹ & ảnh gốc phân bổ theo đúng tỉ lệ
-      const thumbnailUrl =
-        orientation === '16:9'
-          ? `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=360&h=202&q=60`
-          : `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=202&h=360&q=60`;
-
-      const fullUrl =
-        orientation === '16:9'
-          ? `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=1920&h=1080&q=80`
-          : `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=1080&h=1920&q=80`;
+      // Thumbnail nhẹ chuẩn 16:9 đồng nhất & ảnh gốc phân giải cao responsive
+      const thumbnailUrl = `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=360&h=202&q=60`;
+      const fullUrl = `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=1920&q=80`;
 
       result.push({
         id,
         title,
         category: cat,
-        orientation,
+        orientation: 'responsive',
         thumbnailUrl,
         fullUrl,
         author: photo.author,
-        tags: [...seed.tags, orientation, `collection-${variantNum}`, 'pinterest', 'aesthetic']
+        tags: [...seed.tags, `collection-${variantNum}`, 'pinterest', 'aesthetic']
       });
     }
   });
@@ -273,7 +265,7 @@ export const WALLPAPERS: WallpaperItem[] = buildWallpapers();
 
 export function queryWallpapers(params: {
   category?: WallpaperCategory | 'all';
-  orientation?: 'all' | '16:9' | '9:16';
+  orientation?: string;
   query?: string;
   page?: number;
   limit?: number;
@@ -283,7 +275,7 @@ export function queryWallpapers(params: {
   totalPages: number;
   hasMore: boolean;
 } {
-  const { category = 'all', orientation = 'all', query = '', page = 1, limit = 24 } = params;
+  const { category = 'all', query = '', page = 1, limit = 24 } = params;
 
   let list = WALLPAPERS;
 
@@ -294,11 +286,6 @@ export function queryWallpapers(params: {
     } else {
       list = list.filter((w) => w.category === category);
     }
-  }
-
-  // Lọc theo tỉ lệ khung hình (16:9 hoặc 9:16)
-  if (orientation !== 'all') {
-    list = list.filter((w) => w.orientation === orientation);
   }
 
   // Tìm kiếm từ khóa
