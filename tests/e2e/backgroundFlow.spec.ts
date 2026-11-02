@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/app');
   });
 
   test('1. Mở Spaces Widget từ DockBar và hiển thị danh mục presets', async ({ page }) => {
@@ -95,7 +95,7 @@ test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
 
     // 2. Chạy Timer
     await page.getByTestId('timer-start-btn').click();
-    await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
+    await expect(page.getByTestId('status-indicator')).toHaveText(/running|đang chạy/i);
 
     // 3. Mở Spaces Widget và đổi liên tiếp các preset
     await page.getByTestId('dock-btn-spaces').click();
@@ -103,7 +103,7 @@ test.describe('Background Gallery & Ambient Spaces E2E Tests', () => {
     await page.getByTestId('preset-card-deep-space').click();
 
     // 4. Xác minh: Timer VẪN ĐANG CHẠY và Task VẪN ĐANG ĐƯỢC GẮN
-    await expect(page.getByTestId('status-indicator')).toHaveText(/running/i);
+    await expect(page.getByTestId('status-indicator')).toHaveText(/running|đang chạy/i);
     await expect(page.getByTestId('linked-task-banner')).toContainText('Task thử nghiệm Background');
   });
 

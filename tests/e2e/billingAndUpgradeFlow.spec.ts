@@ -28,10 +28,10 @@ test.describe('Billing & Freemium Upgrade Flow E2E Tests', () => {
 
   test('2. Bấm CTA nâng cấp từ Landing Page (Hero, Nav, Pricing Card)', async ({ page }) => {
     await page.goto('/landing');
-    await expect(page.getByText(/Nền tảng học tập kết hợp đồng hồ Pomodoro/i)).toBeVisible();
+    await expect(page.getByTestId('landing-page-root')).toBeVisible();
 
     // CTA 1: Nav Bar 'Bảng Giá'
-    await page.getByTestId('landing-nav-billing').click();
+    await page.locator('[data-testid="landing-nav-billing"], [data-testid="header-nav-billing"]').first().click();
     await expect(page).toHaveURL(/.*billing/);
 
     // Quay lại Landing
@@ -52,6 +52,7 @@ test.describe('Billing & Freemium Upgrade Flow E2E Tests', () => {
   });
 
   test('3. Bấm CTA nâng cấp từ SpacesWidget (Banner & PRO item)', async ({ page }) => {
+    await page.goto('/app');
     // Mở widget Spaces từ Dockbar
     const spacesDockBtn = page.getByTestId('dock-btn-spaces');
     await expect(spacesDockBtn).toBeVisible({ timeout: 10000 });

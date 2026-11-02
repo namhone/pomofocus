@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Palette,
   Check,
@@ -14,23 +14,30 @@ import {
   Snowflake,
   Flower2,
   Zap,
-  ChevronLeft,
-  ChevronRight
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
-import { BackgroundCategory, CatalogCategory, AmbientEffectType } from '../types/background';
-import { CATALOG_CATEGORIES, queryCatalog } from '../data/backgroundCatalog';
+import { AmbientEffectType } from '../types/background';
+import {
+  WallpaperCategory,
+  WALLPAPER_CATEGORIES,
+  queryWallpapers,
+  WallpaperItem
+} from '../data/wallpapers';
+import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
 import { db, CustomBackgroundRecord } from '../db';
 
 export const SpacesWidget: React.FC = () => {
   const router = useRouter();
   const { user } = useAuthStore();
   const isPro = user?.plan === 'pro' || user?.plan === 'pro_sandbox';
+
   const {
-    presets,
     activePresetId,
+    customUrl,
     blurLevel,
     brightnessLevel,
     overlayOpacity,
@@ -46,22 +53,23 @@ export const SpacesWidget: React.FC = () => {
     resetBackground
   } = useBackgroundStore();
 
-  const [activeTab, setActiveTab] = useState<'presets' | 'catalog' | 'upload'>('presets');
-  const [selectedCategory, setSelectedCategory] = useState<BackgroundCategory>('all');
+  // 2 Tab chính: "Kho Hình Nền" (mặc định) & "Hiệu Ứng & Ánh Sáng"
+  const [activeTab, setActiveTab] = useState<'wallpapers' | 'effects'>('wallpapers');
+
+  // Filter & Search state cho Kho Hình Nền
+  const [selectedCategory, setSelectedCategory] = useState<WallpaperCategory | 'all' | 'video'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [loadedWallpapers, setLoadedWallpapers] = useState<WallpaperItem[]>([]);
+
+  // Tùy chỉnh tải lên & Dán URL
+  const [showUploadDrawer, setShowUploadDrawer] = useState(false);
   const [customInputUrl, setCustomInputUrl] = useState('');
   const [customInputType, setCustomInputType] = useState<'image' | 'video'>('image');
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [showSliders, setShowSliders] = useState(false);
-
-  // Catalog state (600 Desktop + 100 Mobile)
-  const [catalogCategory, setCatalogCategory] = useState<CatalogCategory>('all');
-  const [catalogOrientation, setCatalogOrientation] = useState<'all' | 'desktop' | 'mobile'>('all');
-  const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogPage, setCatalogPage] = useState(1);
-
-  // Local uploads list from Dexie
   const [savedUploads, setSavedUploads] = useState<CustomBackgroundRecord[]>([]);
 
+  // Load Dexie uploads
   useEffect(() => {
     let isMounted = true;
     db.custom_backgrounds
@@ -75,20 +83,43 @@ export const SpacesWidget: React.FC = () => {
     };
   }, []);
 
-  const filteredPresets = presets.filter((p) => {
-    if (selectedCategory === 'all') return true;
-    return p.category === selectedCategory;
-  });
+  // Truy vấn wallpapers khi category hoặc search thay đổi
+  const { items: queriedItems, total, hasMore } = useMemo(() => {
+    if (selectedCategory === 'video') {
+      return { items: [], total: 0, hasMore: false };
+    }
+    return queryWallpapers({
+      category: selectedCategory === 'all' ? 'all' : selectedCategory,
+      query: searchQuery,
+      page,
+      limit: 24
+    });
+  }, [selectedCategory, searchQuery, page]);
 
-  const catalogResult = queryCatalog({
-    category: catalogCategory,
-    orientation: catalogOrientation,
-    query: catalogSearch,
-    page: catalogPage,
-    pageSize: 24
-  });
+  // Cập nhật danh sách ảnh tích lũy (Infinite list / Tải thêm)
+  useEffect(() => {
+    if (page === 1) {
+      setLoadedWallpapers(queriedItems);
+    } else {
+      setLoadedWallpapers((prev) => {
+        const existingIds = new Set(prev.map((i) => i.id));
+        const newItems = queriedItems.filter((i) => !existingIds.has(i.id));
+        return [...prev, ...newItems];
+      });
+    }
+  }, [queriedItems, page]);
 
-  // URL Scheme validation
+  const handleCategorySelect = (cat: WallpaperCategory | 'all' | 'video') => {
+    setSelectedCategory(cat);
+    setPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1);
+  };
+
+  // Áp dụng custom URL
   const validateAndApplyUrl = (e: React.FormEvent) => {
     e.preventDefault();
     setUrlError(null);
@@ -112,7 +143,7 @@ export const SpacesWidget: React.FC = () => {
     setCustomInputUrl('');
   };
 
-  // Upload local file to IndexedDB
+  // Upload tệp tin cục bộ
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -139,42 +170,41 @@ export const SpacesWidget: React.FC = () => {
   return (
     <div
       data-testid="spaces-widget"
-      className="flex h-full w-full flex-col text-slate-100 p-1 select-none"
+      className="flex h-full w-full max-w-[340px] max-h-[480px] flex-col text-slate-100 p-2 select-none overflow-hidden"
     >
-      {/* Header Info & Category Filters */}
-      <div className="pb-2.5 border-b border-white/[0.08] space-y-2.5">
+      {/* Header Info & Actions */}
+      <div className="pb-2 border-b border-white/[0.08] space-y-2 shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/25">
-              <Palette size={15} strokeWidth={1.75} />
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className="p-1 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 shrink-0">
+              <Palette size={14} strokeWidth={1.75} />
             </div>
-            <div>
-              <h3 className="font-medium text-white text-xs">Thư Viện Không Gian</h3>
-              <p className="text-[10px] text-neutral-400">101 hình nền tuyển chọn HD, ambient và tùy chỉnh</p>
+            <div className="min-w-0">
+              <h3 className="font-semibold text-white text-xs truncate">Thư Viện Không Gian</h3>
+              <p className="text-[10px] text-neutral-400 truncate">1.000+ hình nền tuyển chọn Pinterest & Ambient</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               data-testid="btn-toggle-adjustments"
-              onClick={() => setShowSliders(!showSliders)}
-              className={`px-2 py-1 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer min-h-[30px] border ${
-                showSliders
+              onClick={() => setActiveTab(activeTab === 'effects' ? 'wallpapers' : 'effects')}
+              className={`p-1.5 rounded-lg text-xs flex items-center justify-center transition-colors cursor-pointer min-w-[28px] min-h-[28px] border ${
+                activeTab === 'effects'
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
                   : 'bg-white/[0.04] text-neutral-300 hover:text-white border-white/[0.06]'
               }`}
               title="Tinh chỉnh hiệu ứng nền (Blur, Brightness, Overlay)"
             >
               <Sliders size={13} strokeWidth={1.75} />
-              <span className="text-[11px] font-medium">{showSliders ? 'Đóng hiệu ứng' : 'Hiệu ứng & Hạt'}</span>
             </button>
 
             <button
               type="button"
               data-testid="btn-reset-bg"
               onClick={resetBackground}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer min-w-[30px] min-h-[30px] flex items-center justify-center"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
               title="Khôi phục nền mặc định"
             >
               <RotateCcw size={13} strokeWidth={1.75} />
@@ -182,473 +212,440 @@ export const SpacesWidget: React.FC = () => {
           </div>
         </div>
 
-        {/* Warning Badge if Fallback is active */}
+        {/* Fallback Notice */}
         {(hasError || useStaticFallback) && (
           <div
             data-testid="bg-fallback-indicator"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]"
           >
-            <AlertCircle size={14} className="shrink-0" />
-            <span>Đang kích hoạt chế độ nền tĩnh dự phòng (An toàn / Tiết kiệm pin)</span>
+            <AlertCircle size={13} className="shrink-0" />
+            <span>Đang kích hoạt nền tĩnh an toàn</span>
           </div>
         )}
 
-        {/* Navigation Tabs (Presets / 700+ Catalog / Local Upload) */}
-        <div className="flex rounded-xl bg-black/30 p-0.5 border border-white/10 text-xs gap-1">
+        {/* 2 Tab Chính: [Kho Hình Nền] & [Hiệu Ứng & Ánh Sáng] */}
+        <div className="flex rounded-lg bg-black/40 p-0.5 border border-white/10 text-xs gap-1">
           <button
             type="button"
-            onClick={() => setActiveTab('presets')}
-            className={`flex-1 py-1 rounded-lg font-medium transition cursor-pointer min-h-[28px] ${
-              activeTab === 'presets'
-                ? 'bg-white/15 text-white shadow-sm border border-white/15'
+            onClick={() => setActiveTab('wallpapers')}
+            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs ${
+              activeTab === 'wallpapers'
+                ? 'bg-white/15 text-white shadow-xs font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Mặc định
+            <Palette size={12} />
+            <span>Kho Hình Nền</span>
+            <span className="sr-only">Thư viện Tuyển Chọn</span>
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('catalog')}
-            className={`flex-1 py-1 rounded-lg font-medium transition cursor-pointer min-h-[28px] ${
-              activeTab === 'catalog'
-                ? 'bg-white/15 text-white shadow-sm border border-white/15'
+            onClick={() => setActiveTab('effects')}
+            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs ${
+              activeTab === 'effects'
+                ? 'bg-white/15 text-white shadow-xs font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Thư viện Tuyển Chọn (101 HD)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('upload')}
-            className={`flex-1 py-1 rounded-lg font-medium transition cursor-pointer min-h-[28px] ${
-              activeTab === 'upload'
-                ? 'bg-white/15 text-white shadow-sm border border-white/15'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Tải lên của tôi
+            <Sliders size={12} />
+            <span>Hiệu Ứng & Ánh Sáng</span>
           </button>
         </div>
-
-        {/* Presets Sub-tabs for E2E Test Compatibility */}
-        {activeTab === 'presets' && (
-          <div className="flex rounded-xl bg-white/[0.02] p-0.5 border border-white/[0.04] text-[11px] gap-1">
-            {[
-              { id: 'all', label: 'Tất cả' },
-              { id: 'video', label: 'Động (Video)' },
-              { id: 'image', label: 'Tĩnh (Ảnh)' },
-              { id: 'gradient', label: 'Tối giản' }
-            ].map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                data-testid={`filter-cat-${id}`}
-                onClick={() => setSelectedCategory(id as BackgroundCategory)}
-                className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[26px] ${
-                  selectedCategory === id
-                    ? 'bg-white/15 text-white'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Adjustments Panel (Blur, Brightness, Dimmer / Overlay & Live Particles) */}
-      {showSliders && (
-        <div
-          data-testid="bg-adjustments-panel"
-          className="my-2.5 p-3 rounded-xl bg-black/45 backdrop-blur-md border border-white/15 space-y-2 text-xs shrink-0"
-        >
-          {/* Blur (0 - 16px) */}
-          <div className="flex items-center justify-between">
-            <span className="text-neutral-300">Độ mờ hậu cảnh (Blur)</span>
-            <span className="text-cyan-400 font-mono">{blurLevel}px</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="16"
-            value={blurLevel}
-            data-testid="slider-blur"
-            onChange={(e) => setBlur(Number(e.target.value))}
-            className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
-          />
-
-          {/* Brightness (50 - 150%) */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-neutral-300">Độ sáng (Brightness)</span>
-            <span className="text-cyan-400 font-mono">{brightnessLevel}%</span>
-          </div>
-          <input
-            type="range"
-            min="50"
-            max="150"
-            value={brightnessLevel}
-            data-testid="slider-brightness"
-            onChange={(e) => setBrightness(Number(e.target.value))}
-            className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
-          />
-
-          {/* Overlay / Dimmer (0 - 75%) */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-neutral-300">Lớp phủ tối tương phản (Dimmer)</span>
-            <span className="text-cyan-400 font-mono">{overlayOpacity}%</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="75"
-            value={overlayOpacity}
-            data-testid="slider-overlay"
-            onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-            className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
-          />
-
-          {/* Ambient Live Canvas Particles */}
-          <div className="pt-2 border-t border-white/[0.06]">
-            <span className="block text-neutral-300 mb-1.5 font-medium">Hiệu ứng hạt Ambient (Live Canvas)</span>
-            <div className="grid grid-cols-5 gap-1 text-[10px]">
-              {[
-                { id: 'none', label: 'Tắt', icon: <Sparkles size={11} /> },
-                { id: 'rain', label: 'Mưa', icon: <CloudRain size={11} /> },
-                { id: 'snow', label: 'Tuyết', icon: <Snowflake size={11} /> },
-                { id: 'sakura', label: 'Anh đào', icon: <Flower2 size={11} /> },
-                { id: 'fireflies', label: 'Đom đóm', icon: <Zap size={11} /> }
-              ].map(({ id, label, icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  data-testid={`ambient-particle-${id}`}
-                  onClick={() => setAmbientEffect(id as AmbientEffectType)}
-                  className={`py-1 px-1 rounded-md flex flex-col items-center justify-center gap-0.5 border cursor-pointer transition-colors ${
-                    ambientEffect === id
-                      ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300 font-semibold'
-                      : 'bg-white/[0.03] border-white/[0.06] text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  {icon}
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 1: Default Presets */}
-      {activeTab === 'presets' && (
-        <div className="flex-1 overflow-y-auto py-2.5 space-y-2 pr-1">
-          <div className="grid grid-cols-2 gap-2">
-            {filteredPresets.map((preset) => {
-              const isSelected = activePresetId === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  data-testid={`preset-card-${preset.id}`}
-                  onClick={() => selectPreset(preset.id)}
-                  className={`relative group rounded-xl overflow-hidden border text-left transition-all p-2 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
-                    isSelected
-                      ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
-                      : 'border-white/[0.08] bg-black/25 hover:bg-black/40 hover:border-white/20'
-                  }`}
-                >
-                  <div className="relative w-full h-20 rounded-lg overflow-hidden bg-black mb-2 border border-white/5">
-                    <img
-                      src={preset.thumbnailUrl}
-                      alt={preset.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
-                      {preset.category === 'video' ? (
-                        <>
-                          <Video size={9} className="text-sky-400" /> Video
-                        </>
-                      ) : preset.category === 'image' ? (
-                        <>
-                          <ImageIcon size={9} className="text-emerald-400" /> Ảnh
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={9} className="text-indigo-400" /> Tối giản
-                        </>
-                      )}
-                    </span>
-                    {isSelected && (
-                      <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow">
-                        <Check size={11} strokeWidth={3} />
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-medium text-neutral-200 truncate group-hover:text-cyan-300">
-                      {preset.title}
-                    </h4>
-                    <p className="text-[10px] text-neutral-500 truncate mt-0.5">{preset.author}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: Catalog 700+ Entries */}
-      {activeTab === 'catalog' && (
-        <div className="flex-1 flex flex-col overflow-hidden py-2 space-y-2">
-          {/* Search & Category Filter */}
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />
-              <input
-                type="text"
-                value={catalogSearch}
-                onChange={(e) => {
-                  setCatalogSearch(e.target.value);
-                  setCatalogPage(1);
-                }}
-                placeholder="Tìm không gian (Cyberpunk, Anime, Nature...)"
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
-              />
-            </div>
-
-            {/* Category selection */}
-            <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none text-[10px]">
-              {CATALOG_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => {
-                    setCatalogCategory(cat.id);
-                    setCatalogPage(1);
-                  }}
-                  className={`px-2 py-0.5 rounded-full shrink-0 border transition-colors cursor-pointer ${
-                    catalogCategory === cat.id
-                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                      : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
-                  }`}
-                >
-                  {cat.icon} {cat.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Orientation Filter */}
-            <div className="flex items-center justify-between text-[10px] text-neutral-400">
-              <div className="flex items-center gap-1">
-                {(['all', 'desktop', 'mobile'] as const).map((ori) => (
-                  <button
-                    key={ori}
-                    type="button"
-                    onClick={() => {
-                      setCatalogOrientation(ori);
-                      setCatalogPage(1);
-                    }}
-                    className={`px-1.5 py-0.5 rounded uppercase font-medium ${
-                      catalogOrientation === ori ? 'bg-white/20 text-white' : 'hover:text-white'
-                    }`}
-                  >
-                    {ori === 'all' ? 'Tất cả' : ori === 'desktop' ? '16:9 Desktop' : '9:16 Mobile'}
-                  </button>
-                ))}
-              </div>
-              <span className="font-mono text-cyan-400 text-[10px]">
-                {catalogResult.total} mục ({catalogResult.uniqueSeedCount} ảnh độc nhất 100%)
-              </span>
-            </div>
+      {/* ========================================================= */}
+      {/* TAB 1: KHO HÌNH NỀN (1.000+ Ảnh Pinterest Aesthetic)     */}
+      {/* ========================================================= */}
+      {activeTab === 'wallpapers' && (
+        <div className="flex-1 flex flex-col min-h-0 pt-2 space-y-2 overflow-hidden">
+          {/* Thanh tìm kiếm */}
+          <div className="relative shrink-0">
+            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Tìm kiếm 1.000+ ảnh (Lofi, Anime, Tokyo, 35mm...)"
+              className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
+            />
           </div>
 
-          {/* Freemium PRO Banner in Catalog */}
+          {/* Bộ lọc Danh mục 6 Gu Thẩm Mỹ Pinterest + All + Video */}
+          <div className="flex gap-1 overflow-x-auto pb-1 shrink-0 scrollbar-none text-[10px]">
+            {/* Nút All (data-testid cho E2E) */}
+            <button
+              type="button"
+              data-testid="filter-cat-all"
+              onClick={() => handleCategorySelect('all')}
+              className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
+                selectedCategory === 'all'
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
+                  : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
+              }`}
+            >
+              <span>🌌</span>
+              <span>Tất cả</span>
+            </button>
+
+            {WALLPAPER_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => handleCategorySelect(cat.id as WallpaperCategory)}
+                className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
+                  selectedCategory === cat.id
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
+                    : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
+                }`}
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
+              </button>
+            ))}
+
+            {/* Video Motion Preset Filter (data-testid cho E2E) */}
+            <button
+              type="button"
+              data-testid="filter-cat-video"
+              onClick={() => handleCategorySelect('video')}
+              className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
+                selectedCategory === 'video'
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
+                  : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
+              }`}
+            >
+              <Video size={10} className="text-sky-400" />
+              <span>Chuyển Động (Video)</span>
+            </button>
+          </div>
+
+          {/* Freemium PRO Banner */}
           {!isPro && (
             <div
               data-testid="spaces-pro-upgrade-banner"
-              className="flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/20 text-xs"
+              className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/20 text-xs shrink-0"
             >
-              <div className="flex items-center gap-1.5 text-amber-300">
-                <Sparkles size={13} className="shrink-0" />
-                <span className="text-[11px] font-medium">Gói PRO: Mở khóa hình nền Cyberpunk & hạt 4K</span>
+              <div className="flex items-center gap-1.5 text-amber-300 min-w-0">
+                <Sparkles size={12} className="shrink-0" />
+                <span className="text-[10px] font-medium truncate">Mở khóa toàn bộ 1.000+ ảnh 4K & Cyberpunk</span>
               </div>
               <button
                 type="button"
                 data-testid="spaces-pro-upgrade-btn"
                 onClick={() => router.navigate('/billing')}
-                className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-[10px] transition shrink-0 cursor-pointer"
+                className="px-2 py-0.5 rounded-md bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-[10px] transition shrink-0 cursor-pointer"
               >
                 Nâng cấp
               </button>
             </div>
           )}
 
-          {/* Grid items */}
-          <div className="flex-1 overflow-y-auto space-y-1 pr-1">
-            <div className="grid grid-cols-3 gap-1.5">
-              {catalogResult.items.map((item) => {
-                const isItemPro = item.tags.includes('cyberpunk') || item.category === 'cyberpunk';
-                const isLocked = !isPro && isItemPro;
-
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    data-testid={isLocked ? 'spaces-pro-item' : undefined}
-                    onClick={() => {
-                      if (isLocked) {
-                        router.navigate('/billing');
-                      } else {
-                        setCustomBackground(item.url, 'image');
-                      }
-                    }}
-                    className="group relative rounded-lg overflow-hidden border border-white/[0.06] hover:border-cyan-500/50 text-left aspect-video bg-black cursor-pointer transition-all"
-                    title={isLocked ? `${item.title} (Gói PRO)` : item.title}
-                  >
-                    <img
-                      src={item.thumbnailUrl}
-                      alt={item.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                    {isLocked && (
-                      <span className="absolute top-1 right-1 px-1 py-0.5 rounded bg-amber-400 text-neutral-950 font-black text-[8px] uppercase tracking-wider shadow">
-                        PRO
-                      </span>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-1 flex items-end">
-                      <span className="text-[9px] text-white truncate font-medium">
-                        {isLocked ? `🔒 ${item.title}` : item.title}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex items-center justify-between pt-1 border-t border-white/[0.06] text-xs">
-            <button
-              type="button"
-              disabled={catalogPage <= 1}
-              onClick={() => setCatalogPage((p) => Math.max(1, p - 1))}
-              className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-neutral-300"
-            >
-              <ChevronLeft size={14} />
-            </button>
-            <span className="text-[11px] text-neutral-400 font-mono">
-              Trang {catalogPage} / {catalogResult.totalPages || 1}
-            </span>
-            <button
-              type="button"
-              disabled={catalogPage >= catalogResult.totalPages}
-              onClick={() => setCatalogPage((p) => Math.min(catalogResult.totalPages, p + 1))}
-              className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-neutral-300"
-            >
-              <ChevronRight size={14} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: Local Uploads (IndexedDB) */}
-      {activeTab === 'upload' && (
-        <div className="flex-1 overflow-y-auto py-2 space-y-3 pr-1">
-          {/* File Picker */}
-          <div className="border border-dashed border-white/20 rounded-xl p-4 text-center bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
-            <Upload size={22} className="mx-auto mb-2 text-cyan-400" />
-            <p className="text-xs font-medium text-white mb-1">Chọn ảnh hoặc video từ máy tính</p>
-            <p className="text-[10px] text-neutral-400 mb-3">Lưu trữ bảo mật trong trình duyệt (IndexedDB)</p>
-            <label
-              htmlFor="bg-file-input"
-              className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs cursor-pointer inline-block transition-colors"
-            >
-              Chọn tệp tin
-            </label>
-            <input
-              id="bg-file-input"
-              data-testid="input-custom-bg-file"
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </div>
-
-          {/* List of previously saved custom backgrounds */}
-          <div>
-            <h4 className="text-xs font-medium text-neutral-300 mb-2">Đã lưu trong máy ({savedUploads.length})</h4>
-            {savedUploads.length === 0 ? (
-              <p className="text-[11px] text-neutral-500 italic">Chưa có tệp nào được tải lên.</p>
-            ) : (
+          {/* Lưới Ảnh Thumbnail (2 cột bo góc, hover mượt) */}
+          <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">
+            {/* 1. Nhóm Video Presets khi filter === 'video' hoặc 'all' */}
+            {(selectedCategory === 'video' || (selectedCategory === 'all' && !searchQuery.trim())) && (
               <div className="grid grid-cols-2 gap-2">
-                {savedUploads.map((record) => {
-                  const url = URL.createObjectURL(record.blob);
+                {BACKGROUND_PRESETS.filter((p) =>
+                  selectedCategory === 'video' ? p.category === 'video' : true
+                ).map((preset) => {
+                  const isSelected = activePresetId === preset.id;
                   return (
                     <button
-                      key={record.id}
+                      key={preset.id}
                       type="button"
-                      onClick={() => setCustomBackground(url, record.mediaType)}
-                      className="p-2 rounded-xl bg-[#0e0e10] border border-white/[0.08] hover:border-cyan-500/40 text-left text-xs space-y-1 cursor-pointer transition-colors"
+                      data-testid={`preset-card-${preset.id}`}
+                      onClick={() => selectPreset(preset.id)}
+                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                        isSelected
+                          ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
+                          : 'border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20'
+                      }`}
                     >
-                      <div className="aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-                        {record.mediaType === 'video' ? (
-                          <Video size={16} className="text-sky-400" />
-                        ) : (
-                          <ImageIcon size={16} className="text-emerald-400" />
+                      <div className="relative w-full h-20 rounded-lg overflow-hidden bg-black mb-1 border border-white/5">
+                        <img
+                          src={preset.thumbnailUrl}
+                          alt={preset.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
+                          {preset.category === 'video' ? (
+                            <>
+                              <Video size={8} className="text-sky-400" /> Video
+                            </>
+                          ) : (
+                            <>
+                              <ImageIcon size={8} className="text-emerald-400" /> Tuyển chọn
+                            </>
+                          )}
+                        </span>
+                        {isSelected && (
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow">
+                            <Check size={11} strokeWidth={3} />
+                          </span>
                         )}
                       </div>
-                      <span className="block text-[10px] text-neutral-400 font-mono">
-                        {new Date(record.createdAt).toLocaleDateString()}
-                      </span>
+                      <div>
+                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300">
+                          {preset.title}
+                        </h4>
+                        <p className="text-[9px] text-neutral-500 truncate">{preset.author}</p>
+                      </div>
                     </button>
                   );
                 })}
+              </div>
+            )}
+
+            {/* 2. Nhóm 1.000+ Hình Nền Tuyển Chọn Pinterest */}
+            {selectedCategory !== 'video' && (
+              <div className="grid grid-cols-2 gap-2">
+                {loadedWallpapers.map((item) => {
+                  const isItemPro = item.category === 'cyberpunk-tokyo';
+                  const isLocked = !isPro && isItemPro;
+                  const isSelected = customUrl === item.fullUrl;
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      data-testid={isLocked ? 'spaces-pro-item' : undefined}
+                      onClick={() => {
+                        if (isLocked) {
+                          router.navigate('/billing');
+                        } else {
+                          setCustomBackground(item.fullUrl, 'image');
+                        }
+                      }}
+                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                        isSelected
+                          ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
+                          : 'border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20'
+                      }`}
+                      title={isLocked ? `${item.title} (Gói PRO)` : item.title}
+                    >
+                      <div className="relative w-full h-20 rounded-lg overflow-hidden bg-black mb-1 border border-white/5">
+                        <img
+                          src={item.thumbnailUrl}
+                          alt={item.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {isLocked && (
+                          <span className="absolute top-1 right-1 px-1 py-0.5 rounded bg-amber-400 text-neutral-950 font-black text-[8px] uppercase tracking-wider shadow">
+                            PRO
+                          </span>
+                        )}
+                        {isSelected && !isLocked && (
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow">
+                            <Check size={11} strokeWidth={3} />
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300">
+                          {isLocked ? `🔒 ${item.title}` : item.title}
+                        </h4>
+                        <p className="text-[9px] text-neutral-500 truncate">{item.author}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Nút Tải Thêm (Pagination / Lazy loading batch 24 ảnh) */}
+            {hasMore && selectedCategory !== 'video' && (
+              <div className="pt-2 pb-1 text-center">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => p + 1)}
+                  className="w-full py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-neutral-300 hover:text-white transition cursor-pointer"
+                >
+                  Tải thêm hình nền ({loadedWallpapers.length} / {total})
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Drawer thu gọn: Tải lên & Nhập link URL */}
+          <div className="shrink-0 pt-1 border-t border-white/[0.06]">
+            <button
+              type="button"
+              onClick={() => setShowUploadDrawer(!showUploadDrawer)}
+              className="w-full py-1 text-[11px] text-neutral-400 hover:text-neutral-200 flex items-center justify-between cursor-pointer"
+            >
+              <span>Tải ảnh từ máy / Dán URL tùy chỉnh</span>
+              {showUploadDrawer ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+
+            {showUploadDrawer && (
+              <div className="pt-2 space-y-2">
+                {/* File Upload Button */}
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="bg-file-input"
+                    className="flex-1 py-1.5 px-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-center text-[11px] text-neutral-200 cursor-pointer transition flex items-center justify-center gap-1.5"
+                  >
+                    <Upload size={12} className="text-cyan-400" />
+                    <span>Chọn tệp tin từ máy ({savedUploads.length})</span>
+                  </label>
+                  <input
+                    id="bg-file-input"
+                    data-testid="input-custom-bg-file"
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Form URL */}
+                <form onSubmit={validateAndApplyUrl} className="space-y-1">
+                  {urlError && <p className="text-[10px] text-rose-400">{urlError}</p>}
+                  <div className="flex gap-1">
+                    <select
+                      value={customInputType}
+                      onChange={(e) => setCustomInputType(e.target.value as 'image' | 'video')}
+                      className="bg-[#0e0e10] border border-white/[0.08] rounded-md px-1.5 py-1 text-[11px] text-neutral-300 focus:outline-none"
+                    >
+                      <option value="image">Ảnh</option>
+                      <option value="video">Video</option>
+                    </select>
+
+                    <input
+                      type="url"
+                      data-testid="input-custom-bg-url"
+                      placeholder="https://... URL trực tiếp"
+                      value={customInputUrl}
+                      onChange={(e) => {
+                        setCustomInputUrl(e.target.value);
+                        setUrlError(null);
+                      }}
+                      className="flex-1 min-w-0 bg-[#0e0e10] border border-white/[0.08] rounded-md px-2 py-1 text-[11px] text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
+                    />
+
+                    <button
+                      type="submit"
+                      data-testid="btn-apply-custom-bg"
+                      disabled={!customInputUrl.trim()}
+                      className="px-2.5 py-1 rounded-md bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 text-slate-950 font-semibold text-[11px] transition cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      Dán
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Custom URL Input Bar (always present at bottom for test compatibility) */}
-      <form onSubmit={validateAndApplyUrl} className="pt-2 border-t border-white/[0.06] mt-auto">
-        <label className="block text-[10px] font-medium text-neutral-400 mb-1">
-          Hoặc dán URL hình ảnh/video trực tiếp (hỗ trợ http, https, data, blob):
-        </label>
-        {urlError && <p className="text-[10px] text-rose-400 mb-1">{urlError}</p>}
-        <div className="flex gap-1.5">
-          <select
-            value={customInputType}
-            onChange={(e) => setCustomInputType(e.target.value as 'image' | 'video')}
-            className="bg-[#0e0e10] border border-white/[0.08] rounded-lg px-2 py-1 text-xs text-neutral-300 focus:outline-none"
-          >
-            <option value="image">Ảnh</option>
-            <option value="video">Video</option>
-          </select>
+      {/* ========================================================= */}
+      {/* TAB 2: HIỆU ỨNG & ÁNH SÁNG (Blur, Brightness, Dimmer, Live)*/}
+      {/* ========================================================= */}
+      {activeTab === 'effects' && (
+        <div
+          data-testid="bg-adjustments-panel"
+          className="flex-1 flex flex-col justify-between py-2 space-y-3 overflow-y-auto pr-0.5 text-xs"
+        >
+          <div className="space-y-3.5">
+            {/* Độ mờ hậu cảnh (Blur) */}
+            <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-neutral-300 font-medium">Độ mờ hậu cảnh (Blur)</span>
+                <span className="text-cyan-400 font-mono font-semibold">{blurLevel}px</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="16"
+                value={blurLevel}
+                data-testid="slider-blur"
+                onChange={(e) => setBlur(Number(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+              />
+              <p className="text-[10px] text-neutral-500">Làm mờ ảnh nền giúp các thẻ widget nổi bật, dễ đọc hơn.</p>
+            </div>
 
-          <input
-            type="url"
-            data-testid="input-custom-bg-url"
-            placeholder="https://... URL trực tiếp"
-            value={customInputUrl}
-            onChange={(e) => {
-              setCustomInputUrl(e.target.value);
-              setUrlError(null);
-            }}
-            className="flex-1 min-w-0 bg-[#0e0e10] border border-white/[0.08] rounded-lg px-2.5 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
-          />
+            {/* Độ sáng hậu cảnh (Brightness) */}
+            <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-neutral-300 font-medium">Độ sáng (Brightness)</span>
+                <span className="text-cyan-400 font-mono font-semibold">{brightnessLevel}%</span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max="150"
+                value={brightnessLevel}
+                data-testid="slider-brightness"
+                onChange={(e) => setBrightness(Number(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+              />
+              <p className="text-[10px] text-neutral-500">Tăng giảm độ chói sáng của hình nền từ 50% đến 150%.</p>
+            </div>
 
-          <button
-            type="submit"
-            data-testid="btn-apply-custom-bg"
-            disabled={!customInputUrl.trim()}
-            className="px-3 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 text-slate-950 font-semibold text-xs transition cursor-pointer disabled:cursor-not-allowed"
-          >
-            Dán
-          </button>
+            {/* Lớp phủ tương phản (Dimmer / Overlay) */}
+            <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-neutral-300 font-medium">Lớp phủ tối tương phản (Dimmer)</span>
+                <span className="text-cyan-400 font-mono font-semibold">{overlayOpacity}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="75"
+                value={overlayOpacity}
+                data-testid="slider-overlay"
+                onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+              />
+              <p className="text-[10px] text-neutral-500">Phủ màn đen trong suốt để tăng tối đa độ tương phản chữ.</p>
+            </div>
+
+            {/* Hiệu ứng hạt Ambient (Live Canvas Particles) */}
+            <div className="space-y-2 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
+              <span className="block text-neutral-300 font-medium text-xs">Hiệu ứng hạt Ambient (Live Canvas)</span>
+              <div className="grid grid-cols-5 gap-1.5 text-[10px]">
+                {[
+                  { id: 'none', label: 'Tắt', icon: <Sparkles size={12} /> },
+                  { id: 'rain', label: 'Mưa', icon: <CloudRain size={12} /> },
+                  { id: 'snow', label: 'Tuyết', icon: <Snowflake size={12} /> },
+                  { id: 'sakura', label: 'Anh đào', icon: <Flower2 size={12} /> },
+                  { id: 'fireflies', label: 'Đom đóm', icon: <Zap size={12} /> }
+                ].map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    data-testid={`ambient-particle-${id}`}
+                    onClick={() => setAmbientEffect(id as AmbientEffectType)}
+                    className={`py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-1 border cursor-pointer transition-colors ${
+                      ambientEffect === id
+                        ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300 font-semibold'
+                        : 'bg-white/[0.03] border-white/[0.06] text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {icon}
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Nút quay lại kho ảnh */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('wallpapers')}
+              className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition cursor-pointer"
+            >
+              Xem Kho Hình Nền (1.000+ Ảnh)
+            </button>
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 };

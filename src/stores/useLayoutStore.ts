@@ -35,8 +35,8 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
   },
   tasks: {
     S: { width: 280, height: 360 },
-    M: { width: 320, height: 400 },
-    L: { width: 400, height: 500 }
+    M: { width: 320, height: 420 },
+    L: { width: 380, height: 420 }
   },
   notes: {
     S: { width: 280, height: 360 },
@@ -49,9 +49,9 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
     L: { width: 520, height: 620 }
   },
   spaces: {
-    S: { width: 320, height: 420 },
-    M: { width: 400, height: 500 },
-    L: { width: 560, height: 640 }
+    S: { width: 320, height: 440 },
+    M: { width: 340, height: 480 },
+    L: { width: 380, height: 480 }
   },
   sounds: {
     S: { width: 320, height: 420 },
@@ -143,7 +143,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 360,
     y: 48,
     width: 320,
-    height: 400,
+    height: 420,
     minWidth: 280,
     minHeight: 300,
     maxWidth: 850,
@@ -190,8 +190,8 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isCollapsed: false,
     x: 500,
     y: 75,
-    width: 400,
-    height: 500,
+    width: 340,
+    height: 480,
     minWidth: 320,
     minHeight: 360,
     maxWidth: 900,

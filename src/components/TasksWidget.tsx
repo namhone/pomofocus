@@ -75,7 +75,10 @@ export const TasksWidget: React.FC = () => {
   const totalMinutes = totalCompleted * 25;
 
   return (
-    <div className="w-full h-full flex flex-col text-neutral-100">
+    <div
+      data-testid="tasks-widget"
+      className="w-full h-full max-h-[420px] flex flex-col text-neutral-100 overflow-hidden"
+    >
       {/* Daily Focus Summary Bar & Quick Project Trigger */}
       <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/[0.06] text-xs">
         <span className="flex items-center gap-1.5 font-medium text-neutral-300 text-[11px]">
@@ -112,18 +115,18 @@ export const TasksWidget: React.FC = () => {
         </form>
       )}
 
-      {/* Bộ lọc Dự án & Trạng thái */}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-1.5">
-          <label htmlFor="filter-project" className="text-neutral-400 text-[11px]">Dự án:</label>
+      {/* Bộ lọc Dự án & Trạng thái - Tinh gọn trên cùng 1 hàng duy nhất */}
+      <div className="mb-2 flex items-center justify-between gap-1.5 text-xs shrink-0">
+        <div className="flex items-center gap-1 min-w-0 flex-1">
+          <label htmlFor="filter-project" className="text-neutral-400 text-[10px] shrink-0">Dự án:</label>
           <select
             id="filter-project"
             data-testid="filter-project-select"
             value={selectedProjectId || ''}
             onChange={(e) => setSelectedProjectId(e.target.value || null)}
-            className="bg-black/40 border border-white/15 rounded-lg px-2 py-1 text-neutral-200 text-xs focus:outline-none cursor-pointer min-h-[28px] focus-visible:ring-1 focus-visible:ring-white/40"
+            className="w-full min-w-0 bg-black/40 border border-white/15 rounded-lg px-2 py-0.5 text-neutral-200 text-[11px] focus:outline-none cursor-pointer h-7 focus-visible:ring-1 focus-visible:ring-white/40 truncate"
           >
-            <option value="">Tất cả dự án</option>
+            <option value="">Tất cả</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -133,12 +136,12 @@ export const TasksWidget: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex rounded-lg bg-black/30 p-0.5 border border-white/10 gap-0.5">
+        <div className="flex rounded-lg bg-black/30 p-0.5 border border-white/10 gap-0.5 shrink-0">
           <button
             type="button"
             data-testid="filter-status-all"
             onClick={() => setStatusFilter('all')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
               statusFilter === 'all' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -148,7 +151,7 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-todo"
             onClick={() => setStatusFilter('todo')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
               statusFilter === 'todo' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -158,7 +161,7 @@ export const TasksWidget: React.FC = () => {
             type="button"
             data-testid="filter-status-completed"
             onClick={() => setStatusFilter('completed')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
               statusFilter === 'completed' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -167,32 +170,33 @@ export const TasksWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* Smart Task Composer Card */}
+      {/* Smart Task Composer Card - Tách 2 hàng rõ rệt */}
       <form
         onSubmit={handleAddTask}
-        className="rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2.5 focus-within:border-white/30 transition-colors shadow-sm mb-3 space-y-2.5"
+        className="rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0"
       >
+        {/* Hàng 1: Ô input tên task rộng 100%, không bị che placeholder */}
         <input
           data-testid="input-new-task"
           type="text"
           placeholder="Bạn cần tập trung làm gì tiếp theo? (Enter để thêm)..."
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          className="w-full text-xs px-1 py-0.5 bg-transparent text-white placeholder-neutral-500 focus:outline-none"
+          className="w-full text-xs px-2 py-1.5 rounded-lg bg-black/25 border border-white/5 text-white placeholder-neutral-500 focus:outline-none focus:border-white/20"
         />
 
-        {/* Integrated Composer Toolbar */}
-        <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.06] text-xs">
-          <div className="flex items-center gap-2">
+        {/* Hàng 2: Nhóm ưu tiên & Stepper bên trái; Nút + Thêm nằm gọn bên phải */}
+        <div className="flex items-center justify-between gap-1.5 pt-1 text-xs">
+          <div className="flex items-center gap-1.5 overflow-hidden">
             {/* Priority Chips */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {(['p1', 'p2', 'p3'] as TaskPriority[]).map((p) => (
                 <button
                   key={p}
                   type="button"
                   data-testid={`priority-btn-${p}`}
                   onClick={() => setPriority(p)}
-                  className={`px-2 py-0.5 rounded-full border text-[10px] uppercase font-bold transition cursor-pointer min-h-[28px] min-w-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                  className={`px-1.5 py-0.5 rounded-md border text-[9px] uppercase font-bold transition cursor-pointer h-6 min-w-[24px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                     priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-neutral-500 hover:text-neutral-300'
                   }`}
                 >
@@ -202,11 +206,11 @@ export const TasksWidget: React.FC = () => {
             </div>
 
             {/* Stepper for Estimated Pomodoros */}
-            <div className="flex items-center gap-1 bg-black/30 border border-white/10 rounded-lg px-1 py-0.5 min-h-[28px]">
+            <div className="flex items-center gap-0.5 bg-black/40 border border-white/10 rounded-md px-1 py-0.5 h-6">
               <button
                 type="button"
                 onClick={() => setEstimatedPomodoros((v) => Math.max(1, v - 1))}
-                className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer text-xs"
                 title="Giảm 1 phiên"
               >
                 -
@@ -219,18 +223,18 @@ export const TasksWidget: React.FC = () => {
                 aria-label="Số Pomodoro dự kiến"
                 value={estimatedPomodoros}
                 onChange={(e) => setEstimatedPomodoros(parseInt(e.target.value, 10) || 1)}
-                className="w-8 text-center bg-transparent text-white text-xs font-semibold focus:outline-none"
+                className="w-6 text-center bg-transparent text-white text-[11px] font-semibold focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setEstimatedPomodoros((v) => Math.min(20, v + 1))}
-                className="w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer text-xs"
                 title="Tăng 1 phiên"
               >
                 +
               </button>
-              <span className="text-[11px] text-rose-400 pr-1 flex items-center" title="Số phiên Pomodoro dự tính">
-                <Timer size={12} />
+              <span className="text-[10px] text-rose-400 pr-0.5 flex items-center" title="Số phiên Pomodoro dự tính">
+                <Timer size={11} />
               </span>
             </div>
           </div>
@@ -238,7 +242,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="px-3.5 py-1.5 text-xs rounded-lg bg-white text-neutral-950 hover:bg-neutral-200 font-medium transition shadow-sm cursor-pointer min-h-[30px] flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="px-3 py-1 text-xs rounded-lg bg-white text-neutral-950 hover:bg-neutral-200 font-semibold transition shadow-sm cursor-pointer h-7 flex items-center gap-1 shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           >
             + Thêm
           </button>
