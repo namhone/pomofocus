@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { supabase } from '../lib/supabase';
 import {
   authService,
   UserProfile,
@@ -43,6 +44,7 @@ export interface AuthState {
   activateProFromPayment: (planType: string, proExpiresAt?: number | string | null) => void;
   downgradeToFree: () => void;
   syncToCloud: () => Promise<void>;
+  syncEntitlementsFromCloud: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -121,6 +123,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
           lastSyncedAt: Date.now(),
           ...computeDerivedPlanState(user)
         });
+        // Tự động đồng bộ quyền PRO từ Supabase Database
+        get().syncEntitlementsFromCloud();
         return true;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Đăng nhập Google thất bại';
@@ -250,6 +254,26 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({ lastSyncedAt: Date.now(), syncStats: stats });
       } catch (err) {
         console.warn('Lỗi đồng bộ:', err);
+      }
+    },
+
+    syncEntitlementsFromCloud: async () => {
+      const { user } = get();
+      if (!user?.id) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_entitlements')
+          .select('is_pro, pro_expires_at')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data?.is_pro) {
+          const expiresAt = data.pro_expires_at ? new Date(data.pro_expires_at).getTime() : null;
+          get().activateProFromPayment('pro', expiresAt);
+        }
+      } catch (err) {
+        console.warn('[useAuthStore] Lỗi kiểm tra quyền hạn cloud:', err);
       }
     },
 

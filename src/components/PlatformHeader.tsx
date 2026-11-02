@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
+import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Users,
@@ -20,13 +21,15 @@ import {
   Home,
   Settings,
   ChevronDown,
-  CheckCircle2
+  CheckCircle2,
+  Download
 } from 'lucide-react';
 
 export const PlatformHeader: React.FC = () => {
   const router = useRouter();
   const currentPath = router.currentRoute.path;
   const { user, isAuthenticated, logout, isPro, isLifetime, planLabel } = useAuthStore();
+  const { canInstall, triggerInstall } = usePwaInstallStore();
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -159,6 +162,20 @@ export const PlatformHeader: React.FC = () => {
 
         {/* User Actions & Mobile Toggle */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* PWA Install Button when available */}
+          {canInstall && (
+            <button
+              type="button"
+              data-testid="pwa-install-btn"
+              onClick={() => triggerInstall()}
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-[11px] sm:text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              title="Cài đặt PomoFocus vào thiết bị (PWA)"
+            >
+              <Download size={12} className="shrink-0" />
+              <span className="hidden sm:inline">Cài App</span>
+            </button>
+          )}
+
           {/* Quick jump to workspace button when outside /app */}
           {!isWorkspace && (
             <button
@@ -292,6 +309,21 @@ export const PlatformHeader: React.FC = () => {
                       <Shield size={14} className="text-amber-400 shrink-0" />
                       <span className="font-medium">Bảo mật &amp; Phiên đăng nhập</span>
                     </button>
+
+                    {canInstall && (
+                      <button
+                        type="button"
+                        data-testid="header-user-install-pwa-btn"
+                        onClick={() => {
+                          setIsUserDropdownOpen(false);
+                          triggerInstall();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 transition cursor-pointer text-left font-medium"
+                      >
+                        <Download size={14} className="text-emerald-400 shrink-0" />
+                        <span>Cài đặt ứng dụng (PWA)</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="border-t border-white/10 my-1.5" />
@@ -365,6 +397,21 @@ export const PlatformHeader: React.FC = () => {
                 {planLabel}
               </span>
             </div>
+          )}
+
+          {canInstall && (
+            <button
+              type="button"
+              data-testid="mobile-install-pwa-btn"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                triggerInstall();
+              }}
+              className="w-full mb-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition cursor-pointer active:scale-98"
+            >
+              <Download size={15} />
+              <span>Cài Đặt Ứng Dụng (PWA)</span>
+            </button>
           )}
 
           <div className="grid grid-cols-2 gap-2 mb-3">

@@ -6,10 +6,12 @@
 
 export interface GoogleUserPayload {
   sub: string;
+  id?: string;
   email: string;
   email_verified?: boolean;
   name: string;
   picture?: string;
+  avatarUrl?: string;
   given_name?: string;
   family_name?: string;
 }

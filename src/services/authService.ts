@@ -259,7 +259,9 @@ export const authService = {
   async loginWithGoogle(payload: GoogleUserPayload): Promise<UserProfile> {
     const users = initializeDemoAccounts();
     const normalized = payload.email.trim().toLowerCase();
-    const googleKey = `google:${payload.sub}`;
+    const sub = payload.sub || (payload as any).id || `g_${normalized.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const avatar = payload.picture || (payload as any).avatarUrl;
+    const googleKey = `google:${sub}`;
 
     let existingUser = users[googleKey];
 
@@ -277,12 +279,12 @@ export const authService = {
 
     if (existingUser) {
       existingUser.displayName = payload.name || existingUser.displayName;
-      if (payload.picture) {
-        existingUser.avatarUrl = payload.picture;
+      if (avatar) {
+        existingUser.avatarUrl = avatar;
       }
       existingUser.authProvider = 'google';
-      existingUser.googleId = payload.sub;
-      existingUser.emailVerified = Boolean(payload.email_verified);
+      existingUser.googleId = sub;
+      existingUser.emailVerified = Boolean(payload.email_verified ?? true);
 
       // Cập nhật quyền hạn theo chính sách Beta
       existingUser = applyEntitlementPolicy(existingUser);
@@ -299,15 +301,15 @@ export const authService = {
 
     // Tạo tài khoản Google mới với quyền lợi Beta (3 năm hoặc Owner Lifetime)
     const baseUser: StoredUserAccount = {
-      id: `usr_g_${payload.sub.slice(0, 10)}_${Date.now()}`,
+      id: `usr_g_${sub.slice(0, 10)}_${Date.now()}`,
       email: normalized,
       displayName: payload.name || normalized.split('@')[0],
-      avatarUrl: payload.picture,
+      avatarUrl: avatar,
       plan: 'pro_beta',
       createdAt: Date.now(),
       authProvider: 'google',
-      googleId: payload.sub,
-      emailVerified: Boolean(payload.email_verified)
+      googleId: sub,
+      emailVerified: Boolean(payload.email_verified ?? true)
     };
 
     const newGoogleUser = applyEntitlementPolicy(baseUser);

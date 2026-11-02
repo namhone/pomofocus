@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { googleAuthService } from '../services/googleAuthService';
+import { supabase } from '../lib/supabase';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Lock,
@@ -64,6 +65,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     try {
       const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
 
+      // 1. Thử nghiệm Supabase OAuth 1 chạm trên Production nếu chạy với người dùng thật
+      if (!isAutomatedTest && typeof window !== 'undefined' && window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost')) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/app`,
+          },
+        });
+        if (error) {
+          console.warn('[Google OAuth] Fallback do lỗi Supabase OAuth:', error.message);
+        } else if (data?.url) {
+          return;
+        }
+      }
+
+      // 2. Google Identity Services (GSI) One-Tap nếu có cấu hình
       if (googleAuthService.isConfigured() && !isAutomatedTest) {
         // Nếu đã có VITE_GOOGLE_CLIENT_ID & chạy với người dùng thật: Khởi tạo luồng Google Identity Services chính thức
         const initialized = await googleAuthService.initializeGsi({
@@ -91,7 +108,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
           googleAuthService.promptOneTap();
         }
       } else {
-        // Chế độ phát triển / Demo hoặc kiểm thử Playwright tự động: Giả lập tài khoản Google đã xác thực
+        // 3. Chế độ phát triển / Demo hoặc kiểm thử Playwright tự động: Giả lập tài khoản Google đã xác thực
         const simulated = await googleAuthService.simulateGoogleLogin({
           email: 'nam.studyworkspace@gmail.com',
           name: 'Hồ Ngọc Bảo Nam (Google)',

@@ -588,4 +588,107 @@ export const supabase = {
       };
     }
   },
+
+  auth: {
+    signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string } }) => {
+      try {
+        const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+        const redirectUri = options?.redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/app` : '/app');
+        const oauthUrl = `${baseUrl}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirectUri)}`;
+
+        if (typeof window !== 'undefined') {
+          window.location.href = oauthUrl;
+        }
+        return { data: { provider, url: oauthUrl }, error: null };
+      } catch (err: any) {
+        return { data: null, error: { message: err?.message || 'Lỗi khởi tạo OAuth' } };
+      }
+    },
+
+    signOut: async () => {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('pomodoro_study_auth_session');
+      }
+      return { error: null };
+    },
+
+    getSession: async () => {
+      if (typeof window === 'undefined') return { data: { session: null }, error: null };
+      const raw = localStorage.getItem('pomodoro_study_auth_session');
+      if (!raw) return { data: { session: null }, error: null };
+      try {
+        const parsed = JSON.parse(raw);
+        return { data: { session: { user: parsed, access_token: parsed.token || 'mock_token' } }, error: null };
+      } catch {
+        return { data: { session: null }, error: null };
+      }
+    },
+
+    getUser: async () => {
+      const { data } = await supabase.auth.getSession();
+      return { data: { user: data.session?.user || null }, error: null };
+    },
+
+    onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('pomodoro_study_auth_session');
+        if (raw) {
+          try {
+            const user = JSON.parse(raw);
+            callback('SIGNED_IN', { user, access_token: user.token });
+          } catch {}
+        }
+      }
+      return {
+        data: {
+          subscription: {
+            unsubscribe: () => {}
+          }
+        }
+      };
+    }
+  },
+
+  from: (table: string) => {
+    return {
+      select: (columns: string = '*') => {
+        let filterCol: string | null = null;
+        let filterVal: any = null;
+
+        const queryBuilder = {
+          eq: (column: string, value: any) => {
+            filterCol = column;
+            filterVal = value;
+            return queryBuilder;
+          },
+          single: async (): Promise<{ data: any; error: any }> => {
+            try {
+              const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+              let url = `${baseUrl}/rest/v1/${table}?select=${encodeURIComponent(columns)}`;
+              if (filterCol && filterVal !== null) {
+                url += `&${encodeURIComponent(filterCol)}=eq.${encodeURIComponent(filterVal)}`;
+              }
+              url += '&limit=1';
+
+              const headers: Record<string, string> = {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              };
+
+              const res = await fetch(url, { headers });
+              if (!res.ok) {
+                return { data: null, error: { message: `HTTP ${res.status}` } };
+              }
+              const arr = await res.json();
+              return { data: Array.isArray(arr) && arr.length > 0 ? arr[0] : null, error: null };
+            } catch (err: any) {
+              return { data: null, error: { message: err?.message || 'Network error' } };
+            }
+          }
+        };
+        return queryBuilder;
+      }
+    };
+  },
 };

@@ -24,6 +24,9 @@ import { NotFoundView } from './components/NotFoundView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useLayoutStore } from './stores/useLayoutStore';
 import { useTimerStore } from './stores/useTimerStore';
+import { useAuthStore } from './stores/useAuthStore';
+import { usePwaInstallStore } from './stores/usePwaInstallStore';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config/env';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { useRouter } from './services/router';
 
@@ -112,6 +115,73 @@ export const App: React.FC = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, [setIsMobile, clampWidgetsToViewport]);
+
+  // Lắng nghe sự kiện PWA beforeinstallprompt & appinstalled
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      usePwaInstallStore.getState().setDeferredPrompt(e as any);
+    };
+
+    const handleAppInstalled = () => {
+      usePwaInstallStore.getState().setInstalled(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  // Xử lý Supabase OAuth token hash (#access_token=...&refresh_token=...)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token=')) {
+      const params = new URLSearchParams(hash.replace(/^#/, ''));
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        fetch(`${SUPABASE_URL}/auth/v1/user`, {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data && data.email) {
+              const email = data.email;
+              const name =
+                data.user_metadata?.full_name ||
+                data.user_metadata?.name ||
+                email.split('@')[0];
+              const avatar =
+                data.user_metadata?.avatar_url ||
+                data.user_metadata?.picture;
+              const id = data.id || `g_${Date.now()}`;
+              useAuthStore.getState().loginWithGoogle({
+                sub: id,
+                id,
+                email,
+                name,
+                picture: avatar,
+                avatarUrl: avatar,
+              });
+            }
+          })
+          .catch((err) => {
+            console.error('Failed to parse Supabase OAuth token:', err);
+          })
+          .finally(() => {
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+          });
+      }
+    }
+  }, []);
 
   const router = useRouter();
   const currentPath = router.currentRoute.path;
