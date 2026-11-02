@@ -137,7 +137,7 @@ export const PrivacyDataView: React.FC = () => {
               onClick={() => router.navigate('/profile')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <User size={13} className="text-emerald-400" />
+              <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
             </button>
             <button
@@ -145,7 +145,7 @@ export const PrivacyDataView: React.FC = () => {
               onClick={() => router.navigate('/account/security')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Shield size={13} className="text-amber-400" />
+              <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
             </button>
             <button
@@ -153,14 +153,14 @@ export const PrivacyDataView: React.FC = () => {
               onClick={() => router.navigate('/billing')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <CreditCard size={13} className="text-cyan-400" />
+              <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Database size={13} className="text-sky-400" />
+              <Database size={13} className="text-zinc-200" />
               <span>Quyền Riêng Tư</span>
             </button>
           </div>

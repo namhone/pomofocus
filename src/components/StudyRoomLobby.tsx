@@ -502,7 +502,7 @@ export const StudyRoomLobby: React.FC = () => {
             </div>
             <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center gap-2 text-[11px] text-zinc-400">
               <ShieldCheck size={14} className="text-zinc-300 shrink-0" />
-              <span>Chủ sở hữu hoặc thuê bao trả phí $\ge$ 3 tháng có thể mời khách Free.</span>
+              <span>Chủ sở hữu hoặc tài khoản PRO có thể mời bạn học tham gia miễn phí.</span>
             </div>
           </div>
 

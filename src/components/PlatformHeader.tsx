@@ -279,7 +279,7 @@ export const PlatformHeader: React.FC = () => {
                       onClick={() => handleNavigate('/profile')}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
-                      <User size={14} className="text-emerald-400 shrink-0" />
+                      <User size={14} className="text-zinc-400 shrink-0" />
                       <span className="font-medium">Hồ sơ cá nhân &amp; Avatar</span>
                     </button>
 
@@ -296,7 +296,7 @@ export const PlatformHeader: React.FC = () => {
                       }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
-                      <Settings size={14} className="text-cyan-400 shrink-0" />
+                      <Settings size={14} className="text-zinc-400 shrink-0" />
                       <span className="font-medium">Cài đặt hệ thống</span>
                     </button>
 
@@ -306,7 +306,7 @@ export const PlatformHeader: React.FC = () => {
                       onClick={() => handleNavigate('/account/security')}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
-                      <Shield size={14} className="text-amber-400 shrink-0" />
+                      <Shield size={14} className="text-zinc-400 shrink-0" />
                       <span className="font-medium">Bảo mật &amp; Phiên đăng nhập</span>
                     </button>
 
@@ -318,9 +318,9 @@ export const PlatformHeader: React.FC = () => {
                           setIsUserDropdownOpen(false);
                           triggerInstall();
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 transition cursor-pointer text-left font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left font-medium"
                       >
-                        <Download size={14} className="text-emerald-400 shrink-0" />
+                        <Download size={14} className="text-zinc-400 shrink-0" />
                         <span>Cài đặt ứng dụng (PWA)</span>
                       </button>
                     )}

@@ -29,19 +29,19 @@ export const GLASS_PRESETS: Record<GlassPreset, GlassSettings> = {
 
 export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: number; height: number }>> = {
   timer: {
-    S: { width: 300, height: 420 },
-    M: { width: 340, height: 480 },
-    L: { width: 420, height: 580 }
+    S: { width: 300, height: 440 },
+    M: { width: 340, height: 500 },
+    L: { width: 420, height: 620 }
   },
   tasks: {
-    S: { width: 300, height: 420 },
-    M: { width: 340, height: 480 },
-    L: { width: 440, height: 600 }
+    S: { width: 300, height: 440 },
+    M: { width: 340, height: 500 },
+    L: { width: 440, height: 620 }
   },
   notes: {
-    S: { width: 300, height: 420 },
-    M: { width: 360, height: 480 },
-    L: { width: 460, height: 600 }
+    S: { width: 300, height: 440 },
+    M: { width: 360, height: 500 },
+    L: { width: 460, height: 620 }
   },
   calendar: {
     S: { width: 320, height: 400 },
@@ -128,9 +128,9 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 24,
     y: 48,
     width: 340,
-    height: 480,
+    height: 500,
     minWidth: 280,
-    minHeight: 320,
+    minHeight: 360,
     maxWidth: 520,
     maxHeight: 760,
     resizable: true,
@@ -144,9 +144,9 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 382,
     y: 48,
     width: 340,
-    height: 480,
+    height: 500,
     minWidth: 300,
-    minHeight: 320,
+    minHeight: 340,
     maxWidth: 850,
     maxHeight: 900,
     resizable: true,
@@ -160,9 +160,9 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 740,
     y: 48,
     width: 360,
-    height: 480,
+    height: 500,
     minWidth: 300,
-    minHeight: 300,
+    minHeight: 340,
     maxWidth: 900,
     maxHeight: 900,
     resizable: true,

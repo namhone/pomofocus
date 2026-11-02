@@ -95,29 +95,31 @@ export const NotesWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* Note Selector Tabs */}
-      <div className="mt-2.5 flex items-center gap-1 overflow-x-auto overflow-y-hidden pb-1">
-        {notes.map((note) => (
-          <button
-            key={note.id}
-            type="button"
-            data-testid={`note-tab-${note.id}`}
-            onClick={() => setActiveNoteId(note.id)}
-            className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-              activeNoteId === note.id
-                ? 'bg-white/15 text-white font-medium border border-white/20 shadow-sm'
-                : 'bg-black/25 text-neutral-400 hover:text-white border border-white/5'
-            }`}
-          >
-            {note.title || 'Không tiêu đề'}
-          </button>
-        ))}
-      </div>
+      {/* Note Selector Tabs: Chỉ hiển thị khi có từ 2 ghi chú trở lên để tránh lặp đè tiêu đề */}
+      {notes.length > 1 && (
+        <div className="mt-2.5 flex items-center gap-1 overflow-x-auto overflow-y-hidden pb-1 border-b border-white/[0.06] mb-1">
+          {notes.map((note) => (
+            <button
+              key={note.id}
+              type="button"
+              data-testid={`note-tab-${note.id}`}
+              onClick={() => setActiveNoteId(note.id)}
+              className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                activeNoteId === note.id
+                  ? 'bg-white/15 text-white font-medium border border-white/20 shadow-sm'
+                  : 'bg-black/25 text-neutral-400 hover:text-white border border-white/5'
+              }`}
+            >
+              {note.title || 'Không tiêu đề'}
+            </button>
+          ))}
+        </div>
+      )}
 
       {activeNote ? (
-        <div className="mt-3 space-y-2.5">
+        <div className="mt-2.5 flex-1 flex flex-col min-h-0 space-y-2">
           {/* Note Title & Action Bar */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 mb-1">
             <input
               data-testid="input-note-title"
               type="text"
@@ -213,16 +215,16 @@ export const NotesWidget: React.FC = () => {
                 }
                 onBlur={() => saveNow(activeNote.id)}
                 placeholder="Nhập nội dung Markdown tại đây (hỗ trợ # header, **in đậm**, - checklist, [link](url))..."
-                rows={9}
+                rows={7}
                 className={`w-full text-xs p-3 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono resize-none leading-relaxed transition-colors ${stickyStyles}`}
               />
-              <div className="flex items-center justify-between text-[11px] text-neutral-400 mt-1 px-1">
+              <div className="flex items-center justify-between text-[11px] text-neutral-400 mt-1.5 pb-2 px-1">
                 <span className="font-mono">Markdown Hỗ Trợ</span>
                 <button
                   type="button"
                   data-testid="btn-save-note"
                   onClick={() => saveNow(activeNote.id)}
-                  className="text-white/80 hover:text-white font-medium cursor-pointer min-h-[28px] px-2 py-0.5 inline-flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded"
+                  className="text-white/80 hover:text-white font-medium cursor-pointer min-h-[28px] px-2 py-0.5 inline-flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded hover:bg-white/5 transition"
                 >
                   Lưu ngay
                 </button>

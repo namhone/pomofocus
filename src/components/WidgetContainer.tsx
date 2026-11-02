@@ -577,7 +577,11 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         } ${
           isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-4' : 'p-5'
         } ${
-          id === 'timer' ? 'overflow-y-auto items-center justify-start w-full' : 'overflow-y-hidden'
+          id === 'timer'
+            ? 'overflow-y-auto items-center justify-start w-full'
+            : isMedia
+            ? 'overflow-hidden'
+            : 'overflow-y-auto'
         }`}
       >
         {children}

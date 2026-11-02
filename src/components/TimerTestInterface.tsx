@@ -148,20 +148,20 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
 
         {/* Timer Display Display Area (Specular Highlight + Tabular Figures Không Rung) */}
         <div
-          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-6 px-4 text-center transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg}`}
+          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-4 sm:py-5 px-3 text-center transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg}`}
         >
           <div
             data-testid="timer-display"
-            className="font-mono tabular-nums text-6xl sm:text-7xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]"
+            className="font-mono tabular-nums text-5xl sm:text-6xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]"
           >
             {formatTime(remainingMs)}
           </div>
-          <div className="mt-2 text-xs uppercase tracking-widest text-neutral-400 font-medium">
+          <div className="mt-1 text-xs uppercase tracking-widest text-neutral-400 font-medium">
             {currentPhaseStyle.label}
           </div>
 
           {/* Session Round Dots */}
-          <div className="flex items-center gap-1.5 mt-3">
+          <div className="flex items-center gap-1.5 mt-2">
             {Array.from({ length: settings.roundsBeforeLongBreak }).map((_, idx) => (
               <div
                 key={idx}
@@ -257,7 +257,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
 
         {/* Quick Settings Panel (chỉ hiển thị ở Workspace thường, ẩn trong Zen Mode) */}
         {!isEmbeddedInZen && (
-          <div className="mt-4 border-t border-white/[0.08] pt-3 text-xs text-neutral-300 space-y-2.5">
+          <div className="mt-3.5 border-t border-white/[0.08] pt-2.5 pb-2 text-xs text-neutral-300 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-medium text-neutral-200 text-[11px] flex items-center gap-1.5">
                 Cấu hình thời gian (phút):
