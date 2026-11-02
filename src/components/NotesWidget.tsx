@@ -75,51 +75,45 @@ export const NotesWidget: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col text-neutral-100">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
-        <div className="flex items-center gap-2 min-w-0">
-          <FileText size={16} strokeWidth={1.75} className="text-neutral-400 shrink-0" />
-          <h3 className="text-[13px] font-medium text-neutral-200 whitespace-nowrap">Ghi Chú Nhanh</h3>
+      {/* Header bar: Switcher + Status + Nút Thêm */}
+      <div className="flex items-center justify-between pb-2 border-b border-white/[0.08] gap-2">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <FileText size={15} strokeWidth={1.75} className="text-neutral-400 shrink-0" />
+          {notes.length > 1 ? (
+            <select
+              value={activeNoteId || ''}
+              onChange={(e) => setActiveNoteId(e.target.value)}
+              className="bg-black/40 text-neutral-200 text-xs rounded-lg px-2 py-0.5 border border-white/10 focus:outline-none max-w-[150px] truncate cursor-pointer"
+            >
+              {notes.map((n, i) => (
+                <option key={n.id} value={n.id} className="bg-neutral-900 text-white">
+                  #{i + 1}: {n.title || 'Không tiêu đề'}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-xs font-medium text-neutral-400 truncate">Ghi Chú Nhanh</span>
+          )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+
+        <div className="flex items-center gap-1.5 shrink-0">
           {getStatusBadge()}
           <button
             type="button"
             data-testid="btn-new-note"
             onClick={() => createNote('Ghi chú mới')}
-            className="text-xs px-2.5 py-1 rounded-lg bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer min-h-[30px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="text-[11px] px-2 py-1 rounded-lg bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           >
-            <Plus size={13} strokeWidth={1.75} />
-            <span>Ghi chú</span>
+            <Plus size={12} strokeWidth={1.75} />
+            <span>Thêm</span>
           </button>
         </div>
       </div>
 
-      {/* Note Selector Tabs: Chỉ hiển thị khi có từ 2 ghi chú trở lên để tránh lặp đè tiêu đề */}
-      {notes.length > 1 && (
-        <div className="mt-2.5 flex items-center gap-1 overflow-x-auto overflow-y-hidden pb-1 border-b border-white/[0.06] mb-1">
-          {notes.map((note) => (
-            <button
-              key={note.id}
-              type="button"
-              data-testid={`note-tab-${note.id}`}
-              onClick={() => setActiveNoteId(note.id)}
-              className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-                activeNoteId === note.id
-                  ? 'bg-white/15 text-white font-medium border border-white/20 shadow-sm'
-                  : 'bg-black/25 text-neutral-400 hover:text-white border border-white/5'
-              }`}
-            >
-              {note.title || 'Không tiêu đề'}
-            </button>
-          ))}
-        </div>
-      )}
-
       {activeNote ? (
-        <div className="mt-2.5 flex-1 flex flex-col min-h-0 space-y-2">
-          {/* Note Title & Action Bar */}
-          <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="mt-2 flex-1 flex flex-col min-h-0 space-y-1.5">
+          {/* Note Title & Action Bar - DUY NHẤT 1 TIÊU ĐỀ, KHÔNG LẶP LẠI */}
+          <div className="flex items-center justify-between gap-2">
             <input
               data-testid="input-note-title"
               type="text"
@@ -129,7 +123,7 @@ export const NotesWidget: React.FC = () => {
               }
               onBlur={() => saveNow(activeNote.id)}
               placeholder="Tiêu đề ghi chú..."
-              className="text-xs font-semibold bg-transparent border-b border-transparent hover:border-white/20 focus:border-white/40 text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded-sm flex-1 min-w-0 px-2 py-1"
+              className="text-xs font-semibold bg-white/[0.04] border border-white/10 hover:border-white/20 focus:border-white/40 text-white focus:outline-none rounded-lg flex-1 min-w-0 px-2.5 py-1.5 transition-colors"
             />
 
             {/* Toggle Edit / Preview */}

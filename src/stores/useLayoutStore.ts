@@ -29,8 +29,8 @@ export const GLASS_PRESETS: Record<GlassPreset, GlassSettings> = {
 
 export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: number; height: number }>> = {
   timer: {
-    S: { width: 280, height: 360 },
-    M: { width: 320, height: 400 },
+    S: { width: 280, height: 380 },
+    M: { width: 320, height: 440 },
     L: { width: 380, height: 480 }
   },
   tasks: {
@@ -127,7 +127,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 24,
     y: 48,
     width: 320,
-    height: 400,
+    height: 440,
     minWidth: 280,
     minHeight: 300,
     maxWidth: 520,

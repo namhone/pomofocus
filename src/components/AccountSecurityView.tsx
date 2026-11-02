@@ -299,7 +299,7 @@ export const AccountSecurityView: React.FC = () => {
             }`}
           >
             {statusMessage.type === 'success' ? (
-              <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
+              <CheckCircle2 size={15} className="shrink-0 text-zinc-200" />
             ) : (
               <AlertCircle size={15} className="shrink-0 text-rose-400" />
             )}
@@ -329,7 +329,7 @@ export const AccountSecurityView: React.FC = () => {
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  is2FaActive ? 'bg-emerald-400' : 'bg-zinc-600'
+                  is2FaActive ? 'bg-zinc-100 shadow-[0_0_6px_rgba(255,255,255,0.4)]' : 'bg-zinc-600'
                 }`}
               />
               <span className="font-mono text-[11px]">
@@ -344,7 +344,7 @@ export const AccountSecurityView: React.FC = () => {
               <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-200 flex items-center justify-center border border-zinc-700 shrink-0">
-                    <ShieldCheck size={16} className="text-emerald-400" />
+                    <ShieldCheck size={16} className="text-zinc-200" />
                   </div>
                   <div>
                     <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
@@ -452,7 +452,7 @@ export const AccountSecurityView: React.FC = () => {
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    isGoogleAccount ? 'bg-emerald-400' : 'bg-zinc-600'
+                    isGoogleAccount ? 'bg-zinc-100 shadow-[0_0_6px_rgba(255,255,255,0.4)]' : 'bg-zinc-600'
                   }`}
                 />
                 <span className="font-mono text-[10px]">
@@ -720,7 +720,7 @@ export const AccountSecurityView: React.FC = () => {
                   onClick={handleCopySecret}
                   className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1 cursor-pointer transition"
                 >
-                  {hasCopiedSecret ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  {hasCopiedSecret ? <Check size={12} className="text-zinc-200" /> : <Copy size={12} />}
                   <span>{hasCopiedSecret ? 'Đã chép' : 'Sao chép'}</span>
                 </button>
               </div>
@@ -737,7 +737,7 @@ export const AccountSecurityView: React.FC = () => {
                   onClick={() => handleCopyBackupCodes(totpSetupData.backupCodes)}
                   className="text-zinc-400 hover:text-white flex items-center gap-1 text-[11px] cursor-pointer"
                 >
-                  {hasCopiedBackupCodes ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                  {hasCopiedBackupCodes ? <Check size={11} className="text-zinc-200" /> : <Copy size={11} />}
                   <span>{hasCopiedBackupCodes ? 'Đã sao chép' : 'Chép 8 mã'}</span>
                 </button>
               </div>
@@ -829,7 +829,7 @@ export const AccountSecurityView: React.FC = () => {
                 onClick={() => handleCopyBackupCodes(savedBackupCodes)}
                 className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
               >
-                {hasCopiedBackupCodes ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                {hasCopiedBackupCodes ? <Check size={12} className="text-zinc-200" /> : <Copy size={12} />}
                 <span>{hasCopiedBackupCodes ? 'Đã sao chép' : 'Sao chép mã'}</span>
               </button>
 
