@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
@@ -19,12 +19,12 @@ import {
   Trash2,
   AlertTriangle,
   X,
-  Phone,
-  MessageSquare,
-  ShieldCheck,
-  RotateCcw
+  QrCode,
+  Copy,
+  Check,
+  ShieldCheck
 } from 'lucide-react';
-import { maskPhoneNumber } from '../services/smsSecurityService';
+import { totpService } from '../services/totpService';
 
 export const AccountSecurityView: React.FC = () => {
   const router = useRouter();
@@ -35,10 +35,8 @@ export const AccountSecurityView: React.FC = () => {
     logout,
     deleteAccount,
     signOutOtherDevices,
-    sendSmsOtp,
-    verifyAndLinkPhone,
-    unlinkPhone,
-    toggleTwoFactor
+    enableTotp2Fa,
+    disableTotp2Fa
   } = useAuthStore();
 
   const [oldPassword, setOldPassword] = useState('');
@@ -48,32 +46,30 @@ export const AccountSecurityView: React.FC = () => {
   const [isSigningOutOthers, setIsSigningOutOthers] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // SMS 2FA & Phone State
-  const [showPhoneModal, setShowPhoneModal] = useState(false);
-  const [phoneInput, setPhoneInput] = useState('');
-  const [otpInput, setOtpInput] = useState('');
-  const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone');
-  const [otpCooldown, setOtpCooldown] = useState(0);
-  const [demoCodeNotice, setDemoCodeNotice] = useState<string | null>(null);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [showUnlinkModal, setShowUnlinkModal] = useState(false);
-  const [isUnlinking, setIsUnlinking] = useState(false);
+  // TOTP 2FA (Google Authenticator / Authy) State
+  const [showTotpSetupModal, setShowTotpSetupModal] = useState(false);
+  const [totpSetupData, setTotpSetupData] = useState<{
+    secret: string;
+    formattedSecret: string;
+    otpauthUri: string;
+    qrCodeUrl: string;
+    backupCodes: string[];
+  } | null>(null);
+  const [totpInputCode, setTotpInputCode] = useState('');
+  const [totpError, setTotpError] = useState<string | null>(null);
+  const [isVerifyingTotp, setIsVerifyingTotp] = useState(false);
+  const [hasCopiedSecret, setHasCopiedSecret] = useState(false);
+  const [hasCopiedBackupCodes, setHasCopiedBackupCodes] = useState(false);
+
+  // View Backup Codes & Disable 2FA modals
+  const [showBackupCodesModal, setShowBackupCodesModal] = useState(false);
+  const [showDisable2FaModal, setShowDisable2FaModal] = useState(false);
+  const [isDisabling2Fa, setIsDisabling2Fa] = useState(false);
 
   // Danger Zone - Xóa tài khoản
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-
-  // Cooldown countdown timer
-  useEffect(() => {
-    if (otpCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setOtpCooldown((c) => (c > 0 ? c - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [otpCooldown]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -100,7 +96,72 @@ export const AccountSecurityView: React.FC = () => {
   }
 
   const isGoogleAccount = user.authProvider === 'google';
-  const hasLinkedPhone = Boolean(user.phoneNumber && user.phoneVerified);
+  const is2FaActive = Boolean(user.twoFactorEnabled);
+
+  // Bắt đầu quy trình thiết lập TOTP 2FA thật
+  const handleOpenTotpSetup = () => {
+    setTotpError(null);
+    setTotpInputCode('');
+    setHasCopiedSecret(false);
+    setHasCopiedBackupCodes(false);
+    const setup = totpService.startSetup(user.email);
+    setTotpSetupData(setup);
+    setShowTotpSetupModal(true);
+  };
+
+  // Xác minh mã từ điện thoại thật và kích hoạt 2FA
+  const handleConfirmTotpSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!totpSetupData) return;
+    setTotpError(null);
+    setIsVerifyingTotp(true);
+
+    const res = await enableTotp2Fa(
+      totpSetupData.secret,
+      totpInputCode,
+      totpSetupData.backupCodes
+    );
+
+    setIsVerifyingTotp(false);
+
+    if (!res.success) {
+      setTotpError(res.message);
+      return;
+    }
+
+    setShowTotpSetupModal(false);
+    setTotpInputCode('');
+    setTotpSetupData(null);
+    setStatusMessage({ type: 'success', text: res.message });
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
+  // Tắt 2FA
+  const handleConfirmDisable2Fa = async () => {
+    setIsDisabling2Fa(true);
+    const res = await disableTotp2Fa();
+    setIsDisabling2Fa(false);
+    setShowDisable2FaModal(false);
+
+    setStatusMessage({
+      type: res.success ? 'success' : 'error',
+      text: res.message
+    });
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
+  const handleCopySecret = () => {
+    if (!totpSetupData) return;
+    navigator.clipboard.writeText(totpSetupData.secret);
+    setHasCopiedSecret(true);
+    setTimeout(() => setHasCopiedSecret(false), 2000);
+  };
+
+  const handleCopyBackupCodes = (codes: string[]) => {
+    navigator.clipboard.writeText(codes.join('\n'));
+    setHasCopiedBackupCodes(true);
+    setTimeout(() => setHasCopiedBackupCodes(false), 2000);
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,67 +203,6 @@ export const AccountSecurityView: React.FC = () => {
     setTimeout(() => setStatusMessage(null), 4000);
   };
 
-  const handleSendOtp = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setPhoneError(null);
-    setIsSendingOtp(true);
-    const res = await sendSmsOtp(phoneInput);
-    setIsSendingOtp(false);
-    if (!res.success) {
-      setPhoneError(res.message);
-      if (res.cooldownSeconds) setOtpCooldown(res.cooldownSeconds);
-      return;
-    }
-    setOtpStep('otp');
-    setOtpCooldown(res.cooldownSeconds || 60);
-    if (res.demoCode) {
-      setDemoCodeNotice(res.demoCode);
-    }
-    setStatusMessage({ type: 'success', text: res.message });
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPhoneError(null);
-    setIsVerifyingOtp(true);
-    const res = await verifyAndLinkPhone(phoneInput, otpInput);
-    setIsVerifyingOtp(false);
-    if (!res.success) {
-      setPhoneError(res.message);
-      return;
-    }
-    setShowPhoneModal(false);
-    setPhoneInput('');
-    setOtpInput('');
-    setOtpStep('phone');
-    setDemoCodeNotice(null);
-    setStatusMessage({ type: 'success', text: res.message });
-    setTimeout(() => setStatusMessage(null), 5000);
-  };
-
-  const handleToggle2Fa = async () => {
-    const nextState = !user.twoFactorEnabled;
-    const res = await toggleTwoFactor(nextState);
-    if (res.success) {
-      setStatusMessage({ type: 'success', text: res.message });
-    } else {
-      setStatusMessage({ type: 'error', text: res.message });
-    }
-    setTimeout(() => setStatusMessage(null), 5000);
-  };
-
-  const handleConfirmUnlink = async () => {
-    setIsUnlinking(true);
-    const res = await unlinkPhone();
-    setIsUnlinking(false);
-    setShowUnlinkModal(false);
-    setStatusMessage({
-      type: res.success ? 'success' : 'error',
-      text: res.message
-    });
-    setTimeout(() => setStatusMessage(null), 5000);
-  };
-
   const handleConfirmDeleteAccount = async () => {
     if (deleteConfirmationText.trim() !== 'XOA TAI KHOAN') return;
 
@@ -219,6 +219,8 @@ export const AccountSecurityView: React.FC = () => {
     }
   };
 
+  const savedBackupCodes = totpService.getBackupCodes(user.id);
+
   return (
     <div
       data-testid="account-security-view"
@@ -226,7 +228,8 @@ export const AccountSecurityView: React.FC = () => {
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
+      {/* Main Container với khoảng đệm chuẩn pt-20 sm:pt-24 chống Header đè nội dung */}
+      <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
         {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
           <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
@@ -234,34 +237,34 @@ export const AccountSecurityView: React.FC = () => {
               type="button"
               data-testid="nav-tab-profile"
               onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <User size={13} className="text-emerald-400" />
+              <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Shield size={13} className="text-amber-400" />
+              <Shield size={13} className="text-zinc-200" />
               <span>Bảo Mật</span>
             </button>
             <button
               type="button"
               data-testid="nav-tab-billing"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <CreditCard size={13} className="text-cyan-400" />
+              <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
             </button>
             <button
               type="button"
               data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Database size={13} className="text-sky-400" />
+              <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>
             </button>
           </div>
@@ -271,16 +274,16 @@ export const AccountSecurityView: React.FC = () => {
           </span>
         </div>
 
-        {/* Header */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Shield size={22} className="text-emerald-400 shrink-0" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+        {/* Header Tiêu Đề Trang */}
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2.5">
+            <Shield size={20} className="text-zinc-200 shrink-0" />
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               Trung Tâm Bảo Mật Tài Khoản
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Kiểm tra phương thức xác thực đã liên kết, kích hoạt xác thực 2 bước (SMS 2FA) và quản lý phiên đăng nhập.
+            Kiểm tra phương thức xác thực đã liên kết, kích hoạt ứng dụng bảo mật 2 bước (Google Authenticator / TOTP) và quản lý phiên đăng nhập an toàn.
           </p>
         </div>
 
@@ -288,165 +291,147 @@ export const AccountSecurityView: React.FC = () => {
           <div
             className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 shadow-sm ${
               statusMessage.type === 'success'
-                ? 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300'
-                : 'border-rose-500/30 bg-rose-950/40 text-rose-300'
+                ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+                : 'border-rose-900/40 bg-zinc-900 text-rose-300'
             }`}
           >
             {statusMessage.type === 'success' ? (
-              <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
+              <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
             ) : (
-              <AlertCircle size={16} className="shrink-0 text-rose-400" />
+              <AlertCircle size={15} className="shrink-0 text-rose-400" />
             )}
             <span className="font-medium">{statusMessage.text}</span>
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* MỤC MỚI: XÁC THỰC 2 LỚP & LIÊN KẾT SMS (SMS 2FA SECURITY)                */}
+        {/* MỤC 1: XÁC THỰC 2 BƯỚC THẬT 100% (GOOGLE AUTHENTICATOR / TOTP 2FA)       */}
         {/* ========================================================================= */}
-        <div data-testid="sms-security-card" className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+        <div data-testid="totp-security-card" className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                <MessageSquare size={16} />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-200 flex items-center justify-center border border-zinc-700">
+                <QrCode size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-white">Xác Thực 2 Bước &amp; Liên Kết Số Điện Thoại (SMS 2FA)</h2>
-                <div className="text-[11px] text-zinc-400">Tăng cường lớp bảo vệ thứ hai cho tài khoản qua mã xác minh OTP.</div>
+                <h2 className="text-sm font-semibold text-white">Xác Thực 2 Bước (Authenticator App / TOTP 2FA)</h2>
+                <div className="text-[11px] text-zinc-400">
+                  Chuẩn bảo mật quốc tế tương thích Google Authenticator, Microsoft Authenticator, Authy, Apple Keychain.
+                </div>
               </div>
             </div>
 
             <span
-              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 whitespace-nowrap ${
-                hasLinkedPhone
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                  : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-              }`}
+              className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
-              {hasLinkedPhone ? 'ĐÃ LIÊN KẾT SỐ' : 'CHƯA LIÊN KẾT'}
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  is2FaActive ? 'bg-emerald-400' : 'bg-zinc-600'
+                }`}
+              />
+              <span className="font-mono text-[11px]">
+                {is2FaActive ? 'ĐÃ KÍCH HOẠT (BẢO MẬT CAO)' : 'CHƯA KÍCH HOẠT'}
+              </span>
             </span>
           </div>
 
-          {hasLinkedPhone ? (
-            /* Trạng thái đã liên kết số điện thoại */
-            <div className="space-y-3 pt-2">
-              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          {is2FaActive ? (
+            /* Trạng thái ĐÃ KÍCH HOẠT 2FA */
+            <div className="space-y-3 pt-1">
+              <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Phone size={18} />
+                  <div className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-200 flex items-center justify-center border border-zinc-700 shrink-0">
+                    <ShieldCheck size={16} className="text-emerald-400" />
                   </div>
                   <div>
-                    <div className="font-bold text-white flex items-center gap-2">
-                      <span className="font-mono text-sm tracking-wider">{maskPhoneNumber(user.phoneNumber)}</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-mono">
-                        XÁC MINH SMS HOÀN TẤT
+                    <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
+                      <span>Ứng Dụng Xác Thực (RFC 6238 TOTP)</span>
+                      <span className="border border-zinc-800 bg-zinc-900/80 text-zinc-300 text-[10px] px-2 py-0.5 rounded font-mono">
+                        Mã 6 số / 30s
                       </span>
                     </div>
-                    <div className="text-[11px] text-zinc-400">
-                      Số điện thoại dùng để nhận mã OTP khi đăng nhập từ thiết bị lạ.
+                    <div className="text-[11px] text-zinc-400 mt-0.5">
+                      Bảo vệ tài khoản mỗi khi đăng nhập từ trình duyệt hoặc thiết bị mới.
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {savedBackupCodes.length > 0 && (
+                    <button
+                      type="button"
+                      data-testid="btn-view-backup-codes"
+                      onClick={() => setShowBackupCodesModal(true)}
+                      className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer whitespace-nowrap"
+                    >
+                      Mã Dự Phòng ({savedBackupCodes.length})
+                    </button>
+                  )}
                   <button
                     type="button"
-                    data-testid="btn-change-phone"
-                    onClick={() => {
-                      setPhoneInput('');
-                      setOtpInput('');
-                      setOtpStep('phone');
-                      setPhoneError(null);
-                      setDemoCodeNotice(null);
-                      setShowPhoneModal(true);
-                    }}
-                    className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
+                    data-testid="btn-disable-2fa"
+                    onClick={() => setShowDisable2FaModal(true)}
+                    className="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer whitespace-nowrap"
                   >
-                    Đổi Số Khác
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="btn-unlink-phone"
-                    onClick={() => setShowUnlinkModal(true)}
-                    className="px-3 py-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition cursor-pointer"
-                  >
-                    Hủy Liên Kết
+                    Tắt 2FA
                   </button>
                 </div>
               </div>
 
-              {/* Toggle switch 2FA SMS */}
-              <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <ShieldCheck size={18} className={user.twoFactorEnabled ? 'text-emerald-400' : 'text-zinc-500'} />
-                  <div>
-                    <div className="text-xs font-semibold text-white">Kích Hoạt Bảo Vệ Đăng Nhập 2FA (SMS OTP)</div>
-                    <div className="text-[11px] text-zinc-400">
-                      {user.twoFactorEnabled
-                        ? 'Đang bật: Bắt buộc nhập mã OTP gửi về SMS khi đăng nhập thiết bị mới.'
-                        : 'Đang tắt: Không yêu cầu mã OTP khi đăng nhập.'}
-                    </div>
-                  </div>
+              {/* Stealth Monochrome Switch Trạng Thái */}
+              <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/40 flex items-center justify-between gap-3">
+                <div className="text-xs text-zinc-400">
+                  Chế độ yêu cầu mã xác thực 2 bước đang bảo vệ tài khoản của bạn.
                 </div>
-
                 <button
                   type="button"
-                  data-testid="toggle-two-factor"
-                  onClick={handleToggle2Fa}
-                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out ${
-                    user.twoFactorEnabled ? 'bg-emerald-500' : 'bg-zinc-700'
-                  }`}
+                  data-testid="toggle-totp-switch"
+                  onClick={() => setShowDisable2FaModal(true)}
+                  className="w-11 h-6 flex items-center rounded-full p-0.5 cursor-pointer bg-zinc-100 transition-colors duration-200 ease-in-out shrink-0"
+                  title="Bấm để tắt 2FA"
                 >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
-                      user.twoFactorEnabled ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
+                  <div className="bg-zinc-950 w-5 h-5 rounded-full shadow-md transform translate-x-5 transition-transform duration-200 ease-in-out" />
                 </button>
               </div>
             </div>
           ) : (
-            /* Trạng thái chưa liên kết số điện thoại */
+            /* Trạng thái CHƯA KÍCH HOẠT 2FA */
             <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0">
-                  <Phone size={18} />
+                <div className="w-8 h-8 rounded-lg bg-zinc-800 text-zinc-400 flex items-center justify-center border border-zinc-700 shrink-0">
+                  <Smartphone size={16} />
                 </div>
                 <div>
-                  <div className="font-semibold text-white">Chưa Liên Kết Số Điện Thoại Bảo Vệ</div>
-                  <div className="text-[11px] text-zinc-400">
-                    Liên kết số điện thoại để nhận mã OTP SMS khi đăng nhập và ngăn chặn truy cập trái phép.
+                  <div className="font-semibold text-white">Chưa Thiết Lập Ứng Dụng Xác Thực 2 Bước</div>
+                  <div className="text-[11px] text-zinc-400 mt-0.5">
+                    Quét mã QR bằng ứng dụng Google Authenticator trên điện thoại để bảo vệ tài khoản khỏi đánh cắp mật khẩu.
                   </div>
                 </div>
               </div>
 
               <button
                 type="button"
-                data-testid="btn-open-link-phone"
-                onClick={() => {
-                  setPhoneInput('');
-                  setOtpInput('');
-                  setOtpStep('phone');
-                  setPhoneError(null);
-                  setDemoCodeNotice(null);
-                  setShowPhoneModal(true);
-                }}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition cursor-pointer shrink-0 shadow"
+                data-testid="btn-open-totp-setup"
+                onClick={handleOpenTotpSetup}
+                className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition cursor-pointer shrink-0 shadow-sm whitespace-nowrap flex items-center gap-1.5"
               >
-                Liên Kết Số &amp; Bật 2FA
+                <QrCode size={14} />
+                <span>Bật 2FA Bằng Ứng Dụng</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Identity & Linked Providers */}
-        <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+        {/* ========================================================================= */}
+        {/* MỤC 2: PHƯƠNG THỨC XÁC THỰC ĐÃ LIÊN KẾT                                  */}
+        {/* ========================================================================= */}
+        <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <h2 className="text-sm font-semibold text-white">Phương Thức Xác Thực Đã Liên Kết</h2>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 text-xs gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-black font-black text-sm shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-100 font-bold text-sm shrink-0">
                   G
                 </div>
                 <div className="min-w-0">
@@ -460,20 +445,23 @@ export const AccountSecurityView: React.FC = () => {
               </div>
 
               <span
-                className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 whitespace-nowrap ${
-                  isGoogleAccount
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                }`}
+                className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap"
               >
-                {isGoogleAccount ? 'ĐÃ KẾT NỐI' : 'CHƯA LIÊN KẾT'}
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isGoogleAccount ? 'bg-emerald-400' : 'bg-zinc-600'
+                  }`}
+                />
+                <span className="font-mono text-[10px]">
+                  {isGoogleAccount ? 'ĐÃ KẾT NỐI' : 'CHƯA LIÊN KẾT'}
+                </span>
               </span>
             </div>
 
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 text-xs gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
-                  <Key size={16} />
+                <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 shrink-0">
+                  <Key size={15} />
                 </div>
                 <div className="min-w-0">
                   <div className="font-semibold text-white truncate">Mật Khẩu Cá Nhân</div>
@@ -485,8 +473,11 @@ export const AccountSecurityView: React.FC = () => {
                 </div>
               </div>
 
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-800 text-zinc-400 border border-zinc-700 shrink-0 whitespace-nowrap">
-                {isGoogleAccount ? 'TÙY CHỌN' : 'HOẠT ĐỘNG'}
+              <span className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                <span className="font-mono text-[10px]">
+                  {isGoogleAccount ? 'TÙY CHỌN' : 'HOẠT ĐỘNG'}
+                </span>
               </span>
             </div>
           </div>
@@ -494,16 +485,18 @@ export const AccountSecurityView: React.FC = () => {
           <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-2 leading-relaxed">
             <Info size={14} className="text-zinc-500 shrink-0 mt-0.5" />
             <span>
-              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu hoặc số điện thoại OTP để bảo vệ dữ liệu.
+              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu an toàn kết hợp với mã xác thực 2 bước TOTP để bảo vệ dữ liệu tối đa.
             </span>
           </div>
         </div>
 
-        {/* Change Password Form (Dành cho tài khoản email/mật khẩu) */}
+        {/* ========================================================================= */}
+        {/* MỤC 3: ĐỔI MẬT KHẨU                                                      */}
+        {/* ========================================================================= */}
         {!isGoogleAccount && (
-          <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+          <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Lock size={16} className="text-zinc-400 shrink-0" />
+              <Lock size={15} className="text-zinc-400 shrink-0" />
               <span>Đổi Mật Khẩu An Toàn</span>
             </h2>
 
@@ -517,7 +510,7 @@ export const AccountSecurityView: React.FC = () => {
                   data-testid="input-old-password"
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
                   placeholder="Nhập mật khẩu cũ của bạn..."
                   required
                 />
@@ -533,7 +526,7 @@ export const AccountSecurityView: React.FC = () => {
                     data-testid="input-new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
                     placeholder="Mật khẩu mới an toàn..."
                     required
                   />
@@ -547,7 +540,7 @@ export const AccountSecurityView: React.FC = () => {
                     data-testid="input-confirm-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
                     placeholder="Nhập lại mật khẩu mới..."
                     required
                   />
@@ -559,7 +552,7 @@ export const AccountSecurityView: React.FC = () => {
                   type="submit"
                   disabled={isChangingPass}
                   data-testid="btn-submit-change-password"
-                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition cursor-pointer shadow-md"
+                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition cursor-pointer shadow-sm"
                 >
                   {isChangingPass ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
                 </button>
@@ -568,17 +561,19 @@ export const AccountSecurityView: React.FC = () => {
           </div>
         )}
 
-        {/* Quản lý phiên đăng nhập (Session Security) */}
-        <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+        {/* ========================================================================= */}
+        {/* MỤC 4: QUẢN LÝ PHIÊN ĐĂNG NHẬP                                           */}
+        {/* ========================================================================= */}
+        <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Globe size={16} className="text-zinc-400 shrink-0" />
+              <Globe size={15} className="text-zinc-400 shrink-0" />
               <span className="whitespace-nowrap">Quản Lý Phiên Đăng Nhập (Session Security)</span>
             </h2>
             <button
               type="button"
               onClick={logout}
-              className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto shrink-0"
+              className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto shrink-0"
             >
               <LogOut size={13} />
               <span>Đăng Xuất Phiên Này</span>
@@ -587,15 +582,15 @@ export const AccountSecurityView: React.FC = () => {
 
           <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-start sm:items-center gap-3 min-w-0">
-              <Smartphone size={16} className="text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+              <Smartphone size={16} className="text-zinc-400 shrink-0 mt-0.5 sm:mt-0" />
               <div className="min-w-0">
-                <div className="font-semibold text-white flex items-center gap-1.5 flex-wrap">
+                <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
                   <span>Thiết bị đang sử dụng</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 shrink-0">
-                    Active Session
+                  <span className="border border-zinc-800 bg-zinc-900/80 text-zinc-300 text-[10px] px-2 py-0.5 rounded font-mono">
+                    Phiên Hiện Tại
                   </span>
                 </div>
-                <div className="text-[11px] text-zinc-400 font-mono break-all line-clamp-1 max-w-sm">
+                <div className="text-[11px] text-zinc-400 font-mono break-all line-clamp-1 max-w-sm mt-0.5">
                   {typeof navigator !== 'undefined' ? navigator.userAgent : 'Client Session'}
                 </div>
               </div>
@@ -609,7 +604,7 @@ export const AccountSecurityView: React.FC = () => {
           <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800">
             <div>
               <div className="text-xs font-semibold text-zinc-200">Đăng xuất khỏi tất cả các thiết bị khác</div>
-              <div className="text-[11px] text-zinc-400">Vô hiệu hóa phiên đăng nhập trên các máy tính lạ, điện thoại hoặc quán cafe khác.</div>
+              <div className="text-[11px] text-zinc-400">Vô hiệu hóa phiên làm việc trên các máy tính lạ hoặc thiết bị công cộng khác.</div>
             </div>
             <button
               type="button"
@@ -623,26 +618,28 @@ export const AccountSecurityView: React.FC = () => {
           </div>
         </div>
 
-        {/* Vùng Nguy Hiểm (Danger Zone) */}
-        <div className="p-5 sm:p-7 rounded-2xl border border-rose-500/30 bg-rose-950/10 space-y-4">
-          <div className="flex items-center gap-2 text-rose-400">
-            <AlertTriangle size={18} />
-            <h2 className="text-sm font-bold text-white">Vùng Nguy Hiểm (Danger Zone)</h2>
+        {/* ========================================================================= */}
+        {/* MỤC 5: VÙNG NGUY HIỂM (DANGER ZONE - GDPR)                               */}
+        {/* ========================================================================= */}
+        <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/30 space-y-4">
+          <div className="flex items-center gap-2 text-zinc-300">
+            <AlertTriangle size={16} className="text-zinc-400" />
+            <h2 className="text-sm font-semibold text-white">Vùng Nguy Hiểm (Danger Zone)</h2>
           </div>
 
-          <p className="text-xs text-zinc-300 leading-relaxed">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống theo chuẩn quyền riêng tư GDPR.
           </p>
 
           <div className="pt-1 flex items-center justify-between flex-wrap gap-3">
-            <div className="text-xs text-rose-300 font-medium">
+            <div className="text-xs text-zinc-500">
               Hành động này không thể hoàn tác sau khi đã thực hiện.
             </div>
             <button
               type="button"
               data-testid="btn-open-delete-account"
               onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-4 py-2 rounded-xl border border-zinc-800 hover:border-rose-900/50 bg-zinc-900/60 hover:bg-rose-950/20 text-zinc-400 hover:text-rose-300 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
             >
               <Trash2 size={13} />
               <span>Xóa Tài Khoản Vĩnh Viễn</span>
@@ -652,22 +649,21 @@ export const AccountSecurityView: React.FC = () => {
       </main>
 
       {/* ========================================================================= */}
-      {/* MODAL 1: LIÊN KẾT SỐ ĐIỆN THOẠI & NHẬP MÃ OTP SMS                        */}
+      {/* MODAL 1: THIẾT LẬP GOOGLE AUTHENTICATOR (TOTP 2FA) THẬT 100%             */}
       {/* ========================================================================= */}
-      {showPhoneModal && (
+      {showTotpSetupModal && totpSetupData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                <Smartphone size={18} />
-                <span>Liên Kết Số Điện Thoại &amp; Bật SMS 2FA</span>
+          <div className="w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="flex items-center gap-2 font-bold text-sm text-zinc-100">
+                <QrCode size={18} />
+                <span>Thiết Lập Xác Thực 2 Bước (Google Authenticator)</span>
               </div>
               <button
                 type="button"
                 onClick={() => {
-                  setShowPhoneModal(false);
-                  setPhoneError(null);
-                  setDemoCodeNotice(null);
+                  setShowTotpSetupModal(false);
+                  setTotpError(null);
                 }}
                 className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
               >
@@ -675,176 +671,205 @@ export const AccountSecurityView: React.FC = () => {
               </button>
             </div>
 
-            {phoneError && (
-              <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-950/30 text-rose-300 text-xs flex items-center gap-2">
-                <AlertCircle size={14} className="shrink-0 text-rose-400" />
-                <span>{phoneError}</span>
+            {totpError && (
+              <div className="p-3 rounded-xl border border-rose-900/40 bg-zinc-950 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0 text-rose-400" />
+                <span>{totpError}</span>
               </div>
             )}
 
-            {/* Thông báo mã Demo/Sandbox */}
-            {demoCodeNotice && (
-              <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-950/30 text-amber-200 text-xs space-y-1">
-                <div className="font-semibold flex items-center gap-1.5 text-amber-300">
-                  <CheckCircle2 size={14} className="text-amber-400" />
-                  <span>Tin nhắn SMS mô phỏng đã đến:</span>
-                </div>
-                <div className="font-mono text-sm tracking-widest text-white bg-black/40 p-1.5 rounded-lg text-center">
-                  Mã OTP: <strong>{demoCodeNotice}</strong>
-                </div>
+            {/* Bước 1: Quét mã QR */}
+            <div className="space-y-2 text-xs">
+              <div className="font-semibold text-zinc-200">
+                Bước 1: Quét mã QR bằng ứng dụng Authenticator
               </div>
-            )}
-
-            {otpStep === 'phone' ? (
-              /* Bước 1: Nhập số điện thoại */
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  Nhập số điện thoại di động của bạn để nhận mã xác minh OTP qua tin nhắn SMS:
-                </p>
-
-                <div>
-                  <label className="block text-zinc-300 text-xs font-medium mb-1.5">
-                    Số Điện Thoại (Việt Nam)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono">
-                      +84
-                    </span>
-                    <input
-                      type="tel"
-                      autoFocus
-                      data-testid="input-phone-number"
-                      value={phoneInput}
-                      onChange={(e) => setPhoneInput(e.target.value)}
-                      placeholder="0987654321..."
-                      className="w-full pl-12 pr-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-emerald-400 transition"
-                      required
-                    />
-                  </div>
-                  <span className="text-[10px] text-zinc-500 mt-1 block">
-                    Hỗ trợ các nhà mạng Viettel, Vinaphone, Mobifone, Vietnamobile, Wintel...
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
-                  <button
-                    type="button"
-                    onClick={() => setShowPhoneModal(false)}
-                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
-                  >
-                    Hủy Bỏ
-                  </button>
-                  <button
-                    type="submit"
-                    data-testid="btn-send-sms-otp"
-                    disabled={isSendingOtp}
-                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
-                  >
-                    {isSendingOtp ? 'Đang gửi...' : 'Gửi Mã Xác Minh OTP'}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* Bước 2: Nhập mã OTP 6 số */
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  Mã OTP gồm 6 chữ số đã được gửi tới số <strong>{maskPhoneNumber(phoneInput)}</strong>. Vui lòng nhập mã để hoàn tất:
-                </p>
-
-                <div>
-                  <label className="block text-zinc-300 text-xs font-medium mb-1.5">
-                    Mã Xác Thực OTP (6 chữ số)
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    autoFocus
-                    data-testid="input-sms-otp"
-                    value={otpInput}
-                    onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
-                    placeholder="••••••"
-                    className="w-full px-3.5 py-3 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-center font-mono text-lg tracking-widest focus:outline-none focus:border-emerald-400 transition"
-                    required
+              <p className="text-zinc-400">
+                Mở ứng dụng <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong> hoặc <strong>Authy</strong> trên điện thoại và quét mã QR này:
+              </p>
+              <div className="flex justify-center py-2">
+                <div className="bg-white p-3 rounded-2xl inline-block shadow-md">
+                  <img
+                    src={totpSetupData.qrCodeUrl}
+                    alt="Mã QR TOTP"
+                    className="w-48 h-48 block"
                   />
                 </div>
+              </div>
+            </div>
 
-                <div className="flex items-center justify-between text-xs text-zinc-400">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpStep('phone');
-                      setOtpInput('');
-                    }}
-                    className="text-zinc-400 hover:text-white transition cursor-pointer"
-                  >
-                    ← Đổi số khác
-                  </button>
+            {/* Bước 2: Hoặc nhập mã thủ công */}
+            <div className="space-y-2 text-xs border-t border-zinc-800 pt-3">
+              <div className="font-semibold text-zinc-200">
+                Bước 2: Hoặc nhập mã khóa bí mật thủ công
+              </div>
+              <p className="text-zinc-400">
+                Nếu camera không quét được, hãy chọn &quot;Nhập khóa thiết lập&quot; trên ứng dụng:
+              </p>
+              <div className="flex items-center gap-2 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
+                <code className="font-mono text-xs tracking-wider text-zinc-200 flex-1 select-all break-all">
+                  {totpSetupData.formattedSecret}
+                </code>
+                <button
+                  type="button"
+                  onClick={handleCopySecret}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1 cursor-pointer transition"
+                >
+                  {hasCopiedSecret ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  <span>{hasCopiedSecret ? 'Đã chép' : 'Sao chép'}</span>
+                </button>
+              </div>
+            </div>
 
-                  <button
-                    type="button"
-                    disabled={otpCooldown > 0 || isSendingOtp}
-                    onClick={() => handleSendOtp()}
-                    className="text-emerald-400 hover:text-emerald-300 disabled:text-zinc-600 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
-                  >
-                    <RotateCcw size={12} />
-                    <span>{otpCooldown > 0 ? `Gửi lại sau ${otpCooldown}s` : 'Gửi lại mã'}</span>
-                  </button>
+            {/* Mã dự phòng khôi phục */}
+            <div className="space-y-2 text-xs border-t border-zinc-800 pt-3">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-zinc-200">
+                  Mã Khôi Phục Dự Phòng (Lưu lại đề phòng mất điện thoại)
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyBackupCodes(totpSetupData.backupCodes)}
+                  className="text-zinc-400 hover:text-white flex items-center gap-1 text-[11px] cursor-pointer"
+                >
+                  {hasCopiedBackupCodes ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                  <span>{hasCopiedBackupCodes ? 'Đã sao chép' : 'Chép 8 mã'}</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-zinc-300 text-center">
+                {totpSetupData.backupCodes.map((code, i) => (
+                  <div key={i} className="p-1 rounded bg-zinc-900/60 border border-zinc-800/80">
+                    {code}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
-                  <button
-                    type="button"
-                    onClick={() => setShowPhoneModal(false)}
-                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
-                  >
-                    Hủy Bỏ
-                  </button>
-                  <button
-                    type="submit"
-                    data-testid="btn-verify-sms-otp"
-                    disabled={otpInput.length !== 6 || isVerifyingOtp}
-                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
-                  >
-                    {isVerifyingOtp ? 'Đang kiểm tra...' : 'Xác Nhận & Kích Hoạt 2FA'}
-                  </button>
-                </div>
-              </form>
-            )}
+            {/* Bước 3: Nhập mã 6 số từ điện thoại để kích hoạt */}
+            <form onSubmit={handleConfirmTotpSetup} className="space-y-3 border-t border-zinc-800 pt-3">
+              <div className="space-y-1">
+                <label className="block text-zinc-200 text-xs font-semibold">
+                  Bước 3: Nhập mã xác thực 6 chữ số từ app điện thoại
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  autoFocus
+                  data-testid="input-totp-verify-code"
+                  value={totpInputCode}
+                  onChange={(e) => setTotpInputCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="w-full px-3.5 py-3 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-center font-mono text-xl tracking-[0.3em] focus:outline-none focus:border-zinc-300 transition"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setShowTotpSetupModal(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  data-testid="btn-confirm-enable-totp"
+                  disabled={totpInputCode.length !== 6 || isVerifyingTotp}
+                  className="px-5 py-2 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 text-xs font-semibold transition cursor-pointer shadow-sm"
+                >
+                  {isVerifyingTotp ? 'Đang xác minh...' : 'Kích Hoạt 2FA Ngay'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 2: XÁC NHẬN HỦY LIÊN KẾT SỐ ĐIỆN THOẠI                            */}
+      {/* MODAL 2: XEM LẠI MÃ DỰ PHÒNG KHÔI PHỤC (BACKUP CODES MODAL)               */}
       {/* ========================================================================= */}
-      {showUnlinkModal && (
+      {showBackupCodesModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-              <AlertTriangle size={18} />
-              <span>Hủy Liên Kết Số Điện Thoại</span>
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
+                <Key size={16} />
+                <span>Mã Dự Phòng Khôi Phục</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBackupCodesModal(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white"
+              >
+                <X size={15} />
+              </button>
             </div>
 
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              Bạn có chắc chắn muốn hủy liên kết số <strong>{maskPhoneNumber(user.phoneNumber)}</strong>? Tính năng xác thực 2 bước (SMS 2FA) sẽ tự động bị tắt.
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Mỗi mã dự phòng chỉ có thể sử dụng 1 lần để đăng nhập khi bạn không mang theo điện thoại:
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-xs text-zinc-300 text-center">
+              {savedBackupCodes.map((code, idx) => (
+                <div key={idx} className="p-1.5 rounded bg-zinc-900 border border-zinc-800">
+                  {code}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+              <button
+                type="button"
+                onClick={() => handleCopyBackupCodes(savedBackupCodes)}
+                className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+              >
+                {hasCopiedBackupCodes ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                <span>{hasCopiedBackupCodes ? 'Đã sao chép' : 'Sao chép mã'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowBackupCodesModal(false)}
+                className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: XÁC NHẬN TẮT 2FA                                                */}
+      {/* ========================================================================= */}
+      {showDisable2FaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
+              <AlertTriangle size={16} className="text-zinc-400" />
+              <span>Tắt Xác Thực 2 Bước</span>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Bạn có chắc chắn muốn tắt tính năng Xác Thực 2 Bước? Tài khoản sẽ mất đi lớp bảo vệ bổ sung khi đăng nhập từ thiết bị lạ.
             </p>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
               <button
                 type="button"
-                onClick={() => setShowUnlinkModal(false)}
-                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+                onClick={() => setShowDisable2FaModal(false)}
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
               >
                 Giữ Lại
               </button>
               <button
                 type="button"
-                data-testid="btn-confirm-unlink"
-                disabled={isUnlinking}
-                onClick={handleConfirmUnlink}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer shadow-md"
+                data-testid="btn-confirm-disable-2fa"
+                disabled={isDisabling2Fa}
+                onClick={handleConfirmDisable2Fa}
+                className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer"
               >
-                {isUnlinking ? 'Đang hủy...' : 'Xác Nhận Hủy'}
+                {isDisabling2Fa ? 'Đang tắt...' : 'Xác Nhận Tắt'}
               </button>
             </div>
           </div>
@@ -852,14 +877,14 @@ export const AccountSecurityView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 3: XÁC NHẬN XÓA TÀI KHOẢN VĨNH VIỄN (GDPR)                         */}
+      {/* MODAL 4: XÁC NHẬN XÓA TÀI KHOẢN VĨNH VIỄN (GDPR)                         */}
       {/* ========================================================================= */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-6 text-white shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-              <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
-                <AlertTriangle size={18} />
+              <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
+                <AlertTriangle size={16} className="text-rose-400" />
                 <span>CẢNH BÁO: XÓA TÀI KHOẢN VĨNH VIỄN</span>
               </div>
               <button
@@ -870,15 +895,15 @@ export const AccountSecurityView: React.FC = () => {
                 }}
                 className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300 leading-relaxed">
+            <p className="text-xs text-zinc-400 leading-relaxed">
               Bạn đang chuẩn bị xóa tài khoản <strong>{user.email}</strong>. Mọi dữ liệu nhiệm vụ, ghi chú IndexedDB và phiên đăng nhập sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu.
             </p>
 
-            <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/20 text-rose-200 text-xs">
+            <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs">
               Để xác nhận xóa, vui lòng nhập chính xác cụm từ: <strong className="font-mono text-white select-all">XOA TAI KHOAN</strong>
             </div>
 
@@ -890,7 +915,7 @@ export const AccountSecurityView: React.FC = () => {
                 value={deleteConfirmationText}
                 onChange={(e) => setDeleteConfirmationText(e.target.value)}
                 placeholder="Gõ 'XOA TAI KHOAN' vào đây..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-rose-500/40 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-rose-400 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-zinc-400 transition"
               />
             </div>
 
@@ -901,7 +926,7 @@ export const AccountSecurityView: React.FC = () => {
                   setShowDeleteModal(false);
                   setDeleteConfirmationText('');
                 }}
-                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
               >
                 Hủy Bỏ
               </button>
@@ -910,7 +935,7 @@ export const AccountSecurityView: React.FC = () => {
                 data-testid="btn-confirm-delete-account"
                 disabled={deleteConfirmationText.trim() !== 'XOA TAI KHOAN' || isDeletingAccount}
                 onClick={handleConfirmDeleteAccount}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-lg shadow-rose-950/50"
+                className="px-5 py-2 rounded-xl border border-zinc-800 hover:border-rose-900/50 bg-zinc-900/60 hover:bg-rose-950/20 disabled:opacity-40 disabled:cursor-not-allowed text-rose-300 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
               >
                 {isDeletingAccount ? 'Đang xóa...' : 'Xác Nhận Xóa Vĩnh Viễn'}
               </button>

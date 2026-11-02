@@ -116,12 +116,12 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             onClick={() => handleNavigate('/billing')}
             data-testid="header-plan-badge"
-            className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border cursor-pointer transition shrink-0 whitespace-nowrap ${
+            className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetime
-                ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.3)]'
+                ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                 : isPro
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                : 'bg-white/10 text-neutral-300 border-white/10'
+                ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+                : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
@@ -199,8 +199,8 @@ export const PlatformHeader: React.FC = () => {
                 onClick={() => setIsUserDropdownOpen((prev) => !prev)}
                 className={`flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl transition cursor-pointer shrink-0 border ${
                   isUserDropdownOpen
-                    ? 'bg-white/15 border-white/25 text-white ring-2 ring-emerald-500/30'
-                    : 'bg-white/5 hover:bg-white/10 border-white/10 text-neutral-200'
+                    ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
+                    : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-zinc-800 text-zinc-300'
                 }`}
                 title="Tài khoản & Cài đặt"
                 aria-expanded={isUserDropdownOpen}
@@ -210,13 +210,13 @@ export const PlatformHeader: React.FC = () => {
                   <img
                     src={user.avatarUrl}
                     alt={user.displayName}
-                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover ring-1 ring-emerald-400/40 shrink-0"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-[10px] sm:text-[11px] shadow-sm shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-[10px] sm:text-[11px] shrink-0">
                     {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -243,10 +243,10 @@ export const PlatformHeader: React.FC = () => {
                       <img
                         src={user.avatarUrl}
                         alt={user.displayName}
-                        className="w-8 h-8 rounded-full object-cover ring-1 ring-emerald-400/40 shrink-0"
+                        className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                      <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-xs shrink-0">
                         {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                       </div>
                     )}

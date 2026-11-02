@@ -27,10 +27,12 @@ export interface UserProfile {
   focusGoal?: string;
   hideEmailInRoom?: boolean;
   incognitoJoinRoom?: boolean;
-  // SMS 2FA & Phone Security
+  // 2FA Security (Google Authenticator / TOTP / SMS)
   phoneNumber?: string;
   phoneVerified?: boolean;
   twoFactorEnabled?: boolean;
+  twoFactorMethod?: 'totp' | 'sms';
+  totpVerifiedAt?: number;
 }
 
 export interface ProfileUpdates {
@@ -44,6 +46,8 @@ export interface ProfileUpdates {
   phoneNumber?: string | null;
   phoneVerified?: boolean;
   twoFactorEnabled?: boolean;
+  twoFactorMethod?: 'totp' | 'sms';
+  totpVerifiedAt?: number;
 }
 
 export interface StoredUserAccount extends UserProfile {
@@ -171,7 +175,7 @@ function initializeDemoAccounts(): Record<string, StoredUserAccount> {
         id: 'usr_demo_pro_101',
         email: 'pro@studyworkspace.io',
         displayName: 'Pro Student',
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+        avatarUrl: undefined,
         plan: 'pro_beta',
         isLifetime: false,
         proExpiresAt: Date.now() + THREE_YEARS_MS,
@@ -372,7 +376,9 @@ export const authService = {
       ...(updates.hideEmailInRoom !== undefined ? { hideEmailInRoom: Boolean(updates.hideEmailInRoom) } : {}),
       ...(updates.incognitoJoinRoom !== undefined ? { incognitoJoinRoom: Boolean(updates.incognitoJoinRoom) } : {}),
       ...(updates.phoneVerified !== undefined ? { phoneVerified: Boolean(updates.phoneVerified) } : {}),
-      ...(updates.twoFactorEnabled !== undefined ? { twoFactorEnabled: Boolean(updates.twoFactorEnabled) } : {})
+      ...(updates.twoFactorEnabled !== undefined ? { twoFactorEnabled: Boolean(updates.twoFactorEnabled) } : {}),
+      ...(updates.twoFactorMethod !== undefined ? { twoFactorMethod: updates.twoFactorMethod } : {}),
+      ...(updates.totpVerifiedAt !== undefined ? { totpVerifiedAt: updates.totpVerifiedAt } : {})
     };
 
     if (updates.phoneNumber === null || updates.phoneNumber === '') {

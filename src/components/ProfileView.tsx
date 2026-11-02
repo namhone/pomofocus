@@ -169,42 +169,42 @@ export const ProfileView: React.FC = () => {
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
+      <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
         {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
           <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <User size={13} className="text-emerald-400" />
+              <User size={13} className="text-zinc-200" />
               <span>Hồ Sơ Cá Nhân</span>
             </button>
             <button
               type="button"
               data-testid="nav-tab-security"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Shield size={13} className="text-amber-400" />
+              <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
             </button>
             <button
               type="button"
               data-testid="nav-tab-billing"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <CreditCard size={13} className="text-cyan-400" />
+              <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
             </button>
             <button
               type="button"
               data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Database size={13} className="text-sky-400" />
+              <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>
             </button>
           </div>
@@ -238,10 +238,10 @@ export const ProfileView: React.FC = () => {
                   <img
                     src={avatarUrl || user.avatarUrl}
                     alt={user.displayName}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-zinc-700 shadow-md group-hover:border-emerald-400 transition"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-zinc-700 shadow-md group-hover:border-zinc-500 transition"
                   />
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-white text-xl sm:text-2xl font-bold group-hover:border-emerald-400 transition">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-100 text-xl sm:text-2xl font-medium group-hover:border-zinc-500 transition">
                     {user.displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -254,14 +254,14 @@ export const ProfileView: React.FC = () => {
                     setIsEditing(true);
                     fileInputRef.current?.click();
                   }}
-                  className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg transition cursor-pointer"
+                  className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 shadow-lg transition cursor-pointer"
                   title="Thay đổi ảnh đại diện"
                 >
                   <Camera size={13} />
                 </button>
 
                 {isLifetime && (
-                  <div className="absolute -top-1.5 -right-1.5 bg-amber-400 text-black p-1 rounded-full shadow" title="Owner Lifetime">
+                  <div className="absolute -top-1.5 -right-1.5 bg-zinc-800 border border-zinc-700 text-zinc-200 p-1 rounded-full shadow" title="Owner Lifetime">
                     <Crown size={12} />
                   </div>
                 )}
@@ -282,10 +282,10 @@ export const ProfileView: React.FC = () => {
                     data-testid="profile-plan-badge"
                     className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider border shrink-0 whitespace-nowrap ${
                       isLifetime
-                        ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                         : isPro
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                        : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
                     }`}
                   >
                     {planLabel}

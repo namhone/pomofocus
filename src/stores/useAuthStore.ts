@@ -12,6 +12,7 @@ import {
   getPlanLabel
 } from '../services/authService';
 import { smsSecurityService } from '../services/smsSecurityService';
+import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
 
 export interface AuthState {
@@ -41,7 +42,10 @@ export interface AuthState {
   changePassword: (oldPass: string, newPass: string) => Promise<boolean>;
   deleteAccount: () => Promise<boolean>;
   signOutOtherDevices: () => Promise<{ success: boolean; message: string }>;
-  // SMS 2FA actions
+  // TOTP Authenticator 2FA actions
+  enableTotp2Fa: (secret: string, code: string, backupCodes: string[]) => Promise<{ success: boolean; message: string }>;
+  disableTotp2Fa: () => Promise<{ success: boolean; message: string }>;
+  // SMS 2FA actions (Legacy)
   sendSmsOtp: (phone: string) => Promise<{ success: boolean; message: string; cooldownSeconds?: number; demoCode?: string }>;
   verifyAndLinkPhone: (phone: string, code: string) => Promise<{ success: boolean; message: string }>;
   unlinkPhone: () => Promise<{ success: boolean; message: string }>;
@@ -213,6 +217,32 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({ error: message, isLoading: false });
         return false;
       }
+    },
+
+    enableTotp2Fa: async (secret: string, code: string, backupCodes: string[]) => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Vui lòng đăng nhập trước khi kích hoạt 2FA.' };
+      const res = await totpService.confirmAndEnable(user.id, secret, code, backupCodes);
+      if (res.success && res.user) {
+        set({
+          user: res.user,
+          ...computeDerivedPlanState(res.user)
+        });
+      }
+      return { success: res.success, message: res.message };
+    },
+
+    disableTotp2Fa: async () => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Chưa đăng nhập.' };
+      const res = await totpService.disable(user.id);
+      if (res.success && res.user) {
+        set({
+          user: res.user,
+          ...computeDerivedPlanState(res.user)
+        });
+      }
+      return { success: res.success, message: res.message };
     },
 
     signOutOtherDevices: async () => {
