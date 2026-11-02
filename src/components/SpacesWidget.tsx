@@ -58,9 +58,17 @@ export const SpacesWidget: React.FC = () => {
 
   // Filter & Search state cho Kho Hình Nền
   const [selectedCategory, setSelectedCategory] = useState<WallpaperCategory | 'all' | 'video'>('all');
+  const [orientationFilter, setOrientationFilter] = useState<'all' | '16:9' | '9:16'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [loadedWallpapers, setLoadedWallpapers] = useState<WallpaperItem[]>([]);
+
+  // Quản lý ảnh tải lỗi (Network fallback an toàn)
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
+  const handleImageError = (id: string) => {
+    setFailedImages((prev) => ({ ...prev, [id]: true }));
+  };
 
   // Tùy chỉnh tải lên & Dán URL
   const [showUploadDrawer, setShowUploadDrawer] = useState(false);
@@ -83,18 +91,19 @@ export const SpacesWidget: React.FC = () => {
     };
   }, []);
 
-  // Truy vấn wallpapers khi category hoặc search thay đổi
+  // Truy vấn wallpapers khi category, orientation hoặc search thay đổi
   const { items: queriedItems, total, hasMore } = useMemo(() => {
     if (selectedCategory === 'video') {
       return { items: [], total: 0, hasMore: false };
     }
     return queryWallpapers({
       category: selectedCategory === 'all' ? 'all' : selectedCategory,
+      orientation: orientationFilter,
       query: searchQuery,
       page,
       limit: 24
     });
-  }, [selectedCategory, searchQuery, page]);
+  }, [selectedCategory, orientationFilter, searchQuery, page]);
 
   // Cập nhật danh sách ảnh tích lũy (Infinite list / Tải thêm)
   useEffect(() => {
@@ -111,6 +120,11 @@ export const SpacesWidget: React.FC = () => {
 
   const handleCategorySelect = (cat: WallpaperCategory | 'all' | 'video') => {
     setSelectedCategory(cat);
+    setPage(1);
+  };
+
+  const handleOrientationSelect = (orientation: 'all' | '16:9' | '9:16') => {
+    setOrientationFilter(orientation);
     setPage(1);
   };
 
@@ -265,12 +279,55 @@ export const SpacesWidget: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm kiếm 1.000+ ảnh (Lofi, Anime, Tokyo, 35mm...)"
+              placeholder="Tìm kiếm 1.000+ ảnh (Lofi, Anime, Tokyo, Minimalist...)"
               className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
             />
           </div>
 
-          {/* Bộ lọc Danh mục 6 Gu Thẩm Mỹ Pinterest + All + Video */}
+          {/* Thanh Tỉ Lệ Màn Hình Gọn Gàng 3 Nút [ Tất cả | 16:9 | 9:16 ] */}
+          <div className="flex items-center justify-between px-0.5 shrink-0">
+            <span className="text-[10px] text-neutral-400 font-medium">Tỉ lệ khung hình:</span>
+            <div className="flex rounded-lg bg-black/40 p-0.5 border border-white/10 text-[10px] gap-0.5">
+              <button
+                type="button"
+                data-testid="ratio-filter-all"
+                onClick={() => handleOrientationSelect('all')}
+                className={`px-2 py-0.5 rounded transition cursor-pointer ${
+                  orientationFilter === 'all'
+                    ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Tất cả
+              </button>
+              <button
+                type="button"
+                data-testid="ratio-filter-16-9"
+                onClick={() => handleOrientationSelect('16:9')}
+                className={`px-2 py-0.5 rounded transition cursor-pointer ${
+                  orientationFilter === '16:9'
+                    ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                16:9
+              </button>
+              <button
+                type="button"
+                data-testid="ratio-filter-9-16"
+                onClick={() => handleOrientationSelect('9:16')}
+                className={`px-2 py-0.5 rounded transition cursor-pointer ${
+                  orientationFilter === '9:16'
+                    ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                9:16
+              </button>
+            </div>
+          </div>
+
+          {/* Bộ lọc Danh mục 5 Gu Thẩm Mỹ Pinterest + All + Video */}
           <div className="flex gap-1 overflow-x-auto pb-1 shrink-0 scrollbar-none text-[10px]">
             {/* Nút All (data-testid cho E2E) */}
             <button
@@ -342,13 +399,16 @@ export const SpacesWidget: React.FC = () => {
 
           {/* Lưới Ảnh Thumbnail (2 cột bo góc, hover mượt) */}
           <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">
-            {/* 1. Nhóm Video Presets khi filter === 'video' hoặc 'all' */}
-            {(selectedCategory === 'video' || (selectedCategory === 'all' && !searchQuery.trim())) && (
+            {/* 1. Nhóm Video Presets khi filter === 'video' hoặc 'all' (chỉ khi xem Tất cả tỉ lệ hoặc 16:9) */}
+            {(selectedCategory === 'video' ||
+              (selectedCategory === 'all' && orientationFilter !== '9:16' && !searchQuery.trim())) && (
               <div className="grid grid-cols-2 gap-2">
                 {BACKGROUND_PRESETS.filter((p) =>
                   selectedCategory === 'video' ? p.category === 'video' : true
                 ).map((preset) => {
                   const isSelected = activePresetId === preset.id;
+                  const isImgFailed = failedImages[preset.id];
+
                   return (
                     <button
                       key={preset.id}
@@ -361,13 +421,20 @@ export const SpacesWidget: React.FC = () => {
                           : 'border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20'
                       }`}
                     >
-                      <div className="relative w-full h-20 rounded-lg overflow-hidden bg-black mb-1 border border-white/5">
-                        <img
-                          src={preset.thumbnailUrl}
-                          alt={preset.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                      <div className="relative w-full h-20 rounded-lg overflow-hidden bg-neutral-900 mb-1 border border-white/5">
+                        {isImgFailed ? (
+                          <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-cyan-950/40 flex items-center justify-center">
+                            <ImageIcon size={16} className="text-cyan-400/50" />
+                          </div>
+                        ) : (
+                          <img
+                            src={preset.thumbnailUrl}
+                            alt={preset.title}
+                            loading="lazy"
+                            onError={() => handleImageError(preset.id)}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        )}
                         <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
                           {preset.category === 'video' ? (
                             <>
@@ -404,6 +471,8 @@ export const SpacesWidget: React.FC = () => {
                   const isItemPro = item.category === 'cyberpunk-tokyo';
                   const isLocked = !isPro && isItemPro;
                   const isSelected = customUrl === item.fullUrl;
+                  const isImgFailed = failedImages[item.id];
+                  const isPortrait = item.orientation === '9:16' && orientationFilter === '9:16';
 
                   return (
                     <button
@@ -424,13 +493,27 @@ export const SpacesWidget: React.FC = () => {
                       }`}
                       title={isLocked ? `${item.title} (Gói PRO)` : item.title}
                     >
-                      <div className="relative w-full h-20 rounded-lg overflow-hidden bg-black mb-1 border border-white/5">
-                        <img
-                          src={item.thumbnailUrl}
-                          alt={item.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                      <div
+                        className={`relative w-full rounded-lg overflow-hidden bg-neutral-900 mb-1 border border-white/5 transition-all ${
+                          isPortrait ? 'h-32' : 'h-20'
+                        }`}
+                      >
+                        {isImgFailed ? (
+                          <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-cyan-950/40 flex items-center justify-center">
+                            <ImageIcon size={16} className="text-cyan-400/50" />
+                          </div>
+                        ) : (
+                          <img
+                            src={item.thumbnailUrl}
+                            alt={item.title}
+                            loading="lazy"
+                            onError={() => handleImageError(item.id)}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        )}
+                        <span className="absolute top-1 left-1 px-1 py-0.5 rounded text-[7px] font-bold uppercase tracking-wider backdrop-blur-md bg-black/60 text-neutral-300 border border-white/10">
+                          {item.orientation}
+                        </span>
                         {isLocked && (
                           <span className="absolute top-1 right-1 px-1 py-0.5 rounded bg-amber-400 text-neutral-950 font-black text-[8px] uppercase tracking-wider shadow">
                             PRO
