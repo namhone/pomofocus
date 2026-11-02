@@ -18,7 +18,8 @@ import {
   X,
   ShieldCheck,
   User,
-  Shield
+  Shield,
+  CreditCard
 } from 'lucide-react';
 
 export const PrivacyDataView: React.FC = () => {
@@ -128,9 +129,9 @@ export const PrivacyDataView: React.FC = () => {
       <PlatformHeader />
 
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
-        {/* Sub-nav Tabs */}
+        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
             <button
               type="button"
               onClick={() => router.navigate('/profile')}
@@ -149,10 +150,18 @@ export const PrivacyDataView: React.FC = () => {
             </button>
             <button
               type="button"
+              onClick={() => router.navigate('/billing')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <CreditCard size={13} className="text-cyan-400" />
+              <span>Gói Cước</span>
+            </button>
+            <button
+              type="button"
               className="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
               <Database size={13} className="text-sky-400" />
-              <span>Dữ Liệu</span>
+              <span>Quyền Riêng Tư</span>
             </button>
           </div>
 

@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import {
   authService,
   UserProfile,
+  ProfileUpdates,
   UserDataExport,
   hasProEntitlement,
   isOwnerEmail,
@@ -35,8 +36,10 @@ export interface AuthState {
   signup: (email: string, pass: string, name: string) => Promise<boolean>;
   loginWithGoogle: (payload: GoogleUserPayload) => Promise<boolean>;
   logout: () => void;
-  updateProfile: (displayName: string, avatarUrl?: string) => Promise<boolean>;
+  updateProfile: (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => Promise<boolean>;
   changePassword: (oldPass: string, newPass: string) => Promise<boolean>;
+  deleteAccount: () => Promise<boolean>;
+  signOutOtherDevices: () => Promise<{ success: boolean; message: string }>;
   exportUserData: () => Promise<UserDataExport | null>;
   clearUserData: () => Promise<boolean>;
   upgradeToPro: (durationMonths?: number) => void;
@@ -144,12 +147,17 @@ export const useAuthStore = create<AuthState>((set, get) => {
       });
     },
 
-    updateProfile: async (displayName: string, avatarUrl?: string) => {
+    updateProfile: async (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => {
       const { user } = get();
       if (!user) return false;
       set({ isLoading: true, error: null });
       try {
-        const updated = await authService.updateProfile(user.id, { displayName, avatarUrl });
+        const payload: ProfileUpdates =
+          typeof updatesOrName === 'string'
+            ? { displayName: updatesOrName, avatarUrl }
+            : updatesOrName;
+
+        const updated = await authService.updateProfile(user.id, payload);
         set({
           user: updated,
           isLoading: false,
@@ -177,6 +185,32 @@ export const useAuthStore = create<AuthState>((set, get) => {
         set({ error: message, isLoading: false });
         return false;
       }
+    },
+
+    deleteAccount: async () => {
+      const { user } = get();
+      if (!user) return false;
+      set({ isLoading: true, error: null });
+      try {
+        await authService.deleteAccount(user.id);
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+          syncStats: null,
+          ...computeDerivedPlanState(null)
+        });
+        return true;
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Xóa tài khoản thất bại';
+        set({ error: message, isLoading: false });
+        return false;
+      }
+    },
+
+    signOutOtherDevices: async () => {
+      return await authService.signOutOtherDevices();
     },
 
     exportUserData: async () => {

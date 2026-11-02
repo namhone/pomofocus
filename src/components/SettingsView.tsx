@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from '../services/router';
 import { useTimerStore } from '../stores/useTimerStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAudioStore } from '../stores/useAudioStore';
@@ -21,10 +22,15 @@ import {
   Plus,
   Copy,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  User,
+  CreditCard,
+  Database,
+  ArrowLeft
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
+  const router = useRouter();
   const timerSettings = useTimerStore((s) => s.settings);
   const updateTimerSettings = useTimerStore((s) => s.updateSettings);
 
@@ -144,6 +150,53 @@ export const SettingsView: React.FC = () => {
       <PlatformHeader />
 
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
+        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
+            <button
+              type="button"
+              onClick={() => router.navigate('/profile')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <User size={13} className="text-emerald-400" />
+              <span>Hồ Sơ Cá Nhân</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => router.navigate('/account/security')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <Shield size={13} className="text-amber-400" />
+              <span>Bảo Mật</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => router.navigate('/billing')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <CreditCard size={13} className="text-cyan-400" />
+              <span>Gói Cước</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => router.navigate('/privacy-data')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <Database size={13} className="text-sky-400" />
+              <span>Quyền Riêng Tư</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => router.navigate('/app')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
+          >
+            <ArrowLeft size={13} />
+            <span className="hidden sm:inline">Vào Không Gian</span>
+          </button>
+        </div>
+
         {/* Title */}
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">

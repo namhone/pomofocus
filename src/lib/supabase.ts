@@ -605,11 +605,15 @@ export const supabase = {
       }
     },
 
-    signOut: async () => {
-      if (typeof window !== 'undefined') {
+    signOut: async (options?: { scope?: 'global' | 'local' | 'others' }) => {
+      if (typeof window !== 'undefined' && options?.scope !== 'others') {
         localStorage.removeItem('pomodoro_study_auth_session');
       }
       return { error: null };
+    },
+
+    updateUser: async (_attributes?: { password?: string; data?: any }) => {
+      return { data: { user: null }, error: null };
     },
 
     getSession: async () => {

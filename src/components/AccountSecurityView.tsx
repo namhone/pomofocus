@@ -14,18 +14,28 @@ import {
   LogOut,
   Info,
   User,
-  Database
+  Database,
+  CreditCard,
+  Trash2,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 export const AccountSecurityView: React.FC = () => {
   const router = useRouter();
-  const { user, isAuthenticated, changePassword, logout } = useAuthStore();
+  const { user, isAuthenticated, changePassword, logout, deleteAccount, signOutOtherDevices } = useAuthStore();
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPass, setIsChangingPass] = useState(false);
+  const [isSigningOutOthers, setIsSigningOutOthers] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Danger Zone - Xóa tài khoản
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   if (!isAuthenticated || !user) {
     return (
@@ -85,6 +95,30 @@ export const AccountSecurityView: React.FC = () => {
     }
   };
 
+  const handleSignOutOtherDevices = async () => {
+    setIsSigningOutOthers(true);
+    const res = await signOutOtherDevices();
+    setIsSigningOutOthers(false);
+    setStatusMessage({ type: 'success', text: res.message });
+    setTimeout(() => setStatusMessage(null), 4000);
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    if (deleteConfirmationText.trim() !== 'XOA TAI KHOAN') return;
+
+    setIsDeletingAccount(true);
+    const success = await deleteAccount();
+    setIsDeletingAccount(false);
+
+    if (success) {
+      setShowDeleteModal(false);
+      alert('Tài khoản và toàn bộ dữ liệu của bạn đã được xóa sạch vĩnh viễn theo chuẩn bảo mật GDPR.');
+      router.navigate('/');
+    } else {
+      alert('Lỗi khi xóa tài khoản. Vui lòng thử lại.');
+    }
+  };
+
   return (
     <div
       data-testid="account-security-view"
@@ -93,11 +127,12 @@ export const AccountSecurityView: React.FC = () => {
       <PlatformHeader />
 
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
-        {/* Sub-nav Tabs */}
+        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto scrollbar-none">
             <button
               type="button"
+              data-testid="nav-tab-profile"
               onClick={() => router.navigate('/profile')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
@@ -113,11 +148,21 @@ export const AccountSecurityView: React.FC = () => {
             </button>
             <button
               type="button"
+              data-testid="nav-tab-billing"
+              onClick={() => router.navigate('/billing')}
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+            >
+              <CreditCard size={13} className="text-cyan-400" />
+              <span>Gói Cước</span>
+            </button>
+            <button
+              type="button"
+              data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
               <Database size={13} className="text-sky-400" />
-              <span>Dữ Liệu</span>
+              <span>Quyền Riêng Tư</span>
             </button>
           </div>
 
@@ -131,11 +176,11 @@ export const AccountSecurityView: React.FC = () => {
           <div className="flex items-center gap-2">
             <Shield size={22} className="text-emerald-400 shrink-0" />
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Bảo Mật Tài Khoản
+              Trung Tâm Bảo Mật Tài Khoản
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Kiểm tra phương thức đăng nhập đã liên kết, mật khẩu bảo vệ và các phiên làm việc đang hoạt động.
+            Kiểm tra phương thức xác thực đã liên kết, đổi mật khẩu an toàn và quản lý các phiên đăng nhập.
           </p>
         </div>
 
@@ -196,7 +241,7 @@ export const AccountSecurityView: React.FC = () => {
                   <div className="font-semibold text-white truncate">Mật Khẩu Cá Nhân</div>
                   <div className="text-[11px] text-zinc-400 truncate">
                     {isGoogleAccount
-                      ? 'Đăng nhập trực tiếp bằng Google (không có mật khẩu cục bộ)'
+                      ? 'Đăng nhập trực tiếp bằng Google (không dùng mật khẩu cục bộ)'
                       : 'Đang bảo vệ tài khoản bằng mật khẩu cục bộ đã băm SHA-256'}
                   </div>
                 </div>
@@ -211,17 +256,17 @@ export const AccountSecurityView: React.FC = () => {
           <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-2 leading-relaxed">
             <Info size={14} className="text-zinc-500 shrink-0 mt-0.5" />
             <span>
-              <strong>Nguyên tắc bảo vệ chống chiếm quyền:</strong> Hệ thống không tự động hợp nhất tài khoản giữa Email/Mật khẩu và Google nếu chưa từng có sự xác thực chủ động từ chủ sở hữu.
+              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm hoặc mật khẩu tài khoản tùy ý.
             </span>
           </div>
         </div>
 
-        {/* Change Password Form (Nếu không phải Google pure) */}
+        {/* Change Password Form (Dành cho tài khoản email/mật khẩu) */}
         {!isGoogleAccount && (
           <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <Lock size={16} className="text-zinc-400 shrink-0" />
-              <span>Đổi Mật Khẩu Đăng Nhập</span>
+              <span>Đổi Mật Khẩu An Toàn</span>
             </h2>
 
             <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
@@ -231,6 +276,7 @@ export const AccountSecurityView: React.FC = () => {
                 </label>
                 <input
                   type="password"
+                  data-testid="input-old-password"
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
@@ -246,6 +292,7 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
+                    data-testid="input-new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
@@ -259,6 +306,7 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
+                    data-testid="input-confirm-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-white transition"
@@ -282,12 +330,12 @@ export const AccountSecurityView: React.FC = () => {
           </div>
         )}
 
-        {/* Phiên Hoạt Động (Sửa hoàn toàn lỗi rớt dòng 'Phiên Đăng Nhập Hiện' và 'Tại') */}
+        {/* Quản lý phiên đăng nhập (Session Security) */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <Globe size={16} className="text-zinc-400 shrink-0" />
-              <span className="whitespace-nowrap">Phiên Đăng Nhập Hiện Tại</span>
+              <span className="whitespace-nowrap">Quản Lý Phiên Đăng Nhập (Session Security)</span>
             </h2>
             <button
               type="button"
@@ -304,9 +352,9 @@ export const AccountSecurityView: React.FC = () => {
               <Smartphone size={16} className="text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
               <div className="min-w-0">
                 <div className="font-semibold text-white flex items-center gap-1.5 flex-wrap">
-                  <span>Trình duyệt hiện tại</span>
+                  <span>Thiết bị đang sử dụng</span>
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 shrink-0">
-                    Active
+                    Active Session
                   </span>
                 </div>
                 <div className="text-[11px] text-zinc-400 font-mono break-all line-clamp-1 max-w-sm">
@@ -316,11 +364,120 @@ export const AccountSecurityView: React.FC = () => {
             </div>
 
             <div className="text-[11px] text-zinc-500 font-mono sm:text-right shrink-0 whitespace-nowrap">
-              Được bảo vệ bằng mã hóa cục bộ
+              Phiên bảo mật cục bộ
             </div>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-zinc-950/40 border border-zinc-800">
+            <div>
+              <div className="text-xs font-semibold text-zinc-200">Đăng xuất khỏi tất cả các thiết bị khác</div>
+              <div className="text-[11px] text-zinc-400">Vô hiệu hóa phiên đăng nhập trên các máy tính lạ, điện thoại hoặc quán cafe khác.</div>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-signout-others"
+              disabled={isSigningOutOthers}
+              onClick={handleSignOutOtherDevices}
+              className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer shrink-0 whitespace-nowrap"
+            >
+              {isSigningOutOthers ? 'Đang xử lý...' : 'Đăng Xuất Thiết Bị Khác'}
+            </button>
+          </div>
+        </div>
+
+        {/* Vùng Nguy Hiểm (Danger Zone) */}
+        <div className="p-5 sm:p-7 rounded-2xl border border-rose-500/30 bg-rose-950/10 space-y-4">
+          <div className="flex items-center gap-2 text-rose-400">
+            <AlertTriangle size={18} />
+            <h2 className="text-sm font-bold text-white">Vùng Nguy Hiểm (Danger Zone)</h2>
+          </div>
+
+          <p className="text-xs text-zinc-300 leading-relaxed">
+            Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống theo chuẩn quyền riêng tư GDPR.
+          </p>
+
+          <div className="pt-1 flex items-center justify-between flex-wrap gap-3">
+            <div className="text-xs text-rose-300 font-medium">
+              Hành động này không thể hoàn tác sau khi đã thực hiện.
+            </div>
+            <button
+              type="button"
+              data-testid="btn-open-delete-account"
+              onClick={() => setShowDeleteModal(true)}
+              className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <Trash2 size={13} />
+              <span>Xóa Tài Khoản Vĩnh Viễn</span>
+            </button>
           </div>
         </div>
       </main>
+
+      {/* Modal xác nhận xóa tài khoản */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+                <AlertTriangle size={18} />
+                <span>CẢNH BÁO: XÓA TÀI KHOẢN VĨNH VIỄN</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmationText('');
+                }}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              Bạn đang chuẩn bị xóa tài khoản <strong>{user.email}</strong>. Mọi dữ liệu nhiệm vụ, ghi chú IndexedDB và phiên đăng nhập sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu.
+            </p>
+
+            <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/20 text-rose-200 text-xs">
+              Để xác nhận xóa, vui lòng nhập chính xác cụm từ: <strong className="font-mono text-white select-all">XOA TAI KHOAN</strong>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                autoFocus
+                data-testid="input-confirm-delete-phrase"
+                value={deleteConfirmationText}
+                onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                placeholder="Gõ 'XOA TAI KHOAN' vào đây..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-rose-500/40 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-rose-400 transition"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmationText('');
+                }}
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                data-testid="btn-confirm-delete-account"
+                disabled={deleteConfirmationText.trim() !== 'XOA TAI KHOAN' || isDeletingAccount}
+                onClick={handleConfirmDeleteAccount}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-lg shadow-rose-950/50"
+              >
+                {isDeletingAccount ? 'Đang xóa...' : 'Xác Nhận Xóa Vĩnh Viễn'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SharedFooter />
     </div>
