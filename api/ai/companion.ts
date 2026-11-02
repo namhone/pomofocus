@@ -52,7 +52,7 @@ export function solveBasicMath(prompt: string): string | null {
   if (!prompt) return null;
   const lower = prompt.toLowerCase().trim();
 
-  // 1. Phép toán tìm x hoặc 1+1=x hoặc các phép tính số học tiểu học
+  // 1. Phép toán tìm x hoặc 1+1=x hoặc các phép tính số học cơ bản
   if (
     lower.includes('1+1') ||
     lower.includes('1 + 1') ||
@@ -95,11 +95,10 @@ Nhiệm vụ và Nguyên tắc Sư phạm của bạn:
    - Với tác vụ TÓM TẮT (summarize): Trích xuất 3-5 ý cốt lõi quan trọng nhất, dùng bullet points ngắn gọn, rõ ràng, không lan man.
    - Với tác vụ TRẮC NGHIỆM (quiz): Tạo đúng 10 câu hỏi trắc nghiệm (A, B, C, D) ôn tập Pomodoro và phương pháp học tập kèm đáp án đúng và phần giải thích ngắn vì sao đáp án đó chính xác.
 
-5. PHONG THÁI & CHÀO HỎI THÂN THIỆN:
-   - Luôn tôn trọng mọi câu hỏi dù là đơn giản nhất, giữ thái độ động viên, tích cực và thúc đẩy tinh thần tự học kiên trì theo triết lý Pomodoro Focus.
-   - Khi học sinh gửi câu chào hỏi ngắn (ví dụ: "xin chào", "chào bạn", "hi", "hello", "alo", "ê",...):
-     Hãy đáp lại tự nhiên, nhiệt tình và thân thiện: "Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?"
-     Tuyệt đối KHÔNG ĐƯỢC lôi công thức toán học số e hay thuật toán chia để trị ra trả lời câu chào hỏi.`;
+5. PHONG THÁI & TRÒ CHUYỆN TỰ NHIÊN:
+   - Luôn tôn trọng mọi câu hỏi dù là đơn giản hay câu nói chuyện phiếm đời thường. Đáp lại tự nhiên, gần gũi, thông minh như một người bạn đồng hành thực thụ.
+   - Khi học sinh gửi câu chào hỏi ngắn (ví dụ: "xin chào", "chào bạn", "hi", "hello", "alo",...):
+     Hãy đáp lại tự nhiên, nhiệt tình và thân thiện: "Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?"`;
 
 export default async function handler(req: any, res: any) {
   // CORS Headers
@@ -176,47 +175,29 @@ export default async function handler(req: any, res: any) {
     }
 
     let reply = '';
+    let apiError: string | null = null;
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
     const tunedModelId = process.env.GEMINI_TUNED_MODEL_ID || process.env.VITE_GEMINI_TUNED_MODEL_ID || '';
 
     // 4. Nếu có API Key, gọi trực tiếp Gemini qua Google Generative AI REST endpoint
     if (apiKey) {
-      try {
-        const modelEndpoint = tunedModelId
-          ? (tunedModelId.startsWith('tunedModels/') ? tunedModelId : `tunedModels/${tunedModelId}`)
-          : 'models/gemini-1.5-flash';
-        let geminiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelEndpoint}:generateContent?key=${apiKey}`;
+      const candidateModels = tunedModelId
+        ? [
+            tunedModelId.startsWith('tunedModels/') ? tunedModelId : `tunedModels/${tunedModelId}`,
+            'models/gemini-2.5-flash',
+            'models/gemini-1.5-flash'
+          ]
+        : ['models/gemini-2.5-flash', 'models/gemini-1.5-flash'];
 
-        let response = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: userContent }]
-              }
-            ],
-            systemInstruction: {
-              parts: [{ text: SYSTEM_INSTRUCTION }]
-            },
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2048
-            }
-          })
-        });
+      for (const modelPath of candidateModels) {
+        try {
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`;
 
-        // Nếu Tuned Model trả về lỗi (chưa kích hoạt xong hoặc không tìm thấy), tự động fallback về gemini-1.5-flash
-        if (!response.ok && tunedModelId) {
-          console.warn(`[Gemini API] Tuned model ${tunedModelId} failed (status ${response.status}), fallback sang gemini-1.5-flash`);
-          geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-          response = await fetch(geminiUrl, {
+          const response = await fetch(geminiUrl, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
             },
             body: JSON.stringify({
               contents: [
@@ -234,21 +215,32 @@ export default async function handler(req: any, res: any) {
               }
             })
           });
-        }
 
-        if (response.ok) {
-          const data = await response.json();
-          reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        } else {
-          const errBody = await response.text();
-          console.error(`[Gemini API Error] HTTP ${response.status}: ${errBody}`);
+          if (response.ok) {
+            const data = await response.json();
+            reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (reply) {
+              apiError = null;
+              break;
+            }
+          } else {
+            const errBody = await response.text();
+            console.error(`[Gemini API Error - ${modelPath}] HTTP ${response.status}: ${errBody}`);
+            apiError = `⚠️ Kết nối Gemini thất bại: [HTTP ${response.status}]`;
+          }
+        } catch (geminiErr: any) {
+          console.error(`[Gemini API Exception - ${modelPath}]:`, geminiErr?.message || geminiErr);
+          apiError = `⚠️ Kết nối Gemini thất bại: [${geminiErr?.message || 'Lỗi mạng'}]`;
         }
-      } catch (geminiErr: any) {
-        console.error('[Gemini API Exception] Error contacting Google Gemini:', geminiErr?.message || geminiErr);
       }
     }
 
-    // 5. Fallback thông minh theo chuẩn sư phạm nếu không có key hoặc offline/sandbox
+    // 5. Nếu gọi API có lỗi thực tế từ Gemini (không giả mạo giải toán khi gặp lỗi)
+    if (!reply && apiError) {
+      reply = apiError;
+    }
+
+    // 6. Fallback chỉ dùng khi offline/sandbox không cấu hình key
     if (!reply) {
       if (actionType === 'summarize') {
         reply = `### 📋 Tóm Tắt Trọng Tâm Bài Học\n\n${
@@ -266,7 +258,7 @@ export default async function handler(req: any, res: any) {
         } else if (prompt.toLowerCase().includes('pythagoras')) {
           reply = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $$a^2 + b^2 = c^2$$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $$c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
         } else {
-          reply = `### 💡 Hướng Dẫn Giải Thích Sư Phạm\n\nChào bạn! Về câu hỏi **"${prompt}"**:\n\n1. **Bản chất cốt lõi:**\n   Nguyên lý học sâu luôn bắt đầu từ việc nắm chắc khái niệm nền tảng trước khi đi vào giải bài tập chi tiết.\n\n2. **Phương pháp tiếp cận & Tư duy logic:**\n   - Xác định rõ dữ kiện đã cho và đại lượng cần tìm.\n   - Chia nhỏ bài toán thành từng bước tư duy tuần tự theo phương pháp Scaffolding:\n     $$\\text{Dữ kiện ban đầu} \\longrightarrow \\text{Mô hình hóa} \\longrightarrow \\text{Kết luận}$$\n\n3. **Lời khuyên học tập từ PomoFocus:**\n   Áp dụng kỹ thuật Feynman: thử giải thích lại điều bạn vừa học bằng ngôn từ đơn giản nhất cho một người bạn. Bạn có câu hỏi chi tiết nào tiếp theo không?`;
+          reply = 'Chào bạn! Mình là PomoFocus AI. Vui lòng kết nối Internet hoặc cấu hình GEMINI_API_KEY hợp lệ để trò chuyện cùng AI thông minh nhé!';
         }
       }
     }

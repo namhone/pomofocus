@@ -347,7 +347,7 @@ export const useAiStore = create<AiState>()(
               } else if (prompt.toLowerCase().includes('pythagoras')) {
                 replyText = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $a^2 + b^2 = c^2$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
               } else {
-                replyText = `### 💡 Hướng Dẫn Giải Thích Sư Phạm\n\nChào bạn! Về câu hỏi **"${prompt}"**:\n\n1. **Bản chất cốt lõi:**\n   Nguyên lý học sâu luôn bắt đầu từ việc nắm chắc khái niệm nền tảng trước khi đi vào giải bài tập chi tiết.\n\n2. **Phương pháp tiếp cận:**\n   Hãy chia nhỏ câu hỏi thành các bước suy luận logic từng bước (Scaffolding).\n\n3. **Lời khuyên học tập từ PomoFocus:**\n   Áp dụng kỹ thuật Feynman: thử giải thích lại điều bạn vừa học bằng ngôn từ đơn giản nhất cho một người bạn. Bạn có câu hỏi chi tiết nào tiếp theo không?`;
+                replyText = 'Chào bạn! Mình là PomoFocus AI. Vui lòng kết nối Internet hoặc cấu hình GEMINI_API_KEY hợp lệ để trò chuyện cùng AI thông minh nhé!';
               }
             }
           }
