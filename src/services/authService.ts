@@ -632,7 +632,7 @@ export const authService = {
       return current;
     }
 
-    const isLifetime = planType === 'lifetime' || planType === 'pro_lifetime' || proExpiresAt === null;
+    const isLifetime = planType === 'lifetime' || planType === 'pro_lifetime';
     let computedExpires: number | null = null;
     if (!isLifetime) {
       if (typeof proExpiresAt === 'number') {
