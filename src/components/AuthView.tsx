@@ -61,16 +61,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     }
   };
 
-  // LỰA CHỌN 1: Đăng nhập Google OAuth
+  // LỰA CHỌN 1: Đăng nhập Google OAuth qua Supabase Client
   const handleGoogleSignIn = async () => {
     clearError();
     setSuccessMsg('');
 
     try {
-      const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
-
-      // 1. Thử nghiệm Supabase OAuth trên Production nếu chạy với người dùng thật
-      if (!isAutomatedTest && typeof window !== 'undefined' && window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost')) {
+      // 1. Luồng Supabase OAuth chính thức trên trình duyệt
+      if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -78,50 +76,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
           },
         });
         if (error) {
-          console.warn('[Google OAuth] Fallback do lỗi Supabase OAuth:', error.message);
+          console.warn('[Google OAuth] Lỗi khởi tạo Supabase OAuth:', error.message);
         } else if (data?.url) {
+          // Trình duyệt sẽ điều hướng tới trang xác thực Google OAuth
           return;
         }
       }
 
-      // 2. Google Identity Services (GSI) One-Tap nếu có cấu hình
-      if (googleAuthService.isConfigured() && !isAutomatedTest) {
-        const initialized = await googleAuthService.initializeGsi({
-          onSuccess: async (payload) => {
-            const ok = await loginWithGoogle(payload);
-            if (ok) {
-              setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
-              setTimeout(() => router.navigate('/app'), 500);
-            }
-          },
-          onError: (err) => {
-            console.error('Lỗi Google Identity Services:', err);
-          }
-        });
-
-        if (!initialized) {
-          const simulated = await googleAuthService.simulateGoogleLogin();
-          const ok = await loginWithGoogle(simulated);
-          if (ok) {
-            setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
-            setTimeout(() => router.navigate('/app'), 500);
-          }
-        } else {
-          googleAuthService.promptOneTap();
-        }
-      } else {
-        // 3. Chế độ phát triển / Demo hoặc kiểm thử Playwright tự động
-        const simulated = await googleAuthService.simulateGoogleLogin({
-          email: 'nam.studyworkspace@gmail.com',
-          name: 'Hồ Ngọc Bảo Nam (Google)',
-          picture:
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
-        });
-        const ok = await loginWithGoogle(simulated);
-        if (ok) {
-          setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
-          setTimeout(() => router.navigate('/app'), 500);
-        }
+      // 2. Fallback mô phỏng nếu chạy unit test mock hoặc offline
+      const simulated = await googleAuthService.simulateGoogleLogin({
+        email: 'nam.studyworkspace@gmail.com',
+        name: 'Hồ Ngọc Bảo Nam (Google)',
+        picture:
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
+      });
+      const ok = await loginWithGoogle(simulated);
+      if (ok) {
+        setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
+        setTimeout(() => router.navigate('/app'), 500);
       }
     } catch (err) {
       console.error('Lỗi đăng nhập Google:', err);
@@ -175,7 +147,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             Đăng Nhập PomoFocus
           </h1>
           <p className="text-xs text-neutral-400">
-            Chọn 1 trong 3 phương thức xác thực linh hoạt để tiếp tục
+            Chọn phương thức xác thực để tiếp tục phiên làm việc
           </p>
         </div>
 
@@ -200,7 +172,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
           <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-              Lựa chọn 1: Google OAuth
+              Đăng nhập qua Google
             </span>
             <span className="text-[9px] text-neutral-500 font-normal">Chính thức</span>
           </div>
@@ -242,40 +214,42 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         </div>
 
         {/* =========================================================================
-            LỰA CHỌN 2: ⚡ ĐĂNG NHẬP NHANH 1-CHẠM (FOUNDER VIP 👑)
+            LỰA CHỌN 2: ⚡ ĐĂNG NHẬP NHANH 1-CHẠM (FOUNDER VIP 👑) - Chỉ bật trong môi trường DEV
            ========================================================================= */}
-        <div className="mb-4">
-          <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Lựa chọn 2: Founder 1-Chạm
-            </span>
-            <span className="text-[9px] text-amber-400/80 font-normal">Tốc độ cao 0.1s</span>
-          </div>
-          <button
-            type="button"
-            data-testid="btn-founder-quick-login"
-            onClick={handleFounderQuickLogin}
-            disabled={isLoading || isGoogleLoading}
-            className="group relative w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 hover:from-amber-500/25 hover:via-amber-400/20 hover:to-amber-500/25 border border-amber-500/40 hover:border-amber-400 text-amber-200 text-xs font-bold transition-all shadow-lg shadow-amber-950/40 hover:shadow-amber-500/15 active:scale-98 cursor-pointer flex items-center justify-between overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-            <div className="flex items-center gap-2.5 relative z-10">
-              <Zap size={16} className="text-amber-400 shrink-0" />
-              <div className="text-left">
-                <div className="font-extrabold text-amber-300 text-xs tracking-wide flex items-center gap-1">
-                  <span>⚡ Đăng nhập Nhanh (Founder VIP 👑)</span>
-                </div>
-                <div className="text-[10px] text-amber-400/80 font-normal">
-                  Chính chủ namho03052k9 • Trọn đời • +1.000⚡ AI Credits
+        {import.meta.env.DEV && (
+          <div className="mb-4">
+            <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                Founder 1-Chạm (Chế độ DEV)
+              </span>
+              <span className="text-[9px] text-amber-400/80 font-normal">Tốc độ cao 0.1s</span>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-founder-quick-login"
+              onClick={handleFounderQuickLogin}
+              disabled={isLoading || isGoogleLoading}
+              className="group relative w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 hover:from-amber-500/25 hover:via-amber-400/20 hover:to-amber-500/25 border border-amber-500/40 hover:border-amber-400 text-amber-200 text-xs font-bold transition-all shadow-lg shadow-amber-950/40 hover:shadow-amber-500/15 active:scale-98 cursor-pointer flex items-center justify-between overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+              <div className="flex items-center gap-2.5 relative z-10">
+                <Zap size={16} className="text-amber-400 shrink-0" />
+                <div className="text-left">
+                  <div className="font-extrabold text-amber-300 text-xs tracking-wide flex items-center gap-1">
+                    <span>⚡ Đăng nhập Nhanh (Founder VIP 👑)</span>
+                  </div>
+                  <div className="text-[10px] text-amber-400/80 font-normal">
+                    Chính chủ namho03052k9 • Trọn đời • +1.000⚡ AI Credits
+                  </div>
                 </div>
               </div>
-            </div>
-            <span className="relative z-10 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-[10px] font-mono font-bold text-amber-300 shrink-0">
-              0.1s
-            </span>
-          </button>
-        </div>
+              <span className="relative z-10 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-[10px] font-mono font-bold text-amber-300 shrink-0">
+                0.1s
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* =========================================================================
             LỰA CHỌN 3: ĐĂNG NHẬP / ĐĂNG KÝ BẰNG EMAIL & MẬT KHẨU
@@ -283,7 +257,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         <div className="relative flex items-center justify-center my-4">
           <div className="border-t border-white/10 w-full" />
           <span className="bg-neutral-900 px-2.5 text-[10px] uppercase tracking-wider text-neutral-400 shrink-0 font-medium">
-            Lựa chọn 3: Email & Mật Khẩu
+            Hoặc Email & Mật Khẩu
           </span>
           <div className="border-t border-white/10 w-full" />
         </div>
