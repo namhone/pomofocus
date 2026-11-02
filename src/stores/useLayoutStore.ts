@@ -30,7 +30,7 @@ export const GLASS_PRESETS: Record<GlassPreset, GlassSettings> = {
 export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: number; height: number }>> = {
   timer: {
     S: { width: 300, height: 440 },
-    M: { width: 340, height: 500 },
+    M: { width: 340, height: 520 },
     L: { width: 420, height: 620 }
   },
   tasks: {
@@ -91,7 +91,6 @@ export function computeBalancedDefaultLayout(
   const timerX = startX;
   const tasksX = timerX + timerW + gap;
   const notesX = tasksX + tasksW + gap;
-  const widgetH = DEFAULT_WIDGETS.timer.height;
 
   return {
     ...DEFAULT_WIDGETS,
@@ -100,21 +99,21 @@ export function computeBalancedDefaultLayout(
       x: timerX,
       y: topY,
       width: timerW,
-      height: widgetH,
+      height: DEFAULT_WIDGETS.timer.height,
     },
     tasks: {
       ...DEFAULT_WIDGETS.tasks,
       x: tasksX <= winWidth - tasksW - 12 ? tasksX : 24,
       y: tasksX <= winWidth - tasksW - 12 ? topY : 560,
       width: tasksW,
-      height: widgetH,
+      height: DEFAULT_WIDGETS.tasks.height,
     },
     notes: {
       ...DEFAULT_WIDGETS.notes,
       x: notesX <= winWidth - notesW - 12 ? notesX : 24,
       y: notesX <= winWidth - notesW - 12 ? topY : 560,
       width: notesW,
-      height: widgetH,
+      height: DEFAULT_WIDGETS.notes.height,
     }
   };
 }
@@ -128,7 +127,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 24,
     y: 48,
     width: 340,
-    height: 500,
+    height: 520,
     minWidth: 280,
     minHeight: 360,
     maxWidth: 520,
@@ -144,7 +143,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 382,
     y: 48,
     width: 340,
-    height: 500,
+    height: 480,
     minWidth: 300,
     minHeight: 340,
     maxWidth: 850,
@@ -160,7 +159,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 740,
     y: 48,
     width: 360,
-    height: 500,
+    height: 480,
     minWidth: 300,
     minHeight: 340,
     maxWidth: 900,
