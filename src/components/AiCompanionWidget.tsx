@@ -15,9 +15,93 @@ import {
   User,
   ArrowUpRight
 } from 'lucide-react';
-import { useAiStore, AI_PLAN_LIMITS, AiActionType } from '../stores/useAiStore';
+import { useAiStore, AI_PLAN_LIMITS, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
 import { useRouter } from '../services/router';
 import { useNoteStore } from '../stores/useNoteStore';
+
+/**
+ * Trình phân giải & kết xuất công thức toán học LaTeX và Markdown cho AI Companion
+ */
+export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) => {
+  // Tách nội dung theo khối công thức LaTeX $$...$$
+  const parts = content.split(/(\$\$[\s\S]*?\$\$)/g);
+
+  return (
+    <div className="space-y-2 text-xs leading-relaxed break-words">
+      {parts.map((part, index) => {
+        if (part.startsWith('$$') && part.endsWith('$$')) {
+          const formula = part.slice(2, -2).trim();
+          return (
+            <div
+              key={index}
+              data-testid="ai-latex-block"
+              className="my-2 p-2.5 rounded-xl bg-zinc-950/90 border border-cyan-500/40 text-cyan-300 font-mono text-center text-xs tracking-wider overflow-x-auto shadow-inner select-all"
+            >
+              <div className="text-[9px] uppercase tracking-widest text-cyan-500/70 font-sans mb-1 font-semibold">
+                Công thức toán LaTeX
+              </div>
+              <div>{formula}</div>
+            </div>
+          );
+        }
+
+        const lines = part.split('\n');
+        return (
+          <div key={index} className="space-y-1.5">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return null;
+
+              if (trimmed === '---') {
+                return <hr key={lIdx} className="border-zinc-800/80 my-2" />;
+              }
+
+              if (trimmed.startsWith('### ')) {
+                return (
+                  <h4 key={lIdx} className="font-bold text-sm text-cyan-300 tracking-wide pt-1 pb-0.5">
+                    {trimmed.replace('### ', '')}
+                  </h4>
+                );
+              }
+
+              return (
+                <p key={lIdx} className="text-zinc-200">
+                  {renderInlineMarkdown(line)}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+function renderInlineMarkdown(text: string): React.ReactNode {
+  // Regex tách **bold**, $inline latex$
+  const tokens = text.split(/(\*\*.*?\*\*|\$.*?\$)/g);
+  return tokens.map((token, i) => {
+    if (token.startsWith('**') && token.endsWith('**')) {
+      return (
+        <strong key={i} className="font-bold text-white">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (token.startsWith('$') && token.endsWith('$')) {
+      return (
+        <span
+          key={i}
+          data-testid="ai-latex-inline"
+          className="font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.5 rounded text-[11px] font-medium mx-0.5 select-all"
+        >
+          {token.slice(1, -1)}
+        </span>
+      );
+    }
+    return token;
+  });
+}
 
 export const AiCompanionWidget: React.FC = () => {
   const router = useRouter();
@@ -40,6 +124,7 @@ export const AiCompanionWidget: React.FC = () => {
 
   const [inputPrompt, setInputPrompt] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -87,6 +172,12 @@ export const AiCompanionWidget: React.FC = () => {
   };
 
   const handleSend = async (action: AiActionType = 'chat', customText?: string) => {
+    const cost = AI_CREDIT_COSTS[action];
+    if (aiCreditsBalance < cost) {
+      setShowPaywallModal(true);
+      return;
+    }
+
     const textToSend = customText !== undefined ? customText : inputPrompt;
     if (!textToSend.trim() && action !== 'summarize' && action !== 'quiz') return;
 
@@ -107,6 +198,10 @@ export const AiCompanionWidget: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      if (aiCreditsBalance < 1) {
+        setShowPaywallModal(true);
+        return;
+      }
       handleSend('chat');
     }
   };
@@ -116,6 +211,49 @@ export const AiCompanionWidget: React.FC = () => {
       data-testid="ai-companion-drawer"
       className="fixed top-12 right-0 bottom-0 w-full sm:w-[420px] max-w-full bg-[#09090b]/95 border-l border-zinc-800 text-zinc-100 shadow-2xl backdrop-blur-2xl z-50 flex flex-col select-none transition-all duration-300 animate-in slide-in-from-right"
     >
+      {/* Pop-up Paywall khi số dư = 0⚡ hoặc không đủ điểm */}
+      {showPaywallModal && (
+        <div
+          data-testid="ai-paywall-modal"
+          className="absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in"
+        >
+          <div className="w-full max-w-xs rounded-2xl bg-zinc-900 border border-amber-500/40 p-5 text-center shadow-2xl space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+              <Zap size={24} className="fill-amber-400" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-white">Bạn Cần Thêm AI Credits ⚡</h4>
+              <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
+                Số dư hiện tại của bạn là <span className="font-bold text-amber-400">{aiCreditsBalance}⚡</span>. Hãy nâng cấp gói học tập để tiếp tục hỏi bài và ôn luyện không giới hạn.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                data-testid="ai-paywall-btn-close"
+                onClick={() => setShowPaywallModal(false)}
+                className="flex-1 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
+              >
+                Để sau
+              </button>
+              <button
+                type="button"
+                data-testid="ai-paywall-btn-billing"
+                onClick={() => {
+                  setShowPaywallModal(false);
+                  toggleOpen(false);
+                  router.navigate('/billing');
+                }}
+                className="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-xs font-bold text-zinc-950 transition cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-amber-950/40"
+              >
+                <span>Xem Bảng Giá</span>
+                <ArrowUpRight size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1. Header HUD & Số Dư Điểm */}
       <div className="p-3.5 border-b border-zinc-800/80 bg-zinc-950/70 shrink-0 space-y-2">
         <div className="flex items-center justify-between">
@@ -167,7 +305,7 @@ export const AiCompanionWidget: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-1">
-                <span className="font-mono font-bold text-amber-300 text-sm">
+                <span data-testid="ai-credits-value" className="font-mono font-bold text-amber-300 text-sm">
                   {aiCreditsBalance.toLocaleString()}
                 </span>
                 <span className="text-zinc-500 text-[11px]">/ {maxCredits.toLocaleString()} Credits</span>
@@ -202,15 +340,15 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-quick-explain"
-            disabled={isLoading || aiCreditsBalance < 1}
+            disabled={isLoading}
             onClick={() =>
-              handleSend('chat', 'Giải thích ngắn gọn, súc tích và sư phạm về khái niệm cốt lõi này')
+              handleSend('chat', 'Giải thích định lý Pythagoras cho học sinh lớp 7 theo phương pháp Socratic')
             }
-            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40"
           >
             <div className="flex items-center gap-2 truncate">
               <HelpCircle size={13} className="text-cyan-400 shrink-0" />
-              <span className="truncate">💡 Giải thích khái niệm này ngắn gọn</span>
+              <span className="truncate">💡 Giải thích định lý Pythagoras (Lớp 7)</span>
             </div>
             <span className="font-mono text-[10px] text-amber-400 font-bold shrink-0">1⚡</span>
           </button>
@@ -218,9 +356,9 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-quick-summarize"
-            disabled={isLoading || aiCreditsBalance < 5}
+            disabled={isLoading}
             onClick={() => handleSend('summarize')}
-            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40"
           >
             <div className="flex items-center gap-2 truncate">
               <FileText size={13} className="text-indigo-400 shrink-0" />
@@ -234,9 +372,9 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-quick-quiz"
-            disabled={isLoading || aiCreditsBalance < 10}
+            disabled={isLoading}
             onClick={() => handleSend('quiz')}
-            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40"
           >
             <div className="flex items-center gap-2 truncate">
               <BookOpen size={13} className="text-emerald-400 shrink-0" />
@@ -248,7 +386,7 @@ export const AiCompanionWidget: React.FC = () => {
       </div>
 
       {/* 3. Danh Sách Khung Chat (Scrollable Message List) */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3.5 select-text">
+      <div data-testid="ai-chat-messages-container" className="flex-1 overflow-y-auto p-3 space-y-3.5 select-text">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
@@ -296,9 +434,13 @@ export const AiCompanionWidget: React.FC = () => {
                   )}
                 </div>
 
-                {/* Nội dung markdown / text */}
-                <div className="whitespace-pre-wrap font-sans space-y-1.5 break-words">
-                  {msg.content}
+                {/* Kết xuất tin nhắn định dạng Socratic & LaTeX */}
+                <div className="font-sans">
+                  {isUser ? (
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  ) : (
+                    <FormattedAiMessage content={msg.content} />
+                  )}
                 </div>
 
                 {msg.creditsUsed && (
@@ -339,6 +481,7 @@ export const AiCompanionWidget: React.FC = () => {
               {aiCreditsBalance <= 0 && (
                 <button
                   type="button"
+                  data-testid="ai-error-billing-link"
                   onClick={() => {
                     toggleOpen(false);
                     router.navigate('/billing');
@@ -360,6 +503,10 @@ export const AiCompanionWidget: React.FC = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            if (aiCreditsBalance < 1) {
+              setShowPaywallModal(true);
+              return;
+            }
             handleSend('chat');
           }}
           className="relative flex items-end gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 p-1.5 transition-all"
@@ -372,18 +519,17 @@ export const AiCompanionWidget: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder={
               aiCreditsBalance < 1
-                ? 'Hết điểm AI Credits. Vui lòng nạp thêm...'
+                ? 'Hết điểm AI Credits. Bấm để nạp thêm...'
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Enter để gửi)'
             }
-            disabled={isLoading || aiCreditsBalance < 1}
             rows={2}
-            className="flex-1 bg-transparent text-xs text-zinc-100 placeholder-zinc-500 resize-none p-1.5 focus:outline-none disabled:opacity-40"
+            className="flex-1 bg-transparent text-xs text-zinc-100 placeholder-zinc-500 resize-none p-1.5 focus:outline-none"
           />
 
           <button
             type="submit"
             data-testid="ai-submit-btn"
-            disabled={!inputPrompt.trim() || isLoading || aiCreditsBalance < 1}
+            disabled={!inputPrompt.trim() || isLoading}
             className="p-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 text-zinc-950 disabled:text-zinc-500 transition cursor-pointer disabled:cursor-not-allowed shrink-0 font-semibold shadow-xs"
             title="Gửi câu hỏi (Enter)"
           >
@@ -392,7 +538,7 @@ export const AiCompanionWidget: React.FC = () => {
         </form>
 
         <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-500">
-          <span>Hỏi bài: 1⚡ | Tóm tắt / Trắc nghiệm: 5⚡</span>
+          <span>Hỏi bài: 1⚡ | Tóm tắt: 5⚡ | Trắc nghiệm: 10⚡</span>
           <span>Google Gemini 1.5 Flash</span>
         </div>
       </div>
