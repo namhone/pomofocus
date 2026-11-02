@@ -627,6 +627,138 @@ Chào bạn! Cả hai biện pháp đều gọi tên sự vật A bằng tên s�
      $\\rightarrow$ "Áo chàm" là trang phục truyền thống của đồng bào Việt Bắc, hoán dụ để chỉ người dân Việt Bắc.`
   },
 
+  // --- Bộ câu hỏi nâng cao tuyển sinh vào 10 (Lấy cảm hứng từ ngân hàng đề thi VNHSGE) ---
+  {
+    category: 'cap_2',
+    gradeLevel: 'Lớp 9',
+    subject: 'Toán học',
+    textInput: 'Cho biểu thức P = (sqrt(x) / (sqrt(x) + 2) + 1 / (sqrt(x) - 2)) : (x - sqrt(x)) / (x - 4) với x > 0, x != 4, x != 1. Hướng dẫn em rút gọn biểu thức P và tìm x nguyên để P nguyên.',
+    output: `### 🎯 Rút Gọn Biểu Thức Chứa Căn & Tìm x Nguyên (Đề Tuyển Sinh Vào 10 - VNHSGE)
+
+Chào em! Đây là dạng câu hỏi chiếm 1,5–2 điểm trong đề thi vào 10. Hãy cùng phân tích theo phương pháp Socratic nhé:
+
+💡 **Gợi ý manh mối (Socratic Hint):**
+- Nhận xét mẫu số: $x - 4 = (\\sqrt{x} - 2)(\\sqrt{x} + 2)$. Mẫu thức chung của ngoặc thứ nhất chính là $(\\sqrt{x} - 2)(\\sqrt{x} + 2)$.
+- Biểu thức chia $\\frac{x - \\sqrt{x}}{x - 4} = \\frac{\\sqrt{x}(\\sqrt{x} - 1)}{(\\sqrt{x} - 2)(\\sqrt{x} + 2)}$. Chia tức là nhân nghịch đảo.
+
+📝 **Các bước giải chi tiết từng bước:**
+1. **Quy đồng ngoặc thứ nhất:**
+   $$A = \\frac{\\sqrt{x}(\\sqrt{x} - 2) + 1 \\cdot (\\sqrt{x} + 2)}{(\\sqrt{x} - 2)(\\sqrt{x} + 2)} = \\frac{x - 2\\sqrt{x} + \\sqrt{x} + 2}{(\\sqrt{x} - 2)(\\sqrt{x} + 2)} = \\frac{x - \\sqrt{x} + 2}{(\\sqrt{x} - 2)(\\sqrt{x} + 2)}$$
+2. **Nhân với phân thức nghịch đảo:**
+   $$P = A \\times \\frac{x - 4}{\\sqrt{x}(\\sqrt{x} - 1)} = \\frac{x - \\sqrt{x} + 2}{(\\sqrt{x} - 2)(\\sqrt{x} + 2)} \\times \\frac{(\\sqrt{x} - 2)(\\sqrt{x} + 2)}{\\sqrt{x}(\\sqrt{x} - 1)}$$
+   Triệt tiêu thừa số chung $(\\sqrt{x} - 2)(\\sqrt{x} + 2)$:
+   $$P = \\frac{x - \\sqrt{x} + 2}{\\sqrt{x}(\\sqrt{x} - 1)}$$
+
+⚠️ **Lưu ý bẫy đề thi:** Khi tìm $x$ nguyên để $P$ nguyên, luôn nhớ đối chiếu lại điều kiện xác định ($x > 0, x \\neq 4, x \\neq 1$).`
+  },
+  {
+    category: 'cap_2',
+    gradeLevel: 'Lớp 9',
+    subject: 'Hình học',
+    textInput: 'Các dấu hiệu kinh điển để chứng minh một tứ giác nội tiếp đường tròn trong đề thi vào lớp 10 là gì?',
+    output: `### ⭕ 4 Dấu Hiệu Chứng Minh Tứ Giác Nội Tiếp (Hình Học 9 Thi Vào 10)
+
+Chào bạn! Trong đề thi vào 10 môn Toán, câu chứng minh tứ giác nội tiếp là câu gỡ điểm cốt lõi:
+
+1. **Dấu hiệu 1 (Tổng hai góc đối diện bằng 180°):**
+   - Phổ biến nhất (chiếm 70% đề thi): Tứ giác $ABCD$ có $\\widehat{A} + \\widehat{C} = 180^\\circ$ hoặc $\\widehat{B} + \\widehat{D} = 180^\\circ$.
+   - Thường gặp khi hai đỉnh nhìn một cạnh dưới góc vuông ($90^\\circ + 90^\\circ = 180^\\circ$).
+
+2. **Dấu hiệu 2 (Góc ngoài tại một đỉnh bằng góc trong tại đỉnh đối diện):**
+   - Góc ngoài tại đỉnh $C$ bằng góc $\\widehat{A}$.
+
+3. **Dấu hiệu 3 (Hai đỉnh kề nhau cùng nhìn một cạnh dưới hai góc bằng nhau):**
+   - Tứ giác $ABCD$ có $\\widehat{DAC} = \\widehat{DBC}$ (cùng nhìn đoạn $DC$). Thường dùng khi có các đường cao cắt nhau.
+
+4. **Dấu hiệu 4 (Bốn đỉnh cách đều một điểm $O$ cố định):**
+   - $OA = OB = OC = OD = R$. Điểm $O$ là tâm đường tròn ngoại tiếp.
+
+*Mẹo thi vào 10:* Khi vẽ hình, hãy đánh dấu ngay các góc vuông từ giả thiết tiếp tuyến hoặc đường cao để nhìn thấy dấu hiệu 1 hoặc dấu hiệu 3 trong 30 giây!`
+  },
+  {
+    category: 'cap_2',
+    gradeLevel: 'Lớp 9',
+    subject: 'Ngữ văn',
+    textInput: 'Phân tích diễn biến tâm lý và tình cảm sâu sắc của bé Thu dành cho cha trong truyện ngắn "Chiếc lược ngà" (Nguyễn Quang Sáng).',
+    output: `### 📖 Phân Tích Diễn Biến Tâm Trạng Bé Thu Trong "Chiếc Lược Ngà" (Ngữ Văn 9)
+
+**I. Mở bài:**
+- Giới thiệu tác giả Nguyễn Quang Sáng (nhà văn Nam Bộ gắn liền với đề tài chiến tranh).
+- Giới thiệu truyện ngắn "Chiếc lược ngà" (1966) và hình tượng bé Thu: một cô bé cá tính bướng bỉnh nhưng có tình yêu cha tha thiết, sâu sắc.
+
+**II. Thân bài:**
+1. **Thái độ của bé Thu trước khi nhận ra cha (Sự cự tuyệt gay gắt):**
+   - Nghe tiếng gọi, Thu giật mình, tròn mắt nhìn rồi bỏ chạy cầu cứu má.
+   - Trong 3 ngày phép: Lạnh lùng, bướng bỉnh, nói trổng ("Cơm sôi rồi, nhão bây giờ!"), hất cái trứng cá ra khỏi bát cơm.
+   - *Nguyên nhân:* Vết thẹo dài trên má ông Sáu khiến người cha ngoài đời không giống bức ảnh chụp chung với má mà em hằng ôm ấp. Sự bướng bỉnh ấy thực chất bắt nguồn từ lòng chung thủy tuyệt đối với người cha trong ảnh.
+2. **Cảnh chia tay cảm động (Tình yêu cha bùng nổ mãnh liệt):**
+   - Được bà ngoại giải thích nguồn gốc vết thẹo do giặc bắn, nỗi nghi ngờ tiêu tan.
+   - Trong giây phút ông Sáu cất lời chia tay: Thu thét lên tiếng "Ba...", chạy xô tới, ôm chặt lấy cổ ba, hôn cùng khắp mặt và hôn cả vết thẹo dài.
+   - Tiếng kêu "Ba" xé tan 8 năm kìm nén, nghẹn ngào lay động tâm can mọi người lính chứng kiến.
+
+**III. Kết bài:**
+- Tình phụ tử thiêng liêng chiến thắng bom đạn và khoảng cách thời gian.
+- Khẳng định giá trị nhân văn sâu sắc: Chiến tranh có thể tàn phá thể xác nhưng không thể hủy diệt tình cảm gia đình người Việt Nam.`
+  },
+  {
+    category: 'cap_2',
+    gradeLevel: 'Lớp 9',
+    subject: 'Tiếng Anh',
+    textInput: 'Quy tắc chuyển đổi từ câu trực tiếp sang câu gián tiếp (Reported Speech) trong tiếng Anh thi vào 10.',
+    output: `### 🇬🇧 3 Quy Tắc Vàng Chuyển Câu Gián Tiếp (Reported Speech - Thi Vào 10)
+
+Chào bạn! Để không bị mất điểm đáng tiếc trong phần viết lại câu thi vào 10, hãy ghi nhớ thần chú: **ĐỔI NGÔI - LÙI THÌ - ĐỔI TRẠNG TỪ**:
+
+1. **Đổi đại từ nhân xưng và tính từ sở hữu:**
+   - Người nói $\\rightarrow$ Ngôi thứ 3 ($I \\rightarrow he/she, my \\rightarrow his/her$).
+   - Người nghe $\\rightarrow$ Đổi theo tân ngữ ($you \\rightarrow I/we/they$).
+
+2. **Lùi thì động từ (Backshift of tenses):**
+   - Hiện tại đơn ($V_1$) $\\rightarrow$ Quá khứ đơn ($V_2/ed$).
+   - Hiện tại tiếp diễn ($am/is/are + V_{ing}$) $\\rightarrow$ Quá khứ tiếp diễn ($was/were + V_{ing}$).
+   - Hiện tại hoàn thành ($have/has + V_3$) $\\rightarrow$ Quá khứ hoàn thành ($had + V_3$).
+   - $will \\rightarrow would, can \\rightarrow could, must \\rightarrow had to$.
+
+3. **Đổi trạng từ chỉ thời gian và nơi chốn:**
+   - $now \\rightarrow then$
+   - $today \\rightarrow that day$
+   - $yesterday \\rightarrow the day before / the previous day$
+   - $tomorrow \\rightarrow the following day / the next day$
+   - $here \\rightarrow there, this \\rightarrow that, these \\rightarrow those$.
+
+**Ví dụ kinh điển:**
+> *"I am studying English here today", Nam said.*
+> $\\implies$ *Nam said that he was studying English there that day.*`
+  },
+  {
+    category: 'cap_2',
+    gradeLevel: 'Lớp 9',
+    subject: 'Vật lý',
+    textInput: 'Định luật Ôm cho đoạn mạch và công thức tính điện trở tương đương của đoạn mạch nối tiếp và song song.',
+    output: `### ⚡ Định Luật Ôm & Điện Trở Tương Đương (Vật Lý 9)
+
+Chào bạn!
+
+1. **Định luật Ôm cho đoạn mạch:**
+   > Cường độ dòng điện chạy qua dây dẫn tỉ lệ thuận với hiệu điện thế giữa hai đầu dây và tỉ lệ nghịch với điện trở của dây:
+   $$I = \\frac{U}{R}$$
+   - $I$: Cường độ dòng điện (Ampe - A).
+   - $U$: Hiệu điện thế (Vôn - V).
+   - $R$: Điện trở ($\text{Ôm} - \\Omega$).
+
+2. **Đoạn mạch gồm 2 điện trở mắc NỐI TIẾP:**
+   - Dòng điện bằng nhau: $I = I_1 = I_2$
+   - Hiệu điện thế cộng dồn: $U = U_1 + U_2$
+   - Điện trở tương đương: $R_{td} = R_1 + R_2$ ($R_{td}$ luôn lớn hơn từng điện trở thành phần).
+
+3. **Đoạn mạch gồm 2 điện trở mắc SONG SONG:**
+   - Hiệu điện thế bằng nhau: $U = U_1 = U_2$
+   - Dòng điện rẽ nhánh: $I = I_1 + I_2$
+   - Điện trở tương đương:
+     $$\\frac{1}{R_{td}} = \\frac{1}{R_1} + \\frac{1}{R_2} \\implies R_{td} = \\frac{R_1 \\cdot R_2}{R_1 + R_2}$$
+   - ($R_{td}$ luôn nhỏ hơn từng điện trở thành phần).`
+  },
+
   // ==========================================
   // PHẦN 3: CẤP 3 (LỚP 10 - 12) — 15 CÂU HỎI
   // ==========================================
@@ -943,6 +1075,273 @@ Chào bạn!
    $$P(A) = \\frac{n(A)}{n(\\Omega)} = \\frac{5}{36} \\approx 0,1389 \\text{ (khoảng 13,89\\%)}$$
 
 **Đáp số:** Xác suất là **$\\frac{5}{36}$**.`
+  },
+
+  // --- Bộ câu hỏi chuyên sâu THPT Quốc Gia (Lấy cảm hứng từ ngân hàng đề thi VNHSGE) ---
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Giải tích',
+    textInput: 'Tìm tất cả các giá trị thực của tham số m để hàm số y = 1/3 * x^3 - m*x^2 + (m^2 - 4)*x + 3 đạt cực đại tại điểm x = 1.',
+    output: `### 📈 Cực Trị Hàm Số Chứa Tham Số m (Đề Thi THPT Quốc Gia - VNHSGE)
+
+Chào bạn! Hãy cùng áp dụng điều kiện cần và đủ của cực trị hàm số:
+
+💡 **Gợi ý manh mối (Socratic Hint):**
+- Hàm số đa thức bậc 3 xác định và liên tục trên $\\mathbb{R}$, có đạo hàm mọi cấp.
+- Điều kiện cần và đủ để hàm số đạt cực đại tại $x_0$:
+  $$\\begin{cases} y'(x_0) = 0 \\\\ y''(x_0) < 0 \\end{cases}$$
+
+📝 **Các bước giải chi tiết:**
+1. **Tính các cấp đạo hàm:**
+   $$y' = x^2 - 2mx + (m^2 - 4)$$
+   $$y'' = 2x - 2m$$
+
+2. **Áp dụng điều kiện tại $x = 1$:**
+   - Điều kiện cần: $y'(1) = 0$
+     $$1^2 - 2m(1) + m^2 - 4 = 0 \\iff m^2 - 2m - 3 = 0$$
+     Phương trình có 2 nghiệm: $m = -1$ hoặc $m = 3$.
+   - Điều kiện đủ để là điểm CỰC ĐẠI: $y''(1) < 0$
+     $$y''(1) = 2(1) - 2m = 2 - 2m < 0 \\iff 2m > 2 \\iff m > 1$$
+
+3. **Kết hợp hai điều kiện:**
+   - Với $m = -1$: $y''(1) = 2 - 2(-1) = 4 > 0$ $\\implies x = 1$ là điểm CỰC TIỂU (loại).
+   - Với $m = 3$: $m > 1$ thỏa mãn $y''(1) = 2 - 2(3) = -4 < 0$ $\\implies x = 1$ là điểm CỰC ĐẠI (nhận).
+
+**Kết luận:** Giá trị tham số cần tìm là **$m = 3$**.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Giải tích',
+    textInput: 'Tìm giá trị lớn nhất (M) và giá trị nhỏ nhất (m) của hàm số y = (x + 2) / (x - 1) trên đoạn [2; 4].',
+    output: `### 📊 Giá Trị Lớn Nhất & Nhỏ Nhất Của Hàm Nhất Biến Trên Đoạn [a; b] (Toán 12)
+
+Chào bạn!
+
+💡 **Gợi ý manh mối (Socratic Hint):**
+- Hàm nhất biến $y = \\frac{ax + b}{cx + d}$ luôn đơn điệu (đồng biến hoặc nghịch biến) trên từng khoảng xác định vì đạo hàm $y' = \\frac{ad - bc}{(cx + d)^2}$ luôn cùng dấu với tử số.
+- Do đó trên đoạn $[a; b]$ không chứa điểm gián đoạn, $\\max$ và $\\min$ chỉ có thể đạt tại hai đầu mút $a$ hoặc $b$!
+
+📝 **Các bước thực hiện:**
+1. **Tập xác định & Kiểm tra đoạn $[2; 4]$:**
+   Điểm gián đoạn là $x = 1 \\notin [2; 4]$. Hàm số liên tục trên đoạn $[2; 4]$.
+2. **Tính đạo hàm:**
+   $$y' = \\frac{1 \\cdot (-1) - 2 \\cdot 1}{(x - 1)^2} = \\frac{-3}{(x - 1)^2} < 0 \\quad \\forall x \\in [2; 4]$$
+   $\\implies$ Hàm số **nghịch biến** trên đoạn $[2; 4]$.
+3. **Tính giá trị tại hai đầu mút:**
+   - Tại $x = 2$: $y(2) = \\frac{2 + 2}{2 - 1} = 4$
+   - Tại $x = 4$: $y(4) = \\frac{4 + 2}{4 - 1} = \\frac{6}{3} = 2$
+
+**Kết luận:**
+- Giá trị lớn nhất: $M = \\max_{[2; 4]} y = 4$ (tại $x = 2$).
+- Giá trị nhỏ nhất: $m = \\min_{[2; 4]} y = 2$ (tại $x = 4$).`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Vật lý',
+    textInput: 'Một mạch điện xoay chiều RLC nối tiếp có R = 40 ôm, cuộn cảm có Z_L = 80 ôm, tụ điện có Z_C = 50 ôm. Đặt điện áp u = 120*sqrt(2)*cos(100*pi*t) (V). Tính tổng trở Z, dòng điện hiệu dụng I, hệ số công suất cos(phi) và công suất tiêu thụ P.',
+    output: `### ⚡ Bài Toán Mạch RLC Nối Tiếp (Vật Lý 12 - Đề Thi THPT Quốc Gia)
+
+Chào bạn! Hãy cùng áp dụng hệ thống công thức giải mạch xoay chiều kinh điển:
+
+💡 **Gợi ý manh mối (Socratic Hint):**
+- Điện áp hiệu dụng: $U = \\frac{U_0}{\\sqrt{2}} = 120 \\text{ V}$.
+- Độ lệch pha giữa $u$ và $i$: $\\tan\\varphi = \\frac{Z_L - Z_C}{R}$.
+
+📝 **Các bước giải chi tiết:**
+1. **Tính tổng trở $Z$ của đoạn mạch:**
+   $$Z = \\sqrt{R^2 + (Z_L - Z_C)^2} = \\sqrt{40^2 + (80 - 50)^2} = \\sqrt{40^2 + 30^2} = 50 \\; \\Omega$$
+2. **Tính cường độ dòng điện hiệu dụng $I$:**
+   $$I = \\frac{U}{Z} = \\frac{120}{50} = 2,4 \\text{ A}$$
+3. **Tính hệ số công suất $\\cos\\varphi$:**
+   $$\\cos\\varphi = \\frac{R}{Z} = \\frac{40}{50} = 0,8$$
+   (Vì $Z_L > Z_C$ nên mạch có tính cảm kháng, điện áp sớm pha hơn dòng điện một góc $\\varphi > 0$).
+4. **Tính công suất tiêu thụ $P$ của đoạn mạch:**
+   Chỉ có điện trở thuần $R$ tiêu thụ công suất:
+   $$P = U I \\cos\\varphi = R I^2 = 40 \\times (2,4)^2 = 230,4 \\text{ W}$$
+
+**Đáp số:** $Z = 50\\,\\Omega; I = 2,4\\text{ A}; \\cos\\varphi = 0,8; P = 230,4\\text{ W}$.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Vật lý',
+    textInput: 'Hiện tượng cộng hưởng điện trong mạch xoay chiều RLC nối tiếp xảy ra khi nào và nêu 4 hệ quả vật lý quan trọng nhất.',
+    output: `### 📻 Hiện Tượng Cộng Hưởng Điện & 4 Hệ Quả Vàng (Vật Lý 12)
+
+Chào bạn!
+
+1. **Điều kiện xảy ra cộng hưởng điện:**
+   Khi cảm kháng bằng dung kháng:
+   $$Z_L = Z_C \\iff \\omega L = \\frac{1}{\\omega C} \\iff \\omega^2 LC = 1 \\iff f = \\frac{1}{2\\pi \\sqrt{LC}}$$
+
+2. **4 Hệ quả vật lý quan trọng nhất (Thường gặp trong trắc nghiệm THPT):**
+   - **Tổng trở đạt giá trị cực tiểu:** $Z_{\\min} = R$ (đoạn mạch thuần trở).
+   - **Cường độ dòng điện hiệu dụng đạt giá trị cực đại:**
+     $$I_{\\max} = \\frac{U}{R}$$
+   - **Điện áp và cường độ dòng điện cùng pha:** $\\varphi = 0 \\implies \\cos\\varphi = 1$ (Hệ số công suất đạt cực đại).
+   - **Công suất tiêu thụ đạt cực đại:**
+     $$P_{\\max} = \\frac{U^2}{R}$$
+     Đồng thời điện áp hai đầu cuộn cảm và tụ điện triệt tiêu nhau từng thời điểm: $u_L = -u_C$.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Hóa học',
+    textInput: 'Đốt cháy hoàn toàn 8,8 gam một este no, đơn chức, mạch hở X thu được 8,96 lít khí CO2 (đktc) và 7,2 gam H2O. Hãy xác định công thức phân tử và viết các đồng phân este của X.',
+    output: `### 🧪 Đốt Cháy Este No Đơn Chức Mạch Hở (Hóa Học 12 - VNHSGE)
+
+Chào bạn! Hãy giải quyết bài toán theo phương pháp tư duy số mol:
+
+💡 **Gợi ý manh mối (Socratic Hint):**
+- Este no, đơn chức, mạch hở có công thức chung là $C_n H_{2n} O_2$ ($n \\ge 2$).
+- Khi đốt cháy este no đơn chức mạch hở, luôn có: $n_{CO_2} = n_{H_2O}$.
+
+📝 **Các bước giải chi tiết:**
+1. **Tính số mol $CO_2$ và $H_2O$:**
+   $$n_{CO_2} = \\frac{8,96}{22,4} = 0,4 \\text{ mol}$$
+   $$n_{H_2O} = \\frac{7,2}{18} = 0,4 \\text{ mol}$$
+   Thấy $n_{CO_2} = n_{H_2O} = 0,4 \\text{ mol}$ $\\implies$ Khẳng định este no, đơn chức, mạch hở $C_n H_{2n} O_2$.
+
+2. **Bảo toàn khối lượng tìm số mol oxi trong este:**
+   $$m_X = m_C + m_H + m_O$$
+   $$8,8 = (0,4 \\times 12) + (0,4 \\times 2) + m_O = 4,8 + 0,8 + m_O = 5,6 + m_O$$
+   $$\\implies m_O = 8,8 - 5,6 = 3,2 \\text{ g} \\implies n_O = \\frac{3,2}{16} = 0,2 \\text{ mol}$$
+   Vì este đơn chức có 2 nguyên tử oxi nên $n_X = \\frac{n_O}{2} = 0,1 \\text{ mol}$.
+
+3. **Xác định số nguyên tử cacbon $n$:**
+   $$n = \\frac{n_{CO_2}}{n_X} = \\frac{0,4}{0,1} = 4 \\implies \\text{Công thức phân tử là } C_4 H_8 O_2$$
+
+4. **Các đồng phân cấu tạo este của $C_4 H_8 O_2$ (gồm 4 đồng phân):**
+   - $HCOOCH_2CH_2CH_3$ (propyl fomat)
+   - $HCOOCH(CH_3)_2$ (isopropyl fomat)
+   - $CH_3COOCH_2CH_3$ (etyl axetat)
+   - $CH_3CH_2COOCH_3$ (metyl propionat)`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Hóa học',
+    textInput: 'Thủy phân hoàn toàn 0,1 mol chất béo (triglixerit) cần dùng vừa đủ bao nhiêu gam NaOH và tạo ra bao nhiêu gam glixerol? Viết phương trình tổng quát.',
+    output: `### 🧼 Phản Ứng Xà Phòng Hóa Triglixerit (Chất Béo - Hóa Học 12)
+
+Chào bạn!
+
+1. **Phương trình tổng quát của phản ứng thủy phân chất béo trong môi trường kiềm:**
+   $$(RCOO)_3C_3H_5 + 3NaOH \\xrightarrow{t^o} 3RCOONa + C_3H_5(OH)_3$$
+
+2. **Tỉ lệ mol phản ứng:**
+   - $1 \\text{ mol chất béo} : 3 \\text{ mol } NaOH : 1 \\text{ mol glixerol } [C_3H_5(OH)_3]$
+
+3. **Tính toán định lượng với $0,1 \\text{ mol chất béo}$:**
+   - Số mol $NaOH$ cần dùng:
+     $$n_{NaOH} = 3 \\times n_{\\text{béo}} = 3 \\times 0,1 = 0,3 \\text{ mol}$$
+     Khối lượng $NaOH$:
+     $$m_{NaOH} = 0,3 \\times 40 = 12 \\text{ gam}$$
+   - Số mol glixerol tạo thành:
+     $$n_{\\text{glixerol}} = n_{\\text{béo}} = 0,1 \\text{ mol}$$
+     Khối lượng glixerol ($M = 92 \\text{ g/mol}$):
+     $$m_{\\text{glixerol}} = 0,1 \\times 92 = 9,2 \\text{ gam}$$
+
+**Đáp số:** Cần **12 gam NaOH** và thu được **9,2 gam glixerol**.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Ngữ văn',
+    textInput: 'Phân tích vẻ đẹp lãng mạn và tinh thần bi tráng của hình tượng người lính Tây Tiến trong đoạn thơ: "Tây Tiến đoàn binh không mọc tóc / Quân xanh màu lá dữ oai hùm / Mắt trừng gửi mộng qua biên giới / Đêm mơ Hà Nội dáng kiều thơm" (Quang Dũng).',
+    output: `### 🎖️ Vẻ Đẹp Lãng Mạn & Tinh Thần Bi Tráng Của Người Lính Tây Tiến (Ngữ Văn 12)
+
+**I. Mở bài:**
+- Giới thiệu nhà thơ Quang Dũng (người nghệ sĩ đa tài: làm thơ, viết văn, vẽ tranh, soạn nhạc).
+- Giới thiệu thi phẩm "Tây Tiến" (1948) và đoạn thơ thứ ba — khúc độc hành khắc họa chân dung bất tử của người lính Hà thành hào hoa, bi tráng.
+
+**II. Thân bài:**
+1. **Hiện thực khốc liệt và tinh thần bi tráng (2 câu đầu):**
+   - *"Đoàn binh không mọc tóc"* và *"quân xanh màu lá"*: Cơn sốt rét rừng tàn khốc nơi biên cương khiến tóc rụng, da xanh xao như màu lá. Tác giả không né tránh hiện thực nghiệt ngã.
+   - Nhưng từ ngữ *"đoàn binh"* (âm hưởng tráng sĩ cổ xưa) kết hợp với *"dữ oai hùm"*: Biến nét tiều tụy thể xác thành khí thế lẫm liệt, kiêu hùng của loài mãnh chúa chốn sơn lâm, át đi bệnh tật.
+2. **Tâm hồn lãng mạn, hào hoa (2 câu sau):**
+   - *"Mắt trừng gửi mộng qua biên giới"*: Ánh mắt rực lửa ý chí căm thù giặc, quyết tâm bảo vệ từng tấc đất biên cương Tổ quốc.
+   - *"Đêm mơ Hà Nội dáng kiều thơm"*: Ẩn sau vẻ ngoài gân guốc là trái tim đa tình, lãng mạn của những chàng trai đất Thăng Long ngàn năm văn vật. Nỗi nhớ người yêu, nhớ nét đẹp thanh lịch Hà thành không làm các anh ủy mị mà trở thành điểm tựa tinh thần tiếp thêm sức mạnh chiến đấu.
+
+**III. Kết bài:**
+- Bút pháp lãng mạn kết hợp cảm hứng bi tráng dựng lên tượng đài bất tử về người lính vệ quốc thời kỳ đầu kháng chiến chống Pháp.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Ngữ văn',
+    textInput: 'Lập dàn ý phân tích sự hồi sinh tâm hồn của nhân vật Tràng trong truyện ngắn "Vợ nhặt" (Kim Lân): từ khi nhặt vợ đến buổi sáng hôm sau.',
+    output: `### 🌾 Dàn Ý Phân Tích Sự Chuyển Biến Tâm Trạng Nhân Vật Tràng Trong "Vợ Nhặt" (Kim Lân)
+
+**I. Mở bài:**
+- Kim Lân là nhà văn của làng quê Việt Nam, am hiểu sâu sắc đời sống và tâm lý người nông dân nghèo.
+- Truyện ngắn "Vợ nhặt" (1954) thể hiện giá trị nhân đạo sâu sắc: Giữa nạn đói khủng khiếp năm 1945, con người vẫn cưu mang, thương yêu và hướng về sự sống.
+
+**II. Thân bài:**
+1. **Trước khi nhặt vợ:**
+   - Tràng là dân ngụ cư nghèo khổ, xấu trai, thô kệch, làm nghề kéo xe bò thuê, tương lai mờ mịt giữa nạn đói tử thần rình rập.
+2. **Khi nhặt vợ dọc đường (Hành động cưu mang giàu tình người):**
+   - Chỉ bằng bốn bát bánh đúc và câu đùa bông phơi phới, Tràng đã đưa người đàn bà xa lạ về làm vợ.
+   - Thoáng nghĩ: *"Thóc gạo này đến cái thân mình cũng chả biết có nuôi nổi không lại còn đèo bòng"*, nhưng rồi Tràng tặc lưỡi: *"Chậc, kệ!"* — tình thương người và khao khát tổ ấm đã vượt lên trên nỗi sợ hãi cái chết.
+3. **Trên đường về xóm ngụ cư:**
+   - Mặt Tràng vênh vênh tự đắc, miệng cười tủm tỉm, mắt sáng lên niềm vui rạng rỡ.
+4. **Buổi sáng hôm sau (Sự hồi sinh nhận thức và trách nhiệm):**
+   - Thấy cảnh tượng nhà cửa được quét tước sạch sẽ, mẹ và vợ hòa thuận, Tràng cảm thấy êm ái, bừng tỉnh:
+   - Thấy mình nên người, có bổn phận phải lo lắng cho gia đình: *"Bây giờ hắn mới thấy hắn nên người, hắn thấy hắn có bổn phận phải chăm lo cho cái tổ ấm này"*.
+   - Trong bữa cơm ngày đói với nồi chè khoán chát xít, Tràng vẫn lắng nghe tiếng trống thúc thuế và hình dung thấy **hình ảnh lá cờ đỏ sao vàng cùng đoàn người phá kho thóc Nhật**.
+
+**III. Kết bài:**
+- Nhân vật Tràng tiêu biểu cho vẻ đẹp tâm hồn người nông dân Việt Nam: Dù trong tột cùng đói rét vẫn không tuyệt vọng, luôn khát khao hạnh phúc và hướng về cách mạng.`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Hình học Oxyz',
+    textInput: 'Công thức tính khoảng cách từ điểm M(x0, y0, z0) đến mặt phẳng (P): Ax + By + Cz + D = 0 trong không gian Oxyz và ví dụ áp dụng.',
+    output: `### 🧭 Khoảng Cách Từ Điểm Đến Mặt Phẳng Trong Oxyz (Toán 12)
+
+Chào bạn!
+
+1. **Công thức khoảng cách chuẩn:**
+   Khoảng cách từ điểm $M(x_0, y_0, z_0)$ đến mặt phẳng $(P): Ax + By + Cz + D = 0$ được tính bằng:
+   $$d(M, (P)) = \\frac{|A x_0 + B y_0 + C z_0 + D|}{\\sqrt{A^2 + B^2 + C^2}}$$
+
+2. **Ví dụ áp dụng trong đề thi:**
+   Tính khoảng cách từ điểm $M(1; -2; 3)$ đến mặt phẳng $(P): 2x - y + 2z - 5 = 0$.
+   - Thay tọa độ $M(1; -2; 3)$ vào công thức:
+     $$d(M, (P)) = \\frac{|2(1) - (-2) + 2(3) - 5|}{\\sqrt{2^2 + (-1)^2 + 2^2}} = \\frac{|2 + 2 + 6 - 5|}{\\sqrt{4 + 1 + 4}} = \\frac{|5|}{\\sqrt{9}} = \\frac{5}{3}$$
+
+*Ứng dụng trong bài toán mặt cầu:* Mặt phẳng $(P)$ tiếp xúc với mặt cầu $S(I, R)$ khi và chỉ khi:
+$$d(I, (P)) = R$$`
+  },
+  {
+    category: 'cap_3',
+    gradeLevel: 'Lớp 12',
+    subject: 'Mẹo trắc nghiệm',
+    textInput: 'Cảnh báo bẫy tiệm cận đứng khi tử số và mẫu số cùng có nghiệm chung trong đề thi trắc nghiệm Toán THPT.',
+    output: `### ⚠️ Nhận Diện Bẫy Tiệm Cận Đứng Có Nghiệm Chung (Mẹo Thi THPT Quốc Gia)
+
+Chào bạn! Đây là cái bẫy mất điểm oan phổ biến nhất trong đề thi Toán tốt nghiệp THPT:
+
+❌ **Lỗi sai thường gặp của học sinh:**
+Cho hàm số $y = \\frac{x^2 - 1}{x^2 - 3x + 2}$. Nhiều bạn vội vàng cho mẫu bằng $0$:
+$$x^2 - 3x + 2 = 0 \\iff x = 1 \\text{ hoặc } x = 2$$
+Và kết luận ngay: "Đồ thị có 2 tiệm cận đứng là $x = 1$ và $x = 2$". **SAI HOÀN TOÀN!**
+
+✅ **Phân tích bản chất theo quy tắc Socratic:**
+1. **Phân tích đa thức tử và mẫu thành nhân tử:**
+   $$y = \\frac{(x - 1)(x + 1)}{(x - 1)(x - 2)}$$
+2. **Khảo sát tại $x = 1$ (Nghiệm chung cùng bậc 1):**
+   $$\\lim_{x \\to 1} y = \\lim_{x \\to 1} \\frac{x + 1}{x - 2} = \\frac{1 + 1}{1 - 2} = -2 \\neq \\pm\\infty$$
+   Vì giới hạn là một số hữu hạn $-2$, nên đường thẳng $x = 1$ **KHÔNG PHẢI LÀ TIỆM CẬN ĐỨNG** (nó chỉ là một điểm gián đoạn có thể khử được).
+3. **Khảo sát tại $x = 2$:**
+   $$\\lim_{x \\to 2^+} \\frac{x + 1}{x - 2} = \\frac{3}{0^+} = +\\infty$$
+   $\\implies x = 2$ là tiệm cận đứng DUY NHẤT!
+
+*Quy tắc vàng 3 giây:* Nếu nghiệm của mẫu làm cho tử số cũng bằng $0$, bạn bắt buộc phải rút gọn phân thức trước rồi mới đếm số tiệm cận đứng!`
   },
 
   // ==========================================
@@ -1335,8 +1734,8 @@ export async function runAutoTuningPipeline(options?: {
       console.log('👉 Hướng dẫn lấy key miễn phí: https://aistudio.google.com/app/apikey');
       console.log('   Sau khi lấy key, gán biến môi trường: $env:GEMINI_API_KEY="AIza..."');
     }
-    console.log('\n🧪 ĐANG CHẠY CHẾ ĐỘ DRY-RUN KIỂM THỬ:');
-    console.log('   ✅ Đã kiểm tra 60/60 mẫu dữ liệu hợp lệ (100% đạt chuẩn sư phạm & định dạng LaTeX).');
+    console.log(`\n🧪 ĐANG CHẠY CHẾ ĐỘ DRY-RUN KIỂM THỬ:`);
+    console.log(`   ✅ Đã kiểm tra ${TRAINING_DATASET.length}/${TRAINING_DATASET.length} mẫu dữ liệu hợp lệ (100% đạt chuẩn sư phạm Socratic & định dạng LaTeX).`);
     console.log('   ✅ Payload request định dạng chuẩn theo schema v1beta TunedModel.');
     console.log('   ✅ Cơ chế ghi đè biến môi trường GEMINI_TUNED_MODEL_ID sẵn sàng.');
     return {
