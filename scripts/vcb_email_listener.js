@@ -32,7 +32,7 @@
 
 function checkVietcombankEmails() {
   const SECRET_KEY = "POMO_VCB_SECRET_KEY_2026";
-  const WEBHOOK_URL = "https://pomodoro-workspace-three.vercel.app/api/payment/vcb-webhook";
+  const WEBHOOK_URL = "https://pomofocus-workspace.vercel.app/api/payment/vcb-webhook";
 
   try {
     // 1. Tìm đúng email từ Vietcombank (cả biên lai điện tử và biến động số dư)

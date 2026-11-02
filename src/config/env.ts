@@ -7,5 +7,9 @@ export const SUPABASE_URL =
 export const SUPABASE_ANON_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_vEKa2sV_9AW2CNIzxCzIKA_nzKo79b-';
 
+// Domain phát hành chính thức trên Vercel
+export const PRODUCTION_DOMAIN = 'pomofocus-workspace.vercel.app';
+export const PRODUCTION_URL = `https://${PRODUCTION_DOMAIN}`;
+
 // BẬT CỨNG TRUE: Tuyệt đối không cho phép fallback về false
 export const IS_SUPABASE_MEET_ENABLED = true;

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE_URL = process.argv[2] || 'https://pomodoro-workspace-three.vercel.app';
+const BASE_URL = process.argv[2] || 'https://pomofocus-workspace.vercel.app';
 const ARTIFACT_DIR = 'C:/Users/Nam/.gemini/antigravity/brain/f0e4fa42-ea0b-4ff3-83da-6875921843c2';
 
 async function testP2PTwoWindows() {

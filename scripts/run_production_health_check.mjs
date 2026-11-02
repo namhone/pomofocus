@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE_URL = 'https://pomodoro-workspace-three.vercel.app';
+const BASE_URL = 'https://pomofocus-workspace.vercel.app';
 
 async function auditProduction() {
   console.log(`\n============================================================`);

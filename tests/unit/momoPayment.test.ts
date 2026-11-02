@@ -76,11 +76,11 @@ describe('MoMo & Vietcombank Payment & Account Linking Service Tests', () => {
       accessKey,
       amount: 59000,
       extraData: 'eyJ1c2VySWQiOiJ1c3JfMDEifQ==',
-      ipnUrl: 'https://pomodoro-workspace-three.vercel.app/api/momo/ipn',
+      ipnUrl: 'https://pomofocus-workspace.vercel.app/api/momo/ipn',
       orderId: 'POMO_123456',
       orderInfo: 'Nang cap PRO',
       partnerCode: 'MOMOBKUN20180529',
-      redirectUrl: 'https://pomodoro-workspace-three.vercel.app/billing',
+      redirectUrl: 'https://pomofocus-workspace.vercel.app/billing',
       requestId: 'REQ_123',
       requestType: 'captureWallet',
       secretKey

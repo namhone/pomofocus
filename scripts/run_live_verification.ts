@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const LIVE_URL = 'https://pomodoro-workspace-three.vercel.app';
+const LIVE_URL = 'https://pomofocus-workspace.vercel.app';
 const ARTIFACT_DIR = 'C:/Users/Nam/.gemini/antigravity/brain/f0e4fa42-ea0b-4ff3-83da-6875921843c2';
 
 async function verifyLive() {

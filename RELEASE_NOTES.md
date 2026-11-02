@@ -2,7 +2,7 @@
 
 Chào mừng phiên bản phát hành chính thức đầu tiên của **PomoFocus Workspace** — Không gian học tập ảo tối giản, tập trung cao độ lấy cảm hứng từ LifeAt, Vercel và Linear.
 
-🌐 **Trang web chính thức:** [pomodoro-workspace-three.vercel.app](https://pomodoro-workspace-three.vercel.app)
+🌐 **Trang web chính thức:** [pomofocus-workspace.vercel.app](https://pomofocus-workspace.vercel.app)
 
 ---
 

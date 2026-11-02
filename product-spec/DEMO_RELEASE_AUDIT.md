@@ -2,7 +2,7 @@
 
 > **Trạng thái:** ĐÃ DEPLOY CHÍNH THỨC BẢN DEMO BETA (Production Live)  
 > **Phiên bản:** PomoFocus v1.2.0-beta  
-> **Production URL:** [https://pomodoro-workspace-three.vercel.app](https://pomodoro-workspace-three.vercel.app)  
+> **Production URL:** [https://pomofocus-workspace.vercel.app](https://pomofocus-workspace.vercel.app)  
 > **Môi trường:** Vercel Global Edge Network / Local-First IndexedDB / PWA  
 > **Quy định phát hành:** TUYỆT ĐỐI KHÔNG THU TIỀN THẬT — TỰ ĐỘNG CẤP PRO BETA 3 NĂM  
 

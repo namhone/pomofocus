@@ -30,19 +30,19 @@ describe('Google OAuth Supabase & PWA Install Store Unit Tests', () => {
       const originalLocation = window.location;
       delete (window as any).location;
       window.location = {
-        href: 'https://pomodoro-workspace-three.vercel.app/login',
-        origin: 'https://pomodoro-workspace-three.vercel.app',
+        href: 'https://pomofocus-workspace.vercel.app/login',
+        origin: 'https://pomofocus-workspace.vercel.app',
       } as any;
 
       const res = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://pomodoro-workspace-three.vercel.app/app',
+          redirectTo: 'https://pomofocus-workspace.vercel.app/app',
         },
       });
 
       expect(res.data?.url).toContain('/auth/v1/authorize?provider=google');
-      expect(res.data?.url).toContain(encodeURIComponent('https://pomodoro-workspace-three.vercel.app/app'));
+      expect(res.data?.url).toContain(encodeURIComponent('https://pomofocus-workspace.vercel.app/app'));
       expect(res.error).toBeNull();
 
       window.location = originalLocation;

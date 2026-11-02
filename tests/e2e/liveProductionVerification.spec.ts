@@ -1,6 +1,6 @@
 import { test, expect, chromium } from '@playwright/test';
 
-const PROD_URL = 'https://pomodoro-workspace-three.vercel.app';
+const PROD_URL = 'https://pomofocus-workspace.vercel.app';
 const ARTIFACT_DIR = 'C:/Users/Nam/.gemini/antigravity/brain/f0e4fa42-ea0b-4ff3-83da-6875921843c2';
 
 test.describe('Live Production E2E Verification Suite', () => {

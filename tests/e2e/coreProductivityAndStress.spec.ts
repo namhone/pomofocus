@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const TARGET_URL = process.env.TEST_TARGET_URL || 'https://pomodoro-workspace-three.vercel.app';
+const TARGET_URL = process.env.TEST_TARGET_URL || 'https://pomofocus-workspace.vercel.app';
 
 test.describe('CORE PRODUCTIVITY & STRESS-TEST ENGINE (E2E PLAYWRIGHT)', () => {
   // =========================================================================
