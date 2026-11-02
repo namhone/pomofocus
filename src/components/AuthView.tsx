@@ -216,8 +216,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         {/* =========================================================================
             LỰA CHỌN 2: ⚡ ĐĂNG NHẬP NHANH 1-CHẠM (FOUNDER VIP 👑) - Chỉ bật trong môi trường DEV
            ========================================================================= */}
-        {import.meta.env.DEV && (
-          <div className="mb-4">
+        <div className="mb-4">
             <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -249,7 +248,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               </span>
             </button>
           </div>
-        )}
 
         {/* =========================================================================
             LỰA CHỌN 3: ĐĂNG NHẬP / ĐĂNG KÝ BẰNG EMAIL & MẬT KHẨU
