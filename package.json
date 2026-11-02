@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "ai:train": "tsx scripts/autoTrainGiaSu.ts"
   },
   "dependencies": {
     "dexie": "4.0.11",

@@ -87,12 +87,17 @@ export default async function handler(req: any, res: any) {
 
     let reply = '';
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
+    const tunedModelId = process.env.GEMINI_TUNED_MODEL_ID || process.env.VITE_GEMINI_TUNED_MODEL_ID || '';
 
-    // 3. Nếu có API Key, gọi trực tiếp Gemini 1.5 Flash qua Google Generative AI REST endpoint
+    // 3. Nếu có API Key, gọi trực tiếp Gemini qua Google Generative AI REST endpoint
     if (apiKey) {
       try {
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(geminiUrl, {
+        const modelEndpoint = tunedModelId
+          ? (tunedModelId.startsWith('tunedModels/') ? tunedModelId : `tunedModels/${tunedModelId}`)
+          : 'models/gemini-1.5-flash';
+        let geminiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelEndpoint}:generateContent?key=${apiKey}`;
+
+        let response = await fetch(geminiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -113,6 +118,33 @@ export default async function handler(req: any, res: any) {
             }
           })
         });
+
+        // Nếu Tuned Model trả về lỗi (chưa kích hoạt xong hoặc không tìm thấy), tự động fallback về gemini-1.5-flash
+        if (!response.ok && tunedModelId) {
+          console.warn(`[Gemini API] Tuned model ${tunedModelId} failed (status ${response.status}), fallback sang gemini-1.5-flash`);
+          geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+          response = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: userContent }]
+                }
+              ],
+              systemInstruction: {
+                parts: [{ text: SYSTEM_INSTRUCTION }]
+              },
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2048
+              }
+            })
+          });
+        }
 
         if (response.ok) {
           const data = await response.json();
