@@ -12,6 +12,42 @@ const ACTION_COSTS: Record<'chat' | 'summarize' | 'quiz', number> = {
   quiz: 10
 };
 
+export function isGreetingIntent(text: string): boolean {
+  if (!text) return false;
+  const normalized = text
+    .trim()
+    .toLowerCase()
+    .replace(/[!.,?~^;:_+\-*@#%&/\\()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const exactGreetings = new Set([
+    'chao', 'chào', 'xin chao', 'xin chào', 'hi', 'hello', 'alo', 'alo bạn', 'alo ban',
+    'ê', 'e', 'hey', 'helo', 'chào bạn', 'chao ban', 'chào b', 'chao b', 'chào em',
+    'chao em', 'chào thầy', 'chao thay', 'chào cô', 'chao co', 'hế lô', 'he lo',
+    'good morning', 'hi bạn', 'hi ban', 'chào ad', 'chao ad', 'chào bot', 'chao bot',
+    'chào gia sư', 'chao gia su', 'yo', 'hê lô', 'chào bạn nhé', 'chào b nhé', 'chao ban nhe'
+  ]);
+
+  if (exactGreetings.has(normalized)) return true;
+
+  if (
+    normalized.length <= 25 &&
+    (normalized.startsWith('chào ') ||
+      normalized.startsWith('chao ') ||
+      normalized.startsWith('xin chào ') ||
+      normalized.startsWith('xin chao ') ||
+      normalized.startsWith('hi ') ||
+      normalized.startsWith('hello ') ||
+      normalized.startsWith('hey ') ||
+      normalized.startsWith('alo '))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 const SYSTEM_INSTRUCTION = `Bạn là Trợ lý Học Tập AI Đồng Hành (PomoFocus AI Study Companion) — một gia sư học tập thông minh, kiên nhẫn, chuẩn mực sư phạm và truyền cảm hứng, thấm nhuần triết lý sư phạm Socratic từ Mr. Ranedeer AI Tutor.
 
 Nhiệm vụ và Nguyên tắc Sư phạm của bạn:
@@ -36,8 +72,11 @@ Nhiệm vụ và Nguyên tắc Sư phạm của bạn:
    - Với tác vụ TÓM TẮT (summarize): Trích xuất 3-5 ý cốt lõi quan trọng nhất, dùng bullet points ngắn gọn, rõ ràng, không lan man.
    - Với tác vụ TRẮC NGHIỆM (quiz): Tạo đúng 10 câu hỏi trắc nghiệm (A, B, C, D) ôn tập Pomodoro và phương pháp học tập kèm đáp án đúng và phần giải thích ngắn vì sao đáp án đó chính xác.
 
-5. PHONG THÁI:
-   - Luôn tôn trọng mọi câu hỏi dù là đơn giản nhất, giữ thái độ động viên, tích cực và thúc đẩy tinh thần tự học kiên trì theo triết lý Pomodoro Focus.`;
+5. PHONG THÁI & CHÀO HỎI THÂN THIỆN:
+   - Luôn tôn trọng mọi câu hỏi dù là đơn giản nhất, giữ thái độ động viên, tích cực và thúc đẩy tinh thần tự học kiên trì theo triết lý Pomodoro Focus.
+   - Khi học sinh gửi câu chào hỏi ngắn (ví dụ: "xin chào", "chào bạn", "hi", "hello", "alo", "ê",...):
+     Hãy đáp lại tự nhiên, nhiệt tình và thân thiện: "Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?"
+     Tuyệt đối KHÔNG ĐƯỢC lôi công thức toán học số e hay thuật toán chia để trị ra trả lời câu chào hỏi.`;
 
 export default async function handler(req: any, res: any) {
   // CORS Headers
@@ -88,7 +127,20 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    // 2. Chuẩn bị prompt gửi đến mô hình Gemini
+    // 2. Nhận diện câu chào hỏi (Greeting Intent) xử lý tự nhiên tức thì
+    if (actionType === 'chat' && isGreetingIntent(prompt)) {
+      const greetingReply =
+        'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
+      return res.status(200).json({
+        success: true,
+        reply: greetingReply,
+        creditsDeducted: cost,
+        actionType,
+        remainingCredits: currentCredits - cost
+      });
+    }
+
+    // 3. Chuẩn bị prompt gửi đến mô hình Gemini
     let userContent = prompt;
     if (actionType === 'summarize') {
       userContent = `Hãy tóm tắt ngắn gọn và làm nổi bật các ý chính quan trọng nhất của ghi chú sau đây:\n\n"""\n${
@@ -104,7 +156,7 @@ export default async function handler(req: any, res: any) {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
     const tunedModelId = process.env.GEMINI_TUNED_MODEL_ID || process.env.VITE_GEMINI_TUNED_MODEL_ID || '';
 
-    // 3. Nếu có API Key, gọi trực tiếp Gemini qua Google Generative AI REST endpoint
+    // 4. Nếu có API Key, gọi trực tiếp Gemini qua Google Generative AI REST endpoint
     if (apiKey) {
       try {
         const modelEndpoint = tunedModelId
@@ -172,7 +224,7 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 4. Fallback thông minh theo chuẩn sư phạm nếu không có key hoặc offline/sandbox
+    // 5. Fallback thông minh theo chuẩn sư phạm nếu không có key hoặc offline/sandbox
     if (!reply) {
       if (actionType === 'summarize') {
         reply = `### 📋 Tóm Tắt Trọng Tâm Bài Học\n\n${
@@ -181,7 +233,14 @@ export default async function handler(req: any, res: any) {
       } else if (actionType === 'quiz') {
         reply = `### 🎯 10 Câu Hỏi Trắc Nghiệm Ôn Tập Pomodoro & Kỹ Năng Học Tập\n\n**Câu 1:** Chu kỳ Pomodoro tiêu chuẩn kéo dài bao nhiêu phút tập trung và nghỉ ngơi?\n- A. 45 phút tập trung, 15 phút nghỉ\n- B. 25 phút tập trung, 5 phút nghỉ ngắn\n- C. 60 phút tập trung, 10 phút nghỉ\n- D. 30 phút tập trung, không nghỉ\n\n*Đáp án đúng:* **B** — Chu kỳ 25/5 được thiết kế tối ưu hóa sự chú ý bền vững theo nhịp sinh học não bộ.\n\n---\n**Câu 2:** Sau bao nhiêu phiên Pomodoro liên tiếp thì nên có một khoảng nghỉ dài (15–30 phút)?\n- A. 2 phiên\n- B. 4 phiên\n- C. 6 phiên\n- D. 8 phiên\n\n*Đáp án đúng:* **B** — 4 chu kỳ (tổng cộng 100 phút tập trung) là ngưỡng giới hạn sinh lý cần thiết lập lại năng lượng nhận thức.\n\n---\n**Câu 3:** Khái niệm "Diffuse Mode" (Chế độ tư duy phân tán) của Barbara Oakley được kích hoạt khi nào?\n- A. Khi đang giải bài toán hóc búa\n- B. Trong lúc nghỉ ngơi 5 phút, đi dạo nhẹ nhàng hoặc thả lỏng\n- C. Khi đang đọc tài liệu chuyên ngành\n- D. Khi thức khuya học bài\n\n*Đáp án đúng:* **B** — Trạng thái thư giãn giúp não kích hoạt mạng lưới Default Mode Network để kết nối các khái niệm tiềm thức.\n\n---\n**Câu 4:** Khi bị xao nhãng hoặc có ý nghĩ đột xuất nảy ra trong phiên Pomodoro, hành động chuẩn mực nhất là gì?\n- A. Dừng ngay đồng hồ để làm việc đó\n- B. Ghi chú nhanh vào sổ nháp/tasks nháp rồi tiếp tục tập trung\n- C. Bỏ qua hoàn toàn và không ghi lại\n- D. Chuyển sang lướt điện thoại\n\n*Đáp án đúng:* **B** — Kỹ thuật "Parking Lot" giúp giải phóng bộ nhớ làm việc mà không làm đứt đoạn dòng chảy tập trung.\n\n---\n**Câu 5:** Định luật Parkinson trong quản lý thời gian phát biểu điều gì?\n- A. Thời gian luôn cố định cho mọi nhiệm vụ\n- B. Công việc sẽ tự động mở rộng để lấp đầy khoảng thời gian được ấn định cho nó\n- C. Càng nhiều thời gian thì chất lượng công việc càng cao\n- D. Làm việc càng nhanh thì sai sót càng nhiều\n\n*Đáp án đúng:* **B** — Áp dụng các phiên Pomodoro 25 phút giúp siết chặt khung thời gian, ngăn ngừa sự trì hoãn.\n\n---\n**Câu 6:** Nguyên lý Pareto (Quy tắc 80/20) trong ôn thi kiến nghị điều gì?\n- A. Dành 80% thời gian cho 20% kiến thức cốt lõi tạo ra 80% điểm số\n- B. Học 80 câu hỏi ngẫu nhiên trong đề cương\n- C. Đọc sách trong 80 phút rồi nghỉ 20 phút\n- D. Bỏ qua 80% tài liệu mà không cần chọn lọc\n\n*Đáp án đúng:* **A** — Xác định trọng tâm "High-Yield Topics" là chìa khóa tối ưu hóa điểm số trong thời gian hữu hạn.\n\n---\n**Câu 7:** Phương pháp lặp lại ngắt quãng (Spaced Repetition) dựa trên mô hình toán học nào của Hermann Ebbinghaus?\n- A. Đường cong tăng trưởng hàm mũ\n- B. Đường cong quên lãng: $R = e^{-\\frac{t}{S}}$\n- C. Phân phối chuẩn Gauss\n- D. Định lý giới hạn trung tâm\n\n*Đáp án đúng:* **B** — Ôn tập lặp lại tại các mốc thời gian cách đều giúp giảm độ dốc của đường cong quên lãng, chuyển kiến thức vào trí nhớ dài hạn.\n\n---\n**Câu 8:** Kỹ thuật Feynman trong học sâu bao gồm bước cốt lõi nào?\n- A. Đọc thuộc lòng từ đầu đến cuối sách giáo khoa\n- B. Giải thích khái niệm phức tạp cho một người mới (hoặc đứa trẻ 10 tuổi) bằng ngôn ngữ bình dị nhất\n- C. Sử dụng từ ngữ hàn lâm chuyên sâu nhất có thể\n- D. Làm thật nhiều bài tập mà không cần hiểu bản chất\n\n*Đáp án đúng:* **B** — Nếu bạn không thể giải thích đơn giản, nghĩa là bạn chưa thực sự hiểu rõ nguyên lý.\n\n---\n**Câu 9:** Hiện tượng "Sự kiệt quệ ý chí" (Ego Depletion) nhắc nhở chúng ta điều gì khi sắp xếp lịch Pomodoro?\n- A. Nên học việc khó nhất (Deep Work) vào đầu ngày khi năng lượng não bộ còn dồi dào\n- B. Để bài tập khó nhất vào lúc nửa đêm\n- C. Không bao giờ cần nạp năng lượng\n- D. Ý chí là vô hạn và không suy giảm\n\n*Đáp án đúng:* **A** — Ý chí và khả năng tự kiểm soát tiêu hao năng lượng glucose của vỏ não trước trán, vì vậy nên ưu tiên tác vụ nặng nhất vào buổi sáng.\n\n---\n**Câu 10:** Trong Pomodoro, nếu bạn hoàn thành mục tiêu khi đồng hồ mới chạy được 15 phút, bạn nên làm gì?\n- A. Tắt ngay đồng hồ và kết thúc phiên\n- B. Sử dụng 10 phút còn lại để rà soát (Overlearning), kiểm tra lại kết quả và tinh gọn ghi chú\n- C. Bật mạng xã hội chơi cho hết giờ\n- D. Bắt đầu ngay một môn học hoàn toàn mới mà không nghỉ\n\n*Đáp án đúng:* **B** — Quy tắc "Overlearning" giúp củng cố kiến thức và tránh làm gián đoạn nhịp sinh học của phiên làm việc.`;
       } else {
-        reply = `### 💡 Giải Thích & Hướng Dẫn Sư Phạm\n\nChào bạn! Về câu hỏi **"${prompt}"**:\n\n1. **Phân tích bản chất:**\n   Vấn đề này dựa trên nền tảng logic tuần tự. Khi giải quyết, chúng ta chia nhỏ thành các bài toán con (Divide and Conquer).\n\n2. **Mô hình hóa công thức:**\n   $$\\lim_{n \\to \\infty} \\left(1 + \\frac{1}{n}\\right)^n = e \\approx 2.71828$$\n\n3. **Lời khuyên học tập:**\n   Hãy ghi nhớ: Hiểu sâu một nguyên lý có giá trị hơn học thuộc lòng mười công thức. Bạn có muốn tôi đặt thêm câu hỏi để bạn tự kiểm tra độ hiểu bài không?`;
+        if (isGreetingIntent(prompt)) {
+          reply =
+            'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
+        } else if (prompt.toLowerCase().includes('pythagoras')) {
+          reply = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $$a^2 + b^2 = c^2$$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $$c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
+        } else {
+          reply = `### 💡 Hướng Dẫn Giải Thích Sư Phạm\n\nChào bạn! Về câu hỏi **"${prompt}"**:\n\n1. **Bản chất cốt lõi:**\n   Nguyên lý học sâu luôn bắt đầu từ việc nắm chắc khái niệm nền tảng trước khi đi vào giải bài tập chi tiết.\n\n2. **Mô hình hóa công thức & Phương pháp:**\n   $$E = m \\cdot c^2$$\n   Hãy chia nhỏ câu hỏi thành các bước suy luận logic từng bước (Scaffolding).\n\n3. **Lời khuyên học tập từ PomoFocus:**\n   Áp dụng kỹ thuật Feynman: thử giải thích lại điều bạn vừa học bằng ngôn từ đơn giản nhất cho một người bạn. Bạn có câu hỏi chi tiết nào tiếp theo không?`;
+        }
       }
     }
 
