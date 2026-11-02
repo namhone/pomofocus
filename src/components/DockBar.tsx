@@ -12,9 +12,11 @@ import {
   Move,
   Target,
   Minimize,
-  Film
+  Film,
+  Sparkles
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
+import { useAiStore } from '../stores/useAiStore';
 import { WidgetId } from '../types/layout';
 
 const MobileBottomNav = lazy(() =>
@@ -32,6 +34,8 @@ export const DockBar: React.FC = () => {
   const soundsOpen = useLayoutStore((state) => state.widgets.sounds.isOpen);
   const mediaOpen = useLayoutStore((state) => state.widgets.media?.isOpen ?? false);
   const settingsOpen = useLayoutStore((state) => state.widgets.settings?.isOpen ?? false);
+  const isAiOpen = useAiStore((state) => state.isOpen);
+  const toggleAi = useAiStore((state) => state.toggleOpen);
   const isFocusMode = useLayoutStore((state) => state.isFocusMode);
   const toggleFocusMode = useLayoutStore((state) => state.toggleFocusMode);
   const density = useLayoutStore((state) => state.density);
@@ -249,6 +253,29 @@ export const DockBar: React.FC = () => {
 
       {/* Group 3: Settings Window & Actions */}
       <div className={`flex items-center gap-2 relative ${isVertical ? 'flex-col' : 'flex-row'}`}>
+        {/* AI Study Companion Trigger */}
+        <button
+          type="button"
+          data-testid="dock-btn-ai"
+          onClick={() => toggleAi()}
+          className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+            isAiOpen
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
+              : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
+          }`}
+          title="Trợ lý Học tập AI Companion (⚡)"
+          aria-label="Mở Trợ lý AI Companion"
+          aria-pressed={isAiOpen}
+        >
+          <Sparkles size={16} strokeWidth={2} />
+          <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-neutral-950 font-mono shadow-xs">
+            ⚡
+          </span>
+          {isAiOpen && (
+            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.7)]" />
+          )}
+        </button>
+
         <button
           type="button"
           data-testid="dock-btn-presets"

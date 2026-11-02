@@ -17,6 +17,8 @@ import {
   ROOM_CATEGORIES
 } from '../services/studyRoomService';
 import { WhiteboardView } from './WhiteboardView';
+import { AiCompanionWidget } from './AiCompanionWidget';
+import { useAiStore } from '../stores/useAiStore';
 import {
   Video,
   VideoOff,
@@ -3622,6 +3624,21 @@ export const StudyRoomView: React.FC = () => {
             )}
           </button>
 
+          {/* AI Study Companion Trigger */}
+          <button
+            type="button"
+            data-testid="btn-room-ai"
+            onClick={() => useAiStore.getState().toggleOpen()}
+            className="flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer flex items-center justify-center shrink-0 relative"
+            title="Mở Trợ lý AI Companion (⚡)"
+            aria-label="Mở Trợ lý AI Companion"
+          >
+            <Sparkles size={18} />
+            <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-neutral-950 font-mono shadow-xs">
+              ⚡
+            </span>
+          </button>
+
           {/* Settings Modal Button */}
           <button
             type="button"
@@ -4396,6 +4413,9 @@ export const StudyRoomView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* AI Study Companion Drawer */}
+      <AiCompanionWidget />
     </div>
   );
 };

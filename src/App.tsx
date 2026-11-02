@@ -64,6 +64,9 @@ const AmbientOverlay = lazy(() =>
 const CommandPalette = lazy(() =>
   import('./components/CommandPalette').then((m) => ({ default: m.CommandPalette }))
 );
+const AiCompanionWidget = lazy(() =>
+  import('./components/AiCompanionWidget').then((m) => ({ default: m.AiCompanionWidget }))
+);
 
 export const App: React.FC = () => {
   const isZenMode = useLayoutStore((state) => state.isZenMode);
@@ -410,6 +413,11 @@ export const App: React.FC = () => {
             {/* Navigation Control Dock */}
             <Suspense fallback={null}>
               <DockBar />
+            </Suspense>
+
+            {/* AI Study Companion Drawer */}
+            <Suspense fallback={null}>
+              <AiCompanionWidget />
             </Suspense>
           </>
         )}

@@ -3,6 +3,7 @@ import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
+import { useAiStore } from '../stores/useAiStore';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Users,
@@ -22,7 +23,8 @@ import {
   Settings,
   ChevronDown,
   CheckCircle2,
-  Download
+  Download,
+  Sparkles
 } from 'lucide-react';
 
 export const PlatformHeader: React.FC = () => {
@@ -30,6 +32,7 @@ export const PlatformHeader: React.FC = () => {
   const currentPath = router.currentRoute.path;
   const { user, isAuthenticated, logout, isPro, isLifetime, planLabel } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
+  const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -162,6 +165,18 @@ export const PlatformHeader: React.FC = () => {
 
         {/* User Actions & Mobile Toggle */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* AI Study Companion Quick HUD */}
+          <button
+            type="button"
+            data-testid="header-ai-btn"
+            onClick={() => useAiStore.getState().toggleOpen()}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] sm:text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
+          >
+            <Sparkles size={12} className="text-cyan-400 shrink-0" />
+            <span className="font-mono text-amber-300 font-bold">{aiCreditsBalance.toLocaleString()}⚡</span>
+          </button>
+
           {/* PWA Install Button when available */}
           {canInstall && (
             <button

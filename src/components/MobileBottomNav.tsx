@@ -8,9 +8,11 @@ import {
   Maximize2,
   Sliders,
   Layers,
-  Square
+  Square,
+  Sparkles
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
+import { useAiStore } from '../stores/useAiStore';
 import { WidgetId } from '../types/layout';
 
 export const MobileBottomNav: React.FC = () => {
@@ -28,6 +30,7 @@ export const MobileBottomNav: React.FC = () => {
     setGlassPreset,
     resetGlassSettings
   } = useLayoutStore();
+  const isAiOpen = useAiStore((state) => state.isOpen);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [showQuickSettings, setShowQuickSettings] = useState(false);
@@ -436,6 +439,24 @@ export const MobileBottomNav: React.FC = () => {
         <div className="h-7 w-px bg-white/12 mx-1" />
 
         <div className="flex items-center gap-1 shrink-0">
+          {/* AI Study Button */}
+          <button
+            type="button"
+            data-testid="mobile-btn-ai"
+            onClick={() => useAiStore.getState().toggleOpen()}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+            className={`flex flex-col items-center justify-center min-h-[50px] min-w-[44px] px-2 py-1 rounded-xl border transition-colors duration-150 motion-reduce:transition-none active:scale-95 cursor-pointer relative ${
+              isAiOpen
+                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                : 'text-neutral-400 hover:text-cyan-300 hover:bg-white/10 border-transparent'
+            }`}
+            title="Trợ lý AI Study"
+            aria-label="Trợ lý AI Study"
+          >
+            <Sparkles size={18} strokeWidth={2} className="text-cyan-400" />
+            <span className="text-[9.5px] mt-0.5 text-cyan-400 font-semibold">AI ⚡</span>
+          </button>
+
           {/* Zen Mode Button */}
           <button
             type="button"
