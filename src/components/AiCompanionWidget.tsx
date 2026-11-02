@@ -125,7 +125,9 @@ export const AiCompanionWidget: React.FC = () => {
   const [inputPrompt, setInputPrompt] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [showMobileShortcuts, setShowMobileShortcuts] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasUserMessages = messages.length > 1 || messages.some((m) => m.role === 'user');
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Tự động cuộn xuống đáy khi có tin nhắn mới
@@ -332,7 +334,24 @@ export const AiCompanionWidget: React.FC = () => {
       </div>
 
       {/* 2. 3 Nút Quick-Actions Kích Hoạt Nhanh */}
-      <div className="px-3 py-2 border-b border-zinc-800/60 bg-zinc-950/40 shrink-0 space-y-1.5">
+      {hasUserMessages && (
+        <div className="sm:hidden px-3 py-1.5 flex items-center justify-between border-b border-zinc-800/60 bg-zinc-950/60 text-[11px] text-zinc-400">
+          <span className="font-medium text-zinc-300">⚡ Lối tắt tác vụ nhanh</span>
+          <button
+            type="button"
+            onClick={() => setShowMobileShortcuts((prev) => !prev)}
+            className="text-cyan-400 hover:text-cyan-300 font-medium transition cursor-pointer text-[10px] px-2 py-0.5 rounded bg-cyan-950/40 border border-cyan-800/50"
+          >
+            {showMobileShortcuts ? 'Thu gọn ▲' : 'Hiện lối tắt ▼'}
+          </button>
+        </div>
+      )}
+
+      <div
+        className={`${
+          hasUserMessages && !showMobileShortcuts ? 'hidden sm:block' : 'block'
+        } px-3 py-2 border-b border-zinc-800/60 bg-zinc-950/40 shrink-0 space-y-1.5`}
+      >
         <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
           Lối tắt tác vụ học tập:
         </span>
@@ -386,7 +405,7 @@ export const AiCompanionWidget: React.FC = () => {
       </div>
 
       {/* 3. Danh Sách Khung Chat (Scrollable Message List) */}
-      <div data-testid="ai-chat-messages-container" className="flex-1 overflow-y-auto p-3 space-y-3.5 select-text">
+      <div data-testid="ai-chat-messages-container" className="flex-1 overflow-y-auto min-h-0 p-3 space-y-3.5 select-text">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
@@ -403,13 +422,13 @@ export const AiCompanionWidget: React.FC = () => {
               <div
                 className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed transition-all shadow-sm ${
                   isUser
-                    ? 'bg-cyan-500/20 text-cyan-50 border border-cyan-500/40 rounded-tr-xs'
+                    ? 'bg-cyan-500/20 text-cyan-50 border border-cyan-500/40 rounded-tr-xs text-left'
                     : 'bg-zinc-900/90 text-zinc-200 border border-zinc-800/90 rounded-tl-xs'
                 }`}
               >
                 {/* Header message meta */}
-                <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-white/[0.06] text-[10px] text-zinc-400">
-                  <span className="font-medium">
+                <div className={`flex items-center ${isUser ? 'justify-end' : 'justify-between'} pb-1.5 mb-1.5 border-b border-white/[0.06] text-[10px] text-zinc-400`}>
+                  <span className={`font-medium ${isUser ? 'text-cyan-300' : 'text-zinc-400'}`}>
                     {isUser ? 'Bạn' : 'PomoFocus AI'}
                   </span>
                   {!isUser && (

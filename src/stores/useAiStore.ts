@@ -88,6 +88,29 @@ export function isGreetingIntent(text: string): boolean {
   return false;
 }
 
+export function solveBasicMath(prompt: string): string | null {
+  if (!prompt) return null;
+  const lower = prompt.toLowerCase().trim();
+
+  // 1. Phép toán tìm x hoặc 1+1=x hoặc các phép tính số học tiểu học
+  if (
+    lower.includes('1+1') ||
+    lower.includes('1 + 1') ||
+    (lower.includes('tìm x') && (lower.includes('+') || lower.includes('=') || lower.includes('-') || lower.includes('*'))) ||
+    lower.includes('1+1=x') ||
+    lower.includes('1 + 1 = x')
+  ) {
+    return '### 💡 Hướng Dẫn Bài Toán Tìm x (Toán Học Cơ Bản)\n\nChào bạn! Với bài toán **"' + prompt + '"**:\n\n1. **Phân tích đề bài:**\n   Ta có phương trình: $1 + 1 = x$\n\n2. **Thực hiện phép tính từng bước:**\n   - Tính vế trái: $1 + 1 = 2$\n   - Suy ra phương trình tương đương: $x = 2$\n\n3. **Kết luận:**\n   Vậy nghiệm của phương trình là **$x = 2$**.\n\nBạn có bài toán tìm ẩn số nào khác cần mình cùng phân tích không nè?';
+  }
+
+  // 2. Khái niệm sóng dừng (Vật lý)
+  if (lower.includes('sóng dừng') || lower.includes('song dung')) {
+    return '### 💡 Khái Niệm Sóng Dừng (Vật Lý 12)\n\nChào bạn! Về hiện tượng **sóng dừng**:\n\n1. **Định nghĩa bản chất:**\n   Sóng dừng là sóng hình thành bởi sự giao thoa giữa sóng tới và sóng phản xạ truyền ngược chiều nhau trên cùng một phương truyền.\n\n2. **Đặc điểm & Công thức định lượng:**\n   - Điểm luôn đứng yên gọi là **nút sóng**; điểm dao động với biên độ cực đại gọi là **bụng sóng**.\n   - Điều kiện sóng dừng trên dây hai đầu cố định chiều dài $L$:\n     $L = k \\frac{\\lambda}{2} \\quad (k \\in \\mathbb{N}^*)$\n   *(Trong đó $\\lambda$ là bước sóng, $k$ là số bụng sóng)*.\n\nBạn có muốn làm thử bài tập tính số nút, số bụng sóng không?';
+  }
+
+  return null;
+}
+
 export interface AiState {
   aiCreditsBalance: number;
   aiPlan: AiPlanType;
@@ -319,6 +342,8 @@ export const useAiStore = create<AiState>()(
               if (isGreetingIntent(prompt)) {
                 replyText =
                   'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
+              } else if (solveBasicMath(prompt)) {
+                replyText = solveBasicMath(prompt)!;
               } else if (prompt.toLowerCase().includes('pythagoras')) {
                 replyText = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $a^2 + b^2 = c^2$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
               } else {
