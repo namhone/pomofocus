@@ -55,21 +55,34 @@
   - [x] *Bộ lọc Greeting Intent*: Tách biệt câu chào hỏi ("xin chào", "hi", "hello", "alo",...) với câu hỏi bài tập. Đáp lại thân thiện tự nhiên, tuyệt đối không đưa công thức số e hay thuật toán chia để trị khi chào hỏi. **[HOÀN THÀNH]**
   - [x] *Đồng bộ GEMINI_API_KEY*: Đẩy biến môi trường lên Vercel Production & Preview qua CLI (`AQ.Ab8RN6K9...KA`). **[HOÀN THÀNH]**
   - [x] *Kiểm thử & Deploy Live*: Vitest 30/30 suites pass (295 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_GDLS6rsegRRv7qEHvh18xk6gJhEV` trỏ alias `https://pomofocus-workspace.vercel.app`. Kiểm tra trực tiếp API HTTP 200 trả về câu chào hỏi chuẩn mực. **[HOÀN THÀNH]**
+- [x] **Phase 14 — Tối Ưu Mobile Layout AI Widget, Xóa Sổ E=mc^2 & Bộ Giải Toán Cơ Bản (1+1=x)**:
+  - [x] *Sửa Layout Mobile*: Tự động ẩn khối Lối Tắt Tác Vụ Học Tập khi cuộc trò chuyện đã có tin nhắn (`hasUserMessages = messages.length > 1 || messages.some(m => m.role === 'user')`) để không chiếm diện tích màn hình điện thoại; bổ sung thanh mở rộng/thu gọn cơ động; thêm `min-h-0` vào khung chat giúp cuộn xem mượt mà; bong bóng chat người dùng căn phải chuẩn mực. **[HOÀN THÀNH]**
+  - [x] *Xóa Vĩnh Viễn E=mc^2 & Bổ Sung Bộ Giải Toán Số Học Cơ Bản*: Xóa 100% công thức $E = mc^2$ và giới hạn số $e$ khỏi code fallback. Thêm hàm `solveBasicMath()` tự động phân tích và giải chi tiết các phương trình số học cơ bản như $1+1=x \Rightarrow x=2$. **[HOÀN THÀNH]**
+  - [x] *Ghi Log Chi Tiết Gemini API*: In rõ mã lỗi HTTP status và response body khi gọi Google Generative AI REST endpoint thất bại. **[HOÀN THÀNH]**
+  - [x] *Deploy Production & Xác Minh Trực Tiếp*: Deploy Vercel Production `dpl_Hrtn2xVgx6fvuQGrymuQvbmFRYKC` trỏ `https://pomofocus-workspace.vercel.app`. Gọi POST trực tiếp câu hỏi `"1+1=x tìm x"` và `"chào bạn"` trả về HTTP 200, phản hồi toán học và chào hỏi chuẩn xác 100%. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 06:10
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_GDLS6rsegRRv7qEHvh18xk6gJhEV`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 06:28
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_Hrtn2xVgx6fvuQGrymuQvbmFRYKC`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
   1. *Cập nhật GEMINI_API_KEY*:
      - Ghi key vào `.env`.
      - Chạy Vercel CLI nạp bí danh cho cả hai môi trường Production và Preview.
-  2. *Bộ lọc Greeting Intent*:
-     - Thêm hàm `isGreetingIntent()` trong `api/ai/companion.ts` và `src/stores/useAiStore.ts`.
-     - Khi người dùng gửi lời chào ("xin chào", "chào bạn", "hi", "hello", "alo", "ê",...): phản hồi ngay lập tức: *"Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?"*.
-     - Bổ sung chỉ dẫn vào `SYSTEM_INSTRUCTION` của Gemini để xử lý chuẩn mực.
-  3. *Kiểm thử thực nghiệm*:
+  2. *Bộ lọc Greeting Intent & Bộ Giải Toán Số Học*:
+     - Thêm hàm `isGreetingIntent()` và `solveBasicMath()` trong `api/ai/companion.ts` và `src/stores/useAiStore.ts`.
+     - Xóa bỏ triệt để công thức $E = mc^2$ và giới hạn số $e$ khỏi mọi kịch bản fallback.
+     - Xử lý câu hỏi tìm x cơ bản ($1+1=x$): trình bày sư phạm từng bước với kết quả chuẩn $x=2$.
+  3. *Tối ưu giao diện Mobile*:
+     - Tự động ẩn 3 nút tác vụ nhanh khi có tin nhắn trên mobile, thêm thanh toggle mở rộng.
+     - Khung chat trang bị `flex-1 overflow-y-auto min-h-0`.
+     - Bong bóng chat căn phải sạch sẽ.
+  4. *Kiểm thử thực nghiệm & Bằng chứng*:
      - Vitest: **30/30 test files passed, 295/295 tests passed (100%)**.
-     - Live Endpoint test: Gửi `"xin chào"` ➔ nhận câu chào thân thiện (0ms formula); gửi bài toán Pythagoras ➔ nhận công thức $a^2 + b^2 = c^2$.
+     - Production Build: Vite đóng gói 0 lỗi.
+     - Live Deployment: Vercel Production Deployment `dpl_Hrtn2xVgx6fvuQGrymuQvbmFRYKC` đã Ready và được gán alias `https://pomofocus-workspace.vercel.app`.
+     - Live API Test:
+       + Request: `POST /api/ai/companion` với `prompt: "1+1=x tìm x"` ➔ Trả về HTTP 200, nội dung giải thích $1+1=2 \Rightarrow x=2$, trừ đúng 1⚡ (100⚡ ➔ 99⚡).
+       + Request: `POST /api/ai/companion` với `prompt: "chào bạn"` ➔ Trả về HTTP 200, lời chào thân thiện tự nhiên của PomoFocus AI Companion.
