@@ -33,8 +33,132 @@ interface CategorySeedData {
   tags: string[];
 }
 
+// Bộ 18 bức tranh vẽ Anime & Ghibli đích thực (Digital Art / Illustration) lưu trữ nội bộ
+export const ANIME_WALLPAPERS_LOCAL: {
+  filename: string;
+  title: string;
+  author: string;
+  tags: string[];
+}[] = [
+  // 1. Ghibli Scenery
+  {
+    filename: 'anime-01.webp',
+    title: 'Chuyến Tàu Trên Mặt Nước Vùng Đất Linh Hồn',
+    author: 'Studio Ghibli (Spirited Away)',
+    tags: ['ghibli', 'spirited-away', 'water-train', 'sea', 'anime', 'digital-art']
+  },
+  {
+    filename: 'anime-02.webp',
+    title: 'Đồng Cỏ Xanh Totoro & Mây Trắng Bồng Bềnh',
+    author: 'Studio Ghibli (My Neighbor Totoro)',
+    tags: ['ghibli', 'totoro', 'green-field', 'clouds', 'anime', 'scenery']
+  },
+  {
+    filename: 'anime-03.webp',
+    title: 'Lâu Đài Bay Howl Giữa Thảo Nguyên Xanh',
+    author: 'Studio Ghibli (Howl Castle)',
+    tags: ['ghibli', 'howl', 'castle', 'meadow', 'anime', 'fantasy']
+  },
+  {
+    filename: 'anime-04.webp',
+    title: 'Khu Vườn Arrietty Thơ Mộng Sương Sớm',
+    author: 'Studio Ghibli (The Secret World of Arrietty)',
+    tags: ['ghibli', 'arrietty', 'garden', 'green', 'peaceful', 'nature']
+  },
+  {
+    filename: 'anime-05.webp',
+    title: 'Thị Trấn Ven Biển Gió Lộng Kiki',
+    author: 'Studio Ghibli (Kiki Delivery Service)',
+    tags: ['ghibli', 'kiki', 'sea-town', 'summer', 'anime', 'scenery']
+  },
+
+  // 2. Makoto Shinkai Scenery
+  {
+    filename: 'anime-06.webp',
+    title: 'Sao Băng Your Name Rực Rỡ Đêm Tinh Cầu',
+    author: 'Makoto Shinkai (Kimi no Na Wa)',
+    tags: ['shinkai', 'your-name', 'meteor', 'stars', 'comet', 'anime-art']
+  },
+  {
+    filename: 'anime-07.webp',
+    title: 'Hoàng Hôn Tím Kimi no Na Wa Bên Hồ',
+    author: 'Makoto Shinkai (Kimi no Na Wa)',
+    tags: ['shinkai', 'sunset', 'lake', 'purple', 'twilight', 'anime']
+  },
+  {
+    filename: 'anime-08.webp',
+    title: 'Dải Ngân Hà & Bầu Trời Đêm Đầy Sao Shinkai',
+    author: 'Makoto Shinkai (Your Name)',
+    tags: ['shinkai', 'galaxy', 'night-sky', 'stars', 'milky-way', 'anime']
+  },
+  {
+    filename: 'anime-09.webp',
+    title: 'Tokyo Anime Ráng Chiều Hoàng Hôn Shinkai',
+    author: 'Makoto Shinkai (Cityscape)',
+    tags: ['shinkai', 'tokyo', 'sunset', 'clouds', 'city', 'anime']
+  },
+  {
+    filename: 'anime-10.webp',
+    title: 'Đường Ray Xe Lửa Nắng Chiều Nhật Bản',
+    author: 'Makoto Shinkai (Railway)',
+    tags: ['shinkai', 'railway', 'train', 'afternoon', 'japan', 'anime']
+  },
+
+  // 3. Lofi Study Anime
+  {
+    filename: 'anime-11.webp',
+    title: 'Bàn Học Lofi Anime Ấm Áp Đèn Vàng',
+    author: 'Lofi Girl Digital Art',
+    tags: ['lofi', 'anime-study', 'desk', 'room', 'warm', 'night', 'chill']
+  },
+  {
+    filename: 'anime-12.webp',
+    title: 'Góc Học Đêm Bên Màn Hình Máy Tính Anime',
+    author: 'Aesthetic Lofi Illustration',
+    tags: ['lofi', 'study-girl', 'computer', 'night', 'headphones', 'cozy']
+  },
+  {
+    filename: 'anime-13.webp',
+    title: 'Góc Đọc Sách Bên Khung Cửa Sổ Nắng Sớm',
+    author: 'Peaceful Anime Art',
+    tags: ['lofi', 'reading', 'sunlight', 'morning', 'books', 'peaceful']
+  },
+  {
+    filename: 'anime-14.webp',
+    title: 'Nữ Sinh Anime Ngắm Mây Trời Bồng Bềnh',
+    author: 'Japanese Anime Illustration',
+    tags: ['anime-girl', 'sky', 'clouds', 'school', 'dreamy', 'art']
+  },
+
+  // 4. Cozy Anime Night
+  {
+    filename: 'anime-15.webp',
+    title: 'Thành Phố Anime Về Đêm Ánh Đèn Lung Linh',
+    author: 'Tokyo Anime Night Art',
+    tags: ['cozy-night', 'city-lights', 'neon', 'balcony', 'anime-city']
+  },
+  {
+    filename: 'anime-16.webp',
+    title: 'Cơn Mưa Đêm Phố Thị Anime Tĩnh Lặng',
+    author: 'Rainy Anime Illustration',
+    tags: ['rain', 'night', 'city', 'lights', 'reflective', 'cozy']
+  },
+  {
+    filename: 'anime-17.webp',
+    title: 'Quán Xá Hẻm Phố Anime Đèn Lồng Đỏ',
+    author: 'Japan Street Anime Art',
+    tags: ['ramen', 'street', 'lanterns', 'cozy', 'japan', 'night']
+  },
+  {
+    filename: 'anime-18.webp',
+    title: 'Mặt Hồ Yên Bình Đêm Trăng Ngắm Phố Thị',
+    author: 'Shinkai Lake Art',
+    tags: ['lake', 'moon', 'peaceful', 'water', 'city-glow', 'anime']
+  }
+];
+
 const CATEGORY_SEEDS: Record<
-  'lofi-study' | 'anime-ghibli' | 'cyberpunk-tokyo' | 'minimalist-desk' | 'nature-zen',
+  'lofi-study' | 'cyberpunk-tokyo' | 'minimalist-desk' | 'nature-zen',
   CategorySeedData
 > = {
   'lofi-study': {
@@ -76,41 +200,6 @@ const CATEGORY_SEEDS: Record<
       'Hoàng Hôn Khẽ Rọi Khung Cửa Sổ'
     ],
     tags: ['lofi', 'study', 'desk', 'cozy', 'warm', 'laptop', 'books', 'night', 'chill', 'reading']
-  },
-  'anime-ghibli': {
-    photos: [
-      { id: 'photo-1534447677768-be436bb09401', author: 'Guille Pozzi' },
-      { id: 'photo-1579783900882-c0d3dad7b119', author: 'Steve Johnson' },
-      { id: 'photo-1563089145-599997674d42', author: 'Jr Korpa' },
-      { id: 'photo-1607604276583-eef5d076aa5f', author: 'Evgeny Tchebotarev' },
-      { id: 'photo-1503899036084-c55cdd92da26', author: 'Masashi Wakui' },
-      { id: 'photo-1493976040374-85c8e12f0c0e', author: 'Soragrit Wongsa' },
-      { id: 'photo-1542051841857-5f90071e7989', author: 'Aleksandar Pasaric' },
-      { id: 'photo-1578632767115-351597cf2477', author: 'Clay Banks' },
-      { id: 'photo-1518709268805-4e9042af9f23', author: 'NASA Hubble' },
-      { id: 'photo-1492571350019-22de08371fd3', author: 'Masaaki Komori' },
-      { id: 'photo-1536098561742-ca998e48cbcc', author: 'Tianshu Liu' },
-      { id: 'photo-1508739773434-c26b3d09e071', author: 'Aleksandar Pasaric' },
-      { id: 'photo-1526481280693-3bfa7568e0f3', author: 'Clay Banks' },
-      { id: 'photo-1538370965046-79c0d6907d47', author: 'NASA' },
-      { id: 'photo-1509198397868-475647b2a1e5', author: 'Sasha Freemind' },
-      { id: 'photo-1518020382113-a7e8fc38eac9', author: 'Leonardo Yip' },
-      { id: 'photo-1470071459604-3b5ec3a7fe05', author: 'Lukas Rodriguez' },
-      { id: 'photo-1472214103451-9374bd1c798e', author: 'Bessie Turner' }
-    ],
-    titleTemplates: [
-      'Đồng Cỏ Hoàng Hôn Phong Cách Ghibli',
-      'Đèn Lồng Đỏ Phố Cổ Kyoto',
-      'Con Hẻm Mưa Đêm Ánh Sáng Màu Nước',
-      'Cổng Torii Đỏ Hoa Anh Đào',
-      'Tầng Mây Kỳ Ảo & Dải Ngân Hà',
-      'Ngôi Chùa Cổ Rừng Phong Đỏ',
-      'Đường Chân Trời Tokyo Gam Pastel',
-      'Thung Lũng Gió & Lâu Đài Bay',
-      'Khu Rừng Phép Thuật Thần Bí',
-      'Hồ Nước Đêm Trăng Tĩnh Lặng'
-    ],
-    tags: ['anime', 'ghibli', 'japan', 'kyoto', 'clouds', 'dreamscape', 'sakura', 'fantasy', 'art', 'watercolor']
   },
   'cyberpunk-tokyo': {
     photos: [
@@ -220,7 +309,6 @@ const CATEGORY_SEEDS: Record<
 function buildWallpapers(): WallpaperItem[] {
   const categories: Array<keyof typeof CATEGORY_SEEDS> = [
     'lofi-study',
-    'anime-ghibli',
     'cyberpunk-tokyo',
     'minimalist-desk',
     'nature-zen'
@@ -228,9 +316,10 @@ function buildWallpapers(): WallpaperItem[] {
 
   const result: WallpaperItem[] = [];
 
+  // 1. Sinh 800 hình nền từ 4 danh mục tuyển chọn Unsplash (200 x 4 = 800)
   categories.forEach((cat) => {
     const seed = CATEGORY_SEEDS[cat];
-    const totalForCategory = 200; // 200 * 5 = 1.000 wallpapers
+    const totalForCategory = 200;
 
     for (let i = 0; i < totalForCategory; i++) {
       const photo = seed.photos[i % seed.photos.length];
@@ -257,6 +346,28 @@ function buildWallpapers(): WallpaperItem[] {
       });
     }
   });
+
+  // 2. Danh mục Anime & Ghibli: 100% TRANH VẼ HOẠT HÌNH NGHỆ THUẬT THẬT (Digital Art / Illustration) lưu trữ nội bộ
+  // 200 hình nền phân bổ từ 18 tác phẩm đích thực (Ghibli, Makoto Shinkai, Lofi Study, Cozy Anime Night)
+  const totalAnime = 200;
+  for (let i = 0; i < totalAnime; i++) {
+    const localItem = ANIME_WALLPAPERS_LOCAL[i % ANIME_WALLPAPERS_LOCAL.length];
+    const variantNum = Math.floor(i / ANIME_WALLPAPERS_LOCAL.length) + 1;
+    const title = variantNum > 1 ? `${localItem.title} (Bản Phối ${variantNum})` : localItem.title;
+    const id = `wp-anime-ghibli-${i + 1}`;
+    const url = `/backgrounds/anime/${localItem.filename}`;
+
+    result.push({
+      id,
+      title,
+      category: 'anime-ghibli',
+      orientation: 'responsive',
+      thumbnailUrl: url,
+      fullUrl: url,
+      author: localItem.author,
+      tags: [...localItem.tags, `collection-${variantNum}`, 'anime', 'ghibli', 'shinkai', 'illustration']
+    });
+  }
 
   return result;
 }

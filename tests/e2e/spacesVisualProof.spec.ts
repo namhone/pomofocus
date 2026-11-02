@@ -16,7 +16,7 @@ test.describe('Spaces Widget Proof Captures', () => {
     await expect(page.getByTestId('spaces-widget')).toBeVisible();
 
     // Đợi ảnh load ổn định
-    await page.waitForTimeout(3500);
+    await page.waitForTimeout(3000);
 
     // Chụp Desktop hiển thị kho ảnh đồng nhất
     await page.screenshot({
@@ -30,9 +30,23 @@ test.describe('Spaces Widget Proof Captures', () => {
       path: path.join(ARTIFACT_DIR, 'proof-spaces-desktop-video.png')
     });
 
-    // Chuyển về Tất cả
-    await page.getByTestId('filter-cat-all').click();
-    await page.waitForTimeout(1500);
+    // Chuyển sang danh mục Anime & Ghibli nghệ thuật thật 100%
+    const animeTabBtn = page.getByTestId('filter-cat-anime-ghibli');
+    await expect(animeTabBtn).toBeVisible();
+    await animeTabBtn.click();
+    await page.waitForTimeout(2000);
+
+    // Chọn bức tranh anime đầu tiên (Spirited Away Water Train) để áp dụng vào hình nền
+    const firstAnimeCard = page.locator('[data-testid="spaces-widget"] button').filter({ hasText: 'Chuyến Tàu Trên Mặt Nước' }).first();
+    if (await firstAnimeCard.isVisible()) {
+      await firstAnimeCard.click();
+      await page.waitForTimeout(1500);
+    }
+
+    // Chụp màn hình minh chứng Anime & Ghibli Digital Art đích thực
+    await page.screenshot({
+      path: path.join(ARTIFACT_DIR, 'proof-anime-real-art.png')
+    });
   });
 
   test('2. Chụp màn hình Mobile (390x844) - Bố cục gọn gàng, đồng nhất thẻ ngang 16:9', async ({ page }) => {

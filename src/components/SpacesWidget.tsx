@@ -291,6 +291,7 @@ export const SpacesWidget: React.FC = () => {
               <button
                 key={cat.id}
                 type="button"
+                data-testid={`filter-cat-${cat.id}`}
                 onClick={() => handleCategorySelect(cat.id as WallpaperCategory)}
                 className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
                   selectedCategory === cat.id
