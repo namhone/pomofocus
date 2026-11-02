@@ -513,8 +513,13 @@ export const StudyRoomView: React.FC = () => {
     }
   }, [user]);
 
-  // Sample participants kết hợp người tham gia thực tế (đảm bảo mỗi tab/phiên là 1 peerId duy nhất)
-  const [participantId] = useState(() => `${user?.id || 'guest'}_${Math.random().toString(36).substring(2, 9)}`);
+  // Tạo clientSessionId ngẫu nhiên (crypto.randomUUID()) cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
+  const [clientSessionId] = useState(() =>
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `cs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+  );
+  const [participantId] = useState(() => `${user?.id || 'guest'}_${clientSessionId.slice(0, 8)}`);
 
   // WebRTC Real Remote Streams
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});

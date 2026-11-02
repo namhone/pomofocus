@@ -41,6 +41,7 @@ export interface MeetState {
     roomId: string,
     currentUserId: string,
     options?: {
+      clientSessionId?: string;
       onKicked?: () => void;
       onClosed?: () => void;
     }
@@ -158,8 +159,11 @@ export const useMeetStore = create<MeetState>((set) => ({
   },
 
   subscribeRealtime: (roomId: string, currentUserId: string, options) => {
-    meetRealtimeService.subscribe(roomId, currentUserId, {
-      onNewMessage: (msg: RoomMessage) => {
+    meetRealtimeService.subscribe(
+      roomId,
+      currentUserId,
+      {
+        onNewMessage: (msg: RoomMessage) => {
         set((state) => {
           // Tránh duplicate tin nhắn nếu đã có trong store
           const exists = state.messages.some(
@@ -205,7 +209,7 @@ export const useMeetStore = create<MeetState>((set) => ({
         }));
         options?.onClosed?.();
       },
-    });
+    }, options?.clientSessionId);
   },
 
   unsubscribeRealtime: () => {

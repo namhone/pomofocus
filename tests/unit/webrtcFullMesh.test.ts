@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   WebRTCConnectionManager,
-  P2PSignalPayload
+  P2PSignalPayload,
+  DEFAULT_RTC_CONFIG
 } from '@/services/WebRTCConnectionManager';
 
 describe('WebRTC Full-Mesh Multi-Peer Architecture (3 đến 10 học viên)', () => {
@@ -267,5 +268,15 @@ describe('WebRTC Full-Mesh Multi-Peer Architecture (3 đến 10 học viên)', (
 
     manager.destroy();
     vi.useRealTimers();
+  });
+
+  it('8. TURN Relay & Ping-Pong Disconnect Protection: Cấu hình OpenRelay TURN Servers & 10s Grace Period', () => {
+    expect(DEFAULT_RTC_CONFIG.iceServers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ urls: 'stun:stun.l.google.com:19302' }),
+        expect.objectContaining({ urls: 'turn:openrelay.metered.ca:80', username: 'openrelay' }),
+        expect.objectContaining({ urls: 'turn:openrelay.metered.ca:443', username: 'openrelay' }),
+      ])
+    );
   });
 });

@@ -6,15 +6,23 @@ export type { PresenceState, RealtimeCallbacks };
 export class MeetRealtimeService {
   private channel: RealtimeChannel | null = null;
 
-  subscribe(roomId: string, currentUserId: string, callbacks: RealtimeCallbacks) {
+  subscribe(roomId: string, currentUserId: string, callbacks: RealtimeCallbacks, clientSessionId?: string) {
     // Tránh đăng ký trùng lặp
     if (this.channel) {
       this.unsubscribe();
     }
 
+    // Tạo clientSessionId ngẫu nhiên cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
+    const sessionId =
+      clientSessionId ||
+      (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `cs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
+    const presenceKey = `${currentUserId}_${sessionId.slice(0, 8)}`;
+
     this.channel = supabase.channel(`room:${roomId}`, {
       config: {
-        presence: { key: currentUserId },
+        presence: { key: presenceKey },
         broadcast: { ack: false },
       },
     });

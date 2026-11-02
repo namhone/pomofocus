@@ -60,15 +60,17 @@ export interface WebRTCCallbacks {
   onConnectionStateChange?: (peerId: string, state: RTCPeerConnectionState) => void;
 }
 
-const ICE_SERVERS: RTCConfiguration = {
+export const DEFAULT_RTC_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' },
-    { urls: 'stun:stun3.l.google.com:19302' },
-    { urls: 'stun:stun4.l.google.com:19302' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelay', credential: 'openrelay' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelay', credential: 'openrelay' },
   ],
+  iceCandidatePoolSize: 10,
 };
+
+export const ICE_SERVERS = DEFAULT_RTC_CONFIG;
 
 export class WebRTCConnectionManager {
   private localStream: MediaStream | null = null;
@@ -272,7 +274,7 @@ export class WebRTCConnectionManager {
         const leftPresences = payload?.leftPresences || [];
         leftPresences.forEach((presence: { user_id?: string; userId?: string; key?: string }) => {
           const peerId = presence.key || presence.user_id || presence.userId;
-          if (peerId) {
+          if (peerId && peerId !== this.myUserId) {
             this.closeConnection(peerId);
           }
         });
@@ -447,7 +449,7 @@ export class WebRTCConnectionManager {
       }
     };
 
-    // Theo dõi trạng thái kết nối và xử lý ngắt mạng thông minh (ICE Restart)
+    // Theo dõi trạng thái kết nối và xử lý ngắt mạng thông minh (ICE Restart + 10s Grace Period)
     pc.onconnectionstatechange = () => {
       const state = pc.connectionState;
       this.callbacks.onConnectionStateChange?.(peerId, state);
@@ -478,17 +480,58 @@ export class WebRTCConnectionManager {
       } else if (state === 'failed') {
         console.warn(`[P2P] Peer ${peerId} kết nối failed -> Kích hoạt ICE Restart ngay`);
         this.restartIceForPeer(peerId);
+        if (!this.disconnectTimers.has(peerId)) {
+          const timer = setTimeout(() => {
+            this.disconnectTimers.delete(peerId);
+            if (pc.connectionState === 'failed' || pc.iceConnectionState === 'failed') {
+              console.warn(`[P2P] Peer ${peerId} kết nối failed sau 10s -> Dọn dẹp kết nối`);
+              this.closeConnection(peerId);
+            }
+          }, 10000);
+          this.disconnectTimers.set(peerId, timer);
+        }
       }
     };
 
-    // Theo dõi trạng thái ICE Connection
+    // Theo dõi trạng thái ICE Connection (Ngắt vòng lặp tự đá nhau - Ping-Pong Disconnect)
     pc.oniceconnectionstatechange = () => {
       const iceState = pc.iceConnectionState;
-      if (iceState === 'disconnected') {
-        console.warn(`[WebRTC ICE] Peer ${peerId} iceConnectionState: disconnected`);
+      if (iceState === 'connected' || iceState === 'completed') {
+        const t = this.disconnectTimers.get(peerId);
+        if (t) {
+          clearTimeout(t);
+          this.disconnectTimers.delete(peerId);
+        }
+        console.log(`[WebRTC ICE] Peer ${peerId} iceConnectionState: ${iceState} (ổn định)`);
+      } else if (iceState === 'disconnected') {
+        // Khi iceConnectionState === 'disconnected', KHÔNG ĐƯỢC đóng peer ngay.
+        // Kích hoạt peerConnection.restartIce() và chờ thời gian ân hạn 10 giây (Grace Period).
+        console.warn(`[WebRTC ICE] Peer ${peerId} disconnected -> kích hoạt restartIce() và ân hạn 10s...`);
+        this.restartIceForPeer(peerId);
+        if (!this.disconnectTimers.has(peerId)) {
+          const timer = setTimeout(() => {
+            this.disconnectTimers.delete(peerId);
+            // Chỉ khi iceConnectionState === 'failed' sau 10 giây mới dọn dẹp kết nối
+            if (pc.iceConnectionState === 'failed' || pc.connectionState === 'failed') {
+              console.warn(`[WebRTC ICE] Peer ${peerId} vẫn failed sau 10s ân hạn -> Đóng kết nối`);
+              this.closeConnection(peerId);
+            }
+          }, 10000);
+          this.disconnectTimers.set(peerId, timer);
+        }
       } else if (iceState === 'failed') {
         console.warn(`[WebRTC ICE] Peer ${peerId} iceConnectionState: failed -> Gọi restartIceForPeer`);
         this.restartIceForPeer(peerId);
+        if (!this.disconnectTimers.has(peerId)) {
+          const timer = setTimeout(() => {
+            this.disconnectTimers.delete(peerId);
+            if (pc.iceConnectionState === 'failed' || pc.connectionState === 'failed') {
+              console.warn(`[WebRTC ICE] Peer ${peerId} ice failed sau 10s -> Đóng kết nối`);
+              this.closeConnection(peerId);
+            }
+          }, 10000);
+          this.disconnectTimers.set(peerId, timer);
+        }
       }
     };
 

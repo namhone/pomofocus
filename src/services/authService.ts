@@ -563,7 +563,7 @@ export const authService = {
     return this.upgradePlan(current?.id || 'guest', 'pro', durationMonths);
   },
 
-  upgradePlan(userId: string, plan: UserPlan, durationMonths = 1): UserProfile {
+  upgradePlan(userId: string, plan: UserPlan, durationMonths = 1, extendFromCurrentExpiry = true): UserProfile {
     const users = initializeDemoAccounts();
     let current = this.getCurrentSession();
     if (!current) {
@@ -586,7 +586,17 @@ export const authService = {
     }
 
     const isProPlan = plan === 'pro' || plan === 'pro_sandbox' || plan === 'pro_beta';
-    const expiresAt = isProPlan ? Date.now() + durationMonths * 30 * 24 * 60 * 60 * 1000 : null;
+    const now = Date.now();
+    const durationMs = durationMonths * 30 * 24 * 60 * 60 * 1000;
+    // Cơ chế cộng dồn (Stacking): Nếu proExpiresAt hiện tại còn hạn (> now), cộng tiếp vào proExpiresAt
+    let expiresAt: number | null = null;
+    if (isProPlan) {
+      const baseTime = (extendFromCurrentExpiry && current.proExpiresAt && current.proExpiresAt > now)
+        ? current.proExpiresAt
+        : now;
+      expiresAt = baseTime + durationMs;
+    }
+
     const updated: UserProfile = {
       ...current,
       plan,
@@ -607,6 +617,56 @@ export const authService = {
     }
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 
+    return updated;
+  },
+
+  /**
+   * Cộng dồn chính xác số ngày PRO vào thời hạn hiện tại (Stacking Days)
+   */
+  extendProDays(days: number): UserProfile {
+    const users = initializeDemoAccounts();
+    let current = this.getCurrentSession();
+    if (!current) {
+      current = {
+        id: `usr_${Date.now()}`,
+        email: 'guest@studyworkspace.io',
+        displayName: 'Học viên Trải nghiệm',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+    }
+
+    if (isOwnerEmail(current.email) || isLadyBoss(current.email) || isVipFriend(current.email) || current.isLifetime || current.plan === 'pro_lifetime') {
+      current.plan = 'pro_lifetime';
+      current.isLifetime = true;
+      current.proExpiresAt = null;
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(current));
+      return current;
+    }
+
+    const now = Date.now();
+    const durationMs = days * 24 * 60 * 60 * 1000;
+    const baseTime = (current.proExpiresAt && current.proExpiresAt > now) ? current.proExpiresAt : now;
+    const newExpiresAt = baseTime + durationMs;
+
+    const updated: UserProfile = {
+      ...current,
+      plan: 'pro',
+      isLifetime: false,
+      proExpiresAt: newExpiresAt
+    };
+
+    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
+
+    for (const key of Object.keys(users)) {
+      if (users[key].id === current.id) {
+        users[key].plan = 'pro';
+        users[key].isLifetime = false;
+        users[key].proExpiresAt = newExpiresAt;
+        break;
+      }
+    }
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
     return updated;
   },
 

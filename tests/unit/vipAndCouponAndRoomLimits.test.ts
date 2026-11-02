@@ -10,6 +10,7 @@ import {
 } from '../../src/services/authService';
 import { couponService } from '../../src/services/couponService';
 import { studyRoomService } from '../../src/services/studyRoomService';
+import { useAiStore } from '../../src/stores/useAiStore';
 
 describe('VIP & Coupon & Room Limits Audit Tests', () => {
   beforeEach(() => {
@@ -116,6 +117,64 @@ describe('VIP & Coupon & Room Limits Audit Tests', () => {
       const redeemRes = couponService.redeemCoupon('BOSSSECRET', user);
       expect(redeemRes.success).toBe(true);
       expect(redeemRes.message).toContain('PRO TRỌN ĐỜI');
+    });
+
+    it('chuẩn hóa mã coupon không phân biệt hoa thường và khoảng trắng (code.trim().toUpperCase())', () => {
+      const user: UserProfile = {
+        id: 'usr_test_case',
+        email: 'student_test@example.com',
+        displayName: 'Test Student',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+
+      const val = couponService.validateCoupon('  vip7days  ');
+      expect(val.valid).toBe(true);
+      expect(val.coupon?.code).toBe('VIP7DAYS');
+
+      const redeemRes = couponService.redeemCoupon('  pro50  ', user);
+      expect(redeemRes.success).toBe(true);
+      expect(redeemRes.discountPercent).toBe(50);
+    });
+
+    it('cơ chế cộng dồn (Stacking): tài khoản PRO còn hạn khi nhập mã PRO mới sẽ cộng tiếp vào hạn hiện tại', () => {
+      const currentExpiry = Date.now() + 10 * 24 * 60 * 60 * 1000; // Còn 10 ngày
+      const proUser: UserProfile = {
+        id: 'usr_pro_stack',
+        email: 'pro_stack@example.com',
+        displayName: 'Pro User',
+        plan: 'pro',
+        proExpiresAt: currentExpiry,
+        createdAt: Date.now()
+      };
+      localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(proUser));
+
+      // Nhập mã VIP7DAYS (7 ngày)
+      const res = couponService.redeemCoupon('VIP7DAYS', proUser);
+      expect(res.success).toBe(true);
+      expect(res.message).toContain('+7 ngày PRO');
+
+      const refreshed = authService.getCurrentSession();
+      expect(refreshed?.proExpiresAt).toBeGreaterThanOrEqual(currentExpiry + 7 * 24 * 60 * 60 * 1000 - 1000);
+    });
+
+    it('tài khoản Trọn Đời (Lifetime Founder) khi nhập mã quà tặng PRO sẽ quy đổi thành tặng +5.000⚡ AI Credits', () => {
+      const initialBalance = useAiStore.getState().aiCreditsBalance;
+
+      const lifetimeUser: UserProfile = {
+        id: 'usr_founder',
+        email: 'founder@example.com',
+        displayName: 'Founder VIP',
+        plan: 'pro_lifetime',
+        isLifetime: true,
+        createdAt: Date.now()
+      };
+
+      const res = couponService.redeemCoupon('VIP7DAYS', lifetimeUser);
+      expect(res.success).toBe(true);
+      expect(res.message).toContain('+5.000⚡ AI Credits');
+      expect(res.creditsAdded).toBe(5000);
+      expect(useAiStore.getState().aiCreditsBalance).toBe(initialBalance + 5000);
     });
   });
 

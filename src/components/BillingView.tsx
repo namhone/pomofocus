@@ -25,7 +25,7 @@ import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import { couponService } from '../services/couponService';
 import { PRICING_PLANS, COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
-import { isOwnerEmail, isLadyBoss, isVipFriend } from '../services/authService';
+import { authService, isOwnerEmail, isLadyBoss, isVipFriend, hasProEntitlement, getPlanLabel } from '../services/authService';
 
 export const BillingView: React.FC = () => {
   const router = useRouter();
@@ -44,8 +44,26 @@ export const BillingView: React.FC = () => {
     if (!couponCode.trim()) return;
     const res = couponService.redeemCoupon(couponCode, user);
     setCouponResult({ success: res.success, text: res.message });
-    if (res.success && (res.coupon?.type === 'free_lifetime' || res.coupon?.type === 'free_days')) {
+    if (res.success) {
       setStatusMessage({ type: 'success', text: res.message });
+      setCouponCode('');
+      // Đồng bộ ngay lập tức session và Zustand authStore
+      const refreshed = authService.getCurrentSession();
+      if (refreshed) {
+        useAuthStore.setState({
+          user: refreshed,
+          isPro: hasProEntitlement(refreshed.plan, refreshed.email),
+          isLifetime: Boolean(
+            refreshed.isLifetime ||
+            refreshed.plan === 'pro_lifetime' ||
+            isOwnerEmail(refreshed.email) ||
+            isLadyBoss(refreshed.email) ||
+            isVipFriend(refreshed.email)
+          ),
+          planLabel: getPlanLabel(refreshed)
+        });
+      }
+      setTimeout(() => setStatusMessage(null), 5000);
     }
   };
 
@@ -1038,44 +1056,48 @@ export const BillingView: React.FC = () => {
                 </table>
               </div>
             </section>
-
-            {/* Coupon Redemption Card */}
-            <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-xl mx-auto w-full text-center space-y-3">
-              <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
-                <Gift size={16} className="text-amber-400" />
-                <span>Kích Hoạt Mã Ưu Đãi / Quà Tặng (Coupon)</span>
-              </div>
-              <p className="text-xs text-zinc-400">
-                Bạn có mã quà tặng từ sự kiện hoặc Chủ sở hữu? Nhập mã vào đây để kích hoạt quyền lợi ngay.
-              </p>
-              <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
-                >
-                  Áp Dụng
-                </button>
-              </form>
-              {couponResult && (
-                <div
-                  className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
-                    couponResult.success ? 'text-emerald-400' : 'text-rose-400'
-                  }`}
-                >
-                  {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}
-                  <span>{couponResult.text}</span>
-                </div>
-              )}
-            </div>
           </>
         )}
+
+        {/* ========================================================================= */}
+        {/* KHỐI NHẬP MÃ QUÀ TẶNG / GÓI ĐẶC QUYỀN (HIỂN THỊ CHO TẤT CẢ CÁC GÓI)       */}
+        {/* ========================================================================= */}
+        <div data-testid="universal-coupon-redemption" className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-xl mx-auto w-full text-center space-y-3 mt-4">
+          <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
+            <Gift size={16} className="text-amber-400" />
+            <span>Kích Hoạt Mã Ưu Đãi / Quà Tặng (Coupon)</span>
+          </div>
+          <p className="text-xs text-zinc-400">
+            Bạn có mã quà tặng từ sự kiện hoặc Chủ sở hữu? Nhập mã vào đây để kích hoạt hoặc cộng dồn thời hạn ngay.
+          </p>
+          <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
+            <input
+              type="text"
+              data-testid="input-coupon-universal"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
+              className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
+            />
+            <button
+              type="submit"
+              data-testid="btn-redeem-coupon-universal"
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+            >
+              Áp Dụng
+            </button>
+          </form>
+          {couponResult && (
+            <div
+              className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
+                couponResult.success ? 'text-emerald-400' : 'text-rose-400'
+              }`}
+            >
+              {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}
+              <span>{couponResult.text}</span>
+            </div>
+          )}
+        </div>
       </main>
 
       {/* MoMo / VietQR Payment Modal */}
