@@ -176,6 +176,30 @@ describe('VIP & Coupon & Room Limits Audit Tests', () => {
       expect(res.creditsAdded).toBe(5000);
       expect(useAiStore.getState().aiCreditsBalance).toBe(initialBalance + 5000);
     });
+
+    it('bỏ điều kiện lọc theo user_id người tạo: cho phép bất kỳ ai có mã hợp lệ đều xác thực và kích hoạt được (Supabase Shared)', async () => {
+      // Giả lập coupon được tạo bởi Admin/Owner có createdBy
+      couponService.createCoupon({
+        code: 'SHAREDGIFT30',
+        type: 'free_days',
+        value: 30,
+        maxUses: 10,
+        createdBy: 'usr_admin_owner'
+      });
+
+      // Người dùng học viên thông thường (hoàn toàn khác user_id)
+      const anotherStudent: UserProfile = {
+        id: 'usr_other_student_99',
+        email: 'student99@example.com',
+        displayName: 'Other Student',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+
+      const res = await couponService.redeemCouponAsync('SHAREDGIFT30', anotherStudent);
+      expect(res.success).toBe(true);
+      expect(res.message).toContain('+30 ngày PRO');
+    });
   });
 
   describe('3. Free Room Quota & Public Pod Limit', () => {

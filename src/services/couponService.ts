@@ -7,6 +7,7 @@
 
 import { authService, UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 import { useAiStore } from '../stores/useAiStore';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
 
 export interface Coupon {
   code: string;
@@ -128,7 +129,85 @@ export const couponService = {
 
     coupons.unshift(newCoupon);
     this.saveCoupons(coupons);
+
+    // Lưu đồng thời lên Supabase (bỏ chặn nếu offline)
+    try {
+      const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+      fetch(`${baseUrl}/rest/v1/coupons`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          code: newCoupon.code,
+          type: newCoupon.type,
+          value: newCoupon.value,
+          max_uses: newCoupon.maxUses,
+          used_count: 0,
+          expires_at: newCoupon.expiresAt ? new Date(newCoupon.expiresAt).toISOString() : null,
+          description: newCoupon.description,
+          created_by: newCoupon.createdBy
+        })
+      }).catch((err) => {
+        console.debug('[CouponService] Lỗi đẩy coupon lên Supabase:', err);
+      });
+    } catch {
+      // Ignored
+    }
+
     return { success: true, coupon: newCoupon };
+  },
+
+  /**
+   * Truy vấn mã coupon dùng chung từ cơ sở dữ liệu Supabase (bỏ lọc theo user_id người tạo)
+   */
+  async fetchCouponFromSupabase(code: string): Promise<Coupon | null> {
+    const clean = code.trim().toUpperCase();
+    if (!clean) return null;
+    try {
+      const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+      // Truy vấn trực tiếp mà KHÔNG lọc theo user_id hay created_by
+      const url = `${baseUrl}/rest/v1/coupons?code=eq.${encodeURIComponent(clean)}&select=*`;
+      const res = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) return null;
+
+      const row = data[0];
+      const coupon: Coupon = {
+        code: row.code,
+        type: row.type,
+        value: Number(row.value) || 0,
+        maxUses: Number(row.max_uses) || 100,
+        usedCount: Number(row.used_count) || 0,
+        expiresAt: row.expires_at ? new Date(row.expires_at).getTime() : null,
+        createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+        description: row.description || undefined,
+        createdBy: row.created_by || undefined
+      };
+
+      const coupons = this.getCoupons();
+      const idx = coupons.findIndex((c) => c.code === coupon.code);
+      if (idx !== -1) {
+        coupons[idx] = coupon;
+      } else {
+        coupons.unshift(coupon);
+      }
+      this.saveCoupons(coupons);
+      return coupon;
+    } catch (err) {
+      console.debug('[CouponService] Lỗi kết nối Supabase, sử dụng kho dự phòng:', err);
+      return null;
+    }
   },
 
   deleteCoupon(code: string): boolean {
@@ -200,6 +279,27 @@ export const couponService = {
       this.saveCoupons(coupons);
     }
 
+    // Cập nhật used_count lên Supabase (bỏ chặn nếu offline)
+    try {
+      const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+      fetch(`${baseUrl}/rest/v1/coupons?code=eq.${encodeURIComponent(coupon.code)}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          used_count: (coupon.usedCount || 0) + 1
+        })
+      }).catch((err) => {
+        console.debug('[CouponService] Lỗi cập nhật used_count lên Supabase:', err);
+      });
+    } catch {
+      // Ignored
+    }
+
     // Kiểm tra xem người dùng hiện tại có phải là Thành Viên Trọn Đời không
     const isLifetimeUser = Boolean(
       user.isLifetime ||
@@ -261,5 +361,13 @@ export const couponService = {
       discountPercent: coupon.value,
       coupon
     };
+  },
+
+  /**
+   * Kích hoạt mã coupon bất đồng bộ: Tự động tra cứu từ Supabase nếu máy chưa lưu mã
+   */
+  async redeemCouponAsync(code: string, user: UserProfile | null) {
+    await this.fetchCouponFromSupabase(code);
+    return this.redeemCoupon(code, user);
   }
 };

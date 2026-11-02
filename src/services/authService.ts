@@ -351,6 +351,26 @@ export const authService = {
     return profile;
   },
 
+  /**
+   * Khởi tạo luồng xác thực Google / OAuth qua Supabase Client
+   * Đảm bảo tham số redirectTo sử dụng động theo domain hiện tại (${window.location.origin}/app),
+   * tuyệt đối không hardcode tên miền cũ.
+   */
+  async signInWithOAuth(provider: 'google' = 'google', customRedirectTo?: string): Promise<{ data: { provider: string; url: string } | null; error: any }> {
+    const defaultRedirect = typeof window !== 'undefined' && window.location.origin
+      ? `${window.location.origin}/app`
+      : 'https://pomofocus-workspace.vercel.app/app';
+
+    const redirectTo = customRedirectTo || defaultRedirect;
+
+    return supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo
+      }
+    });
+  },
+
   async updateProfile(
     userId: string,
     updates: ProfileUpdates

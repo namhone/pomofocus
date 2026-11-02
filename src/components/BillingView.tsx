@@ -39,10 +39,10 @@ export const BillingView: React.FC = () => {
 
   const currentPlan = PRICING_PLANS[cycle];
 
-  const handleRedeemCoupon = (e: React.FormEvent) => {
+  const handleRedeemCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponCode.trim()) return;
-    const res = couponService.redeemCoupon(couponCode, user);
+    const res = await couponService.redeemCouponAsync(couponCode, user);
     setCouponResult({ success: res.success, text: res.message });
     if (res.success) {
       setStatusMessage({ type: 'success', text: res.message });
