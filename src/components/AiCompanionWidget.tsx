@@ -62,6 +62,20 @@ export const AiCompanionWidget: React.FC = () => {
   const maxCredits = AI_PLAN_LIMITS[aiPlan] || 50;
   const isLifetime = aiPlan === 'lifetime';
 
+  const getPlanBadge = () => {
+    switch (aiPlan) {
+      case 'lifetime':
+        return '★ Nạp lại vào Thứ Hai';
+      case 'yearly':
+        return 'Gói Năm: 20.000⚡/năm';
+      case 'monthly':
+        return 'Gói Tháng: 1.500⚡/tháng';
+      case 'free':
+      default:
+        return 'Miễn phí: 50⚡/tháng';
+    }
+  };
+
   const handleCopy = async (id: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -80,7 +94,9 @@ export const AiCompanionWidget: React.FC = () => {
     try {
       await sendMessage(
         textToSend.trim() ||
-          (action === 'summarize' ? 'Tóm tắt nội dung ghi chú hiện tại' : 'Tạo 3 câu hỏi ôn tập'),
+          (action === 'summarize'
+            ? 'Tóm tắt nội dung ghi chú hiện tại'
+            : 'Tạo 10 câu trắc nghiệm ôn tập Pomodoro'),
         action
       );
     } catch {
@@ -156,11 +172,9 @@ export const AiCompanionWidget: React.FC = () => {
                 </span>
                 <span className="text-zinc-500 text-[11px]">/ {maxCredits.toLocaleString()} Credits</span>
               </div>
-              {isLifetime && (
-                <span className="text-[10px] text-emerald-400 font-medium">
-                  ★ Nạp đầy 1.000⚡ vào Thứ Hai
-                </span>
-              )}
+              <span className={`text-[10px] font-medium block ${isLifetime ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                {getPlanBadge()}
+              </span>
             </div>
           </div>
 
@@ -220,15 +234,15 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-quick-quiz"
-            disabled={isLoading || aiCreditsBalance < 5}
+            disabled={isLoading || aiCreditsBalance < 10}
             onClick={() => handleSend('quiz')}
             className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left flex items-center justify-between text-zinc-300 hover:text-cyan-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <div className="flex items-center gap-2 truncate">
               <BookOpen size={13} className="text-emerald-400 shrink-0" />
-              <span className="truncate">🎯 Tạo 3 câu hỏi trắc nghiệm ôn tập</span>
+              <span className="truncate">🎯 Tạo 10 câu trắc nghiệm ôn tập Pomodoro</span>
             </div>
-            <span className="font-mono text-[10px] text-amber-400 font-bold shrink-0">5⚡</span>
+            <span className="font-mono text-[10px] text-amber-400 font-bold shrink-0">10⚡</span>
           </button>
         </div>
       </div>

@@ -91,11 +91,11 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     period: '/ mãi mãi',
     description: 'Trải nghiệm học tập cốt lõi với Pomodoro và không gian tối giản.',
     features: [
+      'Trợ lý AI Study: 50⚡ AI Credits / tháng',
       'Thời lượng phòng riêng: Tối đa 45 phút/phiên (Reset sau 5 phút nghỉ)',
       'Chất lượng WebRTC: 480p Chuẩn (Tối đa 6 người/phòng)',
       'Kho âm thanh & Hình nền: 5 âm thanh cơ bản & 3 hình nền tĩnh',
       'Bảng vẽ Whiteboard: 1 trang nháp (Không xuất file)',
-      'Trợ lý AI Study: Không hỗ trợ',
       'Đường dẫn phòng học: Ngẫu nhiên dạng mã số'
     ],
     ctaLabel: 'Đang Sử Dụng'
@@ -247,10 +247,10 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     id: 'ai_assistant',
     feature: 'Trợ lý AI Study',
     category: 'tools',
-    free: 'Không hỗ trợ',
-    monthly: '50 câu hỏi AI/tháng',
-    yearly: '300 câu hỏi AI tóm tắt tài liệu/tháng',
-    lifetime: 'Sử dụng AI Study Companion không giới hạn',
+    free: '50⚡ AI Credits / tháng',
+    monthly: '1.500⚡ AI Credits / tháng',
+    yearly: '20.000⚡ AI Credits / năm',
+    lifetime: '1.000⚡ / tuần (Nạp lại vào Thứ Hai)',
     highlightLifetime: true
   },
   {

@@ -17,7 +17,7 @@ export interface AiMessage {
 export const AI_CREDIT_COSTS: Record<AiActionType, number> = {
   chat: 1,
   summarize: 5,
-  quiz: 5
+  quiz: 10
 };
 
 export const AI_PLAN_LIMITS: Record<AiPlanType, number> = {
@@ -26,6 +26,16 @@ export const AI_PLAN_LIMITS: Record<AiPlanType, number> = {
   yearly: 20000,
   lifetime: 1000 // Tối đa 1.000 điểm mỗi tuần (reset vào Thứ Hai)
 };
+
+/**
+ * Tính toán mốc 00:00:00 ngày đầu tiên của tháng hiện tại theo giờ địa phương.
+ */
+export function getMonthStart(timestamp: number = Date.now()): number {
+  const d = new Date(timestamp);
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
 
 /**
  * Tính toán mốc 00:00:00 sáng Thứ Hai đầu tuần hiện tại theo giờ địa phương.
@@ -43,6 +53,7 @@ export interface AiState {
   aiCreditsBalance: number;
   aiPlan: AiPlanType;
   lastWeeklyReset: number;
+  lastMonthlyReset: number;
   isOpen: boolean;
   isLoading: boolean;
   error: string | null;
@@ -54,6 +65,8 @@ export interface AiState {
   addCredits: (amount: number) => void;
   deductCredits: (cost: number) => boolean;
   checkWeeklyReset: (currentTime?: number) => boolean;
+  checkMonthlyReset: (currentTime?: number) => boolean;
+  checkPeriodicReset: (currentTime?: number) => void;
   clearChat: () => void;
   sendMessage: (prompt: string, actionType?: AiActionType) => Promise<string>;
   syncWithAuth: (plan?: string) => void;
@@ -65,6 +78,7 @@ export const useAiStore = create<AiState>()(
       aiCreditsBalance: AI_PLAN_LIMITS.free, // 50⚡ mặc định
       aiPlan: 'free',
       lastWeeklyReset: Date.now(),
+      lastMonthlyReset: Date.now(),
       isOpen: false,
       isLoading: false,
       error: null,
@@ -80,8 +94,8 @@ export const useAiStore = create<AiState>()(
 
       toggleOpen: (force) => {
         set((state) => ({ isOpen: force !== undefined ? force : !state.isOpen }));
-        // Khi mở widget, tự động kiểm tra reset Thứ Hai cho gói Lifetime
-        get().checkWeeklyReset();
+        // Khi mở widget, tự động kiểm tra nạp lại định kỳ (tuần / tháng)
+        get().checkPeriodicReset();
       },
 
       setAiPlan: (plan) => {
@@ -92,7 +106,8 @@ export const useAiStore = create<AiState>()(
           aiPlan: plan,
           // Nâng cấp gói tự động đảm bảo số dư tối thiểu của gói đó
           aiCreditsBalance: Math.max(currentBalance, targetLimit),
-          lastWeeklyReset: Date.now()
+          lastWeeklyReset: Date.now(),
+          lastMonthlyReset: Date.now()
         });
       },
 
@@ -125,6 +140,27 @@ export const useAiStore = create<AiState>()(
           return true;
         }
         return false;
+      },
+
+      checkMonthlyReset: (currentTime = Date.now()) => {
+        const { aiPlan, lastMonthlyReset } = get();
+        if (aiPlan !== 'free') return false;
+
+        const currentMonthStart = getMonthStart(currentTime);
+        // Nếu lần nạp tháng trước xảy ra trước mốc đầu tháng này
+        if (lastMonthlyReset < currentMonthStart) {
+          set({
+            aiCreditsBalance: AI_PLAN_LIMITS.free, // Nạp lại 50⚡
+            lastMonthlyReset: currentTime
+          });
+          return true;
+        }
+        return false;
+      },
+
+      checkPeriodicReset: (currentTime = Date.now()) => {
+        get().checkWeeklyReset(currentTime);
+        get().checkMonthlyReset(currentTime);
       },
 
       clearChat: () => {
@@ -160,7 +196,7 @@ export const useAiStore = create<AiState>()(
 
       sendMessage: async (prompt: string, actionType: AiActionType = 'chat') => {
         const cost = AI_CREDIT_COSTS[actionType];
-        get().checkWeeklyReset();
+        get().checkPeriodicReset();
 
         // 1. Kiểm tra số dư nguyên tử
         if (get().aiCreditsBalance < cost) {
@@ -239,7 +275,7 @@ export const useAiStore = create<AiState>()(
                   : ''
               }1. **Khái niệm then chốt:** Cần nắm vững định lý cốt lõi và các tiền đề suy luận cơ bản.\n2. **Công thức định lượng:** Đảm bảo công thức toán học được chuẩn hóa:\n   $$\\Delta S = \\int \\frac{dQ_{\\text{rev}}}{T}$$\n3. **Ứng dụng thực tiễn:** Áp dụng phương pháp Pomodoro 25/5 để chia nhỏ lượng kiến thức, tránh quá tải nhận thức.`;
             } else if (actionType === 'quiz') {
-              replyText = `### 🎯 3 Câu Hỏi Trắc Nghiệm Ôn Tập Kiến Thức\n\n**Câu 1:** Công thức tính thời gian chu kỳ dao động điều hòa là gì?\n- A. $T = 2\\pi \\sqrt{\\frac{m}{k}}$\n- B. $T = \\frac{1}{2\\pi} \\sqrt{\\frac{k}{m}}$\n- C. $T = 2\\pi \\frac{k}{m}$\n- D. $T = \\pi \\sqrt{\\frac{m}{k}}$\n\n*Đáp án đúng:* **A** — Chu kỳ tỉ lệ thuận với căn bậc hai của khối lượng $m$.\n\n---\n**Câu 2:** Nguyên tắc then chốt của kỹ thuật Pomodoro cổ điển là gì?\n- A. Học liên tục 90 phút\n- B. Tập trung 25 phút, nghỉ ngắn 5 phút\n- C. Vừa học vừa lướt mạng xã hội\n- D. Không cần nghỉ giải lao\n\n*Đáp án đúng:* **B** — Chu kỳ 25/5 giúp não bộ duy trì trạng thái sóng não Beta tập trung cao độ.\n\n---\n**Câu 3:** Khái niệm "Atomic Habits" trong học tập định nghĩa điều gì?\n- A. Đột phá lớn trong một đêm\n- B. Sự cải thiện 1% mỗi ngày tạo nên thay đổi khổng lồ theo cấp số nhân\n- C. Học dồn trước ngày thi\n- D. Bỏ qua các thói quen nhỏ\n\n*Đáp án đúng:* **B** — Tiến bộ nhỏ tích lũy theo thời gian tạo kết quả phi thường.`;
+              replyText = `### 🎯 10 Câu Hỏi Trắc Nghiệm Ôn Tập Pomodoro & Kỹ Năng Học Tập\n\n**Câu 1:** Chu kỳ Pomodoro tiêu chuẩn kéo dài bao nhiêu phút tập trung và nghỉ ngơi?\n- A. 45 phút tập trung, 15 phút nghỉ\n- B. 25 phút tập trung, 5 phút nghỉ ngắn\n- C. 60 phút tập trung, 10 phút nghỉ\n- D. 30 phút tập trung, không nghỉ\n\n*Đáp án đúng:* **B** — Chu kỳ 25/5 được thiết kế tối ưu hóa sự chú ý bền vững theo nhịp sinh học não bộ.\n\n---\n**Câu 2:** Sau bao nhiêu phiên Pomodoro liên tiếp thì nên có một khoảng nghỉ dài (15–30 phút)?\n- A. 2 phiên\n- B. 4 phiên\n- C. 6 phiên\n- D. 8 phiên\n\n*Đáp án đúng:* **B** — 4 chu kỳ (tổng cộng 100 phút tập trung) là ngưỡng giới hạn sinh lý cần thiết lập lại năng lượng nhận thức.\n\n---\n**Câu 3:** Khái niệm "Diffuse Mode" (Chế độ tư duy phân tán) của Barbara Oakley được kích hoạt khi nào?\n- A. Khi đang giải bài toán hóc búa\n- B. Trong lúc nghỉ ngơi 5 phút, đi dạo nhẹ nhàng hoặc thả lỏng\n- C. Khi đang đọc tài liệu chuyên ngành\n- D. Khi thức khuya học bài\n\n*Đáp án đúng:* **B** — Trạng thái thư giãn giúp não kích hoạt mạng lưới Default Mode Network để kết nối các khái niệm tiềm thức.\n\n---\n**Câu 4:** Khi bị xao nhãng hoặc có ý nghĩ đột xuất nảy ra trong phiên Pomodoro, hành động chuẩn mực nhất là gì?\n- A. Dừng ngay đồng hồ để làm việc đó\n- B. Ghi chú nhanh vào sổ nháp/tasks nháp rồi tiếp tục tập trung\n- C. Bỏ qua hoàn toàn và không ghi lại\n- D. Chuyển sang lướt điện thoại\n\n*Đáp án đúng:* **B** — Kỹ thuật "Parking Lot" giúp giải phóng bộ nhớ làm việc mà không làm đứt đoạn dòng chảy tập trung.\n\n---\n**Câu 5:** Định luật Parkinson trong quản lý thời gian phát biểu điều gì?\n- A. Thời gian luôn cố định cho mọi nhiệm vụ\n- B. Công việc sẽ tự động mở rộng để lấp đầy khoảng thời gian được ấn định cho nó\n- C. Càng nhiều thời gian thì chất lượng công việc càng cao\n- D. Làm việc càng nhanh thì sai sót càng nhiều\n\n*Đáp án đúng:* **B** — Áp dụng các phiên Pomodoro 25 phút giúp siết chặt khung thời gian, ngăn ngừa sự trì hoãn.\n\n---\n**Câu 6:** Nguyên lý Pareto (Quy tắc 80/20) trong ôn thi kiến nghị điều gì?\n- A. Dành 80% thời gian cho 20% kiến thức cốt lõi tạo ra 80% điểm số\n- B. Học 80 câu hỏi ngẫu nhiên trong đề cương\n- C. Đọc sách trong 80 phút rồi nghỉ 20 phút\n- D. Bỏ qua 80% tài liệu mà không cần chọn lọc\n\n*Đáp án đúng:* **A** — Xác định trọng tâm "High-Yield Topics" là chìa khóa tối ưu hóa điểm số trong thời gian hữu hạn.\n\n---\n**Câu 7:** Phương pháp lặp lại ngắt quãng (Spaced Repetition) dựa trên mô hình toán học nào của Hermann Ebbinghaus?\n- A. Đường cong tăng trưởng hàm mũ\n- B. Đường cong quên lãng: $R = e^{-\\frac{t}{S}}$\n- C. Phân phối chuẩn Gauss\n- D. Định lý giới hạn trung tâm\n\n*Đáp án đúng:* **B** — Ôn tập lặp lại tại các mốc thời gian cách đều giúp giảm độ dốc của đường cong quên lãng, chuyển kiến thức vào trí nhớ dài hạn.\n\n---\n**Câu 8:** Kỹ thuật Feynman trong học sâu bao gồm bước cốt lõi nào?\n- A. Đọc thuộc lòng từ đầu đến cuối sách giáo khoa\n- B. Giải thích khái niệm phức tạp cho một người mới (hoặc đứa trẻ 10 tuổi) bằng ngôn ngữ bình dị nhất\n- C. Sử dụng từ ngữ hàn lâm chuyên sâu nhất có thể\n- D. Làm thật nhiều bài tập mà không cần hiểu bản chất\n\n*Đáp án đúng:* **B** — Nếu bạn không thể giải thích đơn giản, nghĩa là bạn chưa thực sự hiểu rõ nguyên lý.\n\n---\n**Câu 9:** Hiện tượng "Sự kiệt quệ ý chí" (Ego Depletion) nhắc nhở chúng ta điều gì khi sắp xếp lịch Pomodoro?\n- A. Nên học việc khó nhất (Deep Work) vào đầu ngày khi năng lượng não bộ còn dồi dào\n- B. Để bài tập khó nhất vào lúc nửa đêm\n- C. Không bao giờ cần nạp năng lượng\n- D. Ý chí là vô hạn và không suy giảm\n\n*Đáp án đúng:* **A** — Ý chí và khả năng tự kiểm soát tiêu hao năng lượng glucose của vỏ não trước trán, vì vậy nên ưu tiên tác vụ nặng nhất vào buổi sáng.\n\n---\n**Câu 10:** Trong Pomodoro, nếu bạn hoàn thành mục tiêu khi đồng hồ mới chạy được 15 phút, bạn nên làm gì?\n- A. Tắt ngay đồng hồ và kết thúc phiên\n- B. Sử dụng 10 phút còn lại để rà soát (Overlearning), kiểm tra lại kết quả và tinh gọn ghi chú\n- C. Bật mạng xã hội chơi cho hết giờ\n- D. Bắt đầu ngay một môn học hoàn toàn mới mà không nghỉ\n\n*Đáp án đúng:* **B** — Quy tắc "Overlearning" giúp củng cố kiến thức và tránh làm gián đoạn nhịp sinh học của phiên làm việc.`;
             } else {
               replyText = `### 💡 Hướng Dẫn Giải Thích Chi Tiết\n\nChào bạn! Đối với vấn đề **"${prompt}"**:\n\n1. **Bản chất cốt lõi:**\n   Trong học tập và nghiên cứu, nguyên lý cốt lõi luôn xoay quanh việc thiết lập mô hình logic từ đơn giản đến phức tạp.\n\n2. **Công thức toán học & Mô hình hóa:**\n   $$\\lim_{x \\to 0} \\frac{\\sin(x)}{x} = 1$$\n\n3. **Lời khuyên học tập từ PomoFocus:**\n   Hãy áp dụng kỹ thuật Feynman: thử diễn đạt lại khái niệm này bằng ngôn ngữ của một học sinh lớp 5. Nếu bạn giải thích được ngắn gọn, bạn đã thật sự hiểu sâu!`;
             }
@@ -279,6 +315,7 @@ export const useAiStore = create<AiState>()(
         aiCreditsBalance: state.aiCreditsBalance,
         aiPlan: state.aiPlan,
         lastWeeklyReset: state.lastWeeklyReset,
+        lastMonthlyReset: state.lastMonthlyReset,
         messages: state.messages.slice(-30) // Giữ 30 tin nhắn gần nhất
       })
     }

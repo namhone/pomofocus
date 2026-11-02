@@ -576,7 +576,7 @@ export const BillingView: React.FC = () => {
                   <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
                     <div className="flex items-start gap-2">
                       <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-200 leading-snug font-medium">50⚡ AI Study Credits dùng thử ban đầu</span>
+                      <span className="text-zinc-200 leading-snug font-medium">50⚡ AI Credits / tháng</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
