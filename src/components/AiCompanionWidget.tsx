@@ -18,90 +18,67 @@ import {
 import { useAiStore, AI_PLAN_LIMITS, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
 import { useRouter } from '../services/router';
 import { useNoteStore } from '../stores/useNoteStore';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 /**
- * Trình phân giải & kết xuất công thức toán học LaTeX và Markdown cho AI Companion
+ * Trình phân giải & kết xuất công thức toán học KaTeX và Markdown chuẩn mực cho AI Companion
  */
 export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) => {
-  // Tách nội dung theo khối công thức LaTeX $$...$$
-  const parts = content.split(/(\$\$[\s\S]*?\$\$)/g);
-
   return (
-    <div className="space-y-2 text-xs leading-relaxed break-words">
-      {parts.map((part, index) => {
-        if (part.startsWith('$$') && part.endsWith('$$')) {
-          const formula = part.slice(2, -2).trim();
-          return (
-            <div
-              key={index}
-              data-testid="ai-latex-block"
-              className="my-2 p-2.5 rounded-xl bg-zinc-950/90 border border-cyan-500/40 text-cyan-300 font-mono text-center text-xs tracking-wider overflow-x-auto shadow-inner select-all"
-            >
-              <div className="text-[9px] uppercase tracking-widest text-cyan-500/70 font-sans mb-1 font-semibold">
-                Công thức toán LaTeX
-              </div>
-              <div>{formula}</div>
-            </div>
-          );
-        }
-
-        const lines = part.split('\n');
-        return (
-          <div key={index} className="space-y-1.5">
-            {lines.map((line, lIdx) => {
-              const trimmed = line.trim();
-              if (!trimmed) return null;
-
-              if (trimmed === '---') {
-                return <hr key={lIdx} className="border-zinc-800/80 my-2" />;
-              }
-
-              if (trimmed.startsWith('### ')) {
-                return (
-                  <h4 key={lIdx} className="font-bold text-sm text-cyan-300 tracking-wide pt-1 pb-0.5">
-                    {trimmed.replace('### ', '')}
-                  </h4>
-                );
-              }
-
+    <div className="prose prose-invert max-w-none text-xs leading-relaxed select-text font-sans break-words">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        components={{
+          p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed text-zinc-200">{children}</p>,
+          strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+          ul: ({ children }) => <ul className="list-disc pl-5 mb-2 space-y-1 text-zinc-200">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal pl-5 mb-2 space-y-1 text-zinc-200">{children}</ol>,
+          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+          h1: ({ children }) => <h3 className="text-sm font-bold text-cyan-300 mt-2.5 mb-1">{children}</h3>,
+          h2: ({ children }) => <h3 className="text-sm font-bold text-cyan-300 mt-2 mb-1">{children}</h3>,
+          h3: ({ children }) => <h3 className="text-xs font-bold text-cyan-300 mt-2 mb-1">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-xs font-semibold text-cyan-200 mt-1.5 mb-1">{children}</h4>,
+          hr: () => <hr className="border-zinc-800 my-2" />,
+          code: ({ className, children, ...props }: any) => {
+            const isBlock = Boolean(className) || String(children).includes('\n');
+            return isBlock ? (
+              <pre className="bg-zinc-950 border border-zinc-800 p-2.5 rounded-lg overflow-x-auto my-2 text-xs font-mono text-emerald-300">
+                <code {...props}>{children}</code>
+              </pre>
+            ) : (
+              <code className="bg-zinc-800/80 px-1.5 py-0.5 rounded text-[11px] font-mono text-pink-300 border border-zinc-700/50" {...props}>
+                {children}
+              </code>
+            );
+          },
+          span: ({ className, children, ...props }: any) => {
+            if (className?.includes('katex-display')) {
               return (
-                <p key={lIdx} className="text-zinc-200">
-                  {renderInlineMarkdown(line)}
-                </p>
+                <div data-testid="ai-latex-block" className="my-2 p-2 rounded-xl bg-zinc-950/80 border border-cyan-500/30 overflow-x-auto text-center shadow-inner select-all">
+                  <span className={className} {...props}>{children}</span>
+                </div>
               );
-            })}
-          </div>
-        );
-      })}
+            }
+            if (className?.includes('katex')) {
+              return (
+                <span data-testid="ai-latex-inline" className={`${className} select-all`} {...props}>
+                  {children}
+                </span>
+              );
+            }
+            return <span className={className} {...props}>{children}</span>;
+          }
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 };
-
-function renderInlineMarkdown(text: string): React.ReactNode {
-  // Regex tách **bold**, $inline latex$
-  const tokens = text.split(/(\*\*.*?\*\*|\$.*?\$)/g);
-  return tokens.map((token, i) => {
-    if (token.startsWith('**') && token.endsWith('**')) {
-      return (
-        <strong key={i} className="font-bold text-white">
-          {token.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (token.startsWith('$') && token.endsWith('$')) {
-      return (
-        <span
-          key={i}
-          data-testid="ai-latex-inline"
-          className="font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.5 rounded text-[11px] font-medium mx-0.5 select-all"
-        >
-          {token.slice(1, -1)}
-        </span>
-      );
-    }
-    return token;
-  });
-}
 
 export const AiCompanionWidget: React.FC = () => {
   const router = useRouter();
