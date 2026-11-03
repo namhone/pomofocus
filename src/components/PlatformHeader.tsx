@@ -16,12 +16,12 @@ import {
   HelpCircle,
   X,
   Shield,
-  Database,
   Mail,
   Home,
   Settings,
   ChevronDown,
   CheckCircle2,
+  Menu,
   Download,
   Sparkles
 } from 'lucide-react';
@@ -370,14 +370,9 @@ export const PlatformHeader: React.FC = () => {
           ) : (
             <button
               type="button"
+              id="header-login-btn"
               data-testid="header-login-btn"
-                onClick={() => {
-                  if (window.innerWidth < 640) {
-                    setIsMobileMenuOpen((prev) => !prev);
-                  } else {
-                    handleNavigate('/login');
-                  }
-                }}
+              onClick={() => handleNavigate('/login')}
               className="h-9 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm"
               title="Đăng nhập tài khoản"
             >
@@ -386,153 +381,242 @@ export const PlatformHeader: React.FC = () => {
             </button>
           )}
 
-          
+          {/* Nút Hamburger Menu ☰ trên mobile */}
+          <button
+            type="button"
+            id="header-mobile-menu-btn"
+            data-testid="header-mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            className="lg:hidden h-9 w-9 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
+            title="Menu điều hướng"
+            aria-label="Menu điều hướng"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <Menu size={18} />
+          </button>
         </div>
       </header>
 
-      {/* Mobile Drawer / Dropdown Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-14 z-50 bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/[0.08] shadow-2xl p-4 transition-all max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-          {/* Top Bar with Close button */}
-          <div className="flex items-center justify-between pb-2 mb-3 border-b border-white/10">
-            <span className="text-xs font-semibold text-zinc-300 font-mono uppercase tracking-wider">Menu Điều Hướng</span>
+      {/* ========================================================================= */}
+      {/* MOBILE SLIDE-OVER NAVIGATION DRAWER WITH SMOOTH TRANSITION ANIMATION     */}
+      {/* ========================================================================= */}
+      
+      {/* 1. Lớp nền mờ tối phủ toàn màn hình (Backdrop) */}
+      <div
+        data-testid="mobile-drawer-backdrop"
+        className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* 2. Khay Menu trượt từ mép phải (Slide-Over Panel) */}
+      <aside
+        data-testid="mobile-navigation-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu Điều Hướng"
+        className={`lg:hidden fixed top-0 bottom-0 right-0 w-[285px] max-w-[85vw] bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 z-50 p-5 flex flex-col justify-between transition-transform duration-300 ease-out transform shadow-2xl select-none ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Phần đầu: Tiêu đề + Nút đóng ✕ */}
+        <div>
+          <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80 mb-5">
+            <span className="font-semibold text-white tracking-wide text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Điều Hướng
+            </span>
             <button
               type="button"
+              data-testid="mobile-drawer-close-btn"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
               title="Đóng menu"
+              aria-label="Đóng menu"
             >
-              <X size={18} />
+              <X size={19} />
             </button>
           </div>
-          {/* User profile card in drawer on mobile */}
-          {isAuthenticated && user && (
-            <div className="mb-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
-                  {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
+
+          {/* Danh sách các trang theo yêu cầu */}
+          <nav className="flex flex-col space-y-1.5">
+            <button
+              type="button"
+              data-testid="mobile-drawer-link-app"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleNavigate('/app');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left cursor-pointer ${
+                currentPath === '/app'
+                  ? 'bg-white/10 text-white font-semibold'
+                  : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+              }`}
+            >
+              <Home size={18} className={currentPath === '/app' ? 'text-emerald-400' : 'text-zinc-400'} />
+              <span>Không Gian Học</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="mobile-drawer-link-rooms"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleNavigate('/rooms');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left cursor-pointer ${
+                currentPath.startsWith('/rooms')
+                  ? 'bg-white/10 text-white font-semibold'
+                  : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+              }`}
+            >
+              <Users size={18} className={currentPath.startsWith('/rooms') ? 'text-emerald-400' : 'text-zinc-400'} />
+              <span>Phòng Học Nhóm Live</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="mobile-drawer-link-calendar"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleNavigate('/calendar');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left cursor-pointer ${
+                currentPath === '/calendar'
+                  ? 'bg-white/10 text-white font-semibold'
+                  : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+              }`}
+            >
+              <Calendar size={18} className={currentPath === '/calendar' ? 'text-emerald-400' : 'text-zinc-400'} />
+              <span>Lịch Biểu Pomodoro</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="mobile-drawer-link-billing"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleNavigate('/billing');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left cursor-pointer ${
+                currentPath === '/billing'
+                  ? 'bg-white/10 text-white font-semibold'
+                  : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+              }`}
+            >
+              <CreditCard size={18} className={currentPath === '/billing' ? 'text-emerald-400' : 'text-zinc-400'} />
+              <span>Bảng Giá & Nâng Cấp</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="mobile-drawer-link-security"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleNavigate('/account/security');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left cursor-pointer ${
+                currentPath === '/account/security'
+                  ? 'bg-white/10 text-white font-semibold'
+                  : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+              }`}
+            >
+              <Shield size={18} className={currentPath === '/account/security' ? 'text-emerald-400' : 'text-zinc-400'} />
+              <span>Trung Tâm Bảo Mật</span>
+            </button>
+          </nav>
+        </div>
+
+        {/* Phần đáy: Thông tin user / PWA / Nút đăng nhập hoặc đăng xuất */}
+        <div className="pt-4 border-t border-zinc-800/80 space-y-2.5">
+          {isAuthenticated && user ? (
+            <>
+              {/* Thẻ User tóm tắt */}
+              <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={user.displayName}
+                      className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
+                      {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
+                    <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
-                  <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
-                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shrink-0 bg-zinc-900 text-amber-300 border-amber-400/40">
+                  {user?.badge || planLabel}
+                </span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
-                isLifetime
-                  ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
-                  : isPro
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                  : 'bg-white/10 text-neutral-300 border-white/10'
-              }`}>
-                {user?.badge || planLabel}
-              </span>
-            </div>
-          )}
 
-          {canInstall && (
-            <button
-              type="button"
-              data-testid="mobile-install-pwa-btn"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                triggerInstall();
-              }}
-              className="w-full mb-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition cursor-pointer active:scale-98"
-            >
-              <Download size={15} />
-              <span>Cài Đặt Ứng Dụng (PWA)</span>
-            </button>
-          )}
-
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                item.path === '/app'
-                  ? currentPath === '/app'
-                  : item.path.startsWith('/rooms')
-                  ? currentPath.startsWith('/rooms')
-                  : currentPath === item.path;
-
-              return (
+              {canInstall && (
                 <button
-                  key={item.path}
                   type="button"
-                  onClick={() => handleNavigate(item.path)}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition cursor-pointer min-h-[44px] ${
-                    isActive
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10 border border-white/5'
-                  }`}
+                  data-testid="mobile-install-pwa-btn"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    triggerInstall();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition cursor-pointer active:scale-98"
                 >
-                  <Icon size={15} className={isActive ? 'text-emerald-400' : 'text-neutral-400'} />
-                  <span className="truncate">{item.label}</span>
+                  <Download size={14} />
+                  <span>Cài Đặt Ứng Dụng (PWA)</span>
                 </button>
-              );
-            })}
-          </div>
+              )}
 
-          <div className="pt-3 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-neutral-400">
-            <button
-              type="button"
-              onClick={() => handleNavigate('/')}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 hover:text-white transition cursor-pointer"
-            >
-              <Home size={14} className="text-zinc-400" />
-              <span>Giới Thiệu</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavigate('/profile')}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 hover:text-white transition cursor-pointer"
-            >
-              <User size={14} className="text-emerald-400" />
-              <span>Hồ Sơ &amp; Avt</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavigate('/account/security')}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 hover:text-white transition cursor-pointer"
-            >
-              <Shield size={14} className="text-amber-400" />
-              <span>Bảo Mật</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavigate('/privacy-data')}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 hover:text-white transition cursor-pointer"
-            >
-              <Database size={14} className="text-sky-400" />
-              <span>Dữ Liệu</span>
-            </button>
-          </div>
-
-          {/* Logout button in mobile drawer opens confirmation modal */}
-          {isAuthenticated ? (
-            <button
-              type="button"
-              data-testid="drawer-logout-btn"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                setIsLogoutModalOpen(true);
-              }}
-              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition cursor-pointer active:scale-98"
-            >
-              <LogOut size={14} />
-              <span>Đăng Xuất Khỏi Tài Khoản</span>
-            </button>
+              <button
+                type="button"
+                data-testid="drawer-logout-btn"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsLogoutModalOpen(true);
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition cursor-pointer active:scale-98"
+              >
+                <LogOut size={14} />
+                <span>Đăng Xuất Tài Khoản</span>
+              </button>
+            </>
           ) : (
-            <button
-              type="button"
-              onClick={() => handleNavigate('/login')}
-              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-black text-xs font-bold transition cursor-pointer active:scale-98"
-            >
-              <User size={14} className="shrink-0" />
-              <span>Đăng Nhập / Đăng Ký Tài Khoản</span>
-            </button>
+            <>
+              {canInstall && (
+                <button
+                  type="button"
+                  data-testid="mobile-install-pwa-btn"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    triggerInstall();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition cursor-pointer active:scale-98"
+                >
+                  <Download size={14} />
+                  <span>Cài Đặt Ứng Dụng (PWA)</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleNavigate('/login');
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer active:scale-98 shadow-sm"
+              >
+                <User size={14} className="shrink-0" />
+                <span>Đăng Nhập / Đăng Ký</span>
+              </button>
+            </>
           )}
         </div>
-      )}
+      </aside>
 
       {/* Confirm Logout Dialog (Modal) */}
       {isLogoutModalOpen && (
