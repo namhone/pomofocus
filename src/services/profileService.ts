@@ -9,6 +9,12 @@
 import { supabase } from '../lib/supabase';
 import { isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 
+export const OWNER_EMAILS = [
+  'namho03052k9@gmail.com',
+  'huyentrantt09@gmail.com',
+  'tony31082009@gmail.com'
+];
+
 export interface CloudProfile {
   id: string;
   email: string;
@@ -60,24 +66,37 @@ export class ProfileService {
     displayName?: string;
     avatarUrl?: string;
   }): Promise<CloudProfile> {
-    const isFounder = isOwnerEmail(user.email);
+    const normalizedEmail = (user.email || '').trim().toLowerCase();
+    const isOwner = OWNER_EMAILS.includes(normalizedEmail) || isOwnerEmail(user.email);
     const isLady = isLadyBoss(user.email);
     const isVip = isVipFriend(user.email);
-    const isPrivileged = isFounder || isLady || isVip;
+    const isPrivileged = isOwner || isLady || isVip;
 
-    const defaultRole = isFounder ? 'founder' : isLady ? 'ladyboss' : 'user';
+    const defaultRole = isOwner ? 'founder' : isLady ? 'ladyboss' : 'user';
     const defaultPlan = isPrivileged ? 'lifetime' : 'free';
     const defaultCredits = isPrivileged ? 1000 : 50;
 
     const existing = await this.fetchProfile(user.id);
     if (existing) {
-      // Nếu là Founder/VIP nhưng trên cloud chưa cập nhật role hoặc plan
+      // Nếu là Owner/Founder nhưng trên cloud chưa cập nhật role hoặc plan
+      if (isOwner && (existing.plan !== 'lifetime' || existing.role !== 'founder')) {
+        const updated = await this.upsertProfile({
+          id: user.id,
+          email: user.email,
+          role: 'founder',
+          plan: 'lifetime',
+          plan_expires_at: null,
+          ai_credits_balance: Math.max(existing.ai_credits_balance || 0, 1000)
+        });
+        return updated || existing;
+      }
       if (isPrivileged && (existing.plan !== 'lifetime' || existing.role !== defaultRole)) {
         const updated = await this.upsertProfile({
           id: user.id,
           email: user.email,
           role: defaultRole,
           plan: 'lifetime',
+          plan_expires_at: null,
           ai_credits_balance: Math.max(existing.ai_credits_balance || 0, 1000)
         });
         return updated || existing;

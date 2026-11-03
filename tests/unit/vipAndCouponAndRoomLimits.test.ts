@@ -11,6 +11,7 @@ import {
 import { couponService } from '../../src/services/couponService';
 import { studyRoomService } from '../../src/services/studyRoomService';
 import { useAiStore } from '../../src/stores/useAiStore';
+import { ProfileService } from '../../src/services/profileService';
 
 describe('VIP & Coupon & Room Limits Audit Tests', () => {
   beforeEach(() => {

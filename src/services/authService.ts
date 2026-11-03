@@ -5,7 +5,11 @@ import type { GoogleUserPayload } from './googleAuthService';
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
 
 export const OWNER_EMAIL = 'namho03052k9@gmail.com';
-export const OWNER_EMAILS = [OWNER_EMAIL, 'nam.studyworkspace@gmail.com'];
+export const OWNER_EMAILS = [
+  'namho03052k9@gmail.com',
+  'huyentrantt09@gmail.com',
+  'tony31082009@gmail.com'
+];
 export const LADY_BOSS_EMAIL = 'huyentrantt09@gmail.com';
 export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
