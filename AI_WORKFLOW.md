@@ -88,23 +88,29 @@
   - [x] *Nút Điều Khiển "Bài Tiếp Theo ⏭" & "Bài Trước ⏮"*: Giao tiếp trực tiếp với YouTube IFrame Player API thông qua `postMessage` (`nextVideo` và `previousVideo`). Học sinh có thể chuyển bài tức thì chỉ với 1 chạm nếu gặp video bị chặn bản quyền hoặc muốn đổi nhạc. **[HOÀN THÀNH]**
   - [x] *Nút Lưu Nhanh Playlist & Mix Ruột*: Tự động hiển thị nút `[ 💾 Lưu Playlist ]` ngay trên thanh player khi phát danh sách chưa lưu. Khởi tạo sẵn 4 playlist/mix học tập chất lượng cao. **[HOÀN THÀNH]**
   - [x] *Kiểm Thử & Triển Khai Production*: 31/31 test suites Vitest pass (307 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 21 — Khắc Phục Lỗi Vỡ Khung Ngang & Lệch Lề Trái Thẻ Founder VIP Trên Mobile (`BillingView.tsx`)**:
+  - [x] *Sửa Layout Thẻ Founder VIP Cho Mobile (360px - 390px)*: Xóa bỏ các ràng buộc chiều rộng cứng nhắc, chuyển sang `w-full max-w-xl mx-auto box-border px-4 sm:px-6 py-5 sm:py-7 rounded-2xl sm:rounded-3xl border-2 border-amber-400/50 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black shadow-2xl overflow-hidden`.
+  - [x] *Sửa Header, Khối Thông Tin & 3 Nút Điều Khiển*: Header thẻ chuyển sang `flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80 w-full min-w-0`, icon crown `shrink-0`, wrapper text `min-w-0 flex-1`, tiêu đề `break-words`. Khối 3 nút điều khiển đổi sang `flex items-center gap-2 flex-wrap w-full sm:w-auto pt-2 sm:pt-0` với các nút `flex-1 sm:flex-none` và `w-full sm:w-auto`, triệt tiêu hoàn toàn nguyên nhân gây phình khung ngang.
+  - [x] *Chống Tràn Ngang Toàn Trang*: Bổ sung `max-w-full overflow-x-hidden` vào outer container và `box-border overflow-x-hidden` vào `<main>`.
+  - [x] *Kiểm Thử & Triển Khai Production*: Chạy Playwright test viewport iPhone (390×844) xác nhận `scrollWidth === clientWidth === 390` (hasHorizontalOverflow = false), bounding box thẻ `{ x: 16, y: 157, width: 358 }` căn đều 2 bên mép 16px. Vitest 31/31 suites pass (307 tests), Vite build thành công, deploy Vercel Production `dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8` READY, alias trỏ `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:24
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:37
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *YouTube Mix (RD...) & Playlist (PL...) Dual Compatibility*:
-     - Bóc tách `list=PL...` -> `videoseries?list=${listId}`.
-     - Bóc tách `list=RD...` -> `${videoId}?list=${listId}` (giữ nguyên starting videoId để YouTube Mix không bị lỗi 404).
-     - Tích hợp `enablejsapi=1` và `origin` trên iframe.
-  2. *Next / Previous IFrame API Controls*:
-     - Gửi `command: 'nextVideo'` và `command: 'previousVideo'` qua `postMessage` tới `iframe.contentWindow`.
-     - Cho phép học sinh nhảy bài tức thì khi gặp video bản quyền bị chặn.
+  1. *Mobile Viewport & Horizontal Overflow Prevention in BillingView*:
+     - Outer container & main: Thêm `max-w-full overflow-x-hidden box-border`.
+     - Thẻ Founder VIP: `w-full max-w-xl mx-auto box-border px-4 sm:px-6`.
+     - Footer buttons: Thêm `flex-wrap` và `w-full sm:w-auto` để tránh cố định min-width vượt quá màn hình 390px.
+  2. *Thực nghiệm Playwright iPhone (390×844)*:
+     - `scrollWidth: 390, clientWidth: 390, hasHorizontalOverflow: false`.
+     - Thẻ Founder VIP nằm trọn trong viewport: `x: 16, width: 358`, hiển thị đầy đủ tiêu đề "Thành Viên PRO Trọn Đời (Lifetime Founder)" và badge "FOUNDER LIFETIME VIP".
+     - Ảnh chụp chứng minh: `proof-founder-vip-mobile-390.png`.
   3. *Đóng gói & Triển khai*:
      - Vitest: **31/31 test files passed, 307/307 tests passed (100%)**.
-     - Vite Build: Đóng gói thành công, 0 lỗi.
-     - Production Deployment: `dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe` Ready, alias `https://pomofocus-workspace.vercel.app`.
+     - Vite Build: Đóng gói thành công, 0 cảnh báo logic.
+     - Production Deployment: `dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8` Ready, alias `https://pomofocus-workspace.vercel.app`.
      - Live Verification: HTTP 200 OK.
