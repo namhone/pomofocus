@@ -389,7 +389,7 @@ export const MobileBottomNav: React.FC = () => {
         className={`fixed bottom-0 left-0 right-0 z-50 w-full bg-[rgba(14,17,25,0.78)] backdrop-blur-3xl backdrop-saturate-[190%] border-t border-t-white/[0.18] shadow-[0_-8px_30px_rgba(0,0,0,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.15)] flex items-center justify-between px-2 pt-1.5 pb-[max(10px,env(safe-area-inset-bottom,10px))] select-none transition-all duration-200 ${
           isKeyboardOpen
             ? 'translate-y-full opacity-0 pointer-events-none'
-            : isFocusDimmed ? 'translate-y-0 opacity-20 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
+            : isFocusDimmed ? 'translate-y-0 opacity-15 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
         }`}
       >
         {/* 5 Primary Navigation Destinations */}

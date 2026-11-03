@@ -14,11 +14,8 @@ test.describe('PomoFocus Demo Beta — Comprehensive User Journey & Views', () =
     await page.goto('/billing');
     await page.waitForLoadState('networkidle');
 
-    // 1. Kiểm tra banner Demo Beta trên trang Billing
-    const betaBanner = page.getByTestId('billing-beta-banner');
-    await expect(betaBanner).toBeVisible();
-    await expect(betaBanner).toContainText('KHÔNG THU TIỀN THẬT');
-    await expect(betaBanner).toContainText('3 NĂM PRO MIỄN PHÍ');
+    // 1. Kiểm tra trang Bảng Giá hiển thị chuẩn Zen
+    await expect(page.getByTestId('billing-view')).toBeVisible();
 
     // 2. Mở MoMo Modal và kiểm tra cảnh báo không thu tiền thật
     await page.getByTestId('btn-pay-momo').click();

@@ -103,7 +103,7 @@ export const PlatformHeader: React.FC = () => {
     <>
       <header
         data-testid="platform-unified-header"
-        className={`sticky top-0 z-40 h-12 w-full border-b border-white/10 bg-[#09090b]/90 px-2.5 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-20 hover:opacity-100" : "opacity-100"}`}
+        className={`sticky top-0 z-40 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-15 hover:opacity-100" : "opacity-100"}`}
       >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
@@ -390,7 +390,7 @@ export const PlatformHeader: React.FC = () => {
 
       {/* Mobile Drawer / Dropdown Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-12 z-50 bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/15 shadow-2xl p-4 transition-all max-h-[calc(100vh-3rem)] overflow-y-auto">
+        <div className="lg:hidden fixed inset-x-0 top-14 z-50 bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/[0.08] shadow-2xl p-4 transition-all max-h-[calc(100vh-3.5rem)] overflow-y-auto">
           {/* User profile card in drawer on mobile */}
           {isAuthenticated && user && (
             <div className="mb-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">

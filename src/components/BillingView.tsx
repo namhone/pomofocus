@@ -13,10 +13,6 @@ import {
   Zap,
   ShieldCheck,
   ArrowLeft,
-  User,
-  Shield,
-  CreditCard,
-  Database,
   Crown,
   Receipt,
   Award,
@@ -232,42 +228,8 @@ export const BillingView: React.FC = () => {
       <PlatformHeader />
 
       <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-hidden">
-        {/* Navigation Breadcrumb & Back to App */}
-        <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
-            <button
-              type="button"
-              onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <User size={13} className="text-zinc-400" />
-              <span>Hồ Sơ Cá Nhân</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <Shield size={13} className="text-zinc-400" />
-              <span>Bảo Mật</span>
-            </button>
-            <button
-              type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <CreditCard size={13} className="text-zinc-200" />
-              <span>Gói Cước</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <Database size={13} className="text-zinc-400" />
-              <span>Quyền Riêng Tư</span>
-            </button>
-          </div>
-
+        {/* Back to App Navigation */}
+        <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60">
           <button
             type="button"
             data-testid="billing-back-btn"
@@ -275,10 +237,10 @@ export const BillingView: React.FC = () => {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
           >
             <ArrowLeft size={14} />
-            <span className="hidden sm:inline">Quay lại Không Gian Học</span>
+            <span>Quay lại Không Gian Học</span>
           </button>
+          <span className="text-xs text-zinc-500 font-mono hidden sm:inline">PomoFocus Pricing</span>
         </div>
-
         {statusMessage && (
           <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
             <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
@@ -637,7 +599,7 @@ export const BillingView: React.FC = () => {
               </p>
 
               {/* Billing Cycle Switch (2 chế độ: Tháng và Năm chuẩn Stripe/Linear) */}
-              <div className="mt-4 inline-flex items-center p-1 rounded-xl border border-zinc-800 bg-zinc-900/90 text-xs shadow-inner">
+              <div className="mt-4 inline-flex items-center p-1 rounded-full border border-zinc-800 bg-zinc-900 text-xs shadow-inner">
                 <button
                   type="button"
                   data-testid="billing-cycle-monthly"
@@ -667,27 +629,7 @@ export const BillingView: React.FC = () => {
                 </button>
               </div>
 
-              {/* Beta Notice Pill Banner (Thu gọn tinh tế ở đầu trang) */}
-              <div
-                data-testid="billing-beta-banner"
-                className="mt-2 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/30 text-xs text-zinc-300 shadow-sm backdrop-blur-sm"
-              >
-                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px] uppercase tracking-wider">
-                  <Sparkles size={12} className="shrink-0 animate-pulse text-emerald-400" />
-                  Cổng thanh toán tự động &amp; Sandbox test: KHÔNG THU TIỀN THẬT
-                </span>
-                <span className="text-zinc-600 hidden sm:inline">•</span>
-                <span className="text-zinc-300 text-[11px]">
-                  Đăng ký nhận ngay <strong className="text-emerald-300 font-bold">3 NĂM PRO MIỄN PHÍ</strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => router.navigate('/signup')}
-                  className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-medium cursor-pointer"
-                >
-                  Đăng ký ngay &rarr;
-                </button>
-              </div>
+              
             </div>
 
             {/* Pricing Cards Grid - 3 Cột Cân Đối Chuẩn SaaS (Free | PRO | Founder VIP) */}

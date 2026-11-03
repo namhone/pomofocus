@@ -9,7 +9,7 @@ import { useLayoutStore } from '../stores/useLayoutStore';
  * sẽ tự động mờ dần 80% (opacity 0.2) để trả lại 100% không gian tập trung sâu.
  * Khi di chuột, chạm tay hoặc bấm phím, giao diện ngay lập tức sáng lại 100%.
  */
-export const useFocusAutoDim = (idleMs: number = 4000) => {
+export const useFocusAutoDim = (idleMs: number = 3000) => {
   const status = useTimerStore((state) => state.status);
   const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
   const setIsFocusDimmed = useLayoutStore((state) => state.setIsFocusDimmed);

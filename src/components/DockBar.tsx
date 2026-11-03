@@ -203,7 +203,7 @@ export const DockBar: React.FC = () => {
           : dockPosition === 'top' ? 'translate(-50%, calc(-100% + 8px))'
           : dockPosition === 'left' ? 'translate(calc(-100% + 8px), -50%)'
           : 'translate(calc(100% - 8px), -50%)',
-        opacity: !isDockVisible ? 0.32 : isFocusDimmed ? 0.2 : 1,
+        opacity: !isDockVisible ? 0.32 : isFocusDimmed ? 0.15 : 1,
         pointerEvents: isDockVisible ? 'auto' : 'none'
       }}
       onMouseEnter={() => {
