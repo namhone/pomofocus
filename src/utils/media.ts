@@ -2,6 +2,12 @@
  * Media Utilities for YouTube Embeds & Direct Audio Streams
  */
 
+export function extractYouTubePlaylistId(url: string): string | null {
+  if (!url) return null;
+  const match = url.trim().match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  return match && match[1] ? match[1] : null;
+}
+
 export function extractYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
   const trimmed = url.trim();

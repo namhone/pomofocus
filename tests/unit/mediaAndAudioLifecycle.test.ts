@@ -1,10 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { extractYouTubeEmbedUrl, isDirectAudioUrl } from '../../src/utils/media';
+import { extractYouTubeEmbedUrl, extractYouTubePlaylistId, isDirectAudioUrl } from '../../src/utils/media';
 import { useAudioStore, DEFAULT_SETTINGS } from '../../src/stores/useAudioStore';
 
 describe('Media Utilities & Global Audio Lifecycle', () => {
   beforeEach(() => {
     useAudioStore.getState().resetToDefaults();
+  });
+
+  it('extractYouTubePlaylistId correctly extracts list parameter from various URL structures', () => {
+    expect(extractYouTubePlaylistId('https://www.youtube.com/playlist?list=PLofht4PTcKYnaH8w5gkDC0o6z738yq2Qn')).toBe(
+      'PLofht4PTcKYnaH8w5gkDC0o6z738yq2Qn'
+    );
+    expect(extractYouTubePlaylistId('https://www.youtube.com/watch?v=jfKfPfyJRdk&list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo')).toBe(
+      'PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo'
+    );
+    expect(extractYouTubePlaylistId('https://www.youtube.com/watch?v=jfKfPfyJRdk')).toBeNull();
+    expect(extractYouTubePlaylistId('')).toBeNull();
   });
 
   it('extractYouTubeEmbedUrl parses various YouTube formats', () => {
@@ -55,6 +66,22 @@ describe('Media Utilities & Global Audio Lifecycle', () => {
 
     // 4. Resume starts playing again
     store.setCustomMusicPlaying(true);
+    expect(useAudioStore.getState().customMusicPlaying).toBe(true);
+  });
+
+  it('supports YouTube playlist parsing and favorite playlists workflow', () => {
+    // 1. Parsing single video vs playlist with list parameter
+    const videoWithList = 'https://www.youtube.com/watch?v=jfKfPfyJRdk&list=PLofht4PTcKYnaH8w5gkDC0o6z738yq2Qn';
+    const embedUrl = extractYouTubeEmbedUrl(videoWithList);
+    expect(embedUrl).toContain('videoseries?list=PLofht4PTcKYnaH8w5gkDC0o6z738yq2Qn');
+
+    // 2. Setting store with playlist URL
+    const store = useAudioStore.getState();
+    store.setCustomMusicUrl(videoWithList, 'youtube');
+    store.setCustomMusicPlaying(true);
+
+    expect(useAudioStore.getState().customMusicUrl).toBe(videoWithList);
+    expect(useAudioStore.getState().customMusicType).toBe('youtube');
     expect(useAudioStore.getState().customMusicPlaying).toBe(true);
   });
 });
