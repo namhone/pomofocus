@@ -45,6 +45,7 @@ export const DockBar: React.FC = () => {
   const resetLayout = useLayoutStore((state) => state.resetLayout);
   const dockPosition = useLayoutStore((state) => state.dockPosition);
   const dockAutoHide = useLayoutStore((state) => state.dockAutoHide);
+  const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isDockVisible, setIsDockVisible] = useState(true);
@@ -100,18 +101,13 @@ export const DockBar: React.FC = () => {
     );
   }
 
-  const productivityButtons: Array<{
+  // 1. Nhóm Kế hoạch
+  const planButtons: Array<{
     id: WidgetId;
     label: string;
     icon: React.ReactNode;
     testId: string;
   }> = [
-    {
-      id: 'timer',
-      label: 'Đồng hồ',
-      icon: <Clock size={16} strokeWidth={1.75} />,
-      testId: 'dock-btn-timer'
-    },
     {
       id: 'tasks',
       label: 'Công việc',
@@ -132,6 +128,7 @@ export const DockBar: React.FC = () => {
     }
   ];
 
+  // 2. Nhóm Không gian & Âm thanh
   const atmosphereButtons: Array<{
     id: WidgetId;
     label: string;
@@ -176,7 +173,7 @@ export const DockBar: React.FC = () => {
         type="button"
         data-testid={testId}
         onClick={() => toggleWidget(id)}
-        className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+        className={`relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
           isOpen
             ? 'bg-white/15 text-white border border-white/10 shadow-sm'
             : 'text-neutral-300 hover:text-white hover:bg-white/10 hover:border-zinc-700/60'
@@ -206,7 +203,7 @@ export const DockBar: React.FC = () => {
           : dockPosition === 'top' ? 'translate(-50%, calc(-100% + 8px))'
           : dockPosition === 'left' ? 'translate(calc(-100% + 8px), -50%)'
           : 'translate(calc(100% - 8px), -50%)',
-        opacity: isDockVisible ? 1 : 0.32,
+        opacity: !isDockVisible ? 0.32 : isFocusDimmed ? 0.2 : 1,
         pointerEvents: isDockVisible ? 'auto' : 'none'
       }}
       onMouseEnter={() => {
@@ -229,36 +226,113 @@ export const DockBar: React.FC = () => {
           scheduleHide();
         }
       }}
-      className={`fixed z-50 flex max-h-[90vh] max-w-[95vw] items-center gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.72)] px-3 py-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.20)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-[transform,opacity] duration-200 ${
-        isVertical ? 'flex-col w-16' : 'flex-row h-16'
+      className={`fixed z-50 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.78)] p-1.5 sm:p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.20)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 hover:opacity-100 ${
+        isVertical ? 'flex-col w-16' : 'flex-row'
       } ${
         dockPosition === 'bottom' ? 'bottom-4 left-1/2' :
         dockPosition === 'top' ? 'top-4 left-1/2' :
         dockPosition === 'left' ? 'left-4 top-1/2' : 'right-4 top-1/2'
       }`}
     >
-      {/* Group 1: Productivity Widgets */}
-      <div className={`flex items-center gap-2 ${isVertical ? 'flex-col' : 'flex-row'}`}>
-        {productivityButtons.map(renderDockButton)}
+      {/* ========================================================================= */}
+      {/* NHÓM 1: ⏱ TẬP TRUNG (TIMER & FOCUS MODES)                                  */}
+      {/* ========================================================================= */}
+      <div
+        className={`flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/5 ${
+          isVertical ? 'flex-col' : 'flex-row'
+        }`}
+        title="Nhóm Tập trung"
+      >
+        {/* Nút Đồng hồ Pomodoro */}
+        {renderDockButton({
+          id: 'timer',
+          label: 'Đồng hồ',
+          icon: <Clock size={16} strokeWidth={1.75} />,
+          testId: 'dock-btn-timer'
+        })}
+
+        {/* Nút Focus Mode */}
+        <button
+          type="button"
+          data-testid="dock-btn-focus"
+          onClick={toggleFocusMode}
+          className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            isFocusMode
+              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/30 shadow-sm'
+              : 'text-neutral-300 hover:text-white hover:bg-white/10'
+          }`}
+          title={isFocusMode ? 'Tắt Focus Mode (quay lại bố cục đầy đủ)' : 'Bật Focus Mode (tập trung Timer + Công việc)'}
+          aria-label="Chế độ tập trung cao độ"
+          aria-pressed={isFocusMode}
+        >
+          <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-neutral-300'} />
+          {isFocusMode && (
+            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
+          )}
+        </button>
+
+        {/* Nút Zen Mode */}
+        <button
+          type="button"
+          data-testid="dock-btn-zen"
+          onClick={toggleZenMode}
+          className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/80 hover:bg-neutral-700/80 border border-white/5 active:scale-[0.98] transition-all duration-150 focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer h-10 sm:h-11"
+          title="Bật chế độ Zen (Phím tắt: Z hoặc H)"
+          aria-label="Bật chế độ Zen"
+        >
+          <Maximize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
+          <span className="hidden xl:inline text-[11px] font-semibold">Zen</span>
+          <kbd className="hidden xl:inline px-1 py-0.2 rounded bg-neutral-900 border border-white/10 text-[9px] text-neutral-400 font-mono">
+            Z
+          </kbd>
+        </button>
       </div>
 
-      <div className={`${isVertical ? 'h-px w-4' : 'h-5 w-px'} bg-white/12 mx-0.5`} />
+      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
-      {/* Group 2: Atmosphere & Sounds */}
-      <div className={`flex items-center gap-2 ${isVertical ? 'flex-col' : 'flex-row'}`}>
+      {/* ========================================================================= */}
+      {/* NHÓM 2: 📋 KẾ HOẠCH (TASKS, NOTES, CALENDAR)                               */}
+      {/* ========================================================================= */}
+      <div
+        className={`flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/5 ${
+          isVertical ? 'flex-col' : 'flex-row'
+        }`}
+        title="Nhóm Kế hoạch"
+      >
+        {planButtons.map(renderDockButton)}
+      </div>
+
+      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+
+      {/* ========================================================================= */}
+      {/* NHÓM 3: 🎧 KHÔNG GIAN (SPACES, SOUNDS, MEDIA)                              */}
+      {/* ========================================================================= */}
+      <div
+        className={`flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/5 ${
+          isVertical ? 'flex-col' : 'flex-row'
+        }`}
+        title="Nhóm Không gian & Âm thanh"
+      >
         {atmosphereButtons.map(renderDockButton)}
       </div>
 
-      <div className={`${isVertical ? 'h-px w-4' : 'h-5 w-px'} bg-white/12 mx-0.5`} />
+      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
-      {/* Group 3: Settings Window & Actions */}
-      <div className={`flex items-center gap-2 relative ${isVertical ? 'flex-col' : 'flex-row'}`}>
+      {/* ========================================================================= */}
+      {/* NHÓM 4: ✨ TRỢ LÝ AI & CÀI ĐẶT BỐ CỤC                                     */}
+      {/* ========================================================================= */}
+      <div
+        className={`flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/5 relative ${
+          isVertical ? 'flex-col' : 'flex-row'
+        }`}
+        title="Nhóm Trợ lý AI & Bố cục"
+      >
         {/* AI Study Companion Trigger */}
         <button
           type="button"
           data-testid="dock-btn-ai"
           onClick={() => toggleAi()}
-          className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+          className={`relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
             isAiOpen
               ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
               : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
@@ -276,11 +350,12 @@ export const DockBar: React.FC = () => {
           )}
         </button>
 
+        {/* Nút Cài đặt & Bố cục */}
         <button
           type="button"
           data-testid="dock-btn-presets"
           onClick={() => toggleWidget('settings')}
-          className={`relative flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+          className={`relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             settingsOpen
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-neutral-300 hover:text-white hover:bg-white/10'
@@ -295,30 +370,12 @@ export const DockBar: React.FC = () => {
           )}
         </button>
 
-        <button
-          type="button"
-          data-testid="dock-btn-focus"
-          onClick={toggleFocusMode}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-            isFocusMode
-              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/30 shadow-sm'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
-          }`}
-          title={isFocusMode ? 'Tắt Focus Mode (quay lại bố cục đầy đủ)' : 'Bật Focus Mode (tập trung Timer + Công việc)'}
-          aria-label="Chế độ tập trung cao độ"
-          aria-pressed={isFocusMode}
-        >
-          <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-neutral-300'} />
-          {isFocusMode && (
-            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
-          )}
-        </button>
-
+        {/* Nút Mật độ hiển thị */}
         <button
           type="button"
           data-testid="dock-btn-density"
           onClick={toggleDensity}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+          className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             density === 'compact'
               ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
               : 'text-neutral-300 hover:text-white hover:bg-white/10'
@@ -329,26 +386,12 @@ export const DockBar: React.FC = () => {
           <Minimize size={15} strokeWidth={1.75} />
         </button>
 
-        <button
-          type="button"
-          data-testid="dock-btn-zen"
-          onClick={toggleZenMode}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/80 hover:bg-neutral-700/80 border border-white/5 active:scale-[0.98] transition-all duration-150 focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer h-11"
-          title="Bật chế độ Zen (Phím tắt: Z hoặc H)"
-          aria-label="Bật chế độ Zen"
-        >
-          <Maximize2 size={15} strokeWidth={1.75} className="text-emerald-400" />
-          <span className="hidden xl:inline">Zen Mode</span>
-          <kbd className="hidden xl:inline px-1 py-0.2 rounded bg-neutral-900 border border-white/10 text-[10px] text-neutral-400 font-mono">
-            Z
-          </kbd>
-        </button>
-
+        {/* Nút Khôi phục bố cục mặc định */}
         <button
           type="button"
           data-testid="dock-btn-reset-layout"
           onClick={() => setShowResetConfirm(true)}
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-xs font-medium text-neutral-400 transition-all duration-150 hover:bg-neutral-800/50 hover:text-neutral-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer"
+          className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium text-neutral-400 transition-all duration-150 hover:bg-neutral-800/50 hover:text-neutral-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer"
           title="Khôi phục bố cục mặc định"
           aria-label="Khôi phục bố cục mặc định"
         >
@@ -356,6 +399,7 @@ export const DockBar: React.FC = () => {
         </button>
       </div>
     </nav>
+
     {showResetConfirm && (
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm">
         <section
@@ -392,6 +436,7 @@ export const DockBar: React.FC = () => {
         </section>
       </div>
     )}
+
     {dockAutoHide && !isDockVisible && (
       <button
         type="button"

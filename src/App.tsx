@@ -23,6 +23,7 @@ import { LegalViews } from './components/LegalViews';
 import { NotFoundView } from './components/NotFoundView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useLayoutStore } from './stores/useLayoutStore';
+import { useFocusAutoDim } from './hooks/useFocusAutoDim';
 import { useTimerStore } from './stores/useTimerStore';
 import { useAuthStore } from './stores/useAuthStore';
 import { supabase } from './lib/supabase';
@@ -69,6 +70,7 @@ const AiCompanionWidget = lazy(() =>
 );
 
 export const App: React.FC = () => {
+  useFocusAutoDim();
   const isZenMode = useLayoutStore((state) => state.isZenMode);
   const isMobile = useLayoutStore((state) => state.isMobile);
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);

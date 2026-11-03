@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useAiStore } from '../stores/useAiStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -19,7 +20,8 @@ import {
   Crown,
   Receipt,
   Award,
-  Flame
+  Flame,
+  ChevronDown
 } from 'lucide-react';
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
@@ -136,6 +138,14 @@ const renderComparisonCell = (
   );
 };
 
+
+const CREDIT_PACKS = [
+  { id: 'pack_300', credits: 300, priceVnd: 19000, formatted: '19.000₫', discount: '0%', popular: false },
+  { id: 'pack_700', credits: 700, priceVnd: 39000, formatted: '39.000₫', discount: 'Tiết kiệm 15%', popular: false },
+  { id: 'pack_1500', credits: 1500, priceVnd: 69000, formatted: '69.000₫', discount: 'Tiết kiệm 28%', popular: true },
+  { id: 'pack_4000', credits: 4000, priceVnd: 149000, formatted: '149.000₫', discount: 'Tiết kiệm 40%', popular: false }
+];
+
 export const BillingView: React.FC = () => {
   const router = useRouter();
   const [cycle, setCycle] = useState<PlanCycle>('yearly');
@@ -145,6 +155,8 @@ export const BillingView: React.FC = () => {
   const { upgradeToSandboxPro, downgradeToFree, isPro, isLifetime, user, planLabel } = useAuthStore();
   const [couponCode, setCouponCode] = useState('');
   const [couponResult, setCouponResult] = useState<{ success: boolean; text: string } | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
+  const [billingTab, setBillingTab] = useState<'credits' | 'coupon'>('credits');
 
   const currentPlan = PRICING_PLANS[cycle];
 
@@ -991,7 +1003,7 @@ export const BillingView: React.FC = () => {
               data-testid="billing-comparison-section"
               className="pt-8 border-t border-zinc-800/80 space-y-6"
             >
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-3">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-full inline-block">
                   MINH BẠCH &amp; ĐA CHIỀU
                 </span>
@@ -1001,124 +1013,139 @@ export const BillingView: React.FC = () => {
                 <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
                   So sánh chi tiết quyền lợi giữa gói Miễn Phí và các gói PRO Tháng, PRO Năm, PRO Trọn Đời của PomoFocus.
                 </p>
+
+                {/* Accordion Toggle Button */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    data-testid="toggle-comparison-table-btn"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition cursor-pointer shadow-sm group"
+                  >
+                    <span>{showComparison ? 'Thu gọn bảng so sánh chi tiết' : 'Xem bảng so sánh tính năng chi tiết (17 tiêu chí)'}</span>
+                    <ChevronDown size={15} className={`transition-transform duration-200 text-zinc-400 group-hover:text-white ${showComparison ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
               </div>
 
-              {/* Table Container */}
-              <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm shadow-xl scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
-                <table className="w-full text-left border-separate border-spacing-0 min-w-[760px] text-xs">
-                  <thead>
-                    <tr className="bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
-                      <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-4 px-4 w-[28%] min-w-[190px] sm:min-w-[240px] text-zinc-300 font-semibold shadow-xs">
-                        Tính Năng &amp; Đặc Quyền
-                      </th>
-                      <th className="py-4 px-3 w-[16%] min-w-[120px] text-center text-zinc-400 border-b border-zinc-800">
-                        Gói Free (0₫)
-                      </th>
-                      <th className="py-4 px-3 w-[18%] min-w-[130px] text-center text-zinc-300 border-b border-zinc-800">
-                        Gói Tháng (59k)
-                      </th>
-                      <th className="py-4 px-3 w-[18%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
-                        Gói Năm (-34%)
-                        <span className="text-[9px] text-indigo-400 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
-                      </th>
-                      <th className="py-4 px-3 w-[20%] min-w-[160px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
-                        <span className="inline-flex items-center gap-1">
-                          <Crown size={12} className="text-amber-400" />
-                          Gói Trọn Đời
-                        </span>
-                        <span className="text-[9px] text-amber-400 font-bold block normal-case">FOUNDER VIP</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {COMPARISON_FEATURES.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="hover:bg-zinc-800/30 transition-colors"
-                      >
-                        <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[190px] sm:min-w-[240px] shadow-xs">
-                          <div className="flex items-center gap-1.5">
-                            {item.id === 'badge' && (
-                              <Crown size={13} className="text-amber-400 shrink-0" />
-                            )}
-                            {item.id === 'early_access' && (
-                              <Sparkles size={13} className="text-amber-400 shrink-0" />
-                            )}
-                            <span>{item.feature}</span>
+              {/* Table Container - Expandable Progressive Disclosure */}
+              {showComparison && (
+                <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm shadow-xl scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
+                  <table className="w-full text-left border-separate border-spacing-0 min-w-[760px] text-xs">
+                    <thead>
+                      <tr className="bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
+                        <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-4 px-4 w-[28%] min-w-[190px] sm:min-w-[240px] text-zinc-300 font-semibold shadow-xs">
+                          Tính Năng &amp; Đặc Quyền
+                        </th>
+                        <th className="py-4 px-3 w-[16%] min-w-[120px] text-center text-zinc-400 border-b border-zinc-800">
+                          Gói Free (0₫)
+                        </th>
+                        <th className="py-4 px-3 w-[18%] min-w-[130px] text-center text-zinc-300 border-b border-zinc-800">
+                          Gói Tháng (59k)
+                        </th>
+                        <th className="py-4 px-3 w-[18%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
+                          Gói Năm (-34%)
+                          <span className="text-[9px] text-indigo-400 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
+                        </th>
+                        <th className="py-4 px-3 w-[20%] min-w-[160px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
+                          <span className="inline-flex items-center gap-1">
+                            <Crown size={12} className="text-amber-400" />
+                            Gói Trọn Đời
+                          </span>
+                          <span className="text-[9px] text-amber-400 font-bold block normal-case">FOUNDER VIP</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {COMPARISON_FEATURES.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="hover:bg-zinc-800/30 transition-colors"
+                        >
+                          <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[190px] sm:min-w-[240px] shadow-xs">
+                            <div className="flex items-center gap-1.5">
+                              {item.id === 'badge' && (
+                                <Crown size={13} className="text-amber-400 shrink-0" />
+                              )}
+                              {item.id === 'early_access' && (
+                                <Sparkles size={13} className="text-amber-400 shrink-0" />
+                              )}
+                              <span>{item.feature}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-3.5 px-3 text-center text-zinc-400 border-b border-zinc-800/60">
+                            {renderComparisonCell(item.free, 'free', item.id)}
+                          </td>
+
+                          <td className="py-3.5 px-3 text-center text-zinc-300 border-b border-zinc-800/60">
+                            {renderComparisonCell(item.monthly, 'monthly', item.id)}
+                          </td>
+
+                          <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20 text-indigo-100">
+                            {renderComparisonCell(item.yearly, 'yearly', item.id)}
+                          </td>
+
+                          <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25 text-amber-100">
+                            {renderComparisonCell(item.lifetime, 'lifetime', item.id)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+
+                    <tfoot>
+                      <tr className="bg-zinc-950/80">
+                        <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-4 px-4 text-xs text-zinc-400 min-w-[190px] sm:min-w-[240px] shadow-xs">
+                          <div className="flex items-center gap-1.5 text-zinc-500 font-mono text-[11px]">
+                            <ShieldCheck size={14} className="text-zinc-400 shrink-0" />
+                            <span className="truncate">Cam kết minh bạch 100% không chi phí ẩn</span>
                           </div>
                         </td>
-
-                        <td className="py-3.5 px-3 text-center text-zinc-400 border-b border-zinc-800/60">
-                          {renderComparisonCell(item.free, 'free', item.id)}
+                        <td className="py-4 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              downgradeToFree();
+                              setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
+                            }}
+                            className="px-3 py-1.5 rounded-lg border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
+                          >
+                            Bắt Đầu Free
+                          </button>
                         </td>
-
-                        <td className="py-3.5 px-3 text-center text-zinc-300 border-b border-zinc-800/60">
-                          {renderComparisonCell(item.monthly, 'monthly', item.id)}
+                        <td className="py-4 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectPlanAndCheckout('monthly')}
+                            className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
+                          >
+                            Chọn Gói Tháng
+                          </button>
                         </td>
-
-                        <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20 text-indigo-100">
-                          {renderComparisonCell(item.yearly, 'yearly', item.id)}
+                        <td className="py-4 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectPlanAndCheckout('yearly')}
+                            className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
+                          >
+                            Chọn Gói Năm
+                          </button>
                         </td>
-
-                        <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25 text-amber-100">
-                          {renderComparisonCell(item.lifetime, 'lifetime', item.id)}
+                        <td className="py-4 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectPlanAndCheckout('lifetime')}
+                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
+                          >
+                            <Crown size={11} className="fill-black" />
+                            Sở Hữu Trọn Đời
+                          </button>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-
-                  <tfoot>
-                    <tr className="bg-zinc-950/80">
-                      <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-4 px-4 text-xs text-zinc-400 min-w-[190px] sm:min-w-[240px] shadow-xs">
-                        <div className="flex items-center gap-1.5 text-zinc-500 font-mono text-[11px]">
-                          <ShieldCheck size={14} className="text-zinc-400 shrink-0" />
-                          <span className="truncate">Cam kết minh bạch 100% không chi phí ẩn</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            downgradeToFree();
-                            setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
-                          }}
-                          className="px-3 py-1.5 rounded-lg border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
-                        >
-                          Bắt Đầu Free
-                        </button>
-                      </td>
-                      <td className="py-4 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectPlanAndCheckout('monthly')}
-                          className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
-                        >
-                          Chọn Gói Tháng
-                        </button>
-                      </td>
-                      <td className="py-4 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectPlanAndCheckout('yearly')}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
-                        >
-                          Chọn Gói Năm
-                        </button>
-                      </td>
-                      <td className="py-4 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
-                        >
-                          <Crown size={11} className="fill-black" />
-                          Sở Hữu Trọn Đời
-                        </button>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
             </section>
           </>
         )}
@@ -1126,43 +1153,139 @@ export const BillingView: React.FC = () => {
         {/* ========================================================================= */}
         {/* KHỐI NHẬP MÃ QUÀ TẶNG / GÓI ĐẶC QUYỀN (HIỂN THỊ CHO TẤT CẢ CÁC GÓI)       */}
         {/* ========================================================================= */}
-        <div data-testid="universal-coupon-redemption" className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-xl mx-auto w-full text-center space-y-3 mt-4">
-          <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
-            <Gift size={16} className="text-amber-400" />
-            <span>Kích Hoạt Mã Ưu Đãi / Quà Tặng (Coupon)</span>
-          </div>
-          <p className="text-xs text-zinc-400">
-            Bạn có mã quà tặng từ sự kiện hoặc Chủ sở hữu? Nhập mã vào đây để kích hoạt hoặc cộng dồn thời hạn ngay.
-          </p>
-          <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
-            <input
-              type="text"
-              data-testid="input-coupon-universal"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
-              className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
-            />
+        <div data-testid="universal-coupon-redemption" className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-2xl mx-auto w-full space-y-4 mt-6">
+          {/* Dual Tab Pill Navigation */}
+          <div className="flex items-center justify-center p-1 rounded-xl bg-zinc-950/80 border border-zinc-800 max-w-md mx-auto">
             <button
-              type="submit"
-              data-testid="btn-redeem-coupon-universal"
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
-            >
-              Áp Dụng
-            </button>
-          </form>
-          {couponResult && (
-            <div
-              className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
-                couponResult.success ? 'text-emerald-400' : 'text-rose-400'
+              type="button"
+              data-testid="tab-ai-credits"
+              onClick={() => setBillingTab('credits')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                billingTab === 'credits'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}
-              <span>{couponResult.text}</span>
+              <Zap size={14} className="text-amber-400" />
+              <span>Nạp Lẻ AI Credits ⚡</span>
+            </button>
+            <button
+              type="button"
+              data-testid="tab-coupon"
+              onClick={() => setBillingTab('coupon')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                billingTab === 'coupon'
+                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <Gift size={14} className="text-indigo-400" />
+              <span>Mã Ưu Đãi / Coupon</span>
+            </button>
+          </div>
+
+          {/* TAB 1: NẠP LẺ AI CREDITS PACKS */}
+          {billingTab === 'credits' && (
+            <div className="space-y-4 pt-1">
+              <div className="text-center space-y-1">
+                <h3 className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
+                  <span>Nạp Lẻ Điểm AI Study Credits</span>
+                  <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                    Không Hết Hạn
+                  </span>
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR hoặc MoMo, điểm cộng dồn vĩnh viễn vào tài khoản.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                {CREDIT_PACKS.map((pack) => (
+                  <div
+                    key={pack.id}
+                    className={`p-3 rounded-xl border flex flex-col justify-between text-center relative transition hover:scale-[1.02] ${
+                      pack.popular
+                        ? 'border-amber-500/50 bg-amber-500/[0.06] shadow-sm'
+                        : 'border-zinc-800 bg-zinc-950/60 hover:border-zinc-700'
+                    }`}
+                  >
+                    {pack.popular && (
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-400 text-neutral-950 font-black text-[9px] uppercase tracking-wider shadow-xs">
+                        Phổ biến
+                      </span>
+                    )}
+                    <div className="space-y-1 pt-1">
+                      <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
+                        {pack.credits.toLocaleString()}⚡
+                      </div>
+                      <div className="text-xs font-bold text-white">
+                        {pack.formatted}
+                      </div>
+                      {pack.discount !== '0%' && (
+                        <span className="text-[9px] font-semibold text-emerald-400 block">
+                          {pack.discount}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useAiStore.getState().addCredits(pack.credits);
+                        setStatusMessage({
+                          type: 'success',
+                          text: `Đã nạp thành công +${pack.credits}⚡ AI Credits vào tài khoản!`
+                        });
+                      }}
+                      className="mt-3 w-full py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
+                    >
+                      Nạp ⚡
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: NHẬP MÃ COUPON / QUÀ TẶNG */}
+          {billingTab === 'coupon' && (
+            <div className="space-y-3 pt-1 text-center">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white">Kích Hoạt Mã Quà Tặng / Ưu Đãi</h3>
+                <p className="text-xs text-zinc-400">
+                  Nhập mã quà tặng từ sự kiện hoặc Chủ sở hữu để kích hoạt hoặc cộng dồn thời hạn PRO ngay.
+                </p>
+              </div>
+              <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
+                <input
+                  type="text"
+                  data-testid="input-coupon-universal"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
+                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  type="submit"
+                  data-testid="btn-redeem-coupon-universal"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+                >
+                  Áp Dụng
+                </button>
+              </form>
+              {couponResult && (
+                <div
+                  className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
+                    couponResult.success ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
+                >
+                  {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}
+                  <span>{couponResult.text}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
-      </main>
+        </main>
 
       {/* MoMo / VietQR Payment Modal */}
       <MoMoPaymentModal

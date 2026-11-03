@@ -32,6 +32,7 @@ export const PlatformHeader: React.FC = () => {
   const currentPath = router.currentRoute.path;
   const { user, isAuthenticated, logout, isPro, isLifetime, planLabel } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
+  const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -102,7 +103,7 @@ export const PlatformHeader: React.FC = () => {
     <>
       <header
         data-testid="platform-unified-header"
-        className="sticky top-0 z-40 h-12 w-full border-b border-white/10 bg-[#09090b]/90 px-2.5 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs"
+        className={`sticky top-0 z-40 h-12 w-full border-b border-white/10 bg-[#09090b]/90 px-2.5 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-20 hover:opacity-100" : "opacity-100"}`}
       >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">

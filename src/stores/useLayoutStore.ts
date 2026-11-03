@@ -384,6 +384,7 @@ export interface LayoutStoreState {
   snapEnabled: boolean;
   mobileViewMode: MobileViewMode;
   activeMobileTab: WidgetId;
+  isFocusDimmed: boolean;
 
   // Actions
   setZenMode: (enabled: boolean) => void;
@@ -424,6 +425,7 @@ export interface LayoutStoreState {
   setActiveMobileTab: (tab: WidgetId) => void;
   navigateMobileWidget: (id: WidgetId) => void;
   clampWidgetsToViewport: (viewportWidth: number, viewportHeight: number) => void;
+  setIsFocusDimmed: (dimmed: boolean) => void;
 }
 
 const initial = loadStoredLayout();
@@ -444,6 +446,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   dockPosition: initial.dockPosition,
   dockAutoHide: initial.dockAutoHide,
   isLayoutEditMode: false,
+  isFocusDimmed: false,
   themeAccent: 'matcha',
   highestZIndex: initialHighestZ,
   glassSettings: initial.glassSettings,
@@ -1019,6 +1022,8 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       }, 50);
     }
   },
+
+  setIsFocusDimmed: (dimmed: boolean) => set({ isFocusDimmed: dimmed }),
 
   clampWidgetsToViewport: (viewportWidth: number, viewportHeight: number) => {
     if (viewportWidth <= 0 || viewportHeight <= 0) return;
