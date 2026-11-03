@@ -212,6 +212,12 @@ function initializeDemoAccounts(): Record<string, StoredUserAccount> {
 }
 
 export const authService = {
+  saveSession(profile: UserProfile): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
+    }
+  },
+
   getCurrentSession(): UserProfile | null {
     if (typeof window === 'undefined' || !window.localStorage) return null;
     try {

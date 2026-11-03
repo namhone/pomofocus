@@ -26,6 +26,8 @@ import {
 interface MoMoPaymentModalProps {
   cycle: PlanCycle;
   isOpen: boolean;
+  initialCoupon?: string;
+  initialDiscountPercent?: number;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -33,6 +35,8 @@ interface MoMoPaymentModalProps {
 export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   cycle,
   isOpen,
+  initialCoupon,
+  initialDiscountPercent,
   onClose,
   onSuccess
 }) => {
@@ -67,6 +71,17 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
         user?.id,
         user?.authProvider
       );
+      if (initialDiscountPercent && initialDiscountPercent > 0) {
+        setDiscountPercent(initialDiscountPercent);
+        if (initialCoupon) setCouponInput(initialCoupon);
+        const discountedAmount = Math.round(initialOrder.amount * (100 - initialDiscountPercent) / 100);
+        initialOrder.amount = discountedAmount;
+        initialOrder.qrUrl = momoService.getQrImageUrl(discountedAmount, initialOrder.memo);
+        setCouponFeedback({
+          success: true,
+          message: `Đã áp dụng mã ${initialCoupon || ''} (-${initialDiscountPercent}%)`
+        });
+      }
       setOrder(initialOrder);
       setIsSuccessState(false);
       setTimeLeft(600); // 10:00
@@ -199,13 +214,22 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     }
   };
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
-    const res = couponService.redeemCoupon(couponInput, user);
+    const studentUser = user || {
+      id: `usr_${Date.now()}`,
+      email: email || 'student@pomofocus.local',
+      displayName: 'Học Viên',
+      plan: 'free',
+      createdAt: Date.now()
+    };
+    const res = await couponService.redeemCouponAsync(couponInput, studentUser);
     setCouponFeedback({ success: res.success, message: res.message });
     if (res.success) {
       if (res.coupon?.type === 'free_lifetime' || res.coupon?.type === 'free_days') {
-        handlePaymentSuccess(order.orderId, null);
+        if (order) {
+          handlePaymentSuccess(order.orderId, null);
+        }
       } else if (res.discountPercent && order) {
         setDiscountPercent(res.discountPercent);
         const newAmount = Math.round(order.amount * (100 - res.discountPercent) / 100);

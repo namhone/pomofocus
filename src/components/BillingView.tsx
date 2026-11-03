@@ -151,6 +151,7 @@ export const BillingView: React.FC = () => {
   const { upgradeToSandboxPro, downgradeToFree, isPro, isLifetime, user, planLabel } = useAuthStore();
   const [couponCode, setCouponCode] = useState('');
   const [couponResult, setCouponResult] = useState<{ success: boolean; text: string } | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percent: number } | null>(null);
   const [showComparison, setShowComparison] = useState(false);
   const [billingTab, setBillingTab] = useState<'credits' | 'coupon'>('credits');
 
@@ -162,6 +163,12 @@ export const BillingView: React.FC = () => {
     const res = await couponService.redeemCouponAsync(couponCode, user);
     setCouponResult({ success: res.success, text: res.message });
     if (res.success) {
+      if (res.discountPercent) {
+        setAppliedDiscount({
+          code: couponCode.trim().toUpperCase(),
+          percent: res.discountPercent
+        });
+      }
       setStatusMessage({ type: 'success', text: res.message });
       setCouponCode('');
       // Đồng bộ ngay lập tức session và Zustand authStore
@@ -245,6 +252,28 @@ export const BillingView: React.FC = () => {
           <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
             <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
             <span className="font-medium">{statusMessage.text}</span>
+          </div>
+        )}
+
+        {appliedDiscount && (
+          <div data-testid="active-discount-banner" className="p-3.5 px-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-xs flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-emerald-400 shrink-0" />
+              <span>
+                Đang kích hoạt mã ưu đãi <strong className="font-mono text-white bg-emerald-500/20 px-1.5 py-0.5 rounded">{appliedDiscount.code}</strong>: Giảm {appliedDiscount.percent}% toàn bộ bảng giá!
+              </span>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-remove-discount"
+              onClick={() => {
+                setAppliedDiscount(null);
+                setCouponResult(null);
+              }}
+              className="text-[11px] text-zinc-400 hover:text-white underline cursor-pointer"
+            >
+              Gỡ mã
+            </button>
           </div>
         )}
 
@@ -730,19 +759,34 @@ export const BillingView: React.FC = () => {
 
                   {/* Pricing */}
                   <div className="pt-1">
-                    <div className="flex items-line gap-1.5">
+                    <div className="flex items-baseline gap-1.5">
                       <span className="text-3xl font-extrabold text-white">
-                        {cycle === 'monthly' ? '59.000₫' : '39.000₫'}
+                        {appliedDiscount
+                          ? (cycle === 'monthly'
+                              ? `${Math.round(59000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')}₫`
+                              : `${Math.round(39000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')}₫`)
+                          : (cycle === 'monthly' ? '59.000₫' : '39.000₫')}
                       </span>
-                      <span className="text-xs text-zinc-400 font-mono">
-                        {cycle === 'monthly' ? '59.000 VNĐ' : '39.000 VNĐ'}
-                      </span>
+                      {appliedDiscount && (
+                        <span className="text-xs text-zinc-500 line-through">
+                          {cycle === 'monthly' ? '59.000₫' : '39.000₫'}
+                        </span>
+                      )}
+                      {appliedDiscount && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                          -{appliedDiscount.percent}%
+                        </span>
+                      )}
                       <span className="text-xs text-zinc-400">/ tháng</span>
                     </div>
                     <p className="text-[11px] text-indigo-300/90 mt-1 font-mono leading-tight">
-                      {cycle === 'monthly'
-                        ? 'Thanh toán 59.000 VNĐ / tháng, hủy bất kỳ lúc nào'
-                        : 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm 34% 🔥)'}
+                      {appliedDiscount
+                        ? (cycle === 'monthly'
+                            ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(59000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / tháng`
+                            : `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(468000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / năm`)
+                        : (cycle === 'monthly'
+                            ? 'Thanh toán 59.000 VNĐ / tháng, hủy bất kỳ lúc nào'
+                            : 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm 34% 🔥)')}
                     </p>
                   </div>
 
@@ -850,12 +894,26 @@ export const BillingView: React.FC = () => {
 
                   {/* Pricing */}
                   <div className="pt-1">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-white tracking-tight">799.000₫</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold text-white tracking-tight">
+                        {appliedDiscount
+                          ? `${Math.round(799000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')}₫`
+                          : '799.000₫'}
+                      </span>
+                      {appliedDiscount && (
+                        <span className="text-xs text-zinc-500 line-through">799.000₫</span>
+                      )}
+                      {appliedDiscount && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                          -{appliedDiscount.percent}%
+                        </span>
+                      )}
                       <span className="text-xs text-amber-400/90 font-mono">/ một lần duy nhất</span>
                     </div>
                     <p className="text-[11px] text-amber-300/80 mt-1 font-mono leading-tight">
-                      Sở hữu vĩnh viễn trọn đời • Không gia hạn • 1 lần duy nhất
+                      {appliedDiscount
+                        ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(799000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ (Tiết kiệm ${appliedDiscount.percent}%)`
+                        : 'Sở hữu vĩnh viễn trọn đời • Không gia hạn • 1 lần duy nhất'}
                     </p>
                   </div>
 
@@ -1233,6 +1291,8 @@ export const BillingView: React.FC = () => {
       <MoMoPaymentModal
         isOpen={isMoMoModalOpen}
         cycle={cycle}
+        initialCoupon={appliedDiscount?.code}
+        initialDiscountPercent={appliedDiscount?.percent}
         onClose={() => setIsMoMoModalOpen(false)}
         onSuccess={() => {
           setStatusMessage({
