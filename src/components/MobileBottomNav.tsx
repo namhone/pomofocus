@@ -339,18 +339,18 @@ export const MobileBottomNav: React.FC = () => {
         </div>
       )}
 
-      {/* Main Mobile Bottom Navigation Bar */}
+      {/* Main Mobile Bottom Navigation Bar (4 cột chia đều 25%, icon trên text dưới) */}
       <nav
         role="toolbar"
         aria-label="Thanh điều hướng di động"
         data-testid="mobile-bottom-navigation"
-        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-40 px-2 flex items-center justify-around select-none transition-all duration-200 ${
+        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-40 px-1 grid grid-cols-4 items-center select-none transition-all duration-200 ${
           isKeyboardOpen || isAiOpen
             ? 'translate-y-full opacity-0 pointer-events-none invisible'
             : isFocusDimmed ? 'translate-y-0 opacity-15 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
         }`}
       >
-        {/* 1. Nút Tập trung */}
+        {/* 1. Nút Tập trung (25%) */}
         <button
           type="button"
           data-testid="dock-btn-timer"
@@ -359,17 +359,17 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.timer?.isOpen ?? false}
           onClick={() => handleNavClick('timer')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
+          className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'timer'
               ? 'text-white font-semibold'
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <Timer size={20} strokeWidth={activeMobileTab === 'timer' ? 2.2 : 1.75} className={activeMobileTab === 'timer' ? 'text-white' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] whitespace-nowrap">Tập trung</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Tập trung</span>
         </button>
 
-        {/* 2. Nút Kế hoạch */}
+        {/* 2. Nút Kế hoạch (25%) */}
         <button
           type="button"
           data-testid="dock-btn-tasks"
@@ -378,17 +378,17 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.tasks?.isOpen ?? false}
           onClick={() => handleNavClick('tasks')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
+          className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'tasks' || activeMobileTab === 'notes'
               ? 'text-white font-semibold'
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <ClipboardList size={20} strokeWidth={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 2.2 : 1.75} className={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'text-white' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] whitespace-nowrap">Kế hoạch</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Kế hoạch</span>
         </button>
 
-        {/* 3. Nút Không gian */}
+        {/* 3. Nút Không gian (25%) */}
         <button
           type="button"
           data-testid="dock-btn-sounds"
@@ -397,17 +397,17 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.sounds?.isOpen ?? false}
           onClick={() => handleNavClick('sounds')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
+          className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media'
               ? 'text-white font-semibold'
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
           <Headphones size={20} strokeWidth={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 2.2 : 1.75} className={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 'text-white' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] whitespace-nowrap">Không gian</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Không gian</span>
         </button>
 
-        {/* 4. Nút Trợ lý AI */}
+        {/* 4. Nút Trợ lý AI (25%) */}
         <button
           type="button"
           data-testid="mobile-btn-ai"
@@ -416,14 +416,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={isAiOpen}
           onClick={() => useAiStore.getState().toggleOpen()}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
+          className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             isAiOpen
               ? 'text-cyan-300 font-semibold'
               : 'text-zinc-400 hover:text-cyan-300'
           }`}
         >
           <Sparkles size={20} strokeWidth={isAiOpen ? 2.2 : 1.75} className={isAiOpen ? 'text-cyan-300' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] whitespace-nowrap">Trợ lý AI</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Trợ lý AI</span>
         </button>
       </nav>
       {showResetConfirm && (

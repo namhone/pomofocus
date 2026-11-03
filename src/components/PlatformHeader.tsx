@@ -400,32 +400,34 @@ export const PlatformHeader: React.FC = () => {
       </header>
 
       {/* ========================================================================= */}
-      {/* MOBILE SLIDE-DOWN DROPDOWN MENU                                          */}
+      {/* MOBILE SLIDE-DOWN DROPDOWN MENU (LINEAR / LIFEAT SOFT DROPDOWN)           */}
       {/* ========================================================================= */}
 
-      {/* 1. Lớp phủ mờ bên dưới thanh Header */}
+      {/* 1. Lớp phủ mờ bắt sự kiện click outside */}
       <div
         data-testid="mobile-drawer-backdrop"
-        className={`lg:hidden fixed inset-0 top-14 bg-black/60 z-40 transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity duration-200 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
         aria-hidden="true"
       />
 
-      {/* 2. Menu Header dạng Slide-down Dropdown thả từ dưới thanh Header xuống */}
+      {/* 2. Menu Header dạng Thả Xuống (Slide-down Dropdown) định vị tại top-14 right-3 w-64 */}
       <div
         id="mobile-slidedown-menu"
         data-testid="mobile-navigation-drawer"
         role="dialog"
         aria-modal="true"
         aria-label="Menu Điều Hướng"
-        className={`lg:hidden fixed top-14 left-0 right-0 z-50 bg-[#09090b]/95 backdrop-blur-2xl border-b border-zinc-800 shadow-2xl px-6 py-5 flex flex-col gap-4 transition-all duration-300 ease-out transform select-none ${
-          isMobileMenuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-4 pointer-events-none'
+        className={`lg:hidden absolute top-14 right-3 w-64 z-50 bg-zinc-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+          isMobileMenuOpen
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
         }`}
       >
         {/* Danh sách các trang */}
-        <nav className="flex flex-col space-y-1">
+        <nav className="flex flex-col space-y-0.5">
           <button
             type="button"
             data-testid="mobile-drawer-link-app"
@@ -433,14 +435,14 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/app');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
               currentPath === '/app'
                 ? 'bg-white/10 text-white font-semibold'
                 : 'text-zinc-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <Home size={18} className={currentPath === '/app' ? 'text-emerald-400' : 'text-zinc-400'} />
+            <div className="flex items-center gap-2.5">
+              <Home size={16} className={currentPath === '/app' ? 'text-emerald-400' : 'text-zinc-400'} />
               <span>Không Gian Học</span>
             </div>
             {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -453,14 +455,14 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/rooms');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
               currentPath.startsWith('/rooms')
                 ? 'bg-white/10 text-white font-semibold'
                 : 'text-zinc-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <Users size={18} className={currentPath.startsWith('/rooms') ? 'text-emerald-400' : 'text-zinc-400'} />
+            <div className="flex items-center gap-2.5">
+              <Users size={16} className={currentPath.startsWith('/rooms') ? 'text-emerald-400' : 'text-zinc-400'} />
               <span>Phòng Học Nhóm Live</span>
             </div>
             {currentPath.startsWith('/rooms') && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -473,14 +475,14 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/calendar');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
               currentPath === '/calendar'
                 ? 'bg-white/10 text-white font-semibold'
                 : 'text-zinc-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <Calendar size={18} className={currentPath === '/calendar' ? 'text-emerald-400' : 'text-zinc-400'} />
+            <div className="flex items-center gap-2.5">
+              <Calendar size={16} className={currentPath === '/calendar' ? 'text-emerald-400' : 'text-zinc-400'} />
               <span>Lịch Biểu Pomodoro</span>
             </div>
             {currentPath === '/calendar' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -493,14 +495,14 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/billing');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
               currentPath === '/billing'
                 ? 'bg-white/10 text-white font-semibold'
                 : 'text-zinc-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <Gem size={18} className={currentPath === '/billing' ? 'text-emerald-400' : 'text-zinc-400'} />
+            <div className="flex items-center gap-2.5">
+              <Gem size={16} className={currentPath === '/billing' ? 'text-emerald-400' : 'text-zinc-400'} />
               <span>Bảng Giá & Nâng Cấp</span>
             </div>
             {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -513,14 +515,14 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/account/security');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
               currentPath === '/account/security'
                 ? 'bg-white/10 text-white font-semibold'
                 : 'text-zinc-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <Lock size={18} className={currentPath === '/account/security' ? 'text-emerald-400' : 'text-zinc-400'} />
+            <div className="flex items-center gap-2.5">
+              <Lock size={16} className={currentPath === '/account/security' ? 'text-emerald-400' : 'text-zinc-400'} />
               <span>Trung Tâm Bảo Mật</span>
             </div>
             {currentPath === '/account/security' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -528,46 +530,46 @@ export const PlatformHeader: React.FC = () => {
         </nav>
 
         {/* Chân menu: Nút Đăng Nhập / Đăng Ký hoặc Thẻ profile + Đăng xuất */}
-        <div className="pt-3 border-t border-zinc-800/80">
-          {isAuthenticated && user ? (
-            <div className="space-y-2.5">
-              <div className="p-2.5 rounded-xl bg-zinc-900/80 border border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.displayName}
-                      className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
-                      {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
-                    <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
+        {isAuthenticated && user ? (
+          <div className="pt-2 mt-1 border-t border-zinc-800/80 space-y-1.5">
+            <div className="p-2 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.displayName}
+                    className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
+                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
+                  <div className="text-[9px] text-zinc-400 font-mono truncate">{user.email}</div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shrink-0 bg-zinc-950 text-amber-300 border-amber-400/40">
-                  {user?.badge || planLabel}
-                </span>
               </div>
-
-              <button
-                type="button"
-                data-testid="drawer-logout-btn"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsLogoutModalOpen(true);
-                }}
-                className="w-full h-10 flex items-center justify-center gap-2 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold transition cursor-pointer active:scale-98"
-              >
-                <LogOut size={14} />
-                <span>Đăng Xuất Tài Khoản</span>
-              </button>
+              <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border shrink-0 bg-zinc-950 text-amber-300 border-amber-400/40">
+                {user?.badge || planLabel}
+              </span>
             </div>
-          ) : (
+
+            <button
+              type="button"
+              data-testid="drawer-logout-btn"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsLogoutModalOpen(true);
+              }}
+              className="w-full h-8 flex items-center justify-center gap-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition cursor-pointer active:scale-98"
+            >
+              <LogOut size={13} />
+              <span>Đăng Xuất</span>
+            </button>
+          </div>
+        ) : (
+          <div className="pt-2 mt-1 border-t border-zinc-800/80">
             <button
               type="button"
               id="mobile-menu-login-btn"
@@ -576,13 +578,13 @@ export const PlatformHeader: React.FC = () => {
                 setIsMobileMenuOpen(false);
                 handleNavigate('/login');
               }}
-              className="w-full h-11 flex items-center justify-center gap-2 rounded-full bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition active:scale-98 shadow-sm cursor-pointer"
+              className="w-full h-9 flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition active:scale-98 shadow-sm cursor-pointer"
             >
-              <User size={15} className="shrink-0" />
+              <User size={14} className="shrink-0" />
               <span>Đăng Nhập / Đăng Ký</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Confirm Logout Dialog (Modal) */}

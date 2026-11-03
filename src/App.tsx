@@ -254,7 +254,7 @@ export const App: React.FC = () => {
             <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
             {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
             {isMobile ? (
-              <main className="relative z-10 w-full min-h-screen p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] flex flex-col items-center justify-start">
+              <main className="relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start">
                 {/* Thanh điều khiển chế độ xem trên điện thoại */}
                 <div className="w-full max-w-xl mx-auto flex items-center justify-between py-1 px-2 mb-3 select-none text-xs">
                   <div className="flex items-center gap-1.5 text-neutral-400 text-[11px] font-medium">
@@ -337,7 +337,7 @@ export const App: React.FC = () => {
                 </div>
               </main>
             ) : (
-              <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible">
+              <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pb-28">
                 <WidgetContainer id="timer">
                   <TimerTestInterface />
                 </WidgetContainer>

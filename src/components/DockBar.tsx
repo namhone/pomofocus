@@ -230,7 +230,7 @@ export const DockBar: React.FC = () => {
         }
       }}
       className={`fixed z-50 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.78)] p-1.5 sm:p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.20)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 ${
-        isAiOpen ? 'opacity-0 pointer-events-none translate-y-12 invisible' : 'hover:opacity-100'
+        isAiOpen ? 'opacity-0 pointer-events-none translate-y-8 invisible' : 'opacity-100 translate-y-0 hover:opacity-100'
       } ${
         isVertical ? 'flex-col w-16' : 'flex-row'
       } ${

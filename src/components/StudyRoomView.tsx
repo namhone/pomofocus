@@ -3027,7 +3027,7 @@ export const StudyRoomView: React.FC = () => {
           className={`flex-1 flex flex-col min-h-0 ${
             activeTab === 'whiteboard'
               ? 'p-0 pb-0 overflow-hidden relative w-full h-full'
-              : 'p-3 sm:p-5 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6'
+              : 'p-3 sm:p-5 overflow-y-auto pb-32 sm:pb-28 md:pb-24'
           }`}
         >
           {/* Synchronized Shared Pomodoro Timer Banner & Notes - CHỈ HIỂN THỊ KHI Ở CHẾ ĐỘ LƯỚI VIDEO */}
