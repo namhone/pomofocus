@@ -278,17 +278,19 @@ export const AiCompanionWidget: React.FC = () => {
         onClose={() => setShowCreditsModal(false)}
       />
 
-      {/* 1. Header 1 Hàng Ngang Tinh Gọn (Loại bỏ nhồi nhét, gom về 1 badge duy nhất) */}
-      <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
+      {/* 1. Header 1 Hàng Ngang Tinh Gọn (Tránh chèn ép, đảm bảo khoảng cách thông thoáng) */}
+      <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-3">
+        <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
           <div className="relative shrink-0">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
               <Sparkles size={15} />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
           </div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight whitespace-nowrap">AI Study Companion</h2>
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight truncate" title="AI Companion">
+              AI Companion
+            </h2>
           </div>
         </div>
 
@@ -298,15 +300,15 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-credits-topup-btn"
             onClick={() => setShowCreditsModal(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-medium cursor-pointer hover:bg-amber-500/20 transition-all select-none whitespace-nowrap"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-xs font-medium cursor-pointer transition-all select-none shrink-0"
             title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
           >
             <Zap size={12} className="fill-amber-400 text-amber-400 shrink-0" />
             <span className="font-mono text-xs font-semibold" data-testid="ai-hud-credits">
               <span data-testid="ai-credits-badge">
                 {aiPlan === 'lifetime'
-                  ? `★ Founder VIP · ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
-                  : `⚡ ${aiCreditsBalance.toLocaleString('vi-VN')} Credits`}
+                  ? `VIP ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
+                  : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}
               </span>
             </span>
           </button>
