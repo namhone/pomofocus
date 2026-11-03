@@ -253,7 +253,7 @@ export const AiCompanionWidget: React.FC = () => {
   return (
     <div
       data-testid="ai-companion-drawer"
-      className="fixed inset-y-0 right-0 z-40 w-full sm:w-[480px] md:w-[520px] bg-[#121214]/95 backdrop-blur-xl border-l border-zinc-800/80 shadow-2xl flex flex-col transition-all duration-300 animate-in slide-in-from-right"
+      className="fixed top-14 bottom-0 right-0 z-40 w-full sm:w-[420px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-2xl flex flex-col transition-all duration-300 animate-in slide-in-from-right"
     >
       {/* Modal Nạp Điểm AI Credits Lẻ */}
       <AiCreditsTopupModal
@@ -556,8 +556,8 @@ export const AiCompanionWidget: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 4. Khung Nhập Liệu & Đính Kèm File (Safe Area Mobile) */}
-      <div className="p-3 pb-6 sm:pb-4 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/60 shrink-0">
+      {/* 4. Khung Nhập Liệu & Đính Kèm File (Safe Area Mobile & Clean Desktop) */}
+      <div className="relative z-10 p-3 pb-4 bg-zinc-950/98 backdrop-blur-2xl border-t border-zinc-800/80 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         {/* File Preview Pill nếu có file được chọn */}
         {selectedFile && (
           <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-cyan-500/40 flex items-center justify-between text-xs text-zinc-200">

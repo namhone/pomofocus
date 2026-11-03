@@ -194,17 +194,20 @@ export const DockBar: React.FC = () => {
   return (
     <>
     <nav
+      data-testid="dockbar"
       role="toolbar"
       aria-label="Thanh điều khiển không gian làm việc"
       style={{
-        transform: isDockVisible
+        transform: isAiOpen
+          ? 'translate(-50%, calc(100% + 40px))'
+          : isDockVisible
           ? isVertical ? 'translateY(-50%)' : 'translateX(-50%)'
           : dockPosition === 'bottom' ? 'translate(-50%, calc(100% - 8px))'
           : dockPosition === 'top' ? 'translate(-50%, calc(-100% + 8px))'
           : dockPosition === 'left' ? 'translate(calc(-100% + 8px), -50%)'
           : 'translate(calc(100% - 8px), -50%)',
-        opacity: !isDockVisible ? 0.32 : isFocusDimmed ? 0.15 : 1,
-        pointerEvents: isDockVisible ? 'auto' : 'none'
+        opacity: isAiOpen ? 0 : !isDockVisible ? 0.32 : isFocusDimmed ? 0.15 : 1,
+        pointerEvents: isAiOpen || !isDockVisible ? 'none' : 'auto'
       }}
       onMouseEnter={() => {
         isDockActiveRef.current = true;
@@ -226,7 +229,9 @@ export const DockBar: React.FC = () => {
           scheduleHide();
         }
       }}
-      className={`fixed z-50 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.78)] p-1.5 sm:p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.20)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 hover:opacity-100 ${
+      className={`fixed z-50 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.78)] p-1.5 sm:p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.20)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 ${
+        isAiOpen ? 'opacity-0 pointer-events-none translate-y-12 invisible' : 'hover:opacity-100'
+      } ${
         isVertical ? 'flex-col w-16' : 'flex-row'
       } ${
         dockPosition === 'bottom' ? 'bottom-4 left-1/2' :

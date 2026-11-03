@@ -112,7 +112,7 @@ export const PlatformHeader: React.FC = () => {
     <>
       <header
         data-testid="platform-unified-header"
-        className={`sticky top-0 z-40 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-15 hover:opacity-100" : "opacity-100"}`}
+        className={`sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-15 hover:opacity-100" : "opacity-100"}`}
       >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">

@@ -12,9 +12,9 @@ async function verifyCouponFlow() {
   const artifactDir = path.resolve('C:/Users/Nam/.gemini/antigravity/brain/f0e4fa42-ea0b-4ff3-83da-6875921843c2');
 
   try {
-    // 1. Truy cập trang Billing
-    console.log('1. Navigating to /billing...');
-    await page.goto('http://localhost:4173/billing', { waitUntil: 'networkidle' });
+    // 1. Truy cập trang Billing trên Live Domain
+    console.log('1. Navigating to https://pomofocus-workspace.vercel.app/billing...');
+    await page.goto('https://pomofocus-workspace.vercel.app/billing', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
 
     // 2. Chuyển sang Tab Coupon
