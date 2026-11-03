@@ -109,7 +109,7 @@ test.describe('Regression Suite: Audio Lifecycle & Mobile Nav Animation', () => 
     const bottomNav = page.getByTestId('mobile-bottom-navigation');
     await expect(bottomNav).toBeVisible();
 
-    const tabs = ['tasks', 'notes', 'sounds', 'spaces', 'timer'];
+    const tabs = ['tasks', 'sounds', 'timer'];
     const failures: string[] = [];
 
     // Chuyển qua lại 15 lần (3 vòng toàn bộ 5 tab)

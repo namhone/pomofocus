@@ -127,7 +127,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             onClick={() => handleNavigate('/billing')}
             data-testid="header-plan-badge"
-            className={`hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
+            className={`hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetime
                 ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                 : isPro
@@ -142,7 +142,7 @@ export const PlatformHeader: React.FC = () => {
         </div>
 
         {/* Desktop Navigation Links (>= lg) */}
-        <nav className="hidden lg:flex items-center gap-1 py-1">
+        <nav className="hidden lg:flex items-center gap-1.5 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -158,10 +158,10 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid={item.testId}
                 onClick={() => handleNavigate(item.path)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-xs ${
                   isActive
-                    ? 'bg-white/15 text-white font-medium shadow-sm'
-                    : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50'
+                    : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
               >
                 <Icon size={13} />
@@ -172,16 +172,16 @@ export const PlatformHeader: React.FC = () => {
         </nav>
 
         {/* User Actions & Mobile Toggle */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* AI Study Companion Quick HUD */}
           <button
             type="button"
             data-testid="header-ai-btn"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] sm:text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
           >
-            <Sparkles size={12} className="text-cyan-400 shrink-0" />
+            <Sparkles size={13} className="text-cyan-400 shrink-0" />
             <span className="font-mono text-amber-300 font-bold">{aiCreditsBalance.toLocaleString()}⚡</span>
           </button>
 
@@ -191,10 +191,10 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="pwa-install-btn"
               onClick={() => triggerInstall()}
-              className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-[11px] sm:text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
               title="Cài đặt PomoFocus vào thiết bị (PWA)"
             >
-              <Download size={12} className="shrink-0" />
+              <Download size={13} className="shrink-0" />
               <span className="hidden sm:inline">Cài App</span>
             </button>
           )}
@@ -205,9 +205,9 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-white text-black font-semibold text-[11px] sm:text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
             >
-              <Layout size={12} className="shrink-0" />
+              <Layout size={13} className="shrink-0" />
               <span className="hidden xs:inline">Vào Học</span>
             </button>
           )}
@@ -220,10 +220,10 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid="header-user-avatar-btn"
                 onClick={handleAvatarClick}
-                className={`flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl transition cursor-pointer shrink-0 border ${
+                className={`h-9 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full transition cursor-pointer shrink-0 border text-xs ${
                   isUserDropdownOpen
                     ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
-                    : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-zinc-800 text-zinc-300'
+                    : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
                 }`}
                 title="Tài khoản & Cài đặt"
                 aria-expanded={isUserDropdownOpen}
@@ -233,17 +233,17 @@ export const PlatformHeader: React.FC = () => {
                   <img
                     src={user.avatarUrl}
                     alt={user.displayName}
-                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                    className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-[10px] sm:text-[11px] shrink-0">
+                  <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-[10px] sm:text-[11px] shrink-0">
                     {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-[11px] font-medium truncate hidden md:inline-block max-w-[85px]">
+                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[85px]">
                   {user.displayName}
                 </span>
                 <ChevronDown
@@ -378,7 +378,7 @@ export const PlatformHeader: React.FC = () => {
                     handleNavigate('/login');
                   }
                 }}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white text-[11px] sm:text-xs transition cursor-pointer whitespace-nowrap border border-white/10"
+              className="h-9 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm"
               title="Đăng nhập tài khoản"
             >
               <User size={13} className="text-emerald-400 shrink-0" />

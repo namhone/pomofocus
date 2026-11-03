@@ -102,7 +102,7 @@ export const NotesWidget: React.FC = () => {
             type="button"
             data-testid="btn-new-note"
             onClick={() => createNote('Ghi chú mới')}
-            className="text-[11px] px-2 py-1 rounded-lg bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="text-[11px] px-3 py-1 rounded-full bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           >
             <Plus size={12} strokeWidth={1.75} />
             <span>Thêm</span>
@@ -127,12 +127,12 @@ export const NotesWidget: React.FC = () => {
             />
 
             {/* Toggle Edit / Preview */}
-            <div className="flex rounded-lg bg-black/30 p-0.5 border border-white/10 text-[11px] gap-0.5">
+            <div className="flex rounded-full bg-black/30 p-1 border border-white/10 text-[11px] gap-1">
               <button
                 type="button"
                 data-testid="tab-note-edit"
                 onClick={() => setActiveTab('edit')}
-                className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                   activeTab === 'edit'
                     ? 'bg-white/15 text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -144,7 +144,7 @@ export const NotesWidget: React.FC = () => {
                 type="button"
                 data-testid="tab-note-preview"
                 onClick={() => setActiveTab('preview')}
-                className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                   activeTab === 'preview'
                     ? 'bg-white/15 text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'

@@ -88,7 +88,7 @@ export const TasksWidget: React.FC = () => {
         <button
           type="button"
           onClick={() => setShowAddProject(!showAddProject)}
-          className="text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
+          className="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
         >
           {showAddProject ? 'Đóng' : '+ Dự án'}
         </button>
@@ -108,7 +108,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="btn-save-project"
             type="submit"
-            className="text-xs px-3.5 py-1.5 rounded-lg bg-white text-neutral-900 hover:bg-neutral-100 font-medium cursor-pointer min-h-[32px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="text-xs px-3.5 py-1.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 font-medium cursor-pointer min-h-[32px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           >
             Lưu
           </button>
@@ -136,7 +136,7 @@ export const TasksWidget: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex rounded-lg bg-black/30 p-0.5 border border-white/10 gap-0.5 shrink-0">
+        <div className="flex rounded-full bg-black/30 p-1 border border-white/10 gap-1 shrink-0">
           <button
             type="button"
             data-testid="filter-status-all"
@@ -242,7 +242,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="px-3 py-1 text-xs rounded-lg bg-white text-neutral-950 hover:bg-neutral-200 font-semibold transition shadow-sm cursor-pointer h-7 flex items-center gap-1 shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="px-3.5 py-1 text-xs rounded-full bg-white text-neutral-950 hover:bg-neutral-200 font-semibold transition shadow-sm cursor-pointer h-7 flex items-center gap-1 shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           >
             + Thêm
           </button>

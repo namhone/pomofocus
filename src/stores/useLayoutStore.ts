@@ -74,6 +74,36 @@ export function computeBalancedDefaultLayout(
   winWidth: number = 1440,
   _winHeight: number = 900
 ): Record<WidgetId, WidgetState> {
+  // Mobile: Mặc định chỉ mở duy nhất Timer, tự động đóng tasks và notes để lộ hình nền Trái Đất thoáng đãng
+  if (winWidth < 768) {
+    return {
+      ...DEFAULT_WIDGETS,
+      timer: {
+        ...DEFAULT_WIDGETS.timer,
+        isOpen: true,
+        x: 16,
+        y: 24,
+        width: Math.min(winWidth - 32, 360),
+        height: DEFAULT_WIDGETS.timer.height,
+      },
+      tasks: {
+        ...DEFAULT_WIDGETS.tasks,
+        isOpen: false,
+        x: 16,
+        y: 480,
+        width: Math.min(winWidth - 32, 360),
+        height: DEFAULT_WIDGETS.tasks.height,
+      },
+      notes: {
+        ...DEFAULT_WIDGETS.notes,
+        isOpen: false,
+        x: 16,
+        y: 480,
+        width: Math.min(winWidth - 32, 360),
+        height: DEFAULT_WIDGETS.notes.height,
+      }
+    };
+  }
   const topY = 48;
   const timerW = 320;
   const tasksW = 320;
@@ -957,7 +987,21 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   },
 
   setIsMobile: (isMobile: boolean) => {
-    set({ isMobile, ...(isMobile ? { isLayoutEditMode: false } : {}) });
+    const currentWidgets = get().widgets;
+    if (isMobile) {
+      set({
+        isMobile: true,
+        isLayoutEditMode: false,
+        widgets: {
+          ...currentWidgets,
+          timer: { ...currentWidgets.timer, isOpen: true },
+          tasks: { ...currentWidgets.tasks, isOpen: false },
+          notes: { ...currentWidgets.notes, isOpen: false }
+        }
+      });
+    } else {
+      set({ isMobile: false });
+    }
   },
 
   setMobileViewMode: (mobileViewMode: MobileViewMode) => {

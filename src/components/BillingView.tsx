@@ -234,7 +234,7 @@ export const BillingView: React.FC = () => {
             type="button"
             data-testid="billing-back-btn"
             onClick={() => router.navigate('/app')}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
           >
             <ArrowLeft size={14} />
             <span>Quay lại Không Gian Học</span>
@@ -392,21 +392,21 @@ export const BillingView: React.FC = () => {
                       setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                       setTimeout(() => setStatusMessage(null), 4000);
                     }}
-                    className="flex-1 sm:flex-none px-3 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer text-center"
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer text-center"
                   >
                     Chuyển về Gói Cơ Bản
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/profile')}
-                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer text-center"
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer text-center"
                   >
                     Quản Lý Hồ Sơ
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer shadow-lg text-center"
+                    className="w-full sm:w-auto px-5 py-2 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer shadow-lg text-center"
                   >
                     Vào Không Gian Học
                   </button>
@@ -462,14 +462,14 @@ export const BillingView: React.FC = () => {
                       setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                       setTimeout(() => setStatusMessage(null), 4000);
                     }}
-                    className="px-3.5 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer"
+                    className="px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer"
                   >
                     Chuyển về Gói Cơ Bản
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
-                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer"
+                    className="px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer"
                   >
                     Vào Học Ngay
                   </button>
@@ -572,7 +572,7 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="btn-upgrade-lifetime"
                   onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
+                  className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
                 >
                   <Zap size={14} className="fill-black" />
                   <span>Nâng Cấp Lên Trọn Đời Ngay (VietQR)</span>
@@ -604,10 +604,10 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="billing-cycle-monthly"
                   onClick={() => setCycle('monthly')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition cursor-pointer ${
+                  className={`px-4 py-2 rounded-full font-semibold transition cursor-pointer ${
                     cycle === 'monthly'
-                      ? 'bg-white text-zinc-950 shadow-md font-bold'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700/60'
+                      : 'text-zinc-400 hover:text-white border border-transparent'
                   }`}
                 >
                   Thanh toán theo tháng
@@ -616,14 +616,14 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="billing-cycle-yearly"
                   onClick={() => setCycle('yearly')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-4 py-2 rounded-full font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                     cycle === 'yearly' || cycle === 'lifetime'
-                      ? 'bg-white text-zinc-950 shadow-md font-bold'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700/60'
+                      : 'text-zinc-400 hover:text-white border border-transparent'
                   }`}
                 >
                   <span>Thanh toán theo năm</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
                     Tiết kiệm 34% 🔥
                   </span>
                 </button>
@@ -696,7 +696,7 @@ export const BillingView: React.FC = () => {
                       setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                       setTimeout(() => setStatusMessage(null), 4000);
                     }}
-                    className={`w-full py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                    className={`w-full py-3 rounded-full text-xs font-semibold transition cursor-pointer ${
                       !isPro
                         ? 'bg-zinc-800/80 text-zinc-500 cursor-default border border-zinc-800'
                         : 'border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800'
@@ -730,7 +730,7 @@ export const BillingView: React.FC = () => {
 
                   {/* Pricing */}
                   <div className="pt-1">
-                    <div className="flex items-baseline gap-1.5">
+                    <div className="flex items-line gap-1.5">
                       <span className="text-3xl font-extrabold text-white">
                         {cycle === 'monthly' ? '59.000₫' : '39.000₫'}
                       </span>
@@ -811,7 +811,7 @@ export const BillingView: React.FC = () => {
                     type="button"
                     data-testid="btn-pay-momo"
                     onClick={() => handleSelectPlanAndCheckout(cycle === 'lifetime' ? 'lifetime' : cycle === 'monthly' ? 'monthly' : 'yearly')}
-                    className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xl active:scale-98"
+                    className="w-full py-3 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xl active:scale-98"
                   >
                     <span>
                       {cycle === 'lifetime'
@@ -918,7 +918,7 @@ export const BillingView: React.FC = () => {
                     type="button"
                     data-testid="btn-upgrade-lifetime"
                     onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-amber-500/20 active:scale-98"
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-amber-500/20 active:scale-98"
                   >
                     <Crown size={14} className="fill-black" />
                     <span>Sở Hữu Trọn Đời Founder (799k)</span>
@@ -934,7 +934,7 @@ export const BillingView: React.FC = () => {
                 type="button"
                 data-testid="btn-activate-pro-sandbox"
                 onClick={() => handleSimulateUpgrade(currentPlan.durationMonths)}
-                className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
+                className="px-4 py-1.5 rounded-full border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
               >
                 Kích hoạt Giả lập ({cycle === 'yearly' ? '1 Năm' : cycle === 'lifetime' ? 'Trọn Đời' : '1 Tháng'})
               </button>
@@ -1050,7 +1050,7 @@ export const BillingView: React.FC = () => {
                               downgradeToFree();
                               setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                             }}
-                            className="px-3 py-1.5 rounded-lg border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
+                            className="px-3.5 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
                           >
                             Bắt Đầu Free
                           </button>
@@ -1059,7 +1059,7 @@ export const BillingView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleSelectPlanAndCheckout('monthly')}
-                            className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
+                            className="px-3.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
                           >
                             Chọn Gói Tháng
                           </button>
@@ -1068,7 +1068,7 @@ export const BillingView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleSelectPlanAndCheckout('yearly')}
-                            className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
+                            className="px-3.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
                           >
                             Chọn Gói Năm
                           </button>
@@ -1077,7 +1077,7 @@ export const BillingView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
+                            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
                           >
                             <Crown size={11} className="fill-black" />
                             Sở Hữu Trọn Đời
@@ -1097,15 +1097,15 @@ export const BillingView: React.FC = () => {
         {/* ========================================================================= */}
         <div data-testid="universal-coupon-redemption" className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 max-w-2xl mx-auto w-full space-y-4 mt-6">
           {/* Dual Tab Pill Navigation */}
-          <div className="flex items-center justify-center p-1 rounded-xl bg-zinc-950/80 border border-zinc-800 max-w-md mx-auto">
+          <div className="flex items-center justify-center p-1 rounded-full bg-zinc-950/80 border border-zinc-800 max-w-md mx-auto">
             <button
               type="button"
               data-testid="tab-ai-credits"
               onClick={() => setBillingTab('credits')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 billingTab === 'credits'
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
               }`}
             >
               <Zap size={14} className="text-amber-400" />
@@ -1115,10 +1115,10 @@ export const BillingView: React.FC = () => {
               type="button"
               data-testid="tab-coupon"
               onClick={() => setBillingTab('coupon')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 billingTab === 'coupon'
                   ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
               }`}
             >
               <Gift size={14} className="text-indigo-400" />
@@ -1178,7 +1178,7 @@ export const BillingView: React.FC = () => {
                           text: `Đã nạp thành công +${pack.credits}⚡ AI Credits vào tài khoản!`
                         });
                       }}
-                      className="mt-3 w-full py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
+                      className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
                     >
                       Nạp ⚡
                     </button>
@@ -1209,7 +1209,7 @@ export const BillingView: React.FC = () => {
                 <button
                   type="submit"
                   data-testid="btn-redeem-coupon-universal"
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+                  className="px-5 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
                 >
                   Áp Dụng
                 </button>
