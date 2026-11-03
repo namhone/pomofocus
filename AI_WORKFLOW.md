@@ -78,19 +78,25 @@
   - [x] *Cập Nhật Chính Sách Referrer Trong `index.html`*: Đổi `<meta name="referrer" content="no-referrer" />` thành `<meta name="referrer" content="strict-origin-when-cross-origin" />` để YouTube nhận diện đúng domain máy chủ nhúng hợp lệ. **[HOÀN THÀNH]**
   - [x] *Cấu Hình Thuộc Tính Iframe & URL Origin*: Thêm `referrerPolicy="strict-origin-when-cross-origin"` và bổ sung tham số `&origin=${encodeURIComponent(window.location.origin)}` vào các thẻ `<iframe>` trong `src/components/MediaWidget.tsx` và `src/components/StudyRoomView.tsx`. **[HOÀN THÀNH]**
   - [x] *Kiểm Thử & Triển Khai Vercel Production*: Chạy Vitest 31/31 suites pass (303 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_8ZLryWgajqVygmCMWzoSFKso2FyP` READY và gắn alias `https://pomofocus-workspace.vercel.app`. Xác minh trực tiếp header `strict-origin-when-cross-origin` hoạt động 100%. **[HOÀN THÀNH]**
+- [x] **Phase 19 — Hỗ Trợ Phát Playlist YouTube Cá Nhân & Danh Sách Playlist Yêu Thích 1-Chạm**:
+  - [x] *Bóc Tách Link Playlist YouTube & Tự Động Chuyển Bài*: Thêm hàm `extractYouTubePlaylistId()` và nâng cấp `extractYouTubeEmbedUrl()`. Bóc tách chính xác `playlistId` từ các link `youtube.com/playlist?list=...` và `watch?v=...&list=...`, cấu hình nhúng chuẩn `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&autoplay=1&enablejsapi=1&origin=...`. YouTube Player tự động nạp toàn bộ danh sách và tự động chuyển sang video tiếp theo khi hết bài hát. **[HOÀN THÀNH]**
+  - [x] *Lưu & Quản Lý Playlist Yêu Thích (1-Chạm)*: Khởi tạo 3 playlist mẫu chất lượng cao (`🌙 Lofi Chill Học Đêm`, `🎹 Piano Không Lời Thư Giãn`, `✨ Anime OST Học & Code`). Cho phép người dùng lưu link playlist cá nhân kèm tên tùy biến, xóa playlist hoặc khôi phục mặc định, bền vững qua `localStorage` (`pomodoro_favorite_playlists`). **[HOÀN THÀNH]**
+  - [x] *Giao Diện Tối Ưu Mobile & Desktop*: Hiển thị các nút bấm nhanh 1-chạm ở cả Empty State và Popover đổi trạm; hiển thị huy hiệu `[ 📑 Playlist: {Tên} ]` trên thanh điều khiển khi đang phát playlist. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Triển Khai Production*: 31/31 test suites Vitest pass (305 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:07
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_8ZLryWgajqVygmCMWzoSFKso2FyP`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:16
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *YouTube Error 153 Resolution*:
-     - Thay đổi chính sách Referrer cấp cao trong `index.html` từ `no-referrer` sang `strict-origin-when-cross-origin`.
-     - Cấu hình tường minh `referrerPolicy="strict-origin-when-cross-origin"` và tham số `&origin=${encodeURIComponent(origin)}` trên tất cả các `<iframe>` nhúng YouTube (Media Widget và Study Room Sync).
+  1. *YouTube Playlist Support & 1-Touch Favorite Playlists*:
+     - Bóc tách `playlistId` từ mọi cấu trúc link YouTube (`[?&]list=...`).
+     - Tích hợp chuẩn URL `videoseries?list=${playlistId}` kết hợp `enablejsapi=1` và `origin` hợp lệ chống lỗi 153.
+     - Cung cấp sẵn 3 playlist học tập mẫu và bộ công cụ lưu playlist cá nhân 1-chạm lưu trữ qua `localStorage`.
   2. *Đóng gói & Triển khai*:
-     - Vitest: **31/31 test files passed, 303/303 tests passed (100%)**.
-     - Vite Build: Đóng gói thành công, 0 cảnh báo.
-     - Production Deployment: `dpl_8ZLryWgajqVygmCMWzoSFKso2FyP` Ready, alias trỏ thành công `https://pomofocus-workspace.vercel.app`.
-     - Live Verification: Response HTML chứa `strict-origin-when-cross-origin: true` và `no-referrer: false`.
+     - Vitest: **31/31 test files passed, 305/305 tests passed (100%)**.
+     - Vite Build: Đóng gói thành công, 0 lỗi, bundle tối ưu.
+     - Production Deployment: `dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw` Ready, alias `https://pomofocus-workspace.vercel.app`.
+     - Live Verification: HTTP 200 OK.
