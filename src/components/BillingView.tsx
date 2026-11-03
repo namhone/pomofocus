@@ -27,6 +27,115 @@ import { couponService } from '../services/couponService';
 import { PRICING_PLANS, COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
 import { authService, isOwnerEmail, isLadyBoss, isVipFriend, hasProEntitlement, getPlanLabel } from '../services/authService';
 
+const isNegativeValue = (val: string | undefined): boolean => {
+  if (!val) return true;
+  const trimmed = val.trim();
+  return (
+    trimmed === '❌' ||
+    trimmed === '✕' ||
+    trimmed === 'x' ||
+    trimmed === 'X' ||
+    trimmed === '-' ||
+    trimmed === '—' ||
+    trimmed === '–' ||
+    trimmed === 'Không' ||
+    trimmed === 'Không có' ||
+    trimmed === 'Không hỗ trợ'
+  );
+};
+
+const renderComparisonCell = (
+  val: string,
+  variant: 'free' | 'monthly' | 'yearly' | 'lifetime',
+  itemId?: string
+) => {
+  // 1. Phủ định / Không hỗ trợ -> Chỉ hiển thị DUY NHẤT một dấu gạch ngang mờ "—", tuyệt đối KHÔNG chèn Check
+  if (isNegativeValue(val)) {
+    return (
+      <span className="inline-block text-zinc-600 font-semibold text-sm select-none" title="Không hỗ trợ">
+        —
+      </span>
+    );
+  }
+
+  // 2. Giá niêm yết hoặc thời hạn sử dụng -> Hiển thị text rõ ràng, không chèn Check
+  if (itemId === 'price' || itemId === 'duration') {
+    return (
+      <span
+        className={
+          variant === 'lifetime'
+            ? 'font-bold text-amber-300'
+            : variant === 'yearly'
+            ? 'font-bold text-indigo-300'
+            : variant === 'monthly'
+            ? 'font-medium text-zinc-200'
+            : 'text-zinc-400'
+        }
+      >
+        {val}
+      </span>
+    );
+  }
+
+  // 3. Early Access badge cho gói Lifetime
+  if (itemId === 'early_access' && variant === 'lifetime') {
+    return (
+      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs inline-flex items-center gap-1 whitespace-nowrap">
+        <Sparkles size={11} className="text-amber-400" />
+        {val}
+      </span>
+    );
+  }
+
+  // 4. Badge hồ sơ cho Lifetime
+  if (itemId === 'badge' && variant === 'lifetime') {
+    return (
+      <span className="text-amber-200 font-bold text-[11px] inline-flex items-center justify-center gap-1">
+        <Crown size={12} className="text-amber-400 shrink-0" />
+        {val}
+      </span>
+    );
+  }
+
+  // 5. Quà tặng cộng đồng cho Lifetime
+  if (itemId === 'community_gift' && variant === 'lifetime') {
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1">
+        <Check size={12} className="text-emerald-400 shrink-0 font-bold" />
+        {val}
+      </span>
+    );
+  }
+
+  // 6. Trường hợp "Ưu tiên Beta" cho gói Năm
+  if (itemId === 'early_access' && variant === 'yearly') {
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 inline-flex items-center gap-1">
+        <Check size={12} className="text-emerald-400 shrink-0 font-bold" />
+        Ưu tiên Beta
+      </span>
+    );
+  }
+
+  // 7. Các tính năng ĐƯỢC HỖ TRỢ bình thường -> DUY NHẤT 1 dấu Check màu xanh ngọc + text
+  return (
+    <span
+      className={`inline-flex items-center justify-center gap-1.5 ${
+        variant === 'lifetime'
+          ? 'text-amber-100 font-medium'
+          : variant === 'yearly'
+          ? 'text-indigo-100'
+          : variant === 'monthly'
+          ? 'text-zinc-200'
+          : 'text-zinc-300'
+      }`}
+    >
+      <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
+      <span>{val}</span>
+    </span>
+  );
+};
+
 export const BillingView: React.FC = () => {
   const router = useRouter();
   const [cycle, setCycle] = useState<PlanCycle>('yearly');
@@ -896,17 +1005,23 @@ export const BillingView: React.FC = () => {
 
               {/* Table Container */}
               <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm shadow-xl scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
-                <table className="w-full text-left border-collapse min-w-[760px] text-xs">
+                <table className="w-full text-left border-separate border-spacing-0 min-w-[760px] text-xs">
                   <thead>
-                    <tr className="border-b border-zinc-800 bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
-                      <th className="py-4 px-4 w-[28%] text-zinc-300 font-semibold">Tính Năng &amp; Đặc Quyền</th>
-                      <th className="py-4 px-3 w-[16%] text-center text-zinc-400">Gói Free (0₫)</th>
-                      <th className="py-4 px-3 w-[18%] text-center text-zinc-300">Gói Tháng (59k)</th>
-                      <th className="py-4 px-3 w-[18%] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-indigo-500/20">
+                    <tr className="bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
+                      <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-4 px-4 w-[28%] min-w-[190px] sm:min-w-[240px] text-zinc-300 font-semibold shadow-xs">
+                        Tính Năng &amp; Đặc Quyền
+                      </th>
+                      <th className="py-4 px-3 w-[16%] min-w-[120px] text-center text-zinc-400 border-b border-zinc-800">
+                        Gói Free (0₫)
+                      </th>
+                      <th className="py-4 px-3 w-[18%] min-w-[130px] text-center text-zinc-300 border-b border-zinc-800">
+                        Gói Tháng (59k)
+                      </th>
+                      <th className="py-4 px-3 w-[18%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
                         Gói Năm (-34%)
                         <span className="text-[9px] text-indigo-400 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
                       </th>
-                      <th className="py-4 px-3 w-[20%] text-center text-amber-200 bg-amber-500/[0.04] border-l border-amber-500/25">
+                      <th className="py-4 px-3 w-[20%] min-w-[160px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
                         <span className="inline-flex items-center gap-1">
                           <Crown size={12} className="text-amber-400" />
                           Gói Trọn Đời
@@ -915,13 +1030,13 @@ export const BillingView: React.FC = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60">
+                  <tbody>
                     {COMPARISON_FEATURES.map((item) => (
                       <tr
                         key={item.id}
                         className="hover:bg-zinc-800/30 transition-colors"
                       >
-                        <td className="py-3.5 px-4 font-medium text-zinc-200">
+                        <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[190px] sm:min-w-[240px] shadow-xs">
                           <div className="flex items-center gap-1.5">
                             {item.id === 'badge' && (
                               <Crown size={13} className="text-amber-400 shrink-0" />
@@ -933,82 +1048,31 @@ export const BillingView: React.FC = () => {
                           </div>
                         </td>
 
-                        <td className="py-3.5 px-3 text-center text-zinc-400">
-                          {item.free === '❌' ? (
-                            <span className="text-zinc-600 font-bold text-sm">✕</span>
-                          ) : (
-                            <span className="inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0" />
-                              <span>{item.free}</span>
-                            </span>
-                          )}
+                        <td className="py-3.5 px-3 text-center text-zinc-400 border-b border-zinc-800/60">
+                          {renderComparisonCell(item.free, 'free', item.id)}
                         </td>
 
-                        <td className="py-3.5 px-3 text-center text-zinc-300">
-                          {item.monthly === '❌' ? (
-                            <span className="text-zinc-600 font-bold text-sm">✕</span>
-                          ) : item.monthly === 'Không giới hạn thời gian' || item.monthly === 'Không giới hạn' ? (
-                            <span className="text-zinc-200 font-semibold inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
-                              <span>{item.monthly}</span>
-                            </span>
-                          )}
+                        <td className="py-3.5 px-3 text-center text-zinc-300 border-b border-zinc-800/60">
+                          {renderComparisonCell(item.monthly, 'monthly', item.id)}
                         </td>
 
-                        <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20 text-indigo-100">
-                          {item.yearly === 'Ưu tiên Beta' ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 inline-flex items-center gap-1">
-                              <Check size={12} className="text-emerald-400 shrink-0 font-semibold" />
-                              Ưu tiên Beta
-                            </span>
-                          ) : item.yearly === 'Không giới hạn thời gian' || item.yearly === 'Không giới hạn' ? (
-                            <span className="text-indigo-100 font-semibold inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
-                              <span>{item.yearly}</span>
-                            </span>
-                          )}
+                        <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20 text-indigo-100">
+                          {renderComparisonCell(item.yearly, 'yearly', item.id)}
                         </td>
 
-                        <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25 text-amber-100">
-                          {item.id === 'early_access' ? (
-                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm inline-flex items-center gap-1 whitespace-nowrap">
-                              <Sparkles size={11} className="text-amber-400" />
-                              {item.lifetime}
-                            </span>
-                          ) : item.id === 'badge' ? (
-                            <span className="text-amber-200 font-bold text-[11px] inline-flex items-center justify-center gap-1">
-                              <Crown size={12} className="text-amber-400 shrink-0" />
-                              {item.lifetime}
-                            </span>
-                          ) : item.lifetime === 'Không giới hạn thời gian' || item.lifetime === 'Không giới hạn' ? (
-                            <span className="text-amber-100 font-semibold inline-flex items-center justify-center gap-1">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" /> Không giới hạn
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center justify-center gap-1 font-medium">
-                              <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
-                              <span>{item.lifetime}</span>
-                            </span>
-                          )}
+                        <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25 text-amber-100">
+                          {renderComparisonCell(item.lifetime, 'lifetime', item.id)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
 
                   <tfoot>
-                    <tr className="border-t border-zinc-800 bg-zinc-950/80">
-                      <td className="py-4 px-4 text-xs text-zinc-400">
+                    <tr className="bg-zinc-950/80">
+                      <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-4 px-4 text-xs text-zinc-400 min-w-[190px] sm:min-w-[240px] shadow-xs">
                         <div className="flex items-center gap-1.5 text-zinc-500 font-mono text-[11px]">
-                          <ShieldCheck size={14} className="text-zinc-400" />
-                          <span>Cam kết minh bạch 100% không phát sinh chi phí ẩn</span>
+                          <ShieldCheck size={14} className="text-zinc-400 shrink-0" />
+                          <span className="truncate">Cam kết minh bạch 100% không chi phí ẩn</span>
                         </div>
                       </td>
                       <td className="py-4 px-3 text-center">
@@ -1036,7 +1100,7 @@ export const BillingView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleSelectPlanAndCheckout('yearly')}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-sm"
+                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
                         >
                           Chọn Gói Năm
                         </button>
