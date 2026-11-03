@@ -93,24 +93,31 @@
   - [x] *Sửa Header, Khối Thông Tin & 3 Nút Điều Khiển*: Header thẻ chuyển sang `flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80 w-full min-w-0`, icon crown `shrink-0`, wrapper text `min-w-0 flex-1`, tiêu đề `break-words`. Khối 3 nút điều khiển đổi sang `flex items-center gap-2 flex-wrap w-full sm:w-auto pt-2 sm:pt-0` với các nút `flex-1 sm:flex-none` và `w-full sm:w-auto`, triệt tiêu hoàn toàn nguyên nhân gây phình khung ngang.
   - [x] *Chống Tràn Ngang Toàn Trang*: Bổ sung `max-w-full overflow-x-hidden` vào outer container và `box-border overflow-x-hidden` vào `<main>`.
   - [x] *Kiểm Thử & Triển Khai Production*: Chạy Playwright test viewport iPhone (390×844) xác nhận `scrollWidth === clientWidth === 390` (hasHorizontalOverflow = false), bounding box thẻ `{ x: 16, y: 157, width: 358 }` căn đều 2 bên mép 16px. Vitest 31/31 suites pass (307 tests), Vite build thành công, deploy Vercel Production `dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8` READY, alias trỏ `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 22 — Tối Ưu Toàn Diện Layout & Giao Diện Hiển Thị AI Companion Drawer Trên Mobile (`AiCompanionWidget.tsx`)**:
+  - [x] *Tinh Gọn Header 1 Hàng Ngang (Không Nhồi Nhét)*: Xóa hoàn toàn thanh dung lượng sử dụng và badge vỡ dòng "Gia sư Socratic". Thiết kế Header 1 hàng ngang duy nhất (`h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80`): Bên trái gồm Icon AI nhỏ gọn + Tên "AI Study Companion" kèm badge nhỏ "★ 1.000⚡/tuần"; Bên phải gồm cụm số dư `⚡ 999`, nút Làm mới phiên chat và nút đóng `✕`. **[HOÀN THÀNH]**
+  - [x] *Sửa Dứt Điểm Lỗi 2 Hộp Bot Khi Đang Phản Hồi (Thinking State)*: Xóa bỏ hoàn toàn thanh thông báo rời "Gia sư AI đang kết nối luồng phân tích..." và hộp rỗng có chữ "Chép". Khi `isLoading === true`, chỉ hiển thị DUY NHẤT 1 bong bóng chat AI với hiệu ứng 3 chấm nhấp nháy `● ● ● Gia sư đang phân tích...`. **[HOÀN THÀNH]**
+  - [x] *Làm Đẹp Bong Bóng Chat (Chat Bubbles)*: Tin nhắn User nền tối sang trọng `bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-3.5`, file đính kèm dạng pill nhỏ gọn `bg-zinc-900/80 px-2.5 py-1.5 rounded-lg text-xs`. Phản hồi AI hiển thị trực tiếp chữ trắng xám dịu mắt (`text-zinc-200 leading-relaxed`) kèm KaTeX toán học rõ ràng. Chân phản hồi AI tích hợp cụm nút hành động tinh tế: "Sao chép", "📌 Chèn vào Ghi chú", và nhãn mờ `Đã dùng -1⚡`. **[HOÀN THÀNH]**
+  - [x] *Tối Ưu Khung Nhập Liệu Safe Area Dưới Đáy*: Đặt khoảng đệm `p-3 pb-6 sm:pb-4 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/60`, nút 📎 và nút gửi ➤ căn giữa hoàn hảo theo chiều dọc với ô nhập câu hỏi. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Triển Khai Production*: Chạy Playwright viewport iPhone (390×844) chụp ảnh thực chứng `proof-ai-completed-chat-mobile.png`. Vitest 31/31 suites pass (307 tests), Vite build thành công, deploy Vercel Production `dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi` READY, alias trỏ `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:37
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:57
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Mobile Viewport & Horizontal Overflow Prevention in BillingView*:
-     - Outer container & main: Thêm `max-w-full overflow-x-hidden box-border`.
-     - Thẻ Founder VIP: `w-full max-w-xl mx-auto box-border px-4 sm:px-6`.
-     - Footer buttons: Thêm `flex-wrap` và `w-full sm:w-auto` để tránh cố định min-width vượt quá màn hình 390px.
-  2. *Thực nghiệm Playwright iPhone (390×844)*:
-     - `scrollWidth: 390, clientWidth: 390, hasHorizontalOverflow: false`.
-     - Thẻ Founder VIP nằm trọn trong viewport: `x: 16, width: 358`, hiển thị đầy đủ tiêu đề "Thành Viên PRO Trọn Đời (Lifetime Founder)" và badge "FOUNDER LIFETIME VIP".
-     - Ảnh chụp chứng minh: `proof-founder-vip-mobile-390.png`.
-  3. *Đóng gói & Triển khai*:
+  1. *Mobile Viewport & Compact Header*:
+     - Header tinh gọn 1 hàng duy nhất (`h-14`), không còn thanh tiến trình dung lượng hay badge vỡ dòng.
+     - Cụm số dư `⚡ 999` bấm nạp lẻ, nút Làm mới phiên chat và nút Đóng `✕` bố trí trực quan.
+  2. *Single Thinking Bubble & Sleek Chat Bubbles*:
+     - Loại bỏ hoàn toàn hộp rỗng thứ 2 và thông báo rời "Gia sư AI đang kết nối...".
+     - Bong bóng chat AI chuyển mượt mà từ 3-dot thinking state sang streaming Markdown & KaTeX.
+     - Thêm nút tiện ích `📌 Chèn vào Ghi chú` đồng bộ trực tiếp sang IndexedDB qua `useNoteStore`.
+  3. *Safe Area Input Area*:
+     - Bổ sung `pb-6` cho khung input, nút đính kèm 📎 và gửi ➤ căn giữa hoàn hảo.
+  4. *Đóng gói & Triển khai*:
      - Vitest: **31/31 test files passed, 307/307 tests passed (100%)**.
-     - Vite Build: Đóng gói thành công, 0 cảnh báo logic.
-     - Production Deployment: `dpl_FAWDZfpyrzSBvfnuv5KfEU5FRQC8` Ready, alias `https://pomofocus-workspace.vercel.app`.
+     - Vite Build: Đóng gói thành công, 0 lỗi.
+     - Production Deployment: `dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi` Ready, alias `https://pomofocus-workspace.vercel.app`.
      - Live Verification: HTTP 200 OK.
