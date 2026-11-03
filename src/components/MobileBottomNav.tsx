@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  Clock,
-  CheckSquare,
-  Volume2,
+  Timer,
+  ClipboardList,
+  Headphones,
   Sliders,
   Layers,
   Square,
@@ -344,7 +344,7 @@ export const MobileBottomNav: React.FC = () => {
         role="toolbar"
         aria-label="Thanh điều hướng di động"
         data-testid="mobile-bottom-navigation"
-        className={`fixed bottom-0 left-0 right-0 z-50 w-full bg-[rgba(9,9,11,0.88)] backdrop-blur-3xl backdrop-saturate-[180%] border-t border-white/[0.08] shadow-[0_-8px_30px_rgba(0,0,0,0.6)] flex items-center justify-between px-3 pt-2 pb-[max(12px,env(safe-area-inset-bottom,12px))] gap-2 select-none transition-all duration-200 ${
+        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-40 px-2 flex items-center justify-around select-none transition-all duration-200 ${
           isKeyboardOpen
             ? 'translate-y-full opacity-0 pointer-events-none'
             : isFocusDimmed ? 'translate-y-0 opacity-15 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
@@ -359,14 +359,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.timer?.isOpen ?? false}
           onClick={() => handleNavClick('timer')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 h-11 flex items-center justify-center gap-1.5 px-2 rounded-full border transition-all text-xs font-semibold cursor-pointer select-none active:scale-95 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'timer'
-              ? 'bg-white/15 text-white border-white/20 shadow-sm'
-              : 'bg-zinc-900/60 text-zinc-400 border-white/[0.06] hover:text-zinc-200 hover:bg-zinc-800/60'
+              ? 'text-white font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Clock size={16} strokeWidth={2.2} className="shrink-0" />
-          <span className="truncate">Tập trung</span>
+          <Timer size={20} strokeWidth={activeMobileTab === 'timer' ? 2.2 : 1.75} className={activeMobileTab === 'timer' ? 'text-white' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] whitespace-nowrap">Tập trung</span>
         </button>
 
         {/* 2. Nút Kế hoạch */}
@@ -378,14 +378,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.tasks?.isOpen ?? false}
           onClick={() => handleNavClick('tasks')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 h-11 flex items-center justify-center gap-1.5 px-2 rounded-full border transition-all text-xs font-semibold cursor-pointer select-none active:scale-95 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'tasks' || activeMobileTab === 'notes'
-              ? 'bg-white/15 text-white border-white/20 shadow-sm'
-              : 'bg-zinc-900/60 text-zinc-400 border-white/[0.06] hover:text-zinc-200 hover:bg-zinc-800/60'
+              ? 'text-white font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <CheckSquare size={16} strokeWidth={2.2} className="shrink-0" />
-          <span className="truncate">Kế hoạch</span>
+          <ClipboardList size={20} strokeWidth={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 2.2 : 1.75} className={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'text-white' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] whitespace-nowrap">Kế hoạch</span>
         </button>
 
         {/* 3. Nút Không gian */}
@@ -397,14 +397,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={widgets.sounds?.isOpen ?? false}
           onClick={() => handleNavClick('sounds')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 h-11 flex items-center justify-center gap-1.5 px-2 rounded-full border transition-all text-xs font-semibold cursor-pointer select-none active:scale-95 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media'
-              ? 'bg-white/15 text-white border-white/20 shadow-sm'
-              : 'bg-zinc-900/60 text-zinc-400 border-white/[0.06] hover:text-zinc-200 hover:bg-zinc-800/60'
+              ? 'text-white font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Volume2 size={16} strokeWidth={2.2} className="shrink-0" />
-          <span className="truncate">Không gian</span>
+          <Headphones size={20} strokeWidth={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 2.2 : 1.75} className={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 'text-white' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] whitespace-nowrap">Không gian</span>
         </button>
 
         {/* 4. Nút Trợ lý AI */}
@@ -416,14 +416,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-pressed={isAiOpen}
           onClick={() => useAiStore.getState().toggleOpen()}
           style={{ WebkitTapHighlightColor: 'transparent' }}
-          className={`flex-1 h-11 flex items-center justify-center gap-1.5 px-2 rounded-full border transition-all text-xs font-semibold cursor-pointer select-none active:scale-95 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             isAiOpen
-              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
-              : 'bg-zinc-900/60 text-cyan-400 border-cyan-500/20 hover:text-cyan-300 hover:bg-cyan-950/40'
+              ? 'text-cyan-300 font-semibold'
+              : 'text-zinc-400 hover:text-cyan-300'
           }`}
         >
-          <Sparkles size={16} strokeWidth={2.2} className="text-cyan-400 shrink-0" />
-          <span className="truncate">Trợ lý AI</span>
+          <Sparkles size={20} strokeWidth={isAiOpen ? 2.2 : 1.75} className={isAiOpen ? 'text-cyan-300' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] whitespace-nowrap">Trợ lý AI</span>
         </button>
       </nav>
       {showResetConfirm && (
