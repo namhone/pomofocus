@@ -122,3 +122,31 @@
      - Vite Build: Đóng gói thành công, 0 lỗi.
      - Production Deployment: `dpl_9KCjZ1AQyQ7xZZNoj2fc19WUpksU` Ready, alias `https://pomofocus-workspace.vercel.app`.
      - Live Verification: HTTP 200 OK.
+- [x] **Phase 24 — Đồng Bộ Toàn Diện Thông Tin Hồ Sơ, Gói Cước và Ví Điểm AI Lên Supabase Cloud (`public.profiles`)**:
+  - [x] *Migration SQL Bảng `public.profiles`*: Tạo file `supabase/migrations/20261103000001_sync_user_profile_and_credits.sql` với cấu trúc đầy đủ (`id`, `email`, `full_name`, `handle`, `avatar_url`, `bio`, `role`, `plan`, `plan_expires_at`, `ai_credits_balance`, `last_weekly_reset`, `last_monthly_reset`, `total_ai_queries`, `created_at`, `updated_at`). Thiết lập Row Level Security (RLS) với chính sách SELECT công khai, UPDATE/INSERT cho người dùng và trigger tự động cập nhật `updated_at`. Kèm theo Stored Procedure `deduct_ai_credits` và `add_ai_credits` thực thi trừ/nạp điểm nguyên tử (Atomic). **[HOÀN THÀNH]**
+  - [x] *Bổ sung Hỗ trợ `upsert` trong `src/lib/supabase.ts`*: Mở rộng client Supabase PostgREST nội bộ với phương thức `upsert(rows, options)` gửi header `Prefer: resolution=merge-duplicates,return=representation` và xử lý `onConflict`. **[HOÀN THÀNH]**
+  - [x] *Service Đồng Bộ Đám Mây `ProfileService`*: Tạo mới `src/services/profileService.ts` cung cấp các hàm `fetchProfile()`, `ensureProfileForUser()`, `upsertProfile()`, `updateFields()`, `syncCredits()`, `deductCreditsCloud()`, `addCreditsCloud()` và `syncPeriodicReset()`. Tự động phân quyền Founder (`role: 'founder'`, `plan: 'lifetime'`, `1.000⚡`) cho email `namho03052k9@gmail.com` và gói Free (`50⚡`) cho học sinh mới. Cơ chế Offline-First fallback không làm gián đoạn ứng dụng khi mất kết nối. **[HOÀN THÀNH]**
+  - [x] *Đồng Bộ 2 Chiều Trong `useAuthStore` & `useAiStore`*:
+    + Khi đăng nhập hoặc khôi phục phiên (`syncUserFromSupabase`, `syncEntitlementsFromCloud`): Tự động nạp dữ liệu từ `public.profiles` trên Cloud vào Store (Tên, Biệt danh, Avatar, Bio, Gói cước và Ví điểm AI).
+    + Khi cập nhật hồ sơ (`updateProfile`): Lưu session cục bộ đồng thời cập nhật ngay lên Cloud `public.profiles`.
+    + Khi sử dụng AI (`useAiStore.deductCredits`, `api/ai/companion.ts`): Trừ điểm cục bộ đồng thời đồng bộ trừ nguyên tử trên Supabase Cloud và tăng bộ đếm `total_ai_queries`.
+    + Khi nạp điểm hoặc nhập coupon (`useAiStore.addCredits`, `couponService.redeemCoupon`): Cộng điểm trực tiếp lên Supabase Cloud và cập nhật thời hạn gói cước.
+    + Chu kỳ làm mới tự động (`checkWeeklyReset` Thứ Hai hàng tuần cho Lifetime, `checkMonthlyReset` đầu tháng cho Free): Ghi nhận mốc làm mới và đồng bộ số dư trên Cloud. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Đóng Gói*: Tạo mới bộ kiểm thử chuyên sâu `tests/unit/profileCloudSync.test.ts` (11 test cases). Chạy kiểm thử toàn bộ dự án: **32/32 test files passed (318/318 tests passed 100%)**. Đóng gói sản xuất `npm run build` thành công, 0 lỗi TypeScript. Đã commit (`6cea483`) và push đồng bộ lên GitHub `origin/master`. **[HOÀN THÀNH]**
+
+---
+
+## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
+
+- **Thời điểm**: 2026-11-03 18:32
+- **Trạng thái**: Đã commit (`6cea483`), push đồng bộ `origin/master`, kiểm thử 32/32 suites (318 tests) 100% Passed.
+- **Nhật ký hành động & Quyết định kỹ thuật**:
+  1. *100% Cloud Persistence & Cross-Device Sync*:
+     - Toàn bộ trạng thái quan trọng của người dùng (Hồ sơ, Gói cước SaaS, Ví điểm AI `ai_credits_balance`) được chuyển từ phụ thuộc client-side sang lưu trữ tập trung trên bảng `public.profiles` của Supabase Cloud.
+     - Khi học sinh dùng AI trên máy tính, mở điện thoại lên số dư điểm AI lập tức cập nhật chính xác; avatar, tên, biệt danh và quyền hạn gói cước đồng bộ tức thì qua mã định danh `user.id`.
+  2. *Atomic Deduction & Anti-Cheat*:
+     - Stored procedure `deduct_ai_credits` thực hiện khóa hàng (`FOR UPDATE`) và kiểm tra số dư nguyên tử trên máy chủ, ngăn chặn triệt để tình trạng gian lận race condition hoặc chỉnh sửa số dư bằng DevTools.
+  3. *Đóng gói & Kiểm thử*:
+     - Vitest: **32/32 test files passed, 318/318 tests passed (100%)**.
+     - Vite Build: Đóng gói thành công, 0 lỗi compile TypeScript.
+     - Git Repository: Đã commit và push lên GitHub `origin/master`.
