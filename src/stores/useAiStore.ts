@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useNoteStore } from './useNoteStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
+import { ProfileService } from '../services/profileService';
 
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
 export type AiActionType = 'chat' | 'summarize' | 'quiz' | 'multimodal';
@@ -141,6 +142,19 @@ export interface AiState {
   syncWithAuth: (plan?: string) => void;
 }
 
+
+function getStoredUserId(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const raw = localStorage.getItem('pomodoro_study_auth_session');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed.id;
+    }
+  } catch {}
+  return undefined;
+}
+
 export const useAiStore = create<AiState>()(
   persist(
     (set, get) => ({
@@ -172,19 +186,32 @@ export const useAiStore = create<AiState>()(
       setAiPlan: (plan) => {
         const currentBalance = get().aiCreditsBalance;
         const targetLimit = AI_PLAN_LIMITS[plan];
+        const newBalance = Math.max(currentBalance, targetLimit);
 
         set({
           aiPlan: plan,
           // Nâng cấp gói tự động đảm bảo số dư tối thiểu của gói đó
-          aiCreditsBalance: Math.max(currentBalance, targetLimit),
+          aiCreditsBalance: newBalance,
           lastWeeklyReset: Date.now(),
           lastMonthlyReset: Date.now()
         });
+
+        const uid = getStoredUserId();
+        if (uid) {
+          ProfileService.updateFields(uid, {
+            plan,
+            ai_credits_balance: newBalance
+          }).catch(() => {});
+        }
       },
 
       addCredits: (amount) => {
         if (amount > 0) {
           set((state) => ({ aiCreditsBalance: state.aiCreditsBalance + amount }));
+          const uid = getStoredUserId();
+          if (uid) {
+            ProfileService.addCreditsCloud(uid, amount).catch(() => {});
+          }
         }
       },
 
@@ -194,6 +221,10 @@ export const useAiStore = create<AiState>()(
           return false;
         }
         set({ aiCreditsBalance: current - cost });
+        const uid = getStoredUserId();
+        if (uid) {
+          ProfileService.deductCreditsCloud(uid, cost).catch(() => {});
+        }
         return true;
       },
 
@@ -204,10 +235,15 @@ export const useAiStore = create<AiState>()(
         const currentMonday = getMondayMidnight(currentTime);
         // Nếu lần nạp tuần trước xảy ra trước 00:00 sáng Thứ Hai tuần này
         if (lastWeeklyReset < currentMonday) {
+          const targetBal = AI_PLAN_LIMITS.lifetime;
           set({
-            aiCreditsBalance: AI_PLAN_LIMITS.lifetime, // Nạp đầy lại 1.000⚡
+            aiCreditsBalance: targetBal, // Nạp đầy lại 1.000⚡
             lastWeeklyReset: currentTime
           });
+          const uid = getStoredUserId();
+          if (uid) {
+            ProfileService.syncPeriodicReset(uid, 'weekly', targetBal).catch(() => {});
+          }
           return true;
         }
         return false;
@@ -220,10 +256,15 @@ export const useAiStore = create<AiState>()(
         const currentMonthStart = getMonthStart(currentTime);
         // Nếu lần nạp tháng trước xảy ra trước mốc đầu tháng này
         if (lastMonthlyReset < currentMonthStart) {
+          const targetBal = AI_PLAN_LIMITS.free;
           set({
-            aiCreditsBalance: AI_PLAN_LIMITS.free, // Nạp lại 50⚡
+            aiCreditsBalance: targetBal, // Nạp lại 50⚡
             lastMonthlyReset: currentTime
           });
+          const uid = getStoredUserId();
+          if (uid) {
+            ProfileService.syncPeriodicReset(uid, 'monthly', targetBal).catch(() => {});
+          }
           return true;
         }
         return false;
@@ -370,6 +411,7 @@ export const useAiStore = create<AiState>()(
                 actionType: effectiveAction,
                 contextNotes,
                 currentCredits: get().aiCreditsBalance,
+                userId: getStoredUserId(),
                 stream: true,
                 history: recentHistory,
                 attachment: attachment

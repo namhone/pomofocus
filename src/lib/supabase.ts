@@ -853,6 +853,34 @@ export const supabase = {
         }
       },
 
+      upsert: async (rows: any | any[], options?: { onConflict?: string }): Promise<{ data: any; error: any }> => {
+        try {
+          const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+          let url = `${baseUrl}/rest/v1/${table}`;
+          if (options?.onConflict) {
+            url += `?on_conflict=${encodeURIComponent(options.onConflict)}`;
+          }
+          const bodyData = Array.isArray(rows) ? rows : [rows];
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: getHeaders({
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates,return=representation'
+            }),
+            body: JSON.stringify(bodyData)
+          });
+          if (!res.ok) {
+            let errBody: any;
+            try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+            return { data: null, error: errBody };
+          }
+          const data = await res.json().catch(() => null);
+          return { data: Array.isArray(rows) ? data : (data?.[0] || rows), error: null };
+        } catch (err: any) {
+          return { data: null, error: { message: err?.message || 'Network error' } };
+        }
+      },
+
       update: (updates: Record<string, any>) => {
         const filters: Array<{ col: string; op: string; val: any }> = [];
         const execute = async () => {

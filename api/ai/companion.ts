@@ -13,6 +13,60 @@ interface RequestBody {
   };
 }
 
+
+export async function syncServerCreditsDeduction(userId?: string, cost = 1) {
+  if (!userId || cost <= 0) return;
+  const sbUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
+  const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!sbUrl || !sbKey) return;
+
+  try {
+    const rpcRes = await fetch(`${sbUrl}/rest/v1/rpc/deduct_ai_credits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': sbKey,
+        'Authorization': `Bearer ${sbKey}`
+      },
+      body: JSON.stringify({ p_user_id: userId, p_cost: cost })
+    });
+    if (rpcRes.ok) return;
+
+    const profRes = await fetch(
+      `${sbUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=ai_credits_balance,total_ai_queries`,
+      {
+        headers: {
+          'apikey': sbKey,
+          'Authorization': `Bearer ${sbKey}`
+        }
+      }
+    );
+    if (profRes.ok) {
+      const data = await profRes.json();
+      if (Array.isArray(data) && data[0]) {
+        const remaining = Math.max(0, (data[0].ai_credits_balance || 0) - cost);
+        const queries = (data[0].total_ai_queries || 0) + 1;
+        await fetch(`${sbUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': sbKey,
+            'Authorization': `Bearer ${sbKey}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            ai_credits_balance: remaining,
+            total_ai_queries: queries,
+            updated_at: new Date().toISOString()
+          })
+        });
+      }
+    }
+  } catch (err) {
+    console.debug('[api/companion] syncServerCreditsDeduction error:', err);
+  }
+}
+
 const ACTION_COSTS: Record<'chat' | 'summarize' | 'quiz' | 'multimodal', number> = {
   chat: 1,
   summarize: 5,
@@ -132,6 +186,7 @@ export default async function handler(req: any, res: any) {
       actionType = 'chat',
       contextNotes = '',
       currentCredits = 0,
+      userId = '',
       stream = false,
       history = [],
       attachment
@@ -170,11 +225,13 @@ export default async function handler(req: any, res: any) {
         res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
+        syncServerCreditsDeduction(userId, cost).catch(() => {});
         res.write(`data: ${JSON.stringify({ text: greetingReply, finishReason: 'STOP', creditsDeducted: cost })}\n\n`);
         res.write('data: [DONE]\n\n');
         return res.end();
       }
 
+      syncServerCreditsDeduction(userId, cost).catch(() => {});
       return res.status(200).json({
         success: true,
         reply: greetingReply,
@@ -324,6 +381,7 @@ export default async function handler(req: any, res: any) {
               }
             }
 
+            syncServerCreditsDeduction(userId, cost).catch(() => {});
             res.write('data: [DONE]\n\n');
             return res.end();
           }
@@ -423,6 +481,7 @@ export default async function handler(req: any, res: any) {
       }
     }
 
+    syncServerCreditsDeduction(userId, cost).catch(() => {});
     return res.status(200).json({
       success: true,
       reply,

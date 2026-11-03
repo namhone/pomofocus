@@ -15,6 +15,7 @@ import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
 import { useAiStore } from './useAiStore';
+import { ProfileService } from '../services/profileService';
 
 export interface AuthState {
   user: UserProfile | null;
@@ -274,6 +275,46 @@ export const useAuthStore = create<AuthState>((set, get) => {
       });
 
       get().syncEntitlementsFromCloud();
+
+      // Đồng bộ / khởi tạo 100% trên Supabase Cloud public.profiles
+      ProfileService.ensureProfileForUser({
+        id: profile.id,
+        email: profile.email,
+        displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl
+      }).then((cloudProf) => {
+        if (cloudProf) {
+          if (typeof cloudProf.ai_credits_balance === 'number') {
+            useAiStore.setState({
+              aiCreditsBalance: cloudProf.ai_credits_balance,
+              aiPlan: (cloudProf.plan as any) || profile.plan,
+              ...(cloudProf.last_weekly_reset ? { lastWeeklyReset: new Date(cloudProf.last_weekly_reset).getTime() } : {}),
+              ...(cloudProf.last_monthly_reset ? { lastMonthlyReset: new Date(cloudProf.last_monthly_reset).getTime() } : {})
+            });
+          }
+          set((state) => {
+            if (!state.user || state.user.id !== profile.id) return state;
+            const merged: UserProfile = {
+              ...state.user,
+              displayName: cloudProf.full_name || state.user.displayName,
+              avatarUrl: cloudProf.avatar_url || state.user.avatarUrl,
+              username: cloudProf.handle || state.user.username,
+              bio: cloudProf.bio || state.user.bio,
+              role: cloudProf.role || state.user.role,
+              plan: (cloudProf.plan as any) || state.user.plan,
+              proExpiresAt: cloudProf.plan_expires_at ? new Date(cloudProf.plan_expires_at).getTime() : state.user.proExpiresAt
+            };
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(merged));
+            }
+            return {
+              user: merged,
+              role: merged.role,
+              ...computeDerivedPlanState(merged)
+            };
+          });
+        }
+      }).catch((e) => console.warn('[syncUserFromSupabase ProfileService]', e));
     },
 
     logout: () => {
@@ -308,6 +349,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
           error: null,
           ...computeDerivedPlanState(updated)
         });
+
+        // Đồng bộ lên Supabase Cloud public.profiles
+        ProfileService.updateFields(user.id, {
+          full_name: updated.displayName,
+          handle: updated.username,
+          avatar_url: updated.avatarUrl,
+          bio: updated.bio || updated.focusGoal
+        }).catch((e) => console.warn('[updateProfile Cloud Sync]', e));
         return true;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Cập nhật thông tin thất bại';
@@ -471,6 +520,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         user: updated,
         ...computeDerivedPlanState(updated)
       });
+
     },
 
     activateProFromPayment: (planType: string, proExpiresAt?: number | string | null) => {
@@ -518,6 +568,45 @@ export const useAuthStore = create<AuthState>((set, get) => {
         if (data?.is_pro) {
           const expiresAt = data.pro_expires_at ? new Date(data.pro_expires_at).getTime() : null;
           get().activateProFromPayment('pro', expiresAt);
+        }
+
+        // Đồng bộ 100% từ public.profiles trên Supabase Cloud
+        const cloudProfile = await ProfileService.fetchProfile(user.id);
+        if (cloudProfile) {
+          if (typeof cloudProfile.ai_credits_balance === 'number') {
+            useAiStore.setState({
+              aiCreditsBalance: cloudProfile.ai_credits_balance,
+              ...(cloudProfile.plan ? { aiPlan: cloudProfile.plan as any } : {}),
+              ...(cloudProfile.last_weekly_reset ? { lastWeeklyReset: new Date(cloudProfile.last_weekly_reset).getTime() } : {}),
+              ...(cloudProfile.last_monthly_reset ? { lastMonthlyReset: new Date(cloudProfile.last_monthly_reset).getTime() } : {})
+            });
+          }
+
+          const updatedUser: UserProfile = {
+            ...user,
+            displayName: cloudProfile.full_name || user.displayName,
+            avatarUrl: cloudProfile.avatar_url || user.avatarUrl,
+            username: cloudProfile.handle || user.username,
+            bio: cloudProfile.bio || user.bio,
+            role: cloudProfile.role || user.role,
+            plan: (cloudProfile.plan as any) || user.plan,
+            proExpiresAt: cloudProfile.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : user.proExpiresAt
+          };
+          set({
+            user: updatedUser,
+            role: updatedUser.role,
+            ...computeDerivedPlanState(updatedUser)
+          });
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(updatedUser));
+          }
+        } else {
+          await ProfileService.ensureProfileForUser({
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            avatarUrl: user.avatarUrl
+          });
         }
       } catch (err) {
         console.warn('[useAuthStore] Lỗi kiểm tra quyền hạn cloud:', err);

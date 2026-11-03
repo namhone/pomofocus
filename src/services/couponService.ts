@@ -7,6 +7,7 @@
 
 import { authService, UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 import { useAiStore } from '../stores/useAiStore';
+import { ProfileService } from './profileService';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
 
 export interface Coupon {
@@ -332,6 +333,7 @@ export const couponService = {
     // Trường hợp 2: Kích hoạt gói Trọn Đời vĩnh viễn
     if (coupon.type === 'free_lifetime') {
       authService.upgradePlan(user.id, 'pro_lifetime', 999);
+      ProfileService.updateFields(user.id, { plan: 'lifetime' }).catch(() => {});
       return {
         success: true,
         message: 'Chúc mừng! Bạn đã được kích hoạt gói PRO TRỌN ĐỜI vĩnh viễn! 🎉',
@@ -344,6 +346,12 @@ export const couponService = {
       const days = coupon.value || 7;
       authService.extendProDays(days);
       const updatedUser = authService.getCurrentSession();
+      if (updatedUser?.proExpiresAt) {
+        ProfileService.updateFields(user.id, {
+          plan: 'pro',
+          plan_expires_at: new Date(updatedUser.proExpiresAt).toISOString()
+        }).catch(() => {});
+      }
       const expiryText = updatedUser?.proExpiresAt
         ? ` (Hạn mới: ${new Date(updatedUser.proExpiresAt).toLocaleDateString('vi-VN')})`
         : '';
