@@ -8,18 +8,34 @@ export function extractYouTubePlaylistId(url: string): string | null {
   return match && match[1] ? match[1] : null;
 }
 
+export function extractYouTubeVideoId(url: string): string | null {
+  if (!url) return null;
+  const match = url.trim().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return match && match[1] ? match[1] : null;
+}
+
+export function isYouTubeMix(url: string): boolean {
+  const listId = extractYouTubePlaylistId(url);
+  return Boolean(listId && listId.startsWith('RD'));
+}
+
 export function extractYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
   const trimmed = url.trim();
   try {
-    const listMatch = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-    if (listMatch && listMatch[1]) {
-      return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(listMatch[1])}&autoplay=1`;
+    const listId = extractYouTubePlaylistId(trimmed);
+    const videoId = extractYouTubeVideoId(trimmed);
+
+    if (listId) {
+      // YouTube Mix (RD...) requires starting videoId in embed URL to avoid "Playlist does not exist" error
+      if (listId.startsWith('RD') && videoId) {
+        return `https://www.youtube-nocookie.com/embed/${videoId}?list=${encodeURIComponent(listId)}&autoplay=1`;
+      }
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(listId)}&autoplay=1`;
     }
 
-    const vMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/))([a-zA-Z0-9_-]{11})/);
-    if (vMatch && vMatch[1]) {
-      return `https://www.youtube-nocookie.com/embed/${vMatch[1]}?autoplay=1&enablejsapi=1`;
+    if (videoId) {
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
     }
 
     return null;

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   Film,
   ExternalLink,
@@ -8,10 +8,17 @@ import {
   Sparkles,
   Plus,
   Bookmark,
-  RotateCcw
+  BookmarkPlus,
+  RotateCcw,
+  SkipForward,
+  SkipBack
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
-import { extractYouTubeEmbedUrl, extractYouTubePlaylistId } from '../utils/media';
+import {
+  extractYouTubeEmbedUrl,
+  extractYouTubePlaylistId,
+  isYouTubeMix
+} from '../utils/media';
 
 export interface FavoritePlaylist {
   id: string;
@@ -34,6 +41,11 @@ export const DEFAULT_FAVORITE_PLAYLISTS: FavoritePlaylist[] = [
     id: 'fav-anime-ost',
     name: '✨ Anime OST Học & Code',
     url: 'https://www.youtube.com/playlist?list=PLRBp0Fe2GpgnZOm5rCopMAOYhZCPoUyNY'
+  },
+  {
+    id: 'fav-lofigirl-mix',
+    name: '🔀 Lofi Girl YouTube Mix',
+    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk&list=RDMMjfKfPfyJRdk'
   }
 ];
 
@@ -67,6 +79,7 @@ export const MediaWidget: React.FC = () => {
     customMusicError
   } = useAudioStore();
 
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [inputUrl, setInputUrl] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [showAddFav, setShowAddFav] = useState(false);
@@ -119,9 +132,32 @@ export const MediaWidget: React.FC = () => {
     }
   }, [rawEmbedUrl, currentOrigin]);
 
-  // Playlist detection
+  // Playlist & YouTube Mix detection
+  const isMix = isYouTubeMix(activeUrl);
   const isPlaylist = Boolean(extractYouTubePlaylistId(activeUrl)) || (rawEmbedUrl?.includes('videoseries') ?? false);
   const matchedFavorite = favorites.find((f) => f.url === activeUrl);
+
+  // YouTube IFrame Player API postMessage Controls (Skip Forward & Skip Back)
+  const sendPlayerCommand = (func: string, args: unknown[] = []) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({
+          event: 'command',
+          func,
+          args
+        }),
+        '*'
+      );
+    }
+  };
+
+  const handleNextVideo = () => {
+    sendPlayerCommand('nextVideo');
+  };
+
+  const handlePrevVideo = () => {
+    sendPlayerCommand('previousVideo');
+  };
 
   const handleApplyUrl = (urlToApply: string) => {
     const trimmed = urlToApply.trim();
@@ -132,7 +168,7 @@ export const MediaWidget: React.FC = () => {
     }
     const embed = extractYouTubeEmbedUrl(trimmed);
     if (!embed) {
-      setCustomMusicError('Vui lòng nhập đường dẫn YouTube hợp lệ (video, live stream hoặc danh sách phát playlist)');
+      setCustomMusicError('Vui lòng nhập đường dẫn YouTube hợp lệ (video, live stream, playlist hoặc YouTube Mix)');
       return;
     }
     setCustomMusicError(null);
@@ -158,9 +194,17 @@ export const MediaWidget: React.FC = () => {
       return;
     }
 
+    const isMixUrl = isYouTubeMix(urlTrimmed);
+    const isPlayUrl = Boolean(extractYouTubePlaylistId(urlTrimmed));
+    const fallbackDefaultName = isMixUrl
+      ? `YouTube Mix ${favorites.length + 1}`
+      : isPlayUrl
+      ? `Playlist ${favorites.length + 1}`
+      : `Video ${favorites.length + 1}`;
+
     const newFav: FavoritePlaylist = {
       id: `fav-${Date.now()}`,
-      name: nameTrimmed || (extractYouTubePlaylistId(urlTrimmed) ? `Playlist ${favorites.length + 1}` : `Video ${favorites.length + 1}`),
+      name: nameTrimmed || fallbackDefaultName,
       url: urlTrimmed
     };
 
@@ -190,6 +234,7 @@ export const MediaWidget: React.FC = () => {
       {youtubeEmbedUrl ? (
         <div className="relative w-full h-full flex-1 bg-black group overflow-hidden">
           <iframe
+            ref={iframeRef}
             src={youtubeEmbedUrl}
             title="YouTube Media Player"
             data-testid="media-youtube-iframe"
@@ -199,50 +244,106 @@ export const MediaWidget: React.FC = () => {
             allowFullScreen
           />
 
-          {/* Floating Subtle Station Switcher Trigger (Hiện khi hover hoặc bấm) */}
-          <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 z-20 pointer-events-auto">
-            {isPlaylist && (
-              <span
-                data-testid="badge-is-playlist"
-                className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-indigo-600/90 text-indigo-100 border border-indigo-400/30 backdrop-blur-md shadow flex items-center gap-1"
-                title="Đang phát danh sách phát - Tự động chuyển bài tiếp theo"
-              >
-                <ListMusic size={11} className="text-indigo-200" />
-                <span className="max-w-[120px] truncate">{matchedFavorite?.name || 'Playlist'}</span>
-              </span>
-            )}
+          {/* Floating Subtle Station Switcher Trigger & Playlist Controls */}
+          <div className="absolute top-2.5 inset-x-2.5 opacity-90 hover:opacity-100 transition-opacity duration-200 flex items-center justify-between z-20 pointer-events-none">
+            {/* Left side: Type badge (Mix / Playlist) & Quick Save */}
+            <div className="flex items-center gap-1.5 pointer-events-auto">
+              {isMix ? (
+                <span
+                  data-testid="badge-is-mix"
+                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-600/90 text-amber-100 border border-amber-400/30 backdrop-blur-md shadow flex items-center gap-1"
+                  title="Đang phát YouTube Mix - Tự động xáo trộn bài hát liên quan"
+                >
+                  <Sparkles size={11} className="text-amber-200" />
+                  <span className="max-w-[120px] truncate">{matchedFavorite?.name || 'YouTube Mix'}</span>
+                </span>
+              ) : isPlaylist ? (
+                <span
+                  data-testid="badge-is-playlist"
+                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-indigo-600/90 text-indigo-100 border border-indigo-400/30 backdrop-blur-md shadow flex items-center gap-1"
+                  title="Đang phát danh sách phát - Tự động chuyển bài tiếp theo"
+                >
+                  <ListMusic size={11} className="text-indigo-200" />
+                  <span className="max-w-[120px] truncate">{matchedFavorite?.name || 'Playlist'}</span>
+                </span>
+              ) : null}
 
-            <button
-              type="button"
-              data-testid="btn-toggle-media-picker"
-              onClick={() => setShowPicker(!showPicker)}
-              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
-              title="Đổi trạm hoặc phát Playlist yêu thích"
-            >
-              <ListMusic size={12} className="text-neutral-300" />
-              <span>Đổi trạm / Playlist</span>
-            </button>
-            <button
-              type="button"
-              data-testid="btn-clear-media"
-              onClick={() => {
-                setCustomMusicUrl('');
-                setCustomMusicPlaying(false);
-              }}
-              className="p-1 rounded-md bg-neutral-900/85 hover:bg-rose-950/80 text-neutral-400 hover:text-rose-300 border border-white/15 backdrop-blur-md shadow-lg transition-all cursor-pointer"
-              title="Tắt video"
-            >
-              <Trash2 size={12} />
-            </button>
+              {(isPlaylist || isMix) && !matchedFavorite && (
+                <button
+                  type="button"
+                  data-testid="btn-quick-save-playlist"
+                  onClick={() => {
+                    setNewFavUrl(activeUrl);
+                    setNewFavName(isMix ? 'YouTube Mix Cá Nhân' : 'Playlist Cá Nhân');
+                    setShowPicker(true);
+                    setShowAddFav(true);
+                  }}
+                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-600/85 hover:bg-emerald-500 text-white border border-emerald-400/30 backdrop-blur-md shadow flex items-center gap-1 transition-all cursor-pointer"
+                  title="Lưu vào danh sách Playlist yêu thích"
+                >
+                  <BookmarkPlus size={11} />
+                  <span className="hidden sm:inline">Lưu Playlist</span>
+                </button>
+              )}
+            </div>
+
+            {/* Right side: Prev ⏮ / Next ⏭ / Đổi trạm / Tắt */}
+            <div className="flex items-center gap-1.5 pointer-events-auto">
+              <button
+                type="button"
+                data-testid="btn-media-prev-video"
+                onClick={handlePrevVideo}
+                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
+                title="Bài trước ⏮"
+              >
+                <SkipBack size={12} className="text-neutral-300" />
+                <span className="hidden sm:inline">Trước</span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="btn-media-next-video"
+                onClick={handleNextVideo}
+                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
+                title="Bài tiếp theo ⏭ (Bỏ qua nếu video bị chặn bản quyền)"
+              >
+                <span className="hidden sm:inline">Tiếp</span>
+                <SkipForward size={12} className="text-neutral-300" />
+              </button>
+
+              <button
+                type="button"
+                data-testid="btn-toggle-media-picker"
+                onClick={() => setShowPicker(!showPicker)}
+                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
+                title="Đổi trạm hoặc phát Playlist yêu thích"
+              >
+                <ListMusic size={12} className="text-neutral-300" />
+                <span className="hidden sm:inline">Đổi trạm</span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="btn-clear-media"
+                onClick={() => {
+                  setCustomMusicUrl('');
+                  setCustomMusicPlaying(false);
+                }}
+                className="p-1 rounded-md bg-neutral-900/85 hover:bg-rose-950/80 text-neutral-400 hover:text-rose-300 border border-white/15 backdrop-blur-md shadow-lg transition-all cursor-pointer"
+                title="Tắt video"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
           </div>
         </div>
       ) : (
         /* Empty State / URL Input */
         <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-neutral-950/90 text-neutral-300 overflow-y-auto">
           <Film size={32} className="text-neutral-500 mb-2 stroke-[1.5]" />
-          <h3 className="text-sm font-semibold text-neutral-100 mb-1">Trình Phát Media & Playlist YouTube</h3>
+          <h3 className="text-sm font-semibold text-neutral-100 mb-1">Trình Phát Media, Playlist & Mix YouTube</h3>
           <p className="text-xs text-neutral-400 max-w-sm mb-4">
-            Dán liên kết Playlist cá nhân hoặc chọn nhanh danh sách phát bên dưới. Tự động chuyển bài kế tiếp khi kết thúc.
+            Dán liên kết Playlist cá nhân (`PL...`) hoặc YouTube Mix (`RD...`). Tự động chuyển bài kế tiếp và hỗ trợ nút bấm chuyển bài nhanh.
           </p>
 
           {/* 1-Touch Favorite Playlists */}
@@ -250,7 +351,7 @@ export const MediaWidget: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-medium text-indigo-300 flex items-center gap-1">
                 <Bookmark size={12} />
-                <span>Playlist Yêu Thích (1-Chạm)</span>
+                <span>Playlist & Mix Yêu Thích (1-Chạm)</span>
               </span>
               <button
                 type="button"
@@ -279,7 +380,7 @@ export const MediaWidget: React.FC = () => {
           {/* Preset Live Stations */}
           <div className="w-full max-w-md text-left">
             <span className="text-[11px] font-medium text-neutral-400 mb-2 block">
-              Trạm Live gợi ý:
+              Trạm Live gợi ý (24/7):
             </span>
             <div className="flex flex-wrap gap-2">
               {PRESET_STATIONS.map((station) => (
@@ -308,7 +409,7 @@ export const MediaWidget: React.FC = () => {
           <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 shrink-0">
             <span className="text-xs font-semibold text-neutral-200 flex items-center gap-1.5">
               <ListMusic size={13} className="text-indigo-400" />
-              Chọn Trạm YouTube & Playlist Cá Nhân
+              Chọn Trạm YouTube, Playlist & Mix Cá Nhân
             </span>
             <button
               type="button"
@@ -336,7 +437,7 @@ export const MediaWidget: React.FC = () => {
               type="text"
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="Dán link Video hoặc Playlist (youtube.com/playlist?list=...)"
+              placeholder="Dán link Video, Playlist (list=PL...) hoặc Mix (list=RD...)"
               data-testid="input-media-url"
               className="flex-1 min-w-0 bg-neutral-900 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
             />
@@ -360,7 +461,7 @@ export const MediaWidget: React.FC = () => {
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] font-semibold text-indigo-300 flex items-center gap-1">
                   <Bookmark size={11} />
-                  Playlist Ruột Của Bạn (1-Chạm)
+                  Playlist & Mix Ruột Của Bạn (1-Chạm)
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -379,7 +480,7 @@ export const MediaWidget: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleResetFavorites}
-                    title="Khôi phục 3 playlist mặc định"
+                    title="Khôi phục playlist mặc định"
                     className="text-neutral-500 hover:text-neutral-300 p-0.5 rounded cursor-pointer"
                   >
                     <RotateCcw size={10} />
@@ -399,7 +500,7 @@ export const MediaWidget: React.FC = () => {
                       type="text"
                       value={newFavName}
                       onChange={(e) => setNewFavName(e.target.value)}
-                      placeholder="Tên playlist (VD: Lofi Chill Học Đêm)"
+                      placeholder="Tên playlist (VD: Lofi Chill Học Đêm, Mix EDM)"
                       data-testid="input-fav-playlist-name"
                       className="flex-1 min-w-0 bg-neutral-900 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
                     />
@@ -431,6 +532,7 @@ export const MediaWidget: React.FC = () => {
               <div className="space-y-1">
                 {favorites.map((fav) => {
                   const isCurrent = activeUrl === fav.url;
+                  const isFavMix = isYouTubeMix(fav.url);
                   return (
                     <div
                       key={fav.id}
@@ -443,7 +545,11 @@ export const MediaWidget: React.FC = () => {
                       onClick={() => handleApplyUrl(fav.url)}
                     >
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <ListMusic size={12} className={isCurrent ? 'text-indigo-400' : 'text-neutral-500'} />
+                        {isFavMix ? (
+                          <Sparkles size={12} className={isCurrent ? 'text-amber-400' : 'text-neutral-500'} />
+                        ) : (
+                          <ListMusic size={12} className={isCurrent ? 'text-indigo-400' : 'text-neutral-500'} />
+                        )}
                         <span className="truncate">{fav.name}</span>
                       </div>
 
@@ -455,7 +561,7 @@ export const MediaWidget: React.FC = () => {
                           type="button"
                           data-testid={`btn-delete-fav-${fav.id}`}
                           onClick={(e) => handleDeleteFavorite(fav.id, e)}
-                          title="Xóa playlist này"
+                          title="Xóa khỏi danh sách yêu thích"
                           className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-rose-400 p-0.5 transition cursor-pointer"
                         >
                           <Trash2 size={11} />
