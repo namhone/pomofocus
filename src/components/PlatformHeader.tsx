@@ -25,7 +25,8 @@ import {
   Download,
   Sparkles,
   Gem,
-  Lock
+  Lock,
+  Pin
 } from 'lucide-react';
 
 export const PlatformHeader: React.FC = () => {
@@ -43,6 +44,58 @@ export const PlatformHeader: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isWorkspace = currentPath === '/app';
+
+  const [isHeaderPinned, setIsHeaderPinned] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('pomodoro_header_pinned') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleHeaderMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHeaderHovered(true);
+  };
+
+  const handleHeaderMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHeaderHovered(false);
+    }, 1500);
+  };
+
+  useEffect(() => {
+    if (!isWorkspace || isHeaderPinned) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (e.clientY <= 24) {
+        handleHeaderMouseEnter();
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isWorkspace, isHeaderPinned]);
+
+  const togglePinHeader = () => {
+    setIsHeaderPinned((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('pomodoro_header_pinned', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const isHeaderVisible = !isWorkspace || isHeaderPinned || isHeaderHovered || isMobileMenuOpen || isUserDropdownOpen;
+
 
   // Lắng nghe Click Outside để đóng Dropdown Avatar
   useEffect(() => {
@@ -110,9 +163,26 @@ export const PlatformHeader: React.FC = () => {
 
   return (
     <>
+      {/* Vùng cảm biến chuột rê mép trên khi Header đang ẩn */}
+      {isWorkspace && !isHeaderPinned && (
+        <div
+          data-testid="header-hover-sensor"
+          className="fixed top-0 left-0 right-0 h-3 z-50 pointer-events-auto"
+          onMouseEnter={handleHeaderMouseEnter}
+        />
+      )}
+
       <header
         data-testid="platform-unified-header"
-        className={`sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-opacity duration-700 ${currentPath === "/app" && isFocusDimmed ? "opacity-15 hover:opacity-100" : "opacity-100"}`}
+        onMouseEnter={isWorkspace ? handleHeaderMouseEnter : undefined}
+        onMouseLeave={isWorkspace ? handleHeaderMouseLeave : undefined}
+        className={`${
+          isWorkspace
+            ? `fixed top-0 left-0 right-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-all duration-300 ease-out ${
+                isHeaderVisible ? 'translate-y-0 opacity-100 pointer-events-auto shadow-2xl' : '-translate-y-full opacity-0 pointer-events-none'
+              } ${isFocusDimmed && isHeaderVisible ? 'opacity-25 hover:opacity-100' : ''}`
+            : 'sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
+        }`}
       >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
@@ -175,6 +245,23 @@ export const PlatformHeader: React.FC = () => {
 
         {/* User Actions & Mobile Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Nút Ghim Header (Pin) chỉ hiển thị khi ở /app */}
+          {isWorkspace && (
+            <button
+              type="button"
+              data-testid="header-pin-btn"
+              onClick={togglePinHeader}
+              className={`h-9 w-9 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
+                isHeaderPinned
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30'
+                  : 'bg-zinc-900/80 text-zinc-400 hover:text-white border-white/10'
+              }`}
+              title={isHeaderPinned ? 'Bỏ ghim Header (Bật tự động ẩn)' : 'Ghim cố định Header'}
+              aria-label="Ghim Header"
+            >
+              <Pin size={14} className={isHeaderPinned ? 'rotate-45' : ''} />
+            </button>
+          )}
           {/* AI Study Companion Quick HUD */}
           <button
             type="button"

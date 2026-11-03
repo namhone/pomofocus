@@ -44,10 +44,14 @@ export const DockBar: React.FC = () => {
   const toggleZenMode = useLayoutStore((state) => state.toggleZenMode);
   const resetLayout = useLayoutStore((state) => state.resetLayout);
   const dockPosition = useLayoutStore((state) => state.dockPosition);
+  const dockSize = useLayoutStore((state) => state.dockSize) || 'normal';
+  const setDockPosition = useLayoutStore((state) => state.setDockPosition);
+  const setDockSize = useLayoutStore((state) => state.setDockSize);
   const dockAutoHide = useLayoutStore((state) => state.dockAutoHide);
   const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showQuickDockMenu, setShowQuickDockMenu] = useState(false);
   const [isDockVisible, setIsDockVisible] = useState(true);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDockActiveRef = useRef(false);
@@ -63,6 +67,63 @@ export const DockBar: React.FC = () => {
   };
 
   const isVertical = dockPosition === 'left' || dockPosition === 'right';
+
+  const getDockTransform = () => {
+    const scaleVal = dockSize === 'compact' ? 0.9 : dockSize === 'spacious' ? 1.05 : 1;
+    if (isAiOpen) {
+      if (dockPosition === 'bottom' || dockPosition === 'top') {
+        return `translate(-50%, calc(100% + 40px)) scale(${scaleVal})`;
+      }
+      return `translateY(40px) scale(${scaleVal})`;
+    }
+
+    let baseTranslate = '';
+    if (dockPosition === 'bottom' || dockPosition === 'top') {
+      baseTranslate = 'translateX(-50%)';
+    } else if (dockPosition === 'left' || dockPosition === 'right') {
+      baseTranslate = 'translateY(-50%)';
+    }
+
+    if (!isDockVisible) {
+      if (dockPosition === 'bottom' || dockPosition === 'bottom-left' || dockPosition === 'bottom-right') {
+        return `${baseTranslate} translateY(calc(100% - 8px)) scale(${scaleVal})`.trim();
+      }
+      if (dockPosition === 'top' || dockPosition === 'top-left' || dockPosition === 'top-right') {
+        return `${baseTranslate} translateY(calc(-100% + 8px)) scale(${scaleVal})`.trim();
+      }
+      if (dockPosition === 'left') {
+        return `${baseTranslate} translateX(calc(-100% + 8px)) scale(${scaleVal})`.trim();
+      }
+      if (dockPosition === 'right') {
+        return `${baseTranslate} translateX(calc(100% - 8px)) scale(${scaleVal})`.trim();
+      }
+    }
+
+    return baseTranslate ? `${baseTranslate} scale(${scaleVal})` : `scale(${scaleVal})`;
+  };
+
+  const getDockPositionClass = () => {
+    switch (dockPosition) {
+      case 'top':
+        return 'top-4 left-1/2';
+      case 'left':
+        return 'left-4 top-1/2';
+      case 'right':
+        return 'right-4 top-1/2';
+      case 'top-left':
+        return 'top-4 left-6';
+      case 'top-right':
+        return 'top-4 right-6';
+      case 'bottom-left':
+        return 'bottom-6 left-6';
+      case 'bottom-right':
+        return 'bottom-6 right-6';
+      case 'bottom':
+      default:
+        return 'bottom-6 left-1/2';
+    }
+  };
+
   const clearHideTimeout = () => {
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -198,14 +259,7 @@ export const DockBar: React.FC = () => {
       role="toolbar"
       aria-label="Thanh điều khiển không gian làm việc"
       style={{
-        transform: isAiOpen
-          ? 'translate(-50%, calc(100% + 40px))'
-          : isDockVisible
-          ? isVertical ? 'translateY(-50%)' : 'translateX(-50%)'
-          : dockPosition === 'bottom' ? 'translate(-50%, calc(100% - 8px))'
-          : dockPosition === 'top' ? 'translate(-50%, calc(-100% + 8px))'
-          : dockPosition === 'left' ? 'translate(calc(-100% + 8px), -50%)'
-          : 'translate(calc(100% - 8px), -50%)',
+        transform: getDockTransform(),
         opacity: isAiOpen ? 0 : !isDockVisible ? 0.32 : isFocusDimmed ? 0.15 : 1,
         pointerEvents: isAiOpen || !isDockVisible ? 'none' : 'auto'
       }}
@@ -233,11 +287,7 @@ export const DockBar: React.FC = () => {
         isAiOpen ? 'opacity-0 pointer-events-none translate-y-8 invisible' : 'opacity-100 translate-y-0 hover:opacity-100'
       } ${
         isVertical ? 'flex-col w-16' : 'flex-row'
-      } ${
-        dockPosition === 'bottom' ? 'bottom-4 left-1/2' :
-        dockPosition === 'top' ? 'top-4 left-1/2' :
-        dockPosition === 'left' ? 'left-4 top-1/2' : 'right-4 top-1/2'
-      }`}
+      } ${getDockPositionClass()}`}
     >
       {/* ========================================================================= */}
       {/* NHÓM 1: ⏱ TẬP TRUNG (TIMER & FOCUS MODES)                                  */}
@@ -355,6 +405,22 @@ export const DockBar: React.FC = () => {
           )}
         </button>
 
+        {/* Nút Tùy biến nhanh vị trí & kích thước DockBar */}
+        <button
+          type="button"
+          data-testid="dock-btn-custom-position"
+          onClick={() => setShowQuickDockMenu((prev) => !prev)}
+          className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            showQuickDockMenu
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm'
+              : 'text-neutral-300 hover:text-white hover:bg-white/10'
+          }`}
+          title="Tùy biến vị trí & kích thước DockBar"
+          aria-label="Tùy biến vị trí DockBar"
+        >
+          <Move size={15} strokeWidth={1.75} />
+        </button>
+
         {/* Nút Cài đặt & Bố cục */}
         <button
           type="button"
@@ -403,6 +469,91 @@ export const DockBar: React.FC = () => {
           <RotateCcw size={15} strokeWidth={1.75} />
         </button>
       </div>
+
+      {/* Popover tùy biến nhanh vị trí & kích thước */}
+      {showQuickDockMenu && (
+        <div
+          data-testid="dock-quick-menu"
+          className={`absolute z-[60] rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-3 shadow-2xl space-y-2.5 text-xs select-none w-56 animate-in fade-in ${
+            dockPosition === 'top' || dockPosition === 'top-left' || dockPosition === 'top-right'
+              ? 'top-full mt-2 left-0'
+              : isVertical
+              ? 'top-0 left-full ml-2'
+              : 'bottom-full mb-2 left-1/2 -translate-x-1/2'
+          }`}
+        >
+          <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
+            <span className="font-semibold text-white text-[11px] flex items-center gap-1.5">
+              <Move size={12} className="text-cyan-400" />
+              Vị trí DockBar
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowQuickDockMenu(false)}
+              className="text-neutral-400 hover:text-white text-[10px] cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* 4 hướng chính */}
+          <div className="grid grid-cols-4 gap-1">
+            {[
+              { id: 'bottom', label: 'Dưới' },
+              { id: 'top', label: 'Trên' },
+              { id: 'left', label: 'Trái' },
+              { id: 'right', label: 'Phải' }
+            ].map((pos) => (
+              <button
+                key={pos.id}
+                type="button"
+                data-testid={`quick-dock-pos-${pos.id}`}
+                onClick={() => {
+                  setDockPosition(pos.id as any);
+                  setShowQuickDockMenu(false);
+                }}
+                className={`py-1 px-1.5 rounded-lg text-center font-medium text-[10px] transition cursor-pointer border ${
+                  dockPosition === pos.id
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
+                    : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
+                }`}
+              >
+                {pos.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 3 kích thước */}
+          <div className="pt-1 border-t border-white/10">
+            <span className="block font-semibold text-neutral-300 text-[10px] mb-1">
+              Kích thước DockBar
+            </span>
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                { id: 'compact', label: 'Nhỏ (90%)' },
+                { id: 'normal', label: 'Vừa (100%)' },
+                { id: 'spacious', label: 'Lớn (105%)' }
+              ].map((sz) => (
+                <button
+                  key={sz.id}
+                  type="button"
+                  data-testid={`quick-dock-size-${sz.id}`}
+                  onClick={() => {
+                    setDockSize(sz.id as any);
+                  }}
+                  className={`py-1 px-1 rounded-lg text-center font-medium text-[9px] transition cursor-pointer border ${
+                    dockSize === sz.id
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
+                      : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
+                  }`}
+                >
+                  {sz.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
 
     {showResetConfirm && (

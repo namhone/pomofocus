@@ -3,6 +3,7 @@ import {
   GlassPreset,
   GlassSettings,
   DockPosition,
+  DockSize,
   LayoutPreset,
   LayoutStorageData,
   MobileViewMode,
@@ -289,6 +290,7 @@ function loadStoredLayout(): {
   mobileViewMode: MobileViewMode;
   activeMobileTab: WidgetId;
   dockPosition: DockPosition;
+  dockSize: DockSize;
   dockAutoHide: boolean;
 } {
   const winW = typeof window !== 'undefined' ? window.innerWidth : 1440;
@@ -303,6 +305,7 @@ function loadStoredLayout(): {
     mobileViewMode: 'stack' as MobileViewMode,
     activeMobileTab: 'timer' as WidgetId,
     dockPosition: 'bottom' as DockPosition,
+    dockSize: 'normal' as DockSize,
     dockAutoHide: false
   };
   if (typeof window === 'undefined' || !window.localStorage) {
@@ -351,9 +354,12 @@ function loadStoredLayout(): {
       snapEnabled: data.snapEnabled !== undefined ? Boolean(data.snapEnabled) : true,
       mobileViewMode: data.mobileViewMode === 'single' ? 'single' : 'stack',
       activeMobileTab: (data.activeMobileTab && DEFAULT_WIDGETS[data.activeMobileTab]) ? data.activeMobileTab : 'timer',
-      dockPosition: ['top', 'bottom', 'left', 'right'].includes(data.dockPosition ?? '')
+      dockPosition: ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right'].includes(data.dockPosition ?? '')
         ? data.dockPosition!
         : data.dockMode === 'corner' ? 'right' : 'bottom',
+      dockSize: ['compact', 'normal', 'spacious'].includes(data.dockSize ?? '')
+        ? (data.dockSize as DockSize)
+        : 'normal',
       dockAutoHide: Boolean(data.dockAutoHide)
     };
   } catch (err) {
@@ -371,6 +377,7 @@ function persistLayout(
   activeMobileTab?: WidgetId,
   dockPosition?: DockPosition,
   dockAutoHide?: boolean,
+  dockSize?: DockSize,
   density?: WorkspaceDensity,
   isFocusMode?: boolean
 ): void {
@@ -386,6 +393,7 @@ function persistLayout(
       dockMode: dockPosition === 'right' || (!dockPosition && previousData.dockMode === 'corner') ? 'corner' : 'bottom',
       dockPosition: dockPosition ?? previousData.dockPosition ?? (previousData.dockMode === 'corner' ? 'right' : 'bottom'),
       dockAutoHide: dockAutoHide ?? previousData.dockAutoHide ?? false,
+      dockSize: dockSize ?? previousData.dockSize ?? 'normal',
       glassSettings,
       snapEnabled,
       mobileViewMode,
@@ -406,6 +414,7 @@ export interface LayoutStoreState {
   isMobile: boolean;
   dockMode: 'bottom' | 'corner';
   dockPosition: DockPosition;
+  dockSize: DockSize;
   dockAutoHide: boolean;
   isLayoutEditMode: boolean;
   themeAccent: ThemeAccent;
@@ -425,6 +434,7 @@ export interface LayoutStoreState {
   toggleDensity: () => void;
   toggleDockMode: () => void;
   setDockPosition: (position: DockPosition) => void;
+  setDockSize: (size: DockSize) => void;
   toggleDockAutoHide: () => void;
   setLayoutEditMode: (enabled: boolean) => void;
   toggleLayoutEditMode: () => void;
@@ -474,6 +484,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   isMobile: typeof window !== 'undefined' ? window.innerWidth < 1100 : false,
   dockMode: initial.dockPosition === 'right' ? 'corner' : 'bottom',
   dockPosition: initial.dockPosition,
+  dockSize: initial.dockSize ?? 'normal',
   dockAutoHide: initial.dockAutoHide,
   isLayoutEditMode: false,
   isFocusDimmed: false,
@@ -540,6 +551,11 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
 
   setDockPosition: (dockPosition: DockPosition) => {
     set({ dockPosition, dockMode: dockPosition === 'right' ? 'corner' : 'bottom' });
+    get().saveLayout();
+  },
+
+  setDockSize: (dockSize: DockSize) => {
+    set({ dockSize });
     get().saveLayout();
   },
 
@@ -793,6 +809,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       state.activeMobileTab,
       state.dockPosition,
       state.dockAutoHide,
+      state.dockSize,
       state.density,
       state.isFocusMode
     );

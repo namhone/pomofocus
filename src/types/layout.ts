@@ -4,7 +4,17 @@ export type LayoutPreset = 'default' | 'deep_focus' | 'planning';
 
 export type SizePreset = 'S' | 'M' | 'L';
 
-export type DockPosition = 'top' | 'bottom' | 'left' | 'right';
+export type DockPosition =
+  | 'bottom'
+  | 'top'
+  | 'left'
+  | 'right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top-left'
+  | 'top-right';
+
+export type DockSize = 'compact' | 'normal' | 'spacious';
 
 export type ThemeAccent = 'matcha' | 'terracotta' | 'latte' | 'nordic';
 
@@ -47,6 +57,7 @@ export interface LayoutStorageData {
   density?: WorkspaceDensity;
   dockMode?: 'bottom' | 'corner';
   dockPosition?: DockPosition;
+  dockSize?: DockSize;
   dockAutoHide?: boolean;
   themeAccent?: ThemeAccent;
   glassSettings?: GlassSettings;

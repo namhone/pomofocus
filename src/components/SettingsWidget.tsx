@@ -36,6 +36,8 @@ export const SettingsWidget: React.FC = () => {
     cascadeWidgets,
     dockPosition,
     setDockPosition,
+    dockSize,
+    setDockSize,
     dockAutoHide,
     toggleDockAutoHide,
     setLayoutPreset,
@@ -287,6 +289,33 @@ export const SettingsWidget: React.FC = () => {
           </span>
           <span className="text-[10px] font-semibold">{dockAutoHide ? 'BẬT' : 'TẮT'}</span>
         </button>
+
+        {/* Kích thước DockBar */}
+        <div className="pt-2 border-t border-white/5">
+          <span className="block text-[11px] font-medium text-neutral-300 mb-1.5">Kích thước thanh công cụ</span>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { id: 'compact', label: 'Nhỏ (90%)' },
+              { id: 'normal', label: 'Vừa (100%)' },
+              { id: 'spacious', label: 'Lớn (105%)' }
+            ].map((size) => (
+              <button
+                key={size.id}
+                type="button"
+                data-testid={`dock-size-${size.id}`}
+                onClick={() => setDockSize(size.id as any)}
+                aria-pressed={(dockSize || 'normal') === size.id}
+                className={`flex min-h-8 items-center justify-center rounded-lg border px-1 text-xs transition-colors cursor-pointer ${
+                  (dockSize || 'normal') === size.id
+                    ? 'border-amber-400/40 bg-amber-400/15 text-amber-200 font-semibold'
+                    : 'border-white/5 bg-white/[0.03] text-neutral-400 hover:text-white'
+                }`}
+              >
+                <span>{size.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Section 4: Layout Templates */}

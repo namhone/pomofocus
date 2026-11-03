@@ -3,8 +3,6 @@ import {
   Sparkles,
   Send,
   Zap,
-  HelpCircle,
-  FileText,
   Copy,
   Check,
   RotateCcw,
@@ -14,7 +12,10 @@ import {
   User,
   Paperclip,
   FileCheck,
-  Play
+  Play,
+  Plus,
+  History,
+  Trash2
 } from 'lucide-react';
 import { useAiStore, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
 import { useNoteStore } from '../stores/useNoteStore';
@@ -97,19 +98,24 @@ export const AiCompanionWidget: React.FC = () => {
     sendMessage,
     continueGenerating,
     clearChat,
-    initConversation
+    initConversation,
+    sessions,
+    createNewSession,
+    loadSession,
+    deleteSession
   } = useAiStore();
 
-  const notesContent = useNoteStore((s) => {
-    const active = s.notes.find((n) => n.id === s.activeNoteId) || s.notes[0];
-    return active?.contentMarkdown || '';
-  });
-
+  
   const [inputPrompt, setInputPrompt] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [insertedNoteId, setInsertedNoteId] = useState<string | null>(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
-  const [showMobileShortcuts, setShowMobileShortcuts] = useState(false);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const [pendingConfirmation, setPendingConfirmation] = useState<{
+    prompt: string;
+    actionType: AiActionType;
+    cost: number;
+  } | null>(null);
 
   // Attachment state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -120,7 +126,6 @@ export const AiCompanionWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hasUserMessages = messages.length > 1 || messages.some((m) => m.role === 'user');
 
   // Khởi tạo cuộc trò chuyện khi widget mở và user đã đăng nhập
   useEffect(() => {
@@ -145,20 +150,7 @@ export const AiCompanionWidget: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const getPlanBadge = () => {
-    switch (aiPlan) {
-      case 'lifetime':
-        return '★ 1.000⚡/tuần';
-      case 'yearly':
-        return '20.000⚡/năm';
-      case 'monthly':
-        return '1.500⚡/tháng';
-      case 'free':
-      default:
-        return '50⚡/tháng';
-    }
-  };
-
+  
   const handleCopy = async (id: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -218,21 +210,17 @@ export const AiCompanionWidget: React.FC = () => {
     setFileError(null);
   };
 
-  const handleSend = async (action: AiActionType = 'chat', customText?: string) => {
-    const effectiveAction = attachmentInfo ? 'multimodal' : action;
-    const cost = AI_CREDIT_COSTS[effectiveAction];
-
+  const executeSendMessage = async (
+    textToSend: string,
+    effectiveAction: AiActionType,
+    attachmentPayload?: AiAttachmentInfo
+  ) => {
+    const cost = AI_CREDIT_COSTS[effectiveAction] || 1;
     if (aiCreditsBalance < cost) {
       setShowCreditsModal(true);
       return;
     }
 
-    const textToSend = customText !== undefined ? customText : inputPrompt;
-    if (!textToSend.trim() && !attachmentInfo) return;
-
-    const attachmentPayload = attachmentInfo || undefined;
-
-    // Reset input fields
     setInputPrompt('');
     handleRemoveFile();
 
@@ -241,6 +229,35 @@ export const AiCompanionWidget: React.FC = () => {
     } catch (e) {
       console.warn('Lỗi gửi tin nhắn AI:', e);
     }
+  };
+
+  const handleSend = async (action: AiActionType = 'chat', customText?: string) => {
+    const textToSend = customText !== undefined ? customText : inputPrompt;
+    if (!textToSend.trim() && !attachmentInfo) return;
+
+    const effectiveAction = attachmentInfo ? 'multimodal' : action;
+    const lower = textToSend.toLowerCase();
+    const isHighCost =
+      effectiveAction === 'summarize' ||
+      effectiveAction === 'quiz' ||
+      lower.includes('tóm tắt') ||
+      lower.includes('trắc nghiệm') ||
+      lower.includes('quiz') ||
+      lower.includes('đề thi');
+
+    if (isHighCost && !customText && !attachmentInfo) {
+      const determinedAction: AiActionType =
+        lower.includes('trắc nghiệm') || lower.includes('quiz') ? 'quiz' : 'summarize';
+      const cost = AI_CREDIT_COSTS[determinedAction];
+      setPendingConfirmation({
+        prompt: textToSend,
+        actionType: determinedAction,
+        cost
+      });
+      return;
+    }
+
+    await executeSendMessage(textToSend, effectiveAction, attachmentInfo || undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -261,7 +278,7 @@ export const AiCompanionWidget: React.FC = () => {
         onClose={() => setShowCreditsModal(false)}
       />
 
-      {/* 1. Header 1 Hàng Ngang Tinh Gọn (Loại bỏ nhồi nhét) */}
+      {/* 1. Header 1 Hàng Ngang Tinh Gọn (Loại bỏ nhồi nhét, gom về 1 badge duy nhất) */}
       <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <div className="relative shrink-0">
@@ -272,25 +289,52 @@ export const AiCompanionWidget: React.FC = () => {
           </div>
           <div className="flex items-center gap-1.5 min-w-0">
             <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight whitespace-nowrap">AI Study Companion</h2>
-            <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-medium whitespace-nowrap shrink-0">
-              {aiPlan === 'lifetime' ? '★ 1.000⚡/tuần' : getPlanBadge()}
-            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          {/* Cụm hiển thị số dư ⚡ (Bấm để nạp thêm điểm) */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Cụm hiển thị số dư ⚡ Gom 1 Badge Duy Nhất Monospace Không Đè Text */}
           <button
             type="button"
             data-testid="ai-credits-topup-btn"
             onClick={() => setShowCreditsModal(true)}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-bold transition cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-medium cursor-pointer hover:bg-amber-500/20 transition-all select-none whitespace-nowrap"
             title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
           >
             <Zap size={12} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span data-testid="ai-hud-credits">
-              <span data-testid="ai-credits-badge">{aiCreditsBalance}⚡</span>
+            <span className="font-mono text-xs font-semibold" data-testid="ai-hud-credits">
+              <span data-testid="ai-credits-badge">
+                {aiPlan === 'lifetime'
+                  ? `★ Founder VIP · ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
+                  : `⚡ ${aiCreditsBalance.toLocaleString('vi-VN')} Credits`}
+              </span>
             </span>
+          </button>
+
+          {/* Nút Tạo đoạn chat mới */}
+          <button
+            type="button"
+            data-testid="ai-new-chat-btn"
+            onClick={() => createNewSession()}
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            title="Tạo đoạn chat mới"
+          >
+            <Plus size={15} />
+          </button>
+
+          {/* Nút Lịch sử trò chuyện */}
+          <button
+            type="button"
+            data-testid="ai-history-btn"
+            onClick={() => setShowHistoryDropdown((prev) => !prev)}
+            className={`p-1.5 rounded-lg transition cursor-pointer ${
+              showHistoryDropdown
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
+            }`}
+            title="Lịch sử cuộc trò chuyện"
+          >
+            <History size={15} />
           </button>
 
           {/* Nút Làm mới phiên chat */}
@@ -317,88 +361,73 @@ export const AiCompanionWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Lối Tắt Tác Vụ Nhanh (Chỉ hiện khi chưa có tin nhắn hoặc người dùng bấm mở) */}
-      {(!hasUserMessages || showMobileShortcuts) && (
-        <div className="p-3 border-b border-zinc-800/60 bg-zinc-950/40 shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Lối tắt tác vụ học tập:
+      {/* Dropdown Lịch Sử Cuộc Trò Chuyện Kính Mờ */}
+      {showHistoryDropdown && (
+        <div
+          data-testid="ai-history-dropdown"
+          className="absolute top-14 right-3 w-72 rounded-2xl border border-zinc-800 bg-zinc-950/95 backdrop-blur-2xl p-2.5 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150 space-y-1.5"
+        >
+          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-800 text-xs font-semibold text-zinc-300">
+            <span className="flex items-center gap-1.5">
+              <History size={13} className="text-cyan-400" />
+              Lịch sử trò chuyện
             </span>
-            {hasUserMessages && (
-              <button
-                type="button"
-                onClick={() => setShowMobileShortcuts(false)}
-                className="text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer"
-              >
-                Ẩn bớt ✕
-              </button>
+            <button
+              type="button"
+              onClick={() => {
+                createNewSession();
+                setShowHistoryDropdown(false);
+              }}
+              className="text-[10px] text-cyan-400 hover:text-cyan-300 font-medium cursor-pointer"
+            >
+              + Tạo mới
+            </button>
+          </div>
+
+          <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
+            {(!sessions || sessions.length === 0) ? (
+              <div className="text-[11px] text-zinc-500 text-center py-4">
+                Chưa có phiên trò chuyện nào được lưu.
+              </div>
+            ) : (
+              sessions.map((sess) => (
+                <div
+                  key={sess.id}
+                  data-testid={`ai-session-item-${sess.id}`}
+                  className="group flex items-center justify-between p-2 rounded-xl hover:bg-zinc-900 border border-transparent hover:border-zinc-800 text-xs transition cursor-pointer"
+                  onClick={() => {
+                    loadSession(sess.id);
+                    setShowHistoryDropdown(false);
+                  }}
+                >
+                  <div className="min-w-0 flex-1 pr-2">
+                    <div className="text-zinc-200 font-medium truncate text-xs">
+                      {sess.title || 'Cuộc trò chuyện'}
+                    </div>
+                    <div className="text-[10px] text-zinc-500">
+                      {new Date(sess.createdAt).toLocaleDateString('vi-VN')} {new Date(sess.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid={`ai-delete-session-${sess.id}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSession(sess.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
+                    title="Xóa phiên này"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ))
             )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              data-testid="ai-action-summarize ai-quick-explain"
-              onClick={() =>
-                handleSend(
-                  'summarize',
-                  notesContent
-                    ? 'Hãy tóm tắt ngắn gọn và làm nổi bật các ý chính của ghi chú hiện tại.'
-                    : 'Hãy tóm tắt phương pháp học tập Pomodoro và kỹ thuật Feynman.'
-                )
-              }
-              disabled={isLoading || aiCreditsBalance < 5}
-              className="p-2.5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 hover:bg-zinc-800/50 hover:border-cyan-500/40 text-left transition disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
-            >
-              <div className="flex items-center justify-between text-xs font-semibold text-zinc-200 group-hover:text-cyan-300 mb-1">
-                <span className="flex items-center gap-1.5">
-                  <FileText size={14} className="text-cyan-400" />
-                  Tóm tắt ghi chú
-                </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400">
-                  -5⚡
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-400 line-clamp-1">Trích xuất 3-5 ý cốt lõi từ ghi chú</p>
-            </button>
-
-            <button
-              type="button"
-              data-testid="ai-action-quiz"
-              onClick={() =>
-                handleSend('quiz', 'Tạo 10 câu trắc nghiệm ôn tập về Pomodoro và kỹ năng tập trung sâu.')
-              }
-              disabled={isLoading || aiCreditsBalance < 10}
-              className="p-2.5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 hover:bg-zinc-800/50 hover:border-amber-500/40 text-left transition disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
-            >
-              <div className="flex items-center justify-between text-xs font-semibold text-zinc-200 group-hover:text-amber-300 mb-1">
-                <span className="flex items-center gap-1.5">
-                  <HelpCircle size={14} className="text-amber-400" />
-                  Bộ 10 câu trắc nghiệm
-                </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400">
-                  -10⚡
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-400 line-clamp-1">10 câu hỏi A/B/C/D kèm đáp án</p>
-            </button>
-          </div>
         </div>
       )}
 
-      {/* Nút bật lại Lối tắt khi đang trò chuyện */}
-      {hasUserMessages && !showMobileShortcuts && (
-        <div className="px-3 pt-2 shrink-0 flex justify-end">
-          <button
-            type="button"
-            onClick={() => setShowMobileShortcuts(true)}
-            className="text-[10px] text-cyan-400/80 hover:text-cyan-300 font-medium cursor-pointer"
-          >
-            + Mở lối tắt tác vụ (-5⚡ / -10⚡)
-          </button>
-        </div>
-      )}
-
-      {/* 3. Vùng Cuộn Tin Nhắn (Scrollable Messages Area) */}
+      {/* 2. Vùng Cuộn Tin Nhắn (Scrollable Messages Area) */}
       <div className="flex-1 overflow-y-auto min-h-0 p-3 sm:p-4 space-y-3.5">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
@@ -549,6 +578,49 @@ export const AiCompanionWidget: React.FC = () => {
                   Nạp thêm AI Credits ngay chỉ từ 19.000đ →
                 </button>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Inline Confirmation Card khi có yêu cầu tốn nhiều credits */}
+        {pendingConfirmation && (
+          <div
+            data-testid="ai-confirmation-box"
+            className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border border-amber-500/30 text-xs shadow-lg space-y-2.5 animate-in fade-in"
+          >
+            <div className="flex items-start gap-2">
+              <Zap size={15} className="text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-zinc-100">
+                  Xác nhận thực hiện tác vụ chuyên sâu
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-0.5">
+                  Tác vụ này yêu cầu <span className="font-bold text-amber-300">-{pendingConfirmation.cost}⚡ Credits</span>. Bạn có muốn tiếp tục không?
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                data-testid="ai-confirm-action-btn"
+                onClick={() => {
+                  const { prompt, actionType } = pendingConfirmation;
+                  setPendingConfirmation(null);
+                  executeSendMessage(prompt, actionType);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm"
+              >
+                <Zap size={12} className="fill-zinc-950" />
+                <span>⚡ Xác nhận thực hiện (-{pendingConfirmation.cost}⚡)</span>
+              </button>
+              <button
+                type="button"
+                data-testid="ai-cancel-action-btn"
+                onClick={() => setPendingConfirmation(null)}
+                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs transition cursor-pointer"
+              >
+                Để sau
+              </button>
             </div>
           </div>
         )}

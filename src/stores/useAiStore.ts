@@ -7,6 +7,14 @@ import { ProfileService } from '../services/profileService';
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
 export type AiActionType = 'chat' | 'summarize' | 'quiz' | 'multimodal';
 
+
+export interface AiSession {
+  id: string;
+  title: string;
+  createdAt: number;
+  messages: AiMessage[];
+}
+
 export interface AiMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -126,6 +134,8 @@ export interface AiState {
   activeConversationId: string | null;
   error: string | null;
   messages: AiMessage[];
+  sessions: AiSession[];
+  currentSessionId: string | null;
 
   // Actions
   toggleOpen: (force?: boolean) => void;
@@ -136,6 +146,9 @@ export interface AiState {
   checkMonthlyReset: (currentTime?: number) => boolean;
   checkPeriodicReset: (currentTime?: number) => void;
   clearChat: () => void;
+  createNewSession: () => void;
+  loadSession: (sessionId: string) => void;
+  deleteSession: (sessionId: string) => void;
   initConversation: (userId?: string) => Promise<void>;
   sendMessage: (prompt: string, actionType?: AiActionType, attachment?: AiAttachmentInfo) => Promise<string>;
   continueGenerating: () => Promise<void>;
@@ -167,6 +180,8 @@ export const useAiStore = create<AiState>()(
       isStreaming: false,
       activeConversationId: null,
       error: null,
+      sessions: [],
+      currentSessionId: null,
       messages: [
         {
           id: 'welcome-1',
@@ -273,6 +288,81 @@ export const useAiStore = create<AiState>()(
       checkPeriodicReset: (currentTime = Date.now()) => {
         get().checkWeeklyReset(currentTime);
         get().checkMonthlyReset(currentTime);
+      },
+
+
+      createNewSession: () => {
+        const { messages, sessions, currentSessionId } = get();
+        const userMsgs = messages.filter((m) => m.role === 'user');
+        let updatedSessions = [...(sessions || [])];
+
+        if (userMsgs.length > 0) {
+          const firstUserMsg = userMsgs[0].content.slice(0, 40) || 'Đoạn chat mới';
+          const sessId = currentSessionId || ('session-' + Date.now());
+          const existingIdx = updatedSessions.findIndex((s) => s.id === sessId);
+          const sessionObj = {
+            id: sessId,
+            title: firstUserMsg,
+            createdAt: Date.now(),
+            messages
+          };
+
+          if (existingIdx >= 0) {
+            updatedSessions[existingIdx] = sessionObj;
+          } else {
+            updatedSessions = [sessionObj, ...updatedSessions].slice(0, 20);
+          }
+        }
+
+        const newId = 'session-' + Date.now();
+        set({
+          sessions: updatedSessions,
+          currentSessionId: newId,
+          messages: [
+            {
+              id: 'welcome-' + Date.now(),
+              role: 'assistant',
+              content:
+                'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨\n\nBạn có thể hỏi bất kỳ bài học nào, đính kèm đề cương 📎, hoặc yêu cầu giải thích chi tiết!',
+              timestamp: Date.now()
+            }
+          ],
+          error: null
+        });
+      },
+
+      loadSession: (sessionId) => {
+        const { sessions } = get();
+        const found = (sessions || []).find((s) => s.id === sessionId);
+        if (found) {
+          set({
+            currentSessionId: found.id,
+            messages: found.messages,
+            error: null
+          });
+        }
+      },
+
+      deleteSession: (sessionId) => {
+        const { sessions, currentSessionId } = get();
+        const nextSessions = (sessions || []).filter((s) => s.id !== sessionId);
+        if (currentSessionId === sessionId) {
+          set({
+            sessions: nextSessions,
+            currentSessionId: null,
+            messages: [
+              {
+                id: 'welcome-' + Date.now(),
+                role: 'assistant',
+                content:
+                  'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨',
+                timestamp: Date.now()
+              }
+            ]
+          });
+        } else {
+          set({ sessions: nextSessions });
+        }
       },
 
       clearChat: () => {
@@ -599,7 +689,8 @@ export const useAiStore = create<AiState>()(
         aiPlan: state.aiPlan,
         lastWeeklyReset: state.lastWeeklyReset,
         lastMonthlyReset: state.lastMonthlyReset,
-        messages: state.messages.slice(-30) // Giữ 30 tin nhắn gần nhất
+        messages: state.messages.slice(-30),
+        sessions: (state.sessions || []).slice(0, 20) // Giữ 30 tin nhắn gần nhất
       })
     }
   )
