@@ -16,7 +16,7 @@ import {
   FileCheck,
   Play
 } from 'lucide-react';
-import { useAiStore, AI_PLAN_LIMITS, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
+import { useAiStore, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
 import { useNoteStore } from '../stores/useNoteStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
@@ -107,6 +107,7 @@ export const AiCompanionWidget: React.FC = () => {
 
   const [inputPrompt, setInputPrompt] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [insertedNoteId, setInsertedNoteId] = useState<string | null>(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showMobileShortcuts, setShowMobileShortcuts] = useState(false);
 
@@ -144,20 +145,17 @@ export const AiCompanionWidget: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const maxCredits = AI_PLAN_LIMITS[aiPlan] || 50;
-  const isLifetime = aiPlan === 'lifetime';
-
   const getPlanBadge = () => {
     switch (aiPlan) {
       case 'lifetime':
-        return '★ Nạp lại vào Thứ Hai';
+        return '★ 1.000⚡/tuần';
       case 'yearly':
-        return 'Gói Năm: 20.000⚡/năm';
+        return '20.000⚡/năm';
       case 'monthly':
-        return 'Gói Tháng: 1.500⚡/tháng';
+        return '1.500⚡/tháng';
       case 'free':
       default:
-        return 'Miễn phí: 50⚡/tháng';
+        return '50⚡/tháng';
     }
   };
 
@@ -168,6 +166,28 @@ export const AiCompanionWidget: React.FC = () => {
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.warn('Lỗi sao chép văn bản:', err);
+    }
+  };
+
+  const handleInsertToNote = async (text: string, msgId: string) => {
+    try {
+      const store = useNoteStore.getState();
+      let targetNote = store.notes.find((n) => n.id === store.activeNoteId) || store.notes[0];
+
+      if (!targetNote) {
+        targetNote = await store.createNote('Ghi chú từ AI Companion');
+      }
+
+      const separator = targetNote.contentMarkdown ? '\n\n---\n### 💡 Trợ lý AI giải đáp:\n' : '### 💡 Trợ lý AI giải đáp:\n';
+      const updatedContent = `${targetNote.contentMarkdown}${separator}${text}`;
+
+      store.updateNoteContent(targetNote.id, updatedContent);
+      await store.saveNow(targetNote.id);
+
+      setInsertedNoteId(msgId);
+      setTimeout(() => setInsertedNoteId(null), 2500);
+    } catch (err) {
+      console.warn('Lỗi chèn vào ghi chú:', err);
     }
   };
 
@@ -241,80 +261,59 @@ export const AiCompanionWidget: React.FC = () => {
         onClose={() => setShowCreditsModal(false)}
       />
 
-      {/* 1. Header & HUD Ví Điểm */}
-      <div className="p-3.5 border-b border-zinc-800/80 bg-zinc-950/70 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
-                <Sparkles size={16} />
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-zinc-950 rounded-full" />
+      {/* 1. Header 1 Hàng Ngang Tinh Gọn (Loại bỏ nhồi nhét) */}
+      <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="relative shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+              <Sparkles size={15} />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-tight">AI Study Companion</h2>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-medium">
-                  Gia sư Socratic
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-400 font-medium">{getPlanBadge()}</p>
-            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
           </div>
-
-          <div className="flex items-center gap-1.5">
-            {/* Nút bấm mở nạp thẻ tín dụng AI */}
-            <button
-              type="button"
-              data-testid="ai-credits-topup-btn"
-              onClick={() => setShowCreditsModal(true)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-bold transition cursor-pointer"
-              title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
-            >
-              <Zap size={13} className="fill-amber-400" />
-              <span data-testid="ai-credits-badge">{aiCreditsBalance}⚡</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={clearChat}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
-              title="Làm mới cuộc trò chuyện"
-            >
-              <RotateCcw size={15} />
-            </button>
-            <button
-              type="button"
-              data-testid="ai-close-drawer-btn"
-              onClick={() => toggleOpen(false)}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
-              title="Đóng (Esc)"
-            >
-              <X size={16} />
-            </button>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight whitespace-nowrap">AI Study Companion</h2>
+            <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-medium whitespace-nowrap shrink-0">
+              {aiPlan === 'lifetime' ? '★ 1.000⚡/tuần' : getPlanBadge()}
+            </span>
           </div>
         </div>
 
-        {/* HUD Thanh Tỷ Lệ Điểm */}
-        <div className="mt-2.5">
-          <div className="flex justify-between items-center text-[10px] text-zinc-400 mb-1">
-            <span>Dung lượng sử dụng</span>
-            <span>
-              {aiCreditsBalance} / {maxCredits}⚡ {isLifetime && '(Nạp lại hàng tuần)'}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Cụm hiển thị số dư ⚡ (Bấm để nạp thêm điểm) */}
+          <button
+            type="button"
+            data-testid="ai-credits-topup-btn"
+            onClick={() => setShowCreditsModal(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-bold transition cursor-pointer"
+            title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
+          >
+            <Zap size={12} className="fill-amber-400 text-amber-400 shrink-0" />
+            <span data-testid="ai-hud-credits">
+              <span data-testid="ai-credits-badge">{aiCreditsBalance}⚡</span>
             </span>
-          </div>
-          <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 ${
-                aiCreditsBalance <= 5
-                  ? 'bg-rose-500'
-                  : aiCreditsBalance <= 20
-                  ? 'bg-amber-500'
-                  : 'bg-gradient-to-r from-cyan-500 to-indigo-500'
-              }`}
-              style={{ width: `${Math.min(100, Math.max(3, (aiCreditsBalance / maxCredits) * 100))}%` }}
-            />
-          </div>
+          </button>
+
+          {/* Nút Làm mới phiên chat */}
+          <button
+            type="button"
+            data-testid="ai-clear-chat-btn"
+            onClick={clearChat}
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            title="Làm mới cuộc trò chuyện"
+          >
+            <RotateCcw size={15} />
+          </button>
+
+          {/* Nút đóng ✕ */}
+          <button
+            type="button"
+            data-testid="ai-close-drawer-btn ai-btn-close-drawer"
+            onClick={() => toggleOpen(false)}
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            title="Đóng (Esc)"
+          >
+            <X size={17} />
+          </button>
         </div>
       </div>
 
@@ -329,7 +328,7 @@ export const AiCompanionWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowMobileShortcuts(false)}
-                className="text-[10px] text-zinc-500 hover:text-zinc-300"
+                className="text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer"
               >
                 Ẩn bớt ✕
               </button>
@@ -338,7 +337,7 @@ export const AiCompanionWidget: React.FC = () => {
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              data-testid="ai-action-summarize"
+              data-testid="ai-action-summarize ai-quick-explain"
               onClick={() =>
                 handleSend(
                   'summarize',
@@ -403,110 +402,133 @@ export const AiCompanionWidget: React.FC = () => {
       <div className="flex-1 overflow-y-auto min-h-0 p-3 sm:p-4 space-y-3.5">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
-          return (
-            <div
-              key={msg.id}
-              className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              {!isUser && (
-                <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
-                  <Bot size={13} />
-                </div>
-              )}
-
-              <div
-                className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed transition-all shadow-sm ${
-                  isUser
-                    ? 'bg-cyan-500/20 text-cyan-50 border border-cyan-500/40 rounded-tr-xs text-left'
-                    : 'bg-zinc-900/90 text-zinc-200 border border-zinc-800/90 rounded-tl-xs'
-                }`}
-              >
-                {/* Header message meta */}
-                <div className={`flex items-center ${isUser ? 'justify-end' : 'justify-between'} pb-1.5 mb-1.5 border-b border-white/[0.06] text-[10px] text-zinc-400`}>
-                  <span className={`font-medium ${isUser ? 'text-cyan-300' : 'text-zinc-400'}`}>
-                    {isUser ? 'Bạn' : 'PomoFocus AI'}
-                  </span>
-                  {!isUser && (
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(msg.id, msg.content)}
-                      className="flex items-center gap-1 text-zinc-400 hover:text-white transition cursor-pointer"
-                      title="Sao chép câu trả lời"
-                    >
-                      {copiedId === msg.id ? (
-                        <>
-                          <Check size={11} className="text-emerald-400" />
-                          <span className="text-[9px] text-emerald-400">Đã chép</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={11} />
-                          <span className="text-[9px]">Chép</span>
-                        </>
-                      )}
-                    </button>
+          if (isUser) {
+            return (
+              <div key={msg.id} className="flex gap-2.5 justify-end">
+                <div className="max-w-[85%] rounded-2xl p-3.5 bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-xs leading-relaxed shadow-sm">
+                  {/* File đính kèm nếu có */}
+                  {msg.attachmentName && (
+                    <div className="mb-2 bg-zinc-900/80 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-2 text-cyan-300">
+                      <FileCheck size={13} className="text-cyan-400 shrink-0" />
+                      <span className="font-medium truncate max-w-[200px]">{msg.attachmentName}</span>
+                      <span className="text-[10px] text-zinc-500 ml-auto">Đề cương đính kèm</span>
+                    </div>
                   )}
+
+                  <div className="whitespace-pre-wrap select-text">{msg.content}</div>
                 </div>
 
-                {/* File đính kèm nếu có */}
-                {msg.attachmentName && (
-                  <div className="mb-2 p-1.5 rounded-lg bg-zinc-950/70 border border-cyan-500/30 flex items-center gap-1.5 text-[11px] text-cyan-300">
-                    <FileCheck size={13} className="text-cyan-400 shrink-0" />
-                    <span className="font-medium truncate max-w-[200px]">{msg.attachmentName}</span>
-                    <span className="text-[9px] text-zinc-500 ml-auto">Đề cương đính kèm</span>
-                  </div>
-                )}
-
-                {/* Kết xuất tin nhắn định dạng Socratic & LaTeX */}
-                <div className="font-sans">
-                  {isUser ? (
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-                  ) : (
-                    <FormattedAiMessage content={msg.content} />
-                  )}
-                </div>
-
-                {/* Nút Viết Tiếp... Nếu chạm trần Tokens */}
-                {msg.isTruncated && !isUser && (
-                  <div className="pt-2 mt-2 border-t border-zinc-800/80">
-                    <button
-                      type="button"
-                      data-testid="ai-continue-btn"
-                      onClick={continueGenerating}
-                      disabled={isLoading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold transition cursor-pointer"
-                    >
-                      <Play size={12} className="fill-cyan-300" />
-                      ▶️ Viết tiếp câu trả lời...
-                    </button>
-                  </div>
-                )}
-
-                {msg.creditsUsed && (
-                  <div className="pt-1.5 mt-1 border-t border-white/[0.04] text-[9px] text-zinc-500 font-mono text-right">
-                    Đã dùng -{msg.creditsUsed}⚡
-                  </div>
-                )}
-              </div>
-
-              {isUser && (
                 <div className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
                   <User size={13} />
                 </div>
-              )}
+              </div>
+            );
+          }
+
+          // AI Message
+          const isThinking = !msg.content;
+
+          return (
+            <div key={msg.id} className="flex gap-2.5 justify-start">
+              <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
+                <Bot size={13} />
+              </div>
+
+              <div className="max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs">
+                {isThinking ? (
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-xs py-1">
+                    <span className="animate-pulse">●</span>
+                    <span className="animate-pulse delay-100">●</span>
+                    <span className="animate-pulse delay-200">●</span>
+                    <span className="ml-1 text-zinc-500">Gia sư đang phân tích...</span>
+                  </div>
+                ) : (
+                  <>
+                    <FormattedAiMessage content={msg.content} />
+
+                    {/* Nút Viết Tiếp... Nếu chạm trần Tokens */}
+                    {msg.isTruncated && (
+                      <div className="pt-2 mt-2 border-t border-zinc-800/80">
+                        <button
+                          type="button"
+                          data-testid="ai-continue-btn"
+                          onClick={continueGenerating}
+                          disabled={isLoading}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold transition cursor-pointer"
+                        >
+                          <Play size={12} className="fill-cyan-300" />
+                          ▶️ Viết tiếp câu trả lời...
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Chân phản hồi AI: Cụm nút hành động tinh tế nằm gọn ở góc dưới */}
+                    <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/[0.06] text-[11px] text-zinc-400">
+                      <div className="flex items-center gap-2">
+                        {/* Nút Sao chép */}
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(msg.id, msg.content)}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+                          title="Sao chép câu trả lời"
+                        >
+                          {copiedId === msg.id ? (
+                            <>
+                              <Check size={11} className="text-emerald-400" />
+                              <span className="text-[10px] text-emerald-400">Đã chép</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={11} />
+                              <span className="text-[10px]">Sao chép</span>
+                            </>
+                          )}
+                        </button>
+
+                        {/* Nút 📌 Chèn vào Ghi chú */}
+                        <button
+                          type="button"
+                          data-testid="ai-insert-note-btn"
+                          onClick={() => handleInsertToNote(msg.content, msg.id)}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition cursor-pointer"
+                          title="Chèn nội dung giải đáp này vào Ghi chú đang mở"
+                        >
+                          {insertedNoteId === msg.id ? (
+                            <>
+                              <Check size={11} className="text-emerald-400" />
+                              <span className="text-[10px] text-emerald-400">Đã chèn vào Ghi chú</span>
+                            </>
+                          ) : (
+                            <span className="text-[10px]">📌 Chèn vào Ghi chú</span>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Nhãn mờ Đã dùng -1⚡ */}
+                      <span className="text-[10px] text-zinc-500 font-mono">
+                        Đã dùng -{msg.creditsUsed || 1}⚡
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           );
         })}
 
-        {/* Loading Bubble */}
-        {isLoading && !isStreaming && (
+        {/* Loading fallback nếu isLoading mà chưa có assistant message trong danh sách */}
+        {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex gap-2.5 justify-start">
-            <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 animate-pulse">
+            <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
               <Bot size={13} />
             </div>
-            <div className="bg-zinc-900/90 border border-zinc-800/90 rounded-2xl rounded-tl-xs p-3 text-xs text-zinc-400 flex items-center gap-2">
-              <Sparkles size={14} className="animate-spin text-cyan-400" />
-              <span>Gia sư AI đang kết nối luồng phân tích...</span>
+            <div className="max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs">
+              <div className="flex items-center gap-1.5 text-zinc-400 text-xs py-1">
+                <span className="animate-pulse">●</span>
+                <span className="animate-pulse delay-100">●</span>
+                <span className="animate-pulse delay-200">●</span>
+                <span className="ml-1 text-zinc-500">Gia sư đang phân tích...</span>
+              </div>
             </div>
           </div>
         )}
@@ -534,8 +556,8 @@ export const AiCompanionWidget: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 4. Khung Nhập Liệu & Đính Kèm File (Input Prompt Box) */}
-      <div className="p-3 border-t border-zinc-800 bg-zinc-950/90 shrink-0">
+      {/* 4. Khung Nhập Liệu & Đính Kèm File (Safe Area Mobile) */}
+      <div className="p-3 pb-6 sm:pb-4 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/60 shrink-0">
         {/* File Preview Pill nếu có file được chọn */}
         {selectedFile && (
           <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-cyan-500/40 flex items-center justify-between text-xs text-zinc-200">
@@ -584,7 +606,7 @@ export const AiCompanionWidget: React.FC = () => {
             }
             handleSend('chat');
           }}
-          className="relative flex items-end gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 p-1.5 transition-all"
+          className="relative flex items-center gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 px-2 py-1.5 transition-all"
         >
           {/* Nút Ghim Đính Kèm File */}
           <button
@@ -592,7 +614,7 @@ export const AiCompanionWidget: React.FC = () => {
             data-testid="ai-attach-file-btn"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading || isProcessingFile}
-            className={`p-2 rounded-lg transition cursor-pointer shrink-0 ${
+            className={`p-2 rounded-lg transition cursor-pointer shrink-0 flex items-center justify-center ${
               selectedFile
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                 : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
@@ -615,25 +637,25 @@ export const AiCompanionWidget: React.FC = () => {
                 ? `Yêu cầu phân tích "${selectedFile.name}"... (Enter để gửi)`
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Enter để gửi)'
             }
-            rows={2}
-            className="flex-1 bg-transparent text-xs text-zinc-100 placeholder-zinc-500 resize-none p-1.5 focus:outline-none"
+            rows={1}
+            className="flex-1 bg-transparent text-xs text-zinc-100 placeholder-zinc-500 resize-none max-h-24 py-1.5 focus:outline-none leading-normal min-h-[34px]"
           />
 
           <button
             type="submit"
             data-testid="ai-submit-btn"
             disabled={(!inputPrompt.trim() && !selectedFile) || isLoading || isProcessingFile}
-            className="p-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 text-zinc-950 disabled:text-zinc-500 transition cursor-pointer disabled:cursor-not-allowed shrink-0 font-semibold shadow-xs"
+            className="p-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 text-zinc-950 disabled:text-zinc-500 transition cursor-pointer disabled:cursor-not-allowed shrink-0 flex items-center justify-center font-semibold shadow-xs"
             title="Gửi câu hỏi (Enter)"
           >
             <Send size={14} />
           </button>
         </form>
 
-        {/* Chân Trang: ĐÃ XÓA HOÀN TOÀN DÒNG 'Google Gemini 1.5 Flash' */}
+        {/* Chân Trang: Thông tin chi phí minh bạch */}
         <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-500">
-          <span>Hỏi bài: 1⚡ | Tóm tắt: 5⚡ | Đề cương: 5⚡ | Trắc nghiệm: 10⚡</span>
-          <span className="text-emerald-400 font-medium">⚡ Phản hồi trực tiếp</span>
+          <span className="truncate">Hỏi: 1⚡ • Tóm tắt: 5⚡ • Đề cương: 5⚡ • Quiz: 10⚡</span>
+          <span className="text-emerald-400 font-medium shrink-0 ml-2">⚡ Phản hồi tức thì</span>
         </div>
       </div>
     </div>
