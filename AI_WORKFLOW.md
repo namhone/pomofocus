@@ -83,20 +83,28 @@
   - [x] *Lưu & Quản Lý Playlist Yêu Thích (1-Chạm)*: Khởi tạo 3 playlist mẫu chất lượng cao (`🌙 Lofi Chill Học Đêm`, `🎹 Piano Không Lời Thư Giãn`, `✨ Anime OST Học & Code`). Cho phép người dùng lưu link playlist cá nhân kèm tên tùy biến, xóa playlist hoặc khôi phục mặc định, bền vững qua `localStorage` (`pomodoro_favorite_playlists`). **[HOÀN THÀNH]**
   - [x] *Giao Diện Tối Ưu Mobile & Desktop*: Hiển thị các nút bấm nhanh 1-chạm ở cả Empty State và Popover đổi trạm; hiển thị huy hiệu `[ 📑 Playlist: {Tên} ]` trên thanh điều khiển khi đang phát playlist. **[HOÀN THÀNH]**
   - [x] *Kiểm Thử & Triển Khai Production*: 31/31 test suites Vitest pass (305 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 20 — Hỗ Trợ Phát YouTube Mix (RD...), Playlist Cá Nhân (PL...) & Nút Bấm Chuyển Bài Trước/Tiếp**:
+  - [x] *Hỗ Trợ Toàn Diện Playlist (`PL...`) & YouTube Mix (`RD...`)*: Nâng cấp `extractYouTubeEmbedUrl()` và `isYouTubeMix()`: Link có `list=PL...` tạo link `videoseries?list=PL...&autoplay=1`, link có `list=RD...` giữ nguyên `videoId` đầu tiên kết hợp `${videoId}?list=${listId}&autoplay=1` chuẩn xác, tránh triệt để lỗi "Playlist does not exist" của YouTube Mix. **[HOÀN THÀNH]**
+  - [x] *Nút Điều Khiển "Bài Tiếp Theo ⏭" & "Bài Trước ⏮"*: Giao tiếp trực tiếp với YouTube IFrame Player API thông qua `postMessage` (`nextVideo` và `previousVideo`). Học sinh có thể chuyển bài tức thì chỉ với 1 chạm nếu gặp video bị chặn bản quyền hoặc muốn đổi nhạc. **[HOÀN THÀNH]**
+  - [x] *Nút Lưu Nhanh Playlist & Mix Ruột*: Tự động hiển thị nút `[ 💾 Lưu Playlist ]` ngay trên thanh player khi phát danh sách chưa lưu. Khởi tạo sẵn 4 playlist/mix học tập chất lượng cao. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Triển Khai Production*: 31/31 test suites Vitest pass (307 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:16
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:24
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *YouTube Playlist Support & 1-Touch Favorite Playlists*:
-     - Bóc tách `playlistId` từ mọi cấu trúc link YouTube (`[?&]list=...`).
-     - Tích hợp chuẩn URL `videoseries?list=${playlistId}` kết hợp `enablejsapi=1` và `origin` hợp lệ chống lỗi 153.
-     - Cung cấp sẵn 3 playlist học tập mẫu và bộ công cụ lưu playlist cá nhân 1-chạm lưu trữ qua `localStorage`.
-  2. *Đóng gói & Triển khai*:
-     - Vitest: **31/31 test files passed, 305/305 tests passed (100%)**.
-     - Vite Build: Đóng gói thành công, 0 lỗi, bundle tối ưu.
-     - Production Deployment: `dpl_79RWw5oiYhpnocRzJQVS5v8xhWbw` Ready, alias `https://pomofocus-workspace.vercel.app`.
+  1. *YouTube Mix (RD...) & Playlist (PL...) Dual Compatibility*:
+     - Bóc tách `list=PL...` -> `videoseries?list=${listId}`.
+     - Bóc tách `list=RD...` -> `${videoId}?list=${listId}` (giữ nguyên starting videoId để YouTube Mix không bị lỗi 404).
+     - Tích hợp `enablejsapi=1` và `origin` trên iframe.
+  2. *Next / Previous IFrame API Controls*:
+     - Gửi `command: 'nextVideo'` và `command: 'previousVideo'` qua `postMessage` tới `iframe.contentWindow`.
+     - Cho phép học sinh nhảy bài tức thì khi gặp video bản quyền bị chặn.
+  3. *Đóng gói & Triển khai*:
+     - Vitest: **31/31 test files passed, 307/307 tests passed (100%)**.
+     - Vite Build: Đóng gói thành công, 0 lỗi.
+     - Production Deployment: `dpl_EVc5pkXJh7xvuAAX5NmhHEdNSxKe` Ready, alias `https://pomofocus-workspace.vercel.app`.
      - Live Verification: HTTP 200 OK.
