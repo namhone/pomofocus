@@ -148,7 +148,7 @@ export const AiCompanionWidget: React.FC = () => {
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // if (!isOpen) return null; // Giữ trong DOM để kích hoạt CSS Transition trượt mượt mà (slide-over animation)
 
   
   const handleCopy = async (id: string, text: string) => {
@@ -268,10 +268,27 @@ export const AiCompanionWidget: React.FC = () => {
   };
 
   return (
-    <div
-      data-testid="ai-companion-drawer"
-      className="fixed top-14 bottom-0 right-0 z-40 w-full sm:w-[420px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-2xl flex flex-col transition-all duration-300 animate-in slide-in-from-right"
-    >
+    <>
+      {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Mobile Backdrop) */}
+      <div
+        data-testid="ai-backdrop"
+        className={`fixed inset-0 top-14 z-30 bg-black/50 backdrop-blur-xs transition-opacity duration-300 sm:hidden ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => toggleOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Khung chat AI Companion với hiệu ứng trượt mượt mà (Linear / Apple slide-over) */}
+      <div
+        data-testid="ai-companion-drawer"
+        aria-hidden={!isOpen}
+        className={`fixed top-14 bottom-0 right-0 z-40 w-full sm:w-[420px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+          isOpen
+            ? 'translate-x-0 opacity-100 pointer-events-auto'
+            : 'translate-x-full opacity-0 pointer-events-none'
+        }`}
+      >
       {/* Modal Nạp Điểm AI Credits Lẻ */}
       <AiCreditsTopupModal
         isOpen={showCreditsModal}
@@ -733,5 +750,6 @@ export const AiCompanionWidget: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
