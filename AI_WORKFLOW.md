@@ -60,29 +60,24 @@
   - [x] *Xóa Vĩnh Viễn E=mc^2 & Bổ Sung Bộ Giải Toán Số Học Cơ Bản*: Xóa 100% công thức $E = mc^2$ và giới hạn số $e$ khỏi code fallback. Thêm hàm `solveBasicMath()` tự động phân tích và giải chi tiết các phương trình số học cơ bản như $1+1=x \Rightarrow x=2$. **[HOÀN THÀNH]**
   - [x] *Ghi Log Chi Tiết Gemini API*: In rõ mã lỗi HTTP status và response body khi gọi Google Generative AI REST endpoint thất bại. **[HOÀN THÀNH]**
   - [x] *Deploy Production & Xác Minh Trực Tiếp*: Deploy Vercel Production `dpl_Hrtn2xVgx6fvuQGrymuQvbmFRYKC` trỏ `https://pomofocus-workspace.vercel.app`. Gọi POST trực tiếp câu hỏi `"1+1=x tìm x"` và `"chào bạn"` trả về HTTP 200, phản hồi toán học và chào hỏi chuẩn xác 100%. **[HOÀN THÀNH]**
-- [x] **Phase 15 — Cập Nhật Giao Thức Chuẩn Cho Gemini Key Mới (AQ.), Xóa Sổ Fallback Template & Kết Nối Mô Hình SOTA**:
-  - [x] *Nạp Key AQ. Lên Vercel*: Cập nhật key mới `AQ.Ab8RN6I3...XA` lên cả 2 môi trường Production & Preview qua Vercel CLI (`--force`). **[HOÀN THÀNH]**
-  - [x] *Tương Thích Native Endpoint & Header x-goog-api-key*: Sử dụng trực tiếp `x-goog-api-key` header (không dùng Bearer token); hỗ trợ model `gemini-2.5-flash` và `gemini-1.5-flash`. **[HOÀN THÀNH]**
-  - [x] *Xóa Vĩnh Viễn Template Cứng Nhắc*: Loại bỏ hoàn toàn template "Bản chất cốt lõi... Dữ kiện ban đầu Mô hình hóa" khi người dùng trò chuyện phiếm. Nếu API có lỗi, báo thẳng lỗi kết nối, tuyệt đối không bịa bài giải toán giả mạo. **[HOÀN THÀNH]**
-  - [x] *Kiểm Thử & Deploy Production*: Vitest 30/30 suites pass (295 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_6Zx4j3mnxs6PLY48jDArYGC3B7va` trỏ alias `https://pomofocus-workspace.vercel.app`. Test trực tiếp prompt `"Ê má"` và câu hỏi khoa học nhận phản hồi 100% tự nhiên, thông minh của Gemini thật. **[HOÀN THÀNH]**
+- [x] **Phase 15 — Cập Nhật Giao Thức Chuẩn Cho Gemini Key Mới (AQ.), Xóa Sổ Fallback Template & Kết Nối Mô Hình SOTA**: **[HOÀN THÀNH]**
+- [x] **Phase 16 — Tích Hợp Bộ Giải Mã ReactMarkdown + KaTeX Toán Học Chuẩn Mực**:
+  - [x] *Cài Đặt Dependencies*: `react-markdown`, `remark-gfm`, `remark-math`, `rehype-katex`, `katex` và `@types/katex`. **[HOÀN THÀNH]**
+  - [x] *Nạp CSS KaTeX*: Thêm `import 'katex/dist/katex.min.css'` vào `src/main.tsx` và CDN fallback KaTeX v0.16.11 vào `index.html`. **[HOÀN THÀNH]**
+  - [x] *Component FormattedAiMessage*: Tích hợp `ReactMarkdown` với bộ plugins `remarkGfm`, `remarkMath`, `rehypeKatex`. Render mượt mà tiêu đề, chữ in đậm, danh sách gạch đầu dòng, khối code và công thức toán nội dòng (`$...$`) / khối (`$$...$$`) mà không còn sót ký tự thô hay markdown lỗi. **[HOÀN THÀNH]**
+  - [x] *Build & Deploy Vercel Production*: Vitest 30/30 suites pass (295 tests), build Vite đóng gói trọn gói font KaTeX 0 lỗi, deployment Vercel Production `dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK` trạng thái READY và đã gắn alias `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 06:53
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_6Zx4j3mnxs6PLY48jDArYGC3B7va`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 08:44
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Cập nhật GEMINI_API_KEY*:
-     - Nạp key mới `AQ.Ab8RN6I3...XA` vào Vercel Production & Preview.
-  2. *Giao thức Native Google REST*:
-     - Header bắt buộc: `'x-goog-api-key': apiKey` (không dùng `Authorization: Bearer`).
-     - Tự động gọi mô hình `models/gemini-2.5-flash` và fallback `models/gemini-1.5-flash`.
-  3. *Loại bỏ hoàn toàn template cứng nhắc*:
-     - Xóa 100% template "Bản chất cốt lõi... Dữ kiện ban đầu Mô hình hóa".
-     - Khi gọi API lỗi: Trả về thông báo lỗi trực tiếp `⚠️ Kết nối Gemini thất bại: [HTTP ...]`.
-  4. *Kiểm thử thực nghiệm & Bằng chứng*:
+  1. *KaTeX & ReactMarkdown Rendering Pipeline*:
+     - Toàn bộ nội dung tin nhắn AI được phân giải và kết xuất qua `ReactMarkdown` + `rehype-katex`.
+     - Hết sạch lỗi in text thô dấu sao `**`, `*`, `\n` hoặc mã LaTeX thô `$`.
+  2. *Đóng gói & Triển khai*:
      - Vitest: **30/30 test files passed, 295/295 tests passed (100%)**.
-     - Vite Build: 15s đóng gói 0 lỗi.
-     - Live Deployment: `dpl_6Zx4j3mnxs6PLY48jDArYGC3B7va` đã Ready, alias `https://pomofocus-workspace.vercel.app`.
-     - Live Test: Câu hỏi `"Ê má"` và câu hỏi hiện tượng tán xạ ánh sáng trả về HTTP 200, phản hồi tự nhiên và thông minh 100% từ Gemini.
+     - Vite Build: Đóng gói toàn bộ bộ font KaTeX (WOFF2/WOFF/TTF) hoàn hảo.
+     - Production Deployment: `dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK` Ready, alias `https://pomofocus-workspace.vercel.app`.
