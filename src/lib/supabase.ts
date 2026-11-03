@@ -750,45 +750,248 @@ export const supabase = {
   },
 
   from: (table: string) => {
+    const getHeaders = (extra: Record<string, string> = {}) => {
+      let token = SUPABASE_ANON_KEY;
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('pomodoro_study_auth_session');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed.token) token = parsed.token;
+          } catch {}
+        }
+      }
+      return {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`,
+        ...extra,
+      };
+    };
+
     return {
       select: (columns: string = '*') => {
-        let filterCol: string | null = null;
-        let filterVal: any = null;
+        const filters: Array<{ col: string; op: string; val: any }> = [];
+        let orderClause: { col: string; ascending: boolean } | null = null;
+        let limitVal: number | null = null;
+
+        const execute = async () => {
+          try {
+            const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+            let url = `${baseUrl}/rest/v1/${table}?select=${encodeURIComponent(columns)}`;
+            for (const f of filters) {
+              url += `&${encodeURIComponent(f.col)}=${f.op}.${encodeURIComponent(f.val)}`;
+            }
+            if (orderClause) {
+              url += `&order=${encodeURIComponent(orderClause.col)}.${orderClause.ascending ? 'asc' : 'desc'}`;
+            }
+            if (limitVal !== null) {
+              url += `&limit=${limitVal}`;
+            }
+
+            const res = await fetch(url, { headers: getHeaders({ 'Content-Type': 'application/json' }) });
+            if (!res.ok) {
+              let errBody: any;
+              try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+              return { data: null, error: errBody };
+            }
+            const data = await res.json();
+            return { data, error: null };
+          } catch (err: any) {
+            return { data: null, error: { message: err?.message || 'Network error' } };
+          }
+        };
 
         const queryBuilder = {
           eq: (column: string, value: any) => {
-            filterCol = column;
-            filterVal = value;
+            filters.push({ col: column, op: 'eq', val: value });
+            return queryBuilder;
+          },
+          order: (column: string, options?: { ascending?: boolean }) => {
+            orderClause = { col: column, ascending: options?.ascending !== false };
+            return queryBuilder;
+          },
+          limit: (n: number) => {
+            limitVal = n;
             return queryBuilder;
           },
           single: async (): Promise<{ data: any; error: any }> => {
-            try {
-              const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
-              let url = `${baseUrl}/rest/v1/${table}?select=${encodeURIComponent(columns)}`;
-              if (filterCol && filterVal !== null) {
-                url += `&${encodeURIComponent(filterCol)}=eq.${encodeURIComponent(filterVal)}`;
-              }
-              url += '&limit=1';
+            limitVal = 1;
+            const res = await execute();
+            if (res.error) return res;
+            const item = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
+            return { data: item, error: null };
+          },
+          then: (onfulfilled?: (value: { data: any; error: any }) => any, onrejected?: (reason: any) => any) => {
+            return execute().then(onfulfilled, onrejected);
+          }
+        };
+        return queryBuilder;
+      },
 
-              const headers: Record<string, string> = {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-              };
+      insert: async (rows: any | any[]): Promise<{ data: any; error: any }> => {
+        try {
+          const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+          const url = `${baseUrl}/rest/v1/${table}`;
+          const bodyData = Array.isArray(rows) ? rows : [rows];
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: getHeaders({
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation'
+            }),
+            body: JSON.stringify(bodyData)
+          });
+          if (!res.ok) {
+            let errBody: any;
+            try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+            return { data: null, error: errBody };
+          }
+          const data = await res.json().catch(() => null);
+          return { data: Array.isArray(rows) ? data : (data?.[0] || rows), error: null };
+        } catch (err: any) {
+          return { data: null, error: { message: err?.message || 'Network error' } };
+        }
+      },
 
-              const res = await fetch(url, { headers });
-              if (!res.ok) {
-                return { data: null, error: { message: `HTTP ${res.status}` } };
-              }
-              const arr = await res.json();
-              return { data: Array.isArray(arr) && arr.length > 0 ? arr[0] : null, error: null };
-            } catch (err: any) {
-              return { data: null, error: { message: err?.message || 'Network error' } };
+      update: (updates: Record<string, any>) => {
+        const filters: Array<{ col: string; op: string; val: any }> = [];
+        const execute = async () => {
+          try {
+            const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+            let url = `${baseUrl}/rest/v1/${table}`;
+            if (filters.length > 0) {
+              const filterStrings = filters.map(f => `${encodeURIComponent(f.col)}=${f.op}.${encodeURIComponent(f.val)}`);
+              url += `?${filterStrings.join('&')}`;
             }
+            const res = await fetch(url, {
+              method: 'PATCH',
+              headers: getHeaders({
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+              }),
+              body: JSON.stringify(updates)
+            });
+            if (!res.ok) {
+              let errBody: any;
+              try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+              return { data: null, error: errBody };
+            }
+            const data = await res.json().catch(() => null);
+            return { data, error: null };
+          } catch (err: any) {
+            return { data: null, error: { message: err?.message || 'Network error' } };
+          }
+        };
+
+        const queryBuilder = {
+          eq: (col: string, val: any) => {
+            filters.push({ col, op: 'eq', val });
+            return queryBuilder;
+          },
+          then: (onfulfilled?: (value: { data: any; error: any }) => any, onrejected?: (reason: any) => any) => {
+            return execute().then(onfulfilled, onrejected);
+          }
+        };
+        return queryBuilder;
+      },
+
+      delete: () => {
+        const filters: Array<{ col: string; op: string; val: any }> = [];
+        const execute = async () => {
+          try {
+            const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+            let url = `${baseUrl}/rest/v1/${table}`;
+            if (filters.length > 0) {
+              const filterStrings = filters.map(f => `${encodeURIComponent(f.col)}=${f.op}.${encodeURIComponent(f.val)}`);
+              url += `?${filterStrings.join('&')}`;
+            }
+            const res = await fetch(url, {
+              method: 'DELETE',
+              headers: getHeaders({ 'Content-Type': 'application/json' })
+            });
+            if (!res.ok) {
+              let errBody: any;
+              try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+              return { data: null, error: errBody };
+            }
+            return { data: null, error: null };
+          } catch (err: any) {
+            return { data: null, error: { message: err?.message || 'Network error' } };
+          }
+        };
+
+        const queryBuilder = {
+          eq: (col: string, val: any) => {
+            filters.push({ col, op: 'eq', val });
+            return queryBuilder;
+          },
+          then: (onfulfilled?: (value: { data: any; error: any }) => any, onrejected?: (reason: any) => any) => {
+            return execute().then(onfulfilled, onrejected);
           }
         };
         return queryBuilder;
       }
     };
   },
+
+  storage: {
+    from: (bucket: string) => ({
+      upload: async (filePath: string, file: Blob | File | ArrayBuffer, options?: { contentType?: string; upsert?: boolean }) => {
+        try {
+          const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+          const cleanPath = filePath.replace(/^\/+/, '');
+          const url = `${baseUrl}/storage/v1/object/${encodeURIComponent(bucket)}/${cleanPath}`;
+
+          let contentType = options?.contentType;
+          if (!contentType && typeof File !== 'undefined' && file instanceof File) {
+            contentType = file.type;
+          }
+          if (!contentType) {
+            contentType = 'application/octet-stream';
+          }
+
+          let token = SUPABASE_ANON_KEY;
+          if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('pomodoro_study_auth_session');
+            if (stored) {
+              try {
+                const parsed = JSON.parse(stored);
+                if (parsed.token) token = parsed.token;
+              } catch {}
+            }
+          }
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': contentType,
+              'x-upsert': options?.upsert ? 'true' : 'false'
+            },
+            body: file
+          });
+
+          if (!res.ok) {
+            let errBody: any;
+            try { errBody = await res.json(); } catch { errBody = { message: `HTTP ${res.status}` }; }
+            return { data: null, error: errBody };
+          }
+          const data = await res.json().catch(() => ({ Key: `${bucket}/${cleanPath}` }));
+          return { data, error: null };
+        } catch (err: any) {
+          return { data: null, error: { message: err?.message || 'Storage upload error' } };
+        }
+      },
+      getPublicUrl: (filePath: string) => {
+        const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+        const cleanPath = filePath.replace(/^\/+/, '');
+        return {
+          data: {
+            publicUrl: `${baseUrl}/storage/v1/object/public/${encodeURIComponent(bucket)}/${cleanPath}`
+          }
+        };
+      }
+    })
+  }
 };

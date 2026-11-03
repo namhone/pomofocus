@@ -1,15 +1,25 @@
+import type { IncomingMessage, ServerResponse } from 'http';
+
 interface RequestBody {
   prompt?: string;
-  actionType?: 'chat' | 'summarize' | 'quiz';
+  actionType?: 'chat' | 'summarize' | 'quiz' | 'multimodal';
   contextNotes?: string;
   currentCredits?: number;
   userId?: string;
+  stream?: boolean;
+  history?: Array<{ role: 'user' | 'assistant' | 'model'; content?: string; parts?: Array<{ text: string }> }>;
+  attachment?: {
+    mimeType: string;
+    base64Data: string;
+    fileName?: string;
+  };
 }
 
-const ACTION_COSTS: Record<'chat' | 'summarize' | 'quiz', number> = {
+const ACTION_COSTS: Record<'chat' | 'summarize' | 'quiz' | 'multimodal', number> = {
   chat: 1,
   summarize: 5,
-  quiz: 10
+  quiz: 10,
+  multimodal: 5
 };
 
 export function isGreetingIntent(text: string): boolean {
@@ -52,7 +62,6 @@ export function solveBasicMath(prompt: string): string | null {
   if (!prompt) return null;
   const lower = prompt.toLowerCase().trim();
 
-  // 1. Phép toán tìm x hoặc 1+1=x hoặc các phép tính số học cơ bản
   if (
     lower.includes('1+1') ||
     lower.includes('1 + 1') ||
@@ -63,7 +72,6 @@ export function solveBasicMath(prompt: string): string | null {
     return `### 💡 Hướng Dẫn Bài Toán Tìm x (Toán Học Cơ Bản)\n\nChào bạn! Với bài toán **"${prompt}"**:\n\n1. **Phân tích đề bài:**\n   Ta có phương trình: $1 + 1 = x$\n\n2. **Thực hiện phép tính từng bước:**\n   - Tính vế trái: $1 + 1 = 2$\n   - Suy ra phương trình tương đương: $$x = 2$$\n\n3. **Kết luận:**\n   Vậy nghiệm của phương trình là **$x = 2$**.\n\nBạn có bài toán tìm ẩn số nào khác cần mình cùng phân tích không nè?`;
   }
 
-  // 2. Khái niệm sóng dừng (Vật lý)
   if (lower.includes('sóng dừng') || lower.includes('song dung')) {
     return `### 💡 Khái Niệm Sóng Dừng (Vật Lý 12)\n\nChào bạn! Về hiện tượng **sóng dừng**:\n\n1. **Định nghĩa bản chất:**\n   Sóng dừng là sóng hình thành bởi sự giao thoa giữa sóng tới và sóng phản xạ truyền ngược chiều nhau trên cùng một phương truyền.\n\n2. **Đặc điểm & Công thức định lượng:**\n   - Điểm luôn đứng yên gọi là **nút sóng**; điểm dao động với biên độ cực đại gọi là **bụng sóng**.\n   - Điều kiện sóng dừng trên dây hai đầu cố định chiều dài $L$:\n     $$L = k \\frac{\\lambda}{2} \\quad (k \\in \\mathbb{N}^*)$$\n   *(Trong đó $\\lambda$ là bước sóng, $k$ là số bụng sóng)*.\n\nBạn có muốn làm thử bài tập tính số nút, số bụng sóng không?`;
   }
@@ -94,6 +102,7 @@ Nhiệm vụ và Nguyên tắc Sư phạm của bạn:
 4. QUY CHUẨN TÁC VỤ CHUYÊN BIỆT:
    - Với tác vụ TÓM TẮT (summarize): Trích xuất 3-5 ý cốt lõi quan trọng nhất, dùng bullet points ngắn gọn, rõ ràng, không lan man.
    - Với tác vụ TRẮC NGHIỆM (quiz): Tạo đúng 10 câu hỏi trắc nghiệm (A, B, C, D) ôn tập Pomodoro và phương pháp học tập kèm đáp án đúng và phần giải thích ngắn vì sao đáp án đó chính xác.
+   - Với tác vụ ĐÍNH KÈM ĐỀ CƯƠNG / TÀI LIỆU (multimodal): Phân tích kỹ nội dung file/ảnh được gửi kèm, trích xuất cấu trúc đề cương, giải đáp các câu hỏi hoặc bài tập có trong tài liệu theo đúng chuẩn sư phạm.
 
 5. PHONG THÁI & TRÒ CHUYỆN TỰ NHIÊN:
    - Luôn tôn trọng mọi câu hỏi dù là đơn giản hay câu nói chuyện phiếm đời thường. Đáp lại tự nhiên, gần gũi, thông minh như một người bạn đồng hành thực thụ.
@@ -124,35 +133,50 @@ export default async function handler(req: any, res: any) {
       prompt = '',
       actionType = 'chat',
       contextNotes = '',
-      currentCredits = 0
+      currentCredits = 0,
+      stream = false,
+      history = [],
+      attachment
     } = body;
 
-    const cost = ACTION_COSTS[actionType] || 1;
+    // Phí thao tác: Nếu có attachment, áp dụng chi phí 5⚡
+    const effectiveAction = attachment ? 'multimodal' : actionType;
+    const cost = ACTION_COSTS[effectiveAction] || 1;
 
     // 1. Kiểm tra điểm nguyên tử (Atomic deduction check)
     if (currentCredits < cost) {
       return res.status(402).json({
         success: false,
         error: 'INSUFFICIENT_CREDITS',
-        message: `Số dư của bạn (${currentCredits}⚡) không đủ để thực hiện thao tác này (yêu cầu ${cost}⚡). Vui lòng nâng cấp gói tại Bảng Giá.`,
+        message: `Số dư của bạn (${currentCredits}⚡) không đủ để thực hiện thao tác này (yêu cầu ${cost}⚡). Vui lòng nâng cấp gói tại Bảng Giá hoặc nạp thêm credits.`,
         requiredCredits: cost,
         currentCredits,
         billingUrl: '/billing'
       });
     }
 
-    if (!prompt.trim() && actionType !== 'summarize' && actionType !== 'quiz') {
+    if (!prompt.trim() && !attachment && actionType !== 'summarize' && actionType !== 'quiz') {
       return res.status(400).json({
         success: false,
         error: 'EMPTY_PROMPT',
-        message: 'Nội dung câu hỏi không được để trống.'
+        message: 'Nội dung câu hỏi hoặc file đính kèm không được để trống.'
       });
     }
 
     // 2. Nhận diện câu chào hỏi (Greeting Intent) xử lý tự nhiên tức thì
-    if (actionType === 'chat' && isGreetingIntent(prompt)) {
+    if (actionType === 'chat' && !attachment && isGreetingIntent(prompt)) {
       const greetingReply =
         'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
+
+      if (stream) {
+        res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.write(`data: ${JSON.stringify({ text: greetingReply, finishReason: 'STOP', creditsDeducted: cost })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        return res.end();
+      }
+
       return res.status(200).json({
         success: true,
         reply: greetingReply,
@@ -163,23 +187,165 @@ export default async function handler(req: any, res: any) {
     }
 
     // 3. Chuẩn bị prompt gửi đến mô hình Gemini
-    let userContent = prompt;
+    let userPromptText = prompt;
     if (actionType === 'summarize') {
-      userContent = `Hãy tóm tắt ngắn gọn và làm nổi bật các ý chính quan trọng nhất của ghi chú sau đây:\n\n"""\n${
+      userPromptText = `Hãy tóm tắt ngắn gọn và làm nổi bật các ý chính quan trọng nhất của ghi chú sau đây:\n\n"""\n${
         contextNotes || prompt || 'Ghi chú học tập phương pháp Pomodoro và kỹ thuật Feynman'
       }\n"""`;
     } else if (actionType === 'quiz') {
-      userContent = `Dựa trên chủ đề hoặc nội dung sau đây, hãy tạo đúng 10 câu hỏi trắc nghiệm ôn tập (A, B, C, D) về phương pháp Pomodoro và kỹ năng học tập, kèm đáp án đúng và lời giải thích sư phạm:\n\n"""\n${
+      userPromptText = `Dựa trên chủ đề hoặc nội dung sau đây, hãy tạo đúng 10 câu hỏi trắc nghiệm ôn tập (A, B, C, D) về phương pháp Pomodoro và kỹ năng học tập, kèm đáp án đúng và lời giải thích sư phạm:\n\n"""\n${
         prompt || contextNotes || 'Phương pháp quản lý thời gian Pomodoro và tối ưu hóa sự tập trung'
       }\n"""`;
+    } else if (attachment && !prompt.trim()) {
+      userPromptText = `Vui lòng phân tích chi tiết nội dung tài liệu đính kèm "${attachment.fileName || 'đề cương'}", tóm tắt cấu trúc và hướng dẫn giải các bài tập hoặc kiến thức trọng tâm có trong tài liệu.`;
     }
 
-    let reply = '';
-    let apiError: string | null = null;
+    // 4. Chuẩn bị parts của người dùng (hỗ trợ multimodal attachment)
+    const userParts: any[] = [{ text: userPromptText }];
+    if (attachment && attachment.base64Data && attachment.mimeType) {
+      userParts.push({
+        inlineData: {
+          mimeType: attachment.mimeType,
+          data: attachment.base64Data
+        }
+      });
+    }
+
+    // 5. Chuẩn bị ngữ cảnh hội thoại (Lấy tối đa 8 tin nhắn gần nhất)
+    const geminiContents: any[] = [];
+    if (Array.isArray(history) && history.length > 0) {
+      for (const h of history.slice(-8)) {
+        const role = h.role === 'assistant' || h.role === 'model' ? 'model' : 'user';
+        const text = h.content || (h.parts && h.parts[0]?.text) || '';
+        if (text) {
+          geminiContents.push({
+            role,
+            parts: [{ text }]
+          });
+        }
+      }
+    }
+    geminiContents.push({
+      role: 'user',
+      parts: userParts
+    });
+
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
     const tunedModelId = process.env.GEMINI_TUNED_MODEL_ID || process.env.VITE_GEMINI_TUNED_MODEL_ID || '';
 
-    // 4. Nếu có API Key, gọi trực tiếp Gemini qua Google Generative AI REST endpoint
+    // 6. Xử lý Streaming Response khi stream === true
+    if (stream && apiKey) {
+      const candidateModels = tunedModelId
+        ? [
+            tunedModelId.startsWith('tunedModels/') ? tunedModelId : `tunedModels/${tunedModelId}`,
+            'models/gemini-2.5-flash',
+            'models/gemini-1.5-flash'
+          ]
+        : ['models/gemini-2.5-flash', 'models/gemini-1.5-flash'];
+
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      let streamSuccess = false;
+      for (const modelPath of candidateModels) {
+        try {
+          const streamUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+          const response = await fetch(streamUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: JSON.stringify({
+              contents: geminiContents,
+              systemInstruction: {
+                parts: [{ text: SYSTEM_INSTRUCTION }]
+              },
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 8192
+              }
+            })
+          });
+
+          if (response.ok && response.body) {
+            streamSuccess = true;
+            // Đọc và chuyển tiếp từng SSE chunk từ Google
+            const reader = (response.body as any).getReader ? (response.body as any).getReader() : null;
+
+            if (reader) {
+              const decoder = new TextDecoder('utf-8');
+              let buffer = '';
+
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                  const trimmed = line.trim();
+                  if (!trimmed.startsWith('data:')) continue;
+                  const jsonStr = trimmed.replace(/^data:\s*/, '').trim();
+                  if (!jsonStr || jsonStr === '[DONE]') continue;
+
+                  try {
+                    const parsed = JSON.parse(jsonStr);
+                    const candidate = parsed?.candidates?.[0];
+                    const chunkText = candidate?.content?.parts?.[0]?.text || '';
+                    const finishReason = candidate?.finishReason || null;
+
+                    if (chunkText || finishReason) {
+                      res.write(`data: ${JSON.stringify({ text: chunkText, finishReason, creditsDeducted: cost })}\n\n`);
+                    }
+                  } catch {}
+                }
+              }
+            } else {
+              // Fallback đọc dạng text thông thường nếu getReader không hỗ trợ
+              const rawData = await response.text();
+              const lines = rawData.split('\n');
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data:')) continue;
+                const jsonStr = trimmed.replace(/^data:\s*/, '').trim();
+                if (!jsonStr || jsonStr === '[DONE]') continue;
+                try {
+                  const parsed = JSON.parse(jsonStr);
+                  const candidate = parsed?.candidates?.[0];
+                  const chunkText = candidate?.content?.parts?.[0]?.text || '';
+                  const finishReason = candidate?.finishReason || null;
+                  if (chunkText || finishReason) {
+                    res.write(`data: ${JSON.stringify({ text: chunkText, finishReason, creditsDeducted: cost })}\n\n`);
+                  }
+                } catch {}
+              }
+            }
+
+            res.write('data: [DONE]\n\n');
+            return res.end();
+          }
+        } catch (streamErr) {
+          console.error(`[Gemini Stream Error - ${modelPath}]:`, streamErr);
+        }
+      }
+
+      if (!streamSuccess) {
+        res.write(`data: ${JSON.stringify({ text: '⚠️ Kết nối dịch vụ Gemini đang gián đoạn, vui lòng thử lại trong giây lát.', finishReason: 'ERROR' })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        return res.end();
+      }
+    }
+
+    // 7. Non-streaming handler (dùng cho client không bật stream hoặc fallback test)
+    let reply = '';
+    let apiError: string | null = null;
+    let finishReason: string | null = null;
+
     if (apiKey) {
       const candidateModels = tunedModelId
         ? [
@@ -200,25 +366,22 @@ export default async function handler(req: any, res: any) {
               'x-goog-api-key': apiKey
             },
             body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: userContent }]
-                }
-              ],
+              contents: geminiContents,
               systemInstruction: {
                 parts: [{ text: SYSTEM_INSTRUCTION }]
               },
               generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 2048
+                maxOutputTokens: 8192
               }
             })
           });
 
           if (response.ok) {
             const data = await response.json();
-            reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const candidate = data?.candidates?.[0];
+            reply = candidate?.content?.parts?.[0]?.text || '';
+            finishReason = candidate?.finishReason || null;
             if (reply) {
               apiError = null;
               break;
@@ -235,12 +398,11 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 5. Nếu gọi API có lỗi thực tế từ Gemini (không giả mạo giải toán khi gặp lỗi)
     if (!reply && apiError) {
       reply = apiError;
     }
 
-    // 6. Fallback chỉ dùng khi offline/sandbox không cấu hình key
+    // 8. Fallback thông minh khi offline hoặc chạy sandbox test
     if (!reply) {
       if (actionType === 'summarize') {
         reply = `### 📋 Tóm Tắt Trọng Tâm Bài Học\n\n${
@@ -267,8 +429,10 @@ export default async function handler(req: any, res: any) {
       success: true,
       reply,
       creditsDeducted: cost,
-      actionType,
-      remainingCredits: currentCredits - cost
+      actionType: effectiveAction,
+      remainingCredits: currentCredits - cost,
+      finishReason,
+      isTruncated: finishReason === 'MAX_TOKENS'
     });
   } catch (error: any) {
     console.error('[API /api/ai/companion] Unexpected error:', error);
