@@ -4246,7 +4246,8 @@ export const StudyRoomView: React.FC = () => {
           {/* Embedded 16:9 Iframe Player */}
           <div className="relative aspect-video w-full bg-black">
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&enablejsapi=1`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app')}`}
+              referrerPolicy="strict-origin-when-cross-origin"
               title="YouTube Study Room Sync"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

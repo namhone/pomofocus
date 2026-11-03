@@ -43,7 +43,11 @@ export const MediaWidget: React.FC = () => {
 
   // Nếu customMusicUrl chưa có, tự động dùng Lofi Girl mặc định khi người dùng mở Media
   const activeUrl = customMusicUrl || 'https://www.youtube.com/watch?v=jfKfPfyJRdk';
-  const youtubeEmbedUrl = extractYouTubeEmbedUrl(activeUrl);
+  const rawEmbedUrl = extractYouTubeEmbedUrl(activeUrl);
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
+  const youtubeEmbedUrl = rawEmbedUrl
+    ? (rawEmbedUrl.includes('?') ? `${rawEmbedUrl}&origin=${encodeURIComponent(currentOrigin)}` : `${rawEmbedUrl}?origin=${encodeURIComponent(currentOrigin)}`)
+    : null;
 
   const handleApplyUrl = (urlToApply: string) => {
     const trimmed = urlToApply.trim();
@@ -76,6 +80,7 @@ export const MediaWidget: React.FC = () => {
             src={youtubeEmbedUrl}
             title="YouTube Media Player"
             data-testid="media-youtube-iframe"
+            referrerPolicy="strict-origin-when-cross-origin"
             className="w-full h-full border-0 aspect-video rounded-b-[18px] bg-black block"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
