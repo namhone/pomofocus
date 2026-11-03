@@ -99,25 +99,26 @@
   - [x] *Làm Đẹp Bong Bóng Chat (Chat Bubbles)*: Tin nhắn User nền tối sang trọng `bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-3.5`, file đính kèm dạng pill nhỏ gọn `bg-zinc-900/80 px-2.5 py-1.5 rounded-lg text-xs`. Phản hồi AI hiển thị trực tiếp chữ trắng xám dịu mắt (`text-zinc-200 leading-relaxed`) kèm KaTeX toán học rõ ràng. Chân phản hồi AI tích hợp cụm nút hành động tinh tế: "Sao chép", "📌 Chèn vào Ghi chú", và nhãn mờ `Đã dùng -1⚡`. **[HOÀN THÀNH]**
   - [x] *Tối Ưu Khung Nhập Liệu Safe Area Dưới Đáy*: Đặt khoảng đệm `p-3 pb-6 sm:pb-4 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/60`, nút 📎 và nút gửi ➤ căn giữa hoàn hảo theo chiều dọc với ô nhập câu hỏi. **[HOÀN THÀNH]**
   - [x] *Kiểm Thử & Triển Khai Production*: Chạy Playwright viewport iPhone (390×844) chụp ảnh thực chứng `proof-ai-completed-chat-mobile.png`. Vitest 31/31 suites pass (307 tests), Vite build thành công, deploy Vercel Production `dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi` READY, alias trỏ `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 23 — Sửa Dứt Điểm Lỗi "✓ ❌" & Ghim Cố Định Cột Tính Năng Trên Mobile (`BillingView.tsx`)**:
+  - [x] *Xóa Bỏ Triệt Để Lỗi "✓ ❌"*: Xây dựng hàm kiểm định `isNegativeValue()` và `renderComparisonCell()`. Khi tính năng KHÔNG được hỗ trợ (`❌`, `-`, `—`, `Không`), chỉ hiển thị DUY NHẤT một dấu gạch ngang mờ `—` (`text-zinc-600 font-semibold text-sm`), tuyệt đối không chèn biểu tượng `Check` xanh ngọc. Khi tính năng ĐƯỢC hỗ trợ, chỉ hiển thị đúng 1 dấu `✓` kèm nội dung mô tả rõ ràng.
+  - [x] *Ghim Cố Định Cột Tên Tính Năng (Sticky First Column)*: Đặt class `sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 sm:z-20 border-r border-zinc-800` cùng `border-separate border-spacing-0` cho bảng so sánh. Khi học sinh vuốt ngang bảng trên điện thoại, cột tên tính năng đứng yên 100% bên trái, nội dung các gói Năm và Trọn Đời lướt mượt mà bên dưới mà không hề bị đè chữ hay trôi mất tiêu đề.
+  - [x] *Kiểm Thử Playwright & Triển Khai Production*: Chạy script Playwright iPhone (390×844), xác nhận `directCrossInTable = 0`, cột sticky bám sát mép trái `firstThX: 17, containerX: 16, isStickyAligned: true`. Vitest 31/31 suites pass (307 tests), Vite build thành công, deploy Vercel Production `dpl_9KCjZ1AQyQ7xZZNoj2fc19WUpksU` READY, alias trỏ `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:57
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 11:08
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_9KCjZ1AQyQ7xZZNoj2fc19WUpksU`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Mobile Viewport & Compact Header*:
-     - Header tinh gọn 1 hàng duy nhất (`h-14`), không còn thanh tiến trình dung lượng hay badge vỡ dòng.
-     - Cụm số dư `⚡ 999` bấm nạp lẻ, nút Làm mới phiên chat và nút Đóng `✕` bố trí trực quan.
-  2. *Single Thinking Bubble & Sleek Chat Bubbles*:
-     - Loại bỏ hoàn toàn hộp rỗng thứ 2 và thông báo rời "Gia sư AI đang kết nối...".
-     - Bong bóng chat AI chuyển mượt mà từ 3-dot thinking state sang streaming Markdown & KaTeX.
-     - Thêm nút tiện ích `📌 Chèn vào Ghi chú` đồng bộ trực tiếp sang IndexedDB qua `useNoteStore`.
-  3. *Safe Area Input Area*:
-     - Bổ sung `pb-6` cho khung input, nút đính kèm 📎 và gửi ➤ căn giữa hoàn hảo.
-  4. *Đóng gói & Triển khai*:
+  1. *Clean Comparison Cells*:
+     - Xóa bỏ lỗi ghép `Check` và `❌`.
+     - Negative values hiển thị dấu `—` tinh tế, gọn gàng.
+  2. *Sticky Column Implementation*:
+     - Cột đầu tiên ghim cố định với `sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10/z-20 border-r border-zinc-800`.
+     - Sử dụng `border-separate border-spacing-0` để đảm bảo độ mượt và tính toàn vẹn của thuộc tính CSS sticky.
+  3. *Đóng gói & Triển khai*:
      - Vitest: **31/31 test files passed, 307/307 tests passed (100%)**.
      - Vite Build: Đóng gói thành công, 0 lỗi.
-     - Production Deployment: `dpl_9855mWwmbE2uVvgBGWGtbD8Xn8Mi` Ready, alias `https://pomofocus-workspace.vercel.app`.
+     - Production Deployment: `dpl_9KCjZ1AQyQ7xZZNoj2fc19WUpksU` Ready, alias `https://pomofocus-workspace.vercel.app`.
      - Live Verification: HTTP 200 OK.
