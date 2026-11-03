@@ -106,13 +106,13 @@ export const BillingView: React.FC = () => {
   return (
     <div
       data-testid="billing-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+      className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10">
+      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-hidden">
         {/* Navigation Breadcrumb & Back to App */}
-        <div className="w-full flex items-center justify-between pb-3 border-b border-zinc-800/60">
+        <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
             <button
               type="button"
@@ -169,22 +169,22 @@ export const BillingView: React.FC = () => {
         {/* TRƯỜNG HỢP A: NGƯỜI DÙNG ĐÃ SỞ HỮU PRO TRỌN ĐỜI (FOUNDER LIFETIME CARD)  */}
         {/* ========================================================================= */}
         {isUserLifetime ? (
-          <div data-testid="billing-founder-card" className="space-y-8 animate-in fade-in duration-200">
+          <div data-testid="billing-founder-card" className="w-full max-w-xl mx-auto space-y-8 animate-in fade-in duration-200 box-border">
             {/* Thẻ Hội Viên Danh Dự Kim Loại Đen */}
-            <div className="relative rounded-2xl sm:rounded-3xl border border-amber-400/40 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black p-5 sm:p-7 shadow-2xl overflow-hidden">
+            <div className="relative w-full max-w-xl mx-auto box-border px-4 sm:px-6 py-5 sm:py-7 rounded-2xl sm:rounded-3xl border-2 border-amber-400/50 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black shadow-2xl overflow-hidden">
               {/* Ánh sáng kim loại & vầng hào quang */}
               <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
               <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
 
               {/* Header của thẻ */}
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80">
-                <div className="flex items-center gap-3">
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80 w-full min-w-0">
+                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                   <div className="w-10 h-10 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shadow-inner shrink-0">
                     <Crown size={20} className="animate-pulse" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold">
+                      <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-amber-400 font-bold whitespace-nowrap">
                         FOUNDER LIFETIME VIP
                       </span>
                       <span
@@ -194,7 +194,7 @@ export const BillingView: React.FC = () => {
                         🟢 Đang Kích Hoạt Vĩnh Viễn
                       </span>
                     </div>
-                    <h1 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight mt-0.5">
+                    <h1 className="text-base sm:text-xl md:text-2xl font-extrabold text-white tracking-tight mt-1 break-words">
                       Thành Viên PRO Trọn Đời (Lifetime Founder)
                     </h1>
                   </div>
@@ -285,7 +285,7 @@ export const BillingView: React.FC = () => {
 
               {/* Lịch Sử Thanh Toán & Biên Lai VietQR */}
               <div className="relative z-10 mt-8 pt-6 border-t border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
                     <Receipt size={18} />
                   </div>
@@ -294,13 +294,13 @@ export const BillingView: React.FC = () => {
                       <span>Biên Lai Quyết Toán: VietQR 24/7 (Vietcombank)</span>
                       <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">ĐÃ XÁC THỰC</span>
                     </div>
-                    <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+                    <div className="text-[11px] text-zinc-400 font-mono mt-0.5 break-all">
                       Mã GD: VCB_LIFETIME_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto pt-2 sm:pt-0">
                   <button
                     type="button"
                     data-testid="btn-downgrade-free"
@@ -309,21 +309,21 @@ export const BillingView: React.FC = () => {
                       setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                       setTimeout(() => setStatusMessage(null), 4000);
                     }}
-                    className="px-3 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer"
+                    className="flex-1 sm:flex-none px-3 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer text-center"
                   >
                     Chuyển về Gói Cơ Bản
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/profile')}
-                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer"
+                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer text-center"
                   >
                     Quản Lý Hồ Sơ
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
-                    className="px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer shadow-lg"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer shadow-lg text-center"
                   >
                     Vào Không Gian Học
                   </button>
