@@ -66,18 +66,30 @@
   - [x] *Nạp CSS KaTeX*: Thêm `import 'katex/dist/katex.min.css'` vào `src/main.tsx` và CDN fallback KaTeX v0.16.11 vào `index.html`. **[HOÀN THÀNH]**
   - [x] *Component FormattedAiMessage*: Tích hợp `ReactMarkdown` với bộ plugins `remarkGfm`, `remarkMath`, `rehypeKatex`. Render mượt mà tiêu đề, chữ in đậm, danh sách gạch đầu dòng, khối code và công thức toán nội dòng (`$...$`) / khối (`$$...$$`) mà không còn sót ký tự thô hay markdown lỗi. **[HOÀN THÀNH]**
   - [x] *Build & Deploy Vercel Production*: Vitest 30/30 suites pass (295 tests), build Vite đóng gói trọn gói font KaTeX 0 lỗi, deployment Vercel Production `dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK` trạng thái READY và đã gắn alias `https://pomofocus-workspace.vercel.app`. **[HOÀN THÀNH]**
+- [x] **Phase 17 — Nâng Cấp Toàn Diện Trợ Lý AI: Streaming Chữ Tuôn 0.2s, Mở Trần 8192 Tokens, Lưu Trữ Supabase Cloud, Upload Đề Cương & Nạp Lẻ Chiết Khấu %**:
+  - [x] *Streaming Response (SSE) & Auto-Scroll*: Cấu hình endpoint Gemini `:streamGenerateContent?alt=sse&key=${apiKey}` với header `Content-Type: text/event-stream; charset=utf-8`. Client đọc luồng qua `response.body.getReader()`, chữ xuất hiện tức thì trong 0.2s và tự động cuộn màn hình mượt mà theo từng dòng. **[HOÀN THÀNH]**
+  - [x] *Mở Kịch Trần 8192 Tokens & Viết Tiếp*: Cấu hình `generationConfig.maxOutputTokens: 8192`. Tự động nhận diện cờ `MAX_TOKENS` và hiển thị nút `"▶️ Viết tiếp câu trả lời..."` để viết tiếp tài liệu dài liền mạch. **[HOÀN THÀNH]**
+  - [x] *Lưu Trữ Lịch Sử Trên Supabase Database (Không Dùng localStorage)*: Mở rộng `src/lib/supabase.ts` đầy đủ PostgREST query builder (`select`, `insert`, `update`, `delete`, chaining `eq`, `order`, `limit`) và Supabase Storage `upload()`, `getPublicUrl()`. Dịch vụ `AiChatService` quản lý bảng `ai_conversations` và `ai_messages`, tự động đồng bộ và gửi 6-8 tin gần nhất làm `history` cho Gemini. **[HOÀN THÀNH]**
+  - [x] *Nút Đính Kèm File Đề Cương 📎 (Multimodal)*: Thêm icon chiếc ghim `📎` cạnh ô nhập. Hỗ trợ Word (`.docx`), Ảnh (`.jpg`, `.png`, `.webp`), PDF văn bản và scan (tối đa 10MB). Upload lên bucket `ai-attachments`, gửi `inlineData` base64 sang Gemini. Trừ đúng 5⚡ cho tác vụ phân tích đề cương. **[HOÀN THÀNH]**
+  - [x] *Modal Nạp Lẻ AI Credits ⚡ (Chiết khấu % & Giá gốc gạch ngang)*: Component `AiCreditsTopupModal.tsx` với công thức chiết khấu lũy tiến chuẩn xác (< 200⚡: 0%; 200-499⚡: 5%; 500-999⚡: 18% 🔥; 1000-2499⚡: 30% ⚡; >= 2500⚡: 45% 👑). Hiển thị giá gốc gạch ngang, huy hiệu tiết kiệm, 4 nút nạp nhanh (`200⚡ 19k`, `600⚡ 49k`, `1.500⚡ 99k`, `3.500⚡ 190k`), tích hợp VietQR Vietcombank (1066633885 - HO NGOC BAO NAM) và nút nạp tức thì sandbox. **[HOÀN THÀNH]**
+  - [x] *Xóa Vĩnh Viễn Chân Trang*: Đã xóa hoàn toàn dòng chữ `"Google Gemini 1.5 Flash"` ở chân trang widget. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Triển Khai Production*: Vitest 31/31 suites pass (303 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. Live verification 4/4 kịch bản đạt 100%. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 08:44
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:00
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *KaTeX & ReactMarkdown Rendering Pipeline*:
-     - Toàn bộ nội dung tin nhắn AI được phân giải và kết xuất qua `ReactMarkdown` + `rehype-katex`.
-     - Hết sạch lỗi in text thô dấu sao `**`, `*`, `\n` hoặc mã LaTeX thô `$`.
-  2. *Đóng gói & Triển khai*:
-     - Vitest: **30/30 test files passed, 295/295 tests passed (100%)**.
-     - Vite Build: Đóng gói toàn bộ bộ font KaTeX (WOFF2/WOFF/TTF) hoàn hảo.
-     - Production Deployment: `dpl_9ZHjkiHpwNydDXWdGY9RBTMAUvnK` Ready, alias `https://pomofocus-workspace.vercel.app`.
+  1. *Streaming SSE & Đa Phương Thức (Multimodal)*:
+     - Streaming Serverless Endpoint: Hỗ trợ SSE truyền tin trực tiếp từ Gemini tới client.
+     - Multimodal: Nhận diện tệp đính kèm và trừ đúng 5⚡ theo yêu cầu.
+  2. *Ví AI Credits & Modal Nạp Lẻ*:
+     - Công thức tính giá và chiết khấu bậc thang hoàn toàn tự động, hiển thị rõ ràng giá gốc gạch ngang và huy hiệu % tiết kiệm.
+     - Tích hợp mã VietQR chuẩn xác vào tài khoản Vietcombank 1066633885 (HO NGOC BAO NAM).
+  3. *Đóng gói & Triển khai*:
+     - Vitest: **31/31 test files passed, 303/303 tests passed (100%)**.
+     - Vite Build: 0 warning cú pháp, đóng gói CSS và font KaTeX hoàn chỉnh.
+     - Production Deployment: `dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3` Ready, alias `https://pomofocus-workspace.vercel.app`.
+     - Live Endpoint Verification: **100% Pass** (Greeting 200, Multimodal -5⚡ 200, Streaming SSE 200, Insufficient Credits 402).
