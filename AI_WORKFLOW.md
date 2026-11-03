@@ -74,22 +74,23 @@
   - [x] *Modal Nạp Lẻ AI Credits ⚡ (Chiết khấu % & Giá gốc gạch ngang)*: Component `AiCreditsTopupModal.tsx` với công thức chiết khấu lũy tiến chuẩn xác (< 200⚡: 0%; 200-499⚡: 5%; 500-999⚡: 18% 🔥; 1000-2499⚡: 30% ⚡; >= 2500⚡: 45% 👑). Hiển thị giá gốc gạch ngang, huy hiệu tiết kiệm, 4 nút nạp nhanh (`200⚡ 19k`, `600⚡ 49k`, `1.500⚡ 99k`, `3.500⚡ 190k`), tích hợp VietQR Vietcombank (1066633885 - HO NGOC BAO NAM) và nút nạp tức thì sandbox. **[HOÀN THÀNH]**
   - [x] *Xóa Vĩnh Viễn Chân Trang*: Đã xóa hoàn toàn dòng chữ `"Google Gemini 1.5 Flash"` ở chân trang widget. **[HOÀN THÀNH]**
   - [x] *Kiểm Thử & Triển Khai Production*: Vitest 31/31 suites pass (303 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3` READY, alias trỏ thành công `https://pomofocus-workspace.vercel.app`. Live verification 4/4 kịch bản đạt 100%. **[HOÀN THÀNH]**
+- [x] **Phase 18 — Khắc Phục Triệt Để YouTube Error 153 (Lỗi Cấu Hình Trình Phát Video)**:
+  - [x] *Cập Nhật Chính Sách Referrer Trong `index.html`*: Đổi `<meta name="referrer" content="no-referrer" />` thành `<meta name="referrer" content="strict-origin-when-cross-origin" />` để YouTube nhận diện đúng domain máy chủ nhúng hợp lệ. **[HOÀN THÀNH]**
+  - [x] *Cấu Hình Thuộc Tính Iframe & URL Origin*: Thêm `referrerPolicy="strict-origin-when-cross-origin"` và bổ sung tham số `&origin=${encodeURIComponent(window.location.origin)}` vào các thẻ `<iframe>` trong `src/components/MediaWidget.tsx` và `src/components/StudyRoomView.tsx`. **[HOÀN THÀNH]**
+  - [x] *Kiểm Thử & Triển Khai Vercel Production*: Chạy Vitest 31/31 suites pass (303 tests), build Vite 0 lỗi, deploy Vercel Production `dpl_8ZLryWgajqVygmCMWzoSFKso2FyP` READY và gắn alias `https://pomofocus-workspace.vercel.app`. Xác minh trực tiếp header `strict-origin-when-cross-origin` hoạt động 100%. **[HOÀN THÀNH]**
 
 ---
 
 ## PHẦN 3 — CHECKPOINT & NHẬT KÝ TIẾN ĐỘ THỰC NGHIỆM
 
-- **Thời điểm**: 2026-11-03 10:00
-- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
+- **Thời điểm**: 2026-11-03 10:07
+- **Trạng thái**: Đã deploy thành công Vercel Production (`dpl_8ZLryWgajqVygmCMWzoSFKso2FyP`, Ready) trỏ alias `https://pomofocus-workspace.vercel.app`.
 - **Nhật ký hành động & Quyết định kỹ thuật**:
-  1. *Streaming SSE & Đa Phương Thức (Multimodal)*:
-     - Streaming Serverless Endpoint: Hỗ trợ SSE truyền tin trực tiếp từ Gemini tới client.
-     - Multimodal: Nhận diện tệp đính kèm và trừ đúng 5⚡ theo yêu cầu.
-  2. *Ví AI Credits & Modal Nạp Lẻ*:
-     - Công thức tính giá và chiết khấu bậc thang hoàn toàn tự động, hiển thị rõ ràng giá gốc gạch ngang và huy hiệu % tiết kiệm.
-     - Tích hợp mã VietQR chuẩn xác vào tài khoản Vietcombank 1066633885 (HO NGOC BAO NAM).
-  3. *Đóng gói & Triển khai*:
+  1. *YouTube Error 153 Resolution*:
+     - Thay đổi chính sách Referrer cấp cao trong `index.html` từ `no-referrer` sang `strict-origin-when-cross-origin`.
+     - Cấu hình tường minh `referrerPolicy="strict-origin-when-cross-origin"` và tham số `&origin=${encodeURIComponent(origin)}` trên tất cả các `<iframe>` nhúng YouTube (Media Widget và Study Room Sync).
+  2. *Đóng gói & Triển khai*:
      - Vitest: **31/31 test files passed, 303/303 tests passed (100%)**.
-     - Vite Build: 0 warning cú pháp, đóng gói CSS và font KaTeX hoàn chỉnh.
-     - Production Deployment: `dpl_CxP3FxsmqhYGiaLroDxvVhoGo8A3` Ready, alias `https://pomofocus-workspace.vercel.app`.
-     - Live Endpoint Verification: **100% Pass** (Greeting 200, Multimodal -5⚡ 200, Streaming SSE 200, Insufficient Credits 402).
+     - Vite Build: Đóng gói thành công, 0 cảnh báo.
+     - Production Deployment: `dpl_8ZLryWgajqVygmCMWzoSFKso2FyP` Ready, alias trỏ thành công `https://pomofocus-workspace.vercel.app`.
+     - Live Verification: Response HTML chứa `strict-origin-when-cross-origin: true` và `no-referrer: false`.
