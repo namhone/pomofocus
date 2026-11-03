@@ -1,5 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'http';
-
 interface RequestBody {
   prompt?: string;
   actionType?: 'chat' | 'summarize' | 'quiz' | 'multimodal';
