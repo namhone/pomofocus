@@ -509,8 +509,13 @@ export const useAiStore = create<AiState>()(
             }
           }
 
-          // 4. Trừ điểm nguyên tử sau khi có câu trả lời
-          get().deductCredits(cost);
+          // 4. Tuyệt đối KHÔNG trừ điểm khi gặp sự cố, chỉ trừ khi thành công 100%
+          const isErrorResponse = replyText.startsWith('⚠️') || replyText.includes('thất bại') || replyText.includes('gián đoạn');
+          const finalCost = isErrorResponse ? 0 : cost;
+
+          if (finalCost > 0) {
+            get().deductCredits(finalCost);
+          }
 
           // 5. Cập nhật tin nhắn hoàn tất
           set((state) => ({
@@ -519,7 +524,7 @@ export const useAiStore = create<AiState>()(
                 ? {
                     ...m,
                     content: replyText,
-                    creditsUsed: cost,
+                    creditsUsed: finalCost,
                     isTruncated
                   }
                 : m

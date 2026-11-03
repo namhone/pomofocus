@@ -14,7 +14,6 @@ import {
   Layout,
   BarChart3,
   HelpCircle,
-  Menu,
   X,
   Shield,
   Database,
@@ -89,6 +88,14 @@ export const PlatformHeader: React.FC = () => {
     router.navigate(path);
   };
 
+  const handleAvatarClick = () => {
+    if (window.innerWidth < 640) {
+      setIsMobileMenuOpen((prev) => !prev);
+    } else {
+      setIsUserDropdownOpen((prev) => !prev);
+    }
+  };
+
   const handleConfirmLogout = () => {
     logout();
     setIsLogoutModalOpen(false);
@@ -120,7 +127,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             onClick={() => handleNavigate('/billing')}
             data-testid="header-plan-badge"
-            className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
+            className={`hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetime
                 ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                 : isPro
@@ -171,7 +178,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             data-testid="header-ai-btn"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] sm:text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] sm:text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
           >
             <Sparkles size={12} className="text-cyan-400 shrink-0" />
@@ -184,7 +191,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="pwa-install-btn"
               onClick={() => triggerInstall()}
-              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-[11px] sm:text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-[11px] sm:text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
               title="Cài đặt PomoFocus vào thiết bị (PWA)"
             >
               <Download size={12} className="shrink-0" />
@@ -198,7 +205,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-white text-black font-semibold text-[11px] sm:text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-white text-black font-semibold text-[11px] sm:text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             >
               <Layout size={12} className="shrink-0" />
               <span className="hidden xs:inline">Vào Học</span>
@@ -212,7 +219,7 @@ export const PlatformHeader: React.FC = () => {
               <button
                 type="button"
                 data-testid="header-user-avatar-btn"
-                onClick={() => setIsUserDropdownOpen((prev) => !prev)}
+                onClick={handleAvatarClick}
                 className={`flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl transition cursor-pointer shrink-0 border ${
                   isUserDropdownOpen
                     ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
@@ -364,7 +371,13 @@ export const PlatformHeader: React.FC = () => {
             <button
               type="button"
               data-testid="header-login-btn"
-              onClick={() => handleNavigate('/login')}
+                onClick={() => {
+                  if (window.innerWidth < 640) {
+                    setIsMobileMenuOpen((prev) => !prev);
+                  } else {
+                    handleNavigate('/login');
+                  }
+                }}
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white text-[11px] sm:text-xs transition cursor-pointer whitespace-nowrap border border-white/10"
               title="Đăng nhập tài khoản"
             >
@@ -373,24 +386,25 @@ export const PlatformHeader: React.FC = () => {
             </button>
           )}
 
-          {/* Mobile Menu Toggle Button (< lg) */}
-          <button
-            type="button"
-            data-testid="header-mobile-menu-toggle"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0"
-            title={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu điều hướng'}
-            aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu điều hướng'}
-            aria-expanded={isMobileMenuOpen}
-          >
-            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          
         </div>
       </header>
 
       {/* Mobile Drawer / Dropdown Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-14 z-50 bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/[0.08] shadow-2xl p-4 transition-all max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+          {/* Top Bar with Close button */}
+          <div className="flex items-center justify-between pb-2 mb-3 border-b border-white/10">
+            <span className="text-xs font-semibold text-zinc-300 font-mono uppercase tracking-wider">Menu Điều Hướng</span>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              title="Đóng menu"
+            >
+              <X size={18} />
+            </button>
+          </div>
           {/* User profile card in drawer on mobile */}
           {isAuthenticated && user && (
             <div className="mb-3 p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">

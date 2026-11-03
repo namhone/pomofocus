@@ -49,12 +49,7 @@ export const LandingPage: React.FC = () => {
 
       {/* 2. Hero Section — Bold, Typography-first */}
       <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center flex flex-col items-center">
-        <div className="inline-flex flex-wrap items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-[11px] sm:text-xs font-mono mb-6 sm:mb-8 text-center max-w-full">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span className="whitespace-nowrap">Bản Thử Nghiệm Demo Beta 1.0</span>
-          <span className="hidden xs:inline text-zinc-600">—</span>
-          <span className="whitespace-nowrap text-emerald-400">Miễn Phí 3 Năm PRO</span>
-        </div>
+        
 
         <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl leading-[1.28] sm:leading-[1.18] mb-5 sm:mb-6">
           <span className="block sm:inline">
@@ -71,31 +66,35 @@ export const LandingPage: React.FC = () => {
           Kết hợp kỹ thuật Pomodoro chính xác chuẩn millisecond, âm thanh môi trường thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực tuyến. Giúp bạn đạt trạng thái dòng chảy năng suất cao nhất.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col items-center gap-3.5 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => router.navigate('/app')}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black text-xs font-bold hover:bg-zinc-200 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-2xl active:scale-[0.98]"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-black text-xs sm:text-sm font-bold hover:bg-zinc-200 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-2xl active:scale-[0.98]"
           >
-            <span className="whitespace-nowrap">Bắt Đầu Học Ngay (Miễn Phí)</span>
-            <ArrowRight size={14} className="shrink-0" />
+            <span className="whitespace-nowrap">Bắt Đầu Học Ngay</span>
+            <ArrowRight size={15} className="shrink-0" />
           </button>
-          <button
-            type="button"
-            data-testid="landing-cta-upgrade-hero"
-            onClick={() => router.navigate('/billing')}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 hover:text-white text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
-          >
-            <span className="whitespace-nowrap">Xem Các Gói Dịch Vụ</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => router.navigate('/rooms')}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
-          >
-            <Users size={14} className="shrink-0" />
-            <span className="whitespace-nowrap">Vào Phòng Học Nhóm Live</span>
-          </button>
+          
+          <div className="flex items-center gap-4 text-xs text-zinc-400 pt-1">
+            <button
+              type="button"
+              data-testid="landing-cta-upgrade-hero"
+              onClick={() => router.navigate('/billing')}
+              className="text-zinc-400 hover:text-white transition underline-offset-4 hover:underline cursor-pointer"
+            >
+              Xem Gói Cước
+            </button>
+            <span className="text-zinc-600 select-none">•</span>
+            <button
+              type="button"
+              onClick={() => router.navigate('/rooms')}
+              className="text-zinc-400 hover:text-white transition underline-offset-4 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <Users size={12} className="shrink-0 text-zinc-400" />
+              <span>Phòng Học Nhóm</span>
+            </button>
+          </div>
         </div>
 
         {/* 3. Product Mockup Preview */}

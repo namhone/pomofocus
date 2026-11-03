@@ -1,4 +1,81 @@
 /**
+ * Nén ảnh Client-side bằng HTMLCanvasElement xuống tối đa 1600px và ~200-300KB
+ * Giúp triệt tiêu lỗi sập trần 4.5MB Payload của Vercel Serverless Function
+ */
+async function compressImageClient(
+  file: File,
+  maxDimension: number = 1600,
+  quality: number = 0.8
+): Promise<{ blob: Blob; base64: string }> {
+  return new Promise((resolve, reject) => {
+    if (typeof document === 'undefined' || typeof Image === 'undefined') {
+      // Môi trường Node.js kiểm thử: fallback đọc trực tiếp
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        const comma = res.indexOf(',');
+        resolve({ blob: file, base64: comma !== -1 ? res.substring(comma + 1) : res });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          const res = reader.result as string;
+          const comma = res.indexOf(',');
+          return resolve({ blob: file, base64: comma !== -1 ? res.substring(comma + 1) : res });
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              const res = reader.result as string;
+              const comma = res.indexOf(',');
+              return resolve({ blob: file, base64: comma !== -1 ? res.substring(comma + 1) : res });
+            }
+            const dataUrl = canvas.toDataURL(mime, quality);
+            const comma = dataUrl.indexOf(',');
+            const base64 = comma !== -1 ? dataUrl.substring(comma + 1) : dataUrl;
+            resolve({ blob, base64 });
+          },
+          mime,
+          quality
+        );
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
  * AI CHAT & STORAGE SERVICE (SUPABASE PERSISTENCE & MULTIMODAL)
  * ==============================================================================
  * Quản lý đồng bộ lịch sử hội thoại trên Cloud Supabase (ai_conversations, ai_messages)
@@ -143,18 +220,39 @@ export class AiChatService {
       throw new Error(`Kích thước file (${(file.size / 1024 / 1024).toFixed(1)}MB) vượt quá giới hạn cho phép (tối đa 10MB).`);
     }
 
-    // Đọc Base64 data
-    const base64Data = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        // Bỏ data URI prefix: data:mimeType;base64,...
-        const commaIdx = result.indexOf(',');
-        resolve(commaIdx !== -1 ? result.substring(commaIdx + 1) : result);
-      };
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
-    });
+    // Nếu là file ảnh: Tự động nén qua Canvas xuống tối đa 1600px và ~200-300KB
+    let uploadPayload: File | Blob = file;
+    let base64Data: string;
+
+    if (file.type.startsWith('image/')) {
+      try {
+        const compressed = await compressImageClient(file, 1600, 0.8);
+        uploadPayload = compressed.blob;
+        base64Data = compressed.base64;
+      } catch {
+        base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            const commaIdx = result.indexOf(',');
+            resolve(commaIdx !== -1 ? result.substring(commaIdx + 1) : result);
+          };
+          reader.onerror = (e) => reject(e);
+          reader.readAsDataURL(file);
+        });
+      }
+    } else {
+      base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const commaIdx = result.indexOf(',');
+          resolve(commaIdx !== -1 ? result.substring(commaIdx + 1) : result);
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
 
     // Upload lên bucket ai-attachments
     let publicUrl: string | undefined;
@@ -163,7 +261,7 @@ export class AiChatService {
       const storagePath = `${userId}/${Date.now()}_${cleanFileName}`;
       const { error: uploadError } = await supabase.storage
         .from('ai-attachments')
-        .upload(storagePath, file, { contentType: file.type, upsert: true });
+        .upload(storagePath, uploadPayload, { contentType: file.type, upsert: true });
 
       if (!uploadError) {
         const { data } = supabase.storage.from('ai-attachments').getPublicUrl(storagePath);

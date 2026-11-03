@@ -455,7 +455,13 @@ export default async function handler(req: any, res: any) {
     }
 
     if (!reply && apiError) {
-      reply = apiError;
+      return res.status(502).json({
+        success: false,
+        error: 'AI_PROVIDER_ERROR',
+        message: apiError,
+        creditsDeducted: 0,
+        currentCredits
+      });
     }
 
     // 8. Fallback thông minh khi offline hoặc chạy sandbox test
