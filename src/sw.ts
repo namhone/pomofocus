@@ -4,7 +4,7 @@ import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const SW_CACHE_VERSION = 'v3.7.0-zen-error-pages';
+const SW_CACHE_VERSION = 'v3.8.0-room-governance';
 
 // Bắt buộc Service Worker kích hoạt ngay lập tức và giành quyền kiểm soát mọi client
 self.skipWaiting();

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { isOwnerEmail, isLadyBoss, isVipFriend, authService, hasVipAccess } from '../services/authService';
+import { roomService, isMasterAdmin, RoomSettings } from '../services/roomService';
 import { extractYouTubeEmbedUrl } from '../utils/media';
 import { supabase } from '../lib/supabase';
 import {
@@ -665,17 +666,22 @@ export const StudyRoomView: React.FC = () => {
     }
   }, [speakingMap[participantId], micEnabled, hasJoined, participantId]);
 
-  // Vai trò của người dùng trong phòng
+  // Phân quyền 3 cấp bậc: Master Admin > Room Host > Participant
+  const isMaster = Boolean(user && (isMasterAdmin(user.email) || isOwnerEmail(user.email) || isLadyBoss(user.email)));
+  const isHostUser = Boolean(user && (
+    (room?.owner_id && room.owner_id === user.id) ||
+    (room?.hostUserId && room.hostUserId === user.id) ||
+    (room?.hostEmail && room.hostEmail.toLowerCase() === user.email?.toLowerCase())
+  ));
+  const canManage = isMaster || isHostUser;
+
   const userRole = useMemo<'host' | 'member' | 'guest'>(() => {
-    if (!room) return 'guest';
-    if (user && (room.hostUserId === user.id || room.hostEmail.toLowerCase() === user.email?.toLowerCase())) {
-      return 'host';
-    }
+    if (isMaster || isHostUser) return 'host';
     if (user && (user.plan === 'pro' || user.plan === 'pro_beta' || user.plan === 'pro_lifetime' || isLadyBoss(user.email))) {
       return 'member';
     }
     return 'guest';
-  }, [room, user]);
+  }, [isMaster, isHostUser, user]);
 
   // Kiểm tra điều kiện thuê bao trả phí của Host
   const eligibility: SubscriptionEligibilityResult = useMemo(() => {
@@ -712,6 +718,12 @@ export const StudyRoomView: React.FC = () => {
   const [expiredReason, setExpiredReason] = useState<string>('Phiên học 45 phút của phòng Free đã kết thúc.');
 
   // Quản trị thành viên trong phòng (Context menu & modal)
+  // Bảng Quản Trị Phòng (Host Controls) State
+  const [isHostControlsModalOpen, setIsHostControlsModalOpen] = useState(false);
+  const [editRoomTitle, setEditRoomTitle] = useState('');
+  const [editRoomPasscode, setEditRoomPasscode] = useState('');
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
   const [selectedMemberForAdmin, setSelectedMemberForAdmin] = useState<{
     id: string;
     userId?: string;
@@ -1063,25 +1075,69 @@ export const StudyRoomView: React.FC = () => {
   const handleAdminActionReceived = useCallback((data: any) => {
     if (!data) return;
     const myId = user?.id || participantId;
-    if (data.targetId === participantId || data.targetId === myId || data.targetUserId === user?.id) {
-      if (data.action === 'FORCE_MUTE') {
+    const isTargetMe =
+      data.targetId === 'all' ||
+      data.targetId === participantId ||
+      data.targetId === myId ||
+      (user?.id && data.targetUserId === user.id);
+
+    // Cập nhật cài đặt phòng realtime
+    if (data.action === 'SETTINGS_UPDATED' && data.settings) {
+      setRoom((prev) => prev ? { ...prev, settings: { ...prev.settings, ...data.settings } } : null);
+      if (data.settings.allow_mic === false && !canManage) {
         setMicEnabled(false);
         if (localStreamRef.current) {
           localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
         }
-        setAdminNotice('Bạn đã bị Quản trị viên tắt Micro.');
-        setTimeout(() => setAdminNotice(null), 5000);
-      } else if (data.action === 'KICK') {
-        alert('Bạn đã bị mời ra khỏi phòng học bởi Quản trị viên.');
-        router.navigate('/rooms');
-      } else if (data.action === 'GIVEAWAY_PRO') {
-        const months = data.durationMonths || 1;
-        authService.upgradeToPro(months);
-        setAdminNotice(`🎉 Bạn vừa được Chủ phòng tặng gói PRO ${months === 999 ? 'Trọn Đời' : months + ' Tháng'}!`);
-        setTimeout(() => setAdminNotice(null), 8000);
       }
+      if (data.settings.allow_screen_share === false && !canManage) {
+        if (screenStreamRef.current) {
+          screenStreamRef.current.getTracks().forEach((t) => t.stop());
+          screenStreamRef.current = null;
+        }
+        setIsScreenSharing(false);
+        if (localStreamRef.current && rtcManagerRef.current) {
+          rtcManagerRef.current.setLocalStream(localStreamRef.current);
+        }
+      }
+      setAdminNotice('Chủ phòng đã cập nhật quy tắc phòng học.');
+      setTimeout(() => setAdminNotice(null), 4000);
+      return;
     }
-  }, [participantId, user?.id, router]);
+
+    if (!isTargetMe) return;
+
+    if (data.action === 'FORCE_MUTE') {
+      if (data.targetId === 'all' && canManage) return;
+      setMicEnabled(false);
+      if (localStreamRef.current) {
+        localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
+      }
+      setAdminNotice('Bạn đã bị Quản trị viên tắt Micro.');
+      setTimeout(() => setAdminNotice(null), 5000);
+    } else if (data.action === 'FORCE_STOP_SCREEN_SHARE') {
+      if (data.targetId === 'all' && canManage) return;
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop());
+        screenStreamRef.current = null;
+      }
+      setIsScreenSharing(false);
+      if (localStreamRef.current && rtcManagerRef.current) {
+        rtcManagerRef.current.setLocalStream(localStreamRef.current);
+      }
+      setAdminNotice('Chủ phòng đã tắt quyền chia sẻ màn hình.');
+      setTimeout(() => setAdminNotice(null), 5000);
+    } else if (data.action === 'KICK') {
+      if (canManage) return;
+      alert('Bạn đã bị mời ra khỏi phòng học bởi Quản trị viên.');
+      router.navigate('/rooms');
+    } else if (data.action === 'GIVEAWAY_PRO') {
+      const months = data.durationMonths || 1;
+      authService.upgradeToPro(months);
+      setAdminNotice(`🎉 Bạn vừa được Chủ phòng tặng gói PRO ${months === 999 ? 'Trọn Đời' : months + ' Tháng'}!`);
+      setTimeout(() => setAdminNotice(null), 8000);
+    }
+  }, [participantId, user?.id, canManage, router]);
 
   const handleGiveawayPro = (target: { id: string; userId?: string; name: string }, durationMonths: number) => {
     const eventPayload = {
@@ -1107,6 +1163,42 @@ export const StudyRoomView: React.FC = () => {
     setSelectedMemberForAdmin(null);
     setAdminNotice(`Đã gửi tặng gói PRO (${durationMonths === 999 ? 'Trọn Đời' : durationMonths + ' Tháng'}) cho ${target.name}! 🎁`);
     setTimeout(() => setAdminNotice(null), 5000);
+  };
+
+  // Các thao tác Quản Trị Phòng (Host Controls)
+  const handleToggleRoomSetting = async (key: keyof RoomSettings, val: boolean) => {
+    if (!room || !user || !canManage) return;
+    const newSettings: Partial<RoomSettings> = { [key]: val };
+    const res = await roomService.updateRoomSettings(roomId, user, newSettings, channelRef.current);
+    if (res.success && res.settings) {
+      setRoom({ ...room, settings: res.settings });
+      setAdminNotice(`Đã cập nhật cài đặt: ${key === 'allow_mic' ? 'Micro' : key === 'allow_screen_share' ? 'Chia sẻ màn hình' : 'Khóa phòng'}`);
+      setTimeout(() => setAdminNotice(null), 3000);
+    }
+  };
+
+  const handleSaveRoomDetails = () => {
+    if (!room || !user || !canManage) return;
+    const updates: any = {};
+    if (editRoomTitle.trim()) updates.title = editRoomTitle.trim();
+    updates.passcode = editRoomPasscode.trim() || null;
+    const res = studyRoomService.updateRoom(roomId, user, updates);
+    if (res.success && res.room) {
+      setRoom(res.room);
+      setAdminNotice('Đã cập nhật thông tin phòng thành công! ✨');
+      setTimeout(() => setAdminNotice(null), 3000);
+    }
+  };
+
+  const handleDeleteRoomPermanently = () => {
+    if (!room || !user || !canManage) return;
+    const res = studyRoomService.deleteRoom(roomId, user);
+    if (res.success) {
+      alert('Đã xóa vĩnh viễn phòng học!');
+      router.navigate('/rooms');
+    } else {
+      alert(res.error || 'Lỗi khi xóa phòng.');
+    }
   };
 
   const handleForceMute = (target: { id: string; userId?: string; name: string }) => {
@@ -2763,7 +2855,11 @@ export const StudyRoomView: React.FC = () => {
                 </span>
 
                 {/* Badge Vai trò */}
-                {isLadyBoss(user?.email) ? (
+                {isMasterAdmin(user?.email) ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[10px] text-amber-300 font-extrabold flex items-center gap-1 shadow-sm">
+                    👑 MASTER ADMIN
+                  </span>
+                ) : isLadyBoss(user?.email) ? (
                   <span className="px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-200 font-bold flex items-center gap-1 shadow-sm">
                     👑 NÓC NHÀ PRO
                   </span>
@@ -2887,6 +2983,24 @@ export const StudyRoomView: React.FC = () => {
               {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
               <span>{copiedLink ? 'Đã sao chép link!' : 'Mời bạn học'}</span>
             </button>
+
+            {/* Nút Quản Trị Phòng (Host Controls) */}
+            {canManage && (
+              <button
+                type="button"
+                data-testid="btn-open-host-controls"
+                onClick={() => {
+                  setEditRoomTitle(room?.title || '');
+                  setEditRoomPasscode(room?.passcode || '');
+                  setIsHostControlsModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs text-emerald-300 font-semibold transition cursor-pointer shadow-sm active:scale-95"
+                title="Bảng Quản Trị Phòng (Host Controls)"
+              >
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>🛡️ Quản Trị Phòng</span>
+              </button>
+            )}
 
             {/* Nút Cài đặt phòng */}
             <button
@@ -3528,14 +3642,30 @@ export const StudyRoomView: React.FC = () => {
           <button
             type="button"
             data-testid="btn-room-mic"
+            disabled={!canManage && room?.settings?.allow_mic === false}
             onClick={() => {
+              if (!canManage && room?.settings?.allow_mic === false) {
+                setAdminNotice('Chủ phòng đã tắt tính năng này.');
+                setTimeout(() => setAdminNotice(null), 3000);
+                return;
+              }
               setMicEnabled(!micEnabled);
               showBetaP2PNotice();
             }}
             className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
-              micEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
+              !canManage && room?.settings?.allow_mic === false
+                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                : micEnabled
+                ? 'bg-white/10 hover:bg-white/20 text-white'
+                : 'bg-rose-500 text-white'
             }`}
-            title={micEnabled ? 'Tắt Micro' : 'Bật Micro'}
+            title={
+              !canManage && room?.settings?.allow_mic === false
+                ? 'Chủ phòng đã tắt tính năng này'
+                : micEnabled
+                ? 'Tắt Micro'
+                : 'Bật Micro'
+            }
           >
             {micEnabled ? <Mic size={18} /> : <MicOff size={18} />}
           </button>
@@ -3560,11 +3690,29 @@ export const StudyRoomView: React.FC = () => {
           <button
             type="button"
             data-testid="btn-room-screen"
-            onClick={handleToggleScreenShare}
+            disabled={!canManage && room?.settings?.allow_screen_share === false}
+            onClick={() => {
+              if (!canManage && room?.settings?.allow_screen_share === false) {
+                setAdminNotice('Chủ phòng đã tắt tính năng này.');
+                setTimeout(() => setAdminNotice(null), 3000);
+                return;
+              }
+              handleToggleScreenShare();
+            }}
             className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
-              isScreenSharing ? 'bg-emerald-500 text-neutral-950 font-bold' : 'bg-white/10 hover:bg-white/20 text-white'
+              !canManage && room?.settings?.allow_screen_share === false
+                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                : isScreenSharing
+                ? 'bg-emerald-500 text-neutral-950 font-bold'
+                : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
-            title={isScreenSharing ? 'Dừng chia sẻ màn hình' : 'Chia sẻ màn hình'}
+            title={
+              !canManage && room?.settings?.allow_screen_share === false
+                ? 'Chủ phòng đã tắt tính năng này'
+                : isScreenSharing
+                ? 'Dừng chia sẻ màn hình'
+                : 'Chia sẻ màn hình'
+            }
           >
             {isScreenSharing ? <MonitorOff size={18} /> : <Monitor size={18} />}
           </button>
@@ -4346,6 +4494,318 @@ export const StudyRoomView: React.FC = () => {
               >
                 <UserX size={14} className="text-rose-400" />
                 <span>Mời Ra Khỏi Phòng (Kick &amp; Ban)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* BẢNG QUẢN TRỊ PHÒNG HỌC (HOST CONTROLS PANEL)                            */}
+      {/* ========================================================================= */}
+      {isHostControlsModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          data-testid="host-controls-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md select-none"
+        >
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-2xl text-white space-y-5 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>Quản Trị Phòng Học</span>
+                    {isMaster ? (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[10px] text-amber-300 font-extrabold">
+                        👑 MASTER OVERRIDE
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300 font-bold">
+                        CHỦ PHÒNG
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-[11px] text-neutral-400">
+                    {isMaster
+                      ? 'Đặc quyền Tối cao: Can thiệp và kiểm soát toàn bộ phòng học.'
+                      : 'Quyền Host độc quyền: Giữ quyền vĩnh viễn, chống chiếm phòng.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="btn-close-host-controls"
+                onClick={() => setIsHostControlsModalOpen(false)}
+                className="p-1.5 rounded-xl hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* 1. CÔNG TẮC AN TOÀN (TOGGLES) */}
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Sliders size={13} className="text-emerald-400" />
+                <span>Công Tắc An Toàn (Host Toggles)</span>
+              </h4>
+
+              {/* Toggle 1: Cho phép bật Mic */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${room?.settings?.allow_mic !== false ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}`}>
+                    <Mic size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-white">Cho phép bật Micro</div>
+                    <div className="text-[11px] text-neutral-400">
+                      {room?.settings?.allow_mic !== false
+                        ? 'Thành viên được tự do bật mic'
+                        : 'Đã khóa mic: toàn bộ mic khách bị mute cưỡng chế'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  data-testid="toggle-host-allow-mic"
+                  onClick={() => handleToggleRoomSetting('allow_mic', !(room?.settings?.allow_mic !== false))}
+                  className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
+                    room?.settings?.allow_mic !== false ? 'bg-emerald-500' : 'bg-neutral-700'
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 left-1 ${
+                      room?.settings?.allow_mic !== false ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Toggle 2: Cho phép Chia sẻ màn hình */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${room?.settings?.allow_screen_share !== false ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}`}>
+                    <Monitor size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-white">Cho phép Chia sẻ màn hình</div>
+                    <div className="text-[11px] text-neutral-400">
+                      {room?.settings?.allow_screen_share !== false
+                        ? 'Thành viên được chia sẻ màn hình'
+                        : 'Đã chặn chia sẻ màn hình của thành viên'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  data-testid="toggle-host-allow-screen"
+                  onClick={() => handleToggleRoomSetting('allow_screen_share', !(room?.settings?.allow_screen_share !== false))}
+                  className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
+                    room?.settings?.allow_screen_share !== false ? 'bg-emerald-500' : 'bg-neutral-700'
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 left-1 ${
+                      room?.settings?.allow_screen_share !== false ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Toggle 3: Khóa phòng (Lock Room) */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${room?.settings?.is_locked ? 'bg-amber-500/15 text-amber-400' : 'bg-white/10 text-neutral-400'}`}>
+                    <Lock size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-white">Khóa phòng (Lock Room)</div>
+                    <div className="text-[11px] text-neutral-400">
+                      {room?.settings?.is_locked
+                        ? '🔒 Phòng đang khóa: Không cho người mới vào'
+                        : '🔓 Phòng mở: Khách có link hợp lệ được vào'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  data-testid="toggle-host-lock-room"
+                  onClick={() => handleToggleRoomSetting('is_locked', !room?.settings?.is_locked)}
+                  className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
+                    room?.settings?.is_locked ? 'bg-amber-500' : 'bg-neutral-700'
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 left-1 ${
+                      room?.settings?.is_locked ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* 2. DANH SÁCH THÀNH VIÊN ĐANG ONLINE */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Users size={13} className="text-emerald-400" />
+                  <span>Thành Viên Trong Phòng ({otherParticipants.length + 1})</span>
+                </span>
+                <span className="text-[10px] text-neutral-400 font-normal">
+                  Bấm nút nóng để can thiệp
+                </span>
+              </h4>
+
+              {otherParticipants.length === 0 ? (
+                <div className="p-4 rounded-xl bg-white/5 text-center text-xs text-neutral-400">
+                  Hiện chưa có thành viên nào khác trong phòng.
+                </div>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {otherParticipants.map((peer) => (
+                    <div
+                      key={peer.id}
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs"
+                    >
+                      <div className="flex items-center gap-2 truncate mr-2">
+                        <div className="w-7 h-7 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center font-bold text-[11px] text-white shrink-0">
+                          {peer.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div className="truncate">
+                          <div className="font-semibold text-white truncate flex items-center gap-1.5">
+                            <span className="truncate">{peer.name}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-neutral-300 shrink-0">
+                              {peer.role === 'host' ? 'Host' : peer.role === 'member' ? 'Pro' : 'Free'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          data-testid={`btn-host-mute-${peer.id}`}
+                          onClick={() => handleForceMute(peer)}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                          title="Tắt mic bắt buộc"
+                        >
+                          <MicOff size={12} />
+                          <span>Tắt mic</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          data-testid={`btn-host-kick-${peer.id}`}
+                          onClick={() => handleKickMember(peer)}
+                          className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                          title="Đuổi khỏi phòng"
+                        >
+                          <UserX size={12} />
+                          <span>Kick</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 3. CÀI ĐẶT & XÓA PHÒNG VĨNH VIỄN */}
+            <div className="space-y-3 pt-2 border-t border-white/10">
+              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Settings size={13} className="text-emerald-400" />
+                <span>Cài Đặt Phòng Học</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Tên phòng học</label>
+                  <input
+                    type="text"
+                    value={editRoomTitle}
+                    onChange={(e) => setEditRoomTitle(e.target.value)}
+                    placeholder={room?.title || 'Tên phòng...'}
+                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Mật khẩu PIN (để trống nếu mở)</label>
+                  <input
+                    type="text"
+                    value={editRoomPasscode}
+                    onChange={(e) => setEditRoomPasscode(e.target.value)}
+                    placeholder={room?.passcode || 'Không mật khẩu'}
+                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 font-mono focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  data-testid="btn-host-save-details"
+                  onClick={handleSaveRoomDetails}
+                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Check size={13} />
+                  <span>Lưu Thông Tin Phòng</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-testid="btn-host-delete-room"
+                  onClick={() => setIsConfirmDeleteOpen(true)}
+                  className="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-semibold text-xs transition cursor-pointer active:scale-95 flex items-center gap-1"
+                >
+                  <Trash2 size={13} />
+                  <span>Xóa Phòng Vĩnh Viễn</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL XÁC NHẬN XÓA PHÒNG VĨNH VIỄN */}
+      {isConfirmDeleteOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none"
+        >
+          <div className="w-full max-w-sm rounded-3xl border border-rose-500/30 bg-neutral-900 p-6 shadow-2xl text-center space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/30">
+              <AlertTriangle size={24} />
+            </div>
+            <div>
+              <h4 className="text-base font-bold text-white">Xác Nhận Xóa Phòng Vĩnh Viễn?</h4>
+              <p className="text-xs text-neutral-400 mt-1">
+                Hành động này sẽ giải phóng liên kết phòng và xóa toàn bộ dữ liệu phiên học. Không thể hoàn tác.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsConfirmDeleteOpen(false)}
+                className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                data-testid="btn-confirm-delete-permanent"
+                onClick={() => {
+                  setIsConfirmDeleteOpen(false);
+                  setIsHostControlsModalOpen(false);
+                  handleDeleteRoomPermanently();
+                }}
+                className="flex-1 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs transition cursor-pointer shadow-lg active:scale-95"
+              >
+                Xóa Vĩnh Viễn
               </button>
             </div>
           </div>

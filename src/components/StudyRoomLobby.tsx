@@ -37,6 +37,7 @@ export const StudyRoomLobby: React.FC = () => {
     ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
     : null);
   const [roomTitle, setRoomTitle] = useState('');
+  const [roomSlug, setRoomSlug] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -150,6 +151,7 @@ export const StudyRoomLobby: React.FC = () => {
 
     const result = studyRoomService.createRoom({
       title: roomTitle.trim() || undefined,
+      slug: roomSlug.trim() || undefined,
       hostUser: user,
       isFreeRoom: !isProUser,
       passcode: createPasscode.trim() || null,
@@ -350,6 +352,21 @@ export const StudyRoomLobby: React.FC = () => {
                     onChange={(e) => setRoomTitle(e.target.value)}
                     placeholder={`Phòng của ${user?.displayName || 'bạn'}...`}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center justify-between">
+                    <span>Đường dẫn / Slug phòng độc quyền</span>
+                    <span className="text-[10px] text-zinc-500 font-mono">/rooms/[slug]</span>
+                  </label>
+                  <input
+                    type="text"
+                    data-testid="input-room-slug"
+                    value={roomSlug}
+                    onChange={(e) => setRoomSlug(e.target.value)}
+                    placeholder="vd: namho-focus-room (để trống tạo ngẫu nhiên)"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
 

@@ -8,6 +8,7 @@
 import { UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
 import { momoService } from './momoService';
 import { getVietnamTodayDateKey } from '../utils/timezone';
+import { sanitizeSlug, RoomSettings, isMasterAdmin } from './roomService';
 
 export interface RoomParticipant {
   id: string;
@@ -32,6 +33,8 @@ export interface RoomInviteToken {
 
 export interface StudyRoom {
   roomId: string;
+  slug?: string;
+  owner_id?: string;
   title: string;
   hostUserId: string;
   hostEmail: string;
@@ -50,13 +53,16 @@ export interface StudyRoom {
     canCam: boolean;
     canShareScreen: boolean;
   };
-  // Tùy chỉnh phòng học chuyên sâu
+  // Tùy chỉnh phòng học chuyên sâu & Host Controls
   passcode?: string | null;            // Mật khẩu phòng (PIN)
   roomGoal?: string | null;            // Mục tiêu buổi học / Thông báo ghim
   roomCategory?: string | null;        // Thể loại không gian (Coding, IELTS, Cafe...)
   silentMode?: boolean;                // Chế độ siêu tập trung (Tự động tắt mic khi vào)
   requireCam?: boolean;                // Yêu cầu bật camera (Study With Me)
   hostOnlyTimer?: boolean;             // Chỉ host được điều khiển đồng hồ Pomodoro
+  settings?: RoomSettings;
+  created_at?: number;
+  updated_at?: number;
 }
 
 export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
@@ -89,7 +95,7 @@ export type AccessCheckResult =
   | { allowed: true; role: 'host' | 'member' | 'guest'; room: StudyRoom }
   | {
       allowed: false;
-      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED' | 'ROOM_FULL' | 'PASSCODE_REQUIRED';
+      code: 'AUTH_REQUIRED' | 'ROOM_NOT_FOUND' | 'ROOM_CLOSED' | 'INVALID_CODE' | 'PRO_REQUIRED' | 'INSUFFICIENT_PERMISSIONS' | 'TOKEN_EXPIRED_OR_REVOKED' | 'ROOM_FULL' | 'PASSCODE_REQUIRED' | 'ROOM_LOCKED';
       message: string;
       room?: StudyRoom;
     };
@@ -539,8 +545,10 @@ export const studyRoomService = {
    */
   createRoom(params: {
     title?: string;
+    slug?: string;
     hostUser: UserProfile;
     isFreeRoom?: boolean;
+    allowFreeGuests?: boolean;
     passcode?: string | null;
     roomGoal?: string | null;
     roomCategory?: string | null;
@@ -548,11 +556,39 @@ export const studyRoomService = {
     requireCam?: boolean;
     hostOnlyTimer?: boolean;
     maxParticipants?: number;
+    settings?: Partial<RoomSettings>;
   }): { success: true; room: StudyRoom; inviteLink: string } | { success: false; error: string } {
+    const rawSlug = params.slug?.trim() || '';
+    const targetSlug = rawSlug ? sanitizeSlug(rawSlug) : generateUniqueRoomId();
+    if (rawSlug && targetSlug.length < 3) {
+      return {
+        success: false,
+        error: 'Tên phòng/Đường dẫn phải có ít nhất 3 ký tự (chữ cái, số hoặc gạch ngang).'
+      };
+    }
+
+    // RÀNG BUỘC CHỐNG CHIẾM LINK (ANTI-SQUATTING VERIFICATION - ƯU TIÊN KIỂM TRA ĐẦU TIÊN)
+    const allRooms = this.getAllRooms();
+    const existing = allRooms[targetSlug] || Object.values(allRooms).find(
+      (r) => (r.slug && r.slug.toLowerCase() === targetSlug.toLowerCase()) || r.roomId.toLowerCase() === targetSlug.toLowerCase()
+    );
+
+    const isMaster = isMasterAdmin(params.hostUser.email) || isOwnerEmail(params.hostUser.email) || isLadyBoss(params.hostUser.email);
+
+    if (existing && existing.status === 'active') {
+      const ownerId = existing.owner_id || existing.hostUserId;
+      if (ownerId !== params.hostUser.id && existing.hostEmail?.toLowerCase() !== params.hostUser.email.toLowerCase() && !isMaster) {
+        return {
+          success: false,
+          error: 'Tên phòng/Đường dẫn này đã được đăng ký bởi người dùng khác.'
+        };
+      }
+    }
+
     const isLadyBossUser = Boolean(params.hostUser && isLadyBoss(params.hostUser.email));
     const isOwner = Boolean(params.hostUser && isOwnerEmail(params.hostUser.email));
     const isVipFriendUser = Boolean(params.hostUser && isVipFriend(params.hostUser.email));
-    const isProUser = isLadyBossUser || isOwner || isVipFriendUser || Boolean(
+    const isProUser = isLadyBossUser || isOwner || isVipFriendUser || isMaster || Boolean(
       params.hostUser && (
         params.hostUser.plan === 'pro' ||
         params.hostUser.plan === 'pro_beta' ||
@@ -579,18 +615,20 @@ export const studyRoomService = {
       this.incrementDailyPrivateRoomCount(params.hostUser.id);
     }
 
-    const roomId = generateUniqueRoomId();
+    const roomId = targetSlug;
     const token = generateSecureToken();
     const now = Date.now();
 
     const room: StudyRoom = {
       roomId,
+      slug: targetSlug,
+      owner_id: params.hostUser.id,
       title: params.title?.trim() || `Phòng Học #${roomId}`,
       hostUserId: params.hostUser.id,
       hostEmail: params.hostUser.email,
       createdAt: now,
       status: 'active',
-      allowFreeGuests: !isProUser ? true : false,
+      allowFreeGuests: params.allowFreeGuests !== undefined ? params.allowFreeGuests : (!isProUser ? true : false),
       maxParticipants: params.maxParticipants ? Math.min(50, Math.max(2, params.maxParticipants)) : (isLadyBossUser ? 50 : 25),
       isFreeRoom: !isProUser,
       maxDurationMinutes: !isProUser ? 45 : undefined,
@@ -601,7 +639,7 @@ export const studyRoomService = {
           createdAt: now,
           expiresAt: null,
           revoked: false,
-          allowFree: !isProUser ? true : false
+          allowFree: params.allowFreeGuests !== undefined ? params.allowFreeGuests : (!isProUser ? true : false)
         }
       },
       participants: {},
@@ -616,7 +654,14 @@ export const studyRoomService = {
       roomCategory: params.roomCategory?.trim() || null,
       silentMode: Boolean(params.silentMode),
       requireCam: Boolean(params.requireCam),
-      hostOnlyTimer: Boolean(params.hostOnlyTimer)
+      hostOnlyTimer: Boolean(params.hostOnlyTimer),
+      settings: {
+        allow_mic: params.settings?.allow_mic ?? true,
+        allow_screen_share: params.settings?.allow_screen_share ?? true,
+        is_locked: params.settings?.is_locked ?? false
+      },
+      created_at: now,
+      updated_at: now
     };
 
     this.saveRoom(room);
@@ -664,6 +709,41 @@ export const studyRoomService = {
       };
     }
 
+    // 3.1. ĐẶC QUYỀN TỐI CAO CỦA HỆ THỐNG (MASTER ADMIN & CHỦ PHÒNG OVERRIDE)
+    const isMaster = Boolean(
+      currentUser && (
+        isMasterAdmin(currentUser.email) ||
+        isOwnerEmail(currentUser.email) ||
+        isLadyBoss(currentUser.email)
+      )
+    );
+    const isRoomOwner = Boolean(
+      currentUser && (
+        (room.owner_id && room.owner_id === currentUser.id) ||
+        room.hostUserId === currentUser.id ||
+        room.hostEmail?.toLowerCase() === currentUser.email?.toLowerCase()
+      )
+    );
+
+    // Master Admin & Host luôn luôn được vào phòng với quyền Host, bỏ qua mã PIN, bỏ qua khóa phòng & giới hạn
+    if (isMaster || isRoomOwner) {
+      return {
+        allowed: true,
+        role: 'host',
+        room
+      };
+    }
+
+    // 3.2. Kiểm tra trạng thái Khóa phòng (Host Controls: is_locked)
+    if (room.settings?.is_locked) {
+      return {
+        allowed: false,
+        code: 'ROOM_LOCKED',
+        message: 'Phòng học này hiện đang bị khóa bởi Chủ phòng. Không thể tham gia lúc này.',
+        room
+      };
+    }
+
     // 3.5. Kiểm tra sức chứa tối đa của phòng (giới hạn tối đa 10 người cho phòng học chung)
     const maxCapacity = room.maxParticipants || 10;
     if (maxCapacity) {
@@ -673,7 +753,7 @@ export const studyRoomService = {
           (p) => p.userId === currentUser.id || p.id === currentUser.id || p.id.startsWith(`${currentUser.id}_`)
         )
       );
-      if (activeCount >= maxCapacity && !isAlreadyIn && !isOwnerEmail(currentUser?.email)) {
+      if (activeCount >= maxCapacity && !isAlreadyIn) {
         return {
           allowed: false,
           code: 'ROOM_FULL',
@@ -682,16 +762,7 @@ export const studyRoomService = {
       }
     }
 
-    // 4. Nếu người dùng là Chủ phòng: Luôn được phép truy cập
-    if (currentUser && (room.hostUserId === currentUser.id || room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase())) {
-      return {
-        allowed: true,
-        role: 'host',
-        room
-      };
-    }
-
-    // 5. Kiểm tra nếu có token cụ thể bị thu hồi
+    // 4. Kiểm tra nếu có token cụ thể bị thu hồi
     if (inviteToken && room.inviteTokens && room.inviteTokens[inviteToken]?.revoked) {
       return {
         allowed: false,
@@ -700,7 +771,7 @@ export const studyRoomService = {
       };
     }
 
-    // 5.5. Kiểm tra Mật khẩu phòng (Passcode / Room PIN)
+    // 5. Kiểm tra Mật khẩu phòng (Passcode / Room PIN)
     if (room.passcode) {
       if (!passcode || passcode.trim() !== room.passcode.trim()) {
         return {
@@ -868,7 +939,7 @@ export const studyRoomService = {
   updateRoom(
     roomId: string,
     currentUser: UserProfile,
-    updates: Partial<Pick<StudyRoom, 'title' | 'passcode' | 'roomGoal' | 'roomCategory' | 'silentMode' | 'requireCam' | 'hostOnlyTimer' | 'maxParticipants'>>
+    updates: Partial<Pick<StudyRoom, 'title' | 'passcode' | 'roomGoal' | 'roomCategory' | 'silentMode' | 'requireCam' | 'hostOnlyTimer' | 'maxParticipants' | 'settings'>>
   ): { success: boolean; room?: StudyRoom; error?: string } {
     const cleanId = roomId.trim().toLowerCase();
     const room = this.getRoom(cleanId);
@@ -877,9 +948,12 @@ export const studyRoomService = {
     }
 
     const isHost =
+      (room.owner_id && room.owner_id === currentUser.id) ||
       room.hostUserId === currentUser.id ||
       room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase() ||
-      isOwnerEmail(currentUser.email);
+      isOwnerEmail(currentUser.email) ||
+      isLadyBoss(currentUser.email) ||
+      isMasterAdmin(currentUser.email);
 
     if (!isHost) {
       return { success: false, error: 'Chỉ chủ phòng mới có quyền tùy chỉnh phòng học này.' };
@@ -921,6 +995,14 @@ export const studyRoomService = {
       room.maxParticipants = Math.min(50, Math.max(2, updates.maxParticipants));
     }
 
+    if (updates.settings !== undefined) {
+      room.settings = {
+        allow_mic: updates.settings.allow_mic ?? room.settings?.allow_mic ?? true,
+        allow_screen_share: updates.settings.allow_screen_share ?? room.settings?.allow_screen_share ?? true,
+        is_locked: updates.settings.is_locked ?? room.settings?.is_locked ?? false
+      };
+    }
+
     this.saveRoom(room);
     this.broadcastEvent({ type: 'ROOM_UPDATED', roomId: room.roomId, room });
     return { success: true, room };
@@ -945,9 +1027,12 @@ export const studyRoomService = {
     }
 
     const isHost =
+      (room.owner_id && room.owner_id === currentUser.id) ||
       room.hostUserId === currentUser.id ||
       room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase() ||
-      isOwnerEmail(currentUser.email);
+      isOwnerEmail(currentUser.email) ||
+      isLadyBoss(currentUser.email) ||
+      isMasterAdmin(currentUser.email);
 
     if (!isHost) {
       return { success: false, error: 'Chỉ chủ phòng mới có quyền xóa phòng này.' };
