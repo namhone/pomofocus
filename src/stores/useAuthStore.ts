@@ -17,6 +17,7 @@ import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
 import { useAiStore } from './useAiStore';
 import { ProfileService } from '../services/profileService';
+import { userSettingsService } from '../services/userSettingsService';
 
 export interface AuthState {
   user: UserProfile | null;
@@ -41,11 +42,17 @@ export interface AuthState {
   hasVipAccess: boolean;
   planLabel: string;
 
+  // Real 2FA Security Gate State
+  requires2Fa: boolean;
+  pending2FaUser: UserProfile | null;
+  verify2FaLogin: (code: string) => Promise<{ success: boolean; message?: string }>;
+  cancel2FaLogin: () => void;
+
   // Actions
-  login: (email: string, pass: string) => Promise<boolean>;
+  login: (email: string, pass: string, totpCode?: string) => Promise<boolean>;
   loginAsFounder: () => Promise<boolean>;
   signup: (email: string, pass: string, name: string) => Promise<boolean>;
-  loginWithGoogle: (payload: GoogleUserPayload) => Promise<boolean>;
+  loginWithGoogle: (payload: GoogleUserPayload, totpCode?: string) => Promise<boolean>;
   syncUserFromSupabase: (supabaseUser: any) => void;
   logout: () => void;
   updateProfile: (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => Promise<boolean>;
@@ -98,23 +105,38 @@ export const useAuthStore = create<AuthState>((set, get) => {
     error: null,
     lastSyncedAt: null,
     syncStats: null,
+    requires2Fa: false,
+    pending2FaUser: null,
     ...computeDerivedPlanState(initialSession),
 
-    login: async (email: string, pass: string) => {
+    login: async (email: string, pass: string, totpCode?: string) => {
       set({ isLoading: true, error: null });
       try {
-        const user = await authService.login(email, pass);
+        const user = await authService.login(email, pass, totpCode);
         set({
           user,
           isAuthenticated: true,
           isLoggedIn: true,
+          requires2Fa: false,
+          pending2FaUser: null,
           isLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
           ...computeDerivedPlanState(user)
         });
+        get().loadUserFromCloud(user.id);
+        get().syncEntitlementsFromCloud();
         return true;
       } catch (err: unknown) {
+        if (err && typeof err === 'object' && (err as any).requires2Fa) {
+          set({
+            requires2Fa: true,
+            pending2FaUser: (err as any).pendingUser,
+            isLoading: false,
+            error: null
+          });
+          return false;
+        }
         const message = err instanceof Error ? err.message : 'Đăng nhập không thành công';
         set({ error: message, isLoading: false });
         return false;
@@ -163,27 +185,86 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
-    loginWithGoogle: async (payload: GoogleUserPayload) => {
+    loginWithGoogle: async (payload: GoogleUserPayload, totpCode?: string) => {
       set({ isGoogleLoading: true, error: null });
       try {
-        const user = await authService.loginWithGoogle(payload);
+        const user = await authService.loginWithGoogle(payload, totpCode);
         set({
           user,
           isAuthenticated: true,
           isLoggedIn: true,
+          requires2Fa: false,
+          pending2FaUser: null,
           isGoogleLoading: false,
           error: null,
           lastSyncedAt: Date.now(),
           ...computeDerivedPlanState(user)
         });
-        // Tự động đồng bộ quyền PRO từ Supabase Database
+        get().loadUserFromCloud(user.id);
         get().syncEntitlementsFromCloud();
         return true;
       } catch (err: unknown) {
+        if (err && typeof err === 'object' && (err as any).requires2Fa) {
+          set({
+            requires2Fa: true,
+            pending2FaUser: (err as any).pendingUser,
+            isGoogleLoading: false,
+            error: null
+          });
+          return false;
+        }
         const message = err instanceof Error ? err.message : 'Đăng nhập Google thất bại';
         set({ error: message, isGoogleLoading: false });
         return false;
       }
+    },
+
+    verify2FaLogin: async (code: string) => {
+      const { pending2FaUser } = get();
+      if (!pending2FaUser) {
+        return { success: false, message: 'Không tìm thấy phiên đăng nhập chờ xác thực.' };
+      }
+
+      const { totpService } = await import('../services/totpService');
+      const res = await totpService.verifyLogin(pending2FaUser.id, code);
+
+      if (!res.valid) {
+        return {
+          success: false,
+          message: res.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.'
+        };
+      }
+
+      // 2FA Verified! Cấp phiên đăng nhập hoàn chỉnh
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(pending2FaUser));
+      }
+
+      set({
+        user: pending2FaUser,
+        isAuthenticated: true,
+        isLoggedIn: true,
+        requires2Fa: false,
+        pending2FaUser: null,
+        error: null,
+        role: pending2FaUser.role,
+        badge: pending2FaUser.badge,
+        credits: pending2FaUser.credits,
+        ...computeDerivedPlanState(pending2FaUser)
+      });
+
+      get().loadUserFromCloud(pending2FaUser.id);
+      get().syncEntitlementsFromCloud();
+
+      return { success: true };
+    },
+
+    cancel2FaLogin: () => {
+      set({
+        requires2Fa: false,
+        pending2FaUser: null,
+        error: null
+      });
     },
 
     syncUserFromSupabase: (supabaseUser: any) => {
@@ -298,10 +379,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
           }
           set((state) => {
             if (!state.user || state.user.id !== profile.id) return state;
+            const isCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || state.user.customAvatarUrl || state.user.hasCustomAvatar);
+            const resolvedAvatar = cloudProf.custom_avatar_url || (isCustom ? (state.user.customAvatarUrl || state.user.avatarUrl || cloudProf.avatar_url) : (cloudProf.avatar_url || state.user.avatarUrl));
+
+            if (cloudProf.settings) {
+              userSettingsService.applySettings(cloudProf.settings);
+            }
+
             const merged: UserProfile = {
               ...state.user,
               displayName: cloudProf.full_name || state.user.displayName,
-              avatarUrl: cloudProf.avatar_url || state.user.avatarUrl,
+              avatarUrl: resolvedAvatar,
+              customAvatarUrl: cloudProf.custom_avatar_url || state.user.customAvatarUrl,
+              hasCustomAvatar: isCustom,
               username: cloudProf.handle || state.user.username,
               bio: cloudProf.bio || state.user.bio,
               role: cloudProf.role || state.user.role,
@@ -359,7 +449,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
           full_name: updated.displayName,
           handle: updated.username,
           avatar_url: updated.avatarUrl,
-          bio: updated.bio || updated.focusGoal
+          custom_avatar_url: updated.customAvatarUrl,
+          has_custom_avatar: updated.hasCustomAvatar,
+          bio: updated.bio || updated.focusGoal,
+          settings: updated.settings
         }).catch((e) => console.warn('[updateProfile Cloud Sync]', e));
         return true;
       } catch (err: unknown) {
@@ -637,8 +730,21 @@ export const useAuthStore = create<AuthState>((set, get) => {
           const effectiveBadge = isOwner ? 'Founder VIP 👑' : (effectivePlan === 'lifetime' ? 'Founder VIP 👑' : 'Thành viên Free');
           const effectiveCredits = typeof cloudProf.ai_credits_balance === 'number' ? cloudProf.ai_credits_balance : (isOwner ? 1000 : 50);
 
+          // Khôi phục Cài Đặt Người Dùng (Settings) từ Supabase Cloud
+          if (cloudProf.settings) {
+            userSettingsService.applySettings(cloudProf.settings);
+          } else {
+            const localSettings = userSettingsService.loadLocalSettings(userId);
+            if (localSettings) {
+              userSettingsService.applySettings(localSettings);
+            }
+          }
+
           set((state) => {
             const current = state.user;
+            const hasCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || current?.customAvatarUrl || current?.hasCustomAvatar);
+            const resolvedAvatar = cloudProf.custom_avatar_url || (hasCustom ? (current?.customAvatarUrl || current?.avatarUrl || cloudProf.avatar_url) : (cloudProf.avatar_url || current?.avatarUrl || ''));
+
             const merged: UserProfile = {
               ...(current || {
                 id: userId,
@@ -649,7 +755,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
               id: userId,
               email: cloudProf.email || current?.email || '',
               displayName: cloudProf.full_name || current?.displayName || (isOwner ? 'Nam Hồ' : 'Người dùng'),
-              avatarUrl: cloudProf.avatar_url || current?.avatarUrl || '',
+              avatarUrl: resolvedAvatar,
+              customAvatarUrl: cloudProf.custom_avatar_url || current?.customAvatarUrl,
+              hasCustomAvatar: hasCustom,
               role: effectiveRole,
               plan: effectivePlan as any,
               badge: effectiveBadge,

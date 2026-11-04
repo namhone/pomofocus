@@ -21,11 +21,17 @@ export interface CloudProfile {
   full_name: string;
   handle?: string;
   avatar_url?: string;
+  custom_avatar_url?: string;
+  has_custom_avatar?: boolean;
   bio?: string;
   role: string;
   plan: string;
   plan_expires_at?: string | null;
   ai_credits_balance: number;
+  is_2fa_enabled?: boolean;
+  totp_secret?: string;
+  backup_codes?: string[];
+  settings?: Record<string, any>;
   last_weekly_reset?: string | null;
   last_monthly_reset?: string | null;
   total_ai_queries?: number;
@@ -65,6 +71,7 @@ export class ProfileService {
     email: string;
     displayName?: string;
     avatarUrl?: string;
+    customAvatarUrl?: string;
   }): Promise<CloudProfile> {
     const normalizedEmail = (user.email || '').trim().toLowerCase();
     const isOwner = OWNER_EMAILS.includes(normalizedEmail) || isOwnerEmail(user.email);
@@ -78,6 +85,10 @@ export class ProfileService {
 
     const existing = await this.fetchProfile(user.id);
     if (existing) {
+      // BẤT BIẾN: Nếu người dùng đã có avatar custom trong database thì giữ nguyên 100%
+      if (existing.custom_avatar_url || existing.has_custom_avatar) {
+        existing.avatar_url = existing.custom_avatar_url || existing.avatar_url;
+      }
       // Nếu là Owner/Founder nhưng trên cloud chưa cập nhật role hoặc plan
       if (isOwner && (existing.plan !== 'lifetime' || existing.role !== 'founder')) {
         const updated = await this.upsertProfile({

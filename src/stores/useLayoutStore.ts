@@ -598,6 +598,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
 
   setThemeAccent: (accent: ThemeAccent) => {
     set({ themeAccent: accent });
+    get().saveLayout();
   },
 
   toggleWidget: (id: WidgetId) => {
@@ -831,6 +832,27 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       state.density,
       state.isFocusMode
     );
+
+    // Bền vững hóa cài đặt giao diện (Dock, Theme) lên Cloud
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const rawUser = localStorage.getItem('pomodoro_study_auth_session');
+        if (rawUser) {
+          const u = JSON.parse(rawUser);
+          if (u?.id) {
+            import('../services/userSettingsService')
+              .then(({ userSettingsService }) => {
+                userSettingsService.saveSettings(u.id, {
+                  dock_position: state.dockPosition,
+                  dock_size: state.dockSize,
+                  theme: state.themeAccent
+                });
+              })
+              .catch(() => {});
+          }
+        }
+      }
+    } catch {}
   },
 
   bringToFront: (id: WidgetId) => {

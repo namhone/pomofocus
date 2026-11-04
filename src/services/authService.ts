@@ -35,6 +35,9 @@ export interface UserProfile {
   focusGoal?: string;
   hideEmailInRoom?: boolean;
   incognitoJoinRoom?: boolean;
+  customAvatarUrl?: string;
+  hasCustomAvatar?: boolean;
+  settings?: Record<string, any>;
   // 2FA Security (Google Authenticator / TOTP / SMS)
   phoneNumber?: string;
   phoneVerified?: boolean;
@@ -46,6 +49,9 @@ export interface UserProfile {
 export interface ProfileUpdates {
   displayName?: string;
   avatarUrl?: string;
+  customAvatarUrl?: string;
+  hasCustomAvatar?: boolean;
+  settings?: Record<string, any>;
   username?: string;
   bio?: string;
   focusGoal?: string;
@@ -253,7 +259,7 @@ export const authService = {
     }
   },
 
-  async login(email: string, password: string): Promise<UserProfile> {
+  async login(email: string, password: string, totpCode?: string): Promise<UserProfile> {
     const users = initializeDemoAccounts();
     const normalized = email.trim().toLowerCase();
     const user = users[normalized];
@@ -288,6 +294,24 @@ export const authService = {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 
     const { passwordHash: _, ...profile } = updatedUser;
+
+    // KIỂM TRA TRẠM GÁC CỔNG 2FA (REAL 2FA SECURITY GATE)
+    const { totpService } = await import('./totpService');
+    const is2FaEnabled = Boolean(profile.twoFactorEnabled) || totpService.isTotpEnabled(profile.id);
+
+    if (is2FaEnabled) {
+      if (!totpCode) {
+        const err = new Error('Tài khoản yêu cầu mã xác thực 2 bước (TOTP 2FA).');
+        (err as any).requires2Fa = true;
+        (err as any).pendingUser = profile;
+        throw err;
+      }
+      const verifyRes = await totpService.verifyLogin(profile.id, totpCode);
+      if (!verifyRes.valid) {
+        throw new Error(verifyRes.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.');
+      }
+    }
+
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
     await this.syncLocalDataToCloud(profile.id);
     return profile;
@@ -320,7 +344,7 @@ export const authService = {
     return profile;
   },
 
-  async loginWithGoogle(payload: GoogleUserPayload): Promise<UserProfile> {
+  async loginWithGoogle(payload: GoogleUserPayload, totpCode?: string): Promise<UserProfile> {
     const users = initializeDemoAccounts();
     const normalized = payload.email.trim().toLowerCase();
     const sub = payload.sub || (payload as any).id || `g_${normalized.replace(/[^a-zA-Z0-9]/g, '_')}`;
@@ -343,9 +367,16 @@ export const authService = {
 
     if (existingUser) {
       existingUser.displayName = payload.name || existingUser.displayName;
-      if (avatar) {
+
+      // QUY TẮC BẤT BIẾN ƯU TIÊN AVATAR (AVATAR PRECEDENCE RULE):
+      // Nếu user đã có custom avatar (tự tải lên hoặc chọn từ kho), BẤT BIẾN giữ nguyên 100%!
+      // Tuyệt đối không để ảnh Google đè lên!
+      if (!existingUser.customAvatarUrl && !existingUser.hasCustomAvatar && avatar) {
         existingUser.avatarUrl = avatar;
+      } else if (existingUser.customAvatarUrl) {
+        existingUser.avatarUrl = existingUser.customAvatarUrl;
       }
+
       existingUser.authProvider = 'google';
       existingUser.googleId = sub;
       existingUser.emailVerified = Boolean(payload.email_verified ?? true);
@@ -358,6 +389,24 @@ export const authService = {
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 
       const { passwordHash: _, ...profile } = existingUser;
+
+      // KIỂM TRA TRẠM GÁC CỔNG 2FA (REAL 2FA SECURITY GATE)
+      const { totpService } = await import('./totpService');
+      const is2FaEnabled = Boolean(profile.twoFactorEnabled) || totpService.isTotpEnabled(profile.id);
+
+      if (is2FaEnabled) {
+        if (!totpCode) {
+          const err = new Error('Tài khoản yêu cầu mã xác thực 2 bước (TOTP 2FA).');
+          (err as any).requires2Fa = true;
+          (err as any).pendingUser = profile;
+          throw err;
+        }
+        const verifyRes = await totpService.verifyLogin(profile.id, totpCode);
+        if (!verifyRes.valid) {
+          throw new Error(verifyRes.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.');
+        }
+      }
+
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
       await this.syncLocalDataToCloud(profile.id);
       return profile;
@@ -468,10 +517,20 @@ export const authService = {
       formattedUsername = raw ? `@${raw.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()}` : undefined;
     }
 
+    const isAvatarUpdated = updates.avatarUrl !== undefined;
+    const cleanAvatar = isAvatarUpdated ? updates.avatarUrl?.trim() : undefined;
+
     const updatedProfile: UserProfile = {
       ...current,
       ...(updates.displayName !== undefined ? { displayName: updates.displayName.trim() } : {}),
-      ...(updates.avatarUrl !== undefined ? { avatarUrl: updates.avatarUrl.trim() } : {}),
+      ...(isAvatarUpdated ? {
+        avatarUrl: cleanAvatar,
+        customAvatarUrl: cleanAvatar,
+        hasCustomAvatar: Boolean(cleanAvatar)
+      } : {}),
+      ...(updates.customAvatarUrl !== undefined ? { customAvatarUrl: updates.customAvatarUrl.trim() } : {}),
+      ...(updates.hasCustomAvatar !== undefined ? { hasCustomAvatar: updates.hasCustomAvatar } : {}),
+      ...(updates.settings !== undefined ? { settings: updates.settings } : {}),
       ...(updates.username !== undefined ? { username: formattedUsername } : {}),
       ...(updates.bio !== undefined ? { bio: updates.bio.trim() } : {}),
       ...(updates.focusGoal !== undefined ? { focusGoal: updates.focusGoal.trim() } : {}),

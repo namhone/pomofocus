@@ -5,6 +5,7 @@
  */
 
 import { authService, UserProfile } from './authService';
+import { ProfileService } from './profileService';
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const TIME_STEP_SECONDS = 30;
@@ -267,6 +268,17 @@ export const totpService = {
         totpVerifiedAt: Date.now()
       });
 
+      // Đồng bộ trạng thái 2FA và Secret vào public.profiles Supabase
+      try {
+        ProfileService.updateFields(userId, {
+          is_2fa_enabled: true,
+          totp_secret: secret,
+          backup_codes: backupCodes
+        });
+      } catch (err) {
+        console.warn('[totpService] Lỗi đồng bộ 2FA lên Supabase Cloud:', err);
+      }
+
       return {
         success: true,
         message: 'Đã kích hoạt Xác Thực 2 Bước (Google Authenticator) thành công! Tài khoản của bạn hiện được bảo mật cấp cao.',
@@ -296,6 +308,17 @@ export const totpService = {
         totpVerifiedAt: undefined
       });
 
+      // Xóa cờ 2FA trên Supabase Cloud
+      try {
+        ProfileService.updateFields(userId, {
+          is_2fa_enabled: false,
+          totp_secret: '',
+          backup_codes: []
+        });
+      } catch (err) {
+        console.warn('[totpService] Lỗi xóa 2FA trên Supabase Cloud:', err);
+      }
+
       return {
         success: true,
         message: 'Đã tắt tính năng Xác Thực 2 Bước.',
@@ -310,9 +333,30 @@ export const totpService = {
   /**
    * Lấy Secret Key hiện tại của người dùng (nếu có)
    */
+  /**
+   * Kiểm tra xem tài khoản có bật 2FA hay không
+   */
+  isTotpEnabled(userId: string): boolean {
+    if (!userId) return false;
+    return Boolean(this.getSecret(userId));
+  },
+
   getSecret(userId: string): string | null {
     if (typeof window === 'undefined' || !window.localStorage) return null;
-    return localStorage.getItem(`${TOTP_STORAGE_KEY_PREFIX}${userId}`);
+    let secret = localStorage.getItem(`${TOTP_STORAGE_KEY_PREFIX}${userId}`);
+    if (!secret) {
+      try {
+        const rawUsers = localStorage.getItem('pomodoro_study_users_store');
+        if (rawUsers) {
+          const users = JSON.parse(rawUsers);
+          const target = Object.values(users).find((u: any) => u.id === userId) as any;
+          if (target?.totpSecret) {
+            secret = target.totpSecret;
+          }
+        }
+      } catch {}
+    }
+    return secret;
   },
 
   /**

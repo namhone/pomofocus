@@ -4,7 +4,7 @@ import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const SW_CACHE_VERSION = 'v3.11.0-clean-settings-and-header';
+const SW_CACHE_VERSION = 'v3.12.0-real-2fa-avatar-settings';
 
 // Bắt buộc Service Worker kích hoạt ngay lập tức và giành quyền kiểm soát mọi client
 self.skipWaiting();

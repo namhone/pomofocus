@@ -375,6 +375,23 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: merged.pomodoroMinutes * 60 * 1000
       });
     }
+
+    // Tự động lưu thiết lập đồng hồ vào public.profiles.settings trên Cloud
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const rawUser = localStorage.getItem('pomodoro_study_auth_session');
+        if (rawUser) {
+          const u = JSON.parse(rawUser);
+          if (u?.id) {
+            import('../services/userSettingsService')
+              .then(({ userSettingsService }) => {
+                userSettingsService.saveSettings(u.id);
+              })
+              .catch(() => {});
+          }
+        }
+      }
+    } catch {}
   },
 
   requestNotificationPermission: async () => {
