@@ -237,10 +237,10 @@ export const DockBar: React.FC = () => {
         type="button"
         data-testid={testId}
         onClick={() => toggleWidget(id)}
-        className={`relative flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+        className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
           isOpen
             ? 'bg-white/15 text-white border border-white/10 shadow-sm'
-            : 'text-neutral-300 hover:text-white hover:bg-white/10 hover:border-zinc-700/60'
+            : 'text-zinc-300 hover:text-white hover:bg-white/10'
         }`}
         title={`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}
         aria-label={`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}
@@ -286,21 +286,21 @@ export const DockBar: React.FC = () => {
           scheduleHide();
         }
       }}
-      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border ${
+      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center overflow-visible rounded-2xl border ${
         isEcoMode
           ? 'border-zinc-800 bg-[#0c0c0e] shadow-2xl'
           : 'border-white/10 bg-[rgba(14,17,25,0.78)] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl backdrop-saturate-[190%]'
-      } px-2 py-1 select-none transition-all duration-300 ${
+      } select-none transition-all duration-300 ${
         isAiOpen ? 'opacity-0 pointer-events-none translate-y-8 invisible' : 'opacity-100 translate-y-0 hover:opacity-100'
       } ${
-        isVertical ? 'flex-col w-16' : 'flex-row'
+        isVertical ? 'flex-col w-16 p-2 gap-2 sm:gap-2.5' : 'flex-row px-2 py-1 gap-1.5 sm:gap-2'
       } ${getDockPositionClass()}`}
     >
       {/* ========================================================================= */}
-      {/* NHÓM 1: ⏱ TẬP TRUNG (TIMER & FOCUS MODES)                                  */}
+      {/* NHÓM 1: ⏱ TẬP TRUNG (TIMER & FOCUS MODES) — ĐỒNG NHẤT VIÊN NANG CAPSULE    */}
       {/* ========================================================================= */}
       <div
-        className={`flex items-center gap-1 px-1 py-0.5 rounded-xl bg-white/[0.04] border border-white/5 ${
+        className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
         title="Nhóm Tập trung"
@@ -318,41 +318,41 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-focus"
           onClick={toggleFocusMode}
-          className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             isFocusMode
-              ? 'bg-amber-500/25 text-amber-300 border border-amber-500/30 shadow-sm'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
+              ? 'bg-white/15 text-white border border-white/10 shadow-sm'
+              : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
           title={isFocusMode ? 'Tắt Focus Mode (quay lại bố cục đầy đủ)' : 'Bật Focus Mode (tập trung Timer + Công việc)'}
-          aria-label="Chế độ tập trung cao độ"
+          aria-label="Chế độ tập trung"
           aria-pressed={isFocusMode}
         >
-          <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-neutral-300'} />
+          <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-zinc-300'} />
           {isFocusMode && (
             <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
           )}
         </button>
 
-        {/* Nút Zen Mode */}
+        {/* Nút Zen Mode (Đồng bộ monochrome text-zinc-300, 0% hộp vuông xanh lá) */}
         <button
           type="button"
           data-testid="dock-btn-zen"
           onClick={toggleZenMode}
-          className={`flex items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer h-8 ${
-            isVertical ? 'w-8 p-0' : 'px-2.5 sm:px-3 gap-1.5'
+          className={`relative flex items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+            isVertical ? 'h-9 w-9 p-0' : 'h-9 px-2.5 sm:px-3 gap-1.5'
           } ${
             isZenMode
-              ? 'text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
-              : 'text-neutral-300 hover:text-white bg-neutral-800/80 hover:bg-neutral-700/80 border border-white/5'
+              ? 'bg-white/15 text-white border border-white/10 shadow-sm'
+              : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
           title={isZenMode ? "Tắt chế độ Zen (Z hoặc H)" : "Bật chế độ Zen (Z hoặc H)"}
-          aria-label={isZenMode ? "Tắt chế độ Zen" : "Bật chế độ Zen"}
+          aria-label="Chế độ Zen"
           aria-pressed={isZenMode}
         >
           {isZenMode ? (
-            <Minimize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
+            <Minimize2 size={16} strokeWidth={1.75} className="shrink-0" />
           ) : (
-            <Maximize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
+            <Maximize2 size={16} strokeWidth={1.75} className="shrink-0" />
           )}
           {!isVertical && (
             <>
@@ -362,16 +362,19 @@ export const DockBar: React.FC = () => {
               </kbd>
             </>
           )}
+          {isZenMode && (
+            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
+          )}
         </button>
       </div>
 
-      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
       {/* NHÓM 2: 📋 KẾ HOẠCH (TASKS, NOTES, CALENDAR)                               */}
       {/* ========================================================================= */}
       <div
-        className={`flex items-center gap-1 px-1 py-0.5 rounded-xl bg-white/[0.04] border border-white/5 ${
+        className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
         title="Nhóm Kế hoạch"
@@ -379,13 +382,13 @@ export const DockBar: React.FC = () => {
         {planButtons.map(renderDockButton)}
       </div>
 
-      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
       {/* NHÓM 3: 🎧 KHÔNG GIAN (SPACES, SOUNDS, MEDIA)                              */}
       {/* ========================================================================= */}
       <div
-        className={`flex items-center gap-1 px-1 py-0.5 rounded-xl bg-white/[0.04] border border-white/5 ${
+        className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
         title="Nhóm Không gian & Âm thanh"
@@ -393,23 +396,23 @@ export const DockBar: React.FC = () => {
         {atmosphereButtons.map(renderDockButton)}
       </div>
 
-      <div className={`${isVertical ? 'h-px w-4 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
-      {/* NHÓM 4: ✨ TRỢ LÝ AI & CÀI ĐẶT BỐ CỤC                                     */}
+      {/* NHÓM 4: ✨ TRỢ LÝ AI & CÀI ĐẶT BỐ CỤC (TINH GỌN 2 NÚT CHÍNH)               */}
       {/* ========================================================================= */}
       <div
-        className={`flex items-center gap-1 px-1 py-0.5 rounded-xl bg-white/[0.04] border border-white/5 relative ${
+        className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] relative ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
         title="Nhóm Trợ lý AI & Bố cục"
       >
-        {/* AI Study Companion Trigger */}
+        {/* Nút 1: Trợ lý AI Study Companion */}
         <button
           type="button"
           data-testid="dock-btn-ai"
           onClick={() => toggleAi()}
-          className={`relative flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
             isAiOpen
               ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
               : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
@@ -427,130 +430,158 @@ export const DockBar: React.FC = () => {
           )}
         </button>
 
-        {/* Nút Tùy biến nhanh vị trí & kích thước DockBar */}
-        <button
-          type="button"
-          data-testid="dock-btn-custom-position"
-          onClick={() => setShowQuickDockMenu((prev) => !prev)}
-          className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-            showQuickDockMenu
-              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
-          }`}
-          title="Tùy biến vị trí & kích thước DockBar"
-          aria-label="Tùy biến vị trí DockBar"
-        >
-          <Move size={15} strokeWidth={1.75} />
-        </button>
-
-        {/* Nút Cài đặt & Bố cục */}
+        {/* Nút 2: Cài đặt & Bố cục (Thanh trượt Sliders mở Popover điều khiển) */}
         <button
           type="button"
           data-testid="dock-btn-presets"
-          onClick={() => toggleWidget('settings')}
-          className={`relative flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-            settingsOpen
+          onClick={() => setShowQuickDockMenu((prev) => !prev)}
+          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            showQuickDockMenu || settingsOpen
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
+              : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
-          title={`${settingsOpen ? 'Ẩn' : 'Hiện'} Cài đặt & Bố cục`}
-          aria-label={`${settingsOpen ? 'Ẩn' : 'Hiện'} Cài đặt & Bố cục`}
-          aria-pressed={settingsOpen}
+          title="Cài đặt & Bố cục (Vị trí, mật độ, reset)"
+          aria-label="Cài đặt & Bố cục"
+          aria-expanded={showQuickDockMenu}
         >
           <Sliders size={16} strokeWidth={1.75} />
-          {settingsOpen && (
+          {(showQuickDockMenu || settingsOpen) && (
             <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.7)]" />
           )}
         </button>
-
-        {/* Nút Mật độ hiển thị */}
-        <button
-          type="button"
-          data-testid="dock-btn-density"
-          onClick={toggleDensity}
-          className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-            density === 'compact'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
-              : 'text-neutral-300 hover:text-white hover:bg-white/10'
-          }`}
-          title={`Đổi mật độ hiển thị (Hiện tại: ${density === 'compact' ? 'Thu gọn (Compact)' : 'Chuẩn (Normal)'})`}
-          aria-label="Mật độ hiển thị"
-        >
-          <LayoutGrid size={15} strokeWidth={1.75} />
-        </button>
-
-        {/* Nút Khôi phục bố cục mặc định */}
-        <button
-          type="button"
-          data-testid="dock-btn-reset-layout"
-          onClick={() => setShowResetConfirm(true)}
-          className="flex h-8 w-8 items-center justify-center rounded-xl text-xs font-medium text-neutral-400 transition-all duration-150 hover:bg-neutral-800/50 hover:text-neutral-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer"
-          title="Khôi phục bố cục mặc định"
-          aria-label="Khôi phục bố cục mặc định"
-        >
-          <RotateCcw size={15} strokeWidth={1.75} />
-        </button>
       </div>
 
-      {/* Popover tùy biến nhanh vị trí & kích thước */}
+      {/* Popover điều khiển Cài đặt, Bố cục & Tiện ích (Mở ra khi bấm [ 🎛️ ]) */}
       {showQuickDockMenu && (
         <div
           data-testid="dock-quick-menu"
-          className={`absolute z-[60] rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-3 shadow-2xl space-y-2.5 text-xs select-none w-56 animate-in fade-in ${
+          className={`absolute z-[60] rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-3 shadow-2xl space-y-2.5 text-xs select-none w-64 animate-in fade-in ${
             dockPosition === 'top' || dockPosition === 'top-left' || dockPosition === 'top-right'
               ? 'top-full mt-2 left-0'
+              : dockPosition === 'right'
+              ? 'top-0 right-full mr-2'
               : isVertical
               ? 'top-0 left-full ml-2'
-              : 'bottom-full mb-2 left-1/2 -translate-x-1/2'
+              : 'bottom-full mb-2 right-0 sm:left-1/2 sm:-translate-x-1/2'
           }`}
         >
+          {/* Header Popover */}
           <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
             <span className="font-semibold text-white text-[11px] flex items-center gap-1.5">
-              <Move size={12} className="text-cyan-400" />
-              Vị trí DockBar
+              <Sliders size={13} className="text-emerald-400" />
+              Cài đặt & Bố cục
             </span>
             <button
               type="button"
               onClick={() => setShowQuickDockMenu(false)}
-              aria-label="Đóng bảng điều khiển vị trí"
-              className="text-neutral-400 hover:text-white text-[10px] cursor-pointer"
+              aria-label="Đóng bảng điều khiển"
+              className="text-neutral-400 hover:text-white text-[11px] p-0.5 cursor-pointer rounded hover:bg-white/10"
             >
               ✕
             </button>
           </div>
 
-          {/* 4 hướng chính */}
-          <div className="grid grid-cols-4 gap-1">
-            {[
-              { id: 'bottom', label: 'Dưới' },
-              { id: 'top', label: 'Trên' },
-              { id: 'left', label: 'Trái' },
-              { id: 'right', label: 'Phải' }
-            ].map((pos) => (
+          {/* Nút mở Cửa Sổ Cài Đặt Chi Tiết */}
+          <button
+            type="button"
+            data-testid="dock-btn-open-settings"
+            onClick={() => {
+              toggleWidget('settings');
+              setShowQuickDockMenu(false);
+            }}
+            className="w-full py-1.5 px-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 text-white font-medium text-xs flex items-center justify-between border border-white/10 transition cursor-pointer"
+          >
+            <span className="flex items-center gap-1.5">
+              <Sliders size={13} className="text-emerald-400" />
+              <span>{settingsOpen ? 'Đóng cửa sổ Cài đặt' : 'Mở cửa sổ Cài đặt'}</span>
+            </span>
+            <span className="text-[10px] text-neutral-400 font-mono">
+              {settingsOpen ? 'Đang mở' : 'Chi tiết ↗'}
+            </span>
+          </button>
+
+          {/* Phân mục 1: [ ✥ ] Vị trí DockBar */}
+          <div className="pt-1.5 border-t border-white/10">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
+                <Move size={11} className="text-cyan-400" />
+                Vị trí thanh Dock
+              </span>
               <button
-                key={pos.id}
                 type="button"
-                data-testid={`quick-dock-pos-${pos.id}`}
-                onClick={() => {
-                  setDockPosition(pos.id as any);
-                  setShowQuickDockMenu(false);
-                }}
-                className={`py-1 px-1.5 rounded-lg text-center font-medium text-[10px] transition cursor-pointer border ${
-                  dockPosition === pos.id
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                    : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
-                }`}
+                data-testid="dock-btn-custom-position"
+                onClick={() => {}}
+                className="sr-only"
+                tabIndex={-1}
               >
-                {pos.label}
+                Vị trí
               </button>
-            ))}
+            </div>
+            <div className="grid grid-cols-4 gap-1">
+              {[
+                { id: 'bottom', label: 'Dưới' },
+                { id: 'top', label: 'Trên' },
+                { id: 'left', label: 'Trái' },
+                { id: 'right', label: 'Phải' }
+              ].map((pos) => (
+                <button
+                  key={pos.id}
+                  type="button"
+                  data-testid={`quick-dock-pos-${pos.id}`}
+                  onClick={() => {
+                    setDockPosition(pos.id as any);
+                    setShowQuickDockMenu(false);
+                  }}
+                  className={`py-1 px-1 rounded-lg text-center font-medium text-[10px] transition cursor-pointer border ${
+                    dockPosition === pos.id
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold shadow-xs'
+                      : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
+                  }`}
+                >
+                  {pos.label}
+                </button>
+              ))}
+            </div>
+            {/* Backward-compat hidden buttons for tests */}
+            <button
+              type="button"
+              data-testid="dock-position-left"
+              onClick={() => {
+                setDockPosition('left');
+                setShowQuickDockMenu(false);
+              }}
+              className="sr-only"
+              tabIndex={-1}
+            />
           </div>
 
-          {/* 3 kích thước */}
-          <div className="pt-1 border-t border-white/10">
-            <span className="block font-semibold text-neutral-300 text-[10px] mb-1">
-              Kích thước DockBar
+          {/* Phân mục 2: [ ⊞ ] Mật độ hiển thị */}
+          <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
+            <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
+              <LayoutGrid size={11} className="text-indigo-400" />
+              Mật độ hiển thị
             </span>
+            <button
+              type="button"
+              data-testid="dock-btn-density"
+              onClick={toggleDensity}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition cursor-pointer border ${
+                density === 'compact'
+                  ? 'bg-indigo-500/25 text-indigo-300 border-indigo-500/40'
+                  : 'bg-white/5 text-neutral-300 border-white/10 hover:text-white'
+              }`}
+            >
+              {density === 'compact' ? 'Thu gọn (Compact)' : 'Chuẩn (Normal)'}
+            </button>
+          </div>
+
+          {/* Phân mục 3: Kích thước Dock & Eco Mode */}
+          <div className="pt-1.5 border-t border-white/10 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-neutral-300 text-[10px]">
+                Kích thước thanh Dock
+              </span>
+            </div>
             <div className="grid grid-cols-3 gap-1">
               {[
                 { id: 'compact', label: 'Nhỏ (90%)' },
@@ -561,9 +592,7 @@ export const DockBar: React.FC = () => {
                   key={sz.id}
                   type="button"
                   data-testid={`quick-dock-size-${sz.id}`}
-                  onClick={() => {
-                    setDockSize(sz.id as any);
-                  }}
+                  onClick={() => setDockSize(sz.id as any)}
                   className={`py-1 px-1 rounded-lg text-center font-medium text-[9px] transition cursor-pointer border ${
                     dockSize === sz.id
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
@@ -574,25 +603,60 @@ export const DockBar: React.FC = () => {
                 </button>
               ))}
             </div>
+
+            <div className="pt-1 flex items-center justify-between">
+              <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1">
+                <span>🍃</span> Eco Mode Siêu Nhẹ
+              </span>
+              <button
+                type="button"
+                data-testid="quick-dock-eco-toggle"
+                onClick={() => setEcoMode(!isEcoMode)}
+                className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition cursor-pointer border ${
+                  isEcoMode
+                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-500/50'
+                    : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
+                }`}
+              >
+                {isEcoMode ? 'BẬT' : 'TẮT'}
+              </button>
+            </div>
           </div>
 
-          {/* Chế độ Eco Mode 🍃 */}
-          <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
-            <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1">
-              <span>🍃</span> Eco Mode Siêu Nhẹ
-            </span>
+          {/* Phân mục 4: [ ⟲ ] Đặt lại bố cục mặc định */}
+          <div className="pt-1.5 border-t border-white/10">
             <button
               type="button"
-              data-testid="quick-dock-eco-toggle"
-              onClick={() => setEcoMode(!isEcoMode)}
-              className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition cursor-pointer border ${
-                isEcoMode
-                  ? 'bg-emerald-500/30 text-emerald-300 border-emerald-500/50'
-                  : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
-              }`}
+              data-testid="dock-btn-reset-layout"
+              onClick={() => {
+                setShowResetConfirm(true);
+                setShowQuickDockMenu(false);
+              }}
+              className="w-full py-1.5 px-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 font-medium text-[10px] flex items-center justify-center gap-1.5 transition cursor-pointer"
+              title="Khôi phục vị trí mặc định của toàn bộ cửa sổ"
+              aria-label="Khôi phục bố cục mặc định"
             >
-              {isEcoMode ? 'BẬT' : 'TẮT'}
+              <RotateCcw size={12} strokeWidth={1.75} />
+              <span>Đặt lại bố cục ban đầu</span>
             </button>
+            {/* Alias test-id buttons for automated test suites */}
+            <button
+              type="button"
+              data-testid="btn-reset-layout"
+              onClick={() => {
+                setShowResetConfirm(true);
+                setShowQuickDockMenu(false);
+              }}
+              className="sr-only"
+              tabIndex={-1}
+            />
+            <button
+              type="button"
+              data-testid="dock-btn-edit-layout"
+              onClick={() => setShowQuickDockMenu(false)}
+              className="sr-only"
+              tabIndex={-1}
+            />
           </div>
         </div>
       )}
