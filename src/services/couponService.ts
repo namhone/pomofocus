@@ -2,8 +2,8 @@
  * COUPON MANAGEMENT SERVICE
  * ==============================================================================
  * Quản lý kho mã giảm giá & quà tặng đặc quyền PRO ('pomodoro_coupons_store')
- * Hỗ trợ đồng bộ đa kênh (BroadcastChannel, Local & Serverless API, Shared Store),
- * kiểm tra không phân biệt hoa thường và cơ chế cộng dồn (Stacking) / quy đổi 5.000⚡ AI Credits.
+ * Hỗ trợ Dynamic Cloud Coupon Engine (Supabase RPC redeem_dynamic_coupon, Zero-deploy),
+ * Atomic Counter, User-Deduplication, đa kênh BroadcastChannel và Offline Resilience.
  */
 
 import { authService, UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
@@ -11,17 +11,34 @@ import { useAiStore } from '../stores/useAiStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { ProfileService } from './profileService';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
+import { supabase } from '../lib/supabase';
+
+export type CouponType = 'lifetime' | 'free_lifetime' | 'discount_percent' | 'free_days' | 'credits';
 
 export interface Coupon {
+  id?: string;
   code: string;
-  type: 'discount_percent' | 'free_days' | 'free_lifetime';
-  value: number; // % giảm giá hoặc số ngày tặng PRO (0 nếu là lifetime)
-  maxUses: number;
+  type: CouponType;
+  value: number; // % giảm giá hoặc số ngày tặng PRO hoặc credits (0 nếu là lifetime)
+  discountPercent?: number;
+  freeDays?: number;
+  creditsReward?: number;
+  maxUses: number | null; // null = không giới hạn
   usedCount: number;
+  isActive?: boolean;
   expiresAt: number | null; // timestamp ms hoặc null
   createdAt: number;
   description?: string;
-  createdBy?: string; // Không dùng để lọc quyền kích hoạt
+  createdBy?: string;
+}
+
+export interface RedeemCouponResult {
+  success: boolean;
+  message: string;
+  discountPercent?: number;
+  creditsAdded?: number;
+  coupon?: Coupon;
+  remainingUses?: number | null;
 }
 
 const STORAGE_KEY = 'pomodoro_coupons_store';
@@ -36,6 +53,14 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
   }
 }
 
+function safeFetchApi(url: string, init?: RequestInit): Promise<Response> {
+  const fullUrl =
+    typeof window !== 'undefined' && window.location?.origin
+      ? `${window.location.origin}${url}`
+      : `https://pomofocus-workspace.vercel.app${url}`;
+  return fetch(fullUrl, init);
+}
+
 export const DEFAULT_COUPONS: Coupon[] = [
   {
     code: 'EIU',
@@ -43,6 +68,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     value: 0,
     maxUses: 10000,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Đặc quyền EIU - Kích hoạt PRO TRỌN ĐỜI vĩnh viễn'
@@ -51,8 +77,10 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'PRO50',
     type: 'discount_percent',
     value: 50,
+    discountPercent: 50,
     maxUses: 1000,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Giảm giá 50% tất cả các gói'
@@ -61,8 +89,10 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'VIP7DAYS',
     type: 'free_days',
     value: 7,
+    freeDays: 7,
     maxUses: 1000,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Trải nghiệm 7 ngày PRO Miễn Phí'
@@ -71,8 +101,10 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'VIP30DAYS',
     type: 'free_days',
     value: 30,
+    freeDays: 30,
     maxUses: 500,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Trải nghiệm 30 ngày PRO Miễn Phí'
@@ -83,6 +115,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     value: 0,
     maxUses: 100,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Mã bí mật Chủ sở hữu: Kích hoạt PRO Trọn đời'
@@ -91,8 +124,10 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'STUDENT100',
     type: 'free_days',
     value: 14,
+    freeDays: 14,
     maxUses: 1000,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Học sinh sinh viên: 14 ngày PRO Miễn Phí'
@@ -101,8 +136,10 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'STUDYFOCUS',
     type: 'discount_percent',
     value: 30,
+    discountPercent: 30,
     maxUses: 500,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Giảm giá 30% cho không gian học tập'
@@ -111,11 +148,13 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'POMO2026',
     type: 'discount_percent',
     value: 20,
+    discountPercent: 20,
     maxUses: 1000,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
-    description: 'Khuyến mãi năm 2026: Giảm 20%'
+    description: 'Khởi đầu năm mới cùng PomoFocus 2026'
   },
   {
     code: 'LADYBOSS',
@@ -123,6 +162,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     value: 0,
     maxUses: 10,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Đặc quyền Nóc Nhà: Kích hoạt PRO Trọn đời'
@@ -133,6 +173,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     value: 0,
     maxUses: 10,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Đặc quyền Chủ sở hữu: Kích hoạt PRO Trọn đời'
@@ -143,6 +184,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     value: 0,
     maxUses: 10,
     usedCount: 0,
+    isActive: true,
     expiresAt: null,
     createdAt: 1730000000000,
     description: 'Đặc quyền Vợ Sếp: Kích hoạt PRO Trọn đời'
@@ -170,14 +212,9 @@ export const couponService = {
           merged.push(def);
         }
       }
-
-      if (typeof window !== 'undefined' && merged.length !== storedList.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      }
-
-      return merged.length > 0 ? merged : DEFAULT_COUPONS;
+      return merged;
     } catch {
-      return DEFAULT_COUPONS;
+      return [...DEFAULT_COUPONS];
     }
   },
 
@@ -185,59 +222,80 @@ export const couponService = {
     try {
       if (typeof window !== 'undefined') {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(coupons));
-      }
-      if (couponBroadcastChannel) {
-        couponBroadcastChannel.postMessage({ type: 'COUPONS_UPDATED', coupons });
+        if (couponBroadcastChannel) {
+          try {
+            couponBroadcastChannel.postMessage({ type: 'COUPONS_UPDATED', count: coupons.length });
+          } catch {}
+        }
       }
     } catch (e) {
-      console.error('Không thể lưu danh sách coupon:', e);
+      console.warn('[CouponService] Lỗi ghi localStorage:', e);
     }
   },
 
-  createCoupon(input: {
+  createCoupon(couponData: {
     code: string;
-    type: 'discount_percent' | 'free_days' | 'free_lifetime';
+    type: CouponType;
     value: number;
-    maxUses: number;
+    maxUses?: number | null;
     expiresAt?: number | null;
     description?: string;
     createdBy?: string;
   }): { success: boolean; coupon?: Coupon; error?: string } {
-    const cleanCode = input.code.trim().toUpperCase();
+    const cleanCode = couponData.code.trim().toUpperCase();
+
     if (!cleanCode) {
       return { success: false, error: 'Mã coupon không được để trống.' };
     }
 
-    const coupons = this.getCoupons();
-    if (coupons.some((c) => c.code.trim().toUpperCase() === cleanCode)) {
-      return { success: false, error: `Mã coupon ${cleanCode} đã tồn tại.` };
+    if (!/^[A-Z0-9_-]{3,30}$/.test(cleanCode)) {
+      return {
+        success: false,
+        error: 'Mã chỉ được chứa chữ hoa không dấu, chữ số, dấu gạch nối (3 - 30 ký tự).'
+      };
     }
+
+    const currentList = this.getCoupons();
+    const exists = currentList.some((c) => c.code.trim().toUpperCase() === cleanCode);
+    if (exists) {
+      return { success: false, error: `Mã coupon "${cleanCode}" đã tồn tại trong hệ thống.` };
+    }
+
+    const normType = couponData.type === 'lifetime' ? 'free_lifetime' : couponData.type;
+    const maxUses =
+      couponData.maxUses !== undefined && couponData.maxUses !== null && couponData.maxUses !== ('' as any)
+        ? Number(couponData.maxUses)
+        : 100;
 
     const newCoupon: Coupon = {
       code: cleanCode,
-      type: input.type,
-      value: Math.max(0, input.value),
-      maxUses: Math.max(1, input.maxUses),
+      type: normType,
+      value: couponData.value,
+      discountPercent: couponData.type === 'discount_percent' ? couponData.value : 0,
+      freeDays: couponData.type === 'free_days' ? couponData.value : 0,
+      creditsReward: couponData.type === 'credits' ? couponData.value : 0,
+      maxUses,
       usedCount: 0,
-      expiresAt: input.expiresAt || null,
+      isActive: true,
+      expiresAt: couponData.expiresAt || null,
       createdAt: Date.now(),
-      description: input.description?.trim() || undefined,
-      createdBy: input.createdBy
+      description: couponData.description?.trim(),
+      createdBy: couponData.createdBy
     };
 
-    coupons.unshift(newCoupon);
-    this.saveCoupons(coupons);
+    currentList.unshift(newCoupon);
+    this.saveCoupons(currentList);
 
     // Đồng bộ lên Serverless API /api/coupons
     if (typeof window !== 'undefined') {
-      fetch('/api/coupons', {
+      safeFetchApi('/api/coupons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCoupon)
       }).catch(() => {});
     }
 
-    // Thử đồng bộ dự phòng lên Supabase
+    // Đồng bộ lên Supabase
     try {
       const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
       fetch(`${baseUrl}/rest/v1/coupons`, {
@@ -246,22 +304,24 @@ export const couponService = {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
         },
         body: JSON.stringify({
           code: newCoupon.code,
           type: newCoupon.type,
           value: newCoupon.value,
+          discount_percent: newCoupon.discountPercent,
+          free_days: newCoupon.freeDays,
+          credits_reward: newCoupon.creditsReward,
           max_uses: newCoupon.maxUses,
           used_count: 0,
+          is_active: true,
           expires_at: newCoupon.expiresAt ? new Date(newCoupon.expiresAt).toISOString() : null,
           description: newCoupon.description,
           created_by: newCoupon.createdBy
         })
       }).catch(() => {});
-    } catch {
-      // Ignored
-    }
+    } catch {}
 
     return { success: true, coupon: newCoupon };
   },
@@ -277,7 +337,7 @@ export const couponService = {
     const existing = this.getCoupons().find((c) => c.code.trim().toUpperCase() === clean);
     if (existing) return existing;
 
-    // 2. Thử truy vấn qua serverless endpoint /api/coupons (Hoạt động đa thiết bị, không lỗi DB)
+    // 2. Thử truy vấn qua serverless endpoint /api/coupons
     if (typeof window !== 'undefined') {
       try {
         const apiRes = await fetch(`/api/coupons?code=${encodeURIComponent(clean)}`);
@@ -286,11 +346,16 @@ export const couponService = {
           if (json.success && json.coupon) {
             const row = json.coupon;
             const c: Coupon = {
+              id: row.id,
               code: row.code,
               type: row.type,
               value: Number(row.value) || 0,
-              maxUses: Number(row.maxUses) || 100,
+              discountPercent: Number(row.discountPercent || row.discount_percent || 0),
+              freeDays: Number(row.freeDays || row.free_days || 0),
+              creditsReward: Number(row.creditsReward || row.credits_reward || 0),
+              maxUses: row.maxUses !== null && row.maxUses !== undefined ? Number(row.maxUses) : null,
               usedCount: Number(row.usedCount) || 0,
+              isActive: row.isActive !== false,
               expiresAt: row.expiresAt ? Number(row.expiresAt) : null,
               createdAt: row.createdAt ? Number(row.createdAt) : Date.now(),
               description: row.description,
@@ -307,9 +372,7 @@ export const couponService = {
             return c;
           }
         }
-      } catch {
-        // Tiếp tục thử Supabase
-      }
+      } catch {}
     }
 
     // 3. Thử truy vấn dự phòng qua Supabase REST
@@ -329,11 +392,16 @@ export const couponService = {
 
       const row = data[0];
       const coupon: Coupon = {
+        id: row.id,
         code: row.code,
         type: row.type,
         value: Number(row.value) || 0,
-        maxUses: Number(row.max_uses) || 100,
+        discountPercent: Number(row.discount_percent || 0),
+        freeDays: Number(row.free_days || 0),
+        creditsReward: Number(row.credits_reward || 0),
+        maxUses: row.max_uses !== null && row.max_uses !== undefined ? Number(row.max_uses) : null,
         usedCount: Number(row.used_count) || 0,
+        isActive: row.is_active !== false,
         expiresAt: row.expires_at ? new Date(row.expires_at).getTime() : null,
         createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
         description: row.description || undefined,
@@ -358,53 +426,56 @@ export const couponService = {
     const clean = code.trim().toUpperCase();
     const coupons = this.getCoupons();
     const filtered = coupons.filter((c) => c.code.trim().toUpperCase() !== clean);
-    if (filtered.length === coupons.length) return false;
     this.saveCoupons(filtered);
+
+    if (typeof window !== 'undefined') {
+      safeFetchApi('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', code: clean })
+      }).catch(() => {});
+    }
+
     return true;
   },
 
-  /**
-   * Kiểm tra mã coupon: Chuyển toàn bộ về chữ hoa `code.trim().toUpperCase()`.
-   * Bỏ điều kiện lọc mã theo user_id người tạo (cho phép bất kỳ ai có mã hợp lệ và chưa sử dụng đều kích hoạt được).
-   */
-  validateCoupon(code: string): { valid: boolean; coupon?: Coupon; error?: string } {
+  validateCoupon(code: string): { valid: boolean; error?: string; coupon?: Coupon } {
     const clean = code.trim().toUpperCase();
     if (!clean) {
       return { valid: false, error: 'Vui lòng nhập mã coupon.' };
     }
 
-    const coupons = this.getCoupons();
-    const found = coupons.find((c) => c.code.trim().toUpperCase() === clean);
-    if (!found) {
+    const coupon = this.getCoupons().find((c) => c.code.trim().toUpperCase() === clean);
+    if (!coupon) {
       return { valid: false, error: 'Mã coupon không tồn tại hoặc đã hết hạn.' };
     }
 
-    if (found.maxUses > 0 && found.usedCount >= found.maxUses) {
-      return { valid: false, error: 'Mã coupon này đã hết lượt sử dụng.' };
+    if (coupon.isActive === false) {
+      return { valid: false, error: 'Mã coupon này đang tạm thời bị khóa.' };
     }
 
-    if (found.expiresAt && Date.now() > found.expiresAt) {
+    if (coupon.maxUses !== null && coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
+      return { valid: false, error: 'Mã coupon đã đạt giới hạn lượt sử dụng!' };
+    }
+
+    if (coupon.expiresAt && Date.now() > coupon.expiresAt) {
       return { valid: false, error: 'Mã coupon này đã hết hạn sử dụng.' };
     }
 
-    return { valid: true, coupon: found };
+    return { valid: true, coupon };
   },
 
-  /**
-   * Kích hoạt mã coupon:
-   * - Hỗ trợ cho TẤT CẢ người dùng (Khách, Học Viên, PRO, Lifetime).
-   * - Tự động khởi tạo phiên học viên nếu chưa đăng nhập, tuyệt đối không chặn người dùng.
-   * - Cơ chế cộng dồn (Stacking): Nếu tài khoản đang có gói PRO còn hạn, cộng tiếp thời hạn vào ngày hết hạn hiện tại.
-   * - Nếu là tài khoản Trọn Đời (Lifetime Founder): Tự động quy đổi thành tặng thêm 5.000⚡ AI Credits vào ví.
-   */
-  redeemCoupon(code: string, user: UserProfile | null): {
+  redeemCoupon(
+    code: string,
+    user: UserProfile | null
+  ): {
     success: boolean;
     message: string;
     discountPercent?: number;
-    coupon?: Coupon;
     creditsAdded?: number;
+    coupon?: Coupon;
+    remainingUses?: number | null;
   } {
-    // 1. Tự động khởi tạo hoặc lấy phiên hiện tại nếu chưa đăng nhập
     let currentUser = user;
     if (!currentUser) {
       currentUser = authService.getCurrentSession();
@@ -437,10 +508,10 @@ export const couponService = {
 
     // 3. Thông báo Serverless API
     if (typeof window !== 'undefined') {
-      fetch('/api/coupons', {
+      safeFetchApi('/api/coupons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'redeem', code: coupon.code })
+        body: JSON.stringify({ action: 'redeem_dynamic', code: coupon.code, userId: currentUser.id })
       }).catch(() => {});
     }
 
@@ -459,9 +530,7 @@ export const couponService = {
           used_count: (coupon.usedCount || 0) + 1
         })
       }).catch(() => {});
-    } catch {
-      // Ignored
-    }
+    } catch {}
 
     // 5. Kiểm tra quyền Lifetime
     const isLifetimeUser = Boolean(
@@ -474,7 +543,7 @@ export const couponService = {
 
     // Trường hợp 1: Tài khoản Trọn Đời (Lifetime Founder) nhập mã quà tặng PRO
     if (isLifetimeUser) {
-      if (coupon.type === 'free_days' || coupon.type === 'free_lifetime') {
+      if (coupon.type === 'free_days' || coupon.type === 'free_lifetime' || coupon.type === 'lifetime') {
         const credits =
           coupon.code.trim().toUpperCase() === 'VIP7DAYS' || coupon.value === 7
             ? 750
@@ -489,6 +558,16 @@ export const couponService = {
           creditsAdded: credits
         };
       }
+      if (coupon.type === 'credits') {
+        const credits = coupon.creditsReward || coupon.value || 500;
+        useAiStore.getState().addCredits(credits);
+        return {
+          success: true,
+          message: `Nạp thành công +${credits.toLocaleString('vi-VN')}⚡ AI Credits vào tài khoản! ⚡`,
+          coupon,
+          creditsAdded: credits
+        };
+      }
       return {
         success: true,
         message: `Bạn đang sở hữu gói PRO Trọn Đời vĩnh viễn! Mã giảm giá ${coupon.value}% đã được ghi nhận. 👑`,
@@ -498,7 +577,7 @@ export const couponService = {
     }
 
     // Trường hợp 2: Kích hoạt gói Trọn Đời vĩnh viễn
-    if (coupon.type === 'free_lifetime') {
+    if (coupon.type === 'free_lifetime' || coupon.type === 'lifetime') {
       authService.upgradePlan(currentUser.id, 'pro_lifetime', 999);
       ProfileService.updateFields(currentUser.id, { plan: 'lifetime' }).catch(() => {});
       const refreshed = authService.getCurrentSession();
@@ -517,9 +596,21 @@ export const couponService = {
       };
     }
 
-    // Trường hợp 3: Quà tặng ngày PRO -> Cơ chế cộng dồn (Stacking) vào ngày hết hạn hiện tại
+    // Trường hợp 3: Nạp Credits trực tiếp (type === 'credits')
+    if (coupon.type === 'credits') {
+      const credits = coupon.creditsReward || coupon.value || 500;
+      useAiStore.getState().addCredits(credits);
+      return {
+        success: true,
+        message: `Nạp thành công +${credits.toLocaleString('vi-VN')}⚡ AI Credits vào tài khoản! ⚡`,
+        coupon,
+        creditsAdded: credits
+      };
+    }
+
+    // Trường hợp 4: Quà tặng ngày PRO -> Cơ chế cộng dồn (Stacking) vào ngày hết hạn hiện tại
     if (coupon.type === 'free_days') {
-      const days = coupon.value || 7;
+      const days = coupon.freeDays || coupon.value || 7;
       authService.extendProDays(days);
       const updatedUser = authService.getCurrentSession();
       if (updatedUser?.proExpiresAt) {
@@ -545,20 +636,263 @@ export const couponService = {
       };
     }
 
-    // Trường hợp 4: Mã giảm giá % (discount_percent)
+    // Trường hợp 5: Mã giảm giá % (discount_percent)
+    const discount = coupon.discountPercent || coupon.value;
     return {
       success: true,
-      message: `Áp dụng thành công mã giảm ${coupon.value}%! 💰`,
-      discountPercent: coupon.value,
+      message: `Áp dụng thành công mã giảm ${discount}%! 💰`,
+      discountPercent: discount,
       coupon
     };
   },
 
   /**
-   * Kích hoạt mã coupon bất đồng bộ: Tự động tra cứu từ Serverless API / Supabase nếu máy chưa lưu mã
+   * Kích hoạt mã coupon bất đồng bộ:
+   * 1. Gọi trực tiếp Stored Procedure Supabase RPC: redeem_dynamic_coupon(p_code, p_user_id)
+   * 2. Áp dụng quyền lợi ngay lập tức (Lifetime, Discount %, Free Days, Credits)
+   * 3. Fallback an toàn sang local/serverless nếu offline
    */
-  async redeemCouponAsync(code: string, user: UserProfile | null) {
-    await this.fetchCouponFromSupabase(code);
-    return this.redeemCoupon(code, user);
+  async redeemCouponAsync(code: string, user: UserProfile | null): Promise<RedeemCouponResult> {
+    const clean = code.trim().toUpperCase();
+    if (!clean) {
+      return { success: false, message: 'Vui lòng nhập mã coupon.' };
+    }
+
+    let currentUser = user || authService.getCurrentSession();
+    if (!currentUser) {
+      currentUser = {
+        id: `usr_${Date.now()}`,
+        email: 'student@pomofocus.local',
+        displayName: 'Học Viên',
+        plan: 'free',
+        createdAt: Date.now()
+      };
+      authService.saveSession(currentUser);
+    }
+
+    // 1. GỌI TRỰC TIẾP STORED PROCEDURE TRÊN SUPABASE CLOUD
+    try {
+      const { data, error } = await supabase.rpc('redeem_dynamic_coupon', {
+        p_code: clean,
+        p_user_id: currentUser.id
+      });
+
+      if (!error && data && typeof data === 'object') {
+        if (data.success === false) {
+          return { success: false, message: data.message || 'Mã không hợp lệ.' };
+        }
+
+        const couponObj: Coupon = {
+          code: clean,
+          type: data.type === 'lifetime' ? 'free_lifetime' : data.type,
+          value: Number(data.discount_percent || data.free_days || data.credits_reward || 0),
+          discountPercent: Number(data.discount_percent || 0),
+          freeDays: Number(data.free_days || 0),
+          creditsReward: Number(data.credits_reward || 0),
+          maxUses: data.max_uses ?? null,
+          usedCount: Number(data.used_count || 1),
+          expiresAt: null,
+          createdAt: Date.now()
+        };
+
+        // Quyền lợi Lifetime
+        if (data.type === 'lifetime' || data.type === 'free_lifetime') {
+          authService.upgradePlan(currentUser.id, 'pro_lifetime', 999);
+          ProfileService.updateFields(currentUser.id, { plan: 'lifetime' }).catch(() => {});
+          const refreshed = authService.getCurrentSession();
+          if (refreshed) {
+            useAuthStore.setState({
+              user: refreshed,
+              isPro: true,
+              isLifetime: true,
+              planLabel: 'PRO TRỌN ĐỜI 👑'
+            });
+          }
+          return {
+            success: true,
+            message: 'Chúc mừng! Bạn đã được kích hoạt gói PRO TRỌN ĐỜI vĩnh viễn! 🎉',
+            coupon: couponObj,
+            remainingUses: data.remaining_uses
+          };
+        }
+
+        // Quyền lợi Giảm %
+        if (data.type === 'discount_percent') {
+          return {
+            success: true,
+            discountPercent: data.discount_percent,
+            message: `Áp dụng thành công mã giảm ${data.discount_percent}%! 💰`,
+            coupon: couponObj,
+            remainingUses: data.remaining_uses
+          };
+        }
+
+        // Quyền lợi Ngày PRO (Free Days)
+        if (data.type === 'free_days') {
+          const isLifetime = Boolean(
+            currentUser.isLifetime ||
+            currentUser.plan === 'pro_lifetime' ||
+            isOwnerEmail(currentUser.email)
+          );
+          if (isLifetime) {
+            useAiStore.getState().addCredits(750);
+            return {
+              success: true,
+              creditsAdded: 750,
+              message: 'Đổi mã thành công! Bạn đang sở hữu gói Trọn Đời nên mã quà tặng PRO đã được quy đổi thành +750⚡ AI Credits vào ví! 🎉',
+              coupon: couponObj,
+              remainingUses: data.remaining_uses
+            };
+          }
+          authService.extendProDays(data.free_days);
+          const updatedUser = authService.getCurrentSession();
+          if (updatedUser) {
+            useAuthStore.setState({ user: updatedUser, isPro: true, planLabel: 'PRO BETA' });
+          }
+          return {
+            success: true,
+            message: `Chúc mừng! Đã cộng dồn thành công +${data.free_days} ngày PRO vào tài khoản! 🚀`,
+            coupon: couponObj,
+            remainingUses: data.remaining_uses
+          };
+        }
+
+        // Quyền lợi Nạp Credits
+        if (data.type === 'credits') {
+          useAiStore.getState().addCredits(data.credits_reward);
+          return {
+            success: true,
+            creditsAdded: data.credits_reward,
+            message: `Nạp thành công +${data.credits_reward.toLocaleString('vi-VN')}⚡ AI Credits vào tài khoản! ⚡`,
+            coupon: couponObj,
+            remainingUses: data.remaining_uses
+          };
+        }
+      }
+    } catch {}
+
+    // 2. FALLBACK NẾU RPC CHƯA MIGRATION HOẶC OFFLINE
+    await this.fetchCouponFromSupabase(clean);
+    return this.redeemCoupon(clean, currentUser);
+  },
+
+  /**
+   * Truy vấn toàn bộ danh sách mã coupon đang hoạt động trên Supabase Cloud
+   */
+  async fetchCloudCoupons(): Promise<Coupon[]> {
+    try {
+      const res = await safeFetchApi('/api/coupons');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.coupons)) {
+          return json.coupons;
+        }
+      }
+    } catch {}
+
+    // Fallback qua local store
+    return this.getCoupons();
+  },
+
+  /**
+   * Tạo mã coupon động trực tiếp lên Cloud (Zero-Deploy)
+   */
+  async createDynamicCouponCloud(params: {
+    code: string;
+    type: CouponType;
+    value: number;
+    maxUses?: number | null;
+    description?: string;
+    expiresAt?: number | null;
+    createdBy?: string;
+  }): Promise<{ success: boolean; message: string; coupon?: Coupon }> {
+    const cleanCode = params.code.trim().toUpperCase();
+    if (!cleanCode) {
+      return { success: false, message: 'Mã coupon không được để trống.' };
+    }
+
+    try {
+      const res = await safeFetchApi('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          code: cleanCode,
+          type: params.type,
+          value: params.value,
+          maxUses: params.maxUses,
+          description: params.description,
+          expiresAt: params.expiresAt,
+          createdBy: params.createdBy
+        })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.coupon) {
+          // Lưu vào local cache
+          const list = this.getCoupons();
+          list.unshift(json.coupon);
+          this.saveCoupons(list);
+          return {
+            success: true,
+            message: `Đã phát hành mã ${cleanCode} lên Supabase Cloud thành công! Có hiệu lực ngay lập tức. 🎉`,
+            coupon: json.coupon
+          };
+        } else {
+          return { success: false, message: json.error || 'Lỗi tạo mã coupon' };
+        }
+      }
+    } catch (e: any) {
+      console.warn('[CouponService] Lỗi gọi API:', e);
+    }
+
+    // Fallback tạo local
+    const localRes = this.createCoupon(params);
+    return {
+      success: localRes.success,
+      message: localRes.success
+        ? `Đã phát hành mã ${cleanCode} vào hệ thống! 🎉`
+        : localRes.error || 'Lỗi tạo mã',
+      coupon: localRes.coupon
+    };
+  },
+
+  /**
+   * Bật/Khóa mã coupon trên Supabase Cloud
+   */
+  async toggleCouponActive(code: string, isActive: boolean): Promise<boolean> {
+    const clean = code.trim().toUpperCase();
+    try {
+      await safeFetchApi('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_active', code: clean, isActive })
+      });
+    } catch {}
+
+    const list = this.getCoupons();
+    const item = list.find((c) => c.code.trim().toUpperCase() === clean);
+    if (item) {
+      item.isActive = isActive;
+      this.saveCoupons(list);
+    }
+    return true;
+  },
+
+  /**
+   * Xóa mã coupon trên Cloud
+   */
+  async deleteCouponCloud(code: string): Promise<boolean> {
+    const clean = code.trim().toUpperCase();
+    try {
+      await safeFetchApi('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', code: clean })
+      });
+    } catch {}
+
+    return this.deleteCoupon(clean);
   }
 };

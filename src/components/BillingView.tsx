@@ -24,6 +24,7 @@ import { PomoFocusLogo } from './PomoFocusLogo';
 import { couponService } from '../services/couponService';
 import { PRICING_PLANS, STREAMLINED_COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
 import { authService, isOwnerEmail, isLadyBoss, isVipFriend, hasProEntitlement, getPlanLabel } from '../services/authService';
+import { AdminCouponManager } from './AdminCouponManager';
 
 const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 'lifetime') => {
   if (val === false || val === '—' || val === '-') {
@@ -1093,6 +1094,11 @@ export const BillingView: React.FC = () => {
             </section>
           </>
         )}
+
+        {/* ========================================================================= */}
+        {/* KHUNG QUẢN TRỊ COUPON ĐỘNG TRÊN SUPABASE CLOUD (DÀNH CHO OWNER)           */}
+        {/* ========================================================================= */}
+        <AdminCouponManager />
 
         {/* ========================================================================= */}
         {/* KHỐI NHẬP MÃ QUÀ TẶNG / GÓI ĐẶC QUYỀN (HIỂN THỊ CHO TẤT CẢ CÁC GÓI)       */}

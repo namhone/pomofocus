@@ -6,6 +6,7 @@ import { useAudioStore } from '../stores/useAudioStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { couponService, Coupon } from '../services/couponService';
 import { studyRoomService } from '../services/studyRoomService';
+import { AdminCouponManager } from './AdminCouponManager';
 import { ChimeSoundType } from '../types/audio';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -438,6 +439,9 @@ export const SettingsView: React.FC = () => {
                 <span>Dọn Dẹp Phiên Zombie</span>
               </button>
             </div>
+
+            {/* Dynamic Cloud Coupon Engine dành cho Founder */}
+            <AdminCouponManager />
 
             {/* Create Coupon Form */}
             <form onSubmit={handleCreateCoupon} className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-3 text-xs">
