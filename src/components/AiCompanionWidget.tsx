@@ -296,11 +296,11 @@ export const AiCompanionWidget: React.FC = () => {
       />
 
       {/* 1. Header 1 Hàng Ngang Tinh Gọn (Tránh chèn ép, đảm bảo khoảng cách thông thoáng) */}
-      <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-3">
+      <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-2.5">
         <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
           <div className="relative shrink-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-              <Sparkles size={15} />
+            <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+              <Sparkles size={14} />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
           </div>
@@ -311,17 +311,17 @@ export const AiCompanionWidget: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {/* Cụm hiển thị số dư ⚡ Gom 1 Badge Duy Nhất Monospace Không Đè Text */}
           <button
             type="button"
             data-testid="ai-credits-topup-btn"
             onClick={() => setShowCreditsModal(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-xs font-medium cursor-pointer transition-all select-none shrink-0"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
             title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
           >
-            <Zap size={12} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span className="font-mono text-xs font-semibold" data-testid="ai-hud-credits">
+            <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
+            <span className="font-mono text-[11px] font-semibold" data-testid="ai-hud-credits">
               <span data-testid="ai-credits-badge">
                 {aiPlan === 'lifetime'
                   ? `VIP ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
@@ -335,10 +335,10 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-new-chat-btn"
             onClick={() => createNewSession()}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
             title="Tạo đoạn chat mới"
           >
-            <Plus size={15} />
+            <Plus size={14} />
           </button>
 
           {/* Nút Lịch sử trò chuyện */}
@@ -346,14 +346,14 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-history-btn"
             onClick={() => setShowHistoryDropdown((prev) => !prev)}
-            className={`p-1.5 rounded-lg transition cursor-pointer ${
+            className={`p-1 rounded-md transition cursor-pointer ${
               showHistoryDropdown
                 ? 'bg-zinc-800 text-white'
                 : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
             }`}
             title="Lịch sử cuộc trò chuyện"
           >
-            <History size={15} />
+            <History size={14} />
           </button>
 
           {/* Nút Làm mới phiên chat */}
@@ -361,10 +361,10 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-clear-chat-btn"
             onClick={clearChat}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
             title="Làm mới cuộc trò chuyện"
           >
-            <RotateCcw size={15} />
+            <RotateCcw size={14} />
           </button>
 
           {/* Nút đóng ✕ */}
@@ -372,10 +372,10 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-close-drawer-btn ai-btn-close-drawer"
             onClick={() => toggleOpen(false)}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer ml-0.5"
             title="Đóng (Esc)"
           >
-            <X size={17} />
+            <X size={16} />
           </button>
         </div>
       </div>

@@ -114,6 +114,23 @@ export function hasProEntitlement(plan?: UserPlan | string | null, email?: strin
   );
 }
 
+/**
+ * Đặc quyền tối cao (Bypass toàn diện) dành cho Founder, VIP và các gói trả phí
+ */
+export function hasVipAccess(user?: UserProfile | null): boolean {
+  if (!user) return false;
+  if (user.email && isOwnerEmail(user.email)) return true;
+  if (user.isLifetime) return true;
+  if (user.role === 'founder') return true;
+  if (user.badge && (user.badge.includes('Founder') || user.badge.includes('VIP') || user.badge.includes('PRO'))) {
+    return true;
+  }
+  const plan = (user.plan || '').toLowerCase();
+  const vipPlans = ['pro', 'pro_sandbox', 'pro_monthly', 'pro_yearly', 'lifetime', 'founder', 'vip', 'pro_lifetime', 'pro_beta'];
+  if (vipPlans.includes(plan)) return true;
+  return hasProEntitlement(user.plan, user.email);
+}
+
 export function getPlanLabel(user?: UserProfile | null): string {
   if (!user) return 'FREE';
   if (isLadyBoss(user.email)) {

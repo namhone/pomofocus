@@ -28,12 +28,13 @@ import {
   WallpaperItem
 } from '../data/wallpapers';
 import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
+import { hasVipAccess } from '../services/authService';
 import { db, CustomBackgroundRecord } from '../db';
 
 export const SpacesWidget: React.FC = () => {
   const router = useRouter();
-  const { user } = useAuthStore();
-  const isPro = user?.plan === 'pro' || user?.plan === 'pro_sandbox';
+  const { user, isPro: storeIsPro, isLifetime, isOwner } = useAuthStore();
+  const isPro = storeIsPro || isLifetime || isOwner || hasVipAccess(user);
 
   const {
     activePresetId,

@@ -7,7 +7,7 @@ import {
   ROOM_CATEGORIES,
   StudyRoom
 } from '../services/studyRoomService';
-import { isOwnerEmail, isLadyBoss, isVipFriend } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
 import { supabase } from '../lib/supabase';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -130,7 +130,7 @@ export const StudyRoomLobby: React.FC = () => {
 
   const isProUser = Boolean(
     user && (
-      isOwnerEmail(user.email) ||
+      hasVipAccess(user) || isOwnerEmail(user.email) ||
       isLadyBoss(user.email) ||
       isVipFriend(user.email) ||
       user.plan === 'pro' ||

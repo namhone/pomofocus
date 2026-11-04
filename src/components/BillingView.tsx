@@ -222,6 +222,8 @@ export const BillingView: React.FC = () => {
     isLifetime ||
     user?.isLifetime ||
     user?.plan === 'pro_lifetime' ||
+    user?.plan === 'lifetime' ||
+    user?.role === 'founder' ||
     isOwnerEmail(user?.email) ||
     isLadyBoss(user?.email) ||
     isVipFriend(user?.email)

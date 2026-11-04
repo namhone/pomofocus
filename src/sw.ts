@@ -4,7 +4,7 @@ import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const SW_CACHE_VERSION = 'v3.1.0-turn-universal-coupon';
+const SW_CACHE_VERSION = 'v3.2.0-founder-vip-unlocked';
 
 // Bắt buộc Service Worker kích hoạt ngay lập tức và giành quyền kiểm soát mọi client
 self.skipWaiting();

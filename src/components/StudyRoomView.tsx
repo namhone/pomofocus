@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
-import { isOwnerEmail, isLadyBoss, isVipFriend, authService } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, authService, hasVipAccess } from '../services/authService';
 import { extractYouTubeEmbedUrl } from '../utils/media';
 import { supabase } from '../lib/supabase';
 import {
@@ -682,7 +682,7 @@ export const StudyRoomView: React.FC = () => {
 
   const isProUser = Boolean(
     user && (
-      isOwnerEmail(user.email) ||
+      hasVipAccess(user) || isOwnerEmail(user.email) ||
       isLadyBoss(user.email) ||
       isVipFriend(user.email) ||
       user.plan === 'pro' ||

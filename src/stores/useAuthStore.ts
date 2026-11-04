@@ -6,6 +6,7 @@ import {
   ProfileUpdates,
   UserDataExport,
   hasProEntitlement,
+  hasVipAccess,
   isOwnerEmail,
   isLadyBoss,
   isVipFriend,
@@ -37,6 +38,7 @@ export interface AuthState {
   isOwner: boolean;
   isLadyBoss: boolean;
   isVipFriend: boolean;
+  hasVipAccess: boolean;
   planLabel: string;
 
   // Actions
@@ -73,8 +75,9 @@ const initialSession = authService.getCurrentSession();
 
 export const useAuthStore = create<AuthState>((set, get) => {
   const computeDerivedPlanState = (user: UserProfile | null) => ({
-    isPro: hasProEntitlement(user?.plan, user?.email),
-    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email) || user?.plan === 'lifetime'),
+    isPro: hasProEntitlement(user?.plan, user?.email) || hasVipAccess(user),
+    hasVipAccess: hasVipAccess(user),
+    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email) || user?.plan === 'lifetime' || user?.role === 'founder'),
     isBetaPro: user?.plan === 'pro_beta',
     isOwner: isOwnerEmail(user?.email),
     isLadyBoss: isLadyBoss(user?.email),
