@@ -60,7 +60,9 @@ import {
   UserX,
   GripHorizontal,
   Trash2,
-  Pencil
+  Pencil,
+  Plus,
+  LogOut
 } from 'lucide-react';
 
 interface FloatingReaction {
@@ -2245,7 +2247,9 @@ export const StudyRoomView: React.FC = () => {
           </h2>
 
           <p className="text-xs text-neutral-300 leading-relaxed mb-6">
-            {accessResult.message}
+            {(accessResult.code === 'ROOM_NOT_FOUND' || accessResult.code === 'ROOM_CLOSED' || accessResult.code === 'INVALID_CODE')
+              ? 'Phòng học này không tồn tại hoặc chủ phòng đã đóng phiên học. Hãy hít một hơi thật sâu và tiếp tục cùng các lựa chọn dưới đây nhé.'
+              : accessResult.message}
           </p>
 
           <div className="space-y-2.5">
@@ -2253,34 +2257,38 @@ export const StudyRoomView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => router.navigate('/login')}
-                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
               >
-                Đăng Nhập Tài Khoản
+                <span>Đăng Nhập Tài Khoản</span>
               </button>
             ) : accessResult.code === 'INSUFFICIENT_PERMISSIONS' ? (
               <button
                 type="button"
                 onClick={() => router.navigate('/billing')}
-                className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-neutral-950 font-bold text-xs transition cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-neutral-950 font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
               >
-                Nâng Cấp Gói PRO (Mở Khóa Toàn Bộ)
+                <span>Nâng Cấp Gói PRO (Mở Khóa Toàn Bộ)</span>
               </button>
             ) : null}
 
             <button
               type="button"
+              data-testid="room-not-found-create-btn"
               onClick={() => router.navigate('/rooms')}
-              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5"
             >
-              Về Sảnh Phòng Học
+              <Plus size={15} />
+              <span>➕ Tạo Phòng Mới</span>
             </button>
 
             <button
               type="button"
+              data-testid="room-not-found-back-btn"
               onClick={() => router.navigate('/app')}
-              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white text-xs transition cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 backdrop-blur-sm"
             >
-              Quay lại Không Gian Tập Trung
+              <LogOut size={15} />
+              <span>🚪 Về Không Gian Cá Nhân</span>
             </button>
           </div>
         </div>
