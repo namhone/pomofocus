@@ -34,6 +34,7 @@ import { supabase } from './lib/supabase';
 import { usePwaInstallStore } from './stores/usePwaInstallStore';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { useRouter } from './services/router';
+import { getStaticRouteTitle, updateDocumentTitle } from './stores/useTimerStore';
 
 // Lazy-load secondary / heavy floating widgets & overlays to keep entry bundle < 100kB gzip
 const TasksWidget = lazy(() =>
@@ -176,6 +177,17 @@ export const App: React.FC = () => {
 
   const router = useRouter();
   const currentPath = router.currentRoute.path;
+
+  // Dọn dẹp & Khôi phục tiêu đề trang tĩnh hoặc tiêu đề đếm ngược Pomodoro khi đổi tuyến đường
+  useEffect(() => {
+    const isWorkspace = currentPath === '/app' || currentPath.startsWith('/app/');
+    if (!isWorkspace) {
+      document.title = getStaticRouteTitle(currentPath);
+    } else {
+      const timerState = useTimerStore.getState();
+      updateDocumentTitle(timerState.remainingMs, timerState.phase, timerState.status, timerState.linkedTaskTitle);
+    }
+  }, [currentPath]);
 
   const renderRoutedView = () => {
     if (currentPath === '/login') {

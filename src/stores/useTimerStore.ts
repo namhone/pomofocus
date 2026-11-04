@@ -41,7 +41,44 @@ function formatTime(ms: number): string {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function updateDocumentTitle(
+export const ROUTE_STATIC_TITLES: Record<string, string> = {
+  '/billing': 'Bảng Giá & Gói Cước | PomoFocus',
+  '/subscription': 'Bảng Giá & Gói Cước | PomoFocus',
+  '/rooms': 'Phòng Học Nhóm Live | PomoFocus',
+  '/meet': 'Phòng Học Nhóm Live | PomoFocus',
+  '/calendar': 'Lịch Biểu Học Tập | PomoFocus',
+  '/dashboard': 'Thống Kê Năng Suất | PomoFocus',
+  '/history': 'Thống Kê Năng Suất | PomoFocus',
+  '/stats': 'Thống Kê Năng Suất | PomoFocus',
+  '/help': 'Trung Tâm Trợ Giúp | PomoFocus',
+  '/contact': 'Liên Hệ & Phản Hồi | PomoFocus',
+  '/account/security': 'Trung Tâm Bảo Mật | PomoFocus',
+  '/security': 'Trung Tâm Bảo Mật | PomoFocus',
+  '/profile': 'Hồ Sơ Cá Nhân | PomoFocus',
+  '/settings': 'Cài Đặt Hệ Thống | PomoFocus',
+  '/privacy-data': 'Quản Lý Dữ Liệu Riêng Tư | PomoFocus',
+  '/data': 'Quản Lý Dữ Liệu Riêng Tư | PomoFocus',
+  '/login': 'Đăng Nhập | PomoFocus',
+  '/signup': 'Đăng Ký Tài Khoản | PomoFocus',
+  '/terms': 'Điều Khoản Dịch Vụ | PomoFocus',
+  '/privacy': 'Chính Sách Bảo Mật | PomoFocus',
+  '/about': 'Giới Thiệu | PomoFocus',
+  '/': 'PomoFocus — Không Gian Học Tập Tập Trung',
+  '/landing': 'PomoFocus — Không Gian Học Tập Tập Trung'
+};
+
+export function getStaticRouteTitle(pathname: string): string {
+  const clean = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  if (ROUTE_STATIC_TITLES[clean]) {
+    return ROUTE_STATIC_TITLES[clean];
+  }
+  if (clean.startsWith('/rooms/') || clean.startsWith('/room/')) {
+    return 'Phòng Học Trực Tuyến | PomoFocus';
+  }
+  return 'PomoFocus — Không Gian Học Tập Tập Trung';
+}
+
+export function updateDocumentTitle(
   remainingMs: number,
   phase: TimerPhase,
   status: TimerStatus,
@@ -49,15 +86,28 @@ function updateDocumentTitle(
 ): void {
   if (typeof document === 'undefined') return;
 
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isWorkspace = currentPath === '/app' || currentPath.startsWith('/app/');
+
+  // KHÓA PHẠM VI (SIDE-EFFECT ISOLATION):
+  // Chỉ cập nhật tiêu đề đếm ngược khi người dùng đang ở trong không gian học tập (/app).
+  // Khi ở trang khác (/billing, /profile, /rooms...), luôn hiển thị tiêu đề trang tĩnh tương ứng.
+  if (!isWorkspace) {
+    document.title = getStaticRouteTitle(currentPath);
+    return;
+  }
+
   if (status === 'running') {
     const timeStr = formatTime(remainingMs);
-    const label = phase === 'pomodoro' ? 'Focus' : phase === 'short_break' ? 'Short Break' : 'Long Break';
+    const phaseLabel = phase === 'pomodoro' ? 'Tập trung' : phase === 'short_break' ? 'Nghỉ ngắn' : 'Nghỉ dài';
     const taskPrefix = taskTitle ? `[${taskTitle}] ` : '';
-    document.title = `${taskPrefix}${timeStr} | ${label} - Pomodoro`;
+    document.title = `${taskPrefix}${timeStr} - ${phaseLabel} | PomoFocus`;
   } else if (status === 'paused') {
-    document.title = `[Tạm dừng] Pomodoro`;
+    const timeStr = formatTime(remainingMs);
+    const taskPrefix = taskTitle ? `[${taskTitle}] ` : '';
+    document.title = `[Tạm dừng] ${taskPrefix}${timeStr} | PomoFocus`;
   } else {
-    document.title = 'Immersive Pomodoro Workspace';
+    document.title = 'PomoFocus — Không Gian Học Tập Tập Trung';
   }
 }
 
