@@ -1,3 +1,4 @@
+import { Settings } from 'lucide-react';
 import React, { useEffect, useRef, Suspense, lazy } from 'react';
 import { TimerTestInterface } from './components/TimerTestInterface';
 import { WidgetContainer } from './components/WidgetContainer';
@@ -72,6 +73,7 @@ const AiCompanionWidget = lazy(() =>
 export const App: React.FC = () => {
   useFocusAutoDim();
   const isZenMode = useLayoutStore((state) => state.isZenMode);
+  const user = useAuthStore((state) => state.user);
   const isMobile = useLayoutStore((state) => state.isMobile);
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
@@ -251,6 +253,36 @@ export const App: React.FC = () => {
         ) : (
           <>
             <PlatformHeader />
+        {/* Mobile / Tablet Floating Action: Avatar + ⚙️ Cài đặt luôn nổi ở góc trên cùng bên phải */}
+        {isMobile && !isZenMode && (
+          <div className="fixed top-2.5 right-3 z-50">
+            <button
+              type="button"
+              data-testid="mobile-floating-settings-btn"
+              onClick={() => {
+                useLayoutStore.getState().openWidget('settings');
+                useLayoutStore.getState().setActiveMobileTab('settings');
+                setTimeout(() => {
+                  const el = document.querySelector('[data-testid="widget-container-settings"]');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+              }}
+              className="flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-950/70 hover:bg-zinc-900/90 backdrop-blur-md border border-white/10 text-white shadow-lg active:scale-95 transition-all cursor-pointer pointer-events-auto"
+              title="Cài đặt hệ thống (⚙️)"
+              aria-label="Cài đặt hệ thống"
+            >
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt="" className="w-5 h-5 rounded-full object-cover ring-1 ring-zinc-700" />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700 flex items-center justify-center text-[10px] font-bold">
+                  {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}
+                </div>
+              )}
+              <Settings size={13} className="text-zinc-300" />
+            </button>
+          </div>
+        )}
+
             <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
             {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
             {isMobile ? (
@@ -304,18 +336,11 @@ export const App: React.FC = () => {
                   </WidgetContainer>
                 </div>
 
-                <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'spaces' ? 'hidden' : ''}`}>
+                {/* Khung Không Gian Chuẩn Tích Hợp Cả Hình Nền & Âm Thanh Không Bị Xếp Chồng */}
+                <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'spaces' && activeMobileTab !== 'sounds' ? 'hidden' : ''}`}>
                   <WidgetContainer id="spaces">
                     <Suspense fallback={<WidgetSkeleton />}>
                       <SpacesWidget />
-                    </Suspense>
-                  </WidgetContainer>
-                </div>
-
-                <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'sounds' ? 'hidden' : ''}`}>
-                  <WidgetContainer id="sounds">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <AudioWidget />
                     </Suspense>
                   </WidgetContainer>
                 </div>

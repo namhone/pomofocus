@@ -18,6 +18,8 @@ import {
   HardDrive
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
+import { useAuthStore } from '../stores/useAuthStore';
+import { useAiStore } from '../stores/useAiStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { DockPosition } from '../types/layout';
 
@@ -47,6 +49,8 @@ export const SettingsWidget: React.FC = () => {
   const timerSettings = useTimerStore((s) => s.settings);
   const updateTimerSettings = useTimerStore((s) => s.updateSettings);
   const timerStatus = useTimerStore((s) => s.status);
+  const user = useAuthStore((s) => s.user);
+  const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState(false);
@@ -70,6 +74,32 @@ export const SettingsWidget: React.FC = () => {
       className="flex h-full w-full flex-col text-slate-100 p-1 select-none space-y-4"
     >
       {/* Header Info */}
+      {/* Account & Founder VIP Card */}
+      <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-cyan-500/10 border border-amber-500/20 flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {user?.avatarUrl ? (
+            <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-amber-500/40 shrink-0" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+              {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">
+                {user?.displayName || 'Nam Hồ'}
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 border border-amber-500/30 text-amber-300 shrink-0">
+                {user?.badge || 'Founder VIP 👑'}
+              </span>
+            </div>
+            <p className="text-[10px] text-neutral-400 truncate">
+              {user?.email || 'namho03052k9@gmail.com'} • {aiCreditsBalance.toLocaleString('vi-VN')}⚡
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">

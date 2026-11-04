@@ -6,7 +6,8 @@ import {
   Sliders,
   Layers,
   Square,
-  Sparkles
+  Sparkles,
+  Settings
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
@@ -115,7 +116,7 @@ export const MobileBottomNav: React.FC = () => {
   useEffect(() => {
     if (mobileViewMode !== 'stack') return;
 
-    const widgetIds: WidgetId[] = ['timer', 'tasks', 'notes', 'sounds', 'media', 'spaces'];
+    const widgetIds: WidgetId[] = ['timer', 'tasks', 'notes', 'spaces', 'settings'];
     const elements: HTMLElement[] = [];
 
     widgetIds.forEach((id) => {
@@ -344,7 +345,7 @@ export const MobileBottomNav: React.FC = () => {
         role="toolbar"
         aria-label="Thanh điều hướng di động"
         data-testid="mobile-bottom-navigation"
-        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-40 px-1 grid grid-cols-4 items-center select-none transition-all duration-200 ${
+        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-40 px-1 grid grid-cols-5 items-center select-none transition-all duration-200 ${
           isKeyboardOpen || isAiOpen
             ? 'translate-y-full opacity-0 pointer-events-none invisible'
             : isFocusDimmed ? 'translate-y-0 opacity-15 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
@@ -388,14 +389,14 @@ export const MobileBottomNav: React.FC = () => {
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Kế hoạch</span>
         </button>
 
-        {/* 3. Nút Không gian (25%) */}
+        {/* 3. Nút Không gian (20%) */}
         <button
           type="button"
-          data-testid="dock-btn-sounds"
+          data-testid="dock-btn-sounds mobile-btn-spaces"
           aria-label="Không gian"
-          aria-current={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 'page' : undefined}
-          aria-pressed={widgets.sounds?.isOpen ?? false}
-          onClick={() => handleNavClick('sounds')}
+          aria-current={activeMobileTab === 'spaces' || activeMobileTab === 'sounds' || activeMobileTab === 'media' ? 'page' : undefined}
+          aria-pressed={widgets.spaces?.isOpen ?? false}
+          onClick={() => handleNavClick('spaces')}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media'
@@ -424,6 +425,24 @@ export const MobileBottomNav: React.FC = () => {
         >
           <Sparkles size={20} strokeWidth={isAiOpen ? 2.2 : 1.75} className={isAiOpen ? 'text-cyan-300' : 'text-zinc-400'} />
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Trợ lý AI</span>
+        </button>
+        {/* 5. Nút Cài đặt (20%) */}
+        <button
+          type="button"
+          data-testid="dock-btn-settings mobile-btn-settings"
+          aria-label="Cài đặt"
+          aria-current={activeMobileTab === 'settings' ? 'page' : undefined}
+          aria-pressed={widgets.settings?.isOpen ?? false}
+          onClick={() => handleNavClick('settings')}
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+          className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
+            activeMobileTab === 'settings'
+              ? 'text-white font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Settings size={20} strokeWidth={activeMobileTab === 'settings' ? 2.2 : 1.75} className={activeMobileTab === 'settings' ? 'text-white' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Cài đặt</span>
         </button>
       </nav>
       {showResetConfirm && (

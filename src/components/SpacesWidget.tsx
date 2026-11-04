@@ -28,13 +28,28 @@ import {
   WallpaperItem
 } from '../data/wallpapers';
 import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
-import { hasVipAccess } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
+import { AudioWidget } from './AudioWidget';
 import { db, CustomBackgroundRecord } from '../db';
 
 export const SpacesWidget: React.FC = () => {
   const router = useRouter();
   const { user, isPro: storeIsPro, isLifetime, isOwner } = useAuthStore();
-  const isPro = storeIsPro || isLifetime || isOwner || hasVipAccess(user);
+  const isPrivileged = Boolean(
+    storeIsPro ||
+    isLifetime ||
+    isOwner ||
+    user?.role === 'founder' ||
+    user?.plan === 'lifetime' ||
+    user?.plan === 'pro' ||
+    isOwnerEmail(user?.email) ||
+    isLadyBoss(user?.email) ||
+    isVipFriend(user?.email) ||
+    hasVipAccess(user)
+  );
+  const isPro = isPrivileged;
+  // Tab chuyển đổi giữa [ 🖼️ Hình Nền ] và [ 🎵 Âm Thanh & Chuông ]
+  const [spaceMainTab, setSpaceMainTab] = useState<'wallpapers' | 'audio'>('wallpapers');
 
   const {
     activePresetId,
@@ -171,8 +186,44 @@ export const SpacesWidget: React.FC = () => {
   return (
     <div
       data-testid="spaces-widget"
-      className="flex h-full w-full max-w-[340px] max-h-[480px] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      className="flex h-full w-full max-w-[420px] max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700"
     >
+            {/* 2 Tab chuyển đổi rõ ràng ở đầu: [ 🖼️ Hình Nền ] | [ 🎵 Âm Thanh & Chuông ] */}
+      <div className="flex rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2">
+        <button
+          type="button"
+          data-testid="spaces-tab-wallpapers"
+          onClick={() => setSpaceMainTab('wallpapers')}
+          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs ${
+            spaceMainTab === 'wallpapers'
+              ? 'bg-white/20 text-white shadow-sm font-semibold'
+              : 'text-neutral-400 hover:text-white'
+          }`}
+        >
+          <span>🖼️</span>
+          <span>Hình Nền</span>
+        </button>
+        <button
+          type="button"
+          data-testid="spaces-tab-audio"
+          onClick={() => setSpaceMainTab('audio')}
+          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs ${
+            spaceMainTab === 'audio'
+              ? 'bg-white/20 text-white shadow-sm font-semibold'
+              : 'text-neutral-400 hover:text-white'
+          }`}
+        >
+          <span>🎵</span>
+          <span>Âm Thanh & Chuông</span>
+        </button>
+      </div>
+
+      {spaceMainTab === 'audio' ? (
+        <div className="flex-1 min-h-[380px] p-1">
+          <AudioWidget />
+        </div>
+      ) : (
+        <>
       {/* Header Info & Actions */}
       <div className="pb-2 border-b border-white/[0.08] space-y-2 shrink-0">
         <div className="flex items-center justify-between">
@@ -663,6 +714,8 @@ export const SpacesWidget: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );
