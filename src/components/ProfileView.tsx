@@ -4,6 +4,7 @@ import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
+  ArrowLeft,
   Shield,
   Sparkles,
   Calendar,
@@ -170,12 +171,32 @@ export const ProfileView: React.FC = () => {
       <PlatformHeader />
 
       <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
-        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
+        {/* Nút Quay Lại Bàn Học & User Email */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            data-testid="back-to-workspace-btn"
+            onClick={() => router.navigate('/app')}
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
+          >
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
+            <span>Quay lại không gian học</span>
+          </button>
+
+          <span
+            className="text-[11px] sm:text-xs text-zinc-500 font-mono truncate max-w-[140px] sm:max-w-xs"
+            title={user.email}
+          >
+            {user.email}
+          </span>
+        </div>
+
+        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư (Full Width Scrollable) */}
+        <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs w-max sm:w-auto">
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-200" />
               <span>Hồ Sơ Cá Nhân</span>
@@ -184,7 +205,7 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-security"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
@@ -193,7 +214,7 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-billing"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
@@ -202,21 +223,12 @@ export const ProfileView: React.FC = () => {
               type="button"
               data-testid="nav-tab-privacy"
               onClick={() => router.navigate('/privacy-data')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-400" />
               <span>Quyền Riêng Tư</span>
             </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => router.navigate('/app')}
-            className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap hidden sm:flex"
-          >
-            <span>Vào Không Gian</span>
-            <span>→</span>
-          </button>
         </div>
 
         {/* Status Toast */}

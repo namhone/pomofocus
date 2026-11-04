@@ -6,6 +6,7 @@ import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore } from '../stores/useAiStore';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
+  Database,
   Users,
   Calendar,
   CreditCard,
@@ -137,11 +138,7 @@ export const PlatformHeader: React.FC = () => {
   };
 
   const handleAvatarClick = () => {
-    if (window.innerWidth < 640) {
-      setIsMobileMenuOpen((prev) => !prev);
-    } else {
-      setIsUserDropdownOpen((prev) => !prev);
-    }
+    setIsUserDropdownOpen((prev) => !prev);
   };
 
   const handleConfirmLogout = () => {
@@ -474,6 +471,48 @@ export const PlatformHeader: React.FC = () => {
 
                   {/* Dropdown Options */}
                   <div className="space-y-0.5">
+                    {/* Lối tắt điều hướng nhanh */}
+                    <button
+                      type="button"
+                      data-testid="header-user-app-btn"
+                      onClick={() => handleNavigate('/app')}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Home size={14} className="text-emerald-400 shrink-0" />
+                        <span className="font-medium">Không Gian Học</span>
+                      </div>
+                      {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="header-user-rooms-btn"
+                      onClick={() => handleNavigate('/rooms')}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Users size={14} className="text-indigo-400 shrink-0" />
+                        <span className="font-medium">Phòng Học Nhóm Live</span>
+                      </div>
+                      {currentPath === '/rooms' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="header-user-billing-btn"
+                      onClick={() => handleNavigate('/billing')}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <CreditCard size={14} className="text-amber-400 shrink-0" />
+                        <span className="font-medium">Bảng Giá &amp; Gói Cước</span>
+                      </div>
+                      {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                    </button>
+
+                    <div className="border-t border-white/10 my-1.5" />
+
                     <button
                       type="button"
                       data-testid="header-user-profile-btn"
@@ -511,6 +550,16 @@ export const PlatformHeader: React.FC = () => {
                     >
                       <Shield size={14} className="text-zinc-400 shrink-0" />
                       <span className="font-medium">Bảo mật &amp; Phiên đăng nhập</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="header-user-privacy-btn"
+                      onClick={() => handleNavigate('/privacy-data')}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <Database size={14} className="text-zinc-400 shrink-0" />
+                      <span className="font-medium">Quyền riêng tư &amp; Dữ liệu</span>
                     </button>
 
                     {canInstall && (
@@ -566,18 +615,20 @@ export const PlatformHeader: React.FC = () => {
           )}
 
           {/* Nút Hamburger Menu ☰ trên mobile */}
-          <button
-            type="button"
-            id="header-mobile-menu-btn"
-            data-testid="header-mobile-menu-btn"
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden h-8 w-8 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
-            title="Menu điều hướng"
-            aria-label="Menu điều hướng"
-            aria-expanded={isMobileMenuOpen}
-          >
-            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          {!isAuthenticated && (
+            <button
+              type="button"
+              id="header-mobile-menu-btn"
+              data-testid="header-mobile-menu-btn"
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              className="lg:hidden h-8 w-8 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
+              title="Menu điều hướng"
+              aria-label="Menu điều hướng"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          )}
         </div>
       </header>
 

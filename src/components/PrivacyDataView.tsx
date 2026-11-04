@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
+  ArrowLeft,
   Database,
   Download,
   Trash2,
@@ -128,14 +129,32 @@ export const PrivacyDataView: React.FC = () => {
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-6">
-        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư */}
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs overflow-x-auto no-scrollbar scrollbar-none flex-nowrap shrink-0">
+      <main className="flex-1 w-full max-w-4xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
+        {/* Nút Quay Lại Bàn Học & Privacy Status */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            data-testid="back-to-workspace-btn"
+            onClick={() => router.navigate('/app')}
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
+          >
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
+            <span>Quay lại không gian học</span>
+          </button>
+
+          <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+            <ShieldCheck size={14} />
+            <span className="whitespace-nowrap font-medium text-[11px] sm:text-xs">Client Encrypted</span>
+          </div>
+        </div>
+
+        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư (Full Width Scrollable) */}
+        <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs w-max sm:w-auto">
             <button
               type="button"
               onClick={() => router.navigate('/profile')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-400" />
               <span>Hồ Sơ Cá Nhân</span>
@@ -143,7 +162,7 @@ export const PrivacyDataView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/account/security')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
               <span>Bảo Mật</span>
@@ -151,23 +170,18 @@ export const PrivacyDataView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/billing')}
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
               <span>Gói Cước</span>
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-200" />
               <span>Quyền Riêng Tư</span>
             </button>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400">
-            <ShieldCheck size={14} />
-            <span className="whitespace-nowrap">Local-First & Client Encrypted</span>
           </div>
         </div>
 
