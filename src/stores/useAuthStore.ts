@@ -68,6 +68,7 @@ export interface AuthState {
   downgradeToFree: () => void;
   syncToCloud: () => Promise<void>;
   syncEntitlementsFromCloud: () => Promise<void>;
+  loadUserFromCloud: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -625,6 +626,65 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
+    loadUserFromCloud: async (userId: string) => {
+      if (!userId) return;
+      try {
+        const cloudProf = await ProfileService.fetchProfile(userId);
+        if (cloudProf) {
+          const isOwner = isOwnerEmail(cloudProf.email) || isLadyBoss(cloudProf.email) || isVipFriend(cloudProf.email);
+          const effectiveRole = isOwner ? 'founder' : cloudProf.role || 'user';
+          const effectivePlan = isOwner ? 'lifetime' : cloudProf.plan || 'free';
+          const effectiveBadge = isOwner ? 'Founder VIP 👑' : (effectivePlan === 'lifetime' ? 'Founder VIP 👑' : 'Thành viên Free');
+          const effectiveCredits = typeof cloudProf.ai_credits_balance === 'number' ? cloudProf.ai_credits_balance : (isOwner ? 1000 : 50);
+
+          set((state) => {
+            const current = state.user;
+            const merged: UserProfile = {
+              ...(current || {
+                id: userId,
+                email: cloudProf.email,
+                displayName: cloudProf.full_name,
+                createdAt: Date.now()
+              }),
+              id: userId,
+              email: cloudProf.email || current?.email || '',
+              displayName: cloudProf.full_name || current?.displayName || (isOwner ? 'Nam Hồ' : 'Người dùng'),
+              avatarUrl: cloudProf.avatar_url || current?.avatarUrl || '',
+              role: effectiveRole,
+              plan: effectivePlan as any,
+              badge: effectiveBadge,
+              credits: effectiveCredits,
+              isLifetime: isOwner || effectivePlan === 'lifetime'
+            };
+
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(merged));
+            }
+
+            return {
+              user: merged,
+              role: merged.role,
+              badge: merged.badge,
+              credits: merged.credits,
+              ...computeDerivedPlanState(merged)
+            };
+          });
+
+          // Đồng bộ số dư sang AI store
+          useAiStore.setState({
+            aiCreditsBalance: effectiveCredits,
+            aiPlan: (effectivePlan as any) || (isOwner ? 'lifetime' : 'free')
+          });
+        }
+      } catch (err) {
+        console.warn('[useAuthStore] loadUserFromCloud error:', err);
+      }
+    },
+
     clearError: () => set({ error: null })
   };
 });
+
+if (typeof window !== 'undefined') {
+  (window as any).useAuthStore = useAuthStore;
+}

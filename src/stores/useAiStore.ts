@@ -146,10 +146,11 @@ export interface AiState {
   checkMonthlyReset: (currentTime?: number) => boolean;
   checkPeriodicReset: (currentTime?: number) => void;
   clearChat: () => void;
-  createNewSession: () => void;
-  loadSession: (sessionId: string) => void;
-  deleteSession: (sessionId: string) => void;
+  createNewSession: () => Promise<void>;
+  loadSession: (sessionId: string) => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
   initConversation: (userId?: string) => Promise<void>;
+  refreshCreditsFromCloud: (userId?: string) => Promise<void>;
   sendMessage: (prompt: string, actionType?: AiActionType, attachment?: AiAttachmentInfo) => Promise<string>;
   continueGenerating: () => Promise<void>;
   syncWithAuth: (plan?: string) => void;
@@ -162,7 +163,14 @@ function getStoredUserId(): string | undefined {
     const raw = localStorage.getItem('pomodoro_study_auth_session');
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed.id;
+      if (parsed.id) return parsed.id;
+      if (parsed.user?.id) return parsed.user.id;
+    }
+  } catch {}
+  try {
+    const authStore = (window as any).useAuthStore;
+    if (authStore?.getState?.()?.user?.id) {
+      return authStore.getState().user.id;
     }
   } catch {}
   return undefined;
@@ -235,10 +243,21 @@ export const useAiStore = create<AiState>()(
         if (current < cost) {
           return false;
         }
-        set({ aiCreditsBalance: current - cost });
+        const newBal = current - cost;
+        set({ aiCreditsBalance: newBal });
+        if (typeof window !== 'undefined' && (window as any).useAuthStore) {
+          (window as any).useAuthStore.setState({ credits: newBal });
+        }
         const uid = getStoredUserId();
         if (uid) {
-          ProfileService.deductCreditsCloud(uid, cost).catch(() => {});
+          ProfileService.deductCreditsCloud(uid, cost).then((res) => {
+            if (typeof res?.remainingCredits === 'number') {
+              set({ aiCreditsBalance: res.remainingCredits });
+              if (typeof window !== 'undefined' && (window as any).useAuthStore) {
+                (window as any).useAuthStore.setState({ credits: res.remainingCredits });
+              }
+            }
+          }).catch(() => {});
         }
         return true;
       },
@@ -291,33 +310,32 @@ export const useAiStore = create<AiState>()(
       },
 
 
-      createNewSession: () => {
-        const { messages, sessions, currentSessionId } = get();
-        const userMsgs = messages.filter((m) => m.role === 'user');
-        let updatedSessions = [...(sessions || [])];
+      createNewSession: async () => {
+        const uid = getStoredUserId();
+        let newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        let newTitle = 'Phiên học tập mới';
 
-        if (userMsgs.length > 0) {
-          const firstUserMsg = userMsgs[0].content.slice(0, 40) || 'Đoạn chat mới';
-          const sessId = currentSessionId || ('session-' + Date.now());
-          const existingIdx = updatedSessions.findIndex((s) => s.id === sessId);
-          const sessionObj = {
-            id: sessId,
-            title: firstUserMsg,
-            createdAt: Date.now(),
-            messages
-          };
-
-          if (existingIdx >= 0) {
-            updatedSessions[existingIdx] = sessionObj;
-          } else {
-            updatedSessions = [sessionObj, ...updatedSessions].slice(0, 20);
-          }
+        if (uid) {
+          try {
+            const created = await AiChatService.createConversation(uid);
+            newConvId = created.id;
+            newTitle = created.title;
+          } catch {}
         }
 
-        const newId = 'session-' + Date.now();
-        set({
-          sessions: updatedSessions,
-          currentSessionId: newId,
+        const newSession: AiSession = {
+          id: newConvId,
+          title: newTitle,
+          createdAt: Date.now(),
+          messages: []
+        };
+
+        AiChatService.setActiveConversationId(newConvId);
+
+        set((state) => ({
+          sessions: [newSession, ...(state.sessions || [])],
+          activeConversationId: newConvId,
+          currentSessionId: newConvId,
           messages: [
             {
               id: 'welcome-' + Date.now(),
@@ -328,28 +346,43 @@ export const useAiStore = create<AiState>()(
             }
           ],
           error: null
-        });
+        }));
       },
 
-      loadSession: (sessionId) => {
+      loadSession: async (sessionId: string) => {
+        AiChatService.setActiveConversationId(sessionId);
+        set({
+          activeConversationId: sessionId,
+          currentSessionId: sessionId,
+          isLoading: true,
+          error: null
+        });
+
+        try {
+          const cloudMsgs = await AiChatService.loadConversationMessages(sessionId);
+          if (cloudMsgs && cloudMsgs.length > 0) {
+            const mapped: AiMessage[] = cloudMsgs.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              timestamp: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+              actionType: m.action_type as AiActionType,
+              creditsUsed: m.credits_used,
+              attachmentUrl: m.attachment_url,
+              attachmentName: m.attachment_name,
+              isTruncated: m.is_truncated
+            }));
+            set({ messages: mapped, isLoading: false });
+            return;
+          }
+        } catch {}
+
         const { sessions } = get();
         const found = (sessions || []).find((s) => s.id === sessionId);
-        if (found) {
+        if (found && found.messages && found.messages.length > 0) {
+          set({ messages: found.messages, isLoading: false });
+        } else {
           set({
-            currentSessionId: found.id,
-            messages: found.messages,
-            error: null
-          });
-        }
-      },
-
-      deleteSession: (sessionId) => {
-        const { sessions, currentSessionId } = get();
-        const nextSessions = (sessions || []).filter((s) => s.id !== sessionId);
-        if (currentSessionId === sessionId) {
-          set({
-            sessions: nextSessions,
-            currentSessionId: null,
             messages: [
               {
                 id: 'welcome-' + Date.now(),
@@ -358,34 +391,67 @@ export const useAiStore = create<AiState>()(
                   'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨',
                 timestamp: Date.now()
               }
-            ]
+            ],
+            isLoading: false
           });
+        }
+      },
+
+      deleteSession: async (sessionId: string) => {
+        const { sessions, currentSessionId } = get();
+        const nextSessions = (sessions || []).filter((s) => s.id !== sessionId);
+
+        AiChatService.deleteConversation(sessionId).catch(() => {});
+
+        if (currentSessionId === sessionId) {
+          const fallbackSession = nextSessions[0];
+          if (fallbackSession) {
+            get().loadSession(fallbackSession.id);
+            set({ sessions: nextSessions });
+          } else {
+            AiChatService.setActiveConversationId(null);
+            set({
+              sessions: [],
+              activeConversationId: null,
+              currentSessionId: null,
+              messages: [
+                {
+                  id: 'welcome-' + Date.now(),
+                  role: 'assistant',
+                  content:
+                    'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨',
+                  timestamp: Date.now()
+                }
+              ]
+            });
+          }
         } else {
           set({ sessions: nextSessions });
         }
       },
 
-      clearChat: () => {
-        set({
-          messages: [
-            {
-              id: `welcome-${Date.now()}`,
-              role: 'assistant',
-              content:
-                'Cuộc trò chuyện đã được làm mới. Hãy đặt câu hỏi, đính kèm đề cương hoặc chọn một tác vụ học tập bên dưới để tôi hỗ trợ bạn!',
-              timestamp: Date.now()
-            }
-          ],
-          error: null
-        });
-      },
-
       initConversation: async (userId?: string) => {
-        if (!userId) return;
-        try {
-          const convId = await AiChatService.getOrCreateActiveConversation(userId);
-          set({ activeConversationId: convId });
+        const uid = userId || getStoredUserId();
+        if (!uid) return;
 
+        try {
+          // 1. Tải danh sách các cuộc trò chuyện từ Cloud
+          const cloudConvs = await AiChatService.fetchConversations(uid);
+          if (cloudConvs && cloudConvs.length > 0) {
+            const mappedSessions: AiSession[] = cloudConvs.map((c) => ({
+              id: c.id,
+              title: c.title || 'Cuộc trò chuyện',
+              createdAt: c.created_at ? new Date(c.created_at).getTime() : Date.now(),
+              messages: []
+            }));
+            set({ sessions: mappedSessions });
+          }
+
+          // 2. Lấy hoặc tạo active conversation trên Cloud
+          const convId = await AiChatService.getOrCreateActiveConversation(uid);
+          set({ activeConversationId: convId, currentSessionId: convId });
+
+          // 3. Tải tin nhắn của active conversation từ Cloud
           const cloudMsgs = await AiChatService.loadConversationMessages(convId);
           if (cloudMsgs && cloudMsgs.length > 0) {
             const mapped: AiMessage[] = cloudMsgs.map((m) => ({
@@ -401,9 +467,46 @@ export const useAiStore = create<AiState>()(
             }));
             set({ messages: mapped });
           }
+
+          // 4. Đồng bộ số dư tia chớp từ Supabase Cloud
+          get().refreshCreditsFromCloud(uid);
         } catch (e) {
           console.warn('[useAiStore] initConversation fallback:', e);
         }
+      },
+
+      refreshCreditsFromCloud: async (userId?: string) => {
+        const uid = userId || getStoredUserId();
+        if (!uid) return;
+        try {
+          const profile = await ProfileService.fetchProfile(uid);
+          if (profile && typeof profile.ai_credits_balance === 'number') {
+            set({
+              aiCreditsBalance: profile.ai_credits_balance,
+              aiPlan: (profile.plan as any) || get().aiPlan
+            });
+            if (typeof window !== 'undefined' && (window as any).useAuthStore) {
+              (window as any).useAuthStore.setState({ credits: profile.ai_credits_balance });
+            }
+          }
+        } catch (err) {
+          console.warn('[useAiStore] refreshCreditsFromCloud error:', err);
+        }
+      },
+
+      clearChat: () => {
+        set({
+          messages: [
+            {
+              id: `welcome-${Date.now()}`,
+              role: 'assistant',
+              content:
+                'Cuộc trò chuyện đã được làm mới. Hãy đặt câu hỏi, đính kèm đề cương hoặc yêu cầu bài tập để tôi hỗ trợ bạn!',
+              timestamp: Date.now()
+            }
+          ],
+          error: null
+        });
       },
 
       syncWithAuth: (authPlan) => {
@@ -623,14 +726,15 @@ export const useAiStore = create<AiState>()(
             isStreaming: false
           }));
 
-          // 6. Lưu trữ bất đồng bộ lên Supabase Cloud nếu có activeConversationId
+          // 6. Lưu trữ bất đồng bộ lên Supabase Cloud
           const convId = get().activeConversationId;
-          if (convId) {
+          const currentUid = getStoredUserId();
+          if (convId && currentUid) {
             try {
               AiChatService.saveMessage({
                 id: userMsgId,
                 conversation_id: convId,
-                user_id: 'current_user',
+                user_id: currentUid,
                 role: 'user',
                 content: prompt,
                 action_type: effectiveAction,
@@ -641,11 +745,11 @@ export const useAiStore = create<AiState>()(
               AiChatService.saveMessage({
                 id: assistantMsgId,
                 conversation_id: convId,
-                user_id: 'current_user',
+                user_id: currentUid,
                 role: 'assistant',
                 content: replyText,
                 action_type: effectiveAction,
-                credits_used: cost,
+                credits_used: finalCost,
                 is_truncated: isTruncated
               }).catch(() => {});
             } catch {}

@@ -149,6 +149,11 @@ export const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         useAuthStore.getState().syncUserFromSupabase(session.user);
+      } else {
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser?.id) {
+          useAuthStore.getState().loadUserFromCloud(currentUser.id);
+        }
       }
     });
 

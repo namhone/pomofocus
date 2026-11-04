@@ -117,6 +117,78 @@ export interface AiAttachmentInfo {
 export class AiChatService {
   private static activeConversationId: string | null = null;
 
+  static setActiveConversationId(id: string | null): void {
+    this.activeConversationId = id;
+  }
+
+  static getActiveConversationId(): string | null {
+    return this.activeConversationId;
+  }
+
+  /**
+   * Tải toàn bộ danh sách phiên chat của người dùng từ Supabase Cloud
+   */
+  static async fetchConversations(userId: string): Promise<AiConversation[]> {
+    if (!userId) return [];
+    try {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false });
+
+      if (error || !Array.isArray(data)) {
+        return [];
+      }
+      return data as AiConversation[];
+    } catch (err) {
+      console.warn('[AiChatService] Lỗi fetchConversations:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Tạo cuộc trò chuyện mới trên Supabase Cloud
+   */
+  static async createConversation(userId: string, title: string = 'Phiên học tập mới'): Promise<AiConversation> {
+    const newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newConv: AiConversation = {
+      id: newConvId,
+      user_id: userId,
+      title: title.trim(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const { data } = await supabase.from('ai_conversations').insert(newConv);
+      this.activeConversationId = (data as AiConversation)?.id || newConvId;
+      return (data as AiConversation) || newConv;
+    } catch (err) {
+      console.warn('[AiChatService] Lỗi createConversation:', err);
+      this.activeConversationId = newConvId;
+      return newConv;
+    }
+  }
+
+  /**
+   * Xóa một cuộc trò chuyện trên Supabase Cloud
+   */
+  static async deleteConversation(conversationId: string): Promise<boolean> {
+    if (!conversationId) return false;
+    try {
+      if (this.activeConversationId === conversationId) {
+        this.activeConversationId = null;
+      }
+      await supabase.from('ai_messages').delete().eq('conversation_id', conversationId);
+      const { error } = await supabase.from('ai_conversations').delete().eq('id', conversationId);
+      return !error;
+    } catch (err) {
+      console.warn('[AiChatService] Lỗi deleteConversation:', err);
+      return false;
+    }
+  }
+
   /**
    * Khởi tạo hoặc lấy cuộc trò chuyện đang hoạt động của người dùng
    */
@@ -140,17 +212,9 @@ export class AiChatService {
       }
 
       // 2. Nếu chưa có, tạo mới
-      const newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      const { data: created } = await supabase.from('ai_conversations').insert({
-        id: newConvId,
-        user_id: userId,
-        title: 'Phiên học tập mới',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-
-      this.activeConversationId = created?.id || newConvId;
-      return this.activeConversationId!;
+      const created = await this.createConversation(userId, 'Phiên học tập mới');
+      this.activeConversationId = created.id;
+      return this.activeConversationId;
     } catch (err) {
       console.warn('[AiChatService] Không thể kết nối Supabase ai_conversations, dùng ID cục bộ:', err);
       this.activeConversationId = `local_conv_${Date.now()}`;
@@ -196,12 +260,24 @@ export class AiChatService {
         return payload;
       }
 
-      // Cập nhật updated_at cho conversation
+      // Cập nhật updated_at và tự động đặt tiêu đề gợi nhớ nếu là câu hỏi đầu tiên
       try {
-        await supabase
-          .from('ai_conversations')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', record.conversation_id);
+        if (record.role === 'user' && record.content) {
+          const shortTitle = record.content.trim().slice(0, 36);
+          await supabase
+            .from('ai_conversations')
+            .update({
+              title: shortTitle,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', record.conversation_id)
+            .eq('title', 'Phiên học tập mới');
+        } else {
+          await supabase
+            .from('ai_conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', record.conversation_id);
+        }
       } catch {}
 
       return (data as AiMessageRecord) || payload;

@@ -131,6 +131,7 @@ export const AiCompanionWidget: React.FC = () => {
   useEffect(() => {
     if (isOpen && user?.id) {
       initConversation(user.id);
+      useAiStore.getState().refreshCreditsFromCloud(user.id);
     }
   }, [isOpen, user?.id]);
 
