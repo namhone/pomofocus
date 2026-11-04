@@ -295,27 +295,31 @@ export const authService = {
     }
 
     if (!user || user.passwordHash !== password) {
-      if (user && user.passwordHash !== password) {
+      if (user && user.passwordHash && user.passwordHash !== password) {
         throw new Error('Mật khẩu không chính xác. Vui lòng thử lại.');
       }
-      // Tự động tạo tài khoản mới trong giai đoạn Demo Beta và cấp PRO Beta 3 năm (hoặc Lifetime nếu là Owner)
-      const baseUser: StoredUserAccount = {
-        id: cloudProfile?.id || `usr_${Date.now()}`,
-        email: normalized,
-        displayName: normalized.split('@')[0],
-        plan: 'pro_beta',
-        createdAt: Date.now(),
-        passwordHash: password,
-        authProvider: 'password'
-      };
-      const newUser = applyEntitlementPolicy(baseUser);
-      users[normalized] = newUser;
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      if (user && !user.passwordHash) {
+        user.passwordHash = password;
+      } else {
+        // Tự động tạo tài khoản mới trong giai đoạn Demo Beta và cấp PRO Beta 3 năm (hoặc Lifetime nếu là Owner)
+        const baseUser: StoredUserAccount = {
+          id: cloudProfile?.id || `usr_${Date.now()}`,
+          email: normalized,
+          displayName: normalized.split('@')[0],
+          plan: 'pro_beta',
+          createdAt: Date.now(),
+          passwordHash: password,
+          authProvider: 'password'
+        };
+        const newUser = applyEntitlementPolicy(baseUser);
+        users[normalized] = newUser;
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 
-      const { passwordHash: _, ...profile } = newUser;
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-      await this.syncLocalDataToCloud(profile.id);
-      return profile;
+        const { passwordHash: _, ...profile } = newUser;
+        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
+        await this.syncLocalDataToCloud(profile.id);
+        return profile;
+      }
     }
 
     // Cập nhật quyền lợi theo chính sách Beta
@@ -348,6 +352,39 @@ export const authService = {
       }
     }
 
+    // BẮT BUỘC KÉO avatar_url MỚI NHẤT TỪ SUPABASE CLOUD (CLOUD REHYDRATION)
+    try {
+      const cloudProfile = (profile.id ? await ProfileService.fetchProfile(profile.id) : null) || (await ProfileService.fetchProfileByEmail(normalized));
+      if (cloudProfile) {
+        const cloudCustom = cloudProfile.custom_avatar_url || (cloudProfile.has_custom_avatar ? cloudProfile.avatar_url : null);
+        const resolvedAvatar = cloudCustom || profile.customAvatarUrl || (profile.hasCustomAvatar ? profile.avatarUrl : null) || cloudProfile.avatar_url || profile.avatarUrl;
+
+        if (cloudCustom || profile.customAvatarUrl || profile.hasCustomAvatar) {
+          profile.avatarUrl = resolvedAvatar;
+          profile.customAvatarUrl = resolvedAvatar;
+          profile.hasCustomAvatar = true;
+          updatedUser.avatarUrl = resolvedAvatar;
+          updatedUser.customAvatarUrl = resolvedAvatar;
+          updatedUser.hasCustomAvatar = true;
+        } else if (cloudProfile.avatar_url) {
+          profile.avatarUrl = cloudProfile.avatar_url;
+          updatedUser.avatarUrl = cloudProfile.avatar_url;
+        }
+
+        if (cloudProfile.plan && profile.plan !== 'lifetime') {
+          profile.plan = cloudProfile.plan as any;
+          updatedUser.plan = cloudProfile.plan as any;
+        }
+      }
+    } catch (err) {
+      console.warn('[Cloud Rehydration Password]', err);
+    }
+
+    users[normalized] = updatedUser;
+    if (profile.googleId) {
+      users[`google:${profile.googleId}`] = updatedUser;
+    }
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
     await this.syncLocalDataToCloud(profile.id);
     return profile;
@@ -393,7 +430,7 @@ export const authService = {
       const emailUser = users[normalized];
       // NGUYÊN TẮC BẢO MẬT: Không tự động hợp nhất tài khoản Mật khẩu với Google
       // nếu tài khoản đó chưa từng xác thực liên kết Google
-      if (emailUser.authProvider === 'password' || (!emailUser.googleId && emailUser.passwordHash)) {
+      if (!payload.email_verified && (emailUser.authProvider === 'password' || (!emailUser.googleId && emailUser.passwordHash))) {
         throw new Error(
           'Email này đã được đăng ký bằng Mật khẩu. Để bảo vệ tài khoản, hệ thống không tự động hợp nhất. Vui lòng đăng nhập bằng Mật khẩu.'
         );
@@ -401,16 +438,33 @@ export const authService = {
       existingUser = emailUser;
     }
 
+    // Nếu cả googleKey và normalized đều tồn tại, hợp nhất về 1 đối tượng duy nhất
+    if (existingUser && users[normalized] && users[normalized] !== existingUser) {
+      const emailUser = users[normalized];
+      const customAvatar = existingUser.customAvatarUrl || emailUser.customAvatarUrl || (existingUser.hasCustomAvatar ? existingUser.avatarUrl : (emailUser.hasCustomAvatar ? emailUser.avatarUrl : null));
+      existingUser = {
+        ...emailUser,
+        ...existingUser,
+        ...(customAvatar ? {
+          avatarUrl: customAvatar,
+          customAvatarUrl: customAvatar,
+          hasCustomAvatar: true
+        } : {})
+      };
+    }
+
     if (existingUser) {
       existingUser.displayName = payload.name || existingUser.displayName;
 
       // QUY TẮC BẤT BIẾN ƯU TIÊN AVATAR (AVATAR PRECEDENCE RULE):
-      // Nếu user đã có custom avatar (tự tải lên hoặc chọn từ kho), BẤT BIẾN giữ nguyên 100%!
-      // Tuyệt đối không để ảnh Google đè lên!
-      if (!existingUser.customAvatarUrl && !existingUser.hasCustomAvatar && avatar) {
+      // Nếu tài khoản đã có avatar tùy chỉnh (trong DB hoặc customAvatarUrl), KHÔNG BAO GIỜ lấy ảnh Google đè lên!
+      const effectiveAvatar = existingUser.customAvatarUrl || (existingUser.hasCustomAvatar ? existingUser.avatarUrl : null);
+      if (effectiveAvatar) {
+        existingUser.avatarUrl = effectiveAvatar;
+        existingUser.customAvatarUrl = effectiveAvatar;
+        existingUser.hasCustomAvatar = true;
+      } else if (avatar) {
         existingUser.avatarUrl = avatar;
-      } else if (existingUser.customAvatarUrl) {
-        existingUser.avatarUrl = existingUser.customAvatarUrl;
       }
 
       existingUser.authProvider = 'google';
@@ -450,6 +504,38 @@ export const authService = {
         }
       }
 
+      // BẮT BUỘC KÉO avatar_url MỚI NHẤT TỪ SUPABASE CLOUD (CLOUD REHYDRATION)
+      try {
+        const { ProfileService } = await import('./profileService');
+        const cloudProfile = (profile.id ? await ProfileService.fetchProfile(profile.id) : null) || (await ProfileService.fetchProfileByEmail(normalized));
+        if (cloudProfile) {
+          const cloudCustom = cloudProfile.custom_avatar_url || (cloudProfile.has_custom_avatar ? cloudProfile.avatar_url : null);
+          const resolvedAvatar = cloudCustom || profile.customAvatarUrl || (profile.hasCustomAvatar ? profile.avatarUrl : null) || cloudProfile.avatar_url || profile.avatarUrl;
+
+          if (cloudCustom || profile.customAvatarUrl || profile.hasCustomAvatar) {
+            profile.avatarUrl = resolvedAvatar;
+            profile.customAvatarUrl = resolvedAvatar;
+            profile.hasCustomAvatar = true;
+            existingUser.avatarUrl = resolvedAvatar;
+            existingUser.customAvatarUrl = resolvedAvatar;
+            existingUser.hasCustomAvatar = true;
+          } else if (cloudProfile.avatar_url) {
+            profile.avatarUrl = cloudProfile.avatar_url;
+            existingUser.avatarUrl = cloudProfile.avatar_url;
+          }
+
+          if (cloudProfile.plan && profile.plan !== 'lifetime') {
+            profile.plan = cloudProfile.plan as any;
+            existingUser.plan = cloudProfile.plan as any;
+          }
+        }
+      } catch (err) {
+        console.warn('[Cloud Rehydration Google]', err);
+      }
+
+      users[googleKey] = existingUser;
+      users[normalized] = existingUser;
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
       await this.syncLocalDataToCloud(profile.id);
       return profile;
@@ -462,14 +548,18 @@ export const authService = {
       cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
     } catch {}
 
+    const cloudCustom = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
+    const resolvedNewAvatar = cloudCustom || avatar;
+    const isNewCustom = Boolean(cloudCustom);
+
     // Tạo tài khoản Google mới với quyền lợi Beta (3 năm hoặc Owner Lifetime)
     const baseUser: StoredUserAccount = {
       id: cloudProfile?.id || `usr_g_${sub.slice(0, 10)}_${Date.now()}`,
       email: normalized,
       displayName: payload.name || cloudProfile?.full_name || normalized.split('@')[0],
-      avatarUrl: cloudProfile?.custom_avatar_url || avatar,
-      customAvatarUrl: cloudProfile?.custom_avatar_url,
-      hasCustomAvatar: Boolean(cloudProfile?.custom_avatar_url),
+      avatarUrl: resolvedNewAvatar,
+      customAvatarUrl: isNewCustom ? resolvedNewAvatar : undefined,
+      hasCustomAvatar: isNewCustom,
       plan: cloudProfile?.plan || 'pro_beta',
       createdAt: cloudProfile?.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
       authProvider: 'google',
@@ -627,10 +717,11 @@ export const authService = {
 
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updatedProfile));
 
-    // Cập nhật trong USERS_STORAGE_KEY
+    // Cập nhật trong USERS_STORAGE_KEY (đồng bộ cả key id lẫn key email/google)
     const users = initializeDemoAccounts();
+    const currentEmail = (current.email || '').trim().toLowerCase();
     for (const key of Object.keys(users)) {
-      if (users[key].id === userId) {
+      if (users[key].id === userId || (users[key].email && users[key].email.trim().toLowerCase() === currentEmail)) {
         users[key] = {
           ...users[key],
           ...updatedProfile

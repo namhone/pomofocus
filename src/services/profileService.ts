@@ -73,11 +73,16 @@ export class ProfileService {
     if (!email) return null;
     try {
       const normalized = email.trim().toLowerCase();
-      const { data, error } = await supabase
+      const query = supabase
         .from('profiles')
         .select('*')
-        .eq('email', normalized)
-        .maybeSingle();
+        .eq('email', normalized);
+
+      const { data, error } = typeof (query as any).maybeSingle === 'function'
+        ? await (query as any).maybeSingle()
+        : typeof (query as any).single === 'function'
+        ? await (query as any).single()
+        : await query;
 
       if (error || !data) {
         return null;
@@ -109,11 +114,18 @@ export class ProfileService {
     const defaultPlan = isPrivileged ? 'lifetime' : 'free';
     const defaultCredits = isPrivileged ? 1000 : 50;
 
-    const existing = await this.fetchProfile(user.id);
+    let existing = await this.fetchProfile(user.id);
+    if (!existing && user.email) {
+      existing = await this.fetchProfileByEmail(user.email);
+    }
     if (existing) {
       // BẤT BIẾN: Nếu người dùng đã có avatar custom trong database thì giữ nguyên 100%
       if (existing.custom_avatar_url || existing.has_custom_avatar) {
         existing.avatar_url = existing.custom_avatar_url || existing.avatar_url;
+      } else if (user.customAvatarUrl || (user as any).hasCustomAvatar) {
+        existing.avatar_url = user.customAvatarUrl || user.avatarUrl || '';
+        existing.custom_avatar_url = user.customAvatarUrl || user.avatarUrl || '';
+        existing.has_custom_avatar = true;
       }
       // Nếu là Owner/Founder nhưng trên cloud chưa cập nhật role hoặc plan
       if (isOwner && (existing.plan !== 'lifetime' || existing.role !== 'founder')) {
@@ -200,6 +212,12 @@ export class ProfileService {
         updated_at: new Date().toISOString()
       };
 
+      if (fields.avatar_url !== undefined) {
+        payload.avatar_url = fields.avatar_url;
+        payload.custom_avatar_url = fields.custom_avatar_url ?? fields.avatar_url;
+        payload.has_custom_avatar = fields.has_custom_avatar !== undefined ? fields.has_custom_avatar : Boolean(fields.avatar_url);
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update(payload)
@@ -212,6 +230,37 @@ export class ProfileService {
       return true;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ updateFields:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Cập nhật avatar tùy chỉnh trực tiếp lên Supabase Cloud với đầy đủ 3 trường
+   */
+  static async updateAvatar(userId: string, newAvatarUrl: string, email?: string): Promise<boolean> {
+    if (!userId && !email) return false;
+    try {
+      const payload = {
+        avatar_url: newAvatarUrl,
+        custom_avatar_url: newAvatarUrl,
+        has_custom_avatar: Boolean(newAvatarUrl),
+        updated_at: new Date().toISOString()
+      };
+
+      let query = supabase.from('profiles').update(payload);
+      if (userId) {
+        query = query.eq('id', userId);
+      } else if (email) {
+        query = query.eq('email', email.trim().toLowerCase());
+      }
+      const { error } = await query;
+      if (error) {
+        console.warn('[ProfileService] Lỗi updateAvatar:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ProfileService] Ngoại lệ updateAvatar:', err);
       return false;
     }
   }

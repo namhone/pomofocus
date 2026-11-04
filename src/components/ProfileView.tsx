@@ -122,7 +122,9 @@ export const ProfileView: React.FC = () => {
     setSaveStatus(null);
     const success = await updateProfile({
       displayName: displayName.trim(),
-      avatarUrl: avatarUrl.trim() || undefined,
+      avatarUrl: avatarUrl.trim() || '',
+      customAvatarUrl: avatarUrl.trim() || '',
+      hasCustomAvatar: Boolean(avatarUrl.trim()),
       username: username.trim() || undefined,
       bio: focusGoal.trim() || undefined,
       focusGoal: focusGoal.trim() || undefined,

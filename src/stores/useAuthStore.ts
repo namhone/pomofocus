@@ -436,8 +436,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
       try {
         const payload: ProfileUpdates =
           typeof updatesOrName === 'string'
-            ? { displayName: updatesOrName, avatarUrl }
-            : updatesOrName;
+            ? {
+                displayName: updatesOrName,
+                avatarUrl,
+                customAvatarUrl: avatarUrl,
+                hasCustomAvatar: Boolean(avatarUrl)
+              }
+            : {
+                ...updatesOrName,
+                ...(updatesOrName.avatarUrl !== undefined ? {
+                  customAvatarUrl: updatesOrName.customAvatarUrl ?? updatesOrName.avatarUrl,
+                  hasCustomAvatar: updatesOrName.hasCustomAvatar ?? Boolean(updatesOrName.avatarUrl)
+                } : {})
+              };
 
         const updated = await authService.updateProfile(user.id, payload);
         set({
@@ -730,10 +741,15 @@ export const useAuthStore = create<AuthState>((set, get) => {
             });
           }
 
+          const isCustom = Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar || user.customAvatarUrl || user.hasCustomAvatar);
+          const resolvedAvatar = cloudProfile.custom_avatar_url || (isCustom ? (user.customAvatarUrl || user.avatarUrl || cloudProfile.avatar_url) : (cloudProfile.avatar_url || user.avatarUrl));
+
           const updatedUser: UserProfile = {
             ...user,
             displayName: cloudProfile.full_name || user.displayName,
-            avatarUrl: cloudProfile.avatar_url || user.avatarUrl,
+            avatarUrl: resolvedAvatar,
+            customAvatarUrl: cloudProfile.custom_avatar_url || user.customAvatarUrl,
+            hasCustomAvatar: isCustom,
             username: cloudProfile.handle || user.username,
             bio: cloudProfile.bio || user.bio,
             role: isPrivileged && isOwnerEmail(user.email) ? 'founder' : (cloudProfile.role || user.role),
