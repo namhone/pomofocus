@@ -1,4 +1,3 @@
-import { Settings } from 'lucide-react';
 import React, { useEffect, useRef, Suspense, lazy } from 'react';
 import { TimerTestInterface } from './components/TimerTestInterface';
 import { WidgetContainer } from './components/WidgetContainer';
@@ -28,7 +27,6 @@ import { useFocusAutoDim } from './hooks/useFocusAutoDim';
 import { useTimerStore } from './stores/useTimerStore';
 import { useAuthStore } from './stores/useAuthStore';
 import { useAiStore } from './stores/useAiStore';
-import { MobileHeaderToggle } from './components/MobileHeaderToggle';
 import { AiCreditsTopupModal } from './components/AiCreditsTopupModal';
 import { supabase } from './lib/supabase';
 import { usePwaInstallStore } from './stores/usePwaInstallStore';
@@ -76,14 +74,13 @@ const AiCompanionWidget = lazy(() =>
 export const App: React.FC = () => {
   useFocusAutoDim();
   const isZenMode = useLayoutStore((state) => state.isZenMode);
-  const user = useAuthStore((state) => state.user);
   const isMobile = useLayoutStore((state) => state.isMobile);
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
   const mobileViewMode = useLayoutStore((state) => state.mobileViewMode);
   const activeMobileTab = useLayoutStore((state) => state.activeMobileTab);
   const setMobileViewMode = useLayoutStore((state) => state.setMobileViewMode);
-  const isMobileHeaderOpen = useLayoutStore((state) => state.isMobileHeaderOpen);
+  const isHeaderExpanded = useLayoutStore((state) => state.isHeaderExpanded);
   const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
   const closeTopupModal = useAiStore((state) => state.closeTopupModal);
   const initTimer = useTimerStore((state) => state.init);
@@ -264,43 +261,13 @@ export const App: React.FC = () => {
         ) : (
           <>
             <PlatformHeader />
-            {isMobile && !isZenMode && <MobileHeaderToggle />}
             <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
-        {/* Mobile / Tablet Floating Action: Avatar + ⚙️ Cài đặt luôn nổi ở góc trên cùng bên phải */}
-        {isMobile && !isZenMode && !isMobileHeaderOpen && (
-          <div className="fixed top-2.5 right-3 z-50">
-            <button
-              type="button"
-              data-testid="mobile-floating-settings-btn"
-              onClick={() => {
-                useLayoutStore.getState().openWidget('settings');
-                useLayoutStore.getState().setActiveMobileTab('settings');
-                setTimeout(() => {
-                  const el = document.querySelector('[data-testid="widget-container-settings"]');
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
-              }}
-              className="flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-950/70 hover:bg-zinc-900/90 backdrop-blur-md border border-white/10 text-white shadow-lg active:scale-95 transition-all cursor-pointer pointer-events-auto"
-              title="Cài đặt hệ thống (⚙️)"
-              aria-label="Cài đặt hệ thống"
-            >
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="" className="w-5 h-5 rounded-full object-cover ring-1 ring-zinc-700" />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700 flex items-center justify-center text-[10px] font-bold">
-                  {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}
-                </div>
-              )}
-              <Settings size={13} className="text-zinc-300" />
-            </button>
-          </div>
-        )}
 
             <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
             {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
             {isMobile ? (
               <main className={`relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start transition-all duration-300 ease-in-out ${
-                isMobileHeaderOpen ? 'pt-20' : 'pt-3'
+                isHeaderExpanded ? 'pt-14 sm:pt-16' : 'pt-3'
               }`}>
                 {/* Thanh điều khiển chế độ xem trên điện thoại */}
                 <div className="w-full max-w-xl mx-auto flex items-center justify-between py-1 px-2 mb-3 select-none text-xs">

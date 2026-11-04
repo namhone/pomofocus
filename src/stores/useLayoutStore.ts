@@ -424,6 +424,9 @@ export interface LayoutStoreState {
   mobileViewMode: MobileViewMode;
   activeMobileTab: WidgetId;
   isFocusDimmed: boolean;
+  isHeaderExpanded: boolean;
+  setHeaderExpanded: (expanded: boolean) => void;
+  toggleHeaderExpanded: () => void;
   isMobileHeaderOpen: boolean;
   setMobileHeaderOpen: (open: boolean) => void;
   toggleMobileHeader: () => void;
@@ -491,9 +494,18 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   dockAutoHide: initial.dockAutoHide,
   isLayoutEditMode: false,
   isFocusDimmed: false,
+  isHeaderExpanded: false,
+  setHeaderExpanded: (expanded: boolean) => set({ isHeaderExpanded: expanded, isMobileHeaderOpen: expanded }),
+  toggleHeaderExpanded: () => set((state) => {
+    const next = !state.isHeaderExpanded;
+    return { isHeaderExpanded: next, isMobileHeaderOpen: next };
+  }),
   isMobileHeaderOpen: false,
-  setMobileHeaderOpen: (open: boolean) => set({ isMobileHeaderOpen: open }),
-  toggleMobileHeader: () => set((state) => ({ isMobileHeaderOpen: !state.isMobileHeaderOpen })),
+  setMobileHeaderOpen: (open: boolean) => set({ isMobileHeaderOpen: open, isHeaderExpanded: open }),
+  toggleMobileHeader: () => set((state) => {
+    const next = !state.isMobileHeaderOpen;
+    return { isMobileHeaderOpen: next, isHeaderExpanded: next };
+  }),
   themeAccent: 'matcha',
   highestZIndex: initialHighestZ,
   glassSettings: initial.glassSettings,

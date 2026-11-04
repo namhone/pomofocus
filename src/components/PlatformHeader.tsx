@@ -20,6 +20,8 @@ import {
   Home,
   Settings,
   ChevronDown,
+  ChevronUp,
+  Zap,
   CheckCircle2,
   Menu,
   Download,
@@ -36,7 +38,8 @@ export const PlatformHeader: React.FC = () => {
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
-  const isMobileHeaderOpen = useLayoutStore((s) => s.isMobileHeaderOpen);
+  const isHeaderExpanded = useLayoutStore((s) => s.isHeaderExpanded);
+  const setHeaderExpanded = useLayoutStore((s) => s.setHeaderExpanded);
   const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,48 +58,19 @@ export const PlatformHeader: React.FC = () => {
       return false;
     }
   });
-  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
-  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleHeaderMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsHeaderHovered(true);
-  };
-
-  const handleHeaderMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHeaderHovered(false);
-    }, 1500);
-  };
-
-  useEffect(() => {
-    if (!isWorkspace || isHeaderPinned) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      if (e.clientY <= 24) {
-        handleHeaderMouseEnter();
-      }
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isWorkspace, isHeaderPinned]);
-
   const togglePinHeader = () => {
     setIsHeaderPinned((prev) => {
       const next = !prev;
       try {
         localStorage.setItem('pomodoro_header_pinned', String(next));
       } catch {}
+      if (next) {
+        setHeaderExpanded(true);
+      }
       return next;
     });
   };
 
-  const isHeaderVisible = !isWorkspace || isHeaderPinned || isHeaderHovered || isMobileMenuOpen || isUserDropdownOpen;
 
 
   // Lắng nghe Click Outside để đóng Dropdown Avatar
@@ -105,6 +79,7 @@ export const PlatformHeader: React.FC = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
       }
     };
 
@@ -124,6 +99,7 @@ export const PlatformHeader: React.FC = () => {
       if (e.key === 'Escape') {
         setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
         setIsLogoutModalOpen(false);
       }
     };
@@ -145,6 +121,7 @@ export const PlatformHeader: React.FC = () => {
     setIsMobileMenuOpen(false);
     setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
     router.navigate(path);
   };
 
@@ -161,6 +138,7 @@ export const PlatformHeader: React.FC = () => {
     setIsLogoutModalOpen(false);
     setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
     setShowLogoutToast(true);
     setTimeout(() => {
       setShowLogoutToast(false);
@@ -169,25 +147,102 @@ export const PlatformHeader: React.FC = () => {
 
   return (
     <>
-      {/* Vùng cảm biến chuột rê mép trên khi Header đang ẩn */}
-      {isWorkspace && !isHeaderPinned && (
-        <div
-          data-testid="header-hover-sensor"
-          className="fixed top-0 left-0 right-0 h-3 z-50 pointer-events-auto"
-          onMouseEnter={handleHeaderMouseEnter}
-        />
+      {/* ========================================================================= */}
+      {/* 1. HÌNH THÁI THU GỌN (!isHeaderExpanded): VIÊN NANG KÍNH MỜ NỔI DUY NHẤT */}
+      {/* ========================================================================= */}
+      {isWorkspace && (
+        <aside
+          data-testid="floating-header-capsule"
+          aria-label="Thanh điều hướng thu gọn"
+          className={`fixed top-2.5 right-3 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-950/80 backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
+            !isHeaderExpanded
+              ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+              : 'opacity-0 -translate-y-2 pointer-events-none scale-95'
+          }`}
+        >
+          {/* Avatar tròn 24px */}
+          <button
+            type="button"
+            data-testid="capsule-avatar-btn"
+            onClick={() => setHeaderExpanded(true)}
+            className="flex items-center justify-center shrink-0 cursor-pointer transition active:scale-95"
+            title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm để mở menu'}
+          >
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.displayName || 'Avatar'}
+                className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20 shrink-0"
+              />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}
+              </div>
+            )}
+          </button>
+
+          {/* ⚡ Số Credits */}
+          <button
+            type="button"
+            data-testid="capsule-credits-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              useAiStore.getState().toggleOpen();
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
+            title={`Số dư AI: ${aiCreditsBalance.toLocaleString('vi-VN')}⚡ · Bấm mở Trợ lý AI`}
+          >
+            <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
+            <span>{aiCreditsBalance.toLocaleString('vi-VN')}⚡</span>
+          </button>
+
+          {/* ⚙️ Cài đặt */}
+          <button
+            type="button"
+            data-testid="capsule-settings-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              useLayoutStore.getState().openWidget('settings');
+              if (useLayoutStore.getState().isMobile) {
+                useLayoutStore.getState().setActiveMobileTab('settings');
+                setTimeout(() => {
+                  document.querySelector('[data-testid="widget-container-settings"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+              }
+            }}
+            className="p-1 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white transition cursor-pointer shrink-0 active:scale-95"
+            title="Mở Cài đặt hệ thống (⚙️)"
+            aria-label="Cài đặt"
+          >
+            <Settings size={14} className="shrink-0" />
+          </button>
+
+          {/* ▾ Mở menu */}
+          <button
+            type="button"
+            data-testid="capsule-expand-btn"
+            onClick={() => setHeaderExpanded(true)}
+            className="flex items-center gap-1 pl-1 pr-1.5 py-0.5 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white text-[11px] font-medium transition cursor-pointer shrink-0 active:scale-95"
+            title="Mở thanh Header đầy đủ"
+            aria-label="Mở menu"
+          >
+            <span className="hidden xs:inline">Menu</span>
+            <ChevronDown size={13} className="text-zinc-400 shrink-0" />
+          </button>
+        </aside>
       )}
 
+      {/* ========================================================================= */}
+      {/* 2. HÌNH THÁI MỞ RỘNG (isHeaderExpanded HOẶC KHI NGOÀI /app)               */}
+      {/* ========================================================================= */}
       <header
         data-testid="platform-unified-header"
-        onMouseEnter={isWorkspace ? handleHeaderMouseEnter : undefined}
-        onMouseLeave={isWorkspace ? handleHeaderMouseLeave : undefined}
         className={`${
           isWorkspace
-            ? `fixed top-0 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 transition-all duration-300 ${
-                isMobileHeaderOpen
+            ? `fixed top-0 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 transition-all duration-300 ease-out ${
+                isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
-                  : '-translate-y-full opacity-0 pointer-events-none sm:translate-y-0 sm:opacity-100 sm:pointer-events-none'
+                  : '-translate-y-full opacity-0 pointer-events-none'
               }`
             : 'sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
         }`}
@@ -195,11 +250,9 @@ export const PlatformHeader: React.FC = () => {
         <div
           className={`${
             isWorkspace
-              ? `pointer-events-auto h-10 w-full max-w-4xl mx-auto mt-2 rounded-full bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] shadow-lg px-3 sm:px-4 flex items-center justify-between select-none text-xs transition-all duration-300 relative ${
-                  isHeaderVisible || isMobileHeaderOpen
-                    ? 'opacity-100 shadow-2xl bg-zinc-950/70 border-white/10'
-                    : 'opacity-25 hover:opacity-100'
-                } ${isFocusDimmed && !isHeaderHovered ? 'opacity-10' : ''}`
+              ? `pointer-events-auto h-11 w-full max-w-4xl mx-auto mt-2 rounded-full bg-zinc-950/85 backdrop-blur-xl border border-white/10 shadow-2xl px-3 sm:px-4 flex items-center justify-between select-none text-xs transition-all duration-300 relative ${
+                  isFocusDimmed ? 'opacity-20 hover:opacity-100' : 'opacity-100'
+                }`
               : 'w-full flex items-center justify-between'
           }`}
         >
@@ -281,6 +334,21 @@ export const PlatformHeader: React.FC = () => {
               <Pin size={14} className={isHeaderPinned ? 'rotate-45' : ''} />
             </button>
           )}
+          {/* Nút Thu gọn Header về Viên nang khi ở /app */}
+          {isWorkspace && (
+            <button
+              type="button"
+              data-testid="header-collapse-btn"
+              onClick={() => setHeaderExpanded(false)}
+              className="flex items-center gap-1 h-7 px-2.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0"
+              title="Thu gọn Header thành viên nang"
+              aria-label="Thu gọn Header"
+            >
+              <ChevronUp size={13} className="text-zinc-400 shrink-0" />
+              <span className="hidden sm:inline">Thu gọn</span>
+            </button>
+          )}
+
           {/* AI Study Companion Quick HUD */}
           <button
             type="button"
@@ -420,6 +488,7 @@ export const PlatformHeader: React.FC = () => {
                       onClick={() => {
                         setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
                         if (isWorkspace) {
                           useLayoutStore.getState().openWidget('settings');
                         } else {
@@ -449,6 +518,7 @@ export const PlatformHeader: React.FC = () => {
                         onClick={() => {
                           setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
                           triggerInstall();
                         }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left font-medium"
@@ -468,6 +538,7 @@ export const PlatformHeader: React.FC = () => {
                     onClick={() => {
                       setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
+    setHeaderExpanded(false);
                       setIsLogoutModalOpen(true);
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition cursor-pointer text-left font-medium"
