@@ -85,4 +85,25 @@ describe('Mobile Bottom Dock & Header Dynamic Flow Specifications', () => {
       expect(useLayoutStore.getState().isZenMode).toBe(false);
     });
   });
+
+  describe('5. Chuẩn hóa Transition Header Mở Rộng (Centered Full Header & 3 Anchors)', () => {
+    it('isHeaderExpanded = false: Header thu gọn (pt-3), capsule hiển thị, full header ẩn -translate-y-full', () => {
+      useLayoutStore.getState().setHeaderExpanded(false);
+      expect(useLayoutStore.getState().isHeaderExpanded).toBe(false);
+    });
+
+    it('isHeaderExpanded = true: Header mở rộng (pt-14 sm:pt-16), full header trượt translate-y-0 phủ 100% màn hình', () => {
+      useLayoutStore.getState().setHeaderExpanded(true);
+      expect(useLayoutStore.getState().isHeaderExpanded).toBe(true);
+      expect(useLayoutStore.getState().isMobileHeaderOpen).toBe(true);
+    });
+
+    it('toggleHeaderExpanded chuyển đổi đối xứng êm ái giữa 2 trạng thái Singularity', () => {
+      useLayoutStore.getState().setHeaderExpanded(false);
+      useLayoutStore.getState().toggleHeaderExpanded();
+      expect(useLayoutStore.getState().isHeaderExpanded).toBe(true);
+      useLayoutStore.getState().toggleHeaderExpanded();
+      expect(useLayoutStore.getState().isHeaderExpanded).toBe(false);
+    });
+  });
 });

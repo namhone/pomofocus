@@ -154,10 +154,10 @@ export const PlatformHeader: React.FC = () => {
         <aside
           data-testid="floating-header-capsule"
           aria-label="Thanh điều hướng thu gọn"
-          className={`fixed top-2.5 right-3 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-950/80 backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
+          className={`fixed top-3 right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-950/85 backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
             !isHeaderExpanded
               ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
-              : 'opacity-0 -translate-y-2 pointer-events-none scale-95'
+              : 'opacity-0 -translate-y-2 pointer-events-none scale-90'
           }`}
         >
           {/* Avatar tròn 24px */}
@@ -239,23 +239,14 @@ export const PlatformHeader: React.FC = () => {
         data-testid="platform-unified-header"
         className={`${
           isWorkspace
-            ? `fixed top-0 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 transition-all duration-300 ease-out ${
+            ? `fixed top-0 left-0 right-0 w-full h-14 z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 sm:px-6 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
                   : '-translate-y-full opacity-0 pointer-events-none'
-              }`
-            : 'sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
+              } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
+            : 'sticky top-0 left-0 right-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-4 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
         }`}
       >
-        <div
-          className={`${
-            isWorkspace
-              ? `pointer-events-auto h-11 w-full max-w-4xl mx-auto mt-2 rounded-full bg-zinc-950/85 backdrop-blur-xl border border-white/10 shadow-2xl px-3 sm:px-4 flex items-center justify-between select-none text-xs transition-all duration-300 relative ${
-                  isFocusDimmed ? 'opacity-20 hover:opacity-100' : 'opacity-100'
-                }`
-              : 'w-full flex items-center justify-between'
-          }`}
-        >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <button
@@ -323,7 +314,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-pin-btn"
               onClick={togglePinHeader}
-              className={`h-7 w-7 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
+              className={`h-8 w-8 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
                 isHeaderPinned
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30'
                   : 'bg-zinc-900/80 text-zinc-400 hover:text-white border-white/10'
@@ -340,7 +331,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-collapse-btn"
               onClick={() => setHeaderExpanded(false)}
-              className="flex items-center gap-1 h-7 px-2.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0"
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/15 text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0 shadow-sm"
               title="Thu gọn Header thành viên nang"
               aria-label="Thu gọn Header"
             >
@@ -354,7 +345,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             data-testid="header-ai-btn"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="hidden sm:flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
           >
             <Sparkles size={13} className="text-cyan-400 shrink-0" />
@@ -367,7 +358,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="pwa-install-btn"
               onClick={() => triggerInstall()}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
               title="Cài đặt PomoFocus vào thiết bị (PWA)"
             >
               <Download size={13} className="shrink-0" />
@@ -381,7 +372,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
+              className="hidden sm:flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
             >
               <Layout size={13} className="shrink-0" />
               <span className="hidden xs:inline">Vào Học</span>
@@ -396,7 +387,7 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid="header-user-avatar-btn"
                 onClick={handleAvatarClick}
-                className={`h-7 flex items-center gap-1.5 px-2 rounded-full transition cursor-pointer shrink-0 border text-[11px] ${
+                className={`h-8 flex items-center gap-1.5 px-2.5 rounded-full transition cursor-pointer shrink-0 border text-[11px] ${
                   isUserDropdownOpen
                     ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
                     : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
@@ -555,7 +546,7 @@ export const PlatformHeader: React.FC = () => {
               id="header-login-btn"
               data-testid="header-login-btn"
               onClick={() => handleNavigate('/login')}
-              className="h-9 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm"
+              className="h-8 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm"
               title="Đăng nhập tài khoản"
             >
               <User size={13} className="text-emerald-400 shrink-0" />
@@ -569,14 +560,13 @@ export const PlatformHeader: React.FC = () => {
             id="header-mobile-menu-btn"
             data-testid="header-mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden h-7 w-7 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
+            className="lg:hidden h-8 w-8 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
             title="Menu điều hướng"
             aria-label="Menu điều hướng"
             aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-        </div>
         </div>
       </header>
 
