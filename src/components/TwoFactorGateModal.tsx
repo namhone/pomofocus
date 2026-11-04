@@ -35,7 +35,7 @@ export const TwoFactorGateModal: React.FC = () => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="totp-gate-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200"
+      className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200"
     >
       <div className="w-full max-w-sm rounded-3xl border border-white/15 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-2xl">
         <div className="flex flex-col items-center text-center">

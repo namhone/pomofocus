@@ -433,7 +433,7 @@ export const PlatformHeader: React.FC = () => {
               {isUserDropdownOpen && (
                 <div
                   data-testid="header-user-dropdown"
-                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-2 shadow-2xl z-60 animate-in fade-in zoom-in-95 duration-150"
                 >
                   {/* Mini Header Profile Info */}
                   <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
@@ -653,7 +653,7 @@ export const PlatformHeader: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label="Menu Điều Hướng"
-        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-50 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
@@ -876,7 +876,7 @@ export const PlatformHeader: React.FC = () => {
           data-testid="logout-success-toast"
           role="status"
           aria-live="polite"
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-emerald-500/30 text-emerald-300 text-xs shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-5 right-5 z-80 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-emerald-500/30 text-emerald-300 text-xs shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
           <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
           <span className="font-medium text-white">Đã đăng xuất thành công.</span>

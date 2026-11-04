@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div
           data-testid="error-boundary-fallback"
-          className="relative min-h-screen w-full bg-[#050608] text-zinc-100 flex flex-col justify-between p-4 sm:p-6 select-none font-sans overflow-hidden antialiased"
+          className="fixed inset-0 z-[100] min-h-screen w-full bg-[#050608] text-zinc-100 flex flex-col justify-between p-4 sm:p-6 select-none font-sans overflow-hidden antialiased"
         >
           {/* Lớp phủ Tinh Vân nền tĩnh lặng */}
           <div className="absolute inset-0 bg-radial from-slate-900/60 via-[#070912]/80 to-black pointer-events-none" />
