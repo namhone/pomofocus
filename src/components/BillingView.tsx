@@ -180,11 +180,11 @@ export const BillingView: React.FC = () => {
   return (
     <div
       data-testid="billing-view"
-      className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+      className="min-h-screen w-full max-w-full overflow-x-clip bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
     >
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-hidden">
+      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-clip">
         {/* Back to App Navigation */}
         <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60">
           <button

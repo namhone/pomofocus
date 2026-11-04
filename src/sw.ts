@@ -4,7 +4,7 @@ import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const SW_CACHE_VERSION = 'v3.9.0-centered-full-header';
+const SW_CACHE_VERSION = 'v3.10.0-fixed-dropdown-lock';
 
 // Bắt buộc Service Worker kích hoạt ngay lập tức và giành quyền kiểm soát mọi client
 self.skipWaiting();
