@@ -305,8 +305,8 @@ export const AiCompanionWidget: React.FC = () => {
             <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
           </div>
           <div className="min-w-0 flex-1 overflow-hidden">
-            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight truncate" title="AI Companion">
-              AI Companion
+            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight truncate" title="AI Study Companion">
+              AI Study Companion
             </h2>
           </div>
         </div>

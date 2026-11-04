@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { db } from '../db';
 import { Note, NoteSaveStatus } from '../types/notes';
+import { NoteCloudService } from '../services/noteCloudService';
+import { useAuthStore } from './useAuthStore';
 
 interface NoteStoreState {
   notes: Note[];
@@ -58,8 +60,20 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
           saveStatus: 'saved'
         });
       } else {
-        set({
-          notes: sorted,
+        const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        NoteCloudService.syncFromCloud(userId).then((cloudNotes) => {
+          if (cloudNotes.length > 0) {
+            set({
+              notes: cloudNotes.sort((a, b) => b.updatedAt - a.updatedAt),
+              activeNoteId: get().activeNoteId || cloudNotes[0].id
+            });
+          }
+        }).catch((err) => console.warn('Lỗi đồng bộ Notes từ Cloud:', err));
+      }
+
+      set({
+        notes: sorted,
           activeNoteId: sorted[0].id,
           isLoading: false,
           saveStatus: 'saved'
@@ -85,6 +99,10 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
 
     try {
       await db.notes.add(newNote);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      NoteCloudService.upsertNote(newNote, userId).catch((err) => console.warn('Lỗi lưu Note lên Cloud:', err));
+    }
       set((state) => ({
         notes: [newNote, ...state.notes],
         activeNoteId: newNote.id,
@@ -141,6 +159,10 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
 
     try {
       await db.notes.put(note);
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        NoteCloudService.upsertNote(note, userId).catch((err) => console.warn('Lỗi lưu Note lên Cloud:', err));
+      }
       set({ saveStatus: 'saved' });
     } catch (err) {
       console.error('Lỗi khi lưu ghi chú vào IndexedDB:', err);
@@ -151,6 +173,10 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
   deleteNote: async (id: string) => {
     try {
       await db.notes.delete(id);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      NoteCloudService.deleteNote(id, userId).catch((err) => console.warn('Lỗi xóa Note trên Cloud:', err));
+    }
       set((state) => {
         const remaining = state.notes.filter((n) => n.id !== id);
         const nextActive = state.activeNoteId === id ? (remaining[0]?.id || null) : state.activeNoteId;

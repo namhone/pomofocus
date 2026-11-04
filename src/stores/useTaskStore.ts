@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { db } from '../db';
 import { Project, Task, TaskPriority, TaskStatus } from '../types/tasks';
 import { useTimerStore } from './useTimerStore';
+import { TaskCloudService } from '../services/taskCloudService';
+import { useAuthStore } from './useAuthStore';
 
 interface TaskStoreState {
   tasks: Task[];
@@ -53,6 +55,16 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       const activeTasks = allTasks.filter((t) => t.status !== 'archived');
       const allProjects = await db.projects.toArray();
 
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        TaskCloudService.syncFromCloud(userId).then(({ tasks, projects }) => {
+          set({
+            tasks: tasks.filter((t) => t.status !== 'archived').sort((a, b) => a.orderIndex - b.orderIndex),
+            projects: projects.sort((a, b) => b.createdAt - a.createdAt)
+          });
+        }).catch((err) => console.warn('Lỗi đồng bộ Tasks từ Cloud:', err));
+      }
+
       set({
         tasks: activeTasks.sort((a, b) => a.orderIndex - b.orderIndex),
         projects: allProjects.sort((a, b) => b.createdAt - a.createdAt),
@@ -90,6 +102,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     };
 
     await db.tasks.add(newTask);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      TaskCloudService.upsertTask(newTask, userId).catch((err) => console.warn('Lỗi lưu Task lên Cloud:', err));
+    }
     set((state) => ({
       tasks: [newTask, ...state.tasks]
     }));
@@ -101,6 +117,11 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     const updatePayload = { ...updates, updatedAt: now };
 
     await db.tasks.update(id, updatePayload);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      const updated = { ...get().tasks.find((t) => t.id === id), ...updatePayload } as Task;
+      TaskCloudService.upsertTask(updated, userId).catch((err) => console.warn('Lỗi cập nhật Task lên Cloud:', err));
+    }
 
     set((state) => ({
       tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...updatePayload } : t))
@@ -126,6 +147,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       completedAt,
       updatedAt: now
     });
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      TaskCloudService.upsertTask({ ...task, status: nextStatus, completedAt, updatedAt: now }, userId).catch((err) => console.warn('Lỗi toggle Task lên Cloud:', err));
+    }
 
     set((state) => ({
       tasks: state.tasks.map((t) =>
@@ -148,6 +173,15 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     } else {
       // Soft delete: chuyển sang trạng thái archived
       await db.tasks.update(id, { status: 'archived', updatedAt: Date.now() });
+    }
+
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      if (hardDelete) {
+        TaskCloudService.deleteTask(id, userId).catch((err) => console.warn('Lỗi xóa Task trên Cloud:', err));
+      } else {
+        TaskCloudService.upsertTask({ id, status: 'archived', updatedAt: Date.now() } as any, userId).catch((err) => console.warn('Lỗi archive Task trên Cloud:', err));
+      }
     }
 
     set((state) => ({
@@ -188,6 +222,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     };
 
     await db.projects.add(newProject);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      TaskCloudService.upsertProject(newProject, userId).catch((err) => console.warn('Lỗi lưu Project lên Cloud:', err));
+    }
     set((state) => ({
       projects: [newProject, ...state.projects]
     }));
@@ -196,6 +234,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
 
   deleteProject: async (id: string) => {
     await db.projects.delete(id);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      TaskCloudService.deleteProject(id, userId).catch((err) => console.warn('Lỗi xóa Project trên Cloud:', err));
+    }
 
     // Bỏ projectId khỏi các tasks thuộc project này
     const tasksToUpdate = get().tasks.filter((t) => t.projectId === id);
