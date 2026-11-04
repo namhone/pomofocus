@@ -293,11 +293,10 @@ export const SettingsWidget: React.FC = () => {
         {/* Kích thước DockBar */}
         <div className="pt-2 border-t border-white/5">
           <span className="block text-[11px] font-medium text-neutral-300 mb-1.5">Kích thước thanh công cụ</span>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { id: 'compact', label: 'Nhỏ (90%)' },
-              { id: 'normal', label: 'Vừa (100%)' },
-              { id: 'spacious', label: 'Lớn (105%)' }
+              { id: 'compact', label: 'Gọn gàng (90%)' },
+              { id: 'normal', label: 'Chuẩn (100%)' }
             ].map((size) => (
               <button
                 key={size.id}

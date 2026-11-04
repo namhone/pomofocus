@@ -64,6 +64,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
 
   // 6. Auth & Settings
   const user = useAuthStore((s) => s.user);
+  const planLabel = useAuthStore((s) => s.planLabel);
   const glassSettings = useLayoutStore((s) => s.glassSettings);
   const density = useLayoutStore((s) => s.density);
 
@@ -573,7 +574,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
 
         <div className="min-w-0">
           <div className="text-xs font-bold text-white truncate max-w-[190px] sm:max-w-[260px]">
-            Tài khoản: {user?.plan === 'pro' ? 'PRO BETA' : 'Miễn phí'}
+            Tài khoản: {user?.badge || planLabel || 'Founder VIP 👑'}
           </div>
           <div className="text-[11px] text-neutral-400 mt-0.5 truncate">
             Kính {glassSettings.preset} • {density === 'compact' ? 'Thu gọn' : 'Chuẩn'}

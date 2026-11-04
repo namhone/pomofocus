@@ -576,9 +576,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
         // Đồng bộ 100% từ public.profiles trên Supabase Cloud
         const cloudProfile = await ProfileService.fetchProfile(user.id);
         if (cloudProfile) {
-          if (typeof cloudProfile.ai_credits_balance === 'number') {
+          // Cloud sync privilege protection
+          const isPrivileged = isOwnerEmail(user.email) || hasVipAccess(user) || isLadyBoss(user.email) || isVipFriend(user.email);
+          const effectiveCredits = isPrivileged
+            ? Math.max(cloudProfile.ai_credits_balance || 0, 1000)
+            : (cloudProfile.ai_credits_balance ?? 50);
+          const effectivePlan = isPrivileged ? 'lifetime' : (cloudProfile.plan || 'free');
+
+          if (typeof cloudProfile.ai_credits_balance === 'number' || isPrivileged) {
             useAiStore.setState({
-              aiCreditsBalance: cloudProfile.ai_credits_balance,
+              aiCreditsBalance: effectiveCredits,
               ...(cloudProfile.plan ? { aiPlan: cloudProfile.plan as any } : {}),
               ...(cloudProfile.last_weekly_reset ? { lastWeeklyReset: new Date(cloudProfile.last_weekly_reset).getTime() } : {}),
               ...(cloudProfile.last_monthly_reset ? { lastMonthlyReset: new Date(cloudProfile.last_monthly_reset).getTime() } : {})
@@ -591,8 +598,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
             avatarUrl: cloudProfile.avatar_url || user.avatarUrl,
             username: cloudProfile.handle || user.username,
             bio: cloudProfile.bio || user.bio,
-            role: cloudProfile.role || user.role,
-            plan: (cloudProfile.plan as any) || user.plan,
+            role: isPrivileged && isOwnerEmail(user.email) ? 'founder' : (cloudProfile.role || user.role),
+            plan: effectivePlan as any,
+            badge: isPrivileged && isOwnerEmail(user.email) ? 'Founder VIP 👑' : user.badge,
+            credits: effectiveCredits,
             proExpiresAt: cloudProfile.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : user.proExpiresAt
           };
           set({

@@ -105,7 +105,7 @@ export function computeBalancedDefaultLayout(
       }
     };
   }
-  const topY = 48;
+  const topY = 64;
   const timerW = 320;
   const tasksW = 320;
   const notesW = 330;
@@ -156,7 +156,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 24,
-    y: 48,
+    y: 64,
     width: 320,
     height: 440,
     minWidth: 280,
@@ -172,7 +172,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 360,
-    y: 48,
+    y: 64,
     width: 320,
     height: 420,
     minWidth: 280,
@@ -188,7 +188,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 696,
-    y: 48,
+    y: 64,
     width: 330,
     height: 400,
     minWidth: 280,

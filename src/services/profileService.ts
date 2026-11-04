@@ -90,7 +90,8 @@ export class ProfileService {
         });
         return updated || existing;
       }
-      if (isPrivileged && (existing.plan !== 'lifetime' || existing.role !== defaultRole)) {
+      // Safeguard Founder credits
+      if (isPrivileged && (existing.plan !== 'lifetime' || existing.role !== defaultRole || (existing.ai_credits_balance || 0) < 1000)) {
         const updated = await this.upsertProfile({
           id: user.id,
           email: user.email,

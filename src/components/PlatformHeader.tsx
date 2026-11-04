@@ -178,12 +178,21 @@ export const PlatformHeader: React.FC = () => {
         onMouseLeave={isWorkspace ? handleHeaderMouseLeave : undefined}
         className={`${
           isWorkspace
-            ? `fixed top-0 left-0 right-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs transition-all duration-300 ease-out ${
-                isHeaderVisible ? 'translate-y-0 opacity-100 pointer-events-auto shadow-2xl' : '-translate-y-full opacity-0 pointer-events-none'
-              } ${isFocusDimmed && isHeaderVisible ? 'opacity-25 hover:opacity-100' : ''}`
+            ? 'fixed top-0 left-0 right-0 z-50 pointer-events-none flex justify-center px-2 sm:px-4 transition-all duration-300'
             : 'sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
         }`}
       >
+        <div
+          className={`${
+            isWorkspace
+              ? `pointer-events-auto h-10 w-full max-w-4xl mx-auto mt-2 rounded-full bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] shadow-lg px-3 sm:px-4 flex items-center justify-between select-none text-xs transition-all duration-300 relative ${
+                  isHeaderVisible
+                    ? 'opacity-100 shadow-2xl bg-zinc-950/70 border-white/10'
+                    : 'opacity-25 hover:opacity-100'
+                } ${isFocusDimmed && !isHeaderHovered ? 'opacity-10' : ''}`
+              : 'w-full flex items-center justify-between'
+          }`}
+        >
         {/* Brand & Plan Badge */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <button
@@ -192,14 +201,14 @@ export const PlatformHeader: React.FC = () => {
             className="flex items-center gap-1.5 sm:gap-2 text-white hover:opacity-90 transition cursor-pointer"
             title="Về Trang Chủ PomoFocus"
           >
-            <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="inline-block text-xs sm:text-sm font-bold text-white tracking-tight" />
+            <PomoFocusLogo size={isWorkspace ? 18 : 24} showWordmark={true} wordmarkClassName="inline-block text-xs font-bold text-white tracking-tight" />
           </button>
 
           <button
             type="button"
             onClick={() => handleNavigate('/billing')}
             data-testid="header-plan-badge"
-            className={`hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
+            className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetime
                 ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                 : isPro
@@ -230,7 +239,7 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid={item.testId}
                 onClick={() => handleNavigate(item.path)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-xs ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] ${
                   isActive
                     ? 'bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50'
                     : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -251,7 +260,7 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               data-testid="header-pin-btn"
               onClick={togglePinHeader}
-              className={`h-9 w-9 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
+              className={`h-7 w-7 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
                 isHeaderPinned
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30'
                   : 'bg-zinc-900/80 text-zinc-400 hover:text-white border-white/10'
@@ -267,7 +276,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             data-testid="header-ai-btn"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-xs border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+            className="hidden sm:flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
           >
             <Sparkles size={13} className="text-cyan-400 shrink-0" />
@@ -309,7 +318,7 @@ export const PlatformHeader: React.FC = () => {
                 type="button"
                 data-testid="header-user-avatar-btn"
                 onClick={handleAvatarClick}
-                className={`h-9 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full transition cursor-pointer shrink-0 border text-xs ${
+                className={`h-7 flex items-center gap-1.5 px-2 rounded-full transition cursor-pointer shrink-0 border text-[11px] ${
                   isUserDropdownOpen
                     ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
                     : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
@@ -476,13 +485,14 @@ export const PlatformHeader: React.FC = () => {
             id="header-mobile-menu-btn"
             data-testid="header-mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden h-9 w-9 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
+            className="lg:hidden h-7 w-7 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
             title="Menu điều hướng"
             aria-label="Menu điều hướng"
             aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
+        </div>
         </div>
       </header>
 
