@@ -94,6 +94,7 @@ export const ContactView: React.FC = () => {
                   onClick={handleCopyEmail}
                   className="p-1.5 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
                   title="Sao chép email"
+                  aria-label="Sao chép vào bộ nhớ tạm"
                 >
                   {copiedEmail ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                 </button>
@@ -130,6 +131,7 @@ export const ContactView: React.FC = () => {
                   onClick={handleCopyPhone}
                   className="p-1.5 hover:text-white text-zinc-400 transition cursor-pointer shrink-0"
                   title="Sao chép số điện thoại"
+                  aria-label="Sao chép vào bộ nhớ tạm"
                 >
                   {copiedPhone ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                 </button>

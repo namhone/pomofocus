@@ -490,6 +490,7 @@ export const DockBar: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowQuickDockMenu(false)}
+              aria-label="Đóng bảng điều khiển vị trí"
               className="text-neutral-400 hover:text-white text-[10px] cursor-pointer"
             >
               ✕

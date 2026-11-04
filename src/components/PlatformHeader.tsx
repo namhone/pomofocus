@@ -190,6 +190,7 @@ export const PlatformHeader: React.FC = () => {
             onClick={() => setHeaderExpanded(true)}
             className="flex items-center justify-center shrink-0 cursor-pointer transition active:scale-95"
             title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm để mở menu'}
+            aria-label="Tài khoản và Menu"
           >
             {user?.avatarUrl ? (
               <img
@@ -209,6 +210,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             data-testid="capsule-credits-btn"
             onClick={handleCreditsBadgeClick}
+            aria-label="Số dư AI Credits"
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
             title={
               isOwner
@@ -421,6 +423,7 @@ export const PlatformHeader: React.FC = () => {
                     : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
                 }`}
                 title="Tài khoản & Cài đặt"
+                aria-label="Tài khoản và Menu"
                 aria-expanded={isUserDropdownOpen}
                 aria-haspopup="menu"
               >

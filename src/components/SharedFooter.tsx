@@ -158,7 +158,7 @@ export const SharedFooter: React.FC = () => {
                 onClick={handleCopyEmail}
                 className="w-7 h-7 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
                 title="Sao chép email"
-                aria-label="Sao chép email"
+                aria-label="Sao chép vào bộ nhớ tạm"
               >
                 {copiedEmail ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
               </button>
@@ -179,7 +179,7 @@ export const SharedFooter: React.FC = () => {
                 onClick={handleCopyPhone}
                 className="w-7 h-7 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
                 title="Sao chép số điện thoại"
-                aria-label="Sao chép số điện thoại"
+                aria-label="Sao chép vào bộ nhớ tạm"
               >
                 {copiedPhone ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
               </button>
@@ -230,12 +230,12 @@ export const SharedFooter: React.FC = () => {
         </div>
 
         {/* Bottom Copyright & Badges Bar */}
-        <div className="pt-4 sm:pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-zinc-500">
+        <div className="pt-4 sm:pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-zinc-400">
           <div className="flex items-center gap-1 text-center sm:text-left flex-wrap justify-center sm:justify-start">
             <span>© 2026 PomoFocus. Bản quyền phát triển bởi</span>
             <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam.</span>
           </div>
-          <div className="flex items-center gap-2.5 text-[10px] text-zinc-500 font-mono whitespace-nowrap">
+          <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 font-mono whitespace-nowrap">
             <span>Local-First &amp; Offline</span>
             <span>•</span>
             <span className="text-emerald-400">Tặng 3 Năm PRO Beta</span>

@@ -197,7 +197,7 @@ export const TasksWidget: React.FC = () => {
                   data-testid={`priority-btn-${p}`}
                   onClick={() => setPriority(p)}
                   className={`px-1.5 py-0.5 rounded-md border text-[9px] uppercase font-bold transition cursor-pointer h-6 min-w-[24px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-                    priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-neutral-500 hover:text-neutral-300'
+                    priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-neutral-400 hover:text-neutral-200'
                   }`}
                 >
                   {p}
@@ -284,7 +284,7 @@ export const TasksWidget: React.FC = () => {
                     <div
                       title={task.title}
                       className={`text-xs font-medium truncate ${
-                        isCompleted ? 'line-through text-neutral-500' : 'text-neutral-200'
+                        isCompleted ? 'line-through text-neutral-400' : 'text-neutral-200'
                       }`}
                     >
                       {task.title}

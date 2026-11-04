@@ -66,7 +66,7 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
   }
 
   if (val === 'Cục bộ') {
-    return <span className="text-zinc-500 text-xs font-medium">Cục bộ</span>;
+    return <span className="text-zinc-400 text-xs font-medium">Cục bộ</span>;
   }
 
   return (
@@ -197,7 +197,7 @@ export const BillingView: React.FC = () => {
             <ArrowLeft size={14} />
             <span>Quay lại Không Gian Học</span>
           </button>
-          <span className="text-xs text-zinc-500 font-mono hidden sm:inline">PomoFocus Pricing</span>
+          <span className="text-xs text-zinc-400 font-mono hidden sm:inline">PomoFocus Pricing</span>
         </div>
         {statusMessage && (
           <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
@@ -272,13 +272,13 @@ export const BillingView: React.FC = () => {
               {/* Thông tin định danh thành viên */}
               <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-b border-zinc-800/80 text-xs">
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-500">Chủ Sở Hữu Thẻ</div>
+                  <div className="text-[11px] text-zinc-400">Chủ Sở Hữu Thẻ</div>
                   <div className="text-sm font-bold text-white truncate">{user?.displayName || 'Chủ Tài Khoản'}</div>
                   <div className="text-[11px] text-zinc-400 font-mono truncate">{user?.email}</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-500">Cấp Bậc Hội Viên</div>
+                  <div className="text-[11px] text-zinc-400">Cấp Bậc Hội Viên</div>
                   <div className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
                     <Sparkles size={14} className="text-amber-400" />
                     <span>{planLabel}</span>
@@ -287,7 +287,7 @@ export const BillingView: React.FC = () => {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-500">Mã Định Danh VIP</div>
+                  <div className="text-[11px] text-zinc-400">Mã Định Danh VIP</div>
                   <div className="text-sm font-mono font-bold text-zinc-200">
                     POMO-{(user?.id || 'FOUNDER').slice(0, 8).toUpperCase()}
                   </div>
@@ -521,7 +521,7 @@ export const BillingView: React.FC = () => {
                   <div>
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-2xl sm:text-3xl font-extrabold text-white">799.000₫</span>
-                      <span className="text-xs text-zinc-500">/ một lần duy nhất</span>
+                      <span className="text-xs text-zinc-400">/ một lần duy nhất</span>
                     </div>
                     <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
                       Nâng cấp lên gói Founder VIP vĩnh viễn. Không bao giờ phải trả phí lại, mở khóa phòng 60 người, AI Study Companion không giới hạn và tặng 01 Giftcode 3 tháng.
@@ -568,7 +568,7 @@ export const BillingView: React.FC = () => {
             {/* Title & Billing Cycle */}
             <div className="text-center flex flex-col items-center space-y-3">
               <PomoFocusLogo size={36} showWordmark={true} showSubtitle={true} wordmarkClassName="text-xl font-bold tracking-tight text-white" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 block">
                 ĐẦU TƯ CHO SỰ TẬP TRUNG
               </span>
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
@@ -621,7 +621,7 @@ export const BillingView: React.FC = () => {
                     <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 font-semibold block">
                       Gói Free
                     </span>
-                    <span className="text-[11px] text-zinc-500">Tự học cá nhân tối giản</span>
+                    <span className="text-[11px] text-zinc-400">Tự học cá nhân tối giản</span>
                   </div>
 
                   <div className="pt-1">
@@ -719,7 +719,7 @@ export const BillingView: React.FC = () => {
                           : (cycle === 'monthly' ? '59.000₫' : '39.000₫')}
                       </span>
                       {appliedDiscount && (
-                        <span className="text-xs text-zinc-500 line-through">
+                        <span className="text-xs text-zinc-400 line-through">
                           {cycle === 'monthly' ? '59.000₫' : '39.000₫'}
                         </span>
                       )}
@@ -936,7 +936,7 @@ export const BillingView: React.FC = () => {
 
             {/* Sandbox Simulation Bar */}
             <div className="flex flex-wrap items-center justify-center gap-3 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400">
-              <span className="font-mono text-[11px] text-zinc-500">Môi trường kiểm thử tự động:</span>
+              <span className="font-mono text-[11px] text-zinc-400">Môi trường kiểm thử tự động:</span>
               <button
                 type="button"
                 data-testid="btn-activate-pro-sandbox"
@@ -988,7 +988,7 @@ export const BillingView: React.FC = () => {
                         </th>
                         <th className="py-3.5 px-3 w-[20%] min-w-[110px] text-center text-zinc-400 border-b border-zinc-800">
                           Miễn Phí
-                          <span className="text-[10px] text-zinc-500 font-normal block normal-case font-sans">0₫ / mãi mãi</span>
+                          <span className="text-[10px] text-zinc-400 font-normal block normal-case font-sans">0₫ / mãi mãi</span>
                         </th>
                         <th className="py-3.5 px-3 w-[23%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
                           PRO (Tháng/Năm)
@@ -1039,7 +1039,7 @@ export const BillingView: React.FC = () => {
                     <tfoot>
                       <tr className="bg-zinc-950/80">
                         <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-3 px-4 text-xs text-zinc-400 min-w-[200px] sm:min-w-[260px] shadow-xs">
-                          <div className="flex items-center gap-1.5 text-zinc-500 font-mono text-[11px]">
+                          <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-[11px]">
                             <ShieldCheck size={14} className="text-zinc-400 shrink-0" />
                             <span className="truncate">Cam kết minh bạch 100% không chi phí ẩn</span>
                           </div>

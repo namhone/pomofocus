@@ -153,6 +153,7 @@ export const HelpView: React.FC = () => {
               >
                 <button
                   type="button"
+                  aria-expanded={openFaq === idx}
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                   className="w-full p-3.5 text-left font-medium text-white flex items-center justify-between gap-3 hover:bg-white/5 transition cursor-pointer"
                 >

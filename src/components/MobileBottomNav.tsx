@@ -199,6 +199,7 @@ export const MobileBottomNav: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowQuickSettings(false)}
+              aria-label="Đóng cửa sổ"
               className="px-2 py-0.5 rounded-md bg-white/10 text-neutral-300 hover:text-white"
             >
               Đóng
@@ -357,7 +358,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-timer"
-          aria-label="Tập trung"
+          aria-label="Đồng hồ Pomodoro tập trung"
           aria-current={activeMobileTab === 'timer' ? 'page' : undefined}
           aria-pressed={widgets.timer?.isOpen ?? false}
           onClick={() => handleNavClick('timer')}
@@ -376,7 +377,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-tasks"
-          aria-label="Nhiệm vụ"
+          aria-label="Danh sách nhiệm vụ"
           aria-current={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'page' : undefined}
           aria-pressed={widgets.tasks?.isOpen ?? false}
           onClick={() => handleNavClick('tasks')}
@@ -395,7 +396,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-sounds mobile-btn-spaces"
-          aria-label="Không gian"
+          aria-label="Thư viện âm thanh và không gian nền"
           aria-current={activeMobileTab === 'spaces' || activeMobileTab === 'sounds' || activeMobileTab === 'media' ? 'page' : undefined}
           aria-pressed={widgets.spaces?.isOpen ?? false}
           onClick={() => handleNavClick('spaces')}
@@ -414,7 +415,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="mobile-btn-ai"
-          aria-label="Trợ lý AI"
+          aria-label="Trợ lý AI Companion"
           aria-current={isAiOpen ? 'page' : undefined}
           aria-pressed={isAiOpen}
           onClick={() => useAiStore.getState().toggleOpen()}
@@ -433,7 +434,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-more mobile-btn-more"
-          aria-label="Thêm tính năng"
+          aria-label="Menu mở rộng"
           aria-current={isMoreDrawerOpen ? 'page' : undefined}
           aria-pressed={isMoreDrawerOpen}
           onClick={() => setIsMoreDrawerOpen(true)}

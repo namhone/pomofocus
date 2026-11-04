@@ -102,7 +102,7 @@ export const LandingPage: React.FC = () => {
           <div className="rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-900/40 relative aspect-video flex flex-col items-center justify-center">
             {/* Visual Workspace Wireframe Simulation */}
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/80 via-black to-zinc-950 flex flex-col p-3 sm:p-6 justify-between select-none">
-              <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-500 font-mono gap-2 flex-wrap">
+              <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400 font-mono gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 shrink-0" />
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 shrink-0" />
@@ -141,11 +141,11 @@ export const LandingPage: React.FC = () => {
                   <div className="space-y-1.5 text-[11px] text-zinc-300">
                     <div className="flex justify-between">
                       <span>Mưa Rào Rừng Thông</span>
-                      <span className="text-zinc-500 font-mono">60%</span>
+                      <span className="text-zinc-400 font-mono">60%</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Bàn Phím Cơ Thao Tác</span>
-                      <span className="text-zinc-500 font-mono">40%</span>
+                      <span className="text-zinc-400 font-mono">40%</span>
                     </div>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export const LandingPage: React.FC = () => {
       {/* 4. Core Features Grid */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto border-t border-zinc-800/80">
         <div className="mb-10 sm:mb-12 text-center">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
             KIẾN TRÚC HIỆN ĐẠI
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight text-balance">
@@ -191,7 +191,7 @@ export const LandingPage: React.FC = () => {
                 Vòng đời bộ đếm chạy chính xác từng millisecond qua Web Worker và Service Worker. Chống trôi thời gian khi tab bị ẩn hoặc trình duyệt ngủ. Hỗ trợ tùy biến thời lượng làm việc, nghỉ ngắn, nghỉ dài.
               </p>
             </div>
-            <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-500 flex justify-between">
+            <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-400 flex justify-between">
               <span className="whitespace-nowrap">ĐỘ TRỄ &lt; 2MS</span>
               <span className="whitespace-nowrap">ĐỒNG BỘ MULTI-TAB</span>
             </div>
@@ -384,7 +384,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <div className="text-3xl font-bold text-white mb-1">
                 <span className="whitespace-nowrap">39.000 VNĐ</span>
-                <span className="text-xs font-normal text-zinc-500"> / tháng</span>
+                <span className="text-xs font-normal text-zinc-400"> / tháng</span>
               </div>
               <div className="text-[11px] font-mono text-zinc-400 mb-4 text-pretty">
                 Thanh toán 468.000&nbsp;VNĐ&nbsp;/&nbsp;năm (tiết kiệm 240.000&nbsp;VNĐ ~33,9%) hoặc 59.000&nbsp;VNĐ&nbsp;/&nbsp;tháng
@@ -464,13 +464,14 @@ export const LandingPage: React.FC = () => {
               <div key={index} className="py-4">
                 <button
                   type="button"
+                  aria-expanded={isOpen}
                   onClick={() => setOpenFaq(isOpen ? null : index)}
                   className="w-full flex items-center justify-between text-left text-xs sm:text-sm font-medium text-zinc-200 hover:text-white transition cursor-pointer gap-3"
                 >
                   <span className="text-balance">{faq.q}</span>
                   <ChevronDown
                     size={16}
-                    className={`text-zinc-500 transition-transform duration-200 shrink-0 ${
+                    className={`text-zinc-400 transition-transform duration-200 shrink-0 ${
                       isOpen ? 'rotate-180 text-white' : ''
                     }`}
                   />

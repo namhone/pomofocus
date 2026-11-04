@@ -370,6 +370,7 @@ export const AiCompanionWidget: React.FC = () => {
             onClick={clearChat}
             className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
             title="Làm mới cuộc trò chuyện"
+            aria-label="Làm mới cuộc trò chuyện"
           >
             <RotateCcw size={14} />
           </button>
@@ -381,6 +382,7 @@ export const AiCompanionWidget: React.FC = () => {
             onClick={() => toggleOpen(false)}
             className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer ml-0.5"
             title="Đóng (Esc)"
+            aria-label="Đóng cửa sổ"
           >
             <X size={16} />
           </button>
@@ -412,7 +414,7 @@ export const AiCompanionWidget: React.FC = () => {
 
           <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
             {(!sessions || sessions.length === 0) ? (
-              <div className="text-[11px] text-zinc-500 text-center py-4">
+              <div className="text-[11px] text-zinc-400 text-center py-4">
                 Chưa có phiên trò chuyện nào được lưu.
               </div>
             ) : (
@@ -430,7 +432,7 @@ export const AiCompanionWidget: React.FC = () => {
                     <div className="text-zinc-200 font-medium truncate text-xs">
                       {sess.title || 'Cuộc trò chuyện'}
                     </div>
-                    <div className="text-[10px] text-zinc-500">
+                    <div className="text-[10px] text-zinc-400">
                       {new Date(sess.createdAt).toLocaleDateString('vi-VN')} {new Date(sess.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -466,7 +468,7 @@ export const AiCompanionWidget: React.FC = () => {
                     <div className="mb-2 bg-zinc-900/80 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-2 text-cyan-300">
                       <FileCheck size={13} className="text-cyan-400 shrink-0" />
                       <span className="font-medium truncate max-w-[200px]">{msg.attachmentName}</span>
-                      <span className="text-[10px] text-zinc-500 ml-auto">Đề cương đính kèm</span>
+                      <span className="text-[10px] text-zinc-400 ml-auto">Đề cương đính kèm</span>
                     </div>
                   )}
 
@@ -495,7 +497,7 @@ export const AiCompanionWidget: React.FC = () => {
                     <span className="animate-pulse">●</span>
                     <span className="animate-pulse delay-100">●</span>
                     <span className="animate-pulse delay-200">●</span>
-                    <span className="ml-1 text-zinc-500">Gia sư đang phân tích...</span>
+                    <span className="ml-1 text-zinc-400">Gia sư đang phân tích...</span>
                   </div>
                 ) : (
                   <>
@@ -526,6 +528,7 @@ export const AiCompanionWidget: React.FC = () => {
                           onClick={() => handleCopy(msg.id, msg.content)}
                           className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
                           title="Sao chép câu trả lời"
+                          aria-label="Sao chép vào bộ nhớ tạm"
                         >
                           {copiedId === msg.id ? (
                             <>
@@ -710,6 +713,7 @@ export const AiCompanionWidget: React.FC = () => {
               onClick={handleRemoveFile}
               className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
               title="Xóa file đính kèm"
+              aria-label="Xóa file đính kèm"
             >
               <X size={14} />
             </button>
@@ -754,6 +758,7 @@ export const AiCompanionWidget: React.FC = () => {
                 : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
             }`}
             title="Đính kèm đề cương / tài liệu ôn tập (.docx, .pdf, ảnh tối đa 10MB)"
+            aria-label="Đính kèm đề cương / tài liệu ôn tập"
           >
             <Paperclip size={16} />
           </button>
@@ -781,13 +786,14 @@ export const AiCompanionWidget: React.FC = () => {
             disabled={(!inputPrompt.trim() && !selectedFile) || isLoading || isProcessingFile}
             className="p-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 text-zinc-950 disabled:text-zinc-500 transition cursor-pointer disabled:cursor-not-allowed shrink-0 flex items-center justify-center font-semibold shadow-xs"
             title="Gửi câu hỏi (Enter)"
+            aria-label="Gửi câu hỏi"
           >
             <Send size={14} />
           </button>
         </form>
 
         {/* Chân Trang: Thông tin chi phí minh bạch */}
-        <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-500">
+        <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-400">
           <span className="truncate whitespace-nowrap shrink-0 text-zinc-400">1⚡ / câu hỏi</span>
           <span className="text-emerald-400 font-medium shrink-0 ml-2">⚡ Phản hồi tức thì</span>
         </div>

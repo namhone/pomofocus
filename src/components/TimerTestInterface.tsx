@@ -106,6 +106,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             <button
               type="button"
               data-testid="btn-unlink-timer-task"
+              aria-label="Bỏ gắn công việc khỏi đồng hồ"
               onClick={() => setLinkedTask(null, null)}
               className="text-[10px] px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[24px] inline-flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
             >
@@ -203,6 +204,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="timer-start-btn"
               onClick={start}
               title="Bắt đầu phiên tập trung"
+              aria-label="Bắt đầu phiên tập trung"
               className="flex-1 rounded-full bg-white py-1.5 px-4 text-xs font-semibold text-neutral-900 shadow-[0_4px_20px_rgba(255,255,255,0.18)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-neutral-100 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
               <Play size={13} fill="currentColor" className="-translate-y-[0.5px]" />
@@ -215,6 +217,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="timer-pause-btn"
               onClick={pause}
               title="Tạm dừng phiên tập trung"
+              aria-label="Tạm dừng phiên tập trung"
               className="flex-1 rounded-full bg-amber-400 py-1.5 px-4 text-xs font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(251,191,36,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-amber-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
             >
               <Pause size={13} fill="currentColor" className="-translate-y-[0.5px]" />
@@ -227,6 +230,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               data-testid="timer-resume-btn"
               onClick={resume}
               title="Tiếp tục phiên tập trung"
+              aria-label="Tiếp tục phiên tập trung"
               className="flex-1 rounded-full bg-emerald-400 py-1.5 px-4 text-xs font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(52,211,153,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
               <Play size={13} fill="currentColor" className="-translate-y-[0.5px]" />
@@ -238,6 +242,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-reset-btn"
             onClick={reset}
             title="Đặt lại về mặc định"
+            aria-label="Đặt lại về mặc định"
             className="rounded-full border border-white/10 bg-white/[0.05] py-1.5 px-2.5 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] min-w-[34px] inline-flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             <RotateCcw size={12} className="-translate-y-[0.5px]" />
@@ -248,6 +253,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             data-testid="timer-skip-btn"
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp"
+            aria-label="Chuyển sang hiệp kế tiếp"
             className="rounded-full border border-white/10 bg-white/[0.05] py-1.5 px-2.5 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] min-w-[34px] inline-flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             <FastForward size={12} className="-translate-y-[0.5px]" />

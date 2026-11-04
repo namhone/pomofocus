@@ -129,7 +129,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
             <div className="text-xs font-semibold text-white truncate max-w-[150px]">
               {peer.name || 'Bạn học'}
             </div>
-            <div className="text-[10px] text-zinc-500 flex items-center justify-center gap-1 mt-0.5">
+            <div className="text-[10px] text-zinc-400 flex items-center justify-center gap-1 mt-0.5">
               <VideoOff size={11} className="text-zinc-600" />
               <span>Camera tắt</span>
             </div>
@@ -3579,7 +3579,7 @@ export const StudyRoomView: React.FC = () => {
                 const isMe = m.sender === participantName || m.sender === user?.displayName || m.sender === 'Bạn';
                 return (
                   <div key={m.id || m.clientMessageId || `${m.sender}_${i}`} className={`flex flex-col gap-0.5 ${isMe ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 px-1">
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-400 px-1">
                       <span className={`font-medium ${isMe ? 'text-zinc-400' : 'text-zinc-300'}`}>{m.sender}</span>
                       <span>{m.time}</span>
                     </div>
@@ -4173,7 +4173,7 @@ export const StudyRoomView: React.FC = () => {
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <label className="text-[11px] font-medium text-neutral-300">Mật khẩu PIN</label>
-                            <span className="text-[9px] text-neutral-500">Trống = mở</span>
+                            <span className="text-[9px] text-neutral-400">Trống = mở</span>
                           </div>
                           <input
                             type="text"
@@ -4247,7 +4247,7 @@ export const StudyRoomView: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-bold text-xs text-rose-400">Đóng phòng học</div>
-                          <div className="text-[10px] text-neutral-500">Tạm dừng phiên học và ngắt kết nối mọi thành viên.</div>
+                          <div className="text-[10px] text-neutral-400">Tạm dừng phiên học và ngắt kết nối mọi thành viên.</div>
                         </div>
                         <button
                           type="button"
@@ -4265,7 +4265,7 @@ export const StudyRoomView: React.FC = () => {
                             <Trash2 size={13} />
                             <span>Xóa phòng vĩnh viễn</span>
                           </div>
-                          <div className="text-[10px] text-neutral-500">Xóa sạch phòng khỏi hệ thống và hủy bỏ liên kết.</div>
+                          <div className="text-[10px] text-neutral-400">Xóa sạch phòng khỏi hệ thống và hủy bỏ liên kết.</div>
                         </div>
                         <button
                           type="button"

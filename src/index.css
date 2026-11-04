@@ -91,6 +91,23 @@
     inset: -10px;
     z-index: 1;
   }
+
+  /* Hiệu ứng viền tiêu điểm bàn phím toàn cục chuẩn WCAG 2.1 AA */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.8), 0 0 0 4px #09090b !important;
+  }
+}
+
+@layer utilities {
+  /* High-Tech Focus Rings theo chuẩn WCAG 2.1 AA (Emerald Neon Ring + Deep Offset) */
+  .focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 focus-visible:outline-none transition-all;
+  }
 }
 
 @layer components {
