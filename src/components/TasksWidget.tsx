@@ -253,29 +253,7 @@ export const TasksWidget: React.FC = () => {
       <div className="space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-0.5">
         {filteredTasks.length === 0 ? (
           <div className="text-center py-6 px-3 rounded-xl border border-dashed border-white/[0.08] text-neutral-400">
-            <p className="text-xs mb-3 text-neutral-400">Chưa có công việc nào trong danh sách.</p>
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {[
-                { title: 'Học tập', count: 2 },
-                { title: 'Làm việc sâu', count: 3 },
-                { title: 'Đọc sách', count: 1 }
-              ].map((chip) => (
-                <button
-                  key={chip.title}
-                  type="button"
-                  onClick={() => {
-                    createTask({
-                      title: chip.title,
-                      estimatedPomodoros: chip.count,
-                      priority: 'p2'
-                    });
-                  }}
-                  className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/10 text-neutral-300 border border-white/5 transition cursor-pointer min-h-[28px]"
-                >
-                  + {chip.title} {chip.count} phiên
-                </button>
-              ))}
-            </div>
+            <p className="text-xs text-neutral-400">Chưa có công việc. Nhập việc và nhấn Enter.</p>
           </div>
         ) : (
           filteredTasks.map((task) => {

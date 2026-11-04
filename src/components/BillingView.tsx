@@ -736,8 +736,8 @@ export const BillingView: React.FC = () => {
                             ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(59000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / tháng`
                             : `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(468000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / năm`)
                         : (cycle === 'monthly'
-                            ? 'Thanh toán 59.000 VNĐ / tháng, hủy bất kỳ lúc nào'
-                            : 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm 34% 🔥)')}
+                            ? '59.000đ / tháng • Hủy bất kỳ lúc nào'
+                            : '39.000đ / tháng • Thanh toán 468.000đ/năm (Tiết kiệm 34%)')}
                     </p>
                   </div>
 
@@ -811,9 +811,7 @@ export const BillingView: React.FC = () => {
                     <span>
                       {cycle === 'lifetime'
                         ? 'Nâng Cấp Gói Trọn Đời (VietQR)'
-                        : cycle === 'monthly'
-                        ? 'Nâng Cấp Gói Tháng (VietQR)'
-                        : 'Nâng Cấp Gói Năm (VietQR)'}
+                        : 'Nâng Cấp Ngay'}
                     </span>
                   </button>
                 </div>

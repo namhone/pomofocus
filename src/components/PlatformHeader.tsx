@@ -940,28 +940,9 @@ export const PlatformHeader: React.FC = () => {
             <div className="space-y-3 text-xs mb-5">
               <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 flex items-start gap-2.5">
                 <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                <div className="leading-relaxed">
-                  <strong>Trải nghiệm hoàn toàn miễn phí:</strong> Khách vãng lai và tài khoản Free được tặng sẵn <strong>50⚡ AI Credits</strong> để đặt câu hỏi, giải toán và phân tích kiến thức.
+                <div className="leading-relaxed text-xs">
+                  50⚡ tặng sẵn để bạn trải nghiệm giải đề và tóm tắt bài học cùng Gia sư AI. Đăng ký để nhận thêm mỗi tuần.
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                  <div className="font-mono font-bold text-amber-300 text-sm">1⚡</div>
-                  <div className="text-[10px] text-neutral-400 mt-0.5">Hỏi bài &amp; Chat</div>
-                </div>
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                  <div className="font-mono font-bold text-amber-300 text-sm">5⚡</div>
-                  <div className="text-[10px] text-neutral-400 mt-0.5">Tóm tắt bài học</div>
-                </div>
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                  <div className="font-mono font-bold text-amber-300 text-sm">10⚡</div>
-                  <div className="text-[10px] text-neutral-400 mt-0.5">Soạn đề thi</div>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-neutral-300 text-[11px] leading-relaxed">
-                👑 <strong>Gói PRO Trọn Đời:</strong> Tự động nạp lại <strong>1.000⚡ AI Credits</strong> vào mỗi Thứ Hai hàng tuần, không lo cạn kiệt năng lượng học tập.
               </div>
             </div>
 

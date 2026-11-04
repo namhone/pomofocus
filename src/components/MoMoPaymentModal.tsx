@@ -582,7 +582,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 ) : (
                   <>
                     <FlaskConical size={14} className="text-amber-400" />
-                    <span>Mô Phỏng Quét Mã Thành Công (Sandbox Test)</span>
+                    <span>Xác Nhận Đã Chuyển Khoản</span>
                   </>
                 )}
               </button>

@@ -260,8 +260,8 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           <div className="mt-2 border-t border-white/[0.08] pt-1.5 pb-0.5 text-xs text-neutral-300 space-y-1">
             <div className="flex items-center justify-between">
               <span className="font-medium text-neutral-200 text-[10.5px] flex items-center gap-1.5">
-                Cấu hình thời gian (phút):
-                <span className="text-[9px] font-normal text-zinc-400 bg-white/5 px-1.5 py-0.2 rounded border border-white/10">Tự lưu thiết bị</span>
+                <span>25m • 5m • 15m</span>
+                <span className="text-[9px] font-normal text-zinc-400 bg-white/5 px-1.5 py-0.2 rounded border border-white/10">Tự lưu</span>
               </span>
               <button
                 data-testid="btn-request-notification"

@@ -191,7 +191,7 @@ export const ProfileView: React.FC = () => {
           </span>
         </div>
 
-        {/* Sub-nav Tabs: Hồ Sơ | Bảo Mật | Gói Cước | Quyền Riêng Tư (Full Width Scrollable) */}
+        {/* Sub-nav Tabs: Hồ sơ | Bảo mật | Gói cước | Dữ liệu (Full Width Scrollable) */}
         <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs w-max sm:w-auto">
             <button
@@ -199,7 +199,7 @@ export const ProfileView: React.FC = () => {
               className="px-3.5 py-1.5 rounded-lg bg-zinc-800 text-white font-medium border border-zinc-700 shadow-sm transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <User size={13} className="text-zinc-200" />
-              <span>Hồ Sơ Cá Nhân</span>
+              <span>Hồ sơ</span>
             </button>
             <button
               type="button"
@@ -208,7 +208,7 @@ export const ProfileView: React.FC = () => {
               className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Shield size={13} className="text-zinc-400" />
-              <span>Bảo Mật</span>
+              <span>Bảo mật</span>
             </button>
             <button
               type="button"
@@ -217,7 +217,7 @@ export const ProfileView: React.FC = () => {
               className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <CreditCard size={13} className="text-zinc-400" />
-              <span>Gói Cước</span>
+              <span>Gói cước</span>
             </button>
             <button
               type="button"
@@ -226,7 +226,7 @@ export const ProfileView: React.FC = () => {
               className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <Database size={13} className="text-zinc-400" />
-              <span>Quyền Riêng Tư</span>
+              <span>Dữ liệu</span>
             </button>
           </div>
         </div>

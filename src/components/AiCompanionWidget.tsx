@@ -571,6 +571,42 @@ export const AiCompanionWidget: React.FC = () => {
           );
         })}
 
+        {/* 3 Quick Suggestion Chips khi mới bắt đầu cuộc trò chuyện */}
+        {messages.length <= 1 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1 pl-8">
+            <button
+              type="button"
+              onClick={() => {
+                setInputPrompt('Giải bài tập: ');
+                inputRef.current?.focus();
+              }}
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+            >
+              📐 Giải bài tập
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setInputPrompt('Tóm tắt bài học: ');
+                inputRef.current?.focus();
+              }}
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+            >
+              📝 Tóm tắt
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setInputPrompt('Tạo 5 câu trắc nghiệm ôn thi: ');
+                inputRef.current?.focus();
+              }}
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+            >
+              ❓ Tạo trắc nghiệm
+            </button>
+          </div>
+        )}
+
         {/* Loading fallback nếu isLoading mà chưa có assistant message trong danh sách */}
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex gap-2.5 justify-start">
@@ -752,7 +788,7 @@ export const AiCompanionWidget: React.FC = () => {
 
         {/* Chân Trang: Thông tin chi phí minh bạch */}
         <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-500">
-          <span className="truncate">Hỏi: 1⚡ • Tóm tắt: 5⚡ • Đề cương: 5⚡ • Quiz: 10⚡</span>
+          <span className="truncate whitespace-nowrap shrink-0 text-zinc-400">1⚡ / câu hỏi</span>
           <span className="text-emerald-400 font-medium shrink-0 ml-2">⚡ Phản hồi tức thì</span>
         </div>
       </div>

@@ -20,11 +20,11 @@ export interface WallpaperItem {
 
 export const WALLPAPER_CATEGORIES: { id: WallpaperCategory | 'all'; label: string; icon: string }[] = [
   { id: 'all', label: 'Tất cả', icon: '🌌' },
-  { id: 'lofi-study', label: 'Lo-Fi Bàn Học', icon: '🛋️' },
-  { id: 'anime-ghibli', label: 'Anime & Ghibli', icon: '🎨' },
-  { id: 'cyberpunk-tokyo', label: 'Cyberpunk Tokyo', icon: '🏙️' },
-  { id: 'minimalist-desk', label: 'Minimalist Desk', icon: '💻' },
-  { id: 'nature-zen', label: 'Nature Zen', icon: '🌲' }
+  { id: 'lofi-study', label: 'Lo-Fi', icon: '🛋️' },
+  { id: 'anime-ghibli', label: 'Anime', icon: '🎨' },
+  { id: 'cyberpunk-tokyo', label: 'Cyberpunk', icon: '🏙️' },
+  { id: 'minimalist-desk', label: 'Tối giản', icon: '💻' },
+  { id: 'nature-zen', label: 'Thiên nhiên', icon: '🌲' }
 ];
 
 interface CategorySeedData {

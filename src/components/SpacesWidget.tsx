@@ -233,7 +233,7 @@ export const SpacesWidget: React.FC = () => {
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-white text-xs truncate">Thư Viện Không Gian</h3>
-              <p className="text-[10px] text-neutral-400 truncate">1.000+ hình nền tuyển chọn Pinterest & Ambient</p>
+              <p className="text-[10px] text-neutral-400 truncate">Không gian nền 4K</p>
             </div>
           </div>
 

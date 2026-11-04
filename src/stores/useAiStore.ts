@@ -224,8 +224,7 @@ export const useAiStore = create<AiState>()(
         {
           id: 'welcome-1',
           role: 'assistant',
-          content:
-            'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨\n\nBạn có thể hỏi bất kỳ bài học nào, đính kèm đề cương 📎, yêu cầu tóm tắt tài liệu hoặc tạo câu hỏi trắc nghiệm ôn thi ngay tại đây!',
+          content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
           timestamp: Date.now()
         }
       ],
@@ -378,8 +377,7 @@ export const useAiStore = create<AiState>()(
             {
               id: 'welcome-' + Date.now(),
               role: 'assistant',
-              content:
-                'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨\n\nBạn có thể hỏi bất kỳ bài học nào, đính kèm đề cương 📎, hoặc yêu cầu giải thích chi tiết!',
+              content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
               timestamp: Date.now()
             }
           ],
@@ -425,8 +423,7 @@ export const useAiStore = create<AiState>()(
               {
                 id: 'welcome-' + Date.now(),
                 role: 'assistant',
-                content:
-                  'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨',
+                content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
                 timestamp: Date.now()
               }
             ],
@@ -456,8 +453,7 @@ export const useAiStore = create<AiState>()(
                 {
                   id: 'welcome-' + Date.now(),
                   role: 'assistant',
-                  content:
-                    'Xin chào! Tôi là **PomoFocus AI Companion** — gia sư học tập đồng hành thông minh của bạn. 🎓✨',
+                  content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
                   timestamp: Date.now()
                 }
               ]
