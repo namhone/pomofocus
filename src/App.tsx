@@ -27,6 +27,9 @@ import { useLayoutStore } from './stores/useLayoutStore';
 import { useFocusAutoDim } from './hooks/useFocusAutoDim';
 import { useTimerStore } from './stores/useTimerStore';
 import { useAuthStore } from './stores/useAuthStore';
+import { useAiStore } from './stores/useAiStore';
+import { MobileHeaderToggle } from './components/MobileHeaderToggle';
+import { AiCreditsTopupModal } from './components/AiCreditsTopupModal';
 import { supabase } from './lib/supabase';
 import { usePwaInstallStore } from './stores/usePwaInstallStore';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
@@ -80,6 +83,9 @@ export const App: React.FC = () => {
   const mobileViewMode = useLayoutStore((state) => state.mobileViewMode);
   const activeMobileTab = useLayoutStore((state) => state.activeMobileTab);
   const setMobileViewMode = useLayoutStore((state) => state.setMobileViewMode);
+  const isMobileHeaderOpen = useLayoutStore((state) => state.isMobileHeaderOpen);
+  const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
+  const closeTopupModal = useAiStore((state) => state.closeTopupModal);
   const initTimer = useTimerStore((state) => state.init);
   const destroyTimer = useTimerStore((state) => state.destroy);
   const timerLifecycleGeneration = useRef(0);
@@ -258,8 +264,10 @@ export const App: React.FC = () => {
         ) : (
           <>
             <PlatformHeader />
+            {isMobile && !isZenMode && <MobileHeaderToggle />}
+            <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
         {/* Mobile / Tablet Floating Action: Avatar + ⚙️ Cài đặt luôn nổi ở góc trên cùng bên phải */}
-        {isMobile && !isZenMode && (
+        {isMobile && !isZenMode && !isMobileHeaderOpen && (
           <div className="fixed top-2.5 right-3 z-50">
             <button
               type="button"
@@ -291,7 +299,9 @@ export const App: React.FC = () => {
             <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
             {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
             {isMobile ? (
-              <main className="relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start">
+              <main className={`relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start transition-all duration-300 ease-in-out ${
+                isMobileHeaderOpen ? 'pt-20' : 'pt-3'
+              }`}>
                 {/* Thanh điều khiển chế độ xem trên điện thoại */}
                 <div className="w-full max-w-xl mx-auto flex items-center justify-between py-1 px-2 mb-3 select-none text-xs">
                   <div className="flex items-center gap-1.5 text-neutral-400 text-[11px] font-medium">

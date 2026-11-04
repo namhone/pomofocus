@@ -7,8 +7,9 @@ import {
   Layers,
   Square,
   Sparkles,
-  Settings
+  MoreHorizontal
 } from 'lucide-react';
+import { MobileMoreDrawer } from './MobileMoreDrawer';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
 import { WidgetId } from '../types/layout';
@@ -31,6 +32,7 @@ export const MobileBottomNav: React.FC = () => {
   const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isMoreDrawerOpen, setIsMoreDrawerOpen] = useState(false);
   const [showQuickSettings, setShowQuickSettings] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -370,11 +372,11 @@ export const MobileBottomNav: React.FC = () => {
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Tập trung</span>
         </button>
 
-        {/* 2. Nút Kế hoạch (25%) */}
+        {/* 2. Nút Nhiệm vụ (20%) */}
         <button
           type="button"
           data-testid="dock-btn-tasks"
-          aria-label="Kế hoạch"
+          aria-label="Nhiệm vụ"
           aria-current={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'page' : undefined}
           aria-pressed={widgets.tasks?.isOpen ?? false}
           onClick={() => handleNavClick('tasks')}
@@ -386,7 +388,7 @@ export const MobileBottomNav: React.FC = () => {
           }`}
         >
           <ClipboardList size={20} strokeWidth={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 2.2 : 1.75} className={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'text-white' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Kế hoạch</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Nhiệm vụ</span>
         </button>
 
         {/* 3. Nút Không gian (20%) */}
@@ -408,7 +410,7 @@ export const MobileBottomNav: React.FC = () => {
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Không gian</span>
         </button>
 
-        {/* 4. Nút Trợ lý AI (25%) */}
+        {/* 4. Nút Trợ lý AI (20%) */}
         <button
           type="button"
           data-testid="mobile-btn-ai"
@@ -426,25 +428,33 @@ export const MobileBottomNav: React.FC = () => {
           <Sparkles size={20} strokeWidth={isAiOpen ? 2.2 : 1.75} className={isAiOpen ? 'text-cyan-300' : 'text-zinc-400'} />
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Trợ lý AI</span>
         </button>
-        {/* 5. Nút Cài đặt (20%) */}
+
+        {/* 5. Nút Thêm (20%) */}
         <button
           type="button"
-          data-testid="dock-btn-settings mobile-btn-settings"
-          aria-label="Cài đặt"
-          aria-current={activeMobileTab === 'settings' ? 'page' : undefined}
-          aria-pressed={widgets.settings?.isOpen ?? false}
-          onClick={() => handleNavClick('settings')}
+          data-testid="dock-btn-more mobile-btn-more"
+          aria-label="Thêm tính năng"
+          aria-current={isMoreDrawerOpen ? 'page' : undefined}
+          aria-pressed={isMoreDrawerOpen}
+          onClick={() => setIsMoreDrawerOpen(true)}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
-            activeMobileTab === 'settings'
+            isMoreDrawerOpen
               ? 'text-white font-semibold'
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Settings size={20} strokeWidth={activeMobileTab === 'settings' ? 2.2 : 1.75} className={activeMobileTab === 'settings' ? 'text-white' : 'text-zinc-400'} />
-          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Cài đặt</span>
+          <MoreHorizontal size={20} strokeWidth={isMoreDrawerOpen ? 2.2 : 1.75} className={isMoreDrawerOpen ? 'text-white' : 'text-zinc-400'} />
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Thêm</span>
         </button>
       </nav>
+
+      {/* Menu Mở Rộng / Bottom Sheet Action Drawer */}
+      <MobileMoreDrawer
+        isOpen={isMoreDrawerOpen}
+        onClose={() => setIsMoreDrawerOpen(false)}
+        onOpenQuickSettings={() => setShowQuickSettings(true)}
+      />
       {showResetConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm">
           <section

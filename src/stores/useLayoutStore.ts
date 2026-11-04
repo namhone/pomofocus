@@ -424,6 +424,9 @@ export interface LayoutStoreState {
   mobileViewMode: MobileViewMode;
   activeMobileTab: WidgetId;
   isFocusDimmed: boolean;
+  isMobileHeaderOpen: boolean;
+  setMobileHeaderOpen: (open: boolean) => void;
+  toggleMobileHeader: () => void;
 
   // Actions
   setZenMode: (enabled: boolean) => void;
@@ -488,6 +491,9 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   dockAutoHide: initial.dockAutoHide,
   isLayoutEditMode: false,
   isFocusDimmed: false,
+  isMobileHeaderOpen: false,
+  setMobileHeaderOpen: (open: boolean) => set({ isMobileHeaderOpen: open }),
+  toggleMobileHeader: () => set((state) => ({ isMobileHeaderOpen: !state.isMobileHeaderOpen })),
   themeAccent: 'matcha',
   highestZIndex: initialHighestZ,
   glassSettings: initial.glassSettings,

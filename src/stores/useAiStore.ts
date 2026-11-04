@@ -136,9 +136,12 @@ export interface AiState {
   messages: AiMessage[];
   sessions: AiSession[];
   currentSessionId: string | null;
+  isTopupModalOpen: boolean;
 
   // Actions
   toggleOpen: (force?: boolean) => void;
+  openTopupModal: () => void;
+  closeTopupModal: () => void;
   setAiPlan: (plan: AiPlanType) => void;
   addCredits: (amount: number) => void;
   deductCredits: (cost: number) => boolean;
@@ -190,6 +193,7 @@ export const useAiStore = create<AiState>()(
       error: null,
       sessions: [],
       currentSessionId: null,
+      isTopupModalOpen: false,
       messages: [
         {
           id: 'welcome-1',
@@ -205,6 +209,9 @@ export const useAiStore = create<AiState>()(
         // Khi mở widget, tự động kiểm tra nạp lại định kỳ (tuần / tháng)
         get().checkPeriodicReset();
       },
+
+      openTopupModal: () => set({ isTopupModalOpen: true }),
+      closeTopupModal: () => set({ isTopupModalOpen: false }),
 
       setAiPlan: (plan) => {
         const currentBalance = get().aiCreditsBalance;

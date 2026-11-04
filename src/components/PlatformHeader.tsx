@@ -36,6 +36,8 @@ export const PlatformHeader: React.FC = () => {
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
+  const isMobileHeaderOpen = useLayoutStore((s) => s.isMobileHeaderOpen);
+  const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -102,6 +104,7 @@ export const PlatformHeader: React.FC = () => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
       }
     };
 
@@ -120,6 +123,7 @@ export const PlatformHeader: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
         setIsLogoutModalOpen(false);
       }
     };
@@ -140,6 +144,7 @@ export const PlatformHeader: React.FC = () => {
   const handleNavigate = (path: string) => {
     setIsMobileMenuOpen(false);
     setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
     router.navigate(path);
   };
 
@@ -155,6 +160,7 @@ export const PlatformHeader: React.FC = () => {
     logout();
     setIsLogoutModalOpen(false);
     setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
     setShowLogoutToast(true);
     setTimeout(() => {
       setShowLogoutToast(false);
@@ -178,7 +184,11 @@ export const PlatformHeader: React.FC = () => {
         onMouseLeave={isWorkspace ? handleHeaderMouseLeave : undefined}
         className={`${
           isWorkspace
-            ? 'fixed top-0 left-0 right-0 z-50 pointer-events-none flex justify-center px-2 sm:px-4 transition-all duration-300'
+            ? `fixed top-0 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 transition-all duration-300 ${
+                isMobileHeaderOpen
+                  ? 'translate-y-0 opacity-100 pointer-events-auto'
+                  : '-translate-y-full opacity-0 pointer-events-none sm:translate-y-0 sm:opacity-100 sm:pointer-events-none'
+              }`
             : 'sticky top-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-3 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
         }`}
       >
@@ -186,7 +196,7 @@ export const PlatformHeader: React.FC = () => {
           className={`${
             isWorkspace
               ? `pointer-events-auto h-10 w-full max-w-4xl mx-auto mt-2 rounded-full bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] shadow-lg px-3 sm:px-4 flex items-center justify-between select-none text-xs transition-all duration-300 relative ${
-                  isHeaderVisible
+                  isHeaderVisible || isMobileHeaderOpen
                     ? 'opacity-100 shadow-2xl bg-zinc-950/70 border-white/10'
                     : 'opacity-25 hover:opacity-100'
                 } ${isFocusDimmed && !isHeaderHovered ? 'opacity-10' : ''}`
@@ -409,6 +419,7 @@ export const PlatformHeader: React.FC = () => {
                       data-testid="header-user-settings-btn"
                       onClick={() => {
                         setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
                         if (isWorkspace) {
                           useLayoutStore.getState().openWidget('settings');
                         } else {
@@ -437,6 +448,7 @@ export const PlatformHeader: React.FC = () => {
                         data-testid="header-user-install-pwa-btn"
                         onClick={() => {
                           setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
                           triggerInstall();
                         }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left font-medium"
@@ -455,6 +467,7 @@ export const PlatformHeader: React.FC = () => {
                     data-testid="header-logout-btn"
                     onClick={() => {
                       setIsUserDropdownOpen(false);
+    setMobileHeaderOpen(false);
                       setIsLogoutModalOpen(true);
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition cursor-pointer text-left font-medium"
