@@ -342,3 +342,61 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     lifetime: 'Không giới hạn'
   }
 ];
+
+
+export interface StreamlinedComparisonFeature {
+  id: string;
+  name: string;
+  free: string | boolean;
+  pro: string | boolean;
+  lifetime: string | boolean;
+  highlightLifetime?: boolean;
+}
+
+export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
+  {
+    id: 'core_tools',
+    name: 'Công cụ học tập cốt lõi (Pomodoro, Note, Task)',
+    free: true,
+    pro: true,
+    lifetime: true
+  },
+  {
+    id: 'ai_limit',
+    name: 'Hạn mức Trợ lý AI Companion',
+    free: '50⚡ (dùng thử)',
+    pro: '500⚡ / tuần',
+    lifetime: '1.000⚡ / tuần (vĩnh viễn)',
+    highlightLifetime: true
+  },
+  {
+    id: 'backgrounds_4k',
+    name: 'Kho 1.000+ Hình nền 4K, Anime & Ghibli',
+    free: false,
+    pro: true,
+    lifetime: true
+  },
+  {
+    id: 'webrtc_rooms',
+    name: 'Phòng học nhóm WebRTC không giới hạn',
+    free: false,
+    pro: true,
+    lifetime: '✓ (Băng thông ưu tiên)',
+    highlightLifetime: true
+  },
+  {
+    id: 'cloud_sync',
+    name: 'Đồng bộ Đám mây Supabase đa thiết bị',
+    free: 'Cục bộ',
+    pro: true,
+    lifetime: true
+  },
+  {
+    id: 'vip_badge',
+    name: 'Huy hiệu Vinh danh & Đặc quyền Founder',
+    free: false,
+    pro: 'PRO',
+    lifetime: 'Founder VIP 👑',
+    highlightLifetime: true
+  }
+];

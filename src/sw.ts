@@ -4,7 +4,7 @@ import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
 
-const SW_CACHE_VERSION = 'v3.4.0-cloud-sync-zero-collision';
+const SW_CACHE_VERSION = 'v3.5.0-streamlined-billing-and-cloud-sync';
 
 // Bắt buộc Service Worker kích hoạt ngay lập tức và giành quyền kiểm soát mọi client
 self.skipWaiting();

@@ -22,118 +22,66 @@ import {
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import { couponService } from '../services/couponService';
-import { PRICING_PLANS, COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
+import { PRICING_PLANS, STREAMLINED_COMPARISON_FEATURES, PlanCycle } from '../config/pricing';
 import { authService, isOwnerEmail, isLadyBoss, isVipFriend, hasProEntitlement, getPlanLabel } from '../services/authService';
 
-const isNegativeValue = (val: string | undefined): boolean => {
-  if (!val) return true;
-  const trimmed = val.trim();
-  return (
-    trimmed === '❌' ||
-    trimmed === '✕' ||
-    trimmed === 'x' ||
-    trimmed === 'X' ||
-    trimmed === '-' ||
-    trimmed === '—' ||
-    trimmed === '–' ||
-    trimmed === 'Không' ||
-    trimmed === 'Không có' ||
-    trimmed === 'Không hỗ trợ'
-  );
-};
+const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 'lifetime') => {
+  if (val === false || val === '—' || val === '-') {
+    return <span className="text-zinc-600 font-light text-sm select-none">—</span>;
+  }
 
-const renderComparisonCell = (
-  val: string,
-  variant: 'free' | 'monthly' | 'yearly' | 'lifetime',
-  itemId?: string
-) => {
-  // 1. Phủ định / Không hỗ trợ -> Chỉ hiển thị DUY NHẤT một dấu gạch ngang mờ "—", tuyệt đối KHÔNG chèn Check
-  if (isNegativeValue(val)) {
+  if (val === true || val === '✓') {
     return (
-      <span className="inline-block text-zinc-600 font-semibold text-sm select-none" title="Không hỗ trợ">
-        —
+      <span className="flex items-center justify-center">
+        <Check className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
       </span>
     );
   }
 
-  // 2. Giá niêm yết hoặc thời hạn sử dụng -> Hiển thị text rõ ràng, không chèn Check
-  if (itemId === 'price' || itemId === 'duration') {
+  if (typeof val === 'string' && val.includes('✓')) {
     return (
-      <span
-        className={
-          variant === 'lifetime'
-            ? 'font-bold text-amber-300'
-            : variant === 'yearly'
-            ? 'font-bold text-indigo-300'
-            : variant === 'monthly'
-            ? 'font-medium text-zinc-200'
-            : 'text-zinc-400'
-        }
-      >
-        {val}
+      <span className="inline-flex items-center justify-center gap-1 text-[11px] font-medium text-amber-200">
+        <Check className="w-3.5 h-3.5 text-amber-400 stroke-[2.5] shrink-0" />
+        <span>{val.replace('✓', '').trim()}</span>
       </span>
     );
   }
 
-  // 3. Early Access badge cho gói Lifetime
-  if (itemId === 'early_access' && variant === 'lifetime') {
+  if (val === 'PRO') {
     return (
-      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs inline-flex items-center gap-1 whitespace-nowrap">
-        <Sparkles size={11} className="text-amber-400" />
-        {val}
+      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+        PRO
       </span>
     );
   }
 
-  // 4. Badge hồ sơ cho Lifetime
-  if (itemId === 'badge' && variant === 'lifetime') {
+  if (typeof val === 'string' && val.includes('Founder VIP')) {
     return (
-      <span className="text-amber-200 font-bold text-[11px] inline-flex items-center justify-center gap-1">
-        <Crown size={12} className="text-amber-400 shrink-0" />
-        {val}
+      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-flex items-center gap-1 shadow-xs">
+        <Crown size={11} className="text-amber-400 shrink-0" />
+        <span>Founder VIP 👑</span>
       </span>
     );
   }
 
-  // 5. Quà tặng cộng đồng cho Lifetime
-  if (itemId === 'community_gift' && variant === 'lifetime') {
-    return (
-      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1">
-        <Check size={12} className="text-emerald-400 shrink-0 font-bold" />
-        {val}
-      </span>
-    );
+  if (val === 'Cục bộ') {
+    return <span className="text-zinc-500 text-xs font-medium">Cục bộ</span>;
   }
 
-  // 6. Trường hợp "Ưu tiên Beta" cho gói Năm
-  if (itemId === 'early_access' && variant === 'yearly') {
-    return (
-      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 inline-flex items-center gap-1">
-        <Check size={12} className="text-emerald-400 shrink-0 font-bold" />
-        Ưu tiên Beta
-      </span>
-    );
-  }
-
-  // 7. Các tính năng ĐƯỢC HỖ TRỢ bình thường -> DUY NHẤT 1 dấu Check màu xanh ngọc + text
   return (
     <span
-      className={`inline-flex items-center justify-center gap-1.5 ${
+      className={
         variant === 'lifetime'
-          ? 'text-amber-100 font-medium'
-          : variant === 'yearly'
-          ? 'text-indigo-100'
-          : variant === 'monthly'
-          ? 'text-zinc-200'
-          : 'text-zinc-300'
-      }`}
+          ? 'font-bold text-amber-300 text-xs font-mono'
+          : variant === 'pro'
+          ? 'font-semibold text-indigo-200 text-xs font-mono'
+          : 'text-zinc-400 text-xs'
+      }
     >
-      <Check size={14} className="text-emerald-400 shrink-0 font-semibold" />
-      <span>{val}</span>
+      {val}
     </span>
   );
 };
-
 
 const CREDIT_PACKS = [
   { id: 'pack_300', credits: 300, priceVnd: 19000, formatted: '19.000₫', discount: '0%', popular: false },
@@ -1024,7 +972,7 @@ export const BillingView: React.FC = () => {
                     onClick={() => setShowComparison(!showComparison)}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition cursor-pointer shadow-sm group"
                   >
-                    <span>{showComparison ? 'Thu gọn bảng so sánh chi tiết' : 'Xem bảng so sánh tính năng chi tiết (17 tiêu chí)'}</span>
+                    <span>{showComparison ? 'Thu gọn bảng so sánh quyền lợi' : 'Xem bảng so sánh quyền lợi cốt lõi'}</span>
                     <ChevronDown size={15} className={`transition-transform duration-200 text-zinc-400 group-hover:text-white ${showComparison ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
@@ -1033,63 +981,57 @@ export const BillingView: React.FC = () => {
               {/* Table Container - Expandable Progressive Disclosure */}
               {showComparison && (
                 <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm shadow-xl scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
-                  <table className="w-full text-left border-separate border-spacing-0 min-w-[760px] text-xs">
+                  <table className="w-full text-left border-separate border-spacing-0 min-w-[680px] text-xs">
                     <thead>
                       <tr className="bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
-                        <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-4 px-4 w-[28%] min-w-[190px] sm:min-w-[240px] text-zinc-300 font-semibold shadow-xs">
-                          Tính Năng &amp; Đặc Quyền
+                        <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-3.5 px-4 w-[34%] min-w-[200px] sm:min-w-[260px] text-zinc-300 font-semibold shadow-xs">
+                          Tính Năng Trọng Yếu
                         </th>
-                        <th className="py-4 px-3 w-[16%] min-w-[120px] text-center text-zinc-400 border-b border-zinc-800">
-                          Gói Free (0₫)
+                        <th className="py-3.5 px-3 w-[20%] min-w-[110px] text-center text-zinc-400 border-b border-zinc-800">
+                          Miễn Phí
+                          <span className="text-[10px] text-zinc-500 font-normal block normal-case font-sans">0₫ / mãi mãi</span>
                         </th>
-                        <th className="py-4 px-3 w-[18%] min-w-[130px] text-center text-zinc-300 border-b border-zinc-800">
-                          Gói Tháng (59k)
+                        <th className="py-3.5 px-3 w-[23%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
+                          PRO (Tháng/Năm)
+                          <span className="text-[10px] text-indigo-400 font-semibold block normal-case font-sans">Từ 39.000₫ / tháng</span>
                         </th>
-                        <th className="py-4 px-3 w-[18%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
-                          Gói Năm (-34%)
-                          <span className="text-[9px] text-indigo-400 font-bold block normal-case">GÓI PHỔ BIẾN NHẤT</span>
-                        </th>
-                        <th className="py-4 px-3 w-[20%] min-w-[160px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
-                          <span className="inline-flex items-center gap-1">
+                        <th className="py-3.5 px-3 w-[23%] min-w-[150px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
+                          <span className="inline-flex items-center gap-1 font-bold">
                             <Crown size={12} className="text-amber-400" />
-                            Gói Trọn Đời
+                            FOUNDER VIP
                           </span>
-                          <span className="text-[9px] text-amber-400 font-bold block normal-case">FOUNDER VIP</span>
+                          <span className="text-[10px] text-amber-400 font-bold block normal-case font-sans">Trọn Đời • 799.000₫</span>
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {COMPARISON_FEATURES.map((item) => (
+                      {STREAMLINED_COMPARISON_FEATURES.map((item) => (
                         <tr
                           key={item.id}
                           className="hover:bg-zinc-800/30 transition-colors"
                         >
-                          <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[190px] sm:min-w-[240px] shadow-xs">
+                          <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[200px] sm:min-w-[260px] shadow-xs">
                             <div className="flex items-center gap-1.5">
-                              {item.id === 'badge' && (
+                              {item.id === 'vip_badge' && (
                                 <Crown size={13} className="text-amber-400 shrink-0" />
                               )}
-                              {item.id === 'early_access' && (
-                                <Sparkles size={13} className="text-amber-400 shrink-0" />
+                              {item.id === 'ai_limit' && (
+                                <Zap size={13} className="text-cyan-400 shrink-0 fill-cyan-400" />
                               )}
-                              <span>{item.feature}</span>
+                              <span>{item.name}</span>
                             </div>
                           </td>
 
-                          <td className="py-3.5 px-3 text-center text-zinc-400 border-b border-zinc-800/60">
-                            {renderComparisonCell(item.free, 'free', item.id)}
+                          <td className="py-3.5 px-3 text-center border-b border-zinc-800/60">
+                            {renderStreamlinedCell(item.free, 'free')}
                           </td>
 
-                          <td className="py-3.5 px-3 text-center text-zinc-300 border-b border-zinc-800/60">
-                            {renderComparisonCell(item.monthly, 'monthly', item.id)}
+                          <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
+                            {renderStreamlinedCell(item.pro, 'pro')}
                           </td>
 
-                          <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20 text-indigo-100">
-                            {renderComparisonCell(item.yearly, 'yearly', item.id)}
-                          </td>
-
-                          <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25 text-amber-100">
-                            {renderComparisonCell(item.lifetime, 'lifetime', item.id)}
+                          <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25">
+                            {renderStreamlinedCell(item.lifetime, 'lifetime')}
                           </td>
                         </tr>
                       ))}
@@ -1097,43 +1039,43 @@ export const BillingView: React.FC = () => {
 
                     <tfoot>
                       <tr className="bg-zinc-950/80">
-                        <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-4 px-4 text-xs text-zinc-400 min-w-[190px] sm:min-w-[240px] shadow-xs">
+                        <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-zinc-800 py-3 px-4 text-xs text-zinc-400 min-w-[200px] sm:min-w-[260px] shadow-xs">
                           <div className="flex items-center gap-1.5 text-zinc-500 font-mono text-[11px]">
                             <ShieldCheck size={14} className="text-zinc-400 shrink-0" />
                             <span className="truncate">Cam kết minh bạch 100% không chi phí ẩn</span>
                           </div>
                         </td>
-                        <td className="py-4 px-3 text-center">
+                        <td className="py-3 px-3 text-center">
                           <button
                             type="button"
                             onClick={() => {
                               downgradeToFree();
                               setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
                             }}
-                            className="px-3.5 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
+                            className="px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
                           >
                             Bắt Đầu Free
                           </button>
                         </td>
-                        <td className="py-4 px-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleSelectPlanAndCheckout('monthly')}
-                            className="px-3.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
-                          >
-                            Chọn Gói Tháng
-                          </button>
+                        <td className="py-3 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleSelectPlanAndCheckout('monthly')}
+                              className="px-2.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
+                            >
+                              Gói Tháng (59k)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectPlanAndCheckout('yearly')}
+                              className="px-2.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
+                            >
+                              Gói Năm (-34%)
+                            </button>
+                          </div>
                         </td>
-                        <td className="py-4 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
-                          <button
-                            type="button"
-                            onClick={() => handleSelectPlanAndCheckout('yearly')}
-                            className="px-3.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
-                          >
-                            Chọn Gói Năm
-                          </button>
-                        </td>
-                        <td className="py-4 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
+                        <td className="py-3 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
                           <button
                             type="button"
                             onClick={() => handleSelectPlanAndCheckout('lifetime')}
