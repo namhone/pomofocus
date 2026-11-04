@@ -47,7 +47,8 @@ export const LandingPage: React.FC = () => {
     >
       <PlatformHeader />
 
-      {/* 2. Hero Section — Bold, Typography-first */}
+      <main id="main-content" className="flex-1 w-full">
+        {/* 2. Hero Section — Bold, Typography-first */}
       <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center flex flex-col items-center">
         
 
@@ -85,7 +86,7 @@ export const LandingPage: React.FC = () => {
             >
               Xem Gói Cước
             </button>
-            <span className="text-zinc-600 select-none">•</span>
+            <span className="text-zinc-400 select-none">•</span>
             <button
               type="button"
               onClick={() => router.navigate('/rooms')}
@@ -210,7 +211,7 @@ export const LandingPage: React.FC = () => {
                 Bộ tổng hợp âm thanh thiên nhiên (mưa, sóng biển, quán cà phê, bàn phím cơ) tiếp tục phát nền mượt mà ngay cả khi đóng widget. Hỗ trợ thu nhỏ thành thanh video Mini PiP thông minh.
               </p>
             </div>
-            <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-500 flex justify-between">
+            <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-400 flex justify-between">
               <span className="whitespace-nowrap">ZERO INTERRUPT</span>
               <span className="whitespace-nowrap">MINI PIP VIDEO</span>
             </div>
@@ -262,7 +263,7 @@ export const LandingPage: React.FC = () => {
       {/* 5. Hướng Dẫn 3 Bước Bắt Đầu Cho Người Mới */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto border-t border-zinc-800/80">
         <div className="text-center mb-10 sm:mb-12">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
             ĐƠN GIẢN & TẬP TRUNG
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
@@ -325,7 +326,7 @@ export const LandingPage: React.FC = () => {
       {/* 6. Bảng Giá & Đặc Quyền Demo Beta */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto border-t border-zinc-800/80">
         <div className="text-center mb-10 sm:mb-12">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
             MINH BẠCH & ĐƠN GIẢN
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
@@ -504,6 +505,7 @@ export const LandingPage: React.FC = () => {
           <ArrowRight size={14} className="shrink-0" />
         </button>
       </section>
+      </main>
 
       {/* 9. Shared Unified Footer */}
       <SharedFooter />

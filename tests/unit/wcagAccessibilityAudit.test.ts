@@ -89,11 +89,79 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const landingContent = fs.readFileSync(landingPath, 'utf8');
     expect(landingContent).toContain('text-[11px] sm:text-xs text-zinc-400 font-mono');
     expect(landingContent).toContain('text-xs font-normal text-zinc-400');
+    expect(landingContent).not.toContain('text-zinc-500');
 
     const billingPath = path.resolve('src/components/BillingView.tsx');
     const billingContent = fs.readFileSync(billingPath, 'utf8');
     expect(billingContent).toContain('<span className="text-zinc-400 text-xs font-medium">Cục bộ</span>');
     expect(billingContent).toContain('<div className="text-[11px] text-zinc-400">Chủ Sở Hữu Thẻ</div>');
     expect(billingContent).toContain('<span className="text-xs text-zinc-400">/ một lần duy nhất</span>');
+  });
+
+  it('5. Google PageSpeed Static Files: robots.txt, sitemap.xml, llms.txt, ai-catalog.json exist and are valid', () => {
+    // public/robots.txt
+    const robotsPath = path.resolve('public/robots.txt');
+    expect(fs.existsSync(robotsPath)).toBe(true);
+    const robotsContent = fs.readFileSync(robotsPath, 'utf8');
+    expect(robotsContent).toContain('User-agent: *');
+    expect(robotsContent).toContain('Allow: /');
+    expect(robotsContent).toContain('Disallow: /account/');
+    expect(robotsContent).toContain('Disallow: /api/');
+    expect(robotsContent).toContain('Sitemap: https://pomofocus-workspace.vercel.app/sitemap.xml');
+
+    // public/sitemap.xml
+    const sitemapPath = path.resolve('public/sitemap.xml');
+    expect(fs.existsSync(sitemapPath)).toBe(true);
+    const sitemapContent = fs.readFileSync(sitemapPath, 'utf8');
+    expect(sitemapContent).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(sitemapContent).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+
+    // public/llms.txt
+    const llmsPath = path.resolve('public/llms.txt');
+    expect(fs.existsSync(llmsPath)).toBe(true);
+    const llmsContent = fs.readFileSync(llmsPath, 'utf8');
+    expect(llmsContent.startsWith('# PomoFocus Workspace')).toBe(true);
+
+    // public/ai-catalog.json
+    const aiCatalogPath = path.resolve('public/ai-catalog.json');
+    expect(fs.existsSync(aiCatalogPath)).toBe(true);
+    const aiCatalogContent = fs.readFileSync(aiCatalogPath, 'utf8');
+    const parsed = JSON.parse(aiCatalogContent);
+    expect(parsed.name).toBe('PomoFocus Workspace');
+
+    // vercel.json rewrites exclude static files
+    const vercelPath = path.resolve('vercel.json');
+    const vercelContent = fs.readFileSync(vercelPath, 'utf8');
+    const vercelJson = JSON.parse(vercelContent);
+    const rewriteSource = vercelJson.rewrites[0].source;
+    expect(rewriteSource).toContain('robots\\.txt');
+    expect(rewriteSource).toContain('sitemap\\.xml');
+    expect(rewriteSource).toContain('llms\\.txt');
+    expect(rewriteSource).toContain('ai-catalog\\.json');
+  });
+
+  it('6. Accessibility Landmarks: LandingPage includes semantic <main id="main-content">', () => {
+    const landingPath = path.resolve('src/components/LandingPage.tsx');
+    const landingContent = fs.readFileSync(landingPath, 'utf8');
+    expect(landingContent).toContain('<main id="main-content"');
+    expect(landingContent).toContain('</main>');
+  });
+
+  it('7. Best Practices: Deprecated unload event listener is completely eliminated', () => {
+    const timerStorePath = path.resolve('src/stores/useTimerStore.ts');
+    const timerStoreContent = fs.readFileSync(timerStorePath, 'utf8');
+    expect(timerStoreContent).not.toContain("addEventListener('unload'");
+    expect(timerStoreContent).not.toContain('addEventListener("unload"');
+    expect(timerStoreContent).toContain("addEventListener('pagehide', cleanupTab)");
+    expect(timerStoreContent).toContain("addEventListener('beforeunload', cleanupTab)");
+  });
+
+  it('8. KaTeX CSS is preconnected and non-render-blocking in index.html', () => {
+    const indexPath = path.resolve('index.html');
+    const indexContent = fs.readFileSync(indexPath, 'utf8');
+    expect(indexContent).toContain('<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />');
+    expect(indexContent).toContain('<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />');
+    expect(indexContent).toContain('media="print"');
+    expect(indexContent).toContain("onload=\"this.media='all'\"");
   });
 });

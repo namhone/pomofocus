@@ -1,0 +1,17 @@
+# PomoFocus Workspace
+
+> PomoFocus is a Zen-first, privacy-focused productivity and deep-work platform combining atomic Pomodoro timers, Web Audio ambient soundscapes, WebRTC live study rooms, and an AI study companion.
+
+## Core Features
+- Pomodoro Timer: Microsecond-precision countdowns, multi-tab synchronization via BroadcastChannel, Web Worker background lifecycle.
+- Ambient Soundscapes: 101 high-definition scenery backgrounds and spatial ambient sound generator with independent playback.
+- Live Study Rooms: WebRTC full-mesh peer-to-peer virtual study rooms with host governance and privacy controls.
+- AI Companion: Socratic tutoring, LaTeX mathematical parsing, and note insertion.
+
+## Documentation & Links
+- [Landing Page](https://pomofocus-workspace.vercel.app/)
+- [Workspace App](https://pomofocus-workspace.vercel.app/app)
+- [Study Rooms](https://pomofocus-workspace.vercel.app/rooms)
+- [Pricing & Plans](https://pomofocus-workspace.vercel.app/billing)
+- [Help Center & FAQ](https://pomofocus-workspace.vercel.app/help)
+- [Contact Support](https://pomofocus-workspace.vercel.app/contact)

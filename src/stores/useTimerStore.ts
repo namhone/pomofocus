@@ -219,7 +219,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       });
     }
 
-    // Gắn dọn dẹp khi đóng tab (beforeunload, pagehide, unload)
+    // Gắn dọn dẹp khi đóng hoặc rời tab chuẩn Best Practices (beforeunload, pagehide)
     if (!hasBoundUnload) {
       hasBoundUnload = true;
       const cleanupTab = () => {
@@ -229,7 +229,6 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       };
       window.addEventListener('beforeunload', cleanupTab);
       window.addEventListener('pagehide', cleanupTab);
-      window.addEventListener('unload', cleanupTab);
     }
   },
 

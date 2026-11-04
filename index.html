@@ -23,7 +23,20 @@
     <meta name="twitter:description" content="Nâng tầm hiệu suất với đồng hồ Pomodoro khoa học, phòng học nhóm WebRTC không giới hạn, bảng vẽ thời gian thực và kho âm thanh thiên nhiên Lo-Fi chất lượng cao." />
     <meta name="twitter:image" content="https://pomofocus-workspace.vercel.app/logo.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+
+    <!-- Preconnect & Asynchronous Loading for KaTeX CSS to eliminate render-blocking -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+    </noscript>
+
     <title>PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung</title>
   </head>
   <body class="bg-slate-900 text-slate-100 select-none">

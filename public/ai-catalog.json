@@ -1,0 +1,17 @@
+{
+  "name": "PomoFocus Workspace",
+  "version": "1.0.0",
+  "description": "Không gian làm việc và học tập tập trung tối ưu với Pomodoro, âm thanh ambient và phòng học nhóm WebRTC.",
+  "url": "https://pomofocus-workspace.vercel.app",
+  "capabilities": [
+    "pomodoro-timer",
+    "ambient-sounds",
+    "virtual-study-rooms",
+    "ai-companion"
+  ],
+  "endpoints": {
+    "app": "https://pomofocus-workspace.vercel.app/app",
+    "rooms": "https://pomofocus-workspace.vercel.app/rooms",
+    "billing": "https://pomofocus-workspace.vercel.app/billing"
+  }
+}

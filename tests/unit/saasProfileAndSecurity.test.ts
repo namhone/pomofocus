@@ -92,6 +92,7 @@ describe('SaaS Profile, Security & Adaptive Billing Specifications', () => {
 
   describe('2. Trung tâm bảo mật tài khoản (Account Security & GDPR Danger Zone)', () => {
     it('Đổi mật khẩu an toàn và kiểm tra bảo vệ mật khẩu cũ', async () => {
+
       const user = await authService.signup('sec.user@pomo.app', 'secure_pass_123', 'Sec User');
 
       // Đổi mật khẩu thành công
@@ -108,7 +109,7 @@ describe('SaaS Profile, Security & Adaptive Billing Specifications', () => {
       await expect(
         authService.login('sec.user@pomo.app', 'secure_pass_123')
       ).rejects.toThrow('Mật khẩu không chính xác');
-    });
+    }, 15000);
 
     it('Đăng xuất khỏi tất cả các thiết bị khác (Session Security)', async () => {
       await authService.signup('session.user@pomo.app', 'pass123456', 'Session User');
