@@ -18,6 +18,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 }) => {
   const widget = useLayoutStore((state) => state.widgets[id]);
   const isMobile = useLayoutStore((state) => state.isMobile);
+  const isEcoMode = useLayoutStore((state) => state.isEcoMode);
   const density = useLayoutStore((state) => state.density);
   const isLayoutEditMode = useLayoutStore((state) => state.isLayoutEditMode);
   const glassSettings = useLayoutStore((state) => state.glassSettings);
@@ -275,9 +276,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         data-testid={`widget-container-${id}`}
         aria-label={widget.title}
         style={{
-          backgroundColor: `rgba(12, 15, 22, ${Math.min(0.60, glassSettings.opacity / 100)})`,
-          backdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
-          WebkitBackdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
+          backgroundColor: isEcoMode ? 'rgba(12, 12, 14, 0.96)' : `rgba(12, 15, 22, ${Math.min(0.60, glassSettings.opacity / 100)})`,
+          backdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
+          WebkitBackdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
           ...(glassSettings.preset === 'high_contrast'
             ? {
                 borderTopColor: 'rgba(255, 255, 255, 0.45)',
@@ -447,12 +448,13 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         width: `${currentWidth}px`,
         height: `${currentHeight}px`,
         zIndex: widget.zIndex,
-        backgroundColor:
-          id === 'timer'
-            ? `rgba(10, 12, 18, ${Math.min(0.55, glassSettings.opacity / 100)})`
-            : `rgba(12, 15, 22, ${Math.min(0.50, Math.max(0.18, (glassSettings.opacity - 4) / 100))})`,
-        backdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
-        WebkitBackdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
+        backgroundColor: isEcoMode
+          ? 'rgba(12, 12, 14, 0.96)'
+          : id === 'timer'
+          ? `rgba(10, 12, 18, ${Math.min(0.55, glassSettings.opacity / 100)})`
+          : `rgba(12, 15, 22, ${Math.min(0.50, Math.max(0.18, (glassSettings.opacity - 4) / 100))})`,
+        backdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
+        WebkitBackdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
         ...(glassSettings.preset === 'high_contrast'
           ? {
               borderTopColor: 'rgba(255, 255, 255, 0.45)',

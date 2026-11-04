@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { FALLBACK_GRADIENTS } from '../data/backgroundPresets';
+import { useLayoutStore } from '../stores/useLayoutStore';
 
 export const BackgroundCanvas: React.FC = () => {
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   const {
     activePresetId,
     customUrl,
@@ -82,7 +84,7 @@ export const BackgroundCanvas: React.FC = () => {
     transition: 'filter 0.3s ease, transform 0.3s ease'
   };
 
-  const isVideo = preset.category === 'video' && !useStaticFallback && !hasError;
+  const isVideo = preset.category === 'video' && !useStaticFallback && !hasError && !isEcoMode;
 
   // Xác định nguồn ảnh tĩnh:
   // 1. Nếu preset là ảnh: nạp preset.url (nếu có lỗi nạp fallbackUrl nếu là ảnh)

@@ -346,49 +346,45 @@ export const BillingView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Lịch Sử Thanh Toán & Biên Lai VietQR */}
-              <div className="relative z-10 mt-8 pt-6 border-t border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Receipt size={18} />
+              {/* Lịch Sử Thanh Toán & Biên Lai VietQR - BỐ CỤC 2 HÀNG ĐỘC LẬP CHUẨN ZEN */}
+              <div className="relative z-10 mt-8 pt-6 border-t border-zinc-800/80 space-y-4">
+                {/* Hàng 1: Hộp Biên lai VietQR chiếm 100% bề ngang */}
+                <div className="w-full p-3.5 sm:p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                      <Receipt size={18} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-2">
+                        <span>Biên Lai Quyết Toán: VietQR 24/7 (Vietcombank)</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+                        Mã GD: VCB_LIFETIME_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫ • Kích hoạt vĩnh viễn
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <span>Biên Lai Quyết Toán: VietQR 24/7 (Vietcombank)</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">ĐÃ XÁC THỰC</span>
-                    </div>
-                    <div className="text-[11px] text-zinc-400 font-mono mt-0.5 break-all">
-                      Mã GD: VCB_LIFETIME_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫
-                    </div>
+                  <div className="shrink-0 self-end sm:self-center">
+                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold tracking-wide shadow-sm flex items-center gap-1">
+                      <span>✓</span> ĐÃ XÁC THỰC
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto pt-2 sm:pt-0">
-                  <button
-                    type="button"
-                    data-testid="btn-downgrade-free"
-                    onClick={() => {
-                      downgradeToFree();
-                      setStatusMessage({ type: 'info', text: 'Đã chuyển về gói Cơ Bản miễn phí.' });
-                      setTimeout(() => setStatusMessage(null), 4000);
-                    }}
-                    className="flex-1 sm:flex-none px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer text-center"
-                  >
-                    Chuyển về Gói Cơ Bản
-                  </button>
+                {/* Hàng 2: Hai nút bấm hành động chia đều 50% - 50% */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                   <button
                     type="button"
                     onClick={() => router.navigate('/profile')}
-                    className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer text-center"
+                    className="w-full py-2.5 px-4 rounded-xl border border-zinc-700/80 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer shadow-sm text-center flex items-center justify-center gap-2"
                   >
-                    Quản Lý Hồ Sơ
+                    <span>👤</span> Quản Lý Hồ Sơ
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
-                    className="w-full sm:w-auto px-5 py-2 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold transition cursor-pointer shadow-lg text-center"
+                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-400 hover:to-amber-400 text-zinc-950 text-xs font-bold transition cursor-pointer shadow-lg hover:shadow-emerald-500/20 text-center flex items-center justify-center gap-2"
                   >
-                    Vào Không Gian Học
+                    <span>🚀</span> Vào Không Gian Học
                   </button>
                 </div>
               </div>

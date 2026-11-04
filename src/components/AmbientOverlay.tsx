@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 
 interface Particle {
   x: number;
@@ -15,10 +16,11 @@ interface Particle {
 
 export const AmbientOverlay: React.FC = () => {
   const ambientEffect = useBackgroundStore((s) => s.ambientEffect);
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (ambientEffect === 'none') {
+    if (ambientEffect === 'none' || isEcoMode) {
       const canvas = canvasRef.current;
       if (canvas) {
         const ctx = canvas.getContext('2d');

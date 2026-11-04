@@ -46,6 +46,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-katex': ['katex', 'react-markdown', 'remark-math', 'rehype-katex'],
+          'vendor-webrtc': ['dexie'],
           'vendor-icons': ['lucide-react']
         }
       }

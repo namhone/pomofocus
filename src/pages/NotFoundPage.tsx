@@ -66,7 +66,7 @@ export const NotFoundPage: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               Bạn Đang Lạc Lối Giữa Không Gian...
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
               Đường dẫn này không tồn tại hoặc đã được di chuyển sang một vũ trụ khác.
               Hãy hít một hơi thật sâu và quay lại bàn học nhé.
             </p>

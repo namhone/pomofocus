@@ -472,6 +472,8 @@ export interface LayoutStoreState {
   navigateMobileWidget: (id: WidgetId) => void;
   clampWidgetsToViewport: (viewportWidth: number, viewportHeight: number) => void;
   setIsFocusDimmed: (dimmed: boolean) => void;
+  isEcoMode: boolean;
+  setEcoMode: (enabled: boolean) => void;
 }
 
 const initial = loadStoredLayout();
@@ -512,6 +514,28 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   snapEnabled: initial.snapEnabled,
   mobileViewMode: initial.mobileViewMode,
   activeMobileTab: initial.activeMobileTab,
+  isEcoMode: typeof window !== 'undefined' ? localStorage.getItem('pomofocus_eco_mode') === 'true' : false,
+  setEcoMode: (enabled: boolean) => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('pomofocus_eco_mode', String(enabled));
+      } catch {}
+    }
+    set({ isEcoMode: enabled });
+    import('./useAuthStore').then(({ useAuthStore }) => {
+      const user = useAuthStore.getState().user;
+      if (user?.id) {
+        import('../services/profileService').then(({ ProfileService }) => {
+          ProfileService.updateFields(user.id, {
+            settings: {
+              ...(user.settings || {}),
+              isEcoMode: enabled
+            }
+          }).catch(() => {});
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  },
 
   setZenMode: (enabled: boolean) => {
     set({ isZenMode: enabled });

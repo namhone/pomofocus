@@ -49,6 +49,8 @@ export const DockBar: React.FC = () => {
   const setDockSize = useLayoutStore((state) => state.setDockSize);
   const dockAutoHide = useLayoutStore((state) => state.dockAutoHide);
   const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
+  const isEcoMode = useLayoutStore((state) => state.isEcoMode);
+  const setEcoMode = useLayoutStore((state) => state.setEcoMode);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showQuickDockMenu, setShowQuickDockMenu] = useState(false);
@@ -283,7 +285,11 @@ export const DockBar: React.FC = () => {
           scheduleHide();
         }
       }}
-      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border border-white/10 bg-[rgba(14,17,25,0.78)] px-2 py-1 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] border-white/[0.08] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 ${
+      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center gap-1.5 sm:gap-2 overflow-visible rounded-2xl border ${
+        isEcoMode
+          ? 'border-zinc-800 bg-[#0c0c0e] shadow-2xl'
+          : 'border-white/10 bg-[rgba(14,17,25,0.78)] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl backdrop-saturate-[190%]'
+      } px-2 py-1 select-none transition-all duration-300 ${
         isAiOpen ? 'opacity-0 pointer-events-none translate-y-8 invisible' : 'opacity-100 translate-y-0 hover:opacity-100'
       } ${
         isVertical ? 'flex-col w-16' : 'flex-row'
@@ -552,6 +558,25 @@ export const DockBar: React.FC = () => {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Chế độ Eco Mode 🍃 */}
+          <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
+            <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1">
+              <span>🍃</span> Eco Mode Siêu Nhẹ
+            </span>
+            <button
+              type="button"
+              data-testid="quick-dock-eco-toggle"
+              onClick={() => setEcoMode(!isEcoMode)}
+              className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition cursor-pointer border ${
+                isEcoMode
+                  ? 'bg-emerald-500/30 text-emerald-300 border-emerald-500/50'
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
+              }`}
+            >
+              {isEcoMode ? 'BẬT' : 'TẮT'}
+            </button>
           </div>
         </div>
       )}

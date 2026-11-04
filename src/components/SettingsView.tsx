@@ -38,6 +38,8 @@ export const SettingsView: React.FC = () => {
   const glassSettings = useLayoutStore((s) => s.glassSettings);
   const setGlassPreset = useLayoutStore((s) => s.setGlassPreset);
   const resetLayout = useLayoutStore((s) => s.resetLayout);
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
+  const setEcoMode = useLayoutStore((s) => s.setEcoMode);
 
   const masterVolume = useAudioStore((s) => s.settings.masterVolume);
   const setMasterVolume = useAudioStore((s) => s.setMasterVolume);
@@ -387,6 +389,33 @@ export const SettingsView: React.FC = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Chế độ Eco Mode 🍃 */}
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
+              <div>
+                <div className="font-semibold text-white flex items-center gap-1.5">
+                  <span>🍃</span> Chế độ Siêu Nhẹ (Eco Mode)
+                </div>
+                <div className="text-[11px] text-zinc-400">
+                  Tắt hoàn toàn video nền động và hiệu ứng hạt canvas, chuyển kính mờ sang màu tối phẳng để tiết kiệm 100% GPU/CPU cho máy yếu.
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="setting-toggle-eco-mode"
+                onClick={() => {
+                  setEcoMode(!isEcoMode);
+                  showToast(isEcoMode ? 'Đã tắt Chế độ Eco' : 'Đã bật Chế độ Eco Siêu Nhẹ 🍃');
+                }}
+                className={`px-4 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer whitespace-nowrap self-start sm:self-auto ${
+                  isEcoMode
+                    ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
+                    : 'border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                }`}
+              >
+                {isEcoMode ? '🍃 Đang Bật' : 'Tắt'}
+              </button>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">

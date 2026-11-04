@@ -7,6 +7,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="theme-color" content="#09090b" />
     <meta name="description" content="PomoFocus — Không gian làm việc và học tập tập trung tối ưu với Pomodoro, âm thanh ambient và phòng học nhóm WebRTC." />
+    <meta name="keywords" content="PomoFocus, Pomodoro timer, virtual study space, AI study companion, phòng học nhóm WebRTC, lofi study room, focus workspace, gia sư AI" />
     <link rel="canonical" href="https://pomofocus-workspace.vercel.app" />
     <link rel="apple-touch-icon" href="/logo.svg" />
 
@@ -37,10 +38,99 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
     </noscript>
 
+    <!-- Structured Data (JSON-LD Dual Schema: SoftwareApplication & Organization) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "PomoFocus Workspace",
+          "applicationCategory": "ProductivityApplication, EducationalApplication",
+          "operatingSystem": "Web, PWA, Windows, macOS, iOS, Android",
+          "url": "https://pomofocus-workspace.vercel.app",
+          "description": "Không gian làm việc và học tập ảo tối giản kết hợp đồng hồ Pomodoro, âm thanh Lo-Fi, phòng học nhóm WebRTC và Gia sư AI Socratic.",
+          "offers": [
+            {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "VND",
+              "name": "Gói Miễn Phí"
+            },
+            {
+              "@type": "Offer",
+              "price": "39000",
+              "priceCurrency": "VND",
+              "name": "Gói PRO Năm"
+            },
+            {
+              "@type": "Offer",
+              "price": "799000",
+              "priceCurrency": "VND",
+              "name": "Gói PRO Trọn Đời"
+            }
+          ],
+          "author": {
+            "@type": "Person",
+            "name": "Nam Hồ"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "PomoFocus",
+          "url": "https://pomofocus-workspace.vercel.app",
+          "logo": "https://pomofocus-workspace.vercel.app/logo.svg",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+84-704-862-629",
+            "contactType": "customer service",
+            "email": "namho03052k9@gmail.com",
+            "availableLanguage": ["vi", "en"]
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Hồ Chí Minh",
+            "addressCountry": "VN"
+          }
+        }
+      ]
+    }
+    </script>
+
     <title>PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung</title>
   </head>
   <body class="bg-slate-900 text-slate-100 select-none">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Nội dung tĩnh cho AI Crawlers & Trình duyệt không bật JavaScript -->
+      <header>
+        <nav>
+          <a href="/">PomoFocus Workspace</a> |
+          <a href="/app">Không Gian Học Tập</a> |
+          <a href="/billing">Bảng Giá</a> |
+          <a href="/rooms">Phòng Học Nhóm</a> |
+          <a href="/contact">Liên Hệ</a>
+        </nav>
+      </header>
+      <main id="main-content">
+        <h1>PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung Chuẩn Zen</h1>
+        <p>PomoFocus là nền tảng không gian làm việc ảo tối giản, kết hợp chu kỳ đồng hồ Pomodoro khoa học, thư viện âm thanh thiên nhiên Lo-Fi và Trợ lý Gia sư AI Socratic thông minh.</p>
+
+        <h2>Tính Năng Cốt Lõi</h2>
+        <ul>
+          <li><strong>Đồng hồ Pomodoro nguyên tử</strong>: Tùy chỉnh hiệp tập trung 25 phút, nghỉ ngắn 5 phút và nghỉ dài 15 phút với chế độ Focus Auto-Dim làm mờ thông minh.</li>
+          <li><strong>Thư viện hình nền 4K & Âm thanh ambient</strong>: Hơn 1.000 hình nền Anime, Ghibli, Lo-Fi cùng âm thanh mưa rào rừng thông và sóng biển.</li>
+          <li><strong>Trợ lý gia sư AI K-12</strong>: Giải đề thi, tóm tắt bài giảng và hỗ trợ học tập theo phương pháp gợi mở tư duy.</li>
+          <li><strong>Phòng học nhóm trực tuyến WebRTC</strong>: Kết nối bạn bè học chung không giới hạn thời gian với bảng vẽ và chia sẻ màn hình.</li>
+        </ul>
+
+        <h2>Bắt Đầu Sử Dụng</h2>
+        <p>Trải nghiệm ngay không gian học tập trực tuyến tại <a href="/app">PomoFocus App</a> hoặc tìm hiểu các gói dịch vụ tại <a href="/billing">Bảng Giá Gói PRO</a>.</p>
+      </main>
+      <footer>
+        <p>© 2026 PomoFocus. Phát triển bởi Nam Hồ. Email: namho03052k9@gmail.com | Hotline: 0704 862 629</p>
+        <p><a href="/about">Giới Thiệu</a> | <a href="/contact">Liên Hệ</a> | <a href="/privacy">Chính Sách Bảo Mật</a> | <a href="/terms">Điều Khoản Dịch Vụ</a></p>
+      </footer>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

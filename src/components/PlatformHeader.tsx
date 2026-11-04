@@ -35,7 +35,7 @@ import {
 export const PlatformHeader: React.FC = () => {
   const router = useRouter();
   const currentPath = router.currentRoute.path;
-  const { user, isAuthenticated, logout, isPro, isLifetime, planLabel } = useAuthStore();
+  const { user, isAuthenticated, logout, isPro, isLifetime } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
@@ -54,12 +54,54 @@ export const PlatformHeader: React.FC = () => {
     isOwnerAiUser()
   );
 
+  const isLifetimeAccount = Boolean(
+    isOwner ||
+    isLifetime ||
+    user?.isLifetime ||
+    user?.plan === 'lifetime' ||
+    user?.plan === 'pro_lifetime' ||
+    user?.role === 'founder'
+  );
+
+  const isProAccount = Boolean(
+    isLifetimeAccount ||
+    isPro ||
+    user?.plan === 'pro' ||
+    (user?.plan as string) === 'pro_sandbox' ||
+    (user?.plan as string) === 'pro_monthly' ||
+    (user?.plan as string) === 'pro_yearly'
+  );
+
+  const effectiveBadge = isOwner
+    ? 'Founder VIP 👑'
+    : isLifetimeAccount
+    ? '👑 PRO TRỌN ĐỜI'
+    : isProAccount
+    ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'PRO HỘI VIÊN')
+    : (user?.badge && !user.badge.includes('Free') ? user.badge : 'Thành viên Free');
+
+  const displayCredits = isOwner
+    ? '⚡ ∞'
+    : isLifetimeAccount
+    ? `${Math.max(aiCreditsBalance, 1000).toLocaleString('vi-VN')}⚡`
+    : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`;
+
+  useEffect(() => {
+    if (isLifetimeAccount && aiCreditsBalance < 1000) {
+      useAiStore.getState().syncWithAuth('lifetime');
+    }
+  }, [isLifetimeAccount, aiCreditsBalance]);
+
   const handleCreditsBadgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!isAuthenticated) {
+      useAiStore.getState().openTopupModal();
+      return;
+    }
     if (isWorkspace) {
       useAiStore.getState().toggleOpen();
     } else {
-      setShowCreditsModal(true);
+      useAiStore.getState().openTopupModal();
     }
   };
 
@@ -219,7 +261,7 @@ export const PlatformHeader: React.FC = () => {
             }
           >
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span>{isOwner ? '⚡ ∞' : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}</span>
+            <span>{displayCredits}</span>
           </button>
 
           {/* ⚙️ Cài đặt */}
@@ -289,16 +331,16 @@ export const PlatformHeader: React.FC = () => {
             onClick={() => handleNavigate('/billing')}
             data-testid="header-plan-badge"
             className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
-              isLifetime
-                ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
-                : isPro
-                ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+              isLifetimeAccount
+                ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-sm'
+                : isProAccount
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
                 : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
-            <span className="hidden sm:inline">{user?.badge || planLabel}</span>
-            <span className="sm:hidden">{isLifetime ? 'PRO ★' : isPro ? 'PRO' : 'FREE'}</span>
+            <span className="hidden sm:inline">{effectiveBadge}</span>
+            <span className="sm:hidden">{isLifetimeAccount ? 'PRO ★' : isProAccount ? 'PRO' : 'FREE'}</span>
           </button>
         </div>
 
@@ -379,7 +421,7 @@ export const PlatformHeader: React.FC = () => {
             }
           >
             <Sparkles size={13} className="text-cyan-400 shrink-0" />
-            <span className="font-mono text-amber-300 font-bold">{isOwner ? '⚡ ∞' : `${aiCreditsBalance.toLocaleString()}⚡`}</span>
+            <span className="font-mono text-amber-300 font-bold">{displayCredits}</span>
           </button>
 
           {/* PWA Install Button when available */}
@@ -481,14 +523,14 @@ export const PlatformHeader: React.FC = () => {
                     </div>
                     <span
                       className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
-                        isLifetime
+                        isLifetimeAccount
                           ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
-                          : isPro
+                          : isProAccount
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                           : 'bg-white/10 text-neutral-300 border-white/10'
                       }`}
                     >
-                      {user?.badge || planLabel}
+                      {effectiveBadge}
                     </span>
                   </div>
 
@@ -806,8 +848,16 @@ export const PlatformHeader: React.FC = () => {
                   <div className="text-[9px] text-zinc-400 font-mono truncate">{user.email}</div>
                 </div>
               </div>
-              <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border shrink-0 bg-zinc-950 text-amber-300 border-amber-400/40">
-                {user?.badge || planLabel}
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border shrink-0 ${
+                  isLifetimeAccount
+                    ? 'bg-zinc-950 text-amber-300 border-amber-400/40'
+                    : isProAccount
+                    ? 'bg-zinc-950 text-emerald-300 border-emerald-500/30'
+                    : 'bg-zinc-950 text-zinc-400 border-zinc-800'
+                }`}
+              >
+                {effectiveBadge}
               </span>
             </div>
 
