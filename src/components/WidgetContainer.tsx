@@ -157,7 +157,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       }
 
       targetX = Math.max(0, Math.min(snappedX, maxX));
-      targetY = Math.max(0, Math.min(snappedY, maxY));
+      targetY = Math.max(68, Math.min(snappedY, maxY));
     }
 
     updateWidgetPosition(id, targetX, targetY, false);

@@ -1105,11 +1105,20 @@ export const authService = {
       expiresAt = baseTime + durationMs;
     }
 
+    const isLifetimeTarget = plan === 'pro_lifetime' || (plan as string) === 'lifetime';
+    const isPro = isLifetimeTarget || isProPlan;
+    const updatedBadge = isLifetimeTarget
+      ? '👑 PRO TRỌN ĐỜI'
+      : isPro
+      ? 'PRO HỘI VIÊN'
+      : 'Thành viên Free';
+
     const updated: UserProfile = {
       ...current,
       plan,
-      isLifetime: false,
-      proExpiresAt: expiresAt
+      isLifetime: isLifetimeTarget,
+      badge: updatedBadge,
+      proExpiresAt: isLifetimeTarget ? null : expiresAt
     };
 
     localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
@@ -1118,8 +1127,9 @@ export const authService = {
     for (const key of Object.keys(users)) {
       if (users[key].id === current.id) {
         users[key].plan = plan;
-        users[key].isLifetime = false;
-        users[key].proExpiresAt = expiresAt;
+        users[key].isLifetime = isLifetimeTarget;
+        users[key].badge = updatedBadge;
+        users[key].proExpiresAt = updated.proExpiresAt;
         break;
       }
     }

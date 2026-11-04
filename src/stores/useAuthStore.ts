@@ -88,7 +88,15 @@ export const useAuthStore = create<AuthState>((set, get) => {
   const computeDerivedPlanState = (user: UserProfile | null) => ({
     isPro: hasProEntitlement(user?.plan, user?.email) || hasVipAccess(user),
     hasVipAccess: hasVipAccess(user),
-    isLifetime: Boolean(user?.isLifetime || isOwnerEmail(user?.email) || isLadyBoss(user?.email) || isVipFriend(user?.email) || user?.plan === 'lifetime' || user?.role === 'founder'),
+    isLifetime: Boolean(
+      user?.isLifetime ||
+      user?.plan === 'lifetime' ||
+      user?.plan === 'pro_lifetime' ||
+      user?.role === 'founder' ||
+      isOwnerEmail(user?.email) ||
+      isLadyBoss(user?.email) ||
+      isVipFriend(user?.email)
+    ),
     isBetaPro: user?.plan === 'pro_beta',
     isOwner: isOwnerEmail(user?.email),
     isLadyBoss: isLadyBoss(user?.email),
@@ -787,8 +795,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
           const isOwner = isOwnerEmail(cloudProf.email) || isLadyBoss(cloudProf.email) || isVipFriend(cloudProf.email);
           const effectiveRole = isOwner ? 'founder' : cloudProf.role || 'user';
           const effectivePlan = isOwner ? 'lifetime' : cloudProf.plan || 'free';
-          const effectiveBadge = isOwner ? 'Founder VIP 👑' : (effectivePlan === 'lifetime' ? 'Founder VIP 👑' : 'Thành viên Free');
-          const effectiveCredits = typeof cloudProf.ai_credits_balance === 'number' ? cloudProf.ai_credits_balance : (isOwner ? 1000 : 50);
+          const isLifetimePlan = isOwner || effectivePlan === 'lifetime' || effectivePlan === 'pro_lifetime' || Boolean((cloudProf as any).is_lifetime);
+          const isProPlan = isLifetimePlan || effectivePlan === 'pro' || effectivePlan === 'pro_beta' || effectivePlan === 'pro_sandbox';
+          const effectiveBadge = isOwner ? 'Founder VIP 👑' : (isLifetimePlan ? '👑 PRO TRỌN ĐỜI' : (isProPlan ? 'PRO HỘI VIÊN' : 'Thành viên Free'));
+          const effectiveCredits = typeof cloudProf.ai_credits_balance === 'number'
+            ? Math.max(cloudProf.ai_credits_balance, isOwner ? 1000 : (isLifetimePlan ? 1000 : 50))
+            : (isOwner || isLifetimePlan ? 1000 : 50);
 
           // Khôi phục Cài Đặt Người Dùng (Settings) từ Supabase Cloud
           if (cloudProf.settings) {
@@ -822,7 +834,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               plan: effectivePlan as any,
               badge: effectiveBadge,
               credits: effectiveCredits,
-              isLifetime: isOwner || effectivePlan === 'lifetime'
+              isLifetime: isLifetimePlan
             };
 
             if (typeof window !== 'undefined' && window.localStorage) {

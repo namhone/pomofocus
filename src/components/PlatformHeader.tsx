@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser } from '../stores/useAiStore';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -50,6 +51,9 @@ export const PlatformHeader: React.FC = () => {
   const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   const isOwner = Boolean(
+    isOwnerEmail(user?.email) ||
+    isLadyBoss(user?.email) ||
+    isVipFriend(user?.email) ||
     (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
     isOwnerAiUser()
   );
@@ -66,10 +70,12 @@ export const PlatformHeader: React.FC = () => {
   const isProAccount = Boolean(
     isLifetimeAccount ||
     isPro ||
+    hasVipAccess(user) ||
     user?.plan === 'pro' ||
     (user?.plan as string) === 'pro_sandbox' ||
     (user?.plan as string) === 'pro_monthly' ||
-    (user?.plan as string) === 'pro_yearly'
+    (user?.plan as string) === 'pro_yearly' ||
+    (user?.plan as string) === 'pro_beta'
   );
 
   const effectiveBadge = isOwner
@@ -78,7 +84,7 @@ export const PlatformHeader: React.FC = () => {
     ? '👑 PRO TRỌN ĐỜI'
     : isProAccount
     ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'PRO HỘI VIÊN')
-    : (user?.badge && !user.badge.includes('Free') ? user.badge : 'Thành viên Free');
+    : 'Thành viên Free';
 
   const displayCredits = isOwner
     ? '⚡ ∞'

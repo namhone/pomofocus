@@ -7,11 +7,12 @@ import {
   Palette,
   Volume2,
   Maximize2,
+  Minimize2,
   RotateCcw,
   Sliders,
   Move,
   Target,
-  Minimize,
+  LayoutGrid,
   Film,
   Sparkles
 } from 'lucide-react';
@@ -337,15 +338,30 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-zen"
           onClick={toggleZenMode}
-          className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800/80 hover:bg-neutral-700/80 border border-white/5 active:scale-[0.98] transition-all duration-150 focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer h-8"
-          title="Bật chế độ Zen (Phím tắt: Z hoặc H)"
-          aria-label="Bật chế độ Zen"
+          className={`flex items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer h-8 ${
+            isVertical ? 'w-8 p-0' : 'px-2.5 sm:px-3 gap-1.5'
+          } ${
+            isZenMode
+              ? 'text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-300 hover:text-white bg-neutral-800/80 hover:bg-neutral-700/80 border border-white/5'
+          }`}
+          title={isZenMode ? "Tắt chế độ Zen (Z hoặc H)" : "Bật chế độ Zen (Z hoặc H)"}
+          aria-label={isZenMode ? "Tắt chế độ Zen" : "Bật chế độ Zen"}
+          aria-pressed={isZenMode}
         >
-          <Maximize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
-          <span className="hidden xl:inline text-[11px] font-semibold">Zen</span>
-          <kbd className="hidden xl:inline px-1 py-0.2 rounded bg-neutral-900 border border-white/10 text-[9px] text-neutral-400 font-mono">
-            Z
-          </kbd>
+          {isZenMode ? (
+            <Minimize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
+          ) : (
+            <Maximize2 size={15} strokeWidth={1.75} className="text-emerald-400 shrink-0" />
+          )}
+          {!isVertical && (
+            <>
+              <span className="hidden xl:inline text-[11px] font-semibold">Zen</span>
+              <kbd className="hidden xl:inline px-1 py-0.2 rounded bg-neutral-900 border border-white/10 text-[9px] text-neutral-400 font-mono">
+                Z
+              </kbd>
+            </>
+          )}
         </button>
       </div>
 
@@ -460,7 +476,7 @@ export const DockBar: React.FC = () => {
           title={`Đổi mật độ hiển thị (Hiện tại: ${density === 'compact' ? 'Thu gọn (Compact)' : 'Chuẩn (Normal)'})`}
           aria-label="Mật độ hiển thị"
         >
-          <Minimize size={15} strokeWidth={1.75} />
+          <LayoutGrid size={15} strokeWidth={1.75} />
         </button>
 
         {/* Nút Khôi phục bố cục mặc định */}

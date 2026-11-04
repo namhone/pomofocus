@@ -83,7 +83,7 @@ export function computeBalancedDefaultLayout(
         ...DEFAULT_WIDGETS.timer,
         isOpen: true,
         x: 16,
-        y: 24,
+        y: 68,
         width: Math.min(winWidth - 32, 360),
         height: DEFAULT_WIDGETS.timer.height,
       },
@@ -105,7 +105,7 @@ export function computeBalancedDefaultLayout(
       }
     };
   }
-  const topY = 64;
+  const topY = 76;
   const timerW = 320;
   const tasksW = 320;
   const notesW = 330;
@@ -156,7 +156,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 24,
-    y: 64,
+    y: 76,
     width: 320,
     height: 440,
     minWidth: 280,
@@ -172,7 +172,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 360,
-    y: 64,
+    y: 76,
     width: 320,
     height: 420,
     minWidth: 280,
@@ -188,7 +188,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isOpen: true,
     isCollapsed: false,
     x: 696,
-    y: 64,
+    y: 76,
     width: 330,
     height: 400,
     minWidth: 280,
@@ -742,12 +742,12 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     if (!current) return;
 
     let targetX = Math.round(x);
-    let targetY = Math.round(y);
+    let targetY = Math.max(68, Math.round(y));
 
     // Magnetic Snapping (8px threshold)
     const SNAP = 8;
     if (Math.abs(targetX) < SNAP) targetX = 0;
-    if (Math.abs(targetY) < SNAP) targetY = 0;
+    if (Math.abs(targetY - 68) < SNAP) targetY = 68;
     if (typeof window !== 'undefined') {
       if (Math.abs(window.innerWidth - (targetX + current.width)) < SNAP) {
         targetX = window.innerWidth - current.width;
