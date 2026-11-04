@@ -855,4 +855,31 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
 if (typeof window !== 'undefined') {
   (window as any).useAuthStore = useAuthStore;
+
+  // Lắng nghe trạng thái phiên đăng nhập Server-Authoritative từ Supabase Auth
+  try {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          const userId = session.user.id;
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id, email, display_name, avatar_url, plan, role, badge, ai_credits_balance, two_factor_enabled, settings')
+            .eq('id', userId)
+            .maybeSingle();
+
+          if (profile) {
+            useAuthStore.getState().loadUserFromCloud(userId);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        const curr = useAuthStore.getState().user;
+        if (curr && curr.authProvider === 'google') {
+          useAuthStore.getState().logout();
+        }
+      }
+    });
+  } catch (err) {
+    console.debug('[useAuthStore] Supabase onAuthStateChange init notice:', err);
+  }
 }

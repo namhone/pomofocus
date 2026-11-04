@@ -93,7 +93,7 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     features: [
       'Trợ lý AI Study: 50⚡ AI Credits / tháng',
       'Thời lượng phòng riêng: Tối đa 45 phút/phiên (Reset sau 5 phút nghỉ)',
-      'Chất lượng WebRTC: 480p Chuẩn (Tối đa 6 người/phòng)',
+      'Chất lượng phòng học: 480p Tiêu chuẩn (Tối đa 6 người/phòng)',
       'Kho âm thanh & Hình nền: 5 âm thanh cơ bản & 3 hình nền tĩnh',
       'Bảng vẽ Whiteboard: 1 trang nháp (Không xuất file)',
       'Đường dẫn phòng học: Ngẫu nhiên dạng mã số'
@@ -111,7 +111,7 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     cycleKey: 'monthly',
     features: [
       'Thời lượng phòng riêng: Không giới hạn thời gian',
-      'Chất lượng WebRTC: HD 720p mượt mà (Tối đa 25 người/phòng)',
+      'Chất lượng phòng học: HD 720p mượt mà (Tối đa 25 người/phòng)',
       'Kho âm thanh & Hình nền: Toàn bộ kho 4K đa tầng & YouTube Sync',
       'Bảng vẽ Whiteboard: Đầy đủ công cụ & Xuất ảnh PNG',
       'Trợ lý AI Study: 50 câu hỏi AI/tháng',
@@ -217,7 +217,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
   },
   {
     id: 'webrtc_quality',
-    feature: 'Chất lượng WebRTC Video',
+    feature: 'Chất lượng phòng học trực tuyến',
     category: 'rooms',
     free: '480p Chuẩn',
     monthly: 'HD 720p mượt mà',
@@ -378,7 +378,7 @@ export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
   },
   {
     id: 'webrtc_rooms',
-    name: 'Phòng học nhóm WebRTC không giới hạn',
+    name: 'Phòng học nhóm trực tuyến',
     free: false,
     pro: true,
     lifetime: '✓ (Băng thông ưu tiên)',
@@ -386,7 +386,7 @@ export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
   },
   {
     id: 'cloud_sync',
-    name: 'Đồng bộ Đám mây Supabase đa thiết bị',
+    name: 'Đồng bộ đa thiết bị',
     free: 'Cục bộ',
     pro: true,
     lifetime: true

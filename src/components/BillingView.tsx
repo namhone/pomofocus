@@ -645,7 +645,7 @@ export const BillingView: React.FC = () => {
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Chất lượng WebRTC: 480p Chuẩn</span>
+                      <span className="text-zinc-300 leading-snug">Chất lượng phòng học: 480p Tiêu chuẩn</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
@@ -762,7 +762,7 @@ export const BillingView: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Chất lượng WebRTC: <strong>{cycle === 'monthly' ? 'HD 720p mượt mà' : 'Full HD 1080p sắc nét'}</strong>
+                        Chất lượng phòng học: <strong>{cycle === 'monthly' ? 'HD 720p mượt mà' : 'Full HD 1080p sắc nét'}</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
@@ -909,7 +909,7 @@ export const BillingView: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Chất lượng WebRTC: <strong>2K Ultra HD cao cấp nhất</strong>
+                        Chất lượng phòng học: <strong>2K Ultra HD cao cấp nhất</strong>
                       </span>
                     </div>
                   </div>
