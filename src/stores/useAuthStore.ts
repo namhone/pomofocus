@@ -57,6 +57,9 @@ export interface AuthState {
   logout: () => void;
   updateProfile: (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => Promise<boolean>;
   changePassword: (oldPass: string, newPass: string) => Promise<boolean>;
+  sendPasswordResetOtp: (email: string) => Promise<{ success: boolean; message: string; otp?: string }>;
+  verifyPasswordResetOtp: (email: string, otp: string, newPass: string) => Promise<{ success: boolean; message: string }>;
+  setSecondaryPasswordForOAuth: (newPass: string) => Promise<{ success: boolean; message: string }>;
   deleteAccount: () => Promise<boolean>;
   signOutOtherDevices: () => Promise<{ success: boolean; message: string }>;
   // TOTP Authenticator 2FA actions
@@ -474,6 +477,47 @@ export const useAuthStore = create<AuthState>((set, get) => {
         const message = err instanceof Error ? err.message : 'Đổi mật khẩu thất bại';
         set({ error: message, isLoading: false });
         return false;
+      }
+    },
+
+    sendPasswordResetOtp: async (email: string) => {
+      set({ isLoading: true, error: null });
+      try {
+        const res = await authService.sendPasswordResetOtp(email);
+        set({ isLoading: false });
+        return res;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Lỗi khi gửi mã xác minh.';
+        set({ isLoading: false, error: msg });
+        return { success: false, message: msg };
+      }
+    },
+
+    verifyPasswordResetOtp: async (email: string, otp: string, newPass: string) => {
+      set({ isLoading: true, error: null });
+      try {
+        const res = await authService.verifyPasswordResetOtp(email, otp, newPass);
+        set({ isLoading: false });
+        return res;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Lỗi khi đặt lại mật khẩu.';
+        set({ isLoading: false, error: msg });
+        return { success: false, message: msg };
+      }
+    },
+
+    setSecondaryPasswordForOAuth: async (newPass: string) => {
+      const { user } = get();
+      if (!user) return { success: false, message: 'Vui lòng đăng nhập trước.' };
+      set({ isLoading: true, error: null });
+      try {
+        const res = await authService.setSecondaryPasswordForOAuth(user.id, newPass);
+        set({ isLoading: false });
+        return res;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Lỗi khi tạo mật khẩu phụ.';
+        set({ isLoading: false, error: msg });
+        return { success: false, message: msg };
       }
     },
 

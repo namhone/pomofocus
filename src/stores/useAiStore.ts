@@ -41,6 +41,32 @@ export const AI_PLAN_LIMITS: Record<AiPlanType, number> = {
   lifetime: 1000 // Tối đa 1.000 điểm mỗi tuần (reset vào Thứ Hai)
 };
 
+export const OWNER_EMAILS = [
+  'namho03052k9@gmail.com',
+  'huyentrantt09@gmail.com',
+  'tony31082009@gmail.com'
+];
+
+export function isOwnerAiUser(): boolean {
+  try {
+    if (typeof window !== 'undefined' && (window as any).useAuthStore) {
+      const user = (window as any).useAuthStore.getState()?.user;
+      if (user && user.email) {
+        return OWNER_EMAILS.includes(user.email.toLowerCase().trim());
+      }
+    }
+    if (typeof window !== 'undefined') {
+      const rawSession = localStorage.getItem('pomodoro_study_auth_session');
+      if (rawSession) {
+        const parsed = JSON.parse(rawSession);
+        const email = (parsed.email || '').toLowerCase().trim();
+        return OWNER_EMAILS.includes(email);
+      }
+    }
+  } catch {}
+  return false;
+}
+
 /**
  * Tính toán mốc 00:00:00 ngày đầu tiên của tháng hiện tại theo giờ địa phương.
  */
@@ -246,6 +272,11 @@ export const useAiStore = create<AiState>()(
       },
 
       deductCredits: (cost) => {
+        // ĐẶC QUYỀN VÔ HẠN AI: Chủ sở hữu (namho03052k9@gmail.com, huyentrantt09@gmail.com) không bao giờ bị trừ điểm
+        if (isOwnerAiUser()) {
+          return true;
+        }
+
         const current = get().aiCreditsBalance;
         if (current < cost) {
           return false;
@@ -538,11 +569,12 @@ export const useAiStore = create<AiState>()(
         attachment?: AiAttachmentInfo
       ) => {
         const effectiveAction: AiActionType = attachment ? 'multimodal' : actionType;
-        const cost = AI_CREDIT_COSTS[effectiveAction] || 1;
+        const isOwner = isOwnerAiUser();
+        const cost = isOwner ? 0 : (AI_CREDIT_COSTS[effectiveAction] || 1);
         get().checkPeriodicReset();
 
-        // 1. Kiểm tra số dư nguyên tử
-        if (get().aiCreditsBalance < cost) {
+        // 1. Kiểm tra số dư nguyên tử (Chủ sở hữu được đặc quyền vô hạn AI, không bị chặn)
+        if (!isOwner && get().aiCreditsBalance < cost) {
           const err = `Bạn cần ít nhất ${cost}⚡ để thực hiện thao tác này (Số dư hiện tại: ${get().aiCreditsBalance}⚡). Vui lòng nâng cấp gói tại Bảng Giá.`;
           set({ error: err });
           throw new Error(err);

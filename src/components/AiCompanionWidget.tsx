@@ -17,7 +17,7 @@ import {
   History,
   Trash2
 } from 'lucide-react';
-import { useAiStore, AiActionType, AI_CREDIT_COSTS } from '../stores/useAiStore';
+import { useAiStore, AiActionType, AI_CREDIT_COSTS, isOwnerAiUser } from '../stores/useAiStore';
 import { useNoteStore } from '../stores/useNoteStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
@@ -86,6 +86,10 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
 
 export const AiCompanionWidget: React.FC = () => {
   const { user } = useAuthStore();
+  const isOwner = Boolean(
+    (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
+    isOwnerAiUser()
+  );
   const {
     isOpen,
     toggleOpen,
@@ -216,8 +220,8 @@ export const AiCompanionWidget: React.FC = () => {
     effectiveAction: AiActionType,
     attachmentPayload?: AiAttachmentInfo
   ) => {
-    const cost = AI_CREDIT_COSTS[effectiveAction] || 1;
-    if (aiCreditsBalance < cost) {
+    const cost = isOwner ? 0 : (AI_CREDIT_COSTS[effectiveAction] || 1);
+    if (!isOwner && aiCreditsBalance < cost) {
       setShowCreditsModal(true);
       return;
     }
@@ -324,7 +328,9 @@ export const AiCompanionWidget: React.FC = () => {
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
             <span className="font-mono text-[11px] font-semibold" data-testid="ai-hud-credits">
               <span data-testid="ai-credits-badge">
-                {aiPlan === 'lifetime'
+                {isOwner
+                  ? '⚡ ∞ / Vô Hạn'
+                  : aiPlan === 'lifetime'
                   ? `VIP ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
                   : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}
               </span>
@@ -692,7 +698,7 @@ export const AiCompanionWidget: React.FC = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (aiCreditsBalance < 1) {
+            if (!isOwner && aiCreditsBalance < 1) {
               setShowCreditsModal(true);
               return;
             }

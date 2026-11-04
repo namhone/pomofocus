@@ -14,7 +14,9 @@ import {
   AlertCircle,
   Loader2,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  X,
+  KeyRound
 } from 'lucide-react';
 
 interface AuthViewProps {
@@ -42,12 +44,70 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     requires2Fa,
     pending2FaUser,
     verify2FaLogin,
-    cancel2FaLogin
+    cancel2FaLogin,
+    sendPasswordResetOtp,
+    verifyPasswordResetOtp
   } = useAuthStore();
 
   const [totpCode, setTotpCode] = useState('');
   const [totpError, setTotpError] = useState('');
   const [isVerifying2Fa, setIsVerifying2Fa] = useState(false);
+
+  // Quên mật khẩu qua OTP Email
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState<'request' | 'verify'>('request');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotMsg, setForgotMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSendingForgotOtp, setIsSendingForgotOtp] = useState(false);
+
+  const handleRequestForgotOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotMsg(null);
+    if (!forgotEmail.trim() || !forgotEmail.includes('@')) {
+      setForgotMsg({ type: 'error', text: 'Vui lòng nhập địa chỉ email hợp lệ.' });
+      return;
+    }
+    setIsSendingForgotOtp(true);
+    const res = await sendPasswordResetOtp(forgotEmail);
+    setIsSendingForgotOtp(false);
+    if (res.success) {
+      setForgotStep('verify');
+      setForgotMsg({ type: 'success', text: res.message });
+      // Hỗ trợ điền sẵn demo OTP nếu có trả về
+      if (res.otp) {
+        setForgotOtp(res.otp);
+      }
+    } else {
+      setForgotMsg({ type: 'error', text: res.message });
+    }
+  };
+
+  const handleVerifyForgotOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotMsg(null);
+    if (!forgotOtp.trim()) {
+      setForgotMsg({ type: 'error', text: 'Vui lòng nhập mã OTP 6 số từ email.' });
+      return;
+    }
+    if (forgotNewPassword.length < 6) {
+      setForgotMsg({ type: 'error', text: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+      return;
+    }
+    setIsSendingForgotOtp(true);
+    const res = await verifyPasswordResetOtp(forgotEmail, forgotOtp, forgotNewPassword);
+    setIsSendingForgotOtp(false);
+    if (res.success) {
+      setSuccessMsg('Đã đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.');
+      setEmail(forgotEmail);
+      setPassword(forgotNewPassword);
+      setShowForgotPasswordModal(false);
+      setForgotMsg(null);
+    } else {
+      setForgotMsg({ type: 'error', text: res.message });
+    }
+  };
 
   const handleVerify2Fa = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -429,9 +489,28 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                  Mật khẩu
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-medium text-neutral-300">
+                    Mật khẩu
+                  </label>
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      data-testid="btn-forgot-password"
+                      onClick={() => {
+                        setShowForgotPasswordModal(true);
+                        setForgotEmail(email);
+                        setForgotOtp('');
+                        setForgotNewPassword('');
+                        setForgotStep('request');
+                        setForgotMsg(null);
+                      }}
+                      className="text-[11px] text-neutral-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                    >
+                      Quên mật khẩu?
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                   <input
@@ -481,6 +560,166 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
           </div>
         )}
       </div>
+
+      {/* =========================================================================
+          MODAL QUÊN MẬT KHẨU QUA MÃ OTP EMAIL
+         ========================================================================= */}
+      {showForgotPasswordModal && (
+        <div
+          data-testid="modal-forgot-password"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowForgotPasswordModal(false);
+          }}
+        >
+          <div className="relative w-full max-w-sm rounded-3xl border border-white/15 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-xl text-neutral-100">
+            <button
+              type="button"
+              data-testid="btn-close-forgot-modal"
+              onClick={() => setShowForgotPasswordModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <KeyRound size={18} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white">Đặt Lại Mật Khẩu</h3>
+                <p className="text-[11px] text-neutral-400">Xác minh mã 6 số gửi qua Email</p>
+              </div>
+            </div>
+
+            {forgotMsg && (
+              <div
+                className={`mb-4 flex items-start gap-2 rounded-xl p-3 text-xs border ${
+                  forgotMsg.type === 'success'
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                    : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+                }`}
+              >
+                {forgotMsg.type === 'success' ? (
+                  <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                )}
+                <span>{forgotMsg.text}</span>
+              </div>
+            )}
+
+            {forgotStep === 'request' ? (
+              <form onSubmit={handleRequestForgotOtp} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    Nhập Email tài khoản của bạn:
+                  </label>
+                  <div className="relative">
+                    <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      data-testid="input-forgot-email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="tenban@domain.com"
+                      className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSendingForgotOtp}
+                  data-testid="btn-submit-send-otp"
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {isSendingForgotOtp ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Đang gửi mã...</span>
+                    </>
+                  ) : (
+                    <span>Gửi Mã Xác Minh 6 Số Về Email</span>
+                  )}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyForgotOtp} className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    Mã OTP 6 số từ Email ({forgotEmail}):
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={6}
+                    data-testid="input-forgot-otp"
+                    value={forgotOtp}
+                    onChange={(e) => setForgotOtp(e.target.value.replace(/\s+/g, ''))}
+                    placeholder="123456"
+                    className="w-full text-center font-mono text-lg font-bold tracking-widest rounded-xl bg-white/5 border border-emerald-500/40 px-3 py-2 text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    Mật khẩu mới (Tối thiểu 6 ký tự):
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    data-testid="input-forgot-new-password"
+                    value={forgotNewPassword}
+                    onChange={(e) => setForgotNewPassword(e.target.value)}
+                    placeholder="Mật khẩu mới an toàn..."
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSendingForgotOtp}
+                  data-testid="btn-submit-reset-password"
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2"
+                >
+                  {isSendingForgotOtp ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Đang cập nhật...</span>
+                    </>
+                  ) : (
+                    <span>Xác Nhận & Đặt Lại Mật Khẩu</span>
+                  )}
+                </button>
+
+                <div className="flex justify-between items-center pt-2 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotStep('request');
+                      setForgotMsg(null);
+                    }}
+                    className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    ← Gửi lại mã khác
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPasswordModal(false)}
+                    className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,9 +1,16 @@
+const OWNER_EMAILS = [
+  'namho03052k9@gmail.com',
+  'huyentrantt09@gmail.com',
+  'tony31082009@gmail.com'
+];
+
 interface RequestBody {
   prompt?: string;
   actionType?: 'chat' | 'summarize' | 'quiz' | 'multimodal';
   contextNotes?: string;
   currentCredits?: number;
   userId?: string;
+  userEmail?: string;
   stream?: boolean;
   history?: Array<{ role: 'user' | 'assistant' | 'model'; content?: string; parts?: Array<{ text: string }> }>;
   attachment?: {
@@ -194,10 +201,13 @@ export default async function handler(req: any, res: any) {
 
     // Phí thao tác: Nếu có attachment, áp dụng chi phí 5⚡
     const effectiveAction = attachment ? 'multimodal' : actionType;
-    const cost = ACTION_COSTS[effectiveAction] || 1;
+    const isOwner =
+      userId === 'usr_founder_owner' ||
+      (body.userEmail && OWNER_EMAILS.includes(body.userEmail.trim().toLowerCase()));
+    const cost = isOwner ? 0 : (ACTION_COSTS[effectiveAction] || 1);
 
-    // 1. Kiểm tra điểm nguyên tử (Atomic deduction check)
-    if (currentCredits < cost) {
+    // 1. Kiểm tra điểm nguyên tử (Bỏ qua đối với Chủ sở hữu Owner)
+    if (!isOwner && currentCredits < cost) {
       return res.status(402).json({
         success: false,
         error: 'INSUFFICIENT_CREDITS',

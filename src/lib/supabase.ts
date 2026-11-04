@@ -664,6 +664,32 @@ export const supabase = {
       return { data: { user: null }, error: null };
     },
 
+    resetPasswordForEmail: async (email: string, options?: { redirectTo?: string }) => {
+      try {
+        const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+        const url = `${baseUrl}/auth/v1/recover`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email,
+            gotrue_meta_security: {},
+            redirect_to: options?.redirectTo
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: 'Recovery failed' }));
+          return { data: null, error: err };
+        }
+        return { data: {}, error: null };
+      } catch (err: any) {
+        return { data: null, error: { message: err?.message || 'Error sending recovery email' } };
+      }
+    },
+
     getSession: async () => {
       if (typeof window === 'undefined') return { data: { session: null }, error: null };
 
@@ -818,6 +844,13 @@ export const supabase = {
             limitVal = 1;
             const res = await execute();
             if (res.error) return res;
+            const item = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
+            return { data: item, error: null };
+          },
+          maybeSingle: async (): Promise<{ data: any; error: any }> => {
+            limitVal = 1;
+            const res = await execute();
+            if (res.error) return { data: null, error: null };
             const item = Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
             return { data: item, error: null };
           },

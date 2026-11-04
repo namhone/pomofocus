@@ -20,6 +20,16 @@ export interface CouponItem {
 
 // Kho coupon chính thức hoạt động trên toàn hệ thống
 const OFFICIAL_COUPONS: Record<string, CouponItem> = {
+  'EIU': {
+    code: 'EIU',
+    type: 'free_lifetime',
+    value: 0,
+    maxUses: 10000,
+    usedCount: 0,
+    expiresAt: null,
+    createdAt: 1730000000000,
+    description: 'Đặc quyền EIU - Kích hoạt PRO TRỌN ĐỜI vĩnh viễn'
+  },
   'PRO50': {
     code: 'PRO50',
     type: 'discount_percent',

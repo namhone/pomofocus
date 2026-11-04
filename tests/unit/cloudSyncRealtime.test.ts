@@ -88,12 +88,21 @@ describe('Supabase Cloud Persistence & Multi-Device Sync Specification', () => {
     expect(useAiStore.getState().aiCreditsBalance).toBeGreaterThanOrEqual(1000);
   });
 
-  it('5. deductCredits trừ trực tiếp trên Supabase và đồng bộ cả 2 Store', async () => {
-    const initialCredits = useAiStore.getState().aiCreditsBalance;
+  it('5. deductCredits trừ trực tiếp trên Supabase và đồng bộ cả 2 Store (người dùng thường)', async () => {
+    useAuthStore.setState({
+      user: {
+        id: 'usr_normal_sync',
+        email: 'student@example.com',
+        displayName: 'Học viên',
+        plan: 'free',
+        credits: 100
+      }
+    });
+    useAiStore.setState({ aiCreditsBalance: 100 });
     const ok = useAiStore.getState().deductCredits(1);
     expect(ok).toBe(true);
-    expect(useAiStore.getState().aiCreditsBalance).toBe(initialCredits - 1);
-    expect(useAuthStore.getState().credits).toBe(initialCredits - 1);
+    expect(useAiStore.getState().aiCreditsBalance).toBe(99);
+    expect(useAuthStore.getState().credits).toBe(99);
   });
 
   it('6. createNewSession tạo cuộc trò chuyện mới trên Supabase và đặt làm active', async () => {

@@ -22,7 +22,7 @@ const SHORTCUTS = [
 const FAQS = [
   {
     q: 'Dữ liệu công việc và thời gian Pomodoro của tôi được lưu ở đâu?',
-    a: 'PomoFocus sử dụng kiến trúc Local-First: Mọi nhiệm vụ, ghi chú và lịch sử tập trung được lưu trữ trực tiếp trong cơ sở dữ liệu IndexedDB trên trình duyệt của bạn. Bạn không bao giờ bị mất dữ liệu khi làm mới trang hoặc mất kết nối mạng.'
+    a: 'PomoFocus sử dụng kiến trúc đồng bộ đám mây Supabase Cloud Sync kết hợp Offline-First PWA: Mọi nhiệm vụ, ghi chú, dữ liệu bảo mật (2FA TOTP) và lịch sử tập trung được đồng bộ tự động lên máy chủ đám mây Supabase Cloud đồng thời lưu trữ an toàn trong IndexedDB trên thiết bị. Bạn có thể chuyển đổi mượt mà giữa điện thoại, máy tính bảng và máy tính mà không lo mất dữ liệu.'
   },
   {
     q: 'Gói PRO Beta được miễn phí trong bao lâu?',

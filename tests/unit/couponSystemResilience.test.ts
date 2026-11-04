@@ -86,12 +86,12 @@ describe('Coupon System Resilience & Universal Redemption Tests', () => {
     const res = couponService.redeemCoupon('VIP7DAYS', founderUser);
 
     expect(res.success).toBe(true);
-    expect(res.creditsAdded).toBe(5000);
-    expect(res.message).toContain('quy đổi thành +5.000⚡ AI Credits');
+    expect(res.creditsAdded).toBe(750);
+    expect(res.message).toContain('quy đổi thành +750⚡ AI Credits');
 
-    // Kiểm tra ví AI Credits được cộng đúng 5.000
+    // Kiểm tra ví AI Credits được cộng đúng 750 (theo tỉ lệ quy đổi mới của VIP7DAYS)
     const finalCredits = useAiStore.getState().aiCreditsBalance;
-    expect(finalCredits).toBe(initialCredits + 5000);
+    expect(finalCredits).toBe(initialCredits + 750);
   });
 
   it('5. Người dùng thường đổi mã BOSSSECRET được nâng cấp ngay lên PRO TRỌN ĐỜI vĩnh viễn', () => {

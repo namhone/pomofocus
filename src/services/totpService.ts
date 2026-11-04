@@ -334,11 +334,66 @@ export const totpService = {
    * Lấy Secret Key hiện tại của người dùng (nếu có)
    */
   /**
-   * Kiểm tra xem tài khoản có bật 2FA hay không
+   * Truy vấn trạng thái 2FA từ Supabase Cloud và tự động cache vào máy khách
+   */
+  async fetchCloud2Fa(
+    userId: string,
+    email?: string
+  ): Promise<{ isEnabled: boolean; secret?: string; backupCodes?: string[] }> {
+    try {
+      let profile: any = null;
+      if (userId) {
+        profile = await ProfileService.fetchProfile(userId);
+      }
+      if (!profile && email) {
+        profile = await ProfileService.fetchProfileByEmail(email);
+      }
+      if (profile) {
+        const isEnabled = Boolean(
+          profile.two_factor_enabled || profile.is_2fa_enabled || profile.totp_secret
+        );
+        const secret = profile.totp_secret || undefined;
+        let backupCodes = profile.backup_codes;
+        if (typeof backupCodes === 'string') {
+          try {
+            backupCodes = JSON.parse(backupCodes);
+          } catch {}
+        }
+        if (!Array.isArray(backupCodes)) backupCodes = [];
+
+        // Đồng bộ ngược vào localStorage nếu trên máy chưa có
+        if (isEnabled && secret && typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(`${TOTP_STORAGE_KEY_PREFIX}${profile.id}`, secret);
+          localStorage.setItem(`${BACKUP_CODES_KEY_PREFIX}${profile.id}`, JSON.stringify(backupCodes));
+        }
+
+        return {
+          isEnabled,
+          secret,
+          backupCodes
+        };
+      }
+    } catch (err) {
+      console.warn('[totpService] Lỗi fetchCloud2Fa:', err);
+    }
+    return { isEnabled: false };
+  },
+
+  /**
+   * Kiểm tra xem tài khoản có bật 2FA hay không (Đồng bộ cục bộ)
    */
   isTotpEnabled(userId: string): boolean {
     if (!userId) return false;
     return Boolean(this.getSecret(userId));
+  },
+
+  /**
+   * Kiểm tra bất đồng bộ trạng thái 2FA từ LocalStorage kết hợp Supabase Cloud
+   */
+  async isTotpEnabledAsync(userId: string, email?: string): Promise<boolean> {
+    if (this.isTotpEnabled(userId)) return true;
+    const cloud = await this.fetchCloud2Fa(userId, email);
+    return cloud.isEnabled;
   },
 
   getSecret(userId: string): string | null {
@@ -374,13 +429,22 @@ export const totpService = {
 
   /**
    * Xác thực mã OTP trong quá trình đăng nhập (hoặc dùng mã dự phòng)
+   * Tự động fallback sang Supabase Cloud nếu đổi thiết bị
    */
   async verifyLogin(
     userId: string,
     codeOrBackup: string
   ): Promise<{ valid: boolean; usedBackupCode?: boolean; message?: string }> {
     const clean = (codeOrBackup || '').trim().toUpperCase();
-    const secret = this.getSecret(userId);
+    let secret = this.getSecret(userId);
+
+    // Nếu trên máy này chưa có secret (ví dụ: đăng nhập trên thiết bị mới hoặc tab ẩn danh), kéo từ Cloud
+    if (!secret) {
+      const cloud = await this.fetchCloud2Fa(userId);
+      if (cloud.secret) {
+        secret = cloud.secret;
+      }
+    }
 
     // 1. Thử xác thực với mã TOTP 6 số
     if (secret && /^\d{6}$/.test(clean)) {
@@ -391,7 +455,14 @@ export const totpService = {
     }
 
     // 2. Thử đối soát với danh sách Backup Codes
-    const backupCodes = this.getBackupCodes(userId);
+    let backupCodes = this.getBackupCodes(userId);
+    if (!backupCodes.length) {
+      const cloud = await this.fetchCloud2Fa(userId);
+      if (cloud.backupCodes && cloud.backupCodes.length) {
+        backupCodes = cloud.backupCodes;
+      }
+    }
+
     const foundIdx = backupCodes.findIndex((b) => b.toUpperCase() === clean);
     if (foundIdx !== -1) {
       // Đánh dấu đã dùng mã dự phòng này
@@ -399,6 +470,11 @@ export const totpService = {
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem(`${BACKUP_CODES_KEY_PREFIX}${userId}`, JSON.stringify(backupCodes));
       }
+      // Đồng bộ danh sách mã dự phòng còn lại lên Supabase Cloud
+      ProfileService.updateFields(userId, {
+        backup_codes: backupCodes
+      }).catch(() => {});
+
       return { valid: true, usedBackupCode: true };
     }
 

@@ -37,7 +37,10 @@ export const AccountSecurityView: React.FC = () => {
     deleteAccount,
     signOutOtherDevices,
     enableTotp2Fa,
-    disableTotp2Fa
+    disableTotp2Fa,
+    sendPasswordResetOtp,
+    verifyPasswordResetOtp,
+    setSecondaryPasswordForOAuth
   } = useAuthStore();
 
   const [oldPassword, setOldPassword] = useState('');
@@ -46,6 +49,19 @@ export const AccountSecurityView: React.FC = () => {
   const [isChangingPass, setIsChangingPass] = useState(false);
   const [isSigningOutOthers, setIsSigningOutOthers] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Mật khẩu phụ cho Google OAuth
+  const [googleSecondaryPassword, setGoogleSecondaryPassword] = useState('');
+  const [googleConfirmPassword, setGoogleConfirmPassword] = useState('');
+  const [isSettingGooglePassword, setIsSettingGooglePassword] = useState(false);
+  const [hasGooglePasswordSet, setHasGooglePasswordSet] = useState(
+    Boolean(user?.authProvider === 'google' && ((user as any)?.hasSecondaryPassword || (user as any)?.passwordHash))
+  );
+
+  // Đổi mật khẩu qua OTP Email
+  const [showEmailOtpMode, setShowEmailOtpMode] = useState(false);
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [isSendingEmailOtp, setIsSendingEmailOtp] = useState(false);
 
   // TOTP 2FA (Google Authenticator / Authy) State
   const [showTotpSetupModal, setShowTotpSetupModal] = useState(false);
@@ -193,6 +209,75 @@ export const AccountSecurityView: React.FC = () => {
         type: 'error',
         text: 'Không thể đổi mật khẩu. Vui lòng kiểm tra lại mật khẩu cũ.'
       });
+    }
+  };
+
+  const handleSetGoogleSecondaryPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatusMessage(null);
+    if (googleSecondaryPassword.length < 6) {
+      setStatusMessage({ type: 'error', text: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+      return;
+    }
+    if (googleSecondaryPassword !== googleConfirmPassword) {
+      setStatusMessage({ type: 'error', text: 'Mật khẩu xác nhận không khớp.' });
+      return;
+    }
+    setIsSettingGooglePassword(true);
+    const res = await setSecondaryPasswordForOAuth(googleSecondaryPassword);
+    setIsSettingGooglePassword(false);
+    if (res.success) {
+      setHasGooglePasswordSet(true);
+      setGoogleSecondaryPassword('');
+      setGoogleConfirmPassword('');
+      setStatusMessage({ type: 'success', text: res.message });
+      setTimeout(() => setStatusMessage(null), 5000);
+    } else {
+      setStatusMessage({ type: 'error', text: res.message });
+    }
+  };
+
+  const handleSendEmailOtp = async () => {
+    setIsSendingEmailOtp(true);
+    setStatusMessage(null);
+    const res = await sendPasswordResetOtp(user.email);
+    setIsSendingEmailOtp(false);
+    setStatusMessage({
+      type: res.success ? 'success' : 'error',
+      text: res.message
+    });
+    if (res.success && res.otp) {
+      setEmailOtpCode(res.otp);
+    }
+  };
+
+  const handleVerifyEmailOtpChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatusMessage(null);
+    if (!emailOtpCode.trim()) {
+      setStatusMessage({ type: 'error', text: 'Vui lòng nhập mã OTP 6 số từ Email.' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      setStatusMessage({ type: 'error', text: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setStatusMessage({ type: 'error', text: 'Mật khẩu xác nhận không khớp.' });
+      return;
+    }
+    setIsChangingPass(true);
+    const res = await verifyPasswordResetOtp(user.email, emailOtpCode, newPassword);
+    setIsChangingPass(false);
+    if (res.success) {
+      setStatusMessage({ type: 'success', text: res.message });
+      setNewPassword('');
+      setConfirmPassword('');
+      setEmailOtpCode('');
+      setShowEmailOtpMode(false);
+      setTimeout(() => setStatusMessage(null), 5000);
+    } else {
+      setStatusMessage({ type: 'error', text: res.message });
     }
   };
 
@@ -493,31 +578,27 @@ export const AccountSecurityView: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* MỤC 3: ĐỔI MẬT KHẨU                                                      */}
+        {/* MỤC 3: ĐỔI MẬT KHẨU HOẶC THIẾT LẬP MẬT KHẨU PHỤ CHO GOOGLE OAUTH       */}
         {/* ========================================================================= */}
-        {!isGoogleAccount && (
+        {isGoogleAccount ? (
           <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Lock size={15} className="text-zinc-400 shrink-0" />
-              <span>Đổi Mật Khẩu An Toàn</span>
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Lock size={15} className="text-amber-400 shrink-0" />
+                <span>Thiết Lập Mật Khẩu Phụ Cho Tài Khoản Google</span>
+              </h2>
+              {hasGooglePasswordSet && (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-mono self-start sm:self-auto">
+                  ✓ ĐÃ CÓ MẬT KHẨU PHỤ
+                </span>
+              )}
+            </div>
 
-            <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-zinc-300 font-medium mb-1.5">
-                  Mật Khẩu Hiện Tại
-                </label>
-                <input
-                  type="password"
-                  data-testid="input-old-password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
-                  placeholder="Nhập mật khẩu cũ của bạn..."
-                  required
-                />
-              </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Bạn đang liên kết đăng nhập bằng <strong>Google OAuth</strong>. Thiết lập thêm mật khẩu phụ độc lập giúp bạn có thể đăng nhập trên máy tính công cộng bằng Email &amp; Mật khẩu mà không cần đăng nhập Google cá nhân.
+            </p>
 
+            <form onSubmit={handleSetGoogleSecondaryPassword} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-zinc-300 font-medium mb-1.5">
@@ -525,11 +606,11 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    data-testid="input-new-password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
-                    placeholder="Mật khẩu mới an toàn..."
+                    data-testid="input-google-secondary-password"
+                    value={googleSecondaryPassword}
+                    onChange={(e) => setGoogleSecondaryPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-emerald-400 transition"
+                    placeholder="Nhập mật khẩu phụ mới..."
                     required
                   />
                 </div>
@@ -539,11 +620,11 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    data-testid="input-confirm-password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
-                    placeholder="Nhập lại mật khẩu mới..."
+                    data-testid="input-google-confirm-password"
+                    value={googleConfirmPassword}
+                    onChange={(e) => setGoogleConfirmPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-emerald-400 transition"
+                    placeholder="Nhập lại mật khẩu phụ..."
                     required
                   />
                 </div>
@@ -552,14 +633,173 @@ export const AccountSecurityView: React.FC = () => {
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  disabled={isChangingPass}
-                  data-testid="btn-submit-change-password"
-                  className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition cursor-pointer shadow-sm"
+                  disabled={isSettingGooglePassword}
+                  data-testid="btn-submit-google-secondary-password"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
                 >
-                  {isChangingPass ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+                  {isSettingGooglePassword
+                    ? 'Đang lưu...'
+                    : hasGooglePasswordSet
+                    ? 'Cập Nhật Mật Khẩu Phụ'
+                    : 'Thiết Lập Mật Khẩu Phụ'}
                 </button>
               </div>
             </form>
+          </div>
+        ) : (
+          <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Lock size={15} className="text-zinc-400 shrink-0" />
+                <span>Đổi Mật Khẩu Cá Nhân</span>
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmailOtpMode(!showEmailOtpMode);
+                  setStatusMessage(null);
+                }}
+                className="text-xs text-emerald-400 hover:underline cursor-pointer"
+              >
+                {showEmailOtpMode ? '← Đổi bằng mật khẩu cũ' : 'Đổi nhanh qua mã OTP Email →'}
+              </button>
+            </div>
+
+            {showEmailOtpMode ? (
+              /* ĐỔI MẬT KHẨU QUA OTP EMAIL */
+              <form onSubmit={handleVerifyEmailOtpChangePassword} className="space-y-4 text-xs">
+                <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-[11px] text-zinc-400 flex items-center justify-between gap-3">
+                  <span>Hệ thống sẽ gửi mã 6 số về email: <strong className="text-white">{user.email}</strong></span>
+                  <button
+                    type="button"
+                    onClick={handleSendEmailOtp}
+                    disabled={isSendingEmailOtp}
+                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium shrink-0 transition cursor-pointer"
+                  >
+                    {isSendingEmailOtp ? 'Đang gửi...' : 'Gửi Mã Xác Minh'}
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-zinc-300 font-medium mb-1.5">
+                    Mã OTP 6 số từ Email
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    data-testid="input-email-otp"
+                    value={emailOtpCode}
+                    onChange={(e) => setEmailOtpCode(e.target.value.replace(/\s+/g, ''))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-500/40 bg-zinc-950 text-white font-mono text-center tracking-widest text-base font-bold focus:outline-none focus:border-emerald-400 transition"
+                    placeholder="123456"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-zinc-300 font-medium mb-1.5">
+                      Mật Khẩu Mới (Tối thiểu 6 ký tự)
+                    </label>
+                    <input
+                      type="password"
+                      data-testid="input-new-password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
+                      placeholder="Mật khẩu mới an toàn..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-zinc-300 font-medium mb-1.5">
+                      Xác Nhận Mật Khẩu Mới
+                    </label>
+                    <input
+                      type="password"
+                      data-testid="input-confirm-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
+                      placeholder="Nhập lại mật khẩu mới..."
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isChangingPass}
+                    data-testid="btn-submit-change-password-otp"
+                    className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                  >
+                    {isChangingPass ? 'Đang cập nhật...' : 'Xác Nhận & Đổi Mật Khẩu'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* ĐỔI MẬT KHẨU TRUYỀN THỐNG */
+              <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-zinc-300 font-medium mb-1.5">
+                    Mật Khẩu Hiện Tại
+                  </label>
+                  <input
+                    type="password"
+                    data-testid="input-old-password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
+                    placeholder="Nhập mật khẩu cũ của bạn..."
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-zinc-300 font-medium mb-1.5">
+                      Mật Khẩu Mới (Tối thiểu 6 ký tự)
+                    </label>
+                    <input
+                      type="password"
+                      data-testid="input-new-password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
+                      placeholder="Mật khẩu mới an toàn..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-zinc-300 font-medium mb-1.5">
+                      Xác Nhận Mật Khẩu Mới
+                    </label>
+                    <input
+                      type="password"
+                      data-testid="input-confirm-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
+                      placeholder="Nhập lại mật khẩu mới..."
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isChangingPass}
+                    data-testid="btn-submit-change-password"
+                    className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                  >
+                    {isChangingPass ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         )}
 

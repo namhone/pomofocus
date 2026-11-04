@@ -332,6 +332,7 @@ export interface AudioState {
   resetToDefaults: () => void;
 
   setCustomMusicUrl: (url: string, type?: 'direct_audio' | 'youtube') => void;
+  syncCustomMusicFromCloud: (userId?: string) => Promise<void>;
   setCustomMusicPlaying: (playing: boolean) => void;
   setCustomMusicVolume: (volume: number) => void;
   setCustomMusicError: (error: string | null) => void;
@@ -380,6 +381,50 @@ export const useAudioStore = create<AudioState>((set, get) => {
         volume: get().customMusicVolume,
         list: get().customMusicList
       });
+
+      // Đồng bộ trường custom_playlist_url lên bảng public.profiles trên Supabase Cloud
+      if (typeof window !== 'undefined') {
+        try {
+          const rawSession = localStorage.getItem('pomodoro_study_auth_session');
+          if (rawSession) {
+            const user = JSON.parse(rawSession);
+            if (user?.id) {
+              import('../services/profileService').then(({ ProfileService }) => {
+                ProfileService.updateFields(user.id, {
+                  custom_playlist_url: url,
+                  settings: {
+                    ...(user.settings || {}),
+                    custom_playlist_url: url
+                  }
+                }).catch(() => {});
+              });
+            }
+          }
+        } catch {}
+      }
+    },
+
+    syncCustomMusicFromCloud: async (userId?: string) => {
+      if (typeof window === 'undefined') return;
+      try {
+        let uid = userId;
+        if (!uid) {
+          const rawSession = localStorage.getItem('pomodoro_study_auth_session');
+          if (rawSession) {
+            const user = JSON.parse(rawSession);
+            uid = user?.id;
+          }
+        }
+        if (!uid) return;
+        const { ProfileService } = await import('../services/profileService');
+        const profile = await ProfileService.fetchProfile(uid);
+        const cloudUrl = profile?.custom_playlist_url || profile?.settings?.custom_playlist_url;
+        if (cloudUrl && typeof cloudUrl === 'string' && cloudUrl !== get().customMusicUrl) {
+          get().setCustomMusicUrl(cloudUrl);
+        }
+      } catch (err) {
+        console.debug('[useAudioStore] syncCustomMusicFromCloud error:', err);
+      }
     },
 
     setCustomMusicPlaying: (playing: boolean) => set({ customMusicPlaying: playing }),

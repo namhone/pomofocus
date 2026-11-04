@@ -3,7 +3,7 @@ import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
-import { useAiStore } from '../stores/useAiStore';
+import { useAiStore, isOwnerAiUser } from '../stores/useAiStore';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -47,6 +47,21 @@ export const PlatformHeader: React.FC = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+
+  const isOwner = Boolean(
+    (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
+    isOwnerAiUser()
+  );
+
+  const handleCreditsBadgeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isWorkspace) {
+      useAiStore.getState().toggleOpen();
+    } else {
+      setShowCreditsModal(true);
+    }
+  };
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isWorkspace = currentPath === '/app';
@@ -193,15 +208,16 @@ export const PlatformHeader: React.FC = () => {
           <button
             type="button"
             data-testid="capsule-credits-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              useAiStore.getState().toggleOpen();
-            }}
+            onClick={handleCreditsBadgeClick}
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
-            title={`Số dư AI: ${aiCreditsBalance.toLocaleString('vi-VN')}⚡ · Bấm mở Trợ lý AI`}
+            title={
+              isOwner
+                ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ Không giới hạn'
+                : `Số dư AI: ${aiCreditsBalance.toLocaleString('vi-VN')}⚡ · Bấm xem chi tiết AI Credits`
+            }
           >
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span>{aiCreditsBalance.toLocaleString('vi-VN')}⚡</span>
+            <span>{isOwner ? '⚡ ∞' : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}</span>
           </button>
 
           {/* ⚙️ Cài đặt */}
@@ -352,12 +368,16 @@ export const PlatformHeader: React.FC = () => {
           <button
             type="button"
             data-testid="header-ai-btn"
-            onClick={() => useAiStore.getState().toggleOpen()}
+            onClick={handleCreditsBadgeClick}
             className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
-            title={`Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`}
+            title={
+              isOwner
+                ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
+                : `Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`
+            }
           >
             <Sparkles size={13} className="text-cyan-400 shrink-0" />
-            <span className="font-mono text-amber-300 font-bold">{aiCreditsBalance.toLocaleString()}⚡</span>
+            <span className="font-mono text-amber-300 font-bold">{isOwner ? '⚡ ∞' : `${aiCreditsBalance.toLocaleString()}⚡`}</span>
           </button>
 
           {/* PWA Install Button when available */}
@@ -880,6 +900,107 @@ export const PlatformHeader: React.FC = () => {
         >
           <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
           <span className="font-medium text-white">Đã đăng xuất thành công.</span>
+        </div>
+      )}
+
+      {/* =========================================================================
+          POPUP GIẢI THÍCH TÍNH NĂNG AI CREDITS (CHO KHÁCH VÀ NGOÀI WORKSPACE)
+         ========================================================================= */}
+      {showCreditsModal && (
+        <div
+          data-testid="credits-intro-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCreditsModal(false);
+          }}
+        >
+          <div className="relative w-full max-w-md rounded-3xl border border-white/15 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-2xl text-neutral-100 selection:bg-white selection:text-black">
+            <button
+              type="button"
+              data-testid="btn-close-credits-modal"
+              onClick={() => setShowCreditsModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <Zap size={22} className="fill-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-1.5">
+                  <span>AI Credits</span>
+                  <span className="text-amber-400">⚡</span>
+                </h3>
+                <p className="text-xs text-neutral-400">Năng lượng đồng hành cùng Gia sư AI Socratic</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs mb-5">
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 flex items-start gap-2.5">
+                <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Trải nghiệm hoàn toàn miễn phí:</strong> Khách vãng lai và tài khoản Free được tặng sẵn <strong>50⚡ AI Credits</strong> để đặt câu hỏi, giải toán và phân tích kiến thức.
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <div className="font-mono font-bold text-amber-300 text-sm">1⚡</div>
+                  <div className="text-[10px] text-neutral-400 mt-0.5">Hỏi bài &amp; Chat</div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <div className="font-mono font-bold text-amber-300 text-sm">5⚡</div>
+                  <div className="text-[10px] text-neutral-400 mt-0.5">Tóm tắt bài học</div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <div className="font-mono font-bold text-amber-300 text-sm">10⚡</div>
+                  <div className="text-[10px] text-neutral-400 mt-0.5">Soạn đề thi</div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-neutral-300 text-[11px] leading-relaxed">
+                👑 <strong>Gói PRO Trọn Đời:</strong> Tự động nạp lại <strong>1.000⚡ AI Credits</strong> vào mỗi Thứ Hai hàng tuần, không lo cạn kiệt năng lượng học tập.
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreditsModal(false);
+                  router.navigate('/signup');
+                }}
+                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
+              >
+                Đăng Ký Nhận 3 Năm PRO &amp; AI Miễn Phí →
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreditsModal(false);
+                    router.navigate('/billing');
+                  }}
+                  className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs transition cursor-pointer"
+                >
+                  Xem Bảng Giá &amp; Nạp Điểm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreditsModal(false);
+                    router.navigate('/app');
+                  }}
+                  className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs transition cursor-pointer"
+                >
+                  Vào Không Gian Học
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </>

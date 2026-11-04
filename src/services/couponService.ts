@@ -38,6 +38,16 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
 
 export const DEFAULT_COUPONS: Coupon[] = [
   {
+    code: 'EIU',
+    type: 'free_lifetime',
+    value: 0,
+    maxUses: 10000,
+    usedCount: 0,
+    expiresAt: null,
+    createdAt: 1730000000000,
+    description: 'Đặc quyền EIU - Kích hoạt PRO TRỌN ĐỜI vĩnh viễn'
+  },
+  {
     code: 'PRO50',
     type: 'discount_percent',
     value: 50,
@@ -465,12 +475,18 @@ export const couponService = {
     // Trường hợp 1: Tài khoản Trọn Đời (Lifetime Founder) nhập mã quà tặng PRO
     if (isLifetimeUser) {
       if (coupon.type === 'free_days' || coupon.type === 'free_lifetime') {
-        useAiStore.getState().addCredits(5000);
+        const credits =
+          coupon.code.trim().toUpperCase() === 'VIP7DAYS' || coupon.value === 7
+            ? 750
+            : coupon.value === 30
+            ? 3000
+            : 5000;
+        useAiStore.getState().addCredits(credits);
         return {
           success: true,
-          message: 'Đổi mã thành công! Bạn đang sở hữu gói Trọn Đời nên mã quà tặng PRO đã được quy đổi thành +5.000⚡ AI Credits vào ví! 🎉',
+          message: `Đổi mã thành công! Bạn đang sở hữu gói Trọn Đời nên mã quà tặng PRO đã được quy đổi thành +${credits.toLocaleString('vi-VN')}⚡ AI Credits vào ví! 🎉`,
           coupon,
-          creditsAdded: 5000
+          creditsAdded: credits
         };
       }
       return {

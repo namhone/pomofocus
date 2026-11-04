@@ -15,7 +15,9 @@ import {
   HelpCircle,
   User,
   ShieldCheck,
-  Lock
+  Lock,
+  FileText,
+  Shield
 } from 'lucide-react';
 
 export const SharedFooter: React.FC = () => {
@@ -92,6 +94,16 @@ export const SharedFooter: React.FC = () => {
       label: 'Quyền Riêng Tư & Dữ Liệu',
       path: '/privacy-data',
       icon: <Lock size={13} className="text-indigo-400 shrink-0" />
+    },
+    {
+      label: 'Điều Khoản Sử Dụng',
+      path: '/terms',
+      icon: <FileText size={13} className="text-teal-400 shrink-0" />
+    },
+    {
+      label: 'Chính Sách Bảo Mật',
+      path: '/privacy',
+      icon: <Shield size={13} className="text-rose-400 shrink-0" />
     }
   ];
 

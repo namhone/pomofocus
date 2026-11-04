@@ -29,9 +29,12 @@ export interface CloudProfile {
   plan_expires_at?: string | null;
   ai_credits_balance: number;
   is_2fa_enabled?: boolean;
+  two_factor_enabled?: boolean;
   totp_secret?: string;
   backup_codes?: string[];
   settings?: Record<string, any>;
+  custom_playlist_url?: string;
+  secondary_password_hash?: string;
   last_weekly_reset?: string | null;
   last_monthly_reset?: string | null;
   total_ai_queries?: number;
@@ -59,6 +62,29 @@ export class ProfileService {
       return data as CloudProfile;
     } catch (err) {
       console.warn('[ProfileService] Lỗi khi tải hồ sơ từ Supabase Cloud:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Truy vấn hồ sơ người dùng từ Supabase Cloud bằng địa chỉ Email
+   */
+  static async fetchProfileByEmail(email: string): Promise<CloudProfile | null> {
+    if (!email) return null;
+    try {
+      const normalized = email.trim().toLowerCase();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', normalized)
+        .maybeSingle();
+
+      if (error || !data) {
+        return null;
+      }
+      return data as CloudProfile;
+    } catch (err) {
+      console.warn('[ProfileService] Lỗi khi tải hồ sơ theo email từ Supabase Cloud:', err);
       return null;
     }
   }
@@ -227,8 +253,13 @@ export class ProfileService {
   /**
    * Trừ điểm AI Credits nguyên tử trên Supabase Cloud
    */
-  static async deductCreditsCloud(userId: string, cost: number): Promise<{ success: boolean; remainingCredits?: number }> {
+  static async deductCreditsCloud(userId: string, cost: number, userEmail?: string): Promise<{ success: boolean; remainingCredits?: number }> {
     if (!userId || cost <= 0) return { success: true };
+
+    // ĐẶC QUYỀN VÔ HẠN AI: Không bao giờ trừ điểm đối với Chủ sở hữu (namho03052k9@gmail.com, huyentrantt09@gmail.com)
+    if (userEmail && (OWNER_EMAILS.includes(userEmail.trim().toLowerCase()) || isOwnerEmail(userEmail))) {
+      return { success: true, remainingCredits: 999999 };
+    }
 
     try {
       // 1. Thử gọi Stored Procedure deduct_ai_credits
@@ -247,6 +278,9 @@ export class ProfileService {
       // 2. Fallback cập nhật thủ công nếu RPC chưa được nạp
       const profile = await this.fetchProfile(userId);
       if (profile) {
+        if (profile.email && (OWNER_EMAILS.includes(profile.email.trim().toLowerCase()) || isOwnerEmail(profile.email))) {
+          return { success: true, remainingCredits: 999999 };
+        }
         const remaining = Math.max(0, (profile.ai_credits_balance || 0) - cost);
         await supabase
           .from('profiles')

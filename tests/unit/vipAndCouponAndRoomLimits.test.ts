@@ -159,7 +159,7 @@ describe('VIP & Coupon & Room Limits Audit Tests', () => {
       expect(refreshed?.proExpiresAt).toBeGreaterThanOrEqual(currentExpiry + 7 * 24 * 60 * 60 * 1000 - 1000);
     });
 
-    it('tài khoản Trọn Đời (Lifetime Founder) khi nhập mã quà tặng PRO sẽ quy đổi thành tặng +5.000⚡ AI Credits', () => {
+    it('tài khoản Trọn Đời (Lifetime Founder) khi nhập mã quà tặng PRO sẽ quy đổi thành tặng +750⚡ AI Credits', () => {
       const initialBalance = useAiStore.getState().aiCreditsBalance;
 
       const lifetimeUser: UserProfile = {
@@ -173,9 +173,9 @@ describe('VIP & Coupon & Room Limits Audit Tests', () => {
 
       const res = couponService.redeemCoupon('VIP7DAYS', lifetimeUser);
       expect(res.success).toBe(true);
-      expect(res.message).toContain('+5.000⚡ AI Credits');
-      expect(res.creditsAdded).toBe(5000);
-      expect(useAiStore.getState().aiCreditsBalance).toBe(initialBalance + 5000);
+      expect(res.message).toContain('+750⚡ AI Credits');
+      expect(res.creditsAdded).toBe(750);
+      expect(useAiStore.getState().aiCreditsBalance).toBe(initialBalance + 750);
     });
 
     it('bỏ điều kiện lọc theo user_id người tạo: cho phép bất kỳ ai có mã hợp lệ đều xác thực và kích hoạt được (Supabase Shared)', async () => {
