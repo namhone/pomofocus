@@ -52,8 +52,8 @@ export const PRESET_STATIONS = [
   {
     id: 'st-lofi-girl',
     name: 'Lofi Girl - Chill / Study (24/7)',
-    videoId: '5qap5aO4i9A',
-    url: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
+    videoId: 'rFZHOHl-L8A',
+    url: 'https://www.youtube.com/watch?v=rFZHOHl-L8A'
   },
   {
     id: 'st-synthwave',
