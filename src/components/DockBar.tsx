@@ -333,34 +333,24 @@ export const DockBar: React.FC = () => {
           )}
         </button>
 
-        {/* Nút Zen Mode (Đồng bộ monochrome text-zinc-300, 0% hộp vuông xanh lá) */}
+        {/* Nút Zen Mode (Đồng bộ monochrome icon w-9 h-9, 100% icon vuông tròn, 0% chữ Zen z) */}
         <button
           type="button"
           data-testid="dock-btn-zen"
           onClick={toggleZenMode}
-          className={`relative flex items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
-            isVertical ? 'h-9 w-9 p-0' : 'h-9 px-2.5 sm:px-3 gap-1.5'
-          } ${
+          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
             isZenMode
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
-          title={isZenMode ? "Tắt chế độ Zen (Z hoặc H)" : "Bật chế độ Zen (Z hoặc H)"}
-          aria-label="Chế độ Zen"
+          title={isZenMode ? "Tắt chế độ Zen (Phím Z)" : "Bật chế độ Zen (Phím Z)"}
+          aria-label="Chế độ Zen (Phím Z)"
           aria-pressed={isZenMode}
         >
           {isZenMode ? (
             <Minimize2 size={16} strokeWidth={1.75} className="shrink-0" />
           ) : (
             <Maximize2 size={16} strokeWidth={1.75} className="shrink-0" />
-          )}
-          {!isVertical && (
-            <>
-              <span className="hidden xl:inline text-[11px] font-semibold">Zen</span>
-              <kbd className="hidden xl:inline px-1 py-0.2 rounded bg-neutral-900 border border-white/10 text-[9px] text-neutral-400 font-mono">
-                Z
-              </kbd>
-            </>
           )}
           {isZenMode && (
             <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />

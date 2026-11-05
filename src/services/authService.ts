@@ -13,6 +13,7 @@ export const OWNER_EMAILS = [
 export const LADY_BOSS_EMAIL = 'huyentrantt09@gmail.com';
 export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
+export const DEFAULT_FOUNDER_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
 
 export interface UserProfile {
   id: string;
@@ -193,9 +194,9 @@ export const authService = {
         id: user.id || 'usr_current',
         email,
         displayName: user.user_metadata?.full_name || user.displayName || (email ? email.split('@')[0] : 'Học Viên'),
-        avatarUrl: user.user_metadata?.avatar_url || user.avatarUrl || undefined,
-        customAvatarUrl: user.customAvatarUrl || undefined,
-        hasCustomAvatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl),
+        avatarUrl: user.user_metadata?.avatar_url || user.avatarUrl || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined),
+        customAvatarUrl: user.customAvatarUrl || (isOwner ? (user.avatarUrl || DEFAULT_FOUNDER_AVATAR) : undefined),
+        hasCustomAvatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl || isOwner),
         plan: isOwner ? 'pro_lifetime' : (user.plan || 'free'),
         isLifetime: isOwner || user.isLifetime || user.plan === 'lifetime' || user.plan === 'pro_lifetime',
         proExpiresAt: isOwner ? null : (user.proExpiresAt || null),
@@ -257,15 +258,15 @@ export const authService = {
 
     // BẢO VỆ AVATAR BẤT BIẾN: Lấy avatar_url từ cloudProfile, không ghi đè
     const cloudAvatar = cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url;
-    const resolvedAvatar = cloudAvatar || sbUser?.user_metadata?.avatar_url || undefined;
-    const hasCustom = Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar);
+    const resolvedAvatar = cloudAvatar || sbUser?.user_metadata?.avatar_url || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined);
+    const hasCustom = Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar || isOwner);
 
     const baseProfile: UserProfile = {
       id: userId,
       email: normalized,
       displayName: cloudProfile?.full_name || cloudProfile?.display_name || sbUser?.user_metadata?.full_name || normalized.split('@')[0],
       avatarUrl: resolvedAvatar,
-      customAvatarUrl: cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || undefined,
+      customAvatarUrl: cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined),
       hasCustomAvatar: hasCustom,
       plan: isOwner ? 'pro_lifetime' : (cloudProfile?.plan || 'pro_beta'),
       role: isOwner ? 'founder' : (cloudProfile?.role || 'user'),

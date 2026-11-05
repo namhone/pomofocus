@@ -55,6 +55,9 @@ export const PlatformHeader: React.FC = () => {
     isOwnerEmail(user?.email) ||
     isLadyBoss(user?.email) ||
     isVipFriend(user?.email) ||
+    user?.role === 'founder' ||
+    user?.badge?.includes('Founder') ||
+    user?.credits === Infinity ||
     (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
     isOwnerAiUser()
   );
@@ -67,6 +70,22 @@ export const PlatformHeader: React.FC = () => {
     user?.plan === 'pro_lifetime' ||
     user?.role === 'founder'
   );
+
+  const isVipOrOwner = Boolean(
+    isOwner ||
+    isLifetimeAccount ||
+    user?.isLifetime ||
+    user?.role === 'founder' ||
+    user?.credits === Infinity ||
+    user?.aiCredits === Infinity ||
+    aiCreditsBalance === Infinity ||
+    (user?.email && isOwnerEmail(user.email))
+  );
+
+  const effectiveAvatar =
+    user?.customAvatarUrl ||
+    user?.avatarUrl ||
+    (isOwner ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face' : undefined);
 
   const isProAccount = Boolean(
     isLifetimeAccount ||
@@ -87,11 +106,17 @@ export const PlatformHeader: React.FC = () => {
     ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'PRO HỘI VIÊN')
     : 'Thành viên Free';
 
-  const displayCredits = isOwner
+  const safeCreditsNum = typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance) && !Number.isNaN(aiCreditsBalance)
+    ? Math.max(0, aiCreditsBalance)
+    : 50;
+
+  const displayCredits = isVipOrOwner
     ? '⚡ ∞'
-    : isLifetimeAccount
-    ? `${Math.max(aiCreditsBalance, 1000).toLocaleString('vi-VN')}⚡`
-    : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`;
+    : `${safeCreditsNum.toLocaleString('vi-VN')}⚡`;
+
+  const capsuleCreditsLabel = isVipOrOwner
+    ? '∞'
+    : safeCreditsNum.toLocaleString('vi-VN');
 
   useEffect(() => {
     if (isLifetimeAccount && aiCreditsBalance < 1000) {
@@ -243,11 +268,14 @@ export const PlatformHeader: React.FC = () => {
             title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm để mở menu'}
             aria-label="Tài khoản và Menu"
           >
-            {user?.avatarUrl ? (
+            {effectiveAvatar ? (
               <img
-                src={user.avatarUrl}
-                alt={user.displayName || 'Avatar'}
+                src={effectiveAvatar}
+                alt={user?.displayName || 'Avatar'}
                 className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20 shrink-0"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                }}
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
@@ -264,13 +292,13 @@ export const PlatformHeader: React.FC = () => {
             aria-label="Số dư AI Credits"
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
             title={
-              isOwner
+              isVipOrOwner
                 ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ Không giới hạn'
-                : `Số dư AI: ${aiCreditsBalance.toLocaleString('vi-VN')}⚡ · Bấm xem chi tiết AI Credits`
+                : `Số dư AI: ${safeCreditsNum.toLocaleString('vi-VN')}⚡ · Bấm xem chi tiết AI Credits`
             }
           >
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span>{displayCredits}</span>
+            <span>{capsuleCreditsLabel}</span>
           </button>
 
           {/* ⚙️ Cài đặt */}
@@ -428,9 +456,9 @@ export const PlatformHeader: React.FC = () => {
             onClick={handleCreditsBadgeClick}
             className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={
-              isOwner
+              isVipOrOwner
                 ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
-                : `Mở Trợ lý AI Companion (${aiCreditsBalance.toLocaleString()}⚡)`
+                : `Mở Trợ lý AI Companion (${safeCreditsNum.toLocaleString()}⚡)`
             }
           >
             <Sparkles size={13} className="text-cyan-400 shrink-0" />
@@ -482,15 +510,13 @@ export const PlatformHeader: React.FC = () => {
                 aria-expanded={isUserDropdownOpen}
                 aria-haspopup="menu"
               >
-                {user.avatarUrl ? (
+                {effectiveAvatar ? (
                   <img
-                    src={user.avatarUrl}
+                    src={effectiveAvatar}
                     alt={user.displayName}
                     className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
                     }}
                   />
                 ) : (
@@ -517,11 +543,14 @@ export const PlatformHeader: React.FC = () => {
                 >
                   {/* Mini Header Profile Info */}
                   <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
-                    {user.avatarUrl ? (
+                    {effectiveAvatar ? (
                       <img
-                        src={user.avatarUrl}
+                        src={effectiveAvatar}
                         alt={user.displayName}
                         className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                        }}
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-xs shrink-0">
@@ -847,11 +876,14 @@ export const PlatformHeader: React.FC = () => {
           <div className="pt-2 mt-1 border-t border-zinc-800/80 space-y-1.5">
             <div className="p-2 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
-                {user.avatarUrl ? (
+                {effectiveAvatar ? (
                   <img
-                    src={user.avatarUrl}
+                    src={effectiveAvatar}
                     alt={user.displayName}
                     className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                    }}
                   />
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
