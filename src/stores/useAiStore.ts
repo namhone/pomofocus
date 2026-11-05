@@ -225,7 +225,8 @@ export const useAiStore = create<AiState>()(
           id: 'welcome-1',
           role: 'assistant',
           content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          creditsUsed: 0
         }
       ],
 
@@ -378,7 +379,8 @@ export const useAiStore = create<AiState>()(
               id: 'welcome-' + Date.now(),
               role: 'assistant',
               content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              creditsUsed: 0
             }
           ],
           error: null
@@ -424,7 +426,8 @@ export const useAiStore = create<AiState>()(
                 id: 'welcome-' + Date.now(),
                 role: 'assistant',
                 content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                creditsUsed: 0
               }
             ],
             isLoading: false
@@ -536,7 +539,8 @@ export const useAiStore = create<AiState>()(
               role: 'assistant',
               content:
                 'Cuộc trò chuyện đã được làm mới. Hãy đặt câu hỏi, đính kèm đề cương hoặc yêu cầu bài tập để tôi hỗ trợ bạn!',
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              creditsUsed: 0
             }
           ],
           error: null

@@ -562,10 +562,12 @@ export const AiCompanionWidget: React.FC = () => {
                         </button>
                       </div>
 
-                      {/* Nhãn mờ Đã dùng -1⚡ */}
-                      <span className="text-[10px] text-zinc-500 font-mono">
-                        Đã dùng -{msg.creditsUsed || 1}⚡
-                      </span>
+                      {/* Nhãn mờ Đã dùng -X⚡ (Chỉ hiện khi trợ lý trừ điểm > 0) */}
+                      {msg.role === 'assistant' && typeof msg.creditsUsed === 'number' && msg.creditsUsed > 0 && (
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          Đã dùng -{msg.creditsUsed}⚡
+                        </span>
+                      )}
                     </div>
                   </>
                 )}
@@ -744,7 +746,7 @@ export const AiCompanionWidget: React.FC = () => {
             }
             handleSend('chat');
           }}
-          className="relative flex items-center gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 px-2 py-1.5 transition-all"
+          className="relative flex items-center gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 px-2.5 py-2 transition-all"
         >
           {/* Nút Ghim Đính Kèm File */}
           <button
@@ -777,7 +779,7 @@ export const AiCompanionWidget: React.FC = () => {
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Enter để gửi)'
             }
             rows={1}
-            className="flex-1 bg-transparent text-xs text-zinc-100 placeholder-zinc-500 resize-none max-h-24 py-1.5 focus:outline-none leading-normal min-h-[34px]"
+            className="flex-1 bg-transparent text-sm text-zinc-100 placeholder-zinc-500 resize-none max-h-24 min-h-[50px] py-2.5 px-3.5 leading-normal focus:outline-none"
           />
 
           <button

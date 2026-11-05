@@ -8,7 +8,6 @@ import {
   Sparkles,
   Plus,
   Bookmark,
-  BookmarkPlus,
   RotateCcw,
   SkipForward,
   SkipBack
@@ -49,22 +48,36 @@ export const DEFAULT_FAVORITE_PLAYLISTS: FavoritePlaylist[] = [
   }
 ];
 
-const PRESET_STATIONS = [
+export const PRESET_STATIONS = [
   {
-    name: 'Lofi Girl - Chill / Study',
+    id: 'st-lofi-girl',
+    name: 'Lofi Girl - Chill / Study (24/7)',
+    videoId: 'jfKfPfyJRdk',
     url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
   },
   {
+    id: 'st-synthwave',
     name: 'Synthwave Radio Live',
+    videoId: '4xDzrJKXOOY',
     url: 'https://www.youtube.com/watch?v=4xDzrJKXOOY'
   },
   {
+    id: 'st-coffee-lofi',
     name: 'Coffee Shop Lofi Vibes',
+    videoId: 'h2zkV-l_TbY',
     url: 'https://www.youtube.com/watch?v=h2zkV-l_TbY'
   },
   {
+    id: 'st-quiet-rain',
     name: 'Quiet Rain & Relaxing Piano',
+    videoId: 'lTRiuFIWV54',
     url: 'https://www.youtube.com/watch?v=lTRiuFIWV54'
+  },
+  {
+    id: 'st-chillhop',
+    name: 'Chillhop Study Beats',
+    videoId: '5yx6BWlEVcY',
+    url: 'https://www.youtube.com/watch?v=5yx6BWlEVcY'
   }
 ];
 
@@ -111,8 +124,11 @@ export const MediaWidget: React.FC = () => {
     }
   };
 
+  const [stationIndex, setStationIndex] = useState(0);
+  const currentStation = PRESET_STATIONS[stationIndex] || PRESET_STATIONS[0];
+
   // Active playing URL
-  const activeUrl = customMusicUrl || 'https://www.youtube.com/watch?v=jfKfPfyJRdk';
+  const activeUrl = customMusicUrl || currentStation.url;
   const rawEmbedUrl = extractYouTubeEmbedUrl(activeUrl);
   const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
 
@@ -152,11 +168,29 @@ export const MediaWidget: React.FC = () => {
   };
 
   const handleNextVideo = () => {
-    sendPlayerCommand('nextVideo');
+    if (isPlaylist || isMix) {
+      sendPlayerCommand('nextVideo');
+    }
+    setStationIndex((prev) => {
+      const nextIdx = (prev + 1) % PRESET_STATIONS.length;
+      const nextStation = PRESET_STATIONS[nextIdx];
+      setCustomMusicUrl(nextStation.url, 'youtube');
+      setCustomMusicPlaying(true);
+      return nextIdx;
+    });
   };
 
   const handlePrevVideo = () => {
-    sendPlayerCommand('previousVideo');
+    if (isPlaylist || isMix) {
+      sendPlayerCommand('previousVideo');
+    }
+    setStationIndex((prev) => {
+      const prevIdx = (prev - 1 + PRESET_STATIONS.length) % PRESET_STATIONS.length;
+      const prevStation = PRESET_STATIONS[prevIdx];
+      setCustomMusicUrl(prevStation.url, 'youtube');
+      setCustomMusicPlaying(true);
+      return prevIdx;
+    });
   };
 
   const handleApplyUrl = (urlToApply: string) => {
@@ -228,176 +262,99 @@ export const MediaWidget: React.FC = () => {
   return (
     <div
       data-testid="media-widget-root"
-      className="relative w-full h-full flex flex-col bg-black overflow-hidden select-none"
+      className="relative w-full h-full flex flex-col bg-zinc-950 overflow-hidden select-none"
     >
-      {/* 100% Video Display */}
-      {youtubeEmbedUrl ? (
-        <div className="relative w-full h-full flex-1 bg-black group overflow-hidden">
+      {/* 1. Khung phát YouTube độc lập (100% video, không bị nút đè chéo lên controls) */}
+      <div className="flex-1 w-full bg-black relative min-h-[160px] overflow-hidden">
+        {youtubeEmbedUrl ? (
           <iframe
             ref={iframeRef}
+            key={currentStation.id}
             src={youtubeEmbedUrl}
             title="YouTube Media Player"
             data-testid="media-youtube-iframe"
             referrerPolicy="strict-origin-when-cross-origin"
-            className="w-full h-full border-0 aspect-video rounded-b-[18px] bg-black block"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            className="w-full h-full border-0 block bg-black"
+            allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
           />
-
-          {/* Floating Subtle Station Switcher Trigger & Playlist Controls */}
-          <div className="absolute top-2.5 inset-x-2.5 opacity-90 hover:opacity-100 transition-opacity duration-200 flex items-center justify-between z-20 pointer-events-none">
-            {/* Left side: Type badge (Mix / Playlist) & Quick Save */}
-            <div className="flex items-center gap-1.5 pointer-events-auto">
-              {isMix ? (
-                <span
-                  data-testid="badge-is-mix"
-                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-600/90 text-amber-100 border border-amber-400/30 backdrop-blur-md shadow flex items-center gap-1"
-                  title="Đang phát YouTube Mix - Tự động xáo trộn bài hát liên quan"
-                >
-                  <Sparkles size={11} className="text-amber-200" />
-                  <span className="max-w-[120px] truncate">{matchedFavorite?.name || 'YouTube Mix'}</span>
-                </span>
-              ) : isPlaylist ? (
-                <span
-                  data-testid="badge-is-playlist"
-                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-indigo-600/90 text-indigo-100 border border-indigo-400/30 backdrop-blur-md shadow flex items-center gap-1"
-                  title="Đang phát danh sách phát - Tự động chuyển bài tiếp theo"
-                >
-                  <ListMusic size={11} className="text-indigo-200" />
-                  <span className="max-w-[120px] truncate">{matchedFavorite?.name || 'Playlist'}</span>
-                </span>
-              ) : null}
-
-              {(isPlaylist || isMix) && !matchedFavorite && (
-                <button
-                  type="button"
-                  data-testid="btn-quick-save-playlist"
-                  onClick={() => {
-                    setNewFavUrl(activeUrl);
-                    setNewFavName(isMix ? 'YouTube Mix Cá Nhân' : 'Playlist Cá Nhân');
-                    setShowPicker(true);
-                    setShowAddFav(true);
-                  }}
-                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-600/85 hover:bg-emerald-500 text-white border border-emerald-400/30 backdrop-blur-md shadow flex items-center gap-1 transition-all cursor-pointer"
-                  title="Lưu vào danh sách Playlist yêu thích"
-                >
-                  <BookmarkPlus size={11} />
-                  <span className="hidden sm:inline">Lưu Playlist</span>
-                </button>
-              )}
-            </div>
-
-            {/* Right side: Prev ⏮ / Next ⏭ / Đổi trạm / Tắt */}
-            <div className="flex items-center gap-1.5 pointer-events-auto">
-              <button
-                type="button"
-                data-testid="btn-media-prev-video"
-                onClick={handlePrevVideo}
-                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
-                title="Bài trước ⏮"
-              >
-                <SkipBack size={12} className="text-neutral-300" />
-                <span className="hidden sm:inline">Trước</span>
-              </button>
-
-              <button
-                type="button"
-                data-testid="btn-media-next-video"
-                onClick={handleNextVideo}
-                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
-                title="Bài tiếp theo ⏭ (Bỏ qua nếu video bị chặn bản quyền)"
-              >
-                <span className="hidden sm:inline">Tiếp</span>
-                <SkipForward size={12} className="text-neutral-300" />
-              </button>
-
-              <button
-                type="button"
-                data-testid="btn-toggle-media-picker"
-                onClick={() => setShowPicker(!showPicker)}
-                className="px-2 py-1 rounded-md text-[11px] font-medium bg-neutral-900/85 hover:bg-neutral-800 text-neutral-200 border border-white/15 backdrop-blur-md shadow-lg flex items-center gap-1 transition-all cursor-pointer"
-                title="Đổi trạm hoặc phát Playlist yêu thích"
-              >
-                <ListMusic size={12} className="text-neutral-300" />
-                <span className="hidden sm:inline">Đổi trạm</span>
-              </button>
-
-              <button
-                type="button"
-                data-testid="btn-clear-media"
-                onClick={() => {
-                  setCustomMusicUrl('');
-                  setCustomMusicPlaying(false);
-                }}
-                className="p-1 rounded-md bg-neutral-900/85 hover:bg-rose-950/80 text-neutral-400 hover:text-rose-300 border border-white/15 backdrop-blur-md shadow-lg transition-all cursor-pointer"
-                title="Tắt video"
-              >
-                <Trash2 size={12} />
-              </button>
-            </div>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-zinc-400 bg-zinc-950">
+            <Film size={32} className="text-zinc-600 mb-2 stroke-[1.5]" />
+            <h3 className="text-sm font-semibold text-zinc-200 mb-1">Trình Phát Media YouTube</h3>
+            <p className="text-xs text-zinc-400 max-w-xs mb-3">
+              Chưa có trạm hoặc danh sách nào đang phát. Bấm &quot;Đổi trạm&quot; để chọn nhạc lofi hoặc dán link YouTube.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/30 transition cursor-pointer"
+            >
+              Chọn Trạm Phát
+            </button>
           </div>
+        )}
+      </div>
+
+      {/* 2. Thanh điều khiển tách biệt ở đáy, hoàn toàn ngoài khung video */}
+      <div className="h-12 px-3 flex items-center justify-between border-t border-zinc-800 bg-zinc-950/95 shrink-0 gap-2">
+        {/* Bên trái: Thông tin trạm / Mix / Playlist */}
+        <div className="flex items-center gap-1.5 min-w-0 max-w-[42%]">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="text-[11px] font-medium text-zinc-200 truncate">
+            {matchedFavorite?.name || currentStation.name}
+          </span>
         </div>
-      ) : (
-        /* Empty State / URL Input */
-        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-neutral-950/90 text-neutral-300 overflow-y-auto">
-          <Film size={32} className="text-neutral-500 mb-2 stroke-[1.5]" />
-          <h3 className="text-sm font-semibold text-neutral-100 mb-1">Trình Phát Media, Playlist & Mix YouTube</h3>
-          <p className="text-xs text-neutral-400 max-w-sm mb-4">
-            Dán liên kết Playlist cá nhân (`PL...`) hoặc YouTube Mix (`RD...`). Tự động chuyển bài kế tiếp và hỗ trợ nút bấm chuyển bài nhanh.
-          </p>
 
-          {/* 1-Touch Favorite Playlists */}
-          <div className="w-full max-w-md mb-4 text-left">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-medium text-indigo-300 flex items-center gap-1">
-                <Bookmark size={12} />
-                <span>Playlist & Mix Yêu Thích (1-Chạm)</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowPicker(true)}
-                className="text-[10px] text-neutral-400 hover:text-white flex items-center gap-0.5 cursor-pointer"
-              >
-                <Plus size={11} /> Thêm mới
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {favorites.map((fav) => (
-                <button
-                  key={fav.id}
-                  type="button"
-                  data-testid={`btn-empty-play-fav-${fav.id}`}
-                  onClick={() => handleApplyUrl(fav.url)}
-                  className="px-3 py-1.5 rounded-lg text-xs bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-700/40 text-indigo-100 transition cursor-pointer flex items-center gap-1.5 shadow-sm"
-                >
-                  <ListMusic size={11} className="text-indigo-400 shrink-0" />
-                  <span className="truncate max-w-[150px]">{fav.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Bên phải: Nút Trước ⏮ / Tiếp ⏭ / Đổi trạm / Tắt */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <button
+            type="button"
+            data-testid="btn-media-prev-video"
+            onClick={handlePrevVideo}
+            className="px-2.5 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            title="Trạm trước (hoặc bài trước)"
+          >
+            <SkipBack size={12} className="text-zinc-400" />
+            <span className="hidden sm:inline">Trước</span>
+          </button>
 
-          {/* Preset Live Stations */}
-          <div className="w-full max-w-md text-left">
-            <span className="text-[11px] font-medium text-neutral-400 mb-2 block">
-              Trạm Live gợi ý (24/7):
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {PRESET_STATIONS.map((station) => (
-                <button
-                  key={station.name}
-                  type="button"
-                  onClick={() => handleApplyUrl(station.url)}
-                  className="px-3 py-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/15 border border-white/10 text-neutral-200 transition cursor-pointer flex items-center gap-1.5"
-                >
-                  <Sparkles size={11} className="text-amber-300 shrink-0" />
-                  <span>{station.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <button
+            type="button"
+            data-testid="btn-media-next-video"
+            onClick={handleNextVideo}
+            className="px-2.5 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            title="Trạm tiếp theo (hoặc bài tiếp theo)"
+          >
+            <span className="hidden sm:inline">Tiếp</span>
+            <SkipForward size={12} className="text-zinc-400" />
+          </button>
+
+          <button
+            type="button"
+            data-testid="btn-toggle-media-picker"
+            onClick={() => setShowPicker(!showPicker)}
+            className="px-2.5 py-1 text-xs text-emerald-400 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-800/60 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            title="Đổi trạm hoặc phát Playlist yêu thích"
+          >
+            <ListMusic size={12} />
+            <span>Đổi trạm</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="btn-clear-media"
+            onClick={() => {
+              setCustomMusicUrl('');
+              setCustomMusicPlaying(false);
+            }}
+            className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition active:scale-95 cursor-pointer"
+            title="Tắt video"
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Floating Modal / Popover đổi trạm & quản lý Playlist */}
       {showPicker && (

@@ -1,6 +1,6 @@
 // middleware.ts
 export const config = {
-  matcher: ['/((?!assets|_next|backgrounds|favicon|robots\\.txt|sitemap\\.xml|llms\\.txt|ai-catalog\\.json).*)'],
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
 };
 
 const VALID_STATIC_ROUTES = new Set([

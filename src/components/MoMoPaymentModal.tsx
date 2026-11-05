@@ -278,7 +278,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   const accountNo = '1066633885';
   const accountName = 'HO NGOC BAO NAM';
   const cleanMemo = order.memo.startsWith('POMO_') ? order.memo : `POMO_${order.memo}`;
-  const realVietQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${order.amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(accountName)}`;
+  const realVietQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact.png?amount=${order.amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(accountName)}`;
 
   return (
     <div
@@ -286,37 +286,39 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      style={{ zIndex: 70 }}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
     >
-      <div className="relative w-full max-w-md rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_24px_64px_rgba(0,0,0,0.6)] p-5 sm:p-6 my-auto max-h-[88vh] overflow-y-auto selection:bg-white selection:text-black">
+      <div className="relative z-[101] w-full max-w-md rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_24px_64px_rgba(0,0,0,0.6)] p-5 sm:p-6 my-auto max-h-[88vh] overflow-y-auto selection:bg-white selection:text-black">
         {/* Nút đóng (Hit slop >= 48px + Snappy spring) */}
         <button
           type="button"
           data-testid="btn-close-payment-modal"
           onClick={onClose}
-          className="hit-slop-48 absolute top-3.5 right-3.5 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer"
+          className="hit-slop-48 absolute top-3.5 right-3.5 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer z-10"
         >
           <X size={18} />
         </button>
 
         {!isSuccessState ? (
           <div className="space-y-4">
-            {/* Header: Chuyển Khoản Ngân Hàng (VietQR 24/7) */}
-            <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
+            {/* Header: Chuyển Khoản Ngân Hàng (VietQR 24/7) - Có pr-12 chống đè nút [X] */}
+            <div className="flex items-center gap-3 pb-3 border-b border-zinc-800 pr-12">
               <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold text-xs flex flex-col items-center justify-center shadow-md leading-none shrink-0">
                 <span className="text-[10px] tracking-tight font-black">VCB</span>
                 <span className="text-[8px] font-mono font-bold text-emerald-700">QR</span>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Chuyển Khoản Ngân Hàng (VietQR 24/7)</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                    Chuyển Khoản Ngân Hàng
+                  </h3>
+                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
                     {planConfig.label}
                   </span>
-                </h3>
-                <p className="text-xs text-zinc-400">
-                  Mở bất kỳ App Ngân Hàng nào quét mã QR • Tự động kích hoạt PRO trong 5 - 15 giây
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Mở App Ngân Hàng quét mã VietQR • Kích hoạt PRO tự động
                 </p>
               </div>
             </div>

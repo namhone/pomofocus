@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Zap, CheckCircle2, Copy, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, Zap, CheckCircle2, Copy, ShieldCheck, QrCode } from 'lucide-react';
 import { useAiStore } from '../stores/useAiStore';
 import { useAuthStore } from '../stores/useAuthStore';
 
@@ -54,12 +54,14 @@ export function calculateCreditPrice(credits: number): {
 }
 
 export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen, onClose }) => {
-  const { addCredits, aiCreditsBalance } = useAiStore();
+  const { aiCreditsBalance } = useAiStore();
   const { user } = useAuthStore();
 
   const [selectedCredits, setSelectedCredits] = useState<number>(600);
   const [copiedMemo, setCopiedMemo] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
+  const [qrError, setQrError] = useState(false);
 
   if (!isOpen) return null;
 
@@ -68,8 +70,8 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
   const userId = user?.id || 'GUEST';
   const memo = `AI_${selectedCredits}Z_${userId.substring(0, 8).toUpperCase()}`;
 
-  // Link VietQR chuẩn Vietcombank
-  const vietQrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
+  // Link VietQR chuẩn Vietcombank (compact format)
+  const vietQrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=HO%20NGOC%20BAO%20NAM`;
 
   const presets = [
     { credits: 200, label: '200⚡', priceText: '19.000đ', badge: '5%' },
@@ -86,21 +88,28 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
     } catch {}
   };
 
-  const handleSimulatePayment = () => {
-    addCredits(selectedCredits);
-    setIsSuccess(true);
-    setTimeout(() => {
-      setIsSuccess(false);
-      onClose();
-    }, 2000);
+  const handleCopyAccount = async () => {
+    try {
+      await navigator.clipboard.writeText('1066633885');
+      setCopiedAccount(true);
+      setTimeout(() => setCopiedAccount(false), 2000);
+    } catch {}
+  };
+
+  const handleCopyAmount = async () => {
+    try {
+      await navigator.clipboard.writeText(String(finalPrice));
+      setCopiedAmount(true);
+      setTimeout(() => setCopiedAmount(false), 2000);
+    } catch {}
   };
 
   return (
     <div
       data-testid="ai-credits-topup-modal"
-      className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative z-[101] w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
           <div className="flex items-center gap-2.5">
@@ -220,34 +229,65 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
 
           {/* QR Code Chuyển Khoản & Thông tin */}
           <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row items-center gap-4">
-            <div className="p-2 bg-white rounded-xl shrink-0 shadow-md">
-              <img
-                src={vietQrUrl}
-                alt="VietQR Vietcombank"
-                data-testid="ai-vietqr-image"
-                className="w-36 h-36 object-contain rounded"
-              />
+            <div className="p-2 bg-white rounded-xl shrink-0 shadow-md min-w-[150px] min-h-[150px] flex items-center justify-center">
+              {!qrError ? (
+                <img
+                  src={vietQrUrl}
+                  alt="VietQR Vietcombank"
+                  data-testid="ai-vietqr-image"
+                  className="w-36 h-36 object-contain rounded"
+                  onError={() => setQrError(true)}
+                />
+              ) : (
+                <div className="w-36 h-36 flex flex-col items-center justify-center text-center p-2 text-zinc-900 bg-zinc-100 rounded">
+                  <QrCode size={32} className="text-zinc-600 mb-1" />
+                  <span className="text-[10px] font-bold text-zinc-800">Vietcombank</span>
+                  <span className="text-[11px] font-mono font-black text-emerald-700">1066633885</span>
+                  <span className="text-[9px] text-zinc-600 mt-1">Quét mã bằng App Ngân Hàng</span>
+                </div>
+              )}
             </div>
-            <div className="space-y-1.5 text-xs text-zinc-300 flex-1 w-full">
-              <div className="flex justify-between">
+            <div className="space-y-2 text-xs text-zinc-300 flex-1 w-full">
+              <div className="flex justify-between items-center">
                 <span className="text-zinc-500">Ngân hàng:</span>
                 <span className="font-semibold text-white">Vietcombank (VCB)</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-zinc-500">Số tài khoản:</span>
-                <span className="font-mono font-bold text-amber-400">1066633885</span>
+                <button
+                  type="button"
+                  onClick={handleCopyAccount}
+                  className="font-mono font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+                  title="Sao chép số tài khoản"
+                >
+                  1066633885
+                  {copiedAccount ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                </button>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-zinc-500">Chủ tài khoản:</span>
                 <span className="font-semibold text-white">HO NGOC BAO NAM</span>
               </div>
-              <div className="flex justify-between items-center pt-1 border-t border-zinc-800">
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-500">Số tiền:</span>
+                <button
+                  type="button"
+                  onClick={handleCopyAmount}
+                  className="font-mono font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                  title="Sao chép số tiền"
+                >
+                  {finalPrice.toLocaleString('vi-VN')}đ
+                  {copiedAmount ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                </button>
+              </div>
+              <div className="flex justify-between items-center pt-1.5 border-t border-zinc-800">
                 <span className="text-zinc-500">Nội dung CK:</span>
                 <button
                   type="button"
                   onClick={handleCopyMemo}
                   data-testid="ai-copy-memo-btn"
-                  className="font-mono font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+                  className="font-mono font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40"
+                  title="Bấm để sao chép cú pháp chuyển khoản"
                 >
                   {memo}
                   {copiedMemo ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
@@ -256,30 +296,14 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
             </div>
           </div>
 
-          {/* Sandbox Instant Topup Simulation */}
-          <div className="pt-2">
-            <button
-              type="button"
-              data-testid="ai-instant-topup-btn"
-              onClick={handleSimulatePayment}
-              disabled={isSuccess}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
-            >
-              {isSuccess ? (
-                <>
-                  <CheckCircle2 size={16} className="text-zinc-950" />
-                  Đã nạp thành công +{selectedCredits}⚡!
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  Kích Hoạt Nạp Tức Thì (+{selectedCredits}⚡)
-                </>
-              )}
-            </button>
-            <p className="text-[10px] text-zinc-500 text-center mt-2 flex items-center justify-center gap-1">
-              <ShieldCheck size={12} className="text-emerald-400" />
-              Điểm được cộng nguyên tử ngay lập tức vào số dư trợ lý AI của bạn.
+          {/* Payment Guidance Notice (Xóa vĩnh viễn nút bypass điểm ảo) */}
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300">
+              <ShieldCheck size={15} className="text-amber-400 shrink-0" />
+              <span>Xác nhận giao dịch tự động qua ngân hàng</span>
+            </div>
+            <p className="text-[11px] text-zinc-300 leading-relaxed">
+              Vui lòng chuyển khoản chính xác <strong>Số tiền</strong> và <strong>Nội dung CK</strong> phía trên. Hệ thống quét giao dịch tự động 24/7 và nạp <strong>+{selectedCredits}⚡</strong> vào tài khoản sau 1–3 phút.
             </p>
           </div>
         </div>
