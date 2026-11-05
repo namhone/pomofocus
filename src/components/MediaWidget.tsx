@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import YouTube, { YouTubeProps, YouTubePlayer } from 'react-youtube';
 import {
   Film,
   ExternalLink,
@@ -10,12 +11,15 @@ import {
   Bookmark,
   RotateCcw,
   SkipForward,
-  SkipBack
+  SkipBack,
+  Play,
+  Pause
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
 import {
   extractYouTubeEmbedUrl,
   extractYouTubePlaylistId,
+  extractYouTubeVideoId,
   isYouTubeMix
 } from '../utils/media';
 
@@ -92,7 +96,9 @@ export const MediaWidget: React.FC = () => {
     customMusicError
   } = useAudioStore();
 
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [videoTitle, setVideoTitle] = useState<string>('');
   const [inputUrl, setInputUrl] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [showAddFav, setShowAddFav] = useState(false);
@@ -127,49 +133,82 @@ export const MediaWidget: React.FC = () => {
   const [stationIndex, setStationIndex] = useState(0);
   const currentStation = PRESET_STATIONS[stationIndex] || PRESET_STATIONS[0];
 
-  // Active playing URL
+  // Active playing URL & Video/Playlist IDs
   const activeUrl = customMusicUrl || currentStation.url;
-  const rawEmbedUrl = extractYouTubeEmbedUrl(activeUrl);
-  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
-
-  // Build standard embed URL with enablejsapi=1 and origin
-  const youtubeEmbedUrl = useMemo(() => {
-    if (!rawEmbedUrl) return null;
-    try {
-      const parsed = new URL(rawEmbedUrl);
-      if (!parsed.searchParams.has('enablejsapi')) {
-        parsed.searchParams.set('enablejsapi', '1');
-      }
-      parsed.searchParams.set('origin', currentOrigin);
-      return parsed.toString();
-    } catch {
-      const glue = rawEmbedUrl.includes('?') ? '&' : '?';
-      return `${rawEmbedUrl}${glue}enablejsapi=1&origin=${encodeURIComponent(currentOrigin)}`;
-    }
-  }, [rawEmbedUrl, currentOrigin]);
-
-  // Playlist & YouTube Mix detection
+  const cleanVideoId = extractYouTubeVideoId(activeUrl) || currentStation.videoId;
+  const playlistId = extractYouTubePlaylistId(activeUrl);
   const isMix = isYouTubeMix(activeUrl);
-  const isPlaylist = Boolean(extractYouTubePlaylistId(activeUrl)) || (rawEmbedUrl?.includes('videoseries') ?? false);
   const matchedFavorite = favorites.find((f) => f.url === activeUrl);
 
-  // YouTube IFrame Player API postMessage Controls (Skip Forward & Skip Back)
-  const sendPlayerCommand = (func: string, args: unknown[] = []) => {
-    if (iframeRef.current?.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(
-        JSON.stringify({
-          event: 'command',
-          func,
-          args
-        }),
-        '*'
-      );
+  const opts: YouTubeProps['opts'] = useMemo(() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
+    return {
+      width: '100%',
+      height: '100%',
+      playerVars: {
+        autoplay: 1,
+        controls: 1,
+        rel: 0,
+        origin,
+        enablejsapi: 1,
+        ...(playlistId
+          ? { listType: 'playlist', list: playlistId }
+          : isMix && cleanVideoId
+          ? { listType: 'playlist', list: `RD${cleanVideoId}` }
+          : {})
+      }
+    };
+  }, [activeUrl, cleanVideoId, playlistId, isMix]);
+
+  const onPlayerReady: YouTubeProps['onReady'] = (event) => {
+    playerRef.current = event.target;
+    setIsPlaying(true);
+    try {
+      const data = event.target.getVideoData();
+      if (data?.title) setVideoTitle(data.title);
+    } catch {}
+  };
+
+  const onPlayerStateChange: YouTubeProps['onStateChange'] = (event) => {
+    // 1: PLAYING, 2: PAUSED, 0: ENDED
+    if (event.data === 1) {
+      setIsPlaying(true);
+      try {
+        const data = event.target.getVideoData();
+        if (data?.title) setVideoTitle(data.title);
+      } catch {}
+    } else if (event.data === 2) {
+      setIsPlaying(false);
+    } else if (event.data === 0) {
+      if (playlistId || isMix) {
+        try {
+          event.target.nextVideo();
+        } catch {}
+      } else {
+        handleNextVideo();
+      }
     }
   };
 
+  const togglePlay = () => {
+    if (!playerRef.current) return;
+    try {
+      if (isPlaying) {
+        playerRef.current.pauseVideo();
+        setIsPlaying(false);
+      } else {
+        playerRef.current.playVideo();
+        setIsPlaying(true);
+      }
+    } catch {}
+  };
+
   const handleNextVideo = () => {
-    if (isPlaylist || isMix) {
-      sendPlayerCommand('nextVideo');
+    if ((playlistId || isMix) && playerRef.current?.nextVideo) {
+      try {
+        playerRef.current.nextVideo();
+        return;
+      } catch {}
     }
     setStationIndex((prev) => {
       const nextIdx = (prev + 1) % PRESET_STATIONS.length;
@@ -181,8 +220,11 @@ export const MediaWidget: React.FC = () => {
   };
 
   const handlePrevVideo = () => {
-    if (isPlaylist || isMix) {
-      sendPlayerCommand('previousVideo');
+    if ((playlistId || isMix) && playerRef.current?.previousVideo) {
+      try {
+        playerRef.current.previousVideo();
+        return;
+      } catch {}
     }
     setStationIndex((prev) => {
       const prevIdx = (prev - 1 + PRESET_STATIONS.length) % PRESET_STATIONS.length;
@@ -264,19 +306,20 @@ export const MediaWidget: React.FC = () => {
       data-testid="media-widget-root"
       className="relative w-full h-full flex flex-col bg-zinc-950 overflow-hidden select-none"
     >
-      {/* 1. Khung phát YouTube độc lập (100% video, không bị nút đè chéo lên controls) */}
-      <div className="flex-1 w-full bg-black relative min-h-[160px] overflow-hidden">
-        {youtubeEmbedUrl ? (
-          <iframe
-            ref={iframeRef}
-            key={currentStation.id}
-            src={youtubeEmbedUrl}
-            title="YouTube Media Player"
-            data-testid="media-youtube-iframe"
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="w-full h-full border-0 block bg-black"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
+      {/* 1. Khung phát YouTube độc lập qua react-youtube (100% video, không bị nút đè chéo) */}
+      <div
+        className="flex-1 w-full bg-black relative min-h-[160px] overflow-hidden flex items-center justify-center"
+        data-testid="media-youtube-container"
+      >
+        {cleanVideoId || playlistId ? (
+          <YouTube
+            key={`${cleanVideoId || 'list'}-${playlistId || 'none'}`}
+            videoId={playlistId ? undefined : cleanVideoId}
+            opts={opts}
+            onReady={onPlayerReady}
+            onStateChange={onPlayerStateChange}
+            className="w-full h-full"
+            iframeClassName="w-full h-full border-0 block bg-black"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-zinc-400 bg-zinc-950">
@@ -299,20 +342,20 @@ export const MediaWidget: React.FC = () => {
       {/* 2. Thanh điều khiển tách biệt ở đáy, hoàn toàn ngoài khung video */}
       <div className="h-12 px-3 flex items-center justify-between border-t border-zinc-800 bg-zinc-950/95 shrink-0 gap-2">
         {/* Bên trái: Thông tin trạm / Mix / Playlist */}
-        <div className="flex items-center gap-1.5 min-w-0 max-w-[42%]">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span className="text-[11px] font-medium text-zinc-200 truncate">
-            {matchedFavorite?.name || currentStation.name}
+        <div className="flex items-center gap-1.5 min-w-0 max-w-[38%]">
+          <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
+          <span className="text-[11px] font-medium text-zinc-200 truncate" title={videoTitle || matchedFavorite?.name || currentStation.name}>
+            {videoTitle || matchedFavorite?.name || currentStation.name}
           </span>
         </div>
 
-        {/* Bên phải: Nút Trước ⏮ / Tiếp ⏭ / Đổi trạm / Tắt */}
+        {/* Bên phải: Nút Trước ⏮ / Play-Pause / Tiếp ⏭ / Đổi trạm / Tắt */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           <button
             type="button"
             data-testid="btn-media-prev-video"
             onClick={handlePrevVideo}
-            className="px-2.5 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            className="px-2 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
             title="Trạm trước (hoặc bài trước)"
           >
             <SkipBack size={12} className="text-zinc-400" />
@@ -321,9 +364,19 @@ export const MediaWidget: React.FC = () => {
 
           <button
             type="button"
+            data-testid="btn-media-toggle-play"
+            onClick={togglePlay}
+            className="px-2 py-1 text-xs text-zinc-200 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            title={isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
+          >
+            {isPlaying ? <Pause size={12} className="fill-current" /> : <Play size={12} className="fill-current" />}
+          </button>
+
+          <button
+            type="button"
             data-testid="btn-media-next-video"
             onClick={handleNextVideo}
-            className="px-2.5 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            className="px-2 py-1 text-xs text-zinc-300 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
             title="Trạm tiếp theo (hoặc bài tiếp theo)"
           >
             <span className="hidden sm:inline">Tiếp</span>
@@ -334,7 +387,7 @@ export const MediaWidget: React.FC = () => {
             type="button"
             data-testid="btn-toggle-media-picker"
             onClick={() => setShowPicker(!showPicker)}
-            className="px-2.5 py-1 text-xs text-emerald-400 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-800/60 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            className="px-2 py-1 text-xs text-emerald-400 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-800/60 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
             title="Đổi trạm hoặc phát Playlist yêu thích"
           >
             <ListMusic size={12} />
@@ -348,7 +401,7 @@ export const MediaWidget: React.FC = () => {
               setCustomMusicUrl('');
               setCustomMusicPlaying(false);
             }}
-            className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition active:scale-95 cursor-pointer"
+            className="p-1 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition active:scale-95 cursor-pointer"
             title="Tắt video"
           >
             <Trash2 size={13} />
