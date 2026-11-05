@@ -55,7 +55,7 @@ export class ProfileService {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, user_wallets(credits_balance)')
         .eq('id', userId)
         .single();
 
@@ -63,10 +63,13 @@ export class ProfileService {
         return localProfileCache.get(userId) || null;
       }
 
-      const prof = data as CloudProfile;
+      const prof = data as any;
+      if (data.user_wallets && typeof data.user_wallets.credits_balance === 'number') {
+        prof.ai_credits_balance = data.user_wallets.credits_balance;
+      }
       localProfileCache.set(prof.id, prof);
       if (prof.email) localProfileCache.set(prof.email.toLowerCase().trim(), prof);
-      return prof;
+      return prof as CloudProfile;
     } catch (err) {
       console.warn('[ProfileService] Lỗi khi tải hồ sơ từ Supabase Cloud:', err);
       return localProfileCache.get(userId) || null;
@@ -378,7 +381,20 @@ export class ProfileService {
     }
 
     try {
-      // 1. Thử gọi Stored Procedure deduct_ai_credits
+      // 1. Thử gọi Stored Procedure v5.0 commit_ai_charge (Zero-Lock Atomic Wallets)
+      const { data: v5Data, error: v5Err } = await supabase.rpc('commit_ai_charge', {
+        p_user_id: userId,
+        p_actual_cost: cost
+      });
+
+      if (!v5Err && v5Data && v5Data.success) {
+        return {
+          success: true,
+          remainingCredits: v5Data.remaining_credits
+        };
+      }
+
+      // 2. Fallback gọi Stored Procedure legacy deduct_ai_credits
       const { data, error } = await supabase.rpc('deduct_ai_credits', {
         p_user_id: userId,
         p_cost: cost
