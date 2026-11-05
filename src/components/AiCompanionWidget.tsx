@@ -21,7 +21,6 @@ import { useAiStore, AiActionType, AI_CREDIT_COSTS, isOwnerAiUser } from '../sto
 import { useNoteStore } from '../stores/useNoteStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
-import { AiCreditsTopupModal } from './AiCreditsTopupModal';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -106,14 +105,13 @@ export const AiCompanionWidget: React.FC = () => {
     sessions,
     createNewSession,
     loadSession,
-    deleteSession
+    deleteSession,
+    openTopupModal
   } = useAiStore();
 
-  
   const [inputPrompt, setInputPrompt] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [insertedNoteId, setInsertedNoteId] = useState<string | null>(null);
-  const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [pendingConfirmation, setPendingConfirmation] = useState<{
     prompt: string;
@@ -222,7 +220,7 @@ export const AiCompanionWidget: React.FC = () => {
   ) => {
     const cost = isOwner ? 0 : (AI_CREDIT_COSTS[effectiveAction] || 1);
     if (!isOwner && aiCreditsBalance < cost) {
-      setShowCreditsModal(true);
+      openTopupModal();
       return;
     }
 
@@ -294,12 +292,6 @@ export const AiCompanionWidget: React.FC = () => {
             : 'translate-x-full opacity-0 pointer-events-none'
         }`}
       >
-      {/* Modal Nạp Điểm AI Credits Lẻ */}
-      <AiCreditsTopupModal
-        isOpen={showCreditsModal}
-        onClose={() => setShowCreditsModal(false)}
-      />
-
       {/* 1. Header 1 Hàng Ngang Tinh Gọn (Tránh chèn ép, đảm bảo khoảng cách thông thoáng) */}
       <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-2.5">
         <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
@@ -321,7 +313,7 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-credits-topup-btn"
-            onClick={() => setShowCreditsModal(true)}
+            onClick={openTopupModal}
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
             title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
           >
@@ -639,7 +631,7 @@ export const AiCompanionWidget: React.FC = () => {
                 <button
                   type="button"
                   data-testid="ai-error-billing-link"
-                  onClick={() => setShowCreditsModal(true)}
+                  onClick={openTopupModal}
                   className="font-bold underline text-amber-300 hover:text-amber-200 cursor-pointer block text-[11px]"
                 >
                   Nạp thêm AI Credits ngay chỉ từ 19.000đ →
@@ -741,7 +733,7 @@ export const AiCompanionWidget: React.FC = () => {
           onSubmit={(e) => {
             e.preventDefault();
             if (!isOwner && aiCreditsBalance < 1) {
-              setShowCreditsModal(true);
+              openTopupModal();
               return;
             }
             handleSend('chat');

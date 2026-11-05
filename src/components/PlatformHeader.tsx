@@ -49,7 +49,6 @@ export const PlatformHeader: React.FC = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
-  const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   const isOwner = Boolean(
     isOwnerEmail(user?.email) ||
@@ -126,15 +125,7 @@ export const PlatformHeader: React.FC = () => {
 
   const handleCreditsBadgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isAuthenticated) {
-      useAiStore.getState().openTopupModal();
-      return;
-    }
-    if (isWorkspace) {
-      useAiStore.getState().toggleOpen();
-    } else {
-      useAiStore.getState().openTopupModal();
-    }
+    useAiStore.getState().openTopupModal();
   };
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -1003,87 +994,6 @@ export const PlatformHeader: React.FC = () => {
         </div>
       )}
 
-      {/* =========================================================================
-          POPUP GIẢI THÍCH TÍNH NĂNG AI CREDITS (CHO KHÁCH VÀ NGOÀI WORKSPACE)
-         ========================================================================= */}
-      {showCreditsModal && (
-        <div
-          data-testid="credits-intro-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowCreditsModal(false);
-          }}
-        >
-          <div className="relative w-full max-w-md rounded-3xl border border-white/15 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-2xl text-neutral-100 selection:bg-white selection:text-black">
-            <button
-              type="button"
-              data-testid="btn-close-credits-modal"
-              onClick={() => setShowCreditsModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <Zap size={22} className="fill-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                  <span>AI Credits</span>
-                  <span className="text-amber-400">⚡</span>
-                </h3>
-                <p className="text-xs text-neutral-400">Năng lượng đồng hành cùng Gia sư AI Socratic</p>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs mb-5">
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 flex items-start gap-2.5">
-                <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                <div className="leading-relaxed text-xs">
-                  50⚡ tặng sẵn để bạn trải nghiệm giải đề và tóm tắt bài học cùng Gia sư AI. Đăng ký để nhận thêm mỗi tuần.
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreditsModal(false);
-                  router.navigate('/signup');
-                }}
-                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
-              >
-                Đăng Ký Nhận 3 Năm PRO &amp; AI Miễn Phí →
-              </button>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreditsModal(false);
-                    router.navigate('/billing');
-                  }}
-                  className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs transition cursor-pointer"
-                >
-                  Xem Bảng Giá &amp; Nạp Điểm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreditsModal(false);
-                    router.navigate('/app');
-                  }}
-                  className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs transition cursor-pointer"
-                >
-                  Vào Không Gian Học
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

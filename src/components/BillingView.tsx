@@ -1191,11 +1191,7 @@ export const BillingView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            useAiStore.getState().addCredits(pack.credits);
-                            setStatusMessage({
-                              type: 'success',
-                              text: `Đã nạp thành công +${pack.credits}⚡ AI Credits vào tài khoản!`
-                            });
+                            useAiStore.getState().openTopupModal();
                           }}
                           className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >

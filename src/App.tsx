@@ -427,6 +427,7 @@ export const App: React.FC = () => {
   return (
     <>
       <TwoFactorGateModal />
+      <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
       <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-mono text-xs">Đang tải không gian...</div>}>
         {renderRoutedView()}
       </Suspense>
