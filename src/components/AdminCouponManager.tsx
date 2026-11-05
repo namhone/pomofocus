@@ -8,6 +8,7 @@ import {
   Lock,
   Unlock,
   Trash2,
+  Edit2,
   Sparkles,
   Crown,
   Zap,
@@ -28,6 +29,10 @@ export const AdminCouponManager: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Edit Max Uses State
+  const [editingCoupon, setEditingCoupon] = useState<{ code: string; maxUses: number | null } | null>(null);
+  const [editMaxUsesInput, setEditMaxUsesInput] = useState<string>('');
 
   // Form State
   const [code, setCode] = useState('');
@@ -120,6 +125,31 @@ export const AdminCouponManager: React.FC = () => {
         prev.filter((c) => c.code.trim().toUpperCase() !== targetCode.trim().toUpperCase())
       );
     }
+  };
+
+  const handleOpenEdit = (c: Coupon) => {
+    setEditingCoupon({ code: c.code, maxUses: c.maxUses ?? null });
+    setEditMaxUsesInput(c.maxUses === null || c.maxUses === undefined ? '' : String(c.maxUses));
+  };
+
+  const handleSaveMaxUses = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCoupon) return;
+    const cleanInput = editMaxUsesInput.trim();
+    const parsed = cleanInput === '' ? null : Math.max(1, parseInt(cleanInput, 10));
+    await couponService.updateCouponMaxUses(editingCoupon.code, parsed);
+    setCoupons((prev) =>
+      prev.map((c) =>
+        c.code.trim().toUpperCase() === editingCoupon.code.trim().toUpperCase()
+          ? { ...c, maxUses: parsed }
+          : c
+      )
+    );
+    setFeedback({
+      type: 'success',
+      message: `Đã cập nhật số lượt mã "${editingCoupon.code}" thành ${parsed === null ? 'Không giới hạn (∞)' : `${parsed} lượt`} thành công!`
+    });
+    setEditingCoupon(null);
   };
 
   const getTypeBadge = (cType: CouponType) => {
@@ -427,8 +457,19 @@ export const AdminCouponManager: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Actions: Lock/Unlock & Delete */}
+                    {/* Actions: Edit, Lock/Unlock & Delete */}
                     <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(c)}
+                        title="Chỉnh sửa số lượt dùng tối đa"
+                        aria-label={`Chỉnh sửa số lượt mã ${c.code}`}
+                        data-testid={`btn-edit-maxuses-${c.code}`}
+                        className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-400 hover:text-amber-300 hover:bg-amber-500/10 hover:border-amber-500/30 transition cursor-pointer"
+                      >
+                        <Edit2 size={13} />
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => handleToggleActive(c.code, c.isActive !== false)}
@@ -458,6 +499,66 @@ export const AdminCouponManager: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* Modal / Dialog Chỉnh Sửa Số Lượt Dùng Nhanh Trên Cloud */}
+      {editingCoupon && (
+        <div
+          data-testid="modal-edit-maxuses"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
+        >
+          <div className="w-full max-w-sm p-5 rounded-2xl bg-zinc-950 border border-amber-500/40 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <div className="flex items-center gap-2">
+                <Edit2 size={16} className="text-amber-400" />
+                <h4 className="text-sm font-bold text-white">
+                  Sửa Lượt Dùng: <span className="font-mono text-amber-300">{editingCoupon.code}</span>
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCoupon(null)}
+                aria-label="Đóng hộp thoại"
+                className="text-zinc-400 hover:text-white text-xs px-2 py-1 rounded cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMaxUses} className="space-y-3">
+              <div>
+                <label className="block text-xs text-zinc-300 mb-1">
+                  Số lượt dùng tối đa (để trống nếu không giới hạn ∞):
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Để trống = Không giới hạn (∞)"
+                  value={editMaxUsesInput}
+                  onChange={(e) => setEditMaxUsesInput(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white font-mono text-sm focus:outline-none focus:border-amber-400"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingCoupon(null)}
+                  className="px-3 py-1.5 rounded-xl border border-zinc-700 text-zinc-300 hover:text-white text-xs transition cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition cursor-pointer shadow-md"
+                >
+                  Lưu Lên Cloud
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

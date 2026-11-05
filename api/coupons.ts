@@ -31,7 +31,7 @@ const OFFICIAL_COUPONS: Record<string, CouponItem> = {
     code: 'EIU',
     type: 'free_lifetime',
     value: 0,
-    maxUses: 10000,
+    maxUses: 1,
     usedCount: 0,
     isActive: true,
     expiresAt: null,
@@ -482,6 +482,38 @@ export default async function handler(req: any, res: any) {
         delete OFFICIAL_COUPONS[cleanCode];
 
         return res.status(200).json({ success: true, message: `Đã xóa mã ${cleanCode}` });
+      }
+
+      // 2.5. CẬP NHẬT SỐ LƯỢT DÙNG TỐI ĐA (UPDATE MAX USES)
+      if (action === 'update_max_uses') {
+        const cleanCode = (body?.code || '').toString().trim().toUpperCase();
+        const maxUses =
+          body.maxUses !== null && body.maxUses !== undefined && body.maxUses !== ''
+            ? Number(body.maxUses)
+            : null;
+
+        if (supabaseUrl && supabaseKey) {
+          try {
+            await fetch(`${supabaseUrl}/rest/v1/coupons?code=eq.${encodeURIComponent(cleanCode)}`, {
+              method: 'PATCH',
+              headers: {
+                apikey: supabaseKey,
+                Authorization: `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=minimal'
+              },
+              body: JSON.stringify({ max_uses: maxUses, updated_at: new Date().toISOString() })
+            });
+          } catch {}
+        }
+
+        const existing = dynamicCoupons.get(cleanCode) || OFFICIAL_COUPONS[cleanCode];
+        if (existing) {
+          existing.maxUses = maxUses;
+          dynamicCoupons.set(cleanCode, existing);
+        }
+
+        return res.status(200).json({ success: true, code: cleanCode, maxUses });
       }
 
       return res.status(400).json({ success: false, error: 'Hành động không hợp lệ.' });

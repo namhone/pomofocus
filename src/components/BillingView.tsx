@@ -305,7 +305,7 @@ export const BillingView: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Sức chứa phòng học: Lên đến 50 người</span>
+                    <span className="text-zinc-200">Phòng học nhóm: Tối đa 50 người</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />

@@ -66,7 +66,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     code: 'EIU',
     type: 'free_lifetime',
     value: 0,
-    maxUses: 10000,
+    maxUses: 1,
     usedCount: 0,
     isActive: true,
     expiresAt: null,
@@ -875,6 +875,28 @@ export const couponService = {
     const item = list.find((c) => c.code.trim().toUpperCase() === clean);
     if (item) {
       item.isActive = isActive;
+      this.saveCoupons(list);
+    }
+    return true;
+  },
+
+  /**
+   * Cập nhật số lượt dùng tối đa trên Supabase Cloud
+   */
+  async updateCouponMaxUses(code: string, maxUses: number | null): Promise<boolean> {
+    const clean = code.trim().toUpperCase();
+    try {
+      await safeFetchApi('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_max_uses', code: clean, maxUses })
+      });
+    } catch {}
+
+    const list = this.getCoupons();
+    const item = list.find((c) => c.code.trim().toUpperCase() === clean);
+    if (item) {
+      item.maxUses = maxUses;
       this.saveCoupons(list);
     }
     return true;
