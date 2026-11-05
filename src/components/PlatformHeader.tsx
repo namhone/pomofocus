@@ -43,6 +43,7 @@ export const PlatformHeader: React.FC = () => {
   const isHeaderExpanded = useLayoutStore((s) => s.isHeaderExpanded);
   const setHeaderExpanded = useLayoutStore((s) => s.setHeaderExpanded);
   const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -225,7 +226,9 @@ export const PlatformHeader: React.FC = () => {
         <aside
           data-testid="floating-header-capsule"
           aria-label="Thanh điều hướng thu gọn"
-          className={`fixed top-3 right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-950/85 backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
+          className={`fixed top-3 right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full ${
+            isEcoMode ? 'bg-[#0c0c0e]/95' : 'bg-zinc-950/85 backdrop-blur-xl'
+          } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
             !isHeaderExpanded
               ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
               : 'opacity-0 -translate-y-2 pointer-events-none scale-90'
@@ -313,12 +316,16 @@ export const PlatformHeader: React.FC = () => {
         data-testid="platform-unified-header"
         className={`${
           isWorkspace
-            ? `fixed top-0 left-0 right-0 w-full h-14 z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 sm:px-6 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
+            ? `fixed top-0 left-0 right-0 w-full h-14 z-50 ${
+                isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
+              } border-b border-white/[0.08] px-4 sm:px-6 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
                   : '-translate-y-full opacity-0 pointer-events-none'
               } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
-            : 'sticky top-0 left-0 right-0 z-50 h-14 w-full border-b border-white/[0.08] bg-[#09090b]/95 px-4 sm:px-6 flex items-center justify-between backdrop-blur-xl select-none text-xs'
+            : `sticky top-0 left-0 right-0 z-50 h-14 w-full border-b border-white/[0.08] ${
+                isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
+              } px-4 sm:px-6 flex items-center justify-between select-none text-xs`
         }`}
       >
         {/* Brand & Plan Badge */}

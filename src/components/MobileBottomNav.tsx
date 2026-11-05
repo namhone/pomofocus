@@ -26,7 +26,8 @@ export const MobileBottomNav: React.FC = () => {
     resetLayout,
     glassSettings,
     setGlassPreset,
-    resetGlassSettings
+    resetGlassSettings,
+    isEcoMode
   } = useLayoutStore();
   const isAiOpen = useAiStore((state) => state.isOpen);
   const isFocusDimmed = useLayoutStore((state) => state.isFocusDimmed);
@@ -348,7 +349,9 @@ export const MobileBottomNav: React.FC = () => {
         role="toolbar"
         aria-label="Thanh điều hướng di động"
         data-testid="mobile-bottom-navigation"
-        className={`fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800/80 z-30 px-1 grid grid-cols-5 items-center select-none transition-all duration-200 ${
+        className={`fixed bottom-0 left-0 right-0 h-16 ${
+          isEcoMode ? 'bg-[#0c0c0e]' : 'bg-zinc-950/95 backdrop-blur-xl'
+        } border-t border-zinc-800/80 z-30 px-1 grid grid-cols-5 items-center select-none transition-all duration-200 ${
           isKeyboardOpen || isAiOpen
             ? 'translate-y-full opacity-0 pointer-events-none invisible'
             : isFocusDimmed ? 'translate-y-0 opacity-15 hover:opacity-100 transition-opacity duration-700' : 'translate-y-0 opacity-100'
