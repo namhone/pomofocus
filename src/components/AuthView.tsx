@@ -174,7 +174,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         email: 'nam.studyworkspace@gmail.com',
         name: 'Hồ Ngọc Bảo Nam (Google)',
         picture:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
+          'https://ui-avatars.com/api/?name=Bao+Nam&background=10b981&color=fff&bold=true'
       });
       const ok = await loginWithGoogle(simulated);
       if (ok) {

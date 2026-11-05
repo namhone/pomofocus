@@ -4,7 +4,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser } from '../stores/useAiStore';
-import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, getEffectiveAvatarUrl } from '../services/authService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -81,10 +81,10 @@ export const PlatformHeader: React.FC = () => {
     (user?.email && isOwnerEmail(user.email))
   );
 
-  const effectiveAvatar =
-    user?.customAvatarUrl ||
-    user?.avatarUrl ||
-    (isOwner ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face' : undefined);
+  const getInitialsFallback = (name?: string) =>
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=10b981&color=fff&bold=true`;
+
+  const effectiveAvatar = user ? getEffectiveAvatarUrl(user) : undefined;
 
   const isProAccount = Boolean(
     isLifetimeAccount ||
@@ -263,9 +263,11 @@ export const PlatformHeader: React.FC = () => {
               <img
                 src={effectiveAvatar}
                 alt={user?.displayName || 'Avatar'}
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
                 className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20 shrink-0"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                  e.currentTarget.src = getInitialsFallback(user?.displayName);
                 }}
               />
             ) : (
@@ -505,9 +507,11 @@ export const PlatformHeader: React.FC = () => {
                   <img
                     src={effectiveAvatar}
                     alt={user.displayName}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                      e.currentTarget.src = getInitialsFallback(user?.displayName);
                     }}
                   />
                 ) : (
@@ -538,9 +542,11 @@ export const PlatformHeader: React.FC = () => {
                       <img
                         src={effectiveAvatar}
                         alt={user.displayName}
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
                         className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                          e.currentTarget.src = getInitialsFallback(user?.displayName);
                         }}
                       />
                     ) : (
@@ -871,9 +877,11 @@ export const PlatformHeader: React.FC = () => {
                   <img
                     src={effectiveAvatar}
                     alt={user.displayName}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+                      e.currentTarget.src = getInitialsFallback(user?.displayName);
                     }}
                   />
                 ) : (

@@ -78,7 +78,7 @@ export const SettingsWidget: React.FC = () => {
       <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-cyan-500/10 border border-amber-500/20 flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
           {user?.avatarUrl ? (
-            <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-amber-500/40 shrink-0" />
+            <img src={user.avatarUrl} alt="" referrerPolicy="no-referrer" crossOrigin="anonymous" className="w-8 h-8 rounded-full object-cover ring-1 ring-amber-500/40 shrink-0" onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'User')}&background=10b981&color=fff&bold=true`; }} />
           ) : (
             <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs shrink-0">
               {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}

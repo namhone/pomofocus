@@ -289,7 +289,12 @@ export const ProfileView: React.FC = () => {
                   <img
                     src={avatarUrl || user.avatarUrl}
                     alt={user.displayName}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-zinc-700 shadow-md group-hover:border-zinc-500 transition"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'User')}&background=10b981&color=fff&bold=true`;
+                    }}
                   />
                 ) : (
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-100 text-xl sm:text-2xl font-medium group-hover:border-zinc-500 transition">

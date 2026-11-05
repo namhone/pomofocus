@@ -218,7 +218,7 @@ export const googleAuthService = {
       name: mock?.name || 'Hồ Ngọc Bảo Nam (Google)',
       picture:
         mock?.picture ||
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
+        'https://ui-avatars.com/api/?name=Bao+Nam&background=10b981&color=fff&bold=true',
       given_name: 'Bảo Nam',
       family_name: 'Hồ Ngọc'
     };

@@ -13,7 +13,57 @@ export const OWNER_EMAILS = [
 export const LADY_BOSS_EMAIL = 'huyentrantt09@gmail.com';
 export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
-export const DEFAULT_FOUNDER_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face';
+
+/**
+ * CƠ CHẾ RESOLVE AVATAR CHUẨN XÁC (ƯU TIÊN ẢNH THỰC TẾ)
+ * ==============================================================================
+ * 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (lưu trên Supabase profiles)
+ * 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (kiểm tra cả picture lẫn avatar_url)
+ * 3. Fallback cuối cùng: Tạo avatar chữ cái động theo tên (UI Avatars), cấm hardcode Unsplash
+ */
+export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
+  // 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (camelCase & snake_case)
+  const customAvatar =
+    (profile?.customAvatarUrl && !profile.customAvatarUrl.includes('unsplash.com') ? profile.customAvatarUrl : null) ||
+    (profile?.custom_avatar_url && !profile.custom_avatar_url.includes('unsplash.com') ? profile.custom_avatar_url : null) ||
+    (profile?.hasCustomAvatar && profile?.avatarUrl && !profile.avatarUrl.includes('unsplash.com') ? profile.avatarUrl : null) ||
+    (profile?.has_custom_avatar && profile?.avatar_url && !profile.avatar_url.includes('unsplash.com') ? profile.avatar_url : null) ||
+    (user?.customAvatarUrl && !user.customAvatarUrl.includes('unsplash.com') ? user.customAvatarUrl : null) ||
+    (user?.custom_avatar_url && !user.custom_avatar_url.includes('unsplash.com') ? user.custom_avatar_url : null) ||
+    (user?.hasCustomAvatar && user?.avatarUrl && !user.avatarUrl.includes('unsplash.com') ? user.avatarUrl : null) ||
+    (user?.has_custom_avatar && user?.avatar_url && !user.avatar_url.includes('unsplash.com') ? user.avatar_url : null);
+
+  if (customAvatar && typeof customAvatar === 'string') {
+    return customAvatar;
+  }
+
+  // 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (picture / avatar_url)
+  const googleAvatar =
+    user?.user_metadata?.avatar_url ||
+    user?.user_metadata?.picture ||
+    user?.raw_user_meta_data?.avatar_url ||
+    user?.raw_user_meta_data?.picture ||
+    user?.picture ||
+    (user?.avatarUrl && !user.avatarUrl.includes('unsplash.com') ? user.avatarUrl : null) ||
+    (profile?.google_avatar && !profile.google_avatar.includes('unsplash.com') ? profile.google_avatar : null) ||
+    (profile?.avatar_url && !profile.avatar_url.includes('unsplash.com') ? profile.avatar_url : null) ||
+    (profile?.avatarUrl && !profile.avatarUrl.includes('unsplash.com') ? profile.avatarUrl : null);
+
+  if (googleAvatar && typeof googleAvatar === 'string' && !googleAvatar.includes('unsplash.com')) {
+    return googleAvatar;
+  }
+
+  // 3. Fallback cuối cùng: Tạo avatar chữ cái động theo tên (UI Avatars)
+  const name =
+    profile?.full_name ||
+    profile?.display_name ||
+    profile?.displayName ||
+    user?.displayName ||
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    (user?.email ? user.email.split('@')[0] : 'User');
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff&bold=true`;
+};
 
 export interface UserProfile {
   id: string;
@@ -194,9 +244,9 @@ export const authService = {
         id: user.id || 'usr_current',
         email,
         displayName: user.user_metadata?.full_name || user.displayName || (email ? email.split('@')[0] : 'Học Viên'),
-        avatarUrl: user.user_metadata?.avatar_url || user.avatarUrl || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined),
-        customAvatarUrl: user.customAvatarUrl || (isOwner ? (user.avatarUrl || DEFAULT_FOUNDER_AVATAR) : undefined),
-        hasCustomAvatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl || isOwner),
+        avatarUrl: getEffectiveAvatarUrl(user, user),
+        customAvatarUrl: user.customAvatarUrl || undefined,
+        hasCustomAvatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl),
         plan: isOwner ? 'pro_lifetime' : (user.plan || 'free'),
         isLifetime: isOwner || user.isLifetime || user.plan === 'lifetime' || user.plan === 'pro_lifetime',
         proExpiresAt: isOwner ? null : (user.proExpiresAt || null),
@@ -256,17 +306,16 @@ export const authService = {
 
     const userId = sbUser?.id || cloudProfile?.id || (isOwner ? 'usr_founder_owner' : `usr_${Date.now()}`);
 
-    // BẢO VỆ AVATAR BẤT BIẾN: Lấy avatar_url từ cloudProfile, không ghi đè
-    const cloudAvatar = cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url;
-    const resolvedAvatar = cloudAvatar || sbUser?.user_metadata?.avatar_url || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined);
-    const hasCustom = Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar || isOwner);
+    // BẢO VỆ AVATAR BẤT BIẾN: Lấy avatar_url chuẩn xác từ Cloud Profile hoặc Google OAuth
+    const resolvedAvatar = getEffectiveAvatarUrl(sbUser, cloudProfile);
+    const hasCustom = Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar);
 
     const baseProfile: UserProfile = {
       id: userId,
       email: normalized,
       displayName: cloudProfile?.full_name || cloudProfile?.display_name || sbUser?.user_metadata?.full_name || normalized.split('@')[0],
       avatarUrl: resolvedAvatar,
-      customAvatarUrl: cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || (isOwner ? DEFAULT_FOUNDER_AVATAR : undefined),
+      customAvatarUrl: cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || undefined,
       hasCustomAvatar: hasCustom,
       plan: isOwner ? 'pro_lifetime' : (cloudProfile?.plan || 'pro_beta'),
       role: isOwner ? 'founder' : (cloudProfile?.role || 'user'),
@@ -504,16 +553,18 @@ export const authService = {
       cloudProfile = await ProfileService.fetchProfileByEmail(OWNER_EMAIL);
     } catch {}
 
-    const founderAvatar = cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face';
+    const founderAvatar = getEffectiveAvatarUrl(
+      { email: OWNER_EMAIL, displayName: 'Hồ Ngọc Bảo Nam (Founder 👑)' },
+      cloudProfile
+    );
 
     const founderProfile: UserProfile = {
       id: cloudProfile?.id || 'usr_founder_owner',
       email: OWNER_EMAIL,
       displayName: cloudProfile?.full_name || 'Hồ Ngọc Bảo Nam (Founder 👑)',
       avatarUrl: founderAvatar,
-      customAvatarUrl: founderAvatar,
-      hasCustomAvatar: true,
+      customAvatarUrl: cloudProfile?.custom_avatar_url || (cloudProfile?.avatar_url && !cloudProfile.avatar_url.includes('unsplash.com') ? cloudProfile.avatar_url : undefined),
+      hasCustomAvatar: Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar),
       plan: 'pro_lifetime',
       role: 'founder',
       badge: 'Founder VIP 👑',

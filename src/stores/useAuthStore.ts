@@ -10,7 +10,8 @@ import {
   isOwnerEmail,
   isLadyBoss,
   isVipFriend,
-  getPlanLabel
+  getPlanLabel,
+  getEffectiveAvatarUrl
 } from '../services/authService';
 import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
@@ -282,7 +283,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       if (!supabaseUser) return;
 
       const email = (supabaseUser.email || '').trim().toLowerCase();
-      const currentSession = authService.getCurrentSession();
+      const currentSession = get().user || authService.getCurrentSession();
       const isFounder = isOwnerEmail(email);
 
       // KIỂM TRA AVATAR TÙY CHỈNH: Không bao giờ lấy ảnh Google đè lên Custom Avatar
@@ -290,14 +291,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
         currentSession?.customAvatarUrl ||
         currentSession?.hasCustomAvatar
       );
-      const incomingGoogleAvatar =
-        supabaseUser.user_metadata?.avatar_url ||
-        supabaseUser.user_metadata?.picture ||
-        supabaseUser.avatarUrl ||
-        '';
       const resolvedAvatar = hasCustom
-        ? (currentSession?.customAvatarUrl || currentSession?.avatarUrl || incomingGoogleAvatar)
-        : incomingGoogleAvatar;
+        ? (currentSession?.customAvatarUrl || currentSession?.avatarUrl || getEffectiveAvatarUrl(supabaseUser, currentSession))
+        : getEffectiveAvatarUrl(supabaseUser, currentSession);
 
       const displayName =
         currentSession?.displayName ||
@@ -416,7 +412,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           set((state) => {
             if (!state.user || state.user.id !== profile.id) return state;
             const isCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || state.user.customAvatarUrl || state.user.hasCustomAvatar);
-            const resolvedAvatar = cloudProf.custom_avatar_url || (isCustom ? (state.user.customAvatarUrl || state.user.avatarUrl || cloudProf.avatar_url) : (cloudProf.avatar_url || state.user.avatarUrl));
+            const resolvedAvatar = getEffectiveAvatarUrl(state.user, cloudProf);
 
             if (cloudProf.settings) {
               userSettingsService.applySettings(cloudProf.settings);
@@ -793,7 +789,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           }
 
           const isCustom = Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar || user.customAvatarUrl || user.hasCustomAvatar);
-          const resolvedAvatar = cloudProfile.custom_avatar_url || (isCustom ? (user.customAvatarUrl || user.avatarUrl || cloudProfile.avatar_url) : (cloudProfile.avatar_url || user.avatarUrl));
+          const resolvedAvatar = getEffectiveAvatarUrl(user, cloudProfile);
 
           const updatedUser: UserProfile = {
             ...user,
@@ -862,7 +858,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           set((state) => {
             const current = state.user;
             const hasCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || current?.customAvatarUrl || current?.hasCustomAvatar);
-            const resolvedAvatar = cloudProf.custom_avatar_url || (hasCustom ? (current?.customAvatarUrl || current?.avatarUrl || cloudProf.avatar_url) : (cloudProf.avatar_url || current?.avatarUrl || ''));
+            const resolvedAvatar = getEffectiveAvatarUrl(current || { id: userId, email: cloudProf.email }, cloudProf);
 
             const merged: UserProfile = {
               ...(current || {
@@ -953,7 +949,7 @@ if (typeof window !== 'undefined') {
         const aiCredits = isOwner ? Infinity : (isLifetime ? 1000 : (profile?.ai_credits_balance ?? 50));
 
         // AVATAR BẤT BIẾN: Luôn lấy avatar_url từ database, cấm lấy ảnh Google đè lên!
-        const avatarUrl = profile?.custom_avatar_url || profile?.avatar_url || session.user.user_metadata?.avatar_url || null;
+        const avatarUrl = getEffectiveAvatarUrl(session.user, profile);
 
         const finalUser: UserProfile = {
           id: session.user.id,
