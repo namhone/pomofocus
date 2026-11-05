@@ -103,6 +103,7 @@ export const BillingView: React.FC = () => {
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percent: number } | null>(null);
   const [showComparison, setShowComparison] = useState(false);
   const [billingTab, setBillingTab] = useState<'credits' | 'coupon'>('credits');
+  const [isLifetimeTopupExpanded, setIsLifetimeTopupExpanded] = useState(false);
 
   const currentPlan = PRICING_PLANS[cycle];
 
@@ -197,7 +198,6 @@ export const BillingView: React.FC = () => {
             <ArrowLeft size={14} />
             <span>Quay lại Không Gian Học</span>
           </button>
-          <span className="text-xs text-zinc-400 font-mono hidden sm:inline">PomoFocus Pricing</span>
         </div>
         {statusMessage && (
           <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
@@ -295,53 +295,53 @@ export const BillingView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Danh sách 10 Đặc Quyền Mở Khóa Tối Đa */}
+              {/* Danh sách 10 Đặc Quyền */}
               <div className="relative z-10 pt-6 space-y-4">
                 <div className="text-xs font-semibold text-zinc-300 flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-zinc-200" />
-                  <span>Toàn Bộ Đặc Quyền Cao Cấp Nhất Đang Được Mở Khóa Tối Đa (FOUNDER VIP):</span>
+                  <ShieldCheck size={16} className="text-amber-400" />
+                  <span>Đặc quyền sở hữu Founder VIP</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Sức chứa phòng học: Lên đến <strong>60 người</strong> (Hỗ trợ dạy học / Workshop chuyên sâu)</span>
+                    <span className="text-zinc-200">Sức chứa phòng học: Lên đến 50 người</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Thời lượng phòng học <strong>24/7 không giới hạn</strong>, không bị ngắt quãng</span>
+                    <span className="text-zinc-200">Thời lượng phòng học: 24/7 không ngắt quãng</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200"><strong>Trợ lý AI Study:</strong> Sử dụng AI Study Companion không giới hạn</span>
+                    <span className="text-zinc-200">Gia sư AI Companion: Sử dụng không giới hạn</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200"><strong>Bảng Vẽ Whiteboard:</strong> Đầy đủ công cụ &amp; Xuất PDF/PNG độ nét cao không giới hạn</span>
+                    <span className="text-zinc-200">Bảng vẽ nhóm: Không giới hạn &amp; xuất ảnh HD</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200"><strong>Đường dẫn phòng học:</strong> Đặt URL cố định VIP theo nickname cá nhân</span>
+                    <span className="text-zinc-200">Đường dẫn phòng: Đặt URL cá nhân hóa theo tên</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Kho âm thanh &amp; Hình nền: Toàn bộ kho 4K đa tầng &amp; YouTube Sync</span>
+                    <span className="text-zinc-200">Kho tài nguyên: 1.000+ hình nền 4K &amp; YouTube Sync</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200"><strong>Đặc quyền cộng đồng:</strong> Tặng 01 Giftcode PRO 3 tháng cho bạn cùng tiến</span>
+                    <span className="text-zinc-200">Đặc quyền quà tặng: Tặng 1 Giftcode PRO 3 tháng</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn trên toàn hệ thống</span>
+                    <span className="text-zinc-200">Huy hiệu vinh danh: Founder VIP 👑 vĩnh viễn</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200"><strong>Cập nhật tương lai:</strong> Tự động mở khóa 100% tính năng mới trọn đời</span>
+                    <span className="text-zinc-200">Quyền lợi tương lai: Mở khóa miễn phí mọi tính năng mới</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Ưu tiên băng thông đường truyền VIP cao nhất &amp; Hỗ trợ trực tiếp từ nhà phát triển</span>
+                    <span className="text-zinc-200">Hỗ trợ kỹ thuật: Ưu tiên băng thông VIP cao nhất</span>
                   </div>
                 </div>
               </div>
@@ -1131,62 +1131,93 @@ export const BillingView: React.FC = () => {
           {/* TAB 1: NẠP LẺ AI CREDITS PACKS */}
           {billingTab === 'credits' && (
             <div className="space-y-4 pt-1">
-              <div className="text-center space-y-1">
-                <h3 className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
-                  <span>Nạp Lẻ Điểm AI Study Credits</span>
-                  <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                    Không Hết Hạn
-                  </span>
-                </h3>
-                <p className="text-xs text-zinc-400">
-                  Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR hoặc MoMo, điểm cộng dồn vĩnh viễn vào tài khoản.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                {CREDIT_PACKS.map((pack) => (
-                  <div
-                    key={pack.id}
-                    className={`p-3 rounded-xl border flex flex-col justify-between text-center relative transition hover:scale-[1.02] ${
-                      pack.popular
-                        ? 'border-amber-500/50 bg-amber-500/[0.06] shadow-sm'
-                        : 'border-zinc-800 bg-zinc-950/60 hover:border-zinc-700'
-                    }`}
+              {isUserLifetime && !isLifetimeTopupExpanded ? (
+                <div className="text-center py-2 space-y-2.5 animate-in fade-in duration-200">
+                  <p className="text-xs text-zinc-400">
+                    Tài khoản của bạn đã có đặc quyền hạn mức <strong className="text-amber-300 font-mono">1.000⚡/tuần</strong> của gói Trọn Đời.
+                  </p>
+                  <button
+                    type="button"
+                    data-testid="btn-toggle-lifetime-topup"
+                    onClick={() => setIsLifetimeTopupExpanded(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-950/70 hover:bg-zinc-800/80 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shadow-xs"
                   >
-                    {pack.popular && (
-                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-400 text-neutral-950 font-black text-[9px] uppercase tracking-wider shadow-xs">
-                        Phổ biến
+                    <ChevronDown size={14} className="text-amber-400" />
+                    <span>Cần nạp thêm Credits cho dự án lớn?</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="text-center space-y-1">
+                    <h3 className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
+                      <span>Nạp Lẻ Điểm AI Study Credits</span>
+                      <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                        Không Hết Hạn
                       </span>
-                    )}
-                    <div className="space-y-1 pt-1">
-                      <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
-                        {pack.credits.toLocaleString()}⚡
-                      </div>
-                      <div className="text-xs font-bold text-white">
-                        {pack.formatted}
-                      </div>
-                      {pack.discount !== '0%' && (
-                        <span className="text-[9px] font-semibold text-emerald-400 block">
-                          {pack.discount}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        useAiStore.getState().addCredits(pack.credits);
-                        setStatusMessage({
-                          type: 'success',
-                          text: `Đã nạp thành công +${pack.credits}⚡ AI Credits vào tài khoản!`
-                        });
-                      }}
-                      className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
-                    >
-                      Nạp ⚡
-                    </button>
+                    </h3>
+                    <p className="text-xs text-zinc-400">
+                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR hoặc MoMo, điểm cộng dồn vĩnh viễn vào tài khoản.
+                    </p>
                   </div>
-                ))}
-              </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                    {CREDIT_PACKS.map((pack) => (
+                      <div
+                        key={pack.id}
+                        className={`p-3 rounded-xl border flex flex-col justify-between text-center relative transition hover:scale-[1.02] ${
+                          pack.popular
+                            ? 'border-amber-500/50 bg-amber-500/[0.06] shadow-sm'
+                            : 'border-zinc-800 bg-zinc-950/60 hover:border-zinc-700'
+                        }`}
+                      >
+                        {pack.popular && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-400 text-neutral-950 font-black text-[9px] uppercase tracking-wider shadow-xs">
+                            Phổ biến
+                          </span>
+                        )}
+                        <div className="space-y-1 pt-1">
+                          <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
+                            {pack.credits.toLocaleString()}⚡
+                          </div>
+                          <div className="text-xs font-bold text-white">
+                            {pack.formatted}
+                          </div>
+                          {pack.discount !== '0%' && (
+                            <span className="text-[9px] font-semibold text-emerald-400 block">
+                              {pack.discount}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            useAiStore.getState().addCredits(pack.credits);
+                            setStatusMessage({
+                              type: 'success',
+                              text: `Đã nạp thành công +${pack.credits}⚡ AI Credits vào tài khoản!`
+                            });
+                          }}
+                          className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
+                        >
+                          Nạp ⚡
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isUserLifetime && (
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsLifetimeTopupExpanded(false)}
+                        className="text-[11px] text-zinc-400 hover:text-white underline cursor-pointer"
+                      >
+                        ▴ Thu gọn gói nạp
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 

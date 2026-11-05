@@ -128,8 +128,8 @@ export const SharedFooter: React.FC = () => {
               Không gian học tập &amp; làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
             </p>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-              <span>Demo Beta 1.0 — Miễn phí 100%</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span>v1.1.0 Production</span>
             </div>
           </div>
 
@@ -238,7 +238,7 @@ export const SharedFooter: React.FC = () => {
           <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 font-mono whitespace-nowrap">
             <span>Local-First &amp; Offline</span>
             <span>•</span>
-            <span className="text-emerald-400">Tặng 3 Năm PRO Beta</span>
+            <span className="text-zinc-300">v1.1.0 Production · Bản quyền thuộc PomoFocus</span>
           </div>
         </div>
       </div>
