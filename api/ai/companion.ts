@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 const OWNER_EMAILS = [
   'namho03052k9@gmail.com',
   'huyentrantt09@gmail.com',
@@ -179,7 +177,7 @@ Nhiệm vụ và Nguyên tắc Sư phạm của bạn:
 3. QUY CHUẨN CÔNG THỨC: Bắt buộc dùng LaTeX ($a^2 + b^2 = c^2$, $$\\int f(x)dx$$).
 4. PHONG THÁI TỰ NHIÊN: Khi nhận câu chào ngắn ("xin chào", "hi", "alo"): Hãy đáp lại tự nhiên, gần gũi.`;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
