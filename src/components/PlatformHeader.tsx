@@ -482,6 +482,8 @@ export const PlatformHeader: React.FC = () => {
                     className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
                     }}
                   />
                 ) : (

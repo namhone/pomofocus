@@ -282,19 +282,34 @@ export const useAuthStore = create<AuthState>((set, get) => {
       if (!supabaseUser) return;
 
       const email = (supabaseUser.email || '').trim().toLowerCase();
-      const displayName =
-        supabaseUser.user_metadata?.full_name ||
-        supabaseUser.user_metadata?.name ||
-        supabaseUser.displayName ||
-        (email ? email.split('@')[0] : 'Người dùng');
-      const avatarUrl =
+      const currentSession = authService.getCurrentSession();
+      const isFounder = isOwnerEmail(email);
+
+      // KIỂM TRA AVATAR TÙY CHỈNH: Không bao giờ lấy ảnh Google đè lên Custom Avatar
+      const hasCustom = Boolean(
+        currentSession?.customAvatarUrl ||
+        currentSession?.hasCustomAvatar
+      );
+      const incomingGoogleAvatar =
         supabaseUser.user_metadata?.avatar_url ||
         supabaseUser.user_metadata?.picture ||
         supabaseUser.avatarUrl ||
         '';
-      const userId = supabaseUser.id || `g_${Date.now()}`;
+      const resolvedAvatar = hasCustom
+        ? (currentSession?.customAvatarUrl || currentSession?.avatarUrl || incomingGoogleAvatar)
+        : incomingGoogleAvatar;
 
-      const isFounder = isOwnerEmail(email);
+      const displayName =
+        currentSession?.displayName ||
+        supabaseUser.user_metadata?.full_name ||
+        supabaseUser.user_metadata?.name ||
+        supabaseUser.displayName ||
+        (email ? email.split('@')[0] : 'Người dùng');
+
+      // Canonical ID: Giữ ID hiện tại nếu cùng email, hoặc dùng ID Supabase
+      const userId = (currentSession?.email && currentSession.email.trim().toLowerCase() === email)
+        ? (currentSession.id || supabaseUser.id)
+        : (supabaseUser.id || `g_${Date.now()}`);
 
       let profile: UserProfile;
 
@@ -303,14 +318,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
           id: userId,
           email,
           displayName,
-          avatarUrl,
+          avatarUrl: resolvedAvatar,
+          customAvatarUrl: hasCustom ? resolvedAvatar : undefined,
+          hasCustomAvatar: hasCustom,
           role: 'founder',
           plan: 'lifetime',
           badge: 'Founder VIP 👑',
           isLifetime: true,
           proExpiresAt: null,
-          createdAt: Date.now(),
+          createdAt: currentSession?.createdAt || Date.now(),
           authProvider: 'google',
+          googleId: supabaseUser.id,
+          isGoogleLinked: true,
+          hasPassword: Boolean(currentSession?.hasPassword),
           emailVerified: true
         };
         // Nạp đầy 1.000⚡ AI Credits vào ví useAiStore
@@ -329,15 +349,20 @@ export const useAuthStore = create<AuthState>((set, get) => {
           id: userId,
           email,
           displayName,
-          avatarUrl,
-          role: 'user',
-          plan: 'free',
-          badge: 'Thành viên Free',
-          credits: 50,
-          isLifetime: false,
-          proExpiresAt: null,
-          createdAt: Date.now(),
+          avatarUrl: resolvedAvatar,
+          customAvatarUrl: hasCustom ? resolvedAvatar : undefined,
+          hasCustomAvatar: hasCustom,
+          role: currentSession?.role || 'user',
+          plan: currentSession?.plan || 'free',
+          badge: currentSession?.badge || 'Thành viên Free',
+          credits: typeof currentSession?.credits === 'number' ? currentSession.credits : 50,
+          isLifetime: Boolean(currentSession?.isLifetime),
+          proExpiresAt: currentSession?.proExpiresAt || null,
+          createdAt: currentSession?.createdAt || Date.now(),
           authProvider: 'google',
+          googleId: supabaseUser.id,
+          isGoogleLinked: true,
+          hasPassword: Boolean(currentSession?.hasPassword),
           emailVerified: Boolean(supabaseUser.email_confirmed_at || supabaseUser.user_metadata?.email_verified)
         };
         // Gói Free: 50 credits
@@ -414,7 +439,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
             }
             return {
               user: merged,
+              isAuthenticated: true,
+              isLoggedIn: true,
               role: merged.role,
+              badge: merged.badge,
+              credits: merged.credits,
               ...computeDerivedPlanState(merged)
             };
           });
@@ -768,7 +797,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
           };
           set({
             user: updatedUser,
+            isAuthenticated: true,
+            isLoggedIn: true,
             role: updatedUser.role,
+            badge: updatedUser.badge,
+            credits: updatedUser.credits,
             ...computeDerivedPlanState(updatedUser)
           });
           if (typeof window !== 'undefined' && window.localStorage) {
@@ -843,6 +876,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
             return {
               user: merged,
+              isAuthenticated: true,
+              isLoggedIn: true,
               role: merged.role,
               badge: merged.badge,
               credits: merged.credits,
@@ -871,18 +906,9 @@ if (typeof window !== 'undefined') {
   // Lắng nghe trạng thái phiên đăng nhập Server-Authoritative từ Supabase Auth
   try {
     supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
         if (session?.user) {
-          const userId = session.user.id;
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id, email, display_name, avatar_url, plan, role, badge, ai_credits_balance, two_factor_enabled, settings')
-            .eq('id', userId)
-            .maybeSingle();
-
-          if (profile) {
-            useAuthStore.getState().loadUserFromCloud(userId);
-          }
+          useAuthStore.getState().syncUserFromSupabase(session.user);
         }
       } else if (event === 'SIGNED_OUT') {
         const curr = useAuthStore.getState().user;

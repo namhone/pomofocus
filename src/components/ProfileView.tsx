@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
@@ -33,8 +33,9 @@ export const ProfileView: React.FC = () => {
   const { user, isAuthenticated, isPro, isLifetime, planLabel, updateProfile } = useAuthStore();
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.customAvatarUrl || user?.avatarUrl || '');
   const [username, setUsername] = useState(user?.username || '');
+
   const [focusGoal, setFocusGoal] = useState(user?.focusGoal || user?.bio || '');
   const [hideEmailInRoom, setHideEmailInRoom] = useState(Boolean(user?.hideEmailInRoom));
   const [incognitoJoinRoom, setIncognitoJoinRoom] = useState(Boolean(user?.incognitoJoinRoom));
@@ -43,6 +44,16 @@ export const ProfileView: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Đồng bộ avatar & profile khi store thay đổi
+  useEffect(() => {
+    if (!isEditing && user) {
+      setAvatarUrl(user.customAvatarUrl || user.avatarUrl || '');
+      setDisplayName(user.displayName || '');
+      setUsername(user.username || '');
+      setFocusGoal(user.focusGoal || user.bio || '');
+    }
+  }, [user, isEditing]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -105,6 +116,12 @@ export const ProfileView: React.FC = () => {
           const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
           setAvatarUrl(dataUrl);
           setIsEditing(true);
+          // Cập nhật ngay lập tức vào Auth Store để phản hồi tức thì
+          updateProfile({
+            avatarUrl: dataUrl,
+            customAvatarUrl: dataUrl,
+            hasCustomAvatar: true
+          }).catch(console.warn);
         }
       };
       if (typeof event.target?.result === 'string') {

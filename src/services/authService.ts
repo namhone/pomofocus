@@ -28,6 +28,8 @@ export interface UserProfile {
   createdAt: number;
   authProvider?: 'password' | 'google';
   googleId?: string;
+  isGoogleLinked?: boolean;
+  hasPassword?: boolean;
   emailVerified?: boolean;
   // Extended Profile & Privacy
   username?: string;
@@ -161,16 +163,24 @@ export function getPlanLabel(user?: UserProfile | null): string {
  */
 function applyEntitlementPolicy(account: StoredUserAccount): StoredUserAccount {
   const normalized = account.email.trim().toLowerCase();
+  const isOwner = normalized === OWNER_EMAIL || isOwnerEmail(normalized);
 
   // 1. Tài khoản Chủ Sở Hữu, Nóc Nhà (Lady Boss) & Bạn Thân Sếp: Bất biến Lifetime PRO
-  if (normalized === OWNER_EMAIL || isLadyBoss(normalized) || isVipFriend(normalized)) {
+  if (isOwner || isLadyBoss(normalized) || isVipFriend(normalized)) {
     return {
       ...account,
       plan: 'pro_lifetime',
       isLifetime: true,
       proExpiresAt: null,
-      emailVerified: true
+      emailVerified: true,
+      isGoogleLinked: true,
+      googleId: account.googleId || 'founder_google_verified'
     };
+  }
+
+  // Cập nhật trạng thái liên kết Google nếu đã có googleId hoặc authProvider google
+  if (account.googleId || account.authProvider === 'google') {
+    account.isGoogleLinked = true;
   }
 
   // 2. Nếu đã là tài khoản người dùng bình thường:
@@ -264,8 +274,7 @@ export const authService = {
     const normalized = email.trim().toLowerCase();
     let user = users[normalized];
 
-    // KIỂM TRA ĐỒNG BỘ CLOUD: Nếu tài khoản chưa có trong localStorage (ví dụ tab ẩn danh / thiết bị mới),
-    // truy vấn trực tiếp từ bảng public.profiles trên Supabase Cloud
+    // KIỂM TRA ĐỒNG BỘ CLOUD: Truy vấn bảng public.profiles trên Supabase Cloud để đồng bộ Single Source of Truth
     const { ProfileService } = await import('./profileService');
     const { totpService } = await import('./totpService');
 
@@ -274,24 +283,45 @@ export const authService = {
       cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
     } catch {}
 
+    const isOwner = isOwnerEmail(normalized);
+    const canonicalId = cloudProfile?.id || user?.id || `usr_${Date.now()}`;
+
     if (!user && cloudProfile) {
       // Khôi phục tài khoản từ Supabase Cloud vào local store
       const restoredUser: StoredUserAccount = {
-        id: cloudProfile.id,
+        id: canonicalId,
         email: normalized,
         displayName: cloudProfile.full_name || normalized.split('@')[0],
-        avatarUrl: cloudProfile.avatar_url,
+        avatarUrl: cloudProfile.custom_avatar_url || cloudProfile.avatar_url,
         customAvatarUrl: cloudProfile.custom_avatar_url,
-        hasCustomAvatar: Boolean(cloudProfile.custom_avatar_url),
-        plan: (cloudProfile.plan as any) || 'pro_beta',
+        hasCustomAvatar: Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar),
+        plan: (cloudProfile.plan as any) || (isOwner ? 'lifetime' : 'pro_beta'),
         createdAt: cloudProfile.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
         passwordHash: cloudProfile.secondary_password_hash || password,
-        authProvider: cloudProfile.role === 'founder' ? 'google' : 'password',
+        authProvider: 'password',
+        googleId: cloudProfile.google_id || (cloudProfile as any).googleId || (isOwner ? 'founder_google_verified' : undefined),
+        isGoogleLinked: Boolean(cloudProfile.google_id || (cloudProfile as any).googleId || isOwner),
+        hasPassword: true,
         twoFactorEnabled: Boolean(cloudProfile.two_factor_enabled || cloudProfile.is_2fa_enabled || cloudProfile.totp_secret)
       };
       user = applyEntitlementPolicy(restoredUser);
       users[normalized] = user;
+      users[canonicalId] = user;
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    } else if (user && cloudProfile) {
+      // Hợp nhất dữ liệu Cloud vào tài khoản Local hiện tại
+      user.id = cloudProfile.id || user.id;
+      if (cloudProfile.google_id || (cloudProfile as any).googleId || isOwner) {
+        user.googleId = cloudProfile.google_id || (cloudProfile as any).googleId || user.googleId || (isOwner ? 'founder_google_verified' : undefined);
+        user.isGoogleLinked = true;
+      }
+      user.hasPassword = true;
+      if (cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar) {
+        const avt = cloudProfile.custom_avatar_url || cloudProfile.avatar_url;
+        user.avatarUrl = avt;
+        user.customAvatarUrl = avt;
+        user.hasCustomAvatar = true;
+      }
     }
 
     if (!user || user.passwordHash !== password) {
@@ -302,14 +332,18 @@ export const authService = {
         user.passwordHash = password;
       } else {
         // Tự động tạo tài khoản mới trong giai đoạn Demo Beta và cấp PRO Beta 3 năm (hoặc Lifetime nếu là Owner)
+        const isOwner = isOwnerEmail(normalized);
         const baseUser: StoredUserAccount = {
           id: cloudProfile?.id || `usr_${Date.now()}`,
           email: normalized,
           displayName: normalized.split('@')[0],
-          plan: 'pro_beta',
+          plan: isOwner ? 'pro_lifetime' : 'pro_beta',
           createdAt: Date.now(),
           passwordHash: password,
-          authProvider: 'password'
+          authProvider: 'password',
+          isGoogleLinked: isOwner || Boolean(cloudProfile?.google_id || (cloudProfile as any)?.googleId),
+          googleId: cloudProfile?.google_id || (cloudProfile as any)?.googleId || (isOwner ? 'founder_google_verified' : undefined),
+          hasPassword: true
         };
         const newUser = applyEntitlementPolicy(baseUser);
         users[normalized] = newUser;
@@ -424,19 +458,26 @@ export const authService = {
     const avatar = payload.picture || (payload as any).avatarUrl;
     const googleKey = `google:${sub}`;
 
-    let existingUser = users[googleKey];
+    const { ProfileService } = await import('./profileService');
+    let cloudProfile: any = null;
+    try {
+      cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
+    } catch {}
 
-    if (!existingUser && users[normalized]) {
-      const emailUser = users[normalized];
-      // NGUYÊN TẮC BẢO MẬT: Không tự động hợp nhất tài khoản Mật khẩu với Google
-      // nếu tài khoản đó chưa từng xác thực liên kết Google
-      if (!payload.email_verified && (emailUser.authProvider === 'password' || (!emailUser.googleId && emailUser.passwordHash))) {
-        throw new Error(
-          'Email này đã được đăng ký bằng Mật khẩu. Để bảo vệ tài khoản, hệ thống không tự động hợp nhất. Vui lòng đăng nhập bằng Mật khẩu.'
-        );
-      }
-      existingUser = emailUser;
+    // Tìm kiếm tài khoản hiện có qua googleKey, email hoặc ID từ cloud
+    let existingUser = users[googleKey] || users[normalized] || (cloudProfile ? users[cloudProfile.id] : null);
+
+    // NGUYÊN TẮC BẢO MẬT: Không tự động hợp nhất tài khoản Mật khẩu với Google
+    // nếu payload Google chưa xác minh email (email_verified) và tài khoản đã có mật khẩu
+    const emailUser = users[normalized];
+    if (emailUser && !payload.email_verified && (emailUser.authProvider === 'password' || (!emailUser.googleId && emailUser.passwordHash))) {
+      throw new Error(
+        'Email này đã được đăng ký bằng Mật khẩu. Để bảo vệ tài khoản, hệ thống không tự động hợp nhất. Vui lòng đăng nhập bằng Mật khẩu.'
+      );
     }
+
+    // XÁC ĐỊNH CANONICAL USER ID DUY NHẤT CHO CÙNG EMAIL
+    const canonicalId = cloudProfile?.id || existingUser?.id || sub;
 
     // Nếu cả googleKey và normalized đều tồn tại, hợp nhất về 1 đối tượng duy nhất
     if (existingUser && users[normalized] && users[normalized] !== existingUser) {
@@ -474,8 +515,16 @@ export const authService = {
       // Cập nhật quyền hạn theo chính sách Beta
       existingUser = applyEntitlementPolicy(existingUser);
 
+      existingUser.id = canonicalId;
+      existingUser.googleId = sub;
+      existingUser.isGoogleLinked = true;
+      if (existingUser.passwordHash) {
+        existingUser.hasPassword = true;
+      }
+
       users[googleKey] = existingUser;
       users[normalized] = existingUser;
+      users[canonicalId] = existingUser;
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 
       const { passwordHash: _, ...profile } = existingUser;
@@ -542,11 +591,12 @@ export const authService = {
     }
 
     // Nếu trên máy này chưa có user, kiểm tra xem đã có profile trên Supabase Cloud chưa
-    let cloudProfile: any = null;
-    try {
-      const { ProfileService } = await import('./profileService');
-      cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
-    } catch {}
+    if (!cloudProfile) {
+      try {
+        const { ProfileService } = await import('./profileService');
+        cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
+      } catch {}
+    }
 
     const cloudCustom = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
     const resolvedNewAvatar = cloudCustom || avatar;

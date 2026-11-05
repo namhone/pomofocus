@@ -545,12 +545,13 @@ export const useAiStore = create<AiState>()(
 
       syncWithAuth: (authPlan) => {
         if (!authPlan) return;
+        const normalized = authPlan.toLowerCase();
         const mappedPlan: AiPlanType =
-          authPlan === 'lifetime'
+          normalized === 'lifetime' || normalized === 'pro_lifetime' || normalized === 'founder'
             ? 'lifetime'
-            : authPlan === 'yearly'
+            : normalized === 'yearly' || normalized === 'pro_yearly'
             ? 'yearly'
-            : authPlan === 'pro' || authPlan === 'monthly' || authPlan === 'pro_sandbox'
+            : normalized === 'pro' || normalized === 'monthly' || normalized === 'pro_sandbox' || normalized === 'pro_beta' || normalized === 'pro_monthly'
             ? 'monthly'
             : 'free';
 

@@ -204,8 +204,8 @@ export class ProfileService {
   /**
    * Cập nhật các trường thông tin cơ bản (full_name, handle, avatar_url, bio)
    */
-  static async updateFields(userId: string, fields: Partial<CloudProfile>): Promise<boolean> {
-    if (!userId) return false;
+  static async updateFields(userId: string, fields: Partial<CloudProfile>, email?: string): Promise<boolean> {
+    if (!userId && !email) return false;
     try {
       const payload: Record<string, any> = {
         ...fields,
@@ -218,16 +218,25 @@ export class ProfileService {
         payload.has_custom_avatar = fields.has_custom_avatar !== undefined ? fields.has_custom_avatar : Boolean(fields.avatar_url);
       }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(payload)
-        .eq('id', userId);
-
-      if (error) {
-        console.warn('[ProfileService] Lỗi updateFields:', error);
-        return false;
+      let success = false;
+      if (userId) {
+        const { error } = await supabase
+          .from('profiles')
+          .update(payload)
+          .eq('id', userId);
+        if (!error) success = true;
       }
-      return true;
+
+      const targetEmail = (email || fields.email || '').trim().toLowerCase();
+      if (targetEmail) {
+        const { error } = await supabase
+          .from('profiles')
+          .update(payload)
+          .eq('email', targetEmail);
+        if (!error) success = true;
+      }
+
+      return success;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ updateFields:', err);
       return false;
@@ -247,16 +256,12 @@ export class ProfileService {
         updated_at: new Date().toISOString()
       };
 
-      let query = supabase.from('profiles').update(payload);
       if (userId) {
-        query = query.eq('id', userId);
-      } else if (email) {
-        query = query.eq('email', email.trim().toLowerCase());
+        await supabase.from('profiles').update(payload).eq('id', userId);
       }
-      const { error } = await query;
-      if (error) {
-        console.warn('[ProfileService] Lỗi updateAvatar:', error);
-        return false;
+      const targetEmail = (email || '').trim().toLowerCase();
+      if (targetEmail) {
+        await supabase.from('profiles').update(payload).eq('email', targetEmail);
       }
       return true;
     } catch (err) {

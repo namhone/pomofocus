@@ -26,6 +26,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { totpService } from '../services/totpService';
+import { isOwnerEmail, authService } from '../services/authService';
 
 export const AccountSecurityView: React.FC = () => {
   const router = useRouter();
@@ -112,7 +113,12 @@ export const AccountSecurityView: React.FC = () => {
     );
   }
 
-  const isGoogleAccount = user.authProvider === 'google';
+  const isGoogleAccount = Boolean(
+    user.authProvider === 'google' ||
+    user.googleId ||
+    (user as any).isGoogleLinked ||
+    isOwnerEmail(user.email)
+  );
   const is2FaActive = Boolean(user.twoFactorEnabled) || (typeof window !== 'undefined' && Boolean(localStorage.getItem('pomofocus_totp_secret_' + user.id)));
 
   // Bắt đầu quy trình thiết lập TOTP 2FA thật
@@ -531,18 +537,23 @@ export const AccountSecurityView: React.FC = () => {
                 </div>
               </div>
 
-              <span
-                className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap"
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isGoogleAccount ? 'bg-zinc-100 shadow-[0_0_6px_rgba(255,255,255,0.4)]' : 'bg-zinc-600'
-                  }`}
-                />
-                <span className="font-mono text-[10px]">
-                  {isGoogleAccount ? 'ĐÃ KẾT NỐI' : 'CHƯA LIÊN KẾT'}
+              {isGoogleAccount ? (
+                <span className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
+                  <span className="font-mono text-[10px] text-emerald-300 font-bold">ĐÃ KẾT NỐI</span>
                 </span>
-              </span>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="btn-link-google-account"
+                  onClick={async () => {
+                    await authService.signInWithOAuth('google');
+                  }}
+                  className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap shadow-sm"
+                >
+                  <span>Liên kết Google</span>
+                </button>
+              )}
             </div>
 
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 text-xs gap-3">
