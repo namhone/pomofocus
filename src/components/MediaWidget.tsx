@@ -44,7 +44,7 @@ export const DEFAULT_FAVORITE_PLAYLISTS: FavoritePlaylist[] = [
   {
     id: 'fav-lofigirl-mix',
     name: '🔀 Lofi Girl YouTube Mix',
-    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk&list=RDMMjfKfPfyJRdk'
+    url: 'https://www.youtube.com/watch?v=5qap5aO4i9A&list=RDMM5qap5aO4i9A'
   }
 ];
 
@@ -52,8 +52,8 @@ export const PRESET_STATIONS = [
   {
     id: 'st-lofi-girl',
     name: 'Lofi Girl - Chill / Study (24/7)',
-    videoId: 'jfKfPfyJRdk',
-    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
+    videoId: '5qap5aO4i9A',
+    url: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
   },
   {
     id: 'st-synthwave',

@@ -25,7 +25,7 @@ const DEFAULT_MUSIC_ITEMS: CustomMusicItem[] = [
   {
     id: 'lofi_girl',
     name: 'Lofi Girl Live (Chill Study)',
-    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
     type: 'youtube',
     createdAt: Date.now()
   },

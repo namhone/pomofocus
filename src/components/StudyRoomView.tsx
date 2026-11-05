@@ -733,7 +733,7 @@ export const StudyRoomView: React.FC = () => {
 
   // Floating YouTube Widget state
   const [isYouTubeWidgetOpen, setIsYouTubeWidgetOpen] = useState(false);
-  const [youtubeVideoId, setYoutubeVideoId] = useState('jfKfPfyJRdk');
+  const [youtubeVideoId, setYoutubeVideoId] = useState('5qap5aO4i9A');
   const [youtubeInputUrl, setYoutubeInputUrl] = useState('');
   const [youtubeWidgetPos, setYoutubeWidgetPos] = useState({ x: 24, y: 72 });
   const isDraggingYouTube = useRef(false);
@@ -4377,7 +4377,7 @@ export const StudyRoomView: React.FC = () => {
               <span className="text-neutral-400">Gợi ý:</span>
               <button
                 type="button"
-                onClick={() => switchYouTubeVideo('jfKfPfyJRdk')}
+                onClick={() => switchYouTubeVideo('5qap5aO4i9A')}
                 className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
               >
                 ☕ Lofi Girl
