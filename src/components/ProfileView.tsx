@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
@@ -116,7 +117,26 @@ export const ProfileView: React.FC = () => {
           const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
           setAvatarUrl(dataUrl);
           setIsEditing(true);
-          // Cập nhật ngay lập tức vào Auth Store để phản hồi tức thì
+
+          // 1. Ghi thẳng URL ảnh mới vào Supabase Cloud:
+          if (user?.id) {
+            supabase
+              .from('profiles')
+              .update({ avatar_url: dataUrl, custom_avatar_url: dataUrl, updated_at: new Date().toISOString() })
+              .eq('id', user.id)
+              .catch(console.warn);
+          }
+
+          // 2. Cập nhật ngay vào Store giao diện:
+          useAuthStore.setState((state) => ({
+            user: state.user ? {
+              ...state.user,
+              avatarUrl: dataUrl,
+              customAvatarUrl: dataUrl,
+              hasCustomAvatar: true
+            } : null
+          }));
+
           updateProfile({
             avatarUrl: dataUrl,
             customAvatarUrl: dataUrl,

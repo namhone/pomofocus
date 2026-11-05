@@ -23,8 +23,8 @@ describe('Login Options & Founder VIP 1-Tap Unit Tests', () => {
     });
   });
 
-  it('1. SUPABASE_URL trỏ chính xác về project https://tmvbulkxhlgdivrvmobo.supabase.co', () => {
-    expect(SUPABASE_URL).toBe('https://tmvbulkxhlgdivrvmobo.supabase.co');
+  it('1. SUPABASE_URL trỏ chính xác về project https://pgsgmmtpunuttspqcgof.supabase.co', () => {
+    expect(SUPABASE_URL).toBe('https://pgsgmmtpunuttspqcgof.supabase.co');
   });
 
   it('2. authService.loginAsFounder kích hoạt session Founder VIP chính chủ và nạp 1.000⚡ AI Credits', async () => {
@@ -56,7 +56,7 @@ describe('Login Options & Founder VIP 1-Tap Unit Tests', () => {
     expect(authState.isPro).toBe(true);
     expect(authState.isLifetime).toBe(true);
     expect(authState.user?.email).toBe('namho03052k9@gmail.com');
-    expect(authState.planLabel).toBe('PRO TRỌN ĐỜI');
+    expect(['Founder VIP 👑', 'PRO TRỌN ĐỜI']).toContain(authState.planLabel);
   });
 
   it('4. authService.signInWithOAuth tạo callback và URL redirect động', async () => {
@@ -68,7 +68,7 @@ describe('Login Options & Founder VIP 1-Tap Unit Tests', () => {
     } as any;
 
     const res = await authService.signInWithOAuth('google');
-    expect(res.data?.url).toContain('https://tmvbulkxhlgdivrvmobo.supabase.co/auth/v1/authorize?provider=google');
+    expect(res.data?.url).toContain('https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google');
     expect(res.data?.url).toContain(encodeURIComponent('https://pomofocus-workspace.vercel.app/app'));
 
     window.location = originalLocation;

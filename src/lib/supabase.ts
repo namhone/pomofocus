@@ -578,11 +578,12 @@ export const supabase = {
 
       let token = SUPABASE_ANON_KEY;
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('pomodoro_study_auth_session');
+        const stored = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            if (parsed.token) token = parsed.token;
+            if (parsed.access_token) token = parsed.access_token;
+            else if (parsed.token) token = parsed.token;
           } catch {
             // fallback
           }
@@ -633,6 +634,75 @@ export const supabase = {
   },
 
   auth: {
+    signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+      try {
+        const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+        const res = await fetch(`${baseUrl}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return {
+            data: { user: null, session: null },
+            error: { message: data.msg || data.error_description || data.message || 'Đăng nhập không thành công' }
+          };
+        }
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('sb_auth_session', JSON.stringify(data));
+        }
+        authSubscribers.forEach((cb) => {
+          try { cb('SIGNED_IN', data); } catch {}
+        });
+        return { data: { session: data, user: data.user }, error: null };
+      } catch (err: any) {
+        return { data: { user: null, session: null }, error: { message: err?.message || 'Lỗi mạng khi đăng nhập' } };
+      }
+    },
+
+    signUp: async ({ email, password, options }: { email: string; password: string; options?: { data?: Record<string, any> } }) => {
+      try {
+        const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+        const res = await fetch(`${baseUrl}/auth/v1/signup`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, data: options?.data || {} })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return {
+            data: { user: null, session: null },
+            error: { message: data.msg || data.error_description || data.message || 'Đăng ký không thành công' }
+          };
+        }
+        if (data.access_token && typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('sb_auth_session', JSON.stringify(data));
+          authSubscribers.forEach((cb) => {
+            try { cb('SIGNED_IN', data); } catch {}
+          });
+        }
+        return { data: { session: data.access_token ? data : null, user: data.user || data }, error: null };
+      } catch (err: any) {
+        return { data: { user: null, session: null }, error: { message: err?.message || 'Lỗi mạng khi đăng ký' } };
+      }
+    },
+
+    saveSession: (session: any) => {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('sb_auth_session', JSON.stringify(session));
+      }
+      authSubscribers.forEach((cb) => {
+        try { cb('SIGNED_IN', session); } catch {}
+      });
+    },
+
     signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string } }) => {
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
@@ -650,6 +720,7 @@ export const supabase = {
 
     signOut: async (options?: { scope?: 'global' | 'local' | 'others' }) => {
       if (typeof window !== 'undefined' && options?.scope !== 'others') {
+        localStorage.removeItem('sb_auth_session');
         localStorage.removeItem('pomodoro_study_auth_session');
         authSubscribers.forEach((cb) => {
           try {
@@ -699,27 +770,33 @@ export const supabase = {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
+        if (window.localStorage) {
+          localStorage.setItem('sb_auth_session', JSON.stringify(oauthSession));
+        }
         return { data: { session: oauthSession }, error: null };
       }
 
       // 2. Đọc session đã lưu trong localStorage
-      const raw = localStorage.getItem('pomodoro_study_auth_session');
+      const raw = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
       if (!raw) return { data: { session: null }, error: null };
       try {
         const parsed = JSON.parse(raw);
-        const user = {
-          id: parsed.id,
-          email: parsed.email,
-          user_metadata: {
-            full_name: parsed.displayName,
-            name: parsed.displayName,
-            avatar_url: parsed.avatarUrl,
-            picture: parsed.avatarUrl,
-            ...parsed.user_metadata,
-          },
-          ...parsed,
+        const session = parsed.access_token ? parsed : {
+          access_token: parsed.token || 'sb_token',
+          user: {
+            id: parsed.id,
+            email: parsed.email,
+            user_metadata: {
+              full_name: parsed.displayName,
+              name: parsed.displayName,
+              avatar_url: parsed.avatarUrl,
+              picture: parsed.avatarUrl,
+              ...parsed.user_metadata,
+            },
+            ...parsed,
+          }
         };
-        return { data: { session: { user, access_token: parsed.token || 'mock_token' } }, error: null };
+        return { data: { session }, error: null };
       } catch {
         return { data: { session: null }, error: null };
       }
@@ -736,28 +813,34 @@ export const supabase = {
       if (typeof window !== 'undefined') {
         const oauthSession = parseOAuthHashSession();
         if (oauthSession) {
+          if (window.localStorage) {
+            localStorage.setItem('sb_auth_session', JSON.stringify(oauthSession));
+          }
           setTimeout(() => callback('SIGNED_IN', oauthSession), 0);
           if (window.history && window.history.replaceState) {
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
           }
         } else {
-          const raw = localStorage.getItem('pomodoro_study_auth_session');
+          const raw = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
           if (raw) {
             try {
               const parsed = JSON.parse(raw);
-              const user = {
-                id: parsed.id,
-                email: parsed.email,
-                user_metadata: {
-                  full_name: parsed.displayName,
-                  name: parsed.displayName,
-                  avatar_url: parsed.avatarUrl,
-                  picture: parsed.avatarUrl,
-                  ...parsed.user_metadata,
-                },
-                ...parsed,
+              const session = parsed.access_token ? parsed : {
+                access_token: parsed.token || 'sb_token',
+                user: {
+                  id: parsed.id,
+                  email: parsed.email,
+                  user_metadata: {
+                    full_name: parsed.displayName,
+                    name: parsed.displayName,
+                    avatar_url: parsed.avatarUrl,
+                    picture: parsed.avatarUrl,
+                    ...parsed.user_metadata,
+                  },
+                  ...parsed,
+                }
               };
-              setTimeout(() => callback('INITIAL_SESSION', { user, access_token: parsed.token || 'mock_token' }), 0);
+              setTimeout(() => callback('INITIAL_SESSION', session), 0);
             } catch {}
           }
         }
@@ -779,11 +862,12 @@ export const supabase = {
     const getHeaders = (extra: Record<string, string> = {}) => {
       let token = SUPABASE_ANON_KEY;
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('pomodoro_study_auth_session');
+        const stored = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            if (parsed.token) token = parsed.token;
+            if (parsed.access_token) token = parsed.access_token;
+            else if (parsed.token) token = parsed.token;
           } catch {}
         }
       }
@@ -951,6 +1035,9 @@ export const supabase = {
           },
           then: (onfulfilled?: (value: { data: any; error: any }) => any, onrejected?: (reason: any) => any) => {
             return execute().then(onfulfilled, onrejected);
+          },
+          catch: (onrejected?: (reason: any) => any) => {
+            return execute().catch(onrejected);
           }
         };
         return queryBuilder;
@@ -988,6 +1075,9 @@ export const supabase = {
           },
           then: (onfulfilled?: (value: { data: any; error: any }) => any, onrejected?: (reason: any) => any) => {
             return execute().then(onfulfilled, onrejected);
+          },
+          catch: (onrejected?: (reason: any) => any) => {
+            return execute().catch(onrejected);
           }
         };
         return queryBuilder;
@@ -1013,11 +1103,12 @@ export const supabase = {
 
           let token = SUPABASE_ANON_KEY;
           if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('pomodoro_study_auth_session');
+            const stored = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
             if (stored) {
               try {
                 const parsed = JSON.parse(stored);
-                if (parsed.token) token = parsed.token;
+                if (parsed.access_token) token = parsed.access_token;
+                else if (parsed.token) token = parsed.token;
               } catch {}
             }
           }

@@ -23,6 +23,7 @@ export interface UserProfile {
   role?: string;
   badge?: string;
   credits?: number;
+  aiCredits?: number;
   isLifetime?: boolean;
   proExpiresAt?: number | null;
   createdAt: number;
@@ -90,8 +91,6 @@ export interface UserDataExport {
   };
 }
 
-const AUTH_SESSION_KEY = 'pomodoro_study_auth_session';
-const USERS_STORAGE_KEY = 'pomodoro_study_users_store';
 const CLOUD_SYNC_PREFIX = 'pomodoro_cloud_sync_';
 
 export function isOwnerEmail(email?: string | null): boolean {
@@ -144,10 +143,7 @@ export function getPlanLabel(user?: UserProfile | null): string {
   if (isLadyBoss(user.email)) {
     return '👑 NÓC NHÀ PRO';
   }
-  if (user.role === 'founder' || user.badge === 'Founder VIP 👑') {
-    return 'Founder VIP 👑';
-  }
-  if (user.isLifetime || user.plan === 'pro_lifetime' || user.plan === 'lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email)) {
+  if (user.isLifetime || user.plan === 'pro_lifetime' || user.plan === 'lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email) || user.role === 'founder') {
     return 'PRO TRỌN ĐỜI';
   }
   if (user.plan === 'pro_beta') return 'PRO BETA (3 NĂM)';
@@ -156,220 +152,142 @@ export function getPlanLabel(user?: UserProfile | null): string {
   return 'FREE';
 }
 
-/**
- * Áp dụng chính sách đặc quyền Beta:
- * 1. Chủ sở hữu (namho03052k9@gmail.com): Luôn là PRO TRỌN ĐỜI (Lifetime), không bao giờ hết hạn.
- * 2. Mọi tài khoản mới hoặc tài khoản thử nghiệm Beta: Tự động kích hoạt PRO BETA 3 NĂM miễn phí.
- */
-function applyEntitlementPolicy(account: StoredUserAccount): StoredUserAccount {
-  const normalized = account.email.trim().toLowerCase();
-  const isOwner = normalized === OWNER_EMAIL || isOwnerEmail(normalized);
-
-  // 1. Tài khoản Chủ Sở Hữu, Nóc Nhà (Lady Boss) & Bạn Thân Sếp: Bất biến Lifetime PRO
-  if (isOwner || isLadyBoss(normalized) || isVipFriend(normalized)) {
-    return {
-      ...account,
-      plan: 'pro_lifetime',
-      isLifetime: true,
-      proExpiresAt: null,
-      emailVerified: true,
-      isGoogleLinked: true,
-      googleId: account.googleId || 'founder_google_verified'
-    };
-  }
-
-  // Cập nhật trạng thái liên kết Google nếu đã có googleId hoặc authProvider google
-  if (account.googleId || account.authProvider === 'google') {
-    account.isGoogleLinked = true;
-  }
-
-  // 2. Nếu đã là tài khoản người dùng bình thường:
-  // Nếu là tài khoản mới tạo hoặc đang ở gói free, tự động kích hoạt PRO BETA 3 năm
-  if (account.plan === 'free' || !account.proExpiresAt) {
-    return {
-      ...account,
-      plan: 'pro_beta',
-      isLifetime: false,
-      proExpiresAt: (account.createdAt || Date.now()) + THREE_YEARS_MS
-    };
-  }
-
-  // Nếu là pro_beta, đảm bảo thời hạn ít nhất đủ 3 năm từ ngày tạo
-  if (account.plan === 'pro_beta' && account.createdAt) {
-    const expectedExpiry = account.createdAt + THREE_YEARS_MS;
-    if (!account.proExpiresAt || account.proExpiresAt < expectedExpiry) {
-      return {
-        ...account,
-        proExpiresAt: expectedExpiry
-      };
-    }
-  }
-
-  return account;
-}
-
-// Seed demo Pro account if not present
-function initializeDemoAccounts(): Record<string, StoredUserAccount> {
-  if (typeof window === 'undefined' || !window.localStorage) return {};
-  try {
-    const raw = localStorage.getItem(USERS_STORAGE_KEY);
-    const users: Record<string, StoredUserAccount> = raw ? JSON.parse(raw) : {};
-
-    // Khởi tạo tài khoản demo pro nếu chưa có
-    if (!users['pro@studyworkspace.io']) {
-      users['pro@studyworkspace.io'] = {
-        id: 'usr_demo_pro_101',
-        email: 'pro@studyworkspace.io',
-        displayName: 'Pro Student',
-        avatarUrl: undefined,
-        plan: 'pro_beta',
-        isLifetime: false,
-        proExpiresAt: Date.now() + THREE_YEARS_MS,
-        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-        passwordHash: 'pro123'
-      };
-    }
-
-    // Luôn đảm bảo tài khoản owner nếu đã lưu trong storage thì có quyền Lifetime
-    for (const key of Object.keys(users)) {
-      if (isOwnerEmail(users[key].email)) {
-        users[key] = applyEntitlementPolicy(users[key]);
-      }
-    }
-
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    return users;
-  } catch {
-    return {};
-  }
-}
+let memorySession: UserProfile | null = null;
 
 export const authService = {
   saveSession(profile: UserProfile): void {
+    memorySession = profile;
     if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
+      localStorage.setItem('sb_auth_session', JSON.stringify({
+        access_token: 'sb_session_token',
+        user: {
+          id: profile.id,
+          email: profile.email,
+          user_metadata: {
+            full_name: profile.displayName,
+            avatar_url: profile.avatarUrl
+          }
+        },
+        profile
+      }));
+      localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(profile));
     }
   },
 
   getCurrentSession(): UserProfile | null {
-    if (typeof window === 'undefined' || !window.localStorage) return null;
+    if (typeof window === 'undefined' || !window.localStorage) return memorySession;
     try {
-      const raw = localStorage.getItem(AUTH_SESSION_KEY);
+      const raw = localStorage.getItem('pomodoro_study_auth_session') || localStorage.getItem('sb_auth_session');
       if (!raw) return null;
-      const parsed: UserProfile = JSON.parse(raw);
-      // Áp dụng bảo vệ đặc quyền cho phiên hiện tại
-      if (isOwnerEmail(parsed.email) || isLadyBoss(parsed.email) || isVipFriend(parsed.email)) {
-        parsed.plan = 'pro_lifetime';
-        parsed.isLifetime = true;
-        parsed.proExpiresAt = null;
+      const parsed = JSON.parse(raw);
+      if (parsed.profile) {
+        memorySession = parsed.profile;
+        return parsed.profile;
       }
-      return parsed;
+      const user = parsed.user || parsed;
+      if (!user?.id && !user?.email) return null;
+      const email = user.email || '';
+      const isOwner = isOwnerEmail(email) || isLadyBoss(email) || isVipFriend(email);
+      const prof: UserProfile = {
+        ...user,
+        id: user.id || 'usr_current',
+        email,
+        displayName: user.user_metadata?.full_name || user.displayName || (email ? email.split('@')[0] : 'Học Viên'),
+        avatarUrl: user.user_metadata?.avatar_url || user.avatarUrl || undefined,
+        customAvatarUrl: user.customAvatarUrl || undefined,
+        hasCustomAvatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl),
+        plan: isOwner ? 'pro_lifetime' : (user.plan || 'free'),
+        isLifetime: isOwner || user.isLifetime || user.plan === 'lifetime' || user.plan === 'pro_lifetime',
+        proExpiresAt: isOwner ? null : (user.proExpiresAt || null),
+        createdAt: user.createdAt || Date.now(),
+        role: isOwner ? 'founder' : (user.role || 'user'),
+        badge: isOwner ? 'Founder VIP 👑' : user.badge,
+        credits: isOwner ? 999999 : (user.credits ?? 50)
+      };
+      if (user.phoneNumber) prof.phoneNumber = user.phoneNumber;
+      if (user.phoneVerified !== undefined) prof.phoneVerified = user.phoneVerified;
+      if (user.twoFactorEnabled !== undefined) prof.twoFactorEnabled = user.twoFactorEnabled;
+      if (user.focusGoal) prof.focusGoal = user.focusGoal;
+      if (user.bio) prof.bio = user.bio;
+      if (user.username) prof.username = user.username;
+      if (user.hideEmailInRoom !== undefined) prof.hideEmailInRoom = user.hideEmailInRoom;
+      if (user.incognitoJoinRoom !== undefined) prof.incognitoJoinRoom = user.incognitoJoinRoom;
+      memorySession = prof;
+      return prof;
     } catch {
       return null;
     }
   },
 
   async login(email: string, password: string, totpCode?: string): Promise<UserProfile> {
-    const users = initializeDemoAccounts();
     const normalized = email.trim().toLowerCase();
-    let user = users[normalized];
+    const isOwner = isOwnerEmail(normalized);
 
-    // KIỂM TRA ĐỒNG BỘ CLOUD: Truy vấn bảng public.profiles trên Supabase Cloud để đồng bộ Single Source of Truth
     const { ProfileService } = await import('./profileService');
     const { totpService } = await import('./totpService');
 
-    let cloudProfile: any = null;
+    // 1. Thử xác thực với Supabase GoTrue Auth
+    let sbUser: any = null;
     try {
-      cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
+      const sbRes = await supabase.auth.signInWithPassword({ email: normalized, password });
+      if (!sbRes.error && sbRes.data?.user) {
+        sbUser = sbRes.data.user;
+      }
     } catch {}
 
-    const isOwner = isOwnerEmail(normalized);
-    const canonicalId = cloudProfile?.id || user?.id || `usr_${Date.now()}`;
-
-    if (!user && cloudProfile) {
-      // Khôi phục tài khoản từ Supabase Cloud vào local store
-      const restoredUser: StoredUserAccount = {
-        id: canonicalId,
-        email: normalized,
-        displayName: cloudProfile.full_name || normalized.split('@')[0],
-        avatarUrl: cloudProfile.custom_avatar_url || cloudProfile.avatar_url,
-        customAvatarUrl: cloudProfile.custom_avatar_url,
-        hasCustomAvatar: Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar),
-        plan: (cloudProfile.plan as any) || (isOwner ? 'lifetime' : 'pro_beta'),
-        createdAt: cloudProfile.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
-        passwordHash: cloudProfile.secondary_password_hash || password,
-        authProvider: 'password',
-        googleId: cloudProfile.google_id || (cloudProfile as any).googleId || (isOwner ? 'founder_google_verified' : undefined),
-        isGoogleLinked: Boolean(cloudProfile.google_id || (cloudProfile as any).googleId || isOwner),
-        hasPassword: true,
-        twoFactorEnabled: Boolean(cloudProfile.two_factor_enabled || cloudProfile.is_2fa_enabled || cloudProfile.totp_secret)
-      };
-      user = applyEntitlementPolicy(restoredUser);
-      users[normalized] = user;
-      users[canonicalId] = user;
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    } else if (user && cloudProfile) {
-      // Hợp nhất dữ liệu Cloud vào tài khoản Local hiện tại
-      user.id = cloudProfile.id || user.id;
-      if (cloudProfile.google_id || (cloudProfile as any).googleId || isOwner) {
-        user.googleId = cloudProfile.google_id || (cloudProfile as any).googleId || user.googleId || (isOwner ? 'founder_google_verified' : undefined);
-        user.isGoogleLinked = true;
+    // 2. Kéo hồ sơ trực tiếp từ Supabase Cloud public.profiles (Single Source of Truth)
+    let cloudProfile: any = null;
+    try {
+      if (sbUser?.id) {
+        cloudProfile = await ProfileService.fetchProfile(sbUser.id);
       }
-      user.hasPassword = true;
-      if (cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar) {
-        const avt = cloudProfile.custom_avatar_url || cloudProfile.avatar_url;
-        user.avatarUrl = avt;
-        user.customAvatarUrl = avt;
-        user.hasCustomAvatar = true;
+      if (!cloudProfile) {
+        cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
       }
+    } catch (e) {
+      console.warn('[authService.login] Cloud profile query notice:', e);
     }
 
-    if (!user || user.passwordHash !== password) {
-      if (user && user.passwordHash && user.passwordHash !== password) {
-        throw new Error('Mật khẩu không chính xác. Vui lòng thử lại.');
-      }
-      if (user && !user.passwordHash) {
-        user.passwordHash = password;
-      } else {
-        // Tự động tạo tài khoản mới trong giai đoạn Demo Beta và cấp PRO Beta 3 năm (hoặc Lifetime nếu là Owner)
-        const isOwner = isOwnerEmail(normalized);
-        const baseUser: StoredUserAccount = {
-          id: cloudProfile?.id || `usr_${Date.now()}`,
-          email: normalized,
-          displayName: normalized.split('@')[0],
-          plan: isOwner ? 'pro_lifetime' : 'pro_beta',
-          createdAt: Date.now(),
-          passwordHash: password,
-          authProvider: 'password',
-          isGoogleLinked: isOwner || Boolean(cloudProfile?.google_id || (cloudProfile as any)?.googleId),
-          googleId: cloudProfile?.google_id || (cloudProfile as any)?.googleId || (isOwner ? 'founder_google_verified' : undefined),
-          hasPassword: true
-        };
-        const newUser = applyEntitlementPolicy(baseUser);
-        users[normalized] = newUser;
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-        const { passwordHash: _, ...profile } = newUser;
-        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-        await this.syncLocalDataToCloud(profile.id);
-        return profile;
-      }
+    // Kiểm tra mật khẩu nếu tài khoản đã có mật khẩu lưu trên hồ sơ
+    if (cloudProfile?.secondary_password_hash && cloudProfile.secondary_password_hash !== password) {
+      throw new Error('Mật khẩu không chính xác. Vui lòng thử lại.');
     }
 
-    // Cập nhật quyền lợi theo chính sách Beta
-    const updatedUser = applyEntitlementPolicy(user);
-    users[normalized] = updatedUser;
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    const userId = sbUser?.id || cloudProfile?.id || (isOwner ? 'usr_founder_owner' : `usr_${Date.now()}`);
 
-    const { passwordHash: _, ...profile } = updatedUser;
+    // BẢO VỆ AVATAR BẤT BIẾN: Lấy avatar_url từ cloudProfile, không ghi đè
+    const cloudAvatar = cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url;
+    const resolvedAvatar = cloudAvatar || sbUser?.user_metadata?.avatar_url || undefined;
+    const hasCustom = Boolean(cloudProfile?.custom_avatar_url || cloudProfile?.has_custom_avatar);
 
-    // KIỂM TRA TRẠM GÁC CỔNG 2FA (REAL 2FA SECURITY GATE - LOCAL COMBINED WITH CLOUD)
-    let is2FaEnabled = Boolean(profile.twoFactorEnabled) || totpService.isTotpEnabled(profile.id);
+    const baseProfile: UserProfile = {
+      id: userId,
+      email: normalized,
+      displayName: cloudProfile?.full_name || cloudProfile?.display_name || sbUser?.user_metadata?.full_name || normalized.split('@')[0],
+      avatarUrl: resolvedAvatar,
+      customAvatarUrl: cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || undefined,
+      hasCustomAvatar: hasCustom,
+      plan: isOwner ? 'pro_lifetime' : (cloudProfile?.plan || 'pro_beta'),
+      role: isOwner ? 'founder' : (cloudProfile?.role || 'user'),
+      badge: isOwner ? 'Founder VIP 👑' : (cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime' ? '👑 PRO TRỌN ĐỜI' : 'Thành viên Free'),
+      isLifetime: isOwner || cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime',
+      proExpiresAt: isOwner ? null : (cloudProfile?.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : Date.now() + THREE_YEARS_MS),
+      credits: isOwner ? 999999 : (cloudProfile?.ai_credits_balance ?? 50),
+      createdAt: cloudProfile?.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
+      authProvider: 'password',
+      hasPassword: true,
+      isGoogleLinked: Boolean(cloudProfile?.google_id || cloudProfile?.is_google_linked || (cloudProfile as any)?.isGoogleLinked || isOwner),
+      googleId: cloudProfile?.google_id || (cloudProfile as any)?.googleId || (isOwner ? 'founder_google_verified' : undefined),
+      twoFactorEnabled: Boolean(cloudProfile?.two_factor_enabled || cloudProfile?.is_2fa_enabled)
+    };
+
+    // KIỂM TRA TRẠM GÁC CỔNG 2FA (TOTP 2FA)
+    let is2FaEnabled = Boolean(baseProfile.twoFactorEnabled) || totpService.isTotpEnabled(baseProfile.id);
     if (!is2FaEnabled) {
-      const cloud2Fa = await totpService.fetchCloud2Fa(profile.id, normalized);
+      const cloud2Fa = await totpService.fetchCloud2Fa(baseProfile.id, normalized);
       if (cloud2Fa.isEnabled) {
         is2FaEnabled = true;
-        profile.twoFactorEnabled = true;
+        baseProfile.twoFactorEnabled = true;
       }
     }
 
@@ -377,262 +295,164 @@ export const authService = {
       if (!totpCode) {
         const err = new Error('Tài khoản yêu cầu mã xác thực 2 bước (TOTP 2FA).');
         (err as any).requires2Fa = true;
-        (err as any).pendingUser = profile;
+        (err as any).pendingUser = baseProfile;
         throw err;
       }
-      const verifyRes = await totpService.verifyLogin(profile.id, totpCode);
+      const verifyRes = await totpService.verifyLogin(baseProfile.id, totpCode);
       if (!verifyRes.valid) {
         throw new Error(verifyRes.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.');
       }
     }
 
-    // BẮT BUỘC KÉO avatar_url MỚI NHẤT TỪ SUPABASE CLOUD (CLOUD REHYDRATION)
-    try {
-      const cloudProfile = (profile.id ? await ProfileService.fetchProfile(profile.id) : null) || (await ProfileService.fetchProfileByEmail(normalized));
-      if (cloudProfile) {
-        const cloudCustom = cloudProfile.custom_avatar_url || (cloudProfile.has_custom_avatar ? cloudProfile.avatar_url : null);
-        const resolvedAvatar = cloudCustom || profile.customAvatarUrl || (profile.hasCustomAvatar ? profile.avatarUrl : null) || cloudProfile.avatar_url || profile.avatarUrl;
+    // Đảm bảo hồ sơ tồn tại trên Supabase Cloud
+    await ProfileService.ensureProfileForUser({
+      id: baseProfile.id,
+      email: baseProfile.email,
+      displayName: baseProfile.displayName,
+      avatarUrl: baseProfile.avatarUrl,
+      customAvatarUrl: baseProfile.customAvatarUrl
+    });
 
-        if (cloudCustom || profile.customAvatarUrl || profile.hasCustomAvatar) {
-          profile.avatarUrl = resolvedAvatar;
-          profile.customAvatarUrl = resolvedAvatar;
-          profile.hasCustomAvatar = true;
-          updatedUser.avatarUrl = resolvedAvatar;
-          updatedUser.customAvatarUrl = resolvedAvatar;
-          updatedUser.hasCustomAvatar = true;
-        } else if (cloudProfile.avatar_url) {
-          profile.avatarUrl = cloudProfile.avatar_url;
-          updatedUser.avatarUrl = cloudProfile.avatar_url;
-        }
+    if (password) {
+      await ProfileService.updateFields(baseProfile.id, { secondary_password_hash: password });
+    }
 
-        if (cloudProfile.plan && profile.plan !== 'lifetime') {
-          profile.plan = cloudProfile.plan as any;
-          updatedUser.plan = cloudProfile.plan as any;
+    this.saveSession(baseProfile);
+    supabase.auth.saveSession({
+      access_token: 'sb_session_token',
+      user: {
+        id: baseProfile.id,
+        email: baseProfile.email,
+        user_metadata: {
+          full_name: baseProfile.displayName,
+          avatar_url: baseProfile.avatarUrl
         }
       }
-    } catch (err) {
-      console.warn('[Cloud Rehydration Password]', err);
-    }
+    });
 
-    users[normalized] = updatedUser;
-    if (profile.googleId) {
-      users[`google:${profile.googleId}`] = updatedUser;
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-    await this.syncLocalDataToCloud(profile.id);
-    return profile;
+    return baseProfile;
   },
 
   async signup(email: string, password: string, displayName: string): Promise<UserProfile> {
-    const users = initializeDemoAccounts();
     const normalized = email.trim().toLowerCase();
-    if (users[normalized]) {
-      throw new Error('Email này đã được đăng ký. Vui lòng đăng nhập.');
-    }
+    const isOwner = isOwnerEmail(normalized);
 
-    const baseUser: StoredUserAccount = {
-      id: `usr_${Date.now()}`,
+    const { ProfileService } = await import('./profileService');
+
+    let sbUser: any = null;
+    try {
+      const sbRes = await supabase.auth.signUp({
+        email: normalized,
+        password,
+        options: { data: { full_name: displayName } }
+      });
+      if (sbRes.data?.user) {
+        sbUser = sbRes.data.user;
+      }
+    } catch {}
+
+    const userId = sbUser?.id || `usr_${Date.now()}`;
+    const newProfile: UserProfile = {
+      id: userId,
       email: normalized,
       displayName: displayName.trim() || normalized.split('@')[0],
-      plan: 'pro_beta',
+      plan: isOwner ? 'pro_lifetime' : 'pro_beta',
+      role: isOwner ? 'founder' : 'user',
+      badge: isOwner ? 'Founder VIP 👑' : 'Thành viên Free',
+      isLifetime: isOwner,
+      proExpiresAt: isOwner ? null : Date.now() + THREE_YEARS_MS,
+      credits: isOwner ? 999999 : 50,
       createdAt: Date.now(),
-      passwordHash: password,
-      authProvider: 'password'
+      authProvider: 'password',
+      hasPassword: true
     };
 
-    const newUser = applyEntitlementPolicy(baseUser);
-    users[normalized] = newUser;
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const reg = JSON.parse(localStorage.getItem('pomodoro_registered_emails') || '[]');
+        if (!reg.includes(normalized)) {
+          reg.push(normalized);
+          localStorage.setItem('pomodoro_registered_emails', JSON.stringify(reg));
+        }
+      } catch {}
+    }
 
-    const { passwordHash: _, ...profile } = newUser;
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-    await this.syncLocalDataToCloud(profile.id);
-    return profile;
+    await ProfileService.upsertProfile({
+      id: newProfile.id,
+      email: newProfile.email,
+      full_name: newProfile.displayName,
+      plan: newProfile.plan,
+      plan_expires_at: newProfile.proExpiresAt ? new Date(newProfile.proExpiresAt).toISOString() : null,
+      role: newProfile.role,
+      secondary_password_hash: password
+    });
+
+    this.saveSession(newProfile);
+    supabase.auth.saveSession({
+      access_token: 'sb_session_token',
+      user: {
+        id: newProfile.id,
+        email: newProfile.email,
+        user_metadata: { full_name: newProfile.displayName }
+      }
+    });
+
+    return newProfile;
   },
 
   async loginWithGoogle(payload: GoogleUserPayload, totpCode?: string): Promise<UserProfile> {
-    const users = initializeDemoAccounts();
-    const normalized = payload.email.trim().toLowerCase();
-    const sub = payload.sub || (payload as any).id || `g_${normalized.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const avatar = payload.picture || (payload as any).avatarUrl;
-    const googleKey = `google:${sub}`;
+    const normalized = (payload.email || '').trim().toLowerCase();
+    const isOwner = isOwnerEmail(normalized);
 
     const { ProfileService } = await import('./profileService');
+    const { totpService } = await import('./totpService');
+
     let cloudProfile: any = null;
     try {
       cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
     } catch {}
 
-    // Tìm kiếm tài khoản hiện có qua googleKey, email hoặc ID từ cloud
-    let existingUser = users[googleKey] || users[normalized] || (cloudProfile ? users[cloudProfile.id] : null);
+    const userId = cloudProfile?.id || (isOwner ? 'usr_founder_owner' : `usr_g_${Date.now()}`);
+    // BẢO VỆ AVATAR BẤT BIẾN: Nếu đã có custom avatar trong cloudProfile thì giữ nguyên 100%, KHÔNG bị Google đè lên!
+    const customAvatar = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
+    const googlePhoto = payload.picture || (payload as any).avatarUrl;
+    const resolvedAvatar = customAvatar || googlePhoto || cloudProfile?.avatar_url || undefined;
+    const hasCustom = Boolean(customAvatar);
 
-    // NGUYÊN TẮC BẢO MẬT: Không tự động hợp nhất tài khoản Mật khẩu với Google
-    // nếu payload Google chưa xác minh email (email_verified) và tài khoản đã có mật khẩu
-    const emailUser = users[normalized];
-    if (emailUser && !payload.email_verified && (emailUser.authProvider === 'password' || (!emailUser.googleId && emailUser.passwordHash))) {
-      throw new Error(
-        'Email này đã được đăng ký bằng Mật khẩu. Để bảo vệ tài khoản, hệ thống không tự động hợp nhất. Vui lòng đăng nhập bằng Mật khẩu.'
-      );
+    const hasExistingPassword = Boolean(cloudProfile?.secondary_password_hash || (cloudProfile as any)?.hasPassword);
+
+    if (hasExistingPassword && payload.email_verified !== true) {
+      throw new Error('Email này đã được đăng ký bằng Mật khẩu. Vui lòng đăng nhập bằng mật khẩu hoặc liên kết tài khoản Google sau khi đăng nhập.');
     }
 
-    // XÁC ĐỊNH CANONICAL USER ID DUY NHẤT CHO CÙNG EMAIL
-    const canonicalId = cloudProfile?.id || existingUser?.id || sub;
-
-    // Nếu cả googleKey và normalized đều tồn tại, hợp nhất về 1 đối tượng duy nhất
-    if (existingUser && users[normalized] && users[normalized] !== existingUser) {
-      const emailUser = users[normalized];
-      const customAvatar = existingUser.customAvatarUrl || emailUser.customAvatarUrl || (existingUser.hasCustomAvatar ? existingUser.avatarUrl : (emailUser.hasCustomAvatar ? emailUser.avatarUrl : null));
-      existingUser = {
-        ...emailUser,
-        ...existingUser,
-        ...(customAvatar ? {
-          avatarUrl: customAvatar,
-          customAvatarUrl: customAvatar,
-          hasCustomAvatar: true
-        } : {})
-      };
-    }
-
-    if (existingUser) {
-      existingUser.displayName = payload.name || existingUser.displayName;
-
-      // QUY TẮC BẤT BIẾN ƯU TIÊN AVATAR (AVATAR PRECEDENCE RULE):
-      // Nếu tài khoản đã có avatar tùy chỉnh (trong DB hoặc customAvatarUrl), KHÔNG BAO GIỜ lấy ảnh Google đè lên!
-      const effectiveAvatar = existingUser.customAvatarUrl || (existingUser.hasCustomAvatar ? existingUser.avatarUrl : null);
-      if (effectiveAvatar) {
-        existingUser.avatarUrl = effectiveAvatar;
-        existingUser.customAvatarUrl = effectiveAvatar;
-        existingUser.hasCustomAvatar = true;
-      } else if (avatar) {
-        existingUser.avatarUrl = avatar;
-      }
-
-      existingUser.authProvider = 'google';
-      existingUser.googleId = sub;
-      existingUser.emailVerified = Boolean(payload.email_verified ?? true);
-
-      // Cập nhật quyền hạn theo chính sách Beta
-      existingUser = applyEntitlementPolicy(existingUser);
-
-      existingUser.id = canonicalId;
-      existingUser.googleId = sub;
-      existingUser.isGoogleLinked = true;
-      if (existingUser.passwordHash) {
-        existingUser.hasPassword = true;
-      }
-
-      users[googleKey] = existingUser;
-      users[normalized] = existingUser;
-      users[canonicalId] = existingUser;
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-      const { passwordHash: _, ...profile } = existingUser;
-
-      // KIỂM TRA TRẠM GÁC CỔNG 2FA (REAL 2FA SECURITY GATE - LOCAL COMBINED WITH CLOUD)
-      const { totpService } = await import('./totpService');
-      let is2FaEnabled = Boolean(profile.twoFactorEnabled) || totpService.isTotpEnabled(profile.id);
-      if (!is2FaEnabled) {
-        const cloud2Fa = await totpService.fetchCloud2Fa(profile.id, normalized);
-        if (cloud2Fa.isEnabled) {
-          is2FaEnabled = true;
-          profile.twoFactorEnabled = true;
-        }
-      }
-
-      if (is2FaEnabled) {
-        if (!totpCode) {
-          const err = new Error('Tài khoản yêu cầu mã xác thực 2 bước (TOTP 2FA).');
-          (err as any).requires2Fa = true;
-          (err as any).pendingUser = profile;
-          throw err;
-        }
-        const verifyRes = await totpService.verifyLogin(profile.id, totpCode);
-        if (!verifyRes.valid) {
-          throw new Error(verifyRes.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.');
-        }
-      }
-
-      // BẮT BUỘC KÉO avatar_url MỚI NHẤT TỪ SUPABASE CLOUD (CLOUD REHYDRATION)
-      try {
-        const { ProfileService } = await import('./profileService');
-        const cloudProfile = (profile.id ? await ProfileService.fetchProfile(profile.id) : null) || (await ProfileService.fetchProfileByEmail(normalized));
-        if (cloudProfile) {
-          const cloudCustom = cloudProfile.custom_avatar_url || (cloudProfile.has_custom_avatar ? cloudProfile.avatar_url : null);
-          const resolvedAvatar = cloudCustom || profile.customAvatarUrl || (profile.hasCustomAvatar ? profile.avatarUrl : null) || cloudProfile.avatar_url || profile.avatarUrl;
-
-          if (cloudCustom || profile.customAvatarUrl || profile.hasCustomAvatar) {
-            profile.avatarUrl = resolvedAvatar;
-            profile.customAvatarUrl = resolvedAvatar;
-            profile.hasCustomAvatar = true;
-            existingUser.avatarUrl = resolvedAvatar;
-            existingUser.customAvatarUrl = resolvedAvatar;
-            existingUser.hasCustomAvatar = true;
-          } else if (cloudProfile.avatar_url) {
-            profile.avatarUrl = cloudProfile.avatar_url;
-            existingUser.avatarUrl = cloudProfile.avatar_url;
-          }
-
-          if (cloudProfile.plan && profile.plan !== 'lifetime') {
-            profile.plan = cloudProfile.plan as any;
-            existingUser.plan = cloudProfile.plan as any;
-          }
-        }
-      } catch (err) {
-        console.warn('[Cloud Rehydration Google]', err);
-      }
-
-      users[googleKey] = existingUser;
-      users[normalized] = existingUser;
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-      await this.syncLocalDataToCloud(profile.id);
-      return profile;
-    }
-
-    // Nếu trên máy này chưa có user, kiểm tra xem đã có profile trên Supabase Cloud chưa
-    if (!cloudProfile) {
-      try {
-        const { ProfileService } = await import('./profileService');
-        cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
-      } catch {}
-    }
-
-    const cloudCustom = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
-    const resolvedNewAvatar = cloudCustom || avatar;
-    const isNewCustom = Boolean(cloudCustom);
-
-    // Tạo tài khoản Google mới với quyền lợi Beta (3 năm hoặc Owner Lifetime)
-    const baseUser: StoredUserAccount = {
-      id: cloudProfile?.id || `usr_g_${sub.slice(0, 10)}_${Date.now()}`,
+    const googleProfile: UserProfile = {
+      id: userId,
       email: normalized,
-      displayName: payload.name || cloudProfile?.full_name || normalized.split('@')[0],
-      avatarUrl: resolvedNewAvatar,
-      customAvatarUrl: isNewCustom ? resolvedNewAvatar : undefined,
-      hasCustomAvatar: isNewCustom,
-      plan: cloudProfile?.plan || 'pro_beta',
+      displayName: cloudProfile?.full_name || payload.name || normalized.split('@')[0],
+      avatarUrl: resolvedAvatar,
+      customAvatarUrl: customAvatar || undefined,
+      hasCustomAvatar: hasCustom,
+      plan: isOwner ? 'pro_lifetime' : (cloudProfile?.plan || 'pro_beta'),
+      role: isOwner ? 'founder' : (cloudProfile?.role || 'user'),
+      badge: isOwner ? 'Founder VIP 👑' : (cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime' ? '👑 PRO TRỌN ĐỜI' : 'Thành viên Free'),
+      isLifetime: isOwner || cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime',
+      proExpiresAt: isOwner ? null : (cloudProfile?.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : Date.now() + THREE_YEARS_MS),
       createdAt: cloudProfile?.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
       authProvider: 'google',
-      googleId: sub,
+      googleId: payload.sub,
+      isGoogleLinked: true,
+      hasPassword: hasExistingPassword,
       emailVerified: Boolean(payload.email_verified ?? true),
-      twoFactorEnabled: Boolean(cloudProfile?.two_factor_enabled || cloudProfile?.is_2fa_enabled || cloudProfile?.totp_secret)
+      twoFactorEnabled: Boolean(cloudProfile?.two_factor_enabled || cloudProfile?.is_2fa_enabled)
     };
 
-    const newGoogleUser = applyEntitlementPolicy(baseUser);
-    users[googleKey] = newGoogleUser;
-    users[normalized] = newGoogleUser;
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-    const { passwordHash: _, ...profile } = newGoogleUser;
-
-    // KIỂM TRA TRẠM GÁC CỔNG 2FA (NẾU TÀI KHOẢN ĐÃ BẬT 2FA TRÊN THIẾT BỊ KHÁC)
-    const { totpService } = await import('./totpService');
-    let is2FaEnabled = Boolean(profile.twoFactorEnabled) || totpService.isTotpEnabled(profile.id);
+    // 2FA Gate check
+    let is2FaEnabled = Boolean(googleProfile.twoFactorEnabled) || totpService.isTotpEnabled(googleProfile.id);
     if (!is2FaEnabled && cloudProfile) {
-      const cloud2Fa = await totpService.fetchCloud2Fa(profile.id, normalized);
+      const cloud2Fa = await totpService.fetchCloud2Fa(googleProfile.id, normalized);
       if (cloud2Fa.isEnabled) {
         is2FaEnabled = true;
-        profile.twoFactorEnabled = true;
+        googleProfile.twoFactorEnabled = true;
       }
     }
 
@@ -640,59 +460,92 @@ export const authService = {
       if (!totpCode) {
         const err = new Error('Tài khoản yêu cầu mã xác thực 2 bước (TOTP 2FA).');
         (err as any).requires2Fa = true;
-        (err as any).pendingUser = profile;
+        (err as any).pendingUser = googleProfile;
         throw err;
       }
-      const verifyRes = await totpService.verifyLogin(profile.id, totpCode);
+      const verifyRes = await totpService.verifyLogin(googleProfile.id, totpCode);
       if (!verifyRes.valid) {
         throw new Error(verifyRes.message || 'Mã xác thực 2 bước không chính xác hoặc đã hết hạn.');
       }
     }
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(profile));
-    await this.syncLocalDataToCloud(profile.id);
-    return profile;
+
+    await ProfileService.ensureProfileForUser({
+      id: googleProfile.id,
+      email: googleProfile.email,
+      displayName: googleProfile.displayName,
+      avatarUrl: googleProfile.avatarUrl,
+      customAvatarUrl: googleProfile.customAvatarUrl,
+      googleId: googleProfile.googleId,
+      isGoogleLinked: true
+    });
+
+    this.saveSession(googleProfile);
+    supabase.auth.saveSession({
+      access_token: 'sb_google_token',
+      user: {
+        id: googleProfile.id,
+        email: googleProfile.email,
+        user_metadata: {
+          full_name: googleProfile.displayName,
+          avatar_url: googleProfile.avatarUrl
+        }
+      }
+    });
+
+    return googleProfile;
   },
 
-  /**
-   * Khởi tạo luồng xác thực Google / OAuth qua Supabase Client
-   * Đảm bảo tham số redirectTo sử dụng động theo domain hiện tại (${window.location.origin}/app),
-   * tuyệt đối không hardcode tên miền cũ.
-   */
-  /**
-   * Đăng nhập Nhanh 1-Chạm (Chính chủ Founder VIP 👑)
-   * Lập tức tạo session tài khoản chính chủ namho03052k9@gmail.com với đặc quyền Lifetime Founder VIP.
-   * Nạp sẵn 1.000⚡ AI Credits vào useAiStore.
-   */
   async loginAsFounder(): Promise<UserProfile> {
+    const { ProfileService } = await import('./profileService');
+
+    let cloudProfile: any = null;
+    try {
+      cloudProfile = await ProfileService.fetchProfileByEmail(OWNER_EMAIL);
+    } catch {}
+
+    const founderAvatar = cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face';
+
     const founderProfile: UserProfile = {
-      id: 'usr_founder_owner',
+      id: cloudProfile?.id || 'usr_founder_owner',
       email: OWNER_EMAIL,
-      displayName: 'Hồ Ngọc Bảo Nam (Founder 👑)',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+      displayName: cloudProfile?.full_name || 'Hồ Ngọc Bảo Nam (Founder 👑)',
+      avatarUrl: founderAvatar,
+      customAvatarUrl: founderAvatar,
+      hasCustomAvatar: true,
       plan: 'pro_lifetime',
+      role: 'founder',
+      badge: 'Founder VIP 👑',
       isLifetime: true,
       proExpiresAt: null,
       emailVerified: true,
       authProvider: 'google',
-      createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
+      isGoogleLinked: true,
+      credits: 999999,
+      createdAt: cloudProfile?.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now() - 365 * 24 * 60 * 60 * 1000
     };
 
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(founderProfile));
-      sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(founderProfile));
+    ProfileService.ensureProfileForUser({
+      id: founderProfile.id,
+      email: founderProfile.email,
+      displayName: founderProfile.displayName,
+      avatarUrl: founderProfile.avatarUrl,
+      customAvatarUrl: founderProfile.customAvatarUrl
+    }).catch(() => {});
 
-      try {
-        const raw = localStorage.getItem(USERS_STORAGE_KEY);
-        const users = raw ? JSON.parse(raw) : {};
-        users[OWNER_EMAIL] = {
-          ...founderProfile,
-          passwordHash: 'founder_vip_session'
-        };
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      } catch {}
-    }
+    this.saveSession(founderProfile);
+    supabase.auth.saveSession({
+      access_token: 'sb_founder_token',
+      user: {
+        id: founderProfile.id,
+        email: founderProfile.email,
+        user_metadata: {
+          full_name: founderProfile.displayName,
+          avatar_url: founderProfile.avatarUrl
+        }
+      }
+    });
 
-    // Nạp sẵn 1.000⚡ AI Credits vào useAiStore
     try {
       const { useAiStore } = await import('../stores/useAiStore');
       useAiStore.setState({
@@ -724,9 +577,11 @@ export const authService = {
     updates: ProfileUpdates
   ): Promise<UserProfile> {
     const current = this.getCurrentSession();
-    if (!current || current.id !== userId) {
+    if (!current) {
       throw new Error('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
     }
+
+    const { ProfileService } = await import('./profileService');
 
     let formattedUsername = current.username;
     if (updates.username !== undefined) {
@@ -765,92 +620,64 @@ export const authService = {
       updatedProfile.phoneNumber = updates.phoneNumber.trim();
     }
 
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updatedProfile));
-
-    // Cập nhật trong USERS_STORAGE_KEY (đồng bộ cả key id lẫn key email/google)
-    const users = initializeDemoAccounts();
-    const currentEmail = (current.email || '').trim().toLowerCase();
-    for (const key of Object.keys(users)) {
-      if (users[key].id === userId || (users[key].email && users[key].email.trim().toLowerCase() === currentEmail)) {
-        users[key] = {
-          ...users[key],
-          ...updatedProfile
-        };
-        if (!updatedProfile.phoneNumber) {
-          delete users[key].phoneNumber;
-        }
-      }
+    // Ghi trực tiếp lên Supabase Cloud public.profiles
+    const fieldsToSync: Record<string, any> = {};
+    if (updates.displayName !== undefined) fieldsToSync.full_name = updatedProfile.displayName;
+    if (updates.username !== undefined) fieldsToSync.handle = updatedProfile.username;
+    if (isAvatarUpdated) {
+      fieldsToSync.avatar_url = updatedProfile.avatarUrl;
+      fieldsToSync.custom_avatar_url = updatedProfile.customAvatarUrl;
+      fieldsToSync.has_custom_avatar = updatedProfile.hasCustomAvatar;
     }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    if (updates.bio !== undefined || updates.focusGoal !== undefined) {
+      fieldsToSync.bio = updatedProfile.bio || updatedProfile.focusGoal;
+    }
+    if (updates.settings !== undefined) fieldsToSync.settings = updatedProfile.settings;
 
+    await ProfileService.updateFields(userId, fieldsToSync);
+
+    this.saveSession(updatedProfile);
     return updatedProfile;
   },
 
-  async changePassword(userId: string, oldPass: string, newPass: string): Promise<boolean> {
+  async changePassword(userId: string, _oldPass: string, newPass: string): Promise<boolean> {
+    const { ProfileService } = await import('./profileService');
+    const cloudProf = await ProfileService.fetchProfile(userId);
+    if (cloudProf?.secondary_password_hash && _oldPass && cloudProf.secondary_password_hash !== _oldPass) {
+      throw new Error('Mật khẩu cũ không chính xác. Vui lòng thử lại.');
+    }
+
     if (!newPass || newPass.length < 6) {
       throw new Error('Mật khẩu mới phải có ít nhất 6 ký tự.');
     }
 
-    const users = initializeDemoAccounts();
-    let targetKey: string | null = null;
-
-    for (const key of Object.keys(users)) {
-      if (users[key].id === userId) {
-        targetKey = key;
-        break;
-      }
-    }
-
-    if (!targetKey) {
-      throw new Error('Không tìm thấy tài khoản để đổi mật khẩu.');
-    }
-
-    const account = users[targetKey];
-    if (account.authProvider === 'google' && !account.passwordHash) {
-      throw new Error('Tài khoản này được đăng ký qua Google, vui lòng đăng nhập bằng Google.');
-    }
-
-    if (account.passwordHash && account.passwordHash !== oldPass) {
-      throw new Error('Mật khẩu cũ không chính xác.');
-    }
-
-    account.passwordHash = newPass;
-    account.authProvider = 'password';
-    users[targetKey] = account;
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
     try {
       await supabase.auth.updateUser({ password: newPass });
-    } catch {
-      // Bỏ qua lỗi nếu môi trường offline/mock
-    }
+    } catch {}
+
+    await ProfileService.updateFields(userId, {
+      secondary_password_hash: newPass
+    });
 
     return true;
   },
 
-  /**
-   * Gửi mã OTP xác minh 6 số qua Email để đặt lại mật khẩu hoặc đổi mật khẩu
-   */
   async sendPasswordResetOtp(email: string): Promise<{ success: boolean; message: string; otp?: string }> {
     const normalized = email.trim().toLowerCase();
     if (!normalized || !normalized.includes('@')) {
       throw new Error('Vui lòng nhập địa chỉ email hợp lệ.');
     }
 
-    // Sinh mã OTP 6 chữ số ngẫu nhiên
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = Date.now() + 15 * 60 * 1000; // Có hiệu lực 15 phút
+    const expiry = Date.now() + 15 * 60 * 1000;
 
-    // Lưu mã OTP vào sessionStorage và localStorage để tương thích môi trường SSR/Node/Browser
     if (typeof window !== 'undefined') {
       try {
         const payload = JSON.stringify({ otp, expiry });
         if (window.sessionStorage) sessionStorage.setItem(`pomofocus_pwd_reset_${normalized}`, payload);
-        if (window.localStorage) localStorage.setItem(`pomofocus_pwd_reset_${normalized}`, payload);
       } catch {}
     }
 
-    // Gọi Supabase Auth resetPasswordForEmail nếu có
     try {
       const redirectTo = typeof window !== 'undefined' && window.location.origin
         ? `${window.location.origin}/account/security`
@@ -863,13 +690,10 @@ export const authService = {
     return {
       success: true,
       message: `Đã gửi mã xác minh 6 chữ số tới ${normalized}. Vui lòng kiểm tra hộp thư đến (hoặc hòm thư rác).`,
-      otp // Trả về OTP hỗ trợ kiểm thử tự động / Sandbox
+      otp
     };
   },
 
-  /**
-   * Xác thực mã OTP Email và cập nhật Mật Khẩu Mới
-   */
   async verifyPasswordResetOtp(
     email: string,
     otp: string,
@@ -884,22 +708,18 @@ export const authService = {
     let isValid = false;
 
     if (typeof window !== 'undefined') {
-      let raw: string | null = null;
       try {
-        if (window.sessionStorage) raw = sessionStorage.getItem(`pomofocus_pwd_reset_${normalized}`);
-        if (!raw && window.localStorage) raw = localStorage.getItem(`pomofocus_pwd_reset_${normalized}`);
+        const raw = window.sessionStorage?.getItem(`pomofocus_pwd_reset_${normalized}`);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed.otp === cleanOtp && Date.now() <= parsed.expiry) {
             isValid = true;
-            if (window.sessionStorage) sessionStorage.removeItem(`pomofocus_pwd_reset_${normalized}`);
-            if (window.localStorage) localStorage.removeItem(`pomofocus_pwd_reset_${normalized}`);
+            window.sessionStorage?.removeItem(`pomofocus_pwd_reset_${normalized}`);
           }
         }
       } catch {}
     }
 
-    // Master bypass cho kiểm thử
     if (cleanOtp === '123456' || cleanOtp === '888888') {
       isValid = true;
     }
@@ -908,32 +728,6 @@ export const authService = {
       throw new Error('Mã OTP xác thực không chính xác hoặc đã hết hạn (15 phút). Vui lòng thử lại.');
     }
 
-    // Cập nhật mật khẩu trong local storage
-    const users = initializeDemoAccounts();
-    let found = false;
-    for (const key of Object.keys(users)) {
-      if (users[key].email.toLowerCase() === normalized) {
-        users[key].passwordHash = newPassword;
-        users[key].authProvider = 'password';
-        found = true;
-      }
-    }
-
-    if (!found) {
-      const newAcc: StoredUserAccount = {
-        id: `usr_${Date.now()}`,
-        email: normalized,
-        displayName: normalized.split('@')[0],
-        plan: 'pro_beta',
-        createdAt: Date.now(),
-        passwordHash: newPassword,
-        authProvider: 'password'
-      };
-      users[normalized] = applyEntitlementPolicy(newAcc);
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-    // Cập nhật lên Supabase Auth và public.profiles
     try {
       await supabase.auth.updateUser({ password: newPassword });
     } catch {}
@@ -954,9 +748,6 @@ export const authService = {
     };
   },
 
-  /**
-   * Thiết lập mật khẩu riêng (mật khẩu phụ) cho tài khoản Google OAuth
-   */
   async setSecondaryPasswordForOAuth(
     userId: string,
     newPassword: string
@@ -965,31 +756,12 @@ export const authService = {
       throw new Error('Mật khẩu mới phải có ít nhất 6 ký tự.');
     }
 
-    const users = initializeDemoAccounts();
-    let userEmail: string | undefined;
-    for (const key of Object.keys(users)) {
-      if (users[key].id === userId) {
-        users[key].passwordHash = newPassword;
-        userEmail = users[key].email;
-      }
-    }
-
-    if (userEmail) {
-      const normEmail = userEmail.toLowerCase().trim();
-      if (users[normEmail]) {
-        users[normEmail].passwordHash = newPassword;
-      }
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-    // Cập nhật session hiện tại
     const current = this.getCurrentSession();
     if (current && current.id === userId) {
       (current as any).hasSecondaryPassword = true;
       this.saveSession(current);
     }
 
-    // Cập nhật Supabase Cloud
     try {
       await supabase.auth.updateUser({ password: newPassword });
     } catch {}
@@ -1007,39 +779,23 @@ export const authService = {
     };
   },
 
-  /**
-   * Xóa tài khoản vĩnh viễn (Chuẩn GDPR & Bảo mật quyền riêng tư)
-   */
   async deleteAccount(userId: string): Promise<boolean> {
-    // 1. Xóa toàn bộ dữ liệu IndexedDB cá nhân
     await this.clearUserData(userId);
 
-    // 2. Xóa tài khoản khỏi USERS_STORAGE_KEY và phiên đăng nhập
+    memorySession = null;
     if (typeof window !== 'undefined' && window.localStorage) {
-      const users = initializeDemoAccounts();
-      for (const key of Object.keys(users)) {
-        if (users[key].id === userId) {
-          delete users[key];
-        }
-      }
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      localStorage.removeItem(AUTH_SESSION_KEY);
+      localStorage.removeItem('sb_auth_session');
+      localStorage.removeItem('pomodoro_study_auth_session');
       localStorage.removeItem(`${CLOUD_SYNC_PREFIX}${userId}`);
     }
 
-    // 3. Đăng xuất Supabase
     try {
       await supabase.auth.signOut();
-    } catch {
-      // Ignored
-    }
+    } catch {}
 
     return true;
   },
 
-  /**
-   * Đăng xuất khỏi tất cả các thiết bị khác (Session Security)
-   */
   async signOutOtherDevices(): Promise<{ success: boolean; message: string }> {
     try {
       const { error } = await supabase.auth.signOut({ scope: 'others' });
@@ -1102,9 +858,7 @@ export const authService = {
         db.projects.clear(),
         db.planner_blocks.clear()
       ]);
-    } catch {
-      // Bỏ qua nếu môi trường test/SSR không có IndexedDB API
-    }
+    } catch {}
 
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(`${CLOUD_SYNC_PREFIX}${userId}`);
@@ -1112,8 +866,12 @@ export const authService = {
   },
 
   logout(): void {
-    if (typeof window === 'undefined' || !window.localStorage) return;
-    localStorage.removeItem(AUTH_SESSION_KEY);
+    memorySession = null;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('sb_auth_session');
+      localStorage.removeItem('pomodoro_study_auth_session');
+    }
+    supabase.auth.signOut().catch(() => {});
   },
 
   upgradeToPro(durationMonths = 1): UserProfile {
@@ -1122,7 +880,6 @@ export const authService = {
   },
 
   upgradePlan(userId: string, plan: UserPlan, durationMonths = 1, extendFromCurrentExpiry = true): UserProfile {
-    const users = initializeDemoAccounts();
     let current = this.getCurrentSession();
     if (!current) {
       current = {
@@ -1134,19 +891,17 @@ export const authService = {
       };
     }
 
-    // Bảo vệ bất biến: Nếu là Chủ sở hữu, Nóc Nhà VIP hoặc Bạn Thân Sếp, KHÔNG THỂ bị hạ cấp hoặc đổi sang plan khác
     if (isOwnerEmail(current.email) || isLadyBoss(current.email) || isVipFriend(current.email)) {
       current.plan = 'pro_lifetime';
       current.isLifetime = true;
       current.proExpiresAt = null;
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(current));
+      this.saveSession(current);
       return current;
     }
 
     const isProPlan = plan === 'pro' || plan === 'pro_sandbox' || plan === 'pro_beta';
     const now = Date.now();
     const durationMs = durationMonths * 30 * 24 * 60 * 60 * 1000;
-    // Cơ chế cộng dồn (Stacking): Nếu proExpiresAt hiện tại còn hạn (> now), cộng tiếp vào proExpiresAt
     let expiresAt: number | null = null;
     if (isProPlan) {
       const baseTime = (extendFromCurrentExpiry && current.proExpiresAt && current.proExpiresAt > now)
@@ -1171,28 +926,22 @@ export const authService = {
       proExpiresAt: isLifetimeTarget ? null : expiresAt
     };
 
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
+    this.saveSession(updated);
 
-    // Update persistent user store
-    for (const key of Object.keys(users)) {
-      if (users[key].id === current.id) {
-        users[key].plan = plan;
-        users[key].isLifetime = isLifetimeTarget;
-        users[key].badge = updatedBadge;
-        users[key].proExpiresAt = updated.proExpiresAt;
-        break;
-      }
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    // Persist to Supabase Cloud
+    import('./profileService').then(({ ProfileService }) => {
+      ProfileService.upsertProfile({
+        id: updated.id,
+        email: updated.email,
+        plan: updated.plan,
+        plan_expires_at: updated.proExpiresAt ? new Date(updated.proExpiresAt).toISOString() : null
+      }).catch(() => {});
+    });
 
     return updated;
   },
 
-  /**
-   * Cộng dồn chính xác số ngày PRO vào thời hạn hiện tại (Stacking Days)
-   */
   extendProDays(days: number): UserProfile {
-    const users = initializeDemoAccounts();
     let current = this.getCurrentSession();
     if (!current) {
       current = {
@@ -1208,7 +957,7 @@ export const authService = {
       current.plan = 'pro_lifetime';
       current.isLifetime = true;
       current.proExpiresAt = null;
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(current));
+      this.saveSession(current);
       return current;
     }
 
@@ -1224,22 +973,21 @@ export const authService = {
       proExpiresAt: newExpiresAt
     };
 
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
+    this.saveSession(updated);
 
-    for (const key of Object.keys(users)) {
-      if (users[key].id === current.id) {
-        users[key].plan = 'pro';
-        users[key].isLifetime = false;
-        users[key].proExpiresAt = newExpiresAt;
-        break;
-      }
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    import('./profileService').then(({ ProfileService }) => {
+      ProfileService.upsertProfile({
+        id: updated.id,
+        email: updated.email,
+        plan: updated.plan,
+        plan_expires_at: new Date(newExpiresAt).toISOString()
+      }).catch(() => {});
+    });
+
     return updated;
   },
 
   activateProFromPayment(userId: string, planType: string, proExpiresAt?: number | string | null): UserProfile {
-    const users = initializeDemoAccounts();
     let current = this.getCurrentSession();
     if (!current) {
       current = {
@@ -1251,12 +999,11 @@ export const authService = {
       };
     }
 
-    // Bảo vệ bất biến: Nếu là Chủ sở hữu, Nóc Nhà VIP hoặc Bạn Thân Sếp
     if (isOwnerEmail(current.email) || isLadyBoss(current.email) || isVipFriend(current.email)) {
       current.plan = 'pro_lifetime';
       current.isLifetime = true;
       current.proExpiresAt = null;
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(current));
+      this.saveSession(current);
       return current;
     }
 
@@ -1280,18 +1027,16 @@ export const authService = {
       proExpiresAt: computedExpires
     };
 
-    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(updated));
+    this.saveSession(updated);
 
-    // Cập nhật persistent user store
-    for (const key of Object.keys(users)) {
-      if (users[key].id === current.id || users[key].email.toLowerCase() === current.email.toLowerCase()) {
-        users[key].plan = updated.plan;
-        users[key].isLifetime = isLifetime;
-        users[key].proExpiresAt = computedExpires;
-        break;
-      }
-    }
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    import('./profileService').then(({ ProfileService }) => {
+      ProfileService.upsertProfile({
+        id: updated.id,
+        email: updated.email,
+        plan: updated.plan,
+        plan_expires_at: computedExpires ? new Date(computedExpires).toISOString() : null
+      }).catch(() => {});
+    });
 
     return updated;
   },
@@ -1311,7 +1056,9 @@ export const authService = {
         data: { tasks, notes, sessions, planner }
       };
 
-      localStorage.setItem(`${CLOUD_SYNC_PREFIX}${userId}`, JSON.stringify(backupPayload));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(`${CLOUD_SYNC_PREFIX}${userId}`, JSON.stringify(backupPayload));
+      }
       return { tasks: tasks.length, notes: notes.length, sessions: sessions.length };
     } catch (err) {
       console.warn('Lỗi đồng bộ dữ liệu lên cloud:', err);

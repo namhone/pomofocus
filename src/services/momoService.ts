@@ -368,11 +368,10 @@ export const momoService = {
 
     // 7. Bảo vệ mạo danh tài khoản (Email Impersonation Protection)
     const currentSession = authService.getCurrentSession();
-    const usersStore = (typeof window !== 'undefined' && window.localStorage)
-      ? JSON.parse(localStorage.getItem('pomodoro_study_users_store') || '{}')
-      : {};
-
-    const existingAccount = usersStore[order.email];
+    
+    const existingAccount = (typeof window !== 'undefined' && window.localStorage)
+      ? (JSON.parse(localStorage.getItem('pomodoro_registered_emails') || '[]').includes(order.email?.toLowerCase().trim()) ? { passwordHash: true } : null)
+      : null;
     let targetUserId = currentSession?.id;
 
     // Nếu người dùng chưa đăng nhập nhưng email đơn hàng thuộc tài khoản đã có sẵn mật khẩu

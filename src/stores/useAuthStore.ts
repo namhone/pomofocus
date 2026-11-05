@@ -488,23 +488,37 @@ export const useAuthStore = create<AuthState>((set, get) => {
               };
 
         const updated = await authService.updateProfile(user.id, payload);
-        set({
-          user: updated,
-          isLoading: false,
-          error: null,
-          ...computeDerivedPlanState(updated)
+
+        // 1. Ghi thẳng URL ảnh mới vào Supabase Cloud:
+        if (payload.avatarUrl !== undefined) {
+          await supabase
+            .from('profiles')
+            .update({
+              avatar_url: payload.avatarUrl,
+              custom_avatar_url: payload.avatarUrl,
+              has_custom_avatar: Boolean(payload.avatarUrl),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id);
+        }
+
+        // 2. Cập nhật ngay vào Store giao diện:
+        set((state) => {
+          const newUser = state.user ? {
+            ...state.user,
+            ...updated,
+            avatarUrl: payload.avatarUrl !== undefined ? payload.avatarUrl : state.user.avatarUrl,
+            customAvatarUrl: payload.avatarUrl !== undefined ? payload.avatarUrl : state.user.customAvatarUrl,
+            hasCustomAvatar: payload.avatarUrl !== undefined ? Boolean(payload.avatarUrl) : state.user.hasCustomAvatar
+          } : updated;
+          return {
+            user: newUser,
+            isLoading: false,
+            error: null,
+            ...computeDerivedPlanState(newUser)
+          };
         });
 
-        // Đồng bộ lên Supabase Cloud public.profiles
-        ProfileService.updateFields(user.id, {
-          full_name: updated.displayName,
-          handle: updated.username,
-          avatar_url: updated.avatarUrl,
-          custom_avatar_url: updated.customAvatarUrl,
-          has_custom_avatar: updated.hasCustomAvatar,
-          bio: updated.bio || updated.focusGoal,
-          settings: updated.settings
-        }).catch((e) => console.warn('[updateProfile Cloud Sync]', e));
         return true;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Cập nhật thông tin thất bại';
@@ -903,18 +917,105 @@ export const useAuthStore = create<AuthState>((set, get) => {
 if (typeof window !== 'undefined') {
   (window as any).useAuthStore = useAuthStore;
 
-  // Lắng nghe trạng thái phiên đăng nhập Server-Authoritative từ Supabase Auth
+  // Lắng nghe trạng thái phiên đăng nhập Server-Authoritative từ Supabase Auth (Single Source of Truth)
   try {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
-        if (session?.user) {
-          useAuthStore.getState().syncUserFromSupabase(session.user);
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        // 1. Kéo trực tiếp hồ sơ từ Supabase Cloud
+        let profile: any = null;
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          profile = data;
+          if (!profile && session.user.email) {
+            const { data: pEmail } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('email', session.user.email.toLowerCase().trim())
+              .single();
+            profile = pEmail;
+          }
+        } catch (e) {
+          console.warn('[useAuthStore] Supabase profile fetch error:', e);
         }
-      } else if (event === 'SIGNED_OUT') {
-        const curr = useAuthStore.getState().user;
-        if (curr && curr.authProvider === 'google') {
-          useAuthStore.getState().logout();
-        }
+
+        // 2. KHÓA BẢN QUYỀN OWNER TỐI CAO (Bất biến, không bao giờ bị rớt về Free):
+        const isOwner = ['namho03052k9@gmail.com', 'huyentrantt09@gmail.com', 'tony31082009@gmail.com'].includes(
+          session.user.email?.toLowerCase() || ''
+        );
+
+        const isLifetime = isOwner || profile?.plan === 'lifetime' || profile?.plan === 'pro_lifetime' || Boolean(profile?.is_lifetime);
+        const plan = isOwner ? 'lifetime' : (profile?.plan || 'free');
+        const role = isOwner ? 'founder' : (profile?.role || 'user');
+        const aiCredits = isOwner ? Infinity : (isLifetime ? 1000 : (profile?.ai_credits_balance ?? 50));
+
+        // AVATAR BẤT BIẾN: Luôn lấy avatar_url từ database, cấm lấy ảnh Google đè lên!
+        const avatarUrl = profile?.custom_avatar_url || profile?.avatar_url || session.user.user_metadata?.avatar_url || null;
+
+        const finalUser: UserProfile = {
+          id: session.user.id,
+          email: session.user.email,
+          displayName: profile?.display_name || profile?.full_name || session.user.user_metadata?.full_name || (session.user.email ? session.user.email.split('@')[0] : 'Học Viên'),
+          avatarUrl,
+          customAvatarUrl: profile?.custom_avatar_url || profile?.avatar_url || null,
+          hasCustomAvatar: Boolean(profile?.custom_avatar_url || profile?.has_custom_avatar || profile?.avatar_url),
+          plan: plan as any,
+          role,
+          badge: isOwner ? 'Founder VIP 👑' : (isLifetime ? '👑 PRO TRỌN ĐỜI' : (plan === 'pro' ? 'PRO HỘI VIÊN' : 'Thành viên Free')),
+          isLifetime,
+          credits: isOwner ? 999999 : (aiCredits === Infinity ? 999999 : aiCredits),
+          aiCredits,
+          twoFactorEnabled: Boolean(profile?.two_factor_enabled || profile?.is_2fa_enabled),
+          createdAt: profile?.created_at ? new Date(profile.created_at).getTime() : Date.now(),
+          proExpiresAt: profile?.pro_expires_at ? new Date(profile.pro_expires_at).getTime() : null,
+          username: profile?.handle || undefined,
+          bio: profile?.bio || undefined,
+          settings: profile?.settings || undefined,
+        };
+
+        try {
+          useAiStore.setState({
+            aiCreditsBalance: isOwner ? 1000 : (aiCredits === Infinity ? 1000 : aiCredits),
+            aiPlan: isOwner ? 'lifetime' : (plan as any)
+          });
+        } catch {}
+
+        useAuthStore.setState({
+          user: finalUser,
+          isAuthenticated: true,
+          isLoggedIn: true,
+          role: finalUser.role,
+          badge: finalUser.badge,
+          credits: finalUser.credits,
+          isPro: true,
+          hasVipAccess: isOwner || isLifetime || plan === 'pro',
+          isLifetime: isLifetime || isOwner,
+          isBetaPro: plan === 'pro_beta',
+          isOwner,
+          isLadyBoss: isLadyBoss(session.user.email),
+          isVipFriend: isVipFriend(session.user.email),
+          planLabel: isOwner ? 'Founder VIP 👑' : (isLifetime ? 'PRO TRỌN ĐỜI' : (plan === 'pro' ? 'PRO' : 'FREE'))
+        });
+      } else {
+        useAuthStore.setState({
+          user: null,
+          isAuthenticated: false,
+          isLoggedIn: false,
+          role: undefined,
+          badge: undefined,
+          credits: undefined,
+          isPro: false,
+          hasVipAccess: false,
+          isLifetime: false,
+          isBetaPro: false,
+          isOwner: false,
+          isLadyBoss: false,
+          isVipFriend: false,
+          planLabel: 'FREE'
+        });
       }
     });
   } catch (err) {

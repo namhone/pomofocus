@@ -1,8 +1,10 @@
 /**
  * Configuration & Environment Flags
  */
-export const SUPABASE_URL = 'https://tmvbulkxhlgdivrvmobo.supabase.co'; // CỐ ĐỊNH CHỐNG VERCEL GHI ĐÈ
-export const SUPABASE_ANON_KEY = 'sb_publishable_vEKa2sV_9AW2CNIzxCzIKA_nzKo79b-'; // CỐ ĐỊNH CHỐNG VERCEL GHI ĐÈ
+export const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || 'https://pgsgmmtpunuttspqcgof.supabase.co';
+export const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_vEKa2sV_9AW2CNIzxCzIKA_nzKo79b-';
 
 // Domain phát hành chính thức trên Vercel
 export const PRODUCTION_DOMAIN = 'pomofocus-workspace.vercel.app';

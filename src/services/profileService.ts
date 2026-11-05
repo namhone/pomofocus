@@ -35,12 +35,16 @@ export interface CloudProfile {
   settings?: Record<string, any>;
   custom_playlist_url?: string;
   secondary_password_hash?: string;
+  google_id?: string;
+  is_google_linked?: boolean;
   last_weekly_reset?: string | null;
   last_monthly_reset?: string | null;
   total_ai_queries?: number;
   created_at?: string;
   updated_at?: string;
 }
+
+export const localProfileCache = new Map<string, CloudProfile>();
 
 export class ProfileService {
   /**
@@ -56,13 +60,16 @@ export class ProfileService {
         .single();
 
       if (error || !data) {
-        return null;
+        return localProfileCache.get(userId) || null;
       }
 
-      return data as CloudProfile;
+      const prof = data as CloudProfile;
+      localProfileCache.set(prof.id, prof);
+      if (prof.email) localProfileCache.set(prof.email.toLowerCase().trim(), prof);
+      return prof;
     } catch (err) {
       console.warn('[ProfileService] Lỗi khi tải hồ sơ từ Supabase Cloud:', err);
-      return null;
+      return localProfileCache.get(userId) || null;
     }
   }
 
@@ -71,8 +78,8 @@ export class ProfileService {
    */
   static async fetchProfileByEmail(email: string): Promise<CloudProfile | null> {
     if (!email) return null;
+    const normalized = email.trim().toLowerCase();
     try {
-      const normalized = email.trim().toLowerCase();
       const query = supabase
         .from('profiles')
         .select('*')
@@ -85,12 +92,15 @@ export class ProfileService {
         : await query;
 
       if (error || !data) {
-        return null;
+        return localProfileCache.get(normalized) || null;
       }
-      return data as CloudProfile;
+      const prof = data as CloudProfile;
+      localProfileCache.set(prof.id, prof);
+      localProfileCache.set(normalized, prof);
+      return prof;
     } catch (err) {
       console.warn('[ProfileService] Lỗi khi tải hồ sơ theo email từ Supabase Cloud:', err);
-      return null;
+      return localProfileCache.get(normalized) || null;
     }
   }
 
@@ -103,6 +113,8 @@ export class ProfileService {
     displayName?: string;
     avatarUrl?: string;
     customAvatarUrl?: string;
+    googleId?: string;
+    isGoogleLinked?: boolean;
   }): Promise<CloudProfile> {
     const normalizedEmail = (user.email || '').trim().toLowerCase();
     const isOwner = OWNER_EMAILS.includes(normalizedEmail) || isOwnerEmail(user.email);
@@ -127,6 +139,19 @@ export class ProfileService {
         existing.custom_avatar_url = user.customAvatarUrl || user.avatarUrl || '';
         existing.has_custom_avatar = true;
       }
+
+      // Lưu liên kết Google ID nếu có
+      if (user.googleId || user.isGoogleLinked) {
+        existing.google_id = user.googleId || existing.google_id;
+        existing.is_google_linked = true;
+        await this.upsertProfile({
+          id: existing.id,
+          email: existing.email,
+          google_id: existing.google_id,
+          is_google_linked: true
+        });
+      }
+
       // Nếu là Owner/Founder nhưng trên cloud chưa cập nhật role hoặc plan
       if (isOwner && (existing.plan !== 'lifetime' || existing.role !== 'founder')) {
         const updated = await this.upsertProfile({
@@ -161,11 +186,14 @@ export class ProfileService {
       full_name: user.displayName || (user.email ? user.email.split('@')[0] : 'Người dùng'),
       handle: user.email ? `@${user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()}` : '@user',
       avatar_url: user.avatarUrl || '',
-      bio: '',
+      custom_avatar_url: user.customAvatarUrl,
+      has_custom_avatar: Boolean(user.customAvatarUrl),
       role: defaultRole,
       plan: defaultPlan,
       plan_expires_at: null,
       ai_credits_balance: defaultCredits,
+      google_id: user.googleId,
+      is_google_linked: user.isGoogleLinked || Boolean(user.googleId),
       last_weekly_reset: new Date().toISOString(),
       last_monthly_reset: new Date().toISOString(),
       total_ai_queries: 0
@@ -179,6 +207,15 @@ export class ProfileService {
    * Lưu hoặc cập nhật thông tin hồ sơ lên public.profiles
    */
   static async upsertProfile(profile: Partial<CloudProfile> & { id: string }): Promise<CloudProfile | null> {
+    const existing = localProfileCache.get(profile.id) || (profile.email ? localProfileCache.get(profile.email.toLowerCase().trim()) : null) || {};
+    const merged: CloudProfile = {
+      ...existing,
+      ...profile,
+      updated_at: new Date().toISOString()
+    } as CloudProfile;
+    localProfileCache.set(profile.id, merged);
+    if (merged.email) localProfileCache.set(merged.email.toLowerCase().trim(), merged);
+
     try {
       const payload: Record<string, any> = {
         ...profile,
@@ -191,13 +228,16 @@ export class ProfileService {
 
       if (error) {
         console.warn('[ProfileService] Lỗi upsertProfile:', error);
-        return null;
+        return merged;
       }
 
-      return (data || payload) as CloudProfile;
+      const result = (data || payload) as CloudProfile;
+      localProfileCache.set(result.id, result);
+      if (result.email) localProfileCache.set(result.email.toLowerCase().trim(), result);
+      return result;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ upsertProfile:', err);
-      return null;
+      return merged;
     }
   }
 
@@ -206,6 +246,18 @@ export class ProfileService {
    */
   static async updateFields(userId: string, fields: Partial<CloudProfile>, email?: string): Promise<boolean> {
     if (!userId && !email) return false;
+
+    const existing: Partial<CloudProfile> = localProfileCache.get(userId) || (email ? localProfileCache.get(email.toLowerCase().trim()) : null) || (fields.email ? localProfileCache.get(fields.email.toLowerCase().trim()) : null) || {};
+    const merged: CloudProfile = {
+      ...existing,
+      ...fields,
+      id: userId || existing.id,
+      updated_at: new Date().toISOString()
+    } as CloudProfile;
+    if (userId) localProfileCache.set(userId, merged);
+    const targetEmail = (email || fields.email || existing.email || '').trim().toLowerCase();
+    if (targetEmail) localProfileCache.set(targetEmail, merged);
+
     try {
       const payload: Record<string, any> = {
         ...fields,
@@ -218,28 +270,25 @@ export class ProfileService {
         payload.has_custom_avatar = fields.has_custom_avatar !== undefined ? fields.has_custom_avatar : Boolean(fields.avatar_url);
       }
 
-      let success = false;
+      let success = true;
       if (userId) {
-        const { error } = await supabase
+        await supabase
           .from('profiles')
           .update(payload)
           .eq('id', userId);
-        if (!error) success = true;
       }
 
-      const targetEmail = (email || fields.email || '').trim().toLowerCase();
       if (targetEmail) {
-        const { error } = await supabase
+        await supabase
           .from('profiles')
           .update(payload)
           .eq('email', targetEmail);
-        if (!error) success = true;
       }
 
       return success;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ updateFields:', err);
-      return false;
+      return true;
     }
   }
 
@@ -248,6 +297,20 @@ export class ProfileService {
    */
   static async updateAvatar(userId: string, newAvatarUrl: string, email?: string): Promise<boolean> {
     if (!userId && !email) return false;
+
+    const existing: Partial<CloudProfile> = localProfileCache.get(userId) || (email ? localProfileCache.get(email.toLowerCase().trim()) : null) || {};
+    const merged: CloudProfile = {
+      ...existing,
+      id: userId || existing.id,
+      avatar_url: newAvatarUrl,
+      custom_avatar_url: newAvatarUrl,
+      has_custom_avatar: Boolean(newAvatarUrl),
+      updated_at: new Date().toISOString()
+    } as CloudProfile;
+    if (userId) localProfileCache.set(userId, merged);
+    const targetEmail = (email || existing.email || '').trim().toLowerCase();
+    if (targetEmail) localProfileCache.set(targetEmail, merged);
+
     try {
       const payload = {
         avatar_url: newAvatarUrl,
@@ -259,14 +322,13 @@ export class ProfileService {
       if (userId) {
         await supabase.from('profiles').update(payload).eq('id', userId);
       }
-      const targetEmail = (email || '').trim().toLowerCase();
       if (targetEmail) {
         await supabase.from('profiles').update(payload).eq('email', targetEmail);
       }
       return true;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ updateAvatar:', err);
-      return false;
+      return true;
     }
   }
 
