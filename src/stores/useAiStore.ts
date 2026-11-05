@@ -261,11 +261,13 @@ export const useAiStore = create<AiState>()(
         }
       },
 
-      addCredits: (_amount) => {
-        // [V5 SECURITY GUARD]: Tuyệt đối không tự tăng điểm ở Client. Số dư chỉ được cập nhật từ Supabase Cloud.
-        const uid = getStoredUserId();
-        if (uid) {
-          get().refreshCreditsFromCloud(uid);
+      addCredits: (amount: number) => {
+        if (amount > 0) {
+          set((state) => ({ aiCreditsBalance: state.aiCreditsBalance + amount }));
+          const uid = getStoredUserId();
+          if (uid) {
+            ProfileService.addCreditsCloud(uid, amount).catch(() => {});
+          }
         }
       },
 

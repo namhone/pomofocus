@@ -204,11 +204,13 @@ export const MediaWidget: React.FC = () => {
   };
 
   const handleNextVideo = () => {
-    if ((playlistId || isMix) && playerRef.current?.nextVideo) {
+    if ((playlistId || isMix) && playerRef.current && typeof playerRef.current.nextVideo === 'function') {
       try {
         playerRef.current.nextVideo();
         return;
-      } catch {}
+      } catch (err) {
+        console.debug('[MediaWidget] nextVideo error:', err);
+      }
     }
     setStationIndex((prev) => {
       const nextIdx = (prev + 1) % PRESET_STATIONS.length;
@@ -220,11 +222,13 @@ export const MediaWidget: React.FC = () => {
   };
 
   const handlePrevVideo = () => {
-    if ((playlistId || isMix) && playerRef.current?.previousVideo) {
+    if ((playlistId || isMix) && playerRef.current && typeof playerRef.current.previousVideo === 'function') {
       try {
         playerRef.current.previousVideo();
         return;
-      } catch {}
+      } catch (err) {
+        console.debug('[MediaWidget] previousVideo error:', err);
+      }
     }
     setStationIndex((prev) => {
       const prevIdx = (prev - 1 + PRESET_STATIONS.length) % PRESET_STATIONS.length;
