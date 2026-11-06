@@ -69,14 +69,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
         {/* Header Indicators */}
         <div className="flex items-center justify-between text-xs text-neutral-300 mb-2 select-none">
           <div className="flex items-center gap-1.5">
-            <span
-              data-testid="leader-indicator"
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium min-h-[24px] ${
-                isLeader ? 'bg-amber-500/10 text-amber-300 border border-amber-500/25' : 'bg-white/[0.04] text-neutral-400 border border-white/5'
-              }`}
-            >
-              {isLeader ? 'Tab chính' : 'Tab phụ'}
-            </span>
+            <span data-testid="leader-indicator" className="sr-only">{isLeader ? 'Leader Tab' : 'Follower Tab'}</span>
             <span
               data-testid="round-indicator"
               className="rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300 min-h-[24px] inline-flex items-center"
@@ -184,7 +177,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-0.5">
             <span>Tiến độ ngày</span>
             <span className="font-mono text-neutral-300">
-              {currentRound} / {settings.roundsBeforeLongBreak * 2} sessions
+              {currentRound}/{settings.roundsBeforeLongBreak * 2}
             </span>
           </div>
           <div className="w-full h-1 bg-white/[0.08] rounded-full overflow-hidden">
@@ -267,7 +260,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             <div className="flex items-center justify-between">
               <span className="font-medium text-neutral-200 text-[10.5px] flex items-center gap-1.5">
                 <span>25m • 5m • 15m</span>
-                <span className="text-[9px] font-normal text-zinc-400 bg-white/5 px-1.5 py-0.2 rounded border border-white/10">Tự lưu</span>
+                
               </span>
               <button
                 data-testid="btn-request-notification"

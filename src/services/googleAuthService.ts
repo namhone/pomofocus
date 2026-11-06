@@ -93,6 +93,14 @@ export const googleAuthService = {
   },
 
   /**
+   * Phát hiện thiết bị di động (iOS / Android / màn hình nhỏ) để kích hoạt Full-page Redirect
+   */
+  isMobileDevice(): boolean {
+    if (typeof window === 'undefined') return false;
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+  },
+
+  /**
    * Giải mã Google ID Token JWT an toàn và trích xuất thông tin người dùng
    */
   parseJwtPayload(token: string): GoogleUserPayload {

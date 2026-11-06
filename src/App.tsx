@@ -82,7 +82,6 @@ export const App: React.FC = () => {
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
   const mobileViewMode = useLayoutStore((state) => state.mobileViewMode);
   const activeMobileTab = useLayoutStore((state) => state.activeMobileTab);
-  const setMobileViewMode = useLayoutStore((state) => state.setMobileViewMode);
   const isHeaderExpanded = useLayoutStore((state) => state.isHeaderExpanded);
   const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
   const closeTopupModal = useAiStore((state) => state.closeTopupModal);
@@ -284,25 +283,6 @@ export const App: React.FC = () => {
                 <main className={`relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start transition-all duration-300 ease-in-out ${
                   isHeaderExpanded ? 'pt-14 sm:pt-16' : 'pt-3'
                 }`}>
-                  {/* Thanh điều khiển chế độ xem trên điện thoại */}
-                  <div className="w-full max-w-xl mx-auto flex items-center justify-between py-1 px-2 mb-3 select-none text-xs">
-                    <div className="flex items-center gap-1.5 text-neutral-400 text-[11px] font-medium">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]" />
-                      <span>Không gian tập trung</span>
-                    </div>
-                    <button
-                      type="button"
-                      data-testid="btn-toggle-mobile-view-mode"
-                      onClick={() => setMobileViewMode(mobileViewMode === 'stack' ? 'single' : 'stack')}
-                      className="flex items-center gap-1.5 px-2.5 py-1 min-h-[32px] rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-neutral-300 hover:text-white transition-all cursor-pointer text-[11px]"
-                      title={mobileViewMode === 'stack' ? 'Chuyển sang chế độ xem từng widget' : 'Chuyển sang chế độ cuộn tất cả'}
-                    >
-                      <span className={mobileViewMode === 'stack' ? 'text-emerald-400 font-medium' : 'text-neutral-400'}>Cuộn</span>
-                      <span className="text-white/20">|</span>
-                      <span className={mobileViewMode === 'single' ? 'text-emerald-400 font-medium' : 'text-neutral-400'}>Tập trung</span>
-                    </button>
-                  </div>
-
                   <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'timer' ? 'hidden' : ''}`}>
                     <WidgetContainer id="timer">
                       <TimerTestInterface />

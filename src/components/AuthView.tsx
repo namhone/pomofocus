@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { googleAuthService } from '../services/googleAuthService';
-import { supabase } from '../lib/supabase';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Lock,
@@ -13,7 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Zap,
   ShieldCheck,
   X,
   KeyRound
@@ -30,12 +28,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isGoogleLoadingLocal, setIsGoogleLoadingLocal] = useState(false);
 
   const {
     login,
     signup,
     loginWithGoogle,
-    loginAsFounder,
     isLoading,
     isGoogleLoading,
     error,
@@ -177,13 +175,34 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     };
   }, []);
 
-  // LỰA CHỌN 1: Đăng nhập Google OAuth (Popup & Redirect an toàn 100%)
+  // Đăng nhập Google OAuth (Redirect trên Mobile, Popup trên Desktop)
   const handleGoogleSignIn = async () => {
     clearError();
     setSuccessMsg('');
+    setIsGoogleLoadingLocal(true);
 
     try {
-      // 1. Luồng Google Sign-In Popup chính thức trên trình duyệt
+      const isMobile = googleAuthService.isMobileDevice();
+      const clientId = googleAuthService.getClientId();
+      const origin =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : 'https://pomofocus-workspace.vercel.app';
+      const redirectUri = `${origin}/app`;
+
+      // 1. Trên Mobile: Trình duyệt di động mặc định chặn popup ngầm -> BẮT BUỘC dùng Full-page Redirect
+      if (isMobile) {
+        const nonce = Date.now().toString();
+        const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+          clientId
+        )}&redirect_uri=${encodeURIComponent(
+          redirectUri
+        )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+        window.location.href = googleOAuthUrl;
+        return;
+      }
+
+      // 2. Trên Desktop: Thử popup flow của Google Identity Services trước
       if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
         try {
           const googleUser = await googleAuthService.signInWithPopup();
@@ -196,20 +215,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             }
           }
         } catch (popupErr: any) {
-          console.warn('[Google Sign-In] Popup thất bại hoặc bị chặn, chuyển sang Direct OAuth Redirect:', popupErr?.message);
-          // Nếu popup bị chặn hoặc gặp lỗi môi trường, chuyển sang Google OAuth Redirect URL
-          await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-              redirectTo: `${window.location.origin}/app`,
-              directGoogle: true
-            },
-          });
+          console.warn(
+            '[Google Sign-In] Popup thất bại hoặc bị chặn, chuyển sang Full-page Redirect:',
+            popupErr?.message
+          );
+          const nonce = Date.now().toString();
+          const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+            clientId
+          )}&redirect_uri=${encodeURIComponent(
+            redirectUri
+          )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+          window.location.href = googleOAuthUrl;
           return;
         }
       }
 
-      // 2. Fallback mô phỏng nếu chạy unit test mock hoặc offline
+      // 3. Fallback cho môi trường test offline / unit tests
       const simulated = await googleAuthService.simulateGoogleLogin({
         email: 'nam.studyworkspace@gmail.com',
         name: 'Hồ Ngọc Bảo Nam (Google)',
@@ -223,27 +244,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
       }
     } catch (err: any) {
       console.error('Lỗi đăng nhập Google:', err);
-    }
-  };
-
-  // LỰA CHỌN 2: ⚡ Đăng nhập Nhanh 1-Chạm (Chính chủ Founder VIP 👑)
-  const handleFounderQuickLogin = async () => {
-    clearError();
-    setSuccessMsg('⚡ Đã kích hoạt đặc quyền Founder VIP 👑... Đang vào không gian!');
-    const ok = await loginAsFounder();
-    if (ok) {
-      setTimeout(() => router.navigate('/app'), 100);
-    }
-  };
-
-  const handleDemoPro = async () => {
-    setEmail('pro@studyworkspace.io');
-    setPassword('pro123');
-    clearError();
-    const ok = await login('pro@studyworkspace.io', 'pro123');
-    if (ok) {
-      setSuccessMsg('Đăng nhập tài khoản Pro Demo thành công!');
-      setTimeout(() => router.navigate('/app'), 600);
+      setIsGoogleLoadingLocal(false);
     }
   };
 
@@ -268,13 +269,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
 
         {/* Brand title */}
         <div className="text-center mb-6 flex flex-col items-center">
-          <PomoFocusLogo size={44} showWordmark={true} showSubtitle={true} wordmarkClassName="text-xl font-bold" className="mb-3" />
-          <h1 className="text-xl font-bold tracking-tight text-white mb-1.5">
-            Đăng Nhập PomoFocus
+          <PomoFocusLogo size={42} showWordmark={true} showSubtitle={false} wordmarkClassName="text-xl font-bold" className="mb-2" />
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            {mode === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản Mới'}
           </h1>
-          <p className="text-xs text-neutral-400">
-            Chọn phương thức xác thực để tiếp tục phiên làm việc
-          </p>
         </div>
 
         {error && (
@@ -364,24 +362,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         ) : (
           <>
             {/* =========================================================================
-                LỰA CHỌN 1: ĐĂNG NHẬP GOOGLE OAUTH
+                NÚT TIẾP TỤC VỚI GOOGLE (NỔI BẬT TRÊN CÙNG)
                ========================================================================= */}
-            <div className="mb-3.5">
-              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                  Đăng nhập qua Google
-                </span>
-                <span className="text-[9px] text-neutral-500 font-normal">Chính thức</span>
-              </div>
+            <div className="mb-4">
               <button
                 type="button"
                 data-testid="btn-google-signin"
                 onClick={handleGoogleSignIn}
-                disabled={isGoogleLoading || isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300 text-xs font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
+                disabled={isGoogleLoading || isGoogleLoadingLocal || isLoading}
+                className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
               >
-                {isGoogleLoading ? (
+                {isGoogleLoading || isGoogleLoadingLocal ? (
                   <Loader2 size={16} className="animate-spin text-neutral-700" />
                 ) : (
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -404,56 +395,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                   </svg>
                 )}
                 <span>
-                  {isGoogleLoading
+                  {isGoogleLoading || isGoogleLoadingLocal
                     ? 'Đang kết nối tài khoản Google...'
                     : 'Tiếp tục với Google'}
                 </span>
               </button>
             </div>
 
-            {/* =========================================================================
-                LỰA CHỌN 2: ⚡ ĐĂNG NHẬP NHANH 1-CHẠM (FOUNDER VIP 👑) - Chỉ bật trong môi trường DEV
-               ========================================================================= */}
-            <div className="mb-4">
-              <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  Founder 1-Chạm (Chế độ DEV)
-                </span>
-                <span className="text-[9px] text-amber-400/80 font-normal">Tốc độ cao 0.1s</span>
-              </div>
-              <button
-                type="button"
-                data-testid="btn-founder-quick-login"
-                onClick={handleFounderQuickLogin}
-                disabled={isLoading || isGoogleLoading}
-                className="group relative w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 hover:from-amber-500/25 hover:via-amber-400/20 hover:to-amber-500/25 border border-amber-500/40 hover:border-amber-400 text-amber-200 text-xs font-bold transition-all shadow-lg shadow-amber-950/40 hover:shadow-amber-500/15 active:scale-98 cursor-pointer flex items-center justify-between overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                <div className="flex items-center gap-2.5 relative z-10">
-                  <Zap size={16} className="text-amber-400 shrink-0" />
-                  <div className="text-left">
-                    <div className="font-extrabold text-amber-300 text-xs tracking-wide flex items-center gap-1">
-                      <span>⚡ Đăng nhập Nhanh (Founder VIP 👑)</span>
-                    </div>
-                    <div className="text-[10px] text-amber-400/80 font-normal">
-                      Chính chủ namho03052k9 • Trọn đời • +1.000⚡ AI Credits
-                    </div>
-                  </div>
-                </div>
-                <span className="relative z-10 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-[10px] font-mono font-bold text-amber-300 shrink-0">
-                  0.1s
-                </span>
-              </button>
-            </div>
-
-            {/* =========================================================================
-                LỰA CHỌN 3: ĐĂNG NHẬP / ĐĂNG KÝ BẰNG EMAIL & MẬT KHẨU
-               ========================================================================= */}
+            {/* Dải phân cách mỏng "hoặc" */}
             <div className="relative flex items-center justify-center my-4">
               <div className="border-t border-white/10 w-full" />
-              <span className="bg-neutral-900 px-2.5 text-[10px] uppercase tracking-wider text-neutral-400 shrink-0 font-medium">
-                Hoặc Email & Mật Khẩu
+              <span className="bg-neutral-900 px-3 text-[11px] text-neutral-400 shrink-0 font-medium">
+                hoặc
               </span>
               <div className="border-t border-white/10 w-full" />
             </div>
@@ -567,7 +520,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               <button
                 type="submit"
                 data-testid="btn-auth-submit"
-                disabled={isLoading || isGoogleLoading}
+                disabled={isLoading || isGoogleLoading || isGoogleLoadingLocal}
                 className="mt-1.5 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs tracking-wide transition-all shadow-lg shadow-emerald-500/20 active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {isLoading
@@ -577,18 +530,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                   : 'Tạo Tài Khoản Mới'}
               </button>
             </form>
-
-            {/* Demo Pro Fast Login Button */}
-            <div className="mt-4 pt-3.5 border-t border-white/10">
-              <button
-                type="button"
-                onClick={handleDemoPro}
-                className="w-full py-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-medium text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
-              >
-                <ShieldCheck size={13} className="text-emerald-400" />
-                <span>Trải nghiệm nhanh với tài khoản <strong>Pro Demo (pro@studyworkspace.io)</strong></span>
-              </button>
-            </div>
           </>
         )}
 
