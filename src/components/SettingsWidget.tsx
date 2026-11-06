@@ -122,7 +122,7 @@ export const SettingsWidget: React.FC = () => {
             </div>
             <div className="min-w-0">
               <div className="text-xs font-semibold text-white">Chưa đăng nhập</div>
-              <p className="text-[10px] text-neutral-400">Chế độ khách • 50⚡</p>
+              <p className="text-[10px] text-neutral-400">Chế độ khách • {Math.max(0, aiCreditsBalance).toLocaleString('vi-VN')}⚡</p>
             </div>
           </div>
           <button

@@ -16,7 +16,7 @@ import {
 import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
-import { useAiStore } from './useAiStore';
+import { useAiStore, getInitialGuestCredits } from './useAiStore';
 import { ProfileService, localProfileCache } from '../services/profileService';
 import { userSettingsService } from '../services/userSettingsService';
 
@@ -472,6 +472,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
         syncStats: null,
         ...computeDerivedPlanState(null)
       });
+      // Đặt lại AI store về chế độ khách với số credits đọc từ pomofocus_guest_ai_credits_v5
+      try {
+        const guestCredits = getInitialGuestCredits();
+        useAiStore.setState({
+          aiCreditsBalance: guestCredits,
+          aiPlan: 'free',
+          activeConversationId: null,
+          currentSessionId: null
+        });
+      } catch {}
     },
 
     updateProfile: async (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => {

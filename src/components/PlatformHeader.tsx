@@ -3,7 +3,7 @@ import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
-import { useAiStore, isOwnerAiUser } from '../stores/useAiStore';
+import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
 import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, getEffectiveAvatarUrl } from '../services/authService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
@@ -52,34 +52,40 @@ export const PlatformHeader: React.FC = () => {
   const [showLogoutToast, setShowLogoutToast] = useState(false);
 
   const isOwner = Boolean(
-    isOwnerEmail(user?.email) ||
-    isLadyBoss(user?.email) ||
-    isVipFriend(user?.email) ||
-    user?.role === 'founder' ||
-    user?.badge?.includes('Founder') ||
-    user?.credits === Infinity ||
-    (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
-    isOwnerAiUser()
+    isAuthenticated &&
+      (isOwnerEmail(user?.email) ||
+        isLadyBoss(user?.email) ||
+        isVipFriend(user?.email) ||
+        user?.role === 'founder' ||
+        user?.badge?.includes('Founder') ||
+        user?.credits === Infinity ||
+        (user &&
+          (user.email === 'namho03052k9@gmail.com' ||
+            user.email === 'huyentrantt09@gmail.com' ||
+            user.email === 'tony31082009@gmail.com')) ||
+        isOwnerAiUser())
   );
 
   const isLifetimeAccount = Boolean(
-    isOwner ||
-    isLifetime ||
-    user?.isLifetime ||
-    user?.plan === 'lifetime' ||
-    user?.plan === 'pro_lifetime' ||
-    user?.role === 'founder'
+    isAuthenticated &&
+      (isOwner ||
+        isLifetime ||
+        user?.isLifetime ||
+        user?.plan === 'lifetime' ||
+        user?.plan === 'pro_lifetime' ||
+        user?.role === 'founder')
   );
 
   const isVipOrOwner = Boolean(
-    isOwner ||
-    isLifetimeAccount ||
-    user?.isLifetime ||
-    user?.role === 'founder' ||
-    user?.credits === Infinity ||
-    user?.aiCredits === Infinity ||
-    aiCreditsBalance === Infinity ||
-    (user?.email && isOwnerEmail(user.email))
+    isAuthenticated &&
+      (isOwner ||
+        isLifetimeAccount ||
+        user?.isLifetime ||
+        user?.role === 'founder' ||
+        user?.credits === Infinity ||
+        user?.aiCredits === Infinity ||
+        aiCreditsBalance === Infinity ||
+        (user?.email && isOwnerEmail(user.email)))
   );
 
   const getInitialsFallback = (name?: string) =>
@@ -88,14 +94,15 @@ export const PlatformHeader: React.FC = () => {
   const effectiveAvatar = user ? getEffectiveAvatarUrl(user) : undefined;
 
   const isProAccount = Boolean(
-    isLifetimeAccount ||
-    isPro ||
-    hasVipAccess(user) ||
-    user?.plan === 'pro' ||
-    (user?.plan as string) === 'pro_sandbox' ||
-    (user?.plan as string) === 'pro_monthly' ||
-    (user?.plan as string) === 'pro_yearly' ||
-    (user?.plan as string) === 'pro_beta'
+    isAuthenticated &&
+      (isLifetimeAccount ||
+        isPro ||
+        hasVipAccess(user) ||
+        user?.plan === 'pro' ||
+        (user?.plan as string) === 'pro_sandbox' ||
+        (user?.plan as string) === 'pro_monthly' ||
+        (user?.plan as string) === 'pro_yearly' ||
+        (user?.plan as string) === 'pro_beta')
   );
 
   const effectiveBadge = isOwner
@@ -106,23 +113,31 @@ export const PlatformHeader: React.FC = () => {
     ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'PRO HỘI VIÊN')
     : 'Thành viên Free';
 
-  const safeCreditsNum = typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance) && !Number.isNaN(aiCreditsBalance)
+  const safeCreditsNum = !isAuthenticated
+    ? (typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance)
+        ? Math.min(Math.max(0, aiCreditsBalance), getInitialGuestCredits())
+        : getInitialGuestCredits())
+    : typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance) && !Number.isNaN(aiCreditsBalance)
     ? Math.max(0, aiCreditsBalance)
     : 50;
 
-  const displayCredits = isVipOrOwner
+  const displayCredits = !isAuthenticated
+    ? `${safeCreditsNum.toLocaleString('vi-VN')}⚡`
+    : isVipOrOwner
     ? '⚡ ∞'
     : `${safeCreditsNum.toLocaleString('vi-VN')}⚡`;
 
-  const capsuleCreditsLabel = isVipOrOwner
+  const capsuleCreditsLabel = !isAuthenticated
+    ? safeCreditsNum.toLocaleString('vi-VN')
+    : isVipOrOwner
     ? '∞'
     : safeCreditsNum.toLocaleString('vi-VN');
 
   useEffect(() => {
-    if (isLifetimeAccount && aiCreditsBalance < 1000) {
+    if (isAuthenticated && isLifetimeAccount && aiCreditsBalance < 1000) {
       useAiStore.getState().syncWithAuth('lifetime');
     }
-  }, [isLifetimeAccount, aiCreditsBalance]);
+  }, [isAuthenticated, isLifetimeAccount, aiCreditsBalance]);
 
   const handleCreditsBadgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -268,18 +283,21 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             data-testid="capsule-avatar-btn"
             onClick={() => {
-              const isMobile = useLayoutStore.getState().isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
-              if (!isAuthenticated && isMobile) {
+              if (!isAuthenticated) {
                 setIsGuestMenuOpen(true);
               } else {
                 setHeaderExpanded(true);
               }
             }}
             className="flex items-center justify-center shrink-0 cursor-pointer transition active:scale-95"
-            title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm mở menu tiện ích'}
+            title={isAuthenticated && user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm mở menu tiện ích'}
             aria-label="Tài khoản và Menu"
           >
-            {effectiveAvatar ? (
+            {!isAuthenticated ? (
+              <div className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700/60 text-zinc-400 flex items-center justify-center shrink-0">
+                <User size={13} className="text-zinc-400" />
+              </div>
+            ) : effectiveAvatar ? (
               <img
                 src={effectiveAvatar}
                 alt={user?.displayName || 'Avatar'}
@@ -292,7 +310,7 @@ export const PlatformHeader: React.FC = () => {
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                {(user?.displayName || user?.email || 'N').charAt(0).toUpperCase()}
+                {(user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
               </div>
             )}
           </button>

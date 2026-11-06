@@ -47,20 +47,67 @@ export const OWNER_EMAILS = [
   'tony31082009@gmail.com'
 ];
 
+export const GUEST_CREDITS_STORAGE_KEY = 'pomofocus_guest_ai_credits_v5';
+export const GUEST_DEFAULT_CREDITS = 50;
+
+/**
+ * Đọc số điểm dùng thử của khách từ localStorage.
+ * Mặc định 50⚡, giảm dần khi dùng và tuyệt đối KHÔNG bị reset khi F5.
+ */
+export function getInitialGuestCredits(): number {
+  if (typeof window === 'undefined') return GUEST_DEFAULT_CREDITS;
+  try {
+    const raw = localStorage.getItem(GUEST_CREDITS_STORAGE_KEY);
+    if (raw === null || raw === undefined) {
+      localStorage.setItem(GUEST_CREDITS_STORAGE_KEY, String(GUEST_DEFAULT_CREDITS));
+      return GUEST_DEFAULT_CREDITS;
+    }
+    const parsed = parseInt(raw, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      localStorage.setItem(GUEST_CREDITS_STORAGE_KEY, '0');
+      return 0;
+    }
+    return Math.min(parsed, GUEST_DEFAULT_CREDITS);
+  } catch {
+    return GUEST_DEFAULT_CREDITS;
+  }
+}
+
+/**
+ * Lưu số điểm của khách vào localStorage để bảo toàn qua các lần tải lại trang (F5).
+ */
+export function saveGuestCredits(amount: number): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const safe = Math.max(0, Math.floor(amount));
+    localStorage.setItem(GUEST_CREDITS_STORAGE_KEY, String(safe));
+  } catch {}
+}
+
+/**
+ * Trừ điểm của khách dùng thử và ghi ngay vào localStorage.
+ */
+export function deductGuestCredit(amount: number = 1): number {
+  const current = getInitialGuestCredits();
+  const next = Math.max(0, current - amount);
+  saveGuestCredits(next);
+  return next;
+}
+
 export function isOwnerAiUser(): boolean {
   try {
-    if (typeof window !== 'undefined' && (window as any).useAuthStore) {
-      const user = (window as any).useAuthStore.getState()?.user;
-      if (user && user.email) {
-        return OWNER_EMAILS.includes(user.email.toLowerCase().trim());
-      }
-    }
     if (typeof window !== 'undefined') {
-      const rawSession = localStorage.getItem('pomodoro_study_auth_session');
-      if (rawSession) {
-        const parsed = JSON.parse(rawSession);
-        const email = (parsed.email || '').toLowerCase().trim();
-        return OWNER_EMAILS.includes(email);
+      const authStore = (window as any).useAuthStore;
+      if (authStore?.getState) {
+        const authState = authStore.getState();
+        // BẮT BUỘC phải đăng nhập mới được xem là Chủ sở hữu
+        if (!authState?.isAuthenticated || !authState?.user) {
+          return false;
+        }
+        const email = authState.user.email;
+        if (email) {
+          return OWNER_EMAILS.includes(email.toLowerCase().trim());
+        }
       }
     }
   } catch {}
@@ -171,6 +218,7 @@ export interface AiState {
   setAiPlan: (plan: AiPlanType) => void;
   addCredits: (amount: number) => void;
   deductCredits: (cost: number) => boolean;
+  deductGuestCredit: (amount?: number) => number;
   checkWeeklyReset: (currentTime?: number) => boolean;
   checkMonthlyReset: (currentTime?: number) => boolean;
   checkPeriodicReset: (currentTime?: number) => void;
@@ -208,7 +256,7 @@ function getStoredUserId(): string | undefined {
 export const useAiStore = create<AiState>()(
   persist(
     (set, get) => ({
-      aiCreditsBalance: AI_PLAN_LIMITS.free, // 50⚡ mặc định
+      aiCreditsBalance: getInitialGuestCredits(), // 50⚡ mặc định từ localStorage pomofocus_guest_ai_credits_v5
       aiPlan: 'free',
       lastWeeklyReset: Date.now(),
       lastMonthlyReset: Date.now(),
@@ -267,8 +315,16 @@ export const useAiStore = create<AiState>()(
           const uid = getStoredUserId();
           if (uid) {
             ProfileService.addCreditsCloud(uid, amount).catch(() => {});
+          } else {
+            saveGuestCredits(get().aiCreditsBalance + amount);
           }
         }
+      },
+
+      deductGuestCredit: (amount = 1) => {
+        const next = deductGuestCredit(amount);
+        set({ aiCreditsBalance: next });
+        return next;
       },
 
       deductCredits: (cost) => {
@@ -281,13 +337,14 @@ export const useAiStore = create<AiState>()(
         if (current < cost) {
           return false;
         }
-        const newBal = current - cost;
+        const newBal = Math.max(0, current - cost);
         set({ aiCreditsBalance: newBal });
-        if (typeof window !== 'undefined' && (window as any).useAuthStore) {
-          (window as any).useAuthStore.setState({ credits: newBal });
-        }
+
         const uid = getStoredUserId();
         if (uid) {
+          if (typeof window !== 'undefined' && (window as any).useAuthStore) {
+            (window as any).useAuthStore.setState({ credits: newBal });
+          }
           ProfileService.deductCreditsCloud(uid, cost).then((res) => {
             if (typeof res?.remainingCredits === 'number') {
               set({ aiCreditsBalance: res.remainingCredits });
@@ -296,6 +353,9 @@ export const useAiStore = create<AiState>()(
               }
             }
           }).catch(() => {});
+        } else {
+          // KHÁCH: Lưu số dư vào localStorage pomofocus_guest_ai_credits_v5 để F5 không bị reset
+          saveGuestCredits(newBal);
         }
         return true;
       },
@@ -574,10 +634,18 @@ export const useAiStore = create<AiState>()(
         const cost = isOwner ? 0 : (AI_CREDIT_COSTS[effectiveAction] || 1);
         get().checkPeriodicReset();
 
+        const uid = getStoredUserId();
+        const isGuest = !uid && !isOwner;
+
+        const currentBalance = get().aiCreditsBalance;
+
         // 1. Kiểm tra số dư nguyên tử (Chủ sở hữu được đặc quyền vô hạn AI, không bị chặn)
-        if (!isOwner && get().aiCreditsBalance < cost) {
-          const err = `Bạn cần ít nhất ${cost}⚡ để thực hiện thao tác này (Số dư hiện tại: ${get().aiCreditsBalance}⚡). Vui lòng nâng cấp gói tại Bảng Giá.`;
+        if (!isOwner && currentBalance < cost) {
+          const err = isGuest
+            ? 'Bạn đã dùng hết 50 tín dụng dùng thử. Vui lòng đăng nhập để tiếp tục sử dụng.'
+            : `Bạn cần ít nhất ${cost}⚡ để thực hiện thao tác này (Số dư hiện tại: ${currentBalance}⚡). Vui lòng nâng cấp gói tại Bảng Giá.`;
           set({ error: err });
+          get().openTopupModal();
           throw new Error(err);
         }
 
@@ -835,7 +903,16 @@ export const useAiStore = create<AiState>()(
         lastMonthlyReset: state.lastMonthlyReset,
         messages: state.messages.slice(-30),
         sessions: (state.sessions || []).slice(0, 20) // Giữ 30 tin nhắn gần nhất
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        const uid = getStoredUserId();
+        if (!uid) {
+          // Khách vãng lai: luôn luôn đồng bộ với pomofocus_guest_ai_credits_v5
+          state.aiCreditsBalance = getInitialGuestCredits();
+          state.aiPlan = 'free';
+        }
+      }
     }
   )
 );
