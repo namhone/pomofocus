@@ -46,6 +46,7 @@ export const PlatformHeader: React.FC = () => {
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isGuestMenuOpen, setIsGuestMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
@@ -179,8 +180,9 @@ export const PlatformHeader: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsUserDropdownOpen(false);
-    setMobileHeaderOpen(false);
-    setHeaderExpanded(false);
+        setIsGuestMenuOpen(false);
+        setMobileHeaderOpen(false);
+        setHeaderExpanded(false);
         setIsLogoutModalOpen(false);
       }
     };
@@ -188,16 +190,16 @@ export const PlatformHeader: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Khóa cuộn trang khi Dropdown Menu (Mobile hoặc Avatar) mở để chống trôi/giật nội dung
+  // Khóa cuộn trang khi Dropdown Menu (Mobile, Avatar hoặc Menu Khách) mở
   useEffect(() => {
-    if (isMobileMenuOpen || isUserDropdownOpen) {
+    if (isMobileMenuOpen || isUserDropdownOpen || isGuestMenuOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isMobileMenuOpen, isUserDropdownOpen]);
+  }, [isMobileMenuOpen, isUserDropdownOpen, isGuestMenuOpen]);
 
   const navItems = [
     { path: '/app', label: 'Không Gian', icon: Layout, testId: 'header-nav-app' },
@@ -211,10 +213,21 @@ export const PlatformHeader: React.FC = () => {
 
   const handleNavigate = (path: string) => {
     setIsMobileMenuOpen(false);
+    setIsGuestMenuOpen(false);
     setIsUserDropdownOpen(false);
     setMobileHeaderOpen(false);
     setHeaderExpanded(false);
     router.navigate(path);
+  };
+
+  const handleHeaderLoginClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const isMobile = useLayoutStore.getState().isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
+    if (isMobile) {
+      setIsGuestMenuOpen((prev) => !prev);
+    } else {
+      handleNavigate('/login');
+    }
   };
 
   const handleAvatarClick = () => {
@@ -247,16 +260,23 @@ export const PlatformHeader: React.FC = () => {
           } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
             !isHeaderExpanded
               ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
-              : 'opacity-0 -translate-y-2 pointer-events-none scale-90'
+              : 'opacity-0 -translate-y-2 pointer-events-none scale-90 hidden'
           }`}
         >
           {/* Avatar tròn 24px */}
           <button
             type="button"
             data-testid="capsule-avatar-btn"
-            onClick={() => setHeaderExpanded(true)}
+            onClick={() => {
+              const isMobile = useLayoutStore.getState().isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
+              if (!isAuthenticated && isMobile) {
+                setIsGuestMenuOpen(true);
+              } else {
+                setHeaderExpanded(true);
+              }
+            }}
             className="flex items-center justify-center shrink-0 cursor-pointer transition active:scale-95"
-            title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm để mở menu'}
+            title={user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm mở menu tiện ích'}
             aria-label="Tài khoản và Menu"
           >
             {effectiveAvatar ? (
@@ -711,9 +731,9 @@ export const PlatformHeader: React.FC = () => {
               type="button"
               id="header-login-btn"
               data-testid="header-login-btn"
-              onClick={() => handleNavigate('/login')}
-              className="h-8 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm"
-              title="Đăng nhập tài khoản"
+              onClick={handleHeaderLoginClick}
+              className="h-8 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm active:scale-95"
+              title="Đăng nhập tài khoản hoặc Mở menu tiện ích"
             >
               <User size={13} className="text-emerald-400 shrink-0" />
               <span>Đăng Nhập</span>
@@ -1000,6 +1020,137 @@ export const PlatformHeader: React.FC = () => {
           <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
           <span className="font-medium text-white">Đã đăng xuất thành công.</span>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 4. MODAL / ACTION DRAWER TIỆN ÍCH DÀNH CHO KHÁCH (Z-[100])                  */}
+      {/* ========================================================================= */}
+      {isGuestMenuOpen && (
+        <>
+          <div
+            data-testid="guest-quick-menu-backdrop"
+            onClick={() => setIsGuestMenuOpen(false)}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in"
+            aria-hidden="true"
+          />
+          <div
+            data-testid="guest-quick-menu-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tài khoản và Menu tiện ích khách"
+            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-16 sm:right-6 sm:left-auto sm:w-84 z-[100] bg-zinc-950/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl sm:rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3 animate-in slide-in-from-bottom sm:slide-in-from-top-2 duration-200 select-none"
+          >
+            {/* Mobile Drag Indicator */}
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-1 sm:hidden cursor-pointer" onClick={() => setIsGuestMenuOpen(false)} />
+
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                  <User size={16} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Chế độ Khách</span>
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/30">
+                      50 ⚡
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400">Chọn thao tác hoặc nâng cấp</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="guest-menu-close-btn"
+                onClick={() => setIsGuestMenuOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                aria-label="Đóng"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Quick Menu Options */}
+            <div className="space-y-1.5">
+              {/* 1. Đăng Nhập / Đăng Ký */}
+              <button
+                type="button"
+                data-testid="guest-menu-login-btn"
+                onClick={() => {
+                  setIsGuestMenuOpen(false);
+                  handleNavigate('/login');
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 text-emerald-300 group-hover:bg-emerald-500/30 transition shrink-0">
+                  <User size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-white group-hover:text-emerald-300 transition">
+                    Đăng Nhập / Đăng Ký
+                  </div>
+                  <div className="text-[10px] text-zinc-400 leading-tight">
+                    Đồng bộ Cloud Supabase &amp; lưu dữ liệu vĩnh viễn
+                  </div>
+                </div>
+              </button>
+
+              {/* 2. Bảng Giá PRO */}
+              <button
+                type="button"
+                data-testid="guest-menu-billing-btn"
+                onClick={() => {
+                  setIsGuestMenuOpen(false);
+                  handleNavigate('/billing');
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/20 text-amber-300 group-hover:bg-amber-500/30 transition shrink-0">
+                  <CreditCard size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-white group-hover:text-amber-300 transition">
+                    Bảng Giá PRO &amp; VIP
+                  </div>
+                  <div className="text-[10px] text-zinc-400 leading-tight">
+                    Khám phá gói Hội viên, mở khóa tính năng cao cấp
+                  </div>
+                </div>
+              </button>
+
+              {/* 3. Cài Đặt Giao Diện */}
+              <button
+                type="button"
+                data-testid="guest-menu-settings-btn"
+                onClick={() => {
+                  setIsGuestMenuOpen(false);
+                  setMobileHeaderOpen(false);
+                  setHeaderExpanded(false);
+                  useLayoutStore.getState().openWidget('settings');
+                  if (useLayoutStore.getState().isMobile) {
+                    useLayoutStore.getState().setActiveMobileTab('settings');
+                    setTimeout(() => {
+                      document.querySelector('[data-testid="widget-container-settings"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 60);
+                  }
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/20 text-cyan-300 group-hover:bg-cyan-500/30 transition shrink-0">
+                  <Settings size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-white group-hover:text-cyan-300 transition">
+                    Cài Đặt Giao Diện
+                  </div>
+                  <div className="text-[10px] text-zinc-400 leading-tight">
+                    Tùy chỉnh đồng hồ, âm thanh lofi, kính mờ &amp; widget
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
     </>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
-import { googleAuthService } from '../services/googleAuthService';
+import { googleAuthService, GOOGLE_OAUTH_GUIDANCE_MESSAGE } from '../services/googleAuthService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Lock,
@@ -29,6 +29,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
   const [displayName, setDisplayName] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isGoogleLoadingLocal, setIsGoogleLoadingLocal] = useState(false);
+  const [oauthGuidanceError, setOauthGuidanceError] = useState<string | null>(null);
 
   const {
     login,
@@ -145,6 +146,31 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     }
   };
 
+  // Kiểm tra mã lỗi từ Google OAuth chuyển hướng về qua query (?error=...) hoặc hash (#error=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const errorParam = searchParams.get('error') || hashParams.get('error');
+      const errorDesc = searchParams.get('error_description') || hashParams.get('error_description');
+
+      if (errorParam) {
+        if (
+          errorParam === 'redirect_uri_mismatch' ||
+          errorParam === 'access_denied' ||
+          (errorDesc && (errorDesc.includes('redirect_uri_mismatch') || errorDesc.includes('origin')))
+        ) {
+          setOauthGuidanceError(GOOGLE_OAUTH_GUIDANCE_MESSAGE);
+        } else {
+          setOauthGuidanceError(`Google OAuth: ${errorDesc || errorParam}. Vui lòng thử lại hoặc đăng nhập bằng Email.`);
+        }
+      }
+    } catch (e) {
+      console.warn('Lỗi phân tích URL OAuth:', e);
+    }
+  }, []);
+
   // Khởi tạo Google One Tap khi mở màn hình AuthView
   useEffect(() => {
     let isMounted = true;
@@ -179,25 +205,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
   const handleGoogleSignIn = async () => {
     clearError();
     setSuccessMsg('');
+    setOauthGuidanceError(null);
     setIsGoogleLoadingLocal(true);
 
     try {
       const isMobile = googleAuthService.isMobileDevice();
-      const clientId = googleAuthService.getClientId();
-      const origin =
-        typeof window !== 'undefined'
-          ? window.location.origin
-          : 'https://pomofocus-workspace.vercel.app';
-      const redirectUri = origin;
 
       // 1. Trên Mobile: Trình duyệt di động mặc định chặn popup ngầm -> BẮT BUỘC dùng Full-page Redirect
       if (isMobile) {
-        const nonce = Date.now().toString();
-        const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-          clientId
-        )}&redirect_uri=${encodeURIComponent(
-          redirectUri
-        )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+        const googleOAuthUrl = googleAuthService.getGoogleOAuthRedirectUrl();
         window.location.href = googleOAuthUrl;
         return;
       }
@@ -215,16 +231,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             }
           }
         } catch (popupErr: any) {
+          const errMsg = String(popupErr?.message || '');
+          if (errMsg.includes('Google Cloud Console') || errMsg.includes('redirect_uri_mismatch') || errMsg.includes('origin')) {
+            setOauthGuidanceError(GOOGLE_OAUTH_GUIDANCE_MESSAGE);
+            setIsGoogleLoadingLocal(false);
+            return;
+          }
           console.warn(
             '[Google Sign-In] Popup thất bại hoặc bị chặn, chuyển sang Full-page Redirect:',
             popupErr?.message
           );
-          const nonce = Date.now().toString();
-          const googleOAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-            clientId
-          )}&redirect_uri=${encodeURIComponent(
-            redirectUri
-          )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+          const googleOAuthUrl = googleAuthService.getGoogleOAuthRedirectUrl();
           window.location.href = googleOAuthUrl;
           return;
         }
@@ -244,6 +261,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
       }
     } catch (err: any) {
       console.error('Lỗi đăng nhập Google:', err);
+      const msg = String(err?.message || '');
+      if (msg.includes('Google Cloud Console') || msg.includes('redirect_uri_mismatch') || msg.includes('origin')) {
+        setOauthGuidanceError(GOOGLE_OAUTH_GUIDANCE_MESSAGE);
+      } else {
+        setOauthGuidanceError(msg || 'Lỗi kết nối tài khoản Google. Vui lòng thử lại.');
+      }
       setIsGoogleLoadingLocal(false);
     }
   };
@@ -274,6 +297,40 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             {mode === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản Mới'}
           </h1>
         </div>
+
+        {oauthGuidanceError && (
+          <div
+            data-testid="google-oauth-guidance-alert"
+            className="mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-200 shadow-lg backdrop-blur-md"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-amber-300 mb-1">Cấu hình Google OAuth</div>
+                <p className="leading-relaxed text-[11px] text-amber-200/90">{oauthGuidanceError}</p>
+                <div className="mt-2.5 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('login');
+                      setOauthGuidanceError(null);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-medium text-[11px] transition cursor-pointer"
+                  >
+                    Dùng Email &amp; Mật Khẩu
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOauthGuidanceError(null)}
+                    className="px-2 py-1 text-zinc-400 hover:text-white text-[11px] transition cursor-pointer"
+                  >
+                    Bỏ qua
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-xl bg-rose-500/15 border border-rose-500/30 p-3 text-xs text-rose-300">

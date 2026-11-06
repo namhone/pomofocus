@@ -76,6 +76,9 @@ declare global {
 const GSI_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
 export const OFFICIAL_GOOGLE_CLIENT_ID = '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
 
+export const GOOGLE_OAUTH_GUIDANCE_MESSAGE =
+  'Google OAuth yêu cầu thêm domain https://pomofocus-workspace.vercel.app vào Google Cloud Console. Vui lòng kiểm tra cài đặt hoặc sử dụng đăng nhập bằng Email.';
+
 export const googleAuthService = {
   getClientId(): string {
     if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -252,6 +255,14 @@ export const googleAuthService = {
             scope: 'openid email profile',
             callback: async (tokenResponse) => {
               if (tokenResponse.error) {
+                const errDetail = tokenResponse.details || tokenResponse.error;
+                if (
+                  String(errDetail).includes('redirect_uri_mismatch') ||
+                  String(errDetail).includes('origin') ||
+                  String(errDetail).includes('idpiframe_initialization_failed')
+                ) {
+                  return reject(new Error(GOOGLE_OAUTH_GUIDANCE_MESSAGE));
+                }
                 return reject(new Error(tokenResponse.details || tokenResponse.error || 'Đăng nhập Google bị hủy hoặc thất bại'));
               }
               if (!tokenResponse.access_token) {
@@ -281,13 +292,31 @@ export const googleAuthService = {
               }
             },
             error_callback: (err) => {
-              reject(new Error(err?.message || 'Lỗi cửa sổ popup Google OAuth'));
+              const errMsg = err?.message || '';
+              if (
+                errMsg.includes('redirect_uri_mismatch') ||
+                errMsg.includes('origin') ||
+                errMsg.includes('idpiframe_initialization_failed')
+              ) {
+                reject(new Error(GOOGLE_OAUTH_GUIDANCE_MESSAGE));
+              } else {
+                reject(new Error(err?.message || 'Lỗi cửa sổ popup Google OAuth'));
+              }
             }
           });
 
           client.requestAccessToken({ prompt: 'select_account' });
         } catch (err: any) {
-          reject(new Error('Không thể khởi chạy cửa sổ Google Sign-In: ' + (err?.message || String(err))));
+          const errMsg = err?.message || '';
+          if (
+            errMsg.includes('redirect_uri_mismatch') ||
+            errMsg.includes('origin') ||
+            errMsg.includes('idpiframe_initialization_failed')
+          ) {
+            reject(new Error(GOOGLE_OAUTH_GUIDANCE_MESSAGE));
+          } else {
+            reject(new Error('Không thể khởi chạy cửa sổ Google Sign-In: ' + (err?.message || String(err))));
+          }
         }
       });
     }
@@ -300,11 +329,12 @@ export const googleAuthService = {
 
   /**
    * Tạo URL chuyển hướng Google OAuth 2.0 trực tiếp (chuẩn OAuth2)
+   * KHÓA CỨNG: Luôn sử dụng origin gốc (https://pomofocus-workspace.vercel.app)
    */
-  getGoogleOAuthRedirectUrl(redirectTo?: string): string {
+  getGoogleOAuthRedirectUrl(_redirectTo?: string): string {
     const clientId = this.getClientId();
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
-    const redirectUri = redirectTo || origin;
+    const redirectUri = origin;
     const nonce = Math.random().toString(36).substring(2);
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
   },

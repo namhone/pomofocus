@@ -11,10 +11,13 @@ import {
   Crown,
   Zap,
   Settings,
-  X
+  X,
+  User
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
+import { useAuthStore } from '../stores/useAuthStore';
+import { getEffectiveAvatarUrl } from '../services/authService';
 import { useRouter } from '../services/router';
 
 interface MobileMoreDrawerProps {
@@ -29,6 +32,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
   onOpenQuickSettings
 }) => {
   const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
   const navigateMobileWidget = useLayoutStore((s) => s.navigateMobileWidget);
   const toggleZenMode = useLayoutStore((s) => s.toggleZenMode);
   const isZenMode = useLayoutStore((s) => s.isZenMode);
@@ -112,7 +116,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
           title="Vuốt hoặc bấm để đóng"
         />
 
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]" />
             <h3 className="text-sm font-bold text-white tracking-tight">Tính Năng Mở Rộng</h3>
@@ -126,6 +130,66 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
           >
             <X size={16} />
           </button>
+        </div>
+
+        {/* Thẻ Tài Khoản / Chế độ Khách */}
+        <div className="mb-4 p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+          {isAuthenticated && user ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={getEffectiveAvatarUrl(user)}
+                  alt={user.displayName}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  className="w-9 h-9 rounded-full object-cover ring-1 ring-white/20 shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=10b981&color=fff&bold=true`;
+                  }}
+                />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white truncate">{user.displayName}</div>
+                  <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="mobile-drawer-profile-btn"
+                onClick={() => {
+                  router.navigate('/profile');
+                  onClose();
+                }}
+                className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0"
+              >
+                Hồ Sơ
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                  <User size={16} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white">Chưa đăng nhập</div>
+                  <div className="text-[10px] text-zinc-400">Chế độ khách · 50 ⚡</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-testid="more-item-login"
+                  onClick={() => {
+                    router.navigate('/login');
+                    onClose();
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm"
+                >
+                  Đăng Nhập
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
