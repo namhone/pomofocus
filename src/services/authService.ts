@@ -453,6 +453,9 @@ export const authService = {
   async loginWithGoogle(payload: GoogleUserPayload, totpCode?: string): Promise<UserProfile> {
     const normalized = (payload.email || '').trim().toLowerCase();
     const isOwner = isOwnerEmail(normalized);
+    const isLady = isLadyBoss(normalized);
+    const isVip = isVipFriend(normalized);
+    const isPrivileged = isOwner || isLady || isVip;
 
     const { ProfileService } = await import('./profileService');
     const { totpService } = await import('./totpService');
@@ -462,7 +465,8 @@ export const authService = {
       cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
     } catch {}
 
-    const userId = cloudProfile?.id || (isOwner ? 'usr_founder_owner' : `usr_g_${Date.now()}`);
+    const defaultIdPrefix = isOwner ? 'usr_founder_owner' : isLady ? 'usr_lady_boss' : isVip ? 'usr_vip_friend' : 'usr_g';
+    const userId = cloudProfile?.id || `${defaultIdPrefix}_${Math.random().toString(36).substring(2, 8)}_${Date.now()}`;
     // BẢO VỆ AVATAR BẤT BIẾN: Nếu đã có custom avatar trong cloudProfile thì giữ nguyên 100%, KHÔNG bị Google đè lên!
     const customAvatar = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
     const googlePhoto = payload.picture || (payload as any).avatarUrl;
@@ -482,11 +486,11 @@ export const authService = {
       avatarUrl: resolvedAvatar,
       customAvatarUrl: customAvatar || undefined,
       hasCustomAvatar: hasCustom,
-      plan: isOwner ? 'pro_lifetime' : (cloudProfile?.plan || 'pro_beta'),
-      role: isOwner ? 'founder' : (cloudProfile?.role || 'user'),
-      badge: isOwner ? 'Founder VIP 👑' : (cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime' ? '👑 PRO TRỌN ĐỜI' : 'Thành viên Free'),
-      isLifetime: isOwner || cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime',
-      proExpiresAt: isOwner ? null : (cloudProfile?.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : Date.now() + THREE_YEARS_MS),
+      plan: isOwner ? 'pro_lifetime' : isLady ? 'lifetime' : (cloudProfile?.plan || 'pro_beta'),
+      role: isOwner ? 'founder' : isLady ? 'ladyboss' : (cloudProfile?.role || 'user'),
+      badge: isOwner ? 'Founder VIP 👑' : isLady ? 'LadyBoss 👑' : (cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime' ? '👑 PRO TRỌN ĐỜI' : 'Thành viên Free'),
+      isLifetime: isPrivileged || cloudProfile?.plan === 'lifetime' || cloudProfile?.plan === 'pro_lifetime',
+      proExpiresAt: isPrivileged ? null : (cloudProfile?.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : Date.now() + THREE_YEARS_MS),
       createdAt: cloudProfile?.created_at ? new Date(cloudProfile.created_at).getTime() : Date.now(),
       authProvider: 'google',
       googleId: payload.sub,

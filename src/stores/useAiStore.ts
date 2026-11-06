@@ -839,3 +839,7 @@ export const useAiStore = create<AiState>()(
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  (window as any).useAiStore = useAiStore;
+}

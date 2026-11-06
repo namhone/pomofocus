@@ -778,3 +778,62 @@ Dưới góc nhìn của Senior Code Auditor, đây là bản kiểm toán 100% 
    - *Hiện trạng*: `WebRTCConnectionManager.ts` đang triển khai kiến trúc Full-Mesh (mỗi peer kết nối trực tiếp với tất cả các peer còn lại). Hàm `updateMeshBandwidth` đã giới hạn bitrate xuống 180 kbps cho phòng trên 5 người. Tuy nhiên, kiến trúc Mesh thuần túy khuyến nghị phòng học nhóm duy trì tối đa 10 học viên để bảo đảm CPU và băng thông mạng không bị nghẽn.
 3. **MoMo Webhook Verification**:
    - *Hiện trạng*: Luồng kiểm tra trạng thái thanh toán trong `momoService.checkPaymentStatus` hiện đang hỗ trợ cả xác thực tự động qua Server API và nút "Tôi đã hoàn tất chuyển khoản" để cấp quyền Sandbox PRO ngay lập tức trong môi trường thử nghiệm.
+
+---
+
+## 8. MULTI-PROVIDER IDENTITY LINKING & CANONICAL ID ARCHITECTURE
+
+### 8.1. Nguyên Lý Giải Quyết Xung Đột Định Danh (Identity Conflict & Zero-Fragmentation)
+Khi một người dùng đăng nhập vào hệ thống bằng nhiều phương thức khác nhau (ví dụ: đăng ký bằng Email & Mật khẩu trước, sau đó đăng nhập bằng Google OAuth, hoặc ngược lại), Supabase Auth sẽ sinh ra hai User ID (`UUID_A` và `UUID_B`). Nếu không có cơ chế ghép nối định danh (Identity Linking):
+- Cơ sở dữ liệu sẽ bị lỗi ràng buộc duy nhất trên cột `email` (`duplicate key value violates unique constraint "profiles_email_key"`).
+- Phía Client dùng ID mới (`UUID_B`), dẫn đến truy vấn Tasks & Notes (`WHERE user_id = UUID_B`) trả về danh sách rỗng, xoá đè cache cục bộ gây mất trắng dữ liệu.
+- Tài khoản bị rơi về thành viên mới, mất gói Founder VIP và ví ⚡ bị reset về 50.
+
+Kiến trúc **Canonical ID & Smart Identity Linking** v5.0 Ultimate giải quyết triệt để 100% bằng cơ chế sau:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Người dùng (namho03052k9@gmail.com)
+    participant Client as PomoFocus Client (useAuthStore / Zustand)
+    participant Auth as Supabase Auth (auth.users)
+    participant Trigger as Postgres Trigger (handle_new_user)
+    participant DB as Supabase Cloud (profiles / user_wallets / tasks)
+
+    Note over User,DB: GIAI ĐOẠN 1: Đăng ký ban đầu bằng Email / Mật khẩu
+    User->>Client: Đăng ký / Đăng nhập Email
+    Client->>Auth: signUp(email, password)
+    Auth->>Trigger: INSERT auth.users (id = UUID_A)
+    Trigger->>DB: INSERT profiles (id = UUID_A, role = 'founder')
+    Trigger->>DB: INSERT user_wallets (user_id = UUID_A, credits = 999999999)
+    User->>Client: Tạo các Tasks & Notes (user_id = UUID_A)
+
+    Note over User,DB: GIAI ĐOẠN 2: Đăng nhập tiếp theo bằng Google OAuth
+    User->>Client: Bấm "Tiếp tục với Google"
+    Client->>Auth: signInWithOAuth(provider: 'google')
+    Auth-->>Client: OAuth Callback (session.user.id = UUID_B, email = namho03052k9@gmail.com)
+    Auth->>Trigger: INSERT auth.users (id = UUID_B)
+    
+    rect rgb(20, 45, 30)
+    Note over Trigger,DB: TRIGGER XỬ LÝ GHÉP NỐI THÔNG MINH (IDENTITY LINKING)
+    Trigger->>DB: SELECT id FROM profiles WHERE lower(email) = lower(new.email)
+    Trigger-->>DB: Tìm thấy existing_id = UUID_A (Canonical ID)
+    Trigger->>DB: UPDATE profiles SET google_id = UUID_B, is_google_linked = true WHERE id = UUID_A
+    Trigger->>DB: BẢO TOÀN user_wallets (credits = 999999999) TẠI user_id = UUID_A
+    end
+
+    rect rgb(30, 30, 50)
+    Note over Client,DB: CLIENT ĐỒNG BỘ CANONICAL ID & TẢI NGUYÊN VẸN DỮ LIỆU
+    Client->>DB: ProfileService.fetchProfileByEmail(email)
+    DB-->>Client: Trả về Profile gốc (id = UUID_A, role = 'founder', credits = 1000/Infinity)
+    Client->>Client: Gán user.id = UUID_A (Canonical ID), user.googleId = UUID_B
+    Client->>DB: TaskCloudService.fetchTasksFromCloud(user.id = UUID_A)
+    DB-->>Client: Tải về 100% Tasks & Notes đã tạo từ trước
+    Client->>User: Hiển thị đầy đủ Badge Founder VIP 👑, ⚡ ∞ và danh sách Task nguyên vẹn
+    end
+```
+
+### 8.2. Các Quy Tắc Bất Biến (Canonical Invariants)
+1. **Canonical ID Single Source of Truth**: `public.profiles.id` gốc (gắn liền với email) là định danh bất biến duy nhất. Toàn bộ `useAuthStore`, `useTaskStore`, `TaskCloudService`, `useNoteStore`, `NoteCloudService`, `useAiStore` chỉ giao tiếp và lưu trữ theo `canonicalId`.
+2. **Founder VIP & Credits Shield**: Không một sự kiện Auth hay Provider switch nào được phép hạ quyền hoặc reset số dư tín dụng của Owner/Founder về 50⚡.
+3. **Multi-Provider Aware RLS**: Các chính sách Row Level Security (RLS) của Supabase cho phép truy cập nếu `auth.uid() = id/user_id` HOẶC `lower(trim(email)) = lower(trim(auth.jwt()->>'email'))`, bảo đảm phiên Google JWT luôn có toàn quyền đọc/ghi dữ liệu của tài khoản Email gốc.

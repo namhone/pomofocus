@@ -52,12 +52,33 @@ export class ProfileService {
    */
   static async fetchProfile(userId: string): Promise<CloudProfile | null> {
     if (!userId) return null;
+    const cached = localProfileCache.get(userId);
+    if (cached) return cached;
+
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('profiles')
         .select('*, user_wallets(credits_balance)')
-        .eq('id', userId)
-        .single();
+        .eq('id', userId);
+
+      let { data, error } = typeof (query as any).maybeSingle === 'function'
+        ? await (query as any).maybeSingle()
+        : await query.single();
+
+      // Fallback: Tìm theo google_id nếu userId là Google UUID / Sub ID
+      if (!data) {
+        const gQuery = supabase
+          .from('profiles')
+          .select('*, user_wallets(credits_balance)')
+          .eq('google_id', userId);
+        const { data: gData } = typeof (gQuery as any).maybeSingle === 'function'
+          ? await (gQuery as any).maybeSingle()
+          : await gQuery.single();
+        if (gData) {
+          data = gData;
+          error = null;
+        }
+      }
 
       if (error || !data) {
         return localProfileCache.get(userId) || null;
@@ -69,6 +90,8 @@ export class ProfileService {
       }
       localProfileCache.set(prof.id, prof);
       if (prof.email) localProfileCache.set(prof.email.toLowerCase().trim(), prof);
+      if (prof.google_id) localProfileCache.set(prof.google_id, prof);
+      if (userId !== prof.id) localProfileCache.set(userId, prof);
       return prof as CloudProfile;
     } catch (err) {
       console.warn('[ProfileService] Lỗi khi tải hồ sơ từ Supabase Cloud:', err);
@@ -130,10 +153,17 @@ export class ProfileService {
     const defaultCredits = isPrivileged ? 1000 : 50;
 
     let existing = await this.fetchProfile(user.id);
+    if (existing && normalizedEmail && existing.email && existing.email.toLowerCase().trim() !== normalizedEmail) {
+      existing = null; // Chống va chạm cache giữa các tài khoản khác nhau
+    }
     if (!existing && user.email) {
       existing = await this.fetchProfileByEmail(user.email);
     }
     if (existing) {
+      // CANONICAL ID: ID của profile đã có trên cloud là Single Source of Truth
+      const canonicalId = existing.id;
+      const isExternalProviderSwitch = user.id && user.id !== canonicalId;
+
       // BẤT BIẾN: Nếu người dùng đã có avatar custom trong database thì giữ nguyên 100%
       if (existing.custom_avatar_url || existing.has_custom_avatar) {
         existing.avatar_url = existing.custom_avatar_url || existing.avatar_url;
@@ -143,12 +173,13 @@ export class ProfileService {
         existing.has_custom_avatar = true;
       }
 
-      // Lưu liên kết Google ID nếu có
-      if (user.googleId || user.isGoogleLinked) {
-        existing.google_id = user.googleId || existing.google_id;
+      // Lưu liên kết Google ID nếu có hoặc nếu chuyển từ Google sang Email/ngược lại
+      const shouldLinkGoogle = user.googleId || user.isGoogleLinked || isExternalProviderSwitch;
+      if (shouldLinkGoogle) {
+        existing.google_id = user.googleId || (isExternalProviderSwitch ? user.id : existing.google_id);
         existing.is_google_linked = true;
         await this.upsertProfile({
-          id: existing.id,
+          id: canonicalId,
           email: existing.email,
           google_id: existing.google_id,
           is_google_linked: true
@@ -158,27 +189,33 @@ export class ProfileService {
       // Nếu là Owner/Founder nhưng trên cloud chưa cập nhật role hoặc plan
       if (isOwner && (existing.plan !== 'lifetime' || existing.role !== 'founder')) {
         const updated = await this.upsertProfile({
-          id: user.id,
+          id: canonicalId,
           email: user.email,
           role: 'founder',
           plan: 'lifetime',
           plan_expires_at: null,
           ai_credits_balance: Math.max(existing.ai_credits_balance || 0, 1000)
         });
-        return updated || existing;
+        const res = updated || existing;
+        if (user.id) localProfileCache.set(user.id, res);
+        return res;
       }
       // Safeguard Founder credits
       if (isPrivileged && (existing.plan !== 'lifetime' || existing.role !== defaultRole || (existing.ai_credits_balance || 0) < 1000)) {
         const updated = await this.upsertProfile({
-          id: user.id,
+          id: canonicalId,
           email: user.email,
           role: defaultRole,
           plan: 'lifetime',
           plan_expires_at: null,
           ai_credits_balance: Math.max(existing.ai_credits_balance || 0, 1000)
         });
-        return updated || existing;
+        const res = updated || existing;
+        if (user.id) localProfileCache.set(user.id, res);
+        return res;
       }
+
+      if (user.id) localProfileCache.set(user.id, existing);
       return existing;
     }
 

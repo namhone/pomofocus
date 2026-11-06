@@ -17,7 +17,7 @@ import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
 import type { GoogleUserPayload } from '../services/googleAuthService';
 import { useAiStore } from './useAiStore';
-import { ProfileService } from '../services/profileService';
+import { ProfileService, localProfileCache } from '../services/profileService';
 import { userSettingsService } from '../services/userSettingsService';
 
 export interface AuthState {
@@ -303,10 +303,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
         supabaseUser.displayName ||
         (email ? email.split('@')[0] : 'Người dùng');
 
-      // Canonical ID: Giữ ID hiện tại nếu cùng email, hoặc dùng ID Supabase
+      // Canonical ID: Kiểm tra cả cache profile và cloud profile theo email
+      const cachedProf = email ? (localProfileCache.get(email) || localProfileCache.get(supabaseUser.id)) : null;
       const userId = (currentSession?.email && currentSession.email.trim().toLowerCase() === email)
         ? (currentSession.id || supabaseUser.id)
-        : (supabaseUser.id || `g_${Date.now()}`);
+        : (cachedProf?.id || supabaseUser.id || `g_${Date.now()}`);
 
       let profile: UserProfile;
 
@@ -399,9 +400,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
         id: profile.id,
         email: profile.email,
         displayName: profile.displayName,
-        avatarUrl: profile.avatarUrl
+        avatarUrl: profile.avatarUrl,
+        googleId: supabaseUser.id,
+        isGoogleLinked: true
       }).then((cloudProf) => {
         if (cloudProf) {
+          const canonicalId = cloudProf.id || profile.id;
           if (typeof cloudProf.ai_credits_balance === 'number') {
             useAiStore.setState({
               aiCreditsBalance: cloudProf.ai_credits_balance,
@@ -411,7 +415,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
             });
           }
           set((state) => {
-            if (!state.user || state.user.id !== profile.id) return state;
+            if (!state.user) return state;
             const isCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || state.user.customAvatarUrl || state.user.hasCustomAvatar);
             const resolvedAvatar = getEffectiveAvatarUrl(state.user, cloudProf);
 
@@ -421,6 +425,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
             const merged: UserProfile = {
               ...state.user,
+              id: canonicalId,
+              googleId: supabaseUser.id,
+              isGoogleLinked: true,
               displayName: cloudProf.full_name || state.user.displayName,
               avatarUrl: resolvedAvatar,
               customAvatarUrl: cloudProf.custom_avatar_url || state.user.customAvatarUrl,
@@ -444,6 +451,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
               ...computeDerivedPlanState(merged)
             };
           });
+
+          // Nạp lại Tasks & Notes theo Canonical ID chuẩn xác
+          import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+          import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
         }
       }).catch((e) => console.warn('[syncUserFromSupabase ProfileService]', e));
     },
@@ -771,14 +782,17 @@ export const useAuthStore = create<AuthState>((set, get) => {
         }
 
         // Đồng bộ 100% từ public.profiles trên Supabase Cloud
-        const cloudProfile = await ProfileService.fetchProfile(user.id);
+        const latestUser = get().user || user;
+        const cloudProfile = await ProfileService.fetchProfile(latestUser.id);
         if (cloudProfile) {
           // Cloud sync privilege protection
-          const isPrivileged = isOwnerEmail(user.email) || hasVipAccess(user) || isLadyBoss(user.email) || isVipFriend(user.email);
+          const isPrivileged = isOwnerEmail(latestUser.email) || hasVipAccess(latestUser) || isLadyBoss(latestUser.email) || isVipFriend(latestUser.email);
           const effectiveCredits = isPrivileged
             ? Math.max(cloudProfile.ai_credits_balance || 0, 1000)
             : (cloudProfile.ai_credits_balance ?? 50);
-          const effectivePlan = isPrivileged ? 'lifetime' : (cloudProfile.plan || 'free');
+          const effectivePlan = isPrivileged
+            ? 'lifetime'
+            : (latestUser.plan === 'pro' || latestUser.plan === 'pro_lifetime' ? latestUser.plan : (cloudProfile.plan || 'free'));
 
           if (typeof cloudProfile.ai_credits_balance === 'number' || isPrivileged) {
             useAiStore.setState({
@@ -789,22 +803,22 @@ export const useAuthStore = create<AuthState>((set, get) => {
             });
           }
 
-          const isCustom = Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar || user.customAvatarUrl || user.hasCustomAvatar);
-          const resolvedAvatar = getEffectiveAvatarUrl(user, cloudProfile);
+          const isCustom = Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar || latestUser.customAvatarUrl || latestUser.hasCustomAvatar);
+          const resolvedAvatar = getEffectiveAvatarUrl(latestUser, cloudProfile);
 
           const updatedUser: UserProfile = {
-            ...user,
-            displayName: cloudProfile.full_name || user.displayName,
+            ...latestUser,
+            displayName: cloudProfile.full_name || latestUser.displayName,
             avatarUrl: resolvedAvatar,
-            customAvatarUrl: cloudProfile.custom_avatar_url || user.customAvatarUrl,
+            customAvatarUrl: cloudProfile.custom_avatar_url || latestUser.customAvatarUrl,
             hasCustomAvatar: isCustom,
-            username: cloudProfile.handle || user.username,
-            bio: cloudProfile.bio || user.bio,
-            role: isPrivileged && isOwnerEmail(user.email) ? 'founder' : (cloudProfile.role || user.role),
+            username: cloudProfile.handle || latestUser.username,
+            bio: cloudProfile.bio || latestUser.bio,
+            role: isPrivileged && isOwnerEmail(latestUser.email) ? 'founder' : (cloudProfile.role || latestUser.role),
             plan: effectivePlan as any,
-            badge: isPrivileged && isOwnerEmail(user.email) ? 'Founder VIP 👑' : user.badge,
+            badge: isPrivileged && isOwnerEmail(latestUser.email) ? 'Founder VIP 👑' : (effectivePlan === 'pro' ? 'PRO HỘI VIÊN' : latestUser.badge),
             credits: effectiveCredits,
-            proExpiresAt: cloudProfile.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : user.proExpiresAt
+            proExpiresAt: cloudProfile.plan_expires_at ? new Date(cloudProfile.plan_expires_at).getTime() : latestUser.proExpiresAt
           };
           set({
             user: updatedUser,
@@ -949,11 +963,16 @@ if (typeof window !== 'undefined') {
         const role = isOwner ? 'founder' : (profile?.role || 'user');
         const aiCredits = isOwner ? Infinity : (isLifetime ? 1000 : (profile?.ai_credits_balance ?? 50));
 
+        // CANONICAL USER ID INVARIANT (Single Source of Truth):
+        // Nếu hồ sơ trên Cloud đã tồn tại với email này, luôn chọn profile.id làm ID định danh duy nhất
+        const canonicalId = profile?.id || session.user.id;
+        const isExternalProvider = session.user.id !== canonicalId;
+
         // AVATAR BẤT BIẾN: Luôn lấy avatar_url từ database, cấm lấy ảnh Google đè lên!
         const avatarUrl = getEffectiveAvatarUrl(session.user, profile);
 
         const finalUser: UserProfile = {
-          id: session.user.id,
+          id: canonicalId,
           email: session.user.email,
           displayName: profile?.display_name || profile?.full_name || session.user.user_metadata?.full_name || (session.user.email ? session.user.email.split('@')[0] : 'Học Viên'),
           avatarUrl,
@@ -965,6 +984,8 @@ if (typeof window !== 'undefined') {
           isLifetime,
           credits: isOwner ? 999999 : (aiCredits === Infinity ? 999999 : aiCredits),
           aiCredits,
+          googleId: isExternalProvider ? session.user.id : (profile?.google_id || undefined),
+          isGoogleLinked: isExternalProvider || Boolean(profile?.is_google_linked),
           twoFactorEnabled: Boolean(profile?.two_factor_enabled || profile?.is_2fa_enabled),
           createdAt: profile?.created_at ? new Date(profile.created_at).getTime() : Date.now(),
           proExpiresAt: profile?.pro_expires_at ? new Date(profile.pro_expires_at).getTime() : null,
@@ -989,6 +1010,10 @@ if (typeof window !== 'undefined') {
           credits: finalUser.credits,
           ...computeDerivedPlanState(finalUser)
         });
+
+        // Tự động tải Tasks & Notes cho Canonical User ID ngay khi phiên được xác nhận
+        import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+        import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
       } else {
         useAuthStore.setState({
           user: null,
