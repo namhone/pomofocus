@@ -23,6 +23,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useAiStore } from '../stores/useAiStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { useRouter } from '../services/router';
+import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
 import { DockPosition } from '../types/layout';
 
 export const SettingsWidget: React.FC = () => {
@@ -83,22 +84,17 @@ export const SettingsWidget: React.FC = () => {
       {isAuthenticated && user ? (
         <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-cyan-500/10 border border-amber-500/20 flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            {user.avatarUrl ? (
+            <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-amber-500/40 shrink-0 flex items-center justify-center">
               <img
-                src={user.avatarUrl}
+                src={getEffectiveAvatarUrl(user)}
                 alt={user.displayName || 'Avatar'}
-                referrerPolicy="no-referrer"
-                crossOrigin="anonymous"
-                className="w-8 h-8 rounded-full object-cover ring-1 ring-amber-500/40 shrink-0"
+                className="w-full h-full object-cover bg-zinc-800"
                 onError={(e) => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=10b981&color=fff&bold=true`;
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = generateInitialsAvatarSvg(user.displayName, 64);
                 }}
               />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs shrink-0">
-                {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-              </div>
-            )}
+            </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">

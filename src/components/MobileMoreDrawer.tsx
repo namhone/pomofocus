@@ -17,7 +17,7 @@ import {
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
 import { useAuthStore } from '../stores/useAuthStore';
-import { getEffectiveAvatarUrl } from '../services/authService';
+import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
 import { useRouter } from '../services/router';
 
 interface MobileMoreDrawerProps {
@@ -137,16 +137,17 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
           {isAuthenticated && user ? (
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <img
-                  src={getEffectiveAvatarUrl(user)}
-                  alt={user.displayName}
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
-                  className="w-9 h-9 rounded-full object-cover ring-1 ring-white/20 shrink-0"
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=10b981&color=fff&bold=true`;
-                  }}
-                />
+                <div className="w-9 h-9 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/20 shrink-0 flex items-center justify-center">
+                  <img
+                    src={getEffectiveAvatarUrl(user)}
+                    alt={user.displayName}
+                    className="w-full h-full object-cover bg-zinc-800"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = generateInitialsAvatarSvg(user.displayName, 72);
+                    }}
+                  />
+                </div>
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-white truncate">{user.displayName}</div>
                   <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>

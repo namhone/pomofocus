@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
+import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
@@ -285,22 +286,17 @@ export const ProfileView: React.FC = () => {
             <div className="flex items-center gap-4 sm:gap-5 min-w-0">
               {/* Avatar with Camera Overlay */}
               <div className="relative group shrink-0">
-                {avatarUrl || user.avatarUrl ? (
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 shadow-md group-hover:border-zinc-500 transition overflow-hidden flex items-center justify-center">
                   <img
-                    src={avatarUrl || user.avatarUrl}
+                    src={avatarUrl || getEffectiveAvatarUrl(user)}
                     alt={user.displayName}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-zinc-700 shadow-md group-hover:border-zinc-500 transition"
+                    className="w-full h-full object-cover bg-zinc-800"
                     onError={(e) => {
-                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'User')}&background=10b981&color=fff&bold=true`;
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = generateInitialsAvatarSvg(user?.displayName || 'User');
                     }}
                   />
-                ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-100 text-xl sm:text-2xl font-medium group-hover:border-zinc-500 transition">
-                    {user.displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                </div>
 
                 {/* Camera quick edit button */}
                 <button

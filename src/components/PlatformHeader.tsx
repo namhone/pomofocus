@@ -4,7 +4,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
-import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, getEffectiveAvatarUrl } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -89,7 +89,7 @@ export const PlatformHeader: React.FC = () => {
   );
 
   const getInitialsFallback = (name?: string) =>
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=10b981&color=fff&bold=true`;
+    generateInitialsAvatarSvg(name, 64);
 
   const effectiveAvatar = user ? getEffectiveAvatarUrl(user) : undefined;
 
@@ -297,20 +297,17 @@ export const PlatformHeader: React.FC = () => {
               <div className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700/60 text-zinc-400 flex items-center justify-center shrink-0">
                 <User size={13} className="text-zinc-400" />
               </div>
-            ) : effectiveAvatar ? (
-              <img
-                src={effectiveAvatar}
-                alt={user?.displayName || 'Avatar'}
-                referrerPolicy="no-referrer"
-                crossOrigin="anonymous"
-                className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20 shrink-0"
-                onError={(e) => {
-                  e.currentTarget.src = getInitialsFallback(user?.displayName);
-                }}
-              />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                {(user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
+              <div className="w-6 h-6 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/20 shrink-0 flex items-center justify-center">
+                <img
+                  src={effectiveAvatar || generateInitialsAvatarSvg(user?.displayName, 64)}
+                  alt={user?.displayName || 'Avatar'}
+                  className="w-full h-full object-cover bg-zinc-800"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = getInitialsFallback(user?.displayName);
+                  }}
+                />
               </div>
             )}
           </button>
@@ -541,22 +538,17 @@ export const PlatformHeader: React.FC = () => {
                 aria-expanded={isUserDropdownOpen}
                 aria-haspopup="menu"
               >
-                {effectiveAvatar ? (
+                <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
                   <img
-                    src={effectiveAvatar}
+                    src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 48)}
                     alt={user.displayName}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                    className="w-full h-full object-cover bg-zinc-800"
                     onError={(e) => {
+                      e.currentTarget.onerror = null;
                       e.currentTarget.src = getInitialsFallback(user?.displayName);
                     }}
                   />
-                ) : (
-                  <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-[10px] sm:text-[11px] shrink-0">
-                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-                )}
+                </div>
                 <span className="text-xs font-medium truncate hidden md:inline-block max-w-[85px]">
                   {user.displayName}
                 </span>
@@ -576,22 +568,17 @@ export const PlatformHeader: React.FC = () => {
                 >
                   {/* Mini Header Profile Info */}
                   <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
-                    {effectiveAvatar ? (
+                    <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
                       <img
-                        src={effectiveAvatar}
+                        src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 64)}
                         alt={user.displayName}
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                        className="w-full h-full object-cover bg-zinc-800"
                         onError={(e) => {
+                          e.currentTarget.onerror = null;
                           e.currentTarget.src = getInitialsFallback(user?.displayName);
                         }}
                       />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-medium text-xs shrink-0">
-                        {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-white truncate">
                         {user.displayName}
@@ -911,22 +898,17 @@ export const PlatformHeader: React.FC = () => {
           <div className="pt-2 mt-1 border-t border-zinc-800/80 space-y-1.5">
             <div className="p-2 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
-                {effectiveAvatar ? (
+                <div className="w-7 h-7 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
                   <img
-                    src={effectiveAvatar}
+                    src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 56)}
                     alt={user.displayName}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-700 shrink-0"
+                    className="w-full h-full object-cover bg-zinc-800"
                     onError={(e) => {
+                      e.currentTarget.onerror = null;
                       e.currentTarget.src = getInitialsFallback(user?.displayName);
                     }}
                   />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
-                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-                )}
+                </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
                   <div className="text-[9px] text-zinc-400 font-mono truncate">{user.email}</div>

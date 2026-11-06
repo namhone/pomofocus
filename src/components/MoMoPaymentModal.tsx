@@ -6,6 +6,7 @@ import { PRICING_PLANS, PlanCycle } from '../config/pricing';
 import { couponService } from '../services/couponService';
 import { triggerConfetti } from '../utils/confetti';
 import { supabase } from '../lib/supabase';
+import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
 import {
   X,
   Copy,
@@ -339,13 +340,17 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               {user ? (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5 truncate">
-                    {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={user.displayName} referrerPolicy="no-referrer" crossOrigin="anonymous" className="w-7 h-7 rounded-full object-cover border border-zinc-700" onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'User')}&background=10b981&color=fff&bold=true`; }} />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-zinc-800 text-zinc-200 font-bold flex items-center justify-center text-xs">
-                        {user.displayName.charAt(0)}
-                      </div>
-                    )}
+                    <div className="w-7 h-7 rounded-full bg-zinc-800 overflow-hidden border border-zinc-700 shrink-0 flex items-center justify-center">
+                      <img
+                        src={getEffectiveAvatarUrl(user)}
+                        alt={user.displayName}
+                        className="w-full h-full object-cover bg-zinc-800"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = generateInitialsAvatarSvg(user?.displayName, 56);
+                        }}
+                      />
+                    </div>
                     <div className="truncate">
                       <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
                       <div className="text-[11px] font-mono text-zinc-400 truncate">{user.email}</div>

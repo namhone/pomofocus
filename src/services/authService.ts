@@ -15,45 +15,118 @@ export const VIP_FRIEND_EMAIL = 'tony31082009@gmail.com';
 export const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
 
 /**
+ * KIỂM TRA ĐỊNH DẠNG URL AVATAR HỢP LỆ
+ * Loại bỏ hoàn toàn: chuỗi rỗng, null/undefined dạng text, link blob: đã bị thu hồi sau reload,
+ * và các link ảnh người mẫu Unsplash ngẫu nhiên.
+ */
+export const isValidAvatarUrl = (url: unknown): url is string => {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (
+    !trimmed ||
+    trimmed === 'null' ||
+    trimmed === 'undefined' ||
+    trimmed === '""' ||
+    trimmed === "''" ||
+    trimmed.startsWith('blob:') || // Invariant: Dead blob URLs after session reload are invalid
+    trimmed.includes('unsplash.com') // Invariant: Stock photo placeholders are rejected
+  ) {
+    return false;
+  }
+  return (
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('data:image/') ||
+    trimmed.startsWith('/')
+  );
+};
+
+/**
+ * TẠO AVATAR CHỮ CÁI SVG DATA URI CỤC BỘ (100% OFFLINE, RETINA SHARP, ZERO DELAY)
+ * Tuyệt đối không phụ thuộc vào dịch vụ mạng bên ngoài (ui-avatars.com).
+ * Sinh ra SVG trực tiếp có gradient màu sang trọng và chữ cái viết tắt sắc nét.
+ */
+export const generateInitialsAvatarSvg = (name?: string, size = 128): string => {
+  // Loại bỏ emoji, ký tự đặc biệt như (Founder 👑) để chỉ lấy chữ cái
+  const cleanName = (name || '')
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .trim();
+
+  let initials = 'U';
+  if (cleanName) {
+    const parts = cleanName.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      const first = Array.from(parts[0])[0] || '';
+      const last = Array.from(parts[parts.length - 1])[0] || '';
+      initials = (first + last).toUpperCase();
+    } else if (parts.length === 1) {
+      initials = Array.from(parts[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+  if (!initials) initials = 'U';
+
+  // Bảng gradient màu sắc sống động, sang trọng theo ký tự
+  const gradients: Array<[string, string]> = [
+    ['#10b981', '#047857'], // Ngọc bích emerald
+    ['#6366f1', '#4338ca'], // Chàm indigo
+    ['#8b5cf6', '#6d28d9'], // Tím violet
+    ['#06b6d4', '#0e7490'], // Cyan biển sâu
+    ['#f59e0b', '#b45309'], // Hổ phách amber
+    ['#ec4899', '#be185d'], // Hồng rose
+    ['#14b8a6', '#0f766e'], // Teal
+    ['#3b82f6', '#1d4ed8'], // Xanh blue
+  ];
+
+  const hash = initials.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const [col1, col2] = gradients[hash % gradients.length];
+  const radius = Math.round(size * 0.28);
+  const fontSize = Math.round(size * 0.42);
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><defs><linearGradient id="g_${hash}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${col1}"/><stop offset="100%" stop-color="${col2}"/></linearGradient></defs><rect width="${size}" height="${size}" rx="${radius}" fill="url(#g_${hash})"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="${fontSize}" letter-spacing="-0.5">${initials}</text></svg>`;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+/**
  * CƠ CHẾ RESOLVE AVATAR CHUẨN XÁC (ƯU TIÊN ẢNH THỰC TẾ)
  * ==============================================================================
  * 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (lưu trên Supabase profiles)
  * 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (kiểm tra cả picture lẫn avatar_url)
- * 3. Fallback cuối cùng: Tạo avatar chữ cái động theo tên (UI Avatars), cấm hardcode Unsplash
+ * 3. Fallback cuối cùng: Tạo avatar chữ cái động SVG cục bộ sắc nét, cấm hardcode Unsplash, không bao giờ để ô đen
  */
 export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
   // 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (camelCase & snake_case)
-  const customAvatar =
-    (profile?.customAvatarUrl && !profile.customAvatarUrl.includes('unsplash.com') ? profile.customAvatarUrl : null) ||
-    (profile?.custom_avatar_url && !profile.custom_avatar_url.includes('unsplash.com') ? profile.custom_avatar_url : null) ||
-    (profile?.hasCustomAvatar && profile?.avatarUrl && !profile.avatarUrl.includes('unsplash.com') ? profile.avatarUrl : null) ||
-    (profile?.has_custom_avatar && profile?.avatar_url && !profile.avatar_url.includes('unsplash.com') ? profile.avatar_url : null) ||
-    (user?.customAvatarUrl && !user.customAvatarUrl.includes('unsplash.com') ? user.customAvatarUrl : null) ||
-    (user?.custom_avatar_url && !user.custom_avatar_url.includes('unsplash.com') ? user.custom_avatar_url : null) ||
-    (user?.hasCustomAvatar && user?.avatarUrl && !user.avatarUrl.includes('unsplash.com') ? user.avatarUrl : null) ||
-    (user?.has_custom_avatar && user?.avatar_url && !user.avatar_url.includes('unsplash.com') ? user.avatar_url : null);
+  const candidateCustom =
+    (profile?.customAvatarUrl && isValidAvatarUrl(profile.customAvatarUrl) ? profile.customAvatarUrl : null) ||
+    (profile?.custom_avatar_url && isValidAvatarUrl(profile.custom_avatar_url) ? profile.custom_avatar_url : null) ||
+    (profile?.hasCustomAvatar && profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
+    (profile?.has_custom_avatar && profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
+    (user?.customAvatarUrl && isValidAvatarUrl(user.customAvatarUrl) ? user.customAvatarUrl : null) ||
+    (user?.custom_avatar_url && isValidAvatarUrl(user.custom_avatar_url) ? user.custom_avatar_url : null) ||
+    (user?.hasCustomAvatar && user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
+    (user?.has_custom_avatar && user?.avatar_url && isValidAvatarUrl(user.avatar_url) ? user.avatar_url : null);
 
-  if (customAvatar && typeof customAvatar === 'string') {
-    return customAvatar;
+  if (candidateCustom) {
+    return candidateCustom;
   }
 
   // 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (picture / avatar_url)
-  const googleAvatar =
-    user?.user_metadata?.avatar_url ||
-    user?.user_metadata?.picture ||
-    user?.raw_user_meta_data?.avatar_url ||
-    user?.raw_user_meta_data?.picture ||
-    user?.picture ||
-    (user?.avatarUrl && !user.avatarUrl.includes('unsplash.com') ? user.avatarUrl : null) ||
-    (profile?.google_avatar && !profile.google_avatar.includes('unsplash.com') ? profile.google_avatar : null) ||
-    (profile?.avatar_url && !profile.avatar_url.includes('unsplash.com') ? profile.avatar_url : null) ||
-    (profile?.avatarUrl && !profile.avatarUrl.includes('unsplash.com') ? profile.avatarUrl : null);
+  const candidateGoogle =
+    (user?.user_metadata?.avatar_url && isValidAvatarUrl(user.user_metadata.avatar_url) ? user.user_metadata.avatar_url : null) ||
+    (user?.user_metadata?.picture && isValidAvatarUrl(user.user_metadata.picture) ? user.user_metadata.picture : null) ||
+    (user?.raw_user_meta_data?.avatar_url && isValidAvatarUrl(user.raw_user_meta_data.avatar_url) ? user.raw_user_meta_data.avatar_url : null) ||
+    (user?.raw_user_meta_data?.picture && isValidAvatarUrl(user.raw_user_meta_data.picture) ? user.raw_user_meta_data.picture : null) ||
+    (user?.picture && isValidAvatarUrl(user.picture) ? user.picture : null) ||
+    (profile?.google_avatar && isValidAvatarUrl(profile.google_avatar) ? profile.google_avatar : null) ||
+    (profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
+    (profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
+    (user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null);
 
-  if (googleAvatar && typeof googleAvatar === 'string' && !googleAvatar.includes('unsplash.com')) {
-    return googleAvatar;
+  if (candidateGoogle) {
+    return candidateGoogle;
   }
 
-  // 3. Fallback cuối cùng: Tạo avatar chữ cái động theo tên (UI Avatars)
+  // 3. Fallback cuối cùng an toàn tuyệt đối: Avatar SVG chữ cái cục bộ (hoàn toàn không phụ thuộc mạng ngoại vi)
   const name =
     profile?.full_name ||
     profile?.display_name ||
@@ -62,7 +135,8 @@ export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
     (user?.email ? user.email.split('@')[0] : 'User');
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff&bold=true`;
+
+  return generateInitialsAvatarSvg(name);
 };
 
 export interface UserProfile {
@@ -402,10 +476,12 @@ export const authService = {
     } catch {}
 
     const userId = sbUser?.id || `usr_${Date.now()}`;
+    const initialAvatar = generateInitialsAvatarSvg(displayName.trim() || normalized.split('@')[0]);
     const newProfile: UserProfile = {
       id: userId,
       email: normalized,
       displayName: displayName.trim() || normalized.split('@')[0],
+      avatarUrl: initialAvatar,
       plan: isOwner ? 'pro_lifetime' : 'pro_beta',
       role: isOwner ? 'founder' : 'user',
       badge: isOwner ? 'Founder VIP 👑' : 'Thành viên Free',
@@ -431,6 +507,7 @@ export const authService = {
       id: newProfile.id,
       email: newProfile.email,
       full_name: newProfile.displayName,
+      avatar_url: newProfile.avatarUrl,
       plan: newProfile.plan,
       plan_expires_at: newProfile.proExpiresAt ? new Date(newProfile.proExpiresAt).toISOString() : null,
       role: newProfile.role,
@@ -443,7 +520,10 @@ export const authService = {
       user: {
         id: newProfile.id,
         email: newProfile.email,
-        user_metadata: { full_name: newProfile.displayName }
+        user_metadata: {
+          full_name: newProfile.displayName,
+          avatar_url: newProfile.avatarUrl
+        }
       }
     });
 

@@ -461,6 +461,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     logout: () => {
       authService.logout();
+      try {
+        localProfileCache.clear();
+      } catch {}
       set({
         user: null,
         isAuthenticated: false,
@@ -980,14 +983,15 @@ if (typeof window !== 'undefined') {
 
         // AVATAR BẤT BIẾN: Luôn lấy avatar_url từ database, cấm lấy ảnh Google đè lên!
         const avatarUrl = getEffectiveAvatarUrl(session.user, profile);
+        const hasCustom = Boolean(profile?.custom_avatar_url || profile?.has_custom_avatar);
 
         const finalUser: UserProfile = {
           id: canonicalId,
           email: session.user.email,
           displayName: profile?.display_name || profile?.full_name || session.user.user_metadata?.full_name || (session.user.email ? session.user.email.split('@')[0] : 'Học Viên'),
           avatarUrl,
-          customAvatarUrl: profile?.custom_avatar_url || profile?.avatar_url || null,
-          hasCustomAvatar: Boolean(profile?.custom_avatar_url || profile?.has_custom_avatar || profile?.avatar_url),
+          customAvatarUrl: hasCustom ? (profile?.custom_avatar_url || profile?.avatar_url || null) : null,
+          hasCustomAvatar: hasCustom,
           plan: plan as any,
           role,
           badge: isOwner ? 'Founder VIP 👑' : (isLifetime ? '👑 PRO TRỌN ĐỜI' : (plan === 'pro' ? 'PRO HỘI VIÊN' : 'Thành viên Free')),
