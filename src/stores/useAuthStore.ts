@@ -85,25 +85,26 @@ export interface AuthState {
 
 const initialSession = authService.getCurrentSession();
 
+export const computeDerivedPlanState = (user: UserProfile | null) => ({
+  isPro: hasProEntitlement(user?.plan, user?.email) || hasVipAccess(user),
+  hasVipAccess: hasVipAccess(user),
+  isLifetime: Boolean(
+    user?.isLifetime ||
+    user?.plan === 'lifetime' ||
+    user?.plan === 'pro_lifetime' ||
+    user?.role === 'founder' ||
+    isOwnerEmail(user?.email) ||
+    isLadyBoss(user?.email) ||
+    isVipFriend(user?.email)
+  ),
+  isBetaPro: user?.plan === 'pro_beta',
+  isOwner: isOwnerEmail(user?.email),
+  isLadyBoss: isLadyBoss(user?.email),
+  isVipFriend: isVipFriend(user?.email),
+  planLabel: getPlanLabel(user)
+});
+
 export const useAuthStore = create<AuthState>((set, get) => {
-  const computeDerivedPlanState = (user: UserProfile | null) => ({
-    isPro: hasProEntitlement(user?.plan, user?.email) || hasVipAccess(user),
-    hasVipAccess: hasVipAccess(user),
-    isLifetime: Boolean(
-      user?.isLifetime ||
-      user?.plan === 'lifetime' ||
-      user?.plan === 'pro_lifetime' ||
-      user?.role === 'founder' ||
-      isOwnerEmail(user?.email) ||
-      isLadyBoss(user?.email) ||
-      isVipFriend(user?.email)
-    ),
-    isBetaPro: user?.plan === 'pro_beta',
-    isOwner: isOwnerEmail(user?.email),
-    isLadyBoss: isLadyBoss(user?.email),
-    isVipFriend: isVipFriend(user?.email),
-    planLabel: getPlanLabel(user)
-  });
 
   return {
     user: initialSession,
@@ -986,14 +987,7 @@ if (typeof window !== 'undefined') {
           role: finalUser.role,
           badge: finalUser.badge,
           credits: finalUser.credits,
-          isPro: true,
-          hasVipAccess: isOwner || isLifetime || plan === 'pro',
-          isLifetime: isLifetime || isOwner,
-          isBetaPro: plan === 'pro_beta',
-          isOwner,
-          isLadyBoss: isLadyBoss(session.user.email),
-          isVipFriend: isVipFriend(session.user.email),
-          planLabel: isOwner ? 'Founder VIP 👑' : (isLifetime ? 'PRO TRỌN ĐỜI' : (plan === 'pro' ? 'PRO' : 'FREE'))
+          ...computeDerivedPlanState(finalUser)
         });
       } else {
         useAuthStore.setState({

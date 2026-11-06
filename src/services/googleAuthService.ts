@@ -1,7 +1,7 @@
 /**
  * Google Authentication Service
  * Implements Google Identity Services (GSI) with secure JWT parsing,
- * session restoration, and developer/demo simulation fallback.
+ * OAuth 2.0 Popup/Redirect, and developer/demo simulation fallback.
  */
 
 export interface GoogleUserPayload {
@@ -50,19 +50,41 @@ declare global {
           prompt: (notification?: (notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => void) => void;
           disableAutoSelect: () => void;
         };
+        oauth2?: {
+          initTokenClient: (config: {
+            client_id: string;
+            scope: string;
+            callback: (response: { access_token?: string; error?: any; details?: string }) => void;
+            error_callback?: (error: any) => void;
+          }) => {
+            requestAccessToken: (overrideConfig?: { prompt?: string }) => void;
+          };
+          initCodeClient?: (config: {
+            client_id: string;
+            scope: string;
+            ux_mode?: 'popup' | 'redirect';
+            callback: (response: { code?: string; error?: any }) => void;
+          }) => {
+            requestCode: () => void;
+          };
+        };
       };
     };
   }
 }
 
 const GSI_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
+export const OFFICIAL_GOOGLE_CLIENT_ID = '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
 
 export const googleAuthService = {
   getClientId(): string {
     if (typeof import.meta !== 'undefined' && import.meta.env) {
-      return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
+      const envId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
+      if (envId && envId.trim().length > 0 && !envId.includes('YOUR_GOOGLE_CLIENT_ID')) {
+        return envId.trim();
+      }
     }
-    return '';
+    return OFFICIAL_GOOGLE_CLIENT_ID;
   },
 
   isConfigured(): boolean {
@@ -202,6 +224,81 @@ export const googleAuthService = {
     if (typeof window !== 'undefined' && window.google?.accounts?.id) {
       window.google.accounts.id.prompt();
     }
+  },
+
+  /**
+   * Mở Popup chọn tài khoản Google thật qua Google Identity Services Token Client
+   */
+  async signInWithPopup(): Promise<GoogleUserPayload> {
+    await this.loadGsiScript();
+    const clientId = this.getClientId();
+    if (!clientId) {
+      throw new Error('Google Client ID chưa được cấu hình.');
+    }
+
+    if (window.google?.accounts?.oauth2) {
+      return new Promise<GoogleUserPayload>((resolve, reject) => {
+        try {
+          const client = window.google!.accounts.oauth2!.initTokenClient({
+            client_id: clientId,
+            scope: 'openid email profile',
+            callback: async (tokenResponse) => {
+              if (tokenResponse.error) {
+                return reject(new Error(tokenResponse.details || tokenResponse.error || 'Đăng nhập Google bị hủy hoặc thất bại'));
+              }
+              if (!tokenResponse.access_token) {
+                return reject(new Error('Không nhận được Access Token từ Google'));
+              }
+
+              try {
+                // Lấy thông tin người dùng chính thức từ Google UserInfo API
+                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                });
+                if (!res.ok) {
+                  throw new Error(`Google UserInfo API trả về HTTP ${res.status}`);
+                }
+                const profile = await res.json();
+                resolve({
+                  sub: profile.sub || `g_${Date.now()}`,
+                  email: (profile.email || '').toLowerCase(),
+                  email_verified: Boolean(profile.email_verified),
+                  name: profile.name || profile.email?.split('@')[0] || 'Người dùng Google',
+                  picture: profile.picture,
+                  given_name: profile.given_name,
+                  family_name: profile.family_name
+                });
+              } catch (e: any) {
+                reject(new Error('Lỗi lấy thông tin tài khoản Google: ' + (e?.message || String(e))));
+              }
+            },
+            error_callback: (err) => {
+              reject(new Error(err?.message || 'Lỗi cửa sổ popup Google OAuth'));
+            }
+          });
+
+          client.requestAccessToken({ prompt: 'select_account' });
+        } catch (err: any) {
+          reject(new Error('Không thể khởi chạy cửa sổ Google Sign-In: ' + (err?.message || String(err))));
+        }
+      });
+    }
+
+    // Nếu không có oauth2, chuyển sang Redirect Flow
+    const redirectUrl = this.getGoogleOAuthRedirectUrl();
+    window.location.href = redirectUrl;
+    return new Promise(() => {}); // Chờ redirect
+  },
+
+  /**
+   * Tạo URL chuyển hướng Google OAuth 2.0 trực tiếp (chuẩn OAuth2)
+   */
+  getGoogleOAuthRedirectUrl(redirectTo?: string): string {
+    const clientId = this.getClientId();
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
+    const redirectUri = redirectTo || `${origin}/app`;
+    const nonce = Math.random().toString(36).substring(2);
+    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
   },
 
   /**

@@ -513,35 +513,56 @@ const authSubscribers = new Set<(event: string, session: any) => void>();
 function parseOAuthHashSession(): any {
   if (typeof window === 'undefined') return null;
   const hash = window.location.hash || '';
-  if (hash.includes('access_token=')) {
+  if (hash.includes('access_token=') || hash.includes('id_token=')) {
     try {
       const params = new URLSearchParams(hash.replace(/^#/, ''));
+      const idToken = params.get('id_token');
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token') || '';
-      if (accessToken) {
-        const parts = accessToken.split('.');
-        if (parts.length >= 2) {
-          const base64Url = parts[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
-          const user = {
-            id: decoded.sub || `g_${Date.now()}`,
-            email: decoded.email || '',
-            user_metadata: {
-              full_name: decoded.user_metadata?.full_name || decoded.user_metadata?.name || (decoded.email ? decoded.email.split('@')[0] : 'Người dùng'),
-              avatar_url: decoded.user_metadata?.avatar_url || decoded.user_metadata?.picture || '',
-              ...decoded.user_metadata,
-            },
-            app_metadata: decoded.app_metadata || {},
-            aud: decoded.aud,
-            role: decoded.role,
-          };
-          return {
-            user,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          };
-        }
+
+      // Ưu tiên id_token vì là JWT chuẩn mang payload user profile
+      const jwtToken = (idToken && idToken.split('.').length >= 2)
+        ? idToken
+        : (accessToken && accessToken.split('.').length >= 2 ? accessToken : null);
+
+      if (jwtToken) {
+        const parts = jwtToken.split('.');
+        const base64Url = parts[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
+        const email = (decoded.email || '').toLowerCase();
+        const displayName =
+          decoded.name ||
+          decoded.user_metadata?.full_name ||
+          decoded.user_metadata?.name ||
+          (email ? email.split('@')[0] : 'Người dùng Google');
+        const avatarUrl =
+          decoded.picture ||
+          decoded.avatar_url ||
+          decoded.user_metadata?.avatar_url ||
+          decoded.user_metadata?.picture ||
+          '';
+
+        const user = {
+          id: decoded.sub || `g_${Date.now()}`,
+          email,
+          user_metadata: {
+            full_name: displayName,
+            name: displayName,
+            avatar_url: avatarUrl,
+            picture: avatarUrl,
+            email_verified: Boolean(decoded.email_verified),
+            ...decoded.user_metadata,
+          },
+          app_metadata: decoded.app_metadata || { provider: 'google' },
+          aud: decoded.aud,
+          role: decoded.role || 'authenticated',
+        };
+        return {
+          user,
+          access_token: accessToken || jwtToken,
+          refresh_token: refreshToken,
+        };
       }
     } catch (e) {
       console.warn('[Supabase Auth] Lỗi giải mã token OAuth từ hash:', e);
@@ -703,14 +724,20 @@ export const supabase = {
       });
     },
 
-    signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string } }) => {
+    signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string; directGoogle?: boolean } }) => {
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
         const redirectUri = options?.redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/app` : '/app');
         const oauthUrl = `${baseUrl}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirectUri)}`;
 
         if (typeof window !== 'undefined') {
-          window.location.href = oauthUrl;
+          if (provider === 'google' && options?.directGoogle) {
+            const clientId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) || '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
+            const nonce = Math.random().toString(36).substring(2);
+            window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+          } else {
+            window.location.href = oauthUrl;
+          }
         }
         return { data: { provider, url: oauthUrl }, error: null };
       } catch (err: any) {

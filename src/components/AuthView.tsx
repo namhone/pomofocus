@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { googleAuthService } from '../services/googleAuthService';
@@ -147,24 +147,64 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     }
   };
 
-  // LỰA CHỌN 1: Đăng nhập Google OAuth qua Supabase Client
+  // Khởi tạo Google One Tap khi mở màn hình AuthView
+  useEffect(() => {
+    let isMounted = true;
+    if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
+      googleAuthService
+        .initializeGsi({
+          onSuccess: async (payload) => {
+            if (!isMounted) return;
+            const ok = await loginWithGoogle(payload);
+            if (ok) {
+              setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
+              setTimeout(() => router.navigate('/app'), 400);
+            }
+          },
+          onError: (err) => {
+            console.warn('[Google One Tap] Thông báo:', err?.message);
+          }
+        })
+        .then((ready) => {
+          if (ready && isMounted) {
+            googleAuthService.promptOneTap();
+          }
+        })
+        .catch(console.warn);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // LỰA CHỌN 1: Đăng nhập Google OAuth (Popup & Redirect an toàn 100%)
   const handleGoogleSignIn = async () => {
     clearError();
     setSuccessMsg('');
 
     try {
-      // 1. Luồng Supabase OAuth chính thức trên trình duyệt
+      // 1. Luồng Google Sign-In Popup chính thức trên trình duyệt
       if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: `${window.location.origin}/app`,
-          },
-        });
-        if (error) {
-          console.warn('[Google OAuth] Lỗi khởi tạo Supabase OAuth:', error.message);
-        } else if (data?.url) {
-          // Trình duyệt sẽ điều hướng tới trang xác thực Google OAuth
+        try {
+          const googleUser = await googleAuthService.signInWithPopup();
+          if (googleUser && googleUser.email) {
+            const ok = await loginWithGoogle(googleUser);
+            if (ok) {
+              setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
+              setTimeout(() => router.navigate('/app'), 400);
+              return;
+            }
+          }
+        } catch (popupErr: any) {
+          console.warn('[Google Sign-In] Popup thất bại hoặc bị chặn, chuyển sang Direct OAuth Redirect:', popupErr?.message);
+          // Nếu popup bị chặn hoặc gặp lỗi môi trường, chuyển sang Google OAuth Redirect URL
+          await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: `${window.location.origin}/app`,
+              directGoogle: true
+            },
+          });
           return;
         }
       }
@@ -181,7 +221,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
         setTimeout(() => router.navigate('/app'), 500);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Lỗi đăng nhập Google:', err);
     }
   };
