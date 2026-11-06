@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
+import { ProfileService } from '../services/profileService';
+import { processAndSaveCustomAvatar } from '../services/avatarUploadService';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
@@ -26,7 +27,10 @@ import {
   AtSign,
   Target,
   EyeOff,
-  Ghost
+  Ghost,
+  Loader2,
+  Globe,
+  AlertCircle
 } from 'lucide-react';
 import { MONOCHROME_GEOMETRIC_AVATARS } from '../utils/monochromeAvatars';
 
@@ -46,6 +50,16 @@ export const ProfileView: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // States hỗ trợ tính năng All-in-One Avatar (Nén 1:1, CORS bypass, Supabase Storage)
+  const [urlInput, setUrlInput] = useState('');
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
+  const [avatarOptimizationInfo, setAvatarOptimizationInfo] = useState<{
+    sizeKb: number;
+    isCloud: boolean;
+    message: string;
+  } | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   // Đồng bộ avatar & profile khi store thay đổi
   useEffect(() => {
@@ -90,66 +104,102 @@ export const ProfileView: React.FC = () => {
     );
   }
 
-  // Xử lý tải ảnh trực tiếp từ máy / điện thoại và nén nhẹ bằng canvas
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Xử lý tải ảnh trực tiếp từ máy / điện thoại: Tự động cắt vuông 1:1, nén nhẹ ~30KB và lưu Supabase Cloud Storage
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Vui lòng chọn tệp tin hình ảnh.');
+      setAvatarError('Vui lòng chọn tệp tin hình ảnh hợp lệ (PNG, JPG, WebP, GIF).');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Nén và resize ảnh vuông 256x256
-        const canvas = document.createElement('canvas');
-        const size = 256;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const minDim = Math.min(img.width, img.height);
-          const startX = (img.width - minDim) / 2;
-          const startY = (img.height - minDim) / 2;
-          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
-          setAvatarUrl(dataUrl);
-          setIsEditing(true);
+    setIsProcessingAvatar(true);
+    setAvatarError(null);
+    setAvatarOptimizationInfo(null);
 
-          // 1. Ghi thẳng URL ảnh mới vào Supabase Cloud:
-          if (user?.id) {
-            supabase
-              .from('profiles')
-              .update({ avatar_url: dataUrl, custom_avatar_url: dataUrl, updated_at: new Date().toISOString() })
-              .eq('id', user.id)
-              .catch(console.warn);
-          }
-
-          // 2. Cập nhật ngay vào Store giao diện:
-          useAuthStore.setState((state) => ({
-            user: state.user ? {
-              ...state.user,
-              avatarUrl: dataUrl,
-              customAvatarUrl: dataUrl,
-              hasCustomAvatar: true
-            } : null
-          }));
-
-          updateProfile({
-            avatarUrl: dataUrl,
-            customAvatarUrl: dataUrl,
-            hasCustomAvatar: true
-          }).catch(console.warn);
-        }
-      };
-      if (typeof event.target?.result === 'string') {
-        img.src = event.target.result;
+    try {
+      const result = await processAndSaveCustomAvatar(user.id, file, user.email);
+      if (result.success) {
+        setAvatarUrl(result.avatarUrl);
+        setAvatarOptimizationInfo({
+          sizeKb: result.sizeKb,
+          isCloud: result.isCloudStorage,
+          message: result.message || ''
+        });
+        setSaveStatus(`Đã tối ưu ${result.sizeKb} KB & cập nhật ảnh đại diện thành công!`);
+        setIsEditing(true);
+        setTimeout(() => setSaveStatus(null), 4000);
+      } else {
+        setAvatarError(result.error || 'Không thể xử lý ảnh tải lên.');
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setAvatarError(err?.message || 'Lỗi xử lý tệp ảnh.');
+    } finally {
+      setIsProcessingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Xử lý dán URL ảnh từ internet: Tự động vượt tường lửa CORS qua Proxy, cắt vuông 1:1, nén và lưu Supabase Cloud
+  const handleApplyUrlAvatar = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanUrl = urlInput.trim();
+    if (!cleanUrl) return;
+
+    setIsProcessingAvatar(true);
+    setAvatarError(null);
+    setAvatarOptimizationInfo(null);
+
+    try {
+      const result = await processAndSaveCustomAvatar(user.id, cleanUrl, user.email);
+      if (result.success) {
+        setAvatarUrl(result.avatarUrl);
+        setUrlInput('');
+        setAvatarOptimizationInfo({
+          sizeKb: result.sizeKb,
+          isCloud: result.isCloudStorage,
+          message: result.message || ''
+        });
+        setSaveStatus(`Đã tải & tối ưu ảnh từ URL (${result.sizeKb} KB) thành công!`);
+        setIsEditing(true);
+        setTimeout(() => setSaveStatus(null), 4000);
+      } else {
+        setAvatarError(result.error || 'Không thể tải hoặc xử lý ảnh từ liên kết này.');
+      }
+    } catch (err: any) {
+      setAvatarError(err?.message || 'Lỗi khi tải ảnh từ đường dẫn mạng.');
+    } finally {
+      setIsProcessingAvatar(false);
+    }
+  };
+
+  // Chọn avatar hình học tối giản có sẵn
+  const handleSelectPresetAvatar = async (svgDataUri: string) => {
+    setAvatarUrl(svgDataUri);
+    setAvatarError(null);
+    setAvatarOptimizationInfo({
+      sizeKb: 2,
+      isCloud: false,
+      message: 'Avatar hình học tối giản sắc nét SVG Retina'
+    });
+    setIsEditing(true);
+
+    if (user?.id) {
+      await ProfileService.updateAvatar(user.id, svgDataUri, user.email);
+      useAuthStore.setState((state) => ({
+        user: state.user
+          ? {
+              ...state.user,
+              avatarUrl: svgDataUri,
+              customAvatarUrl: svgDataUri,
+              hasCustomAvatar: true
+            }
+          : null
+      }));
+    }
   };
 
   const handleSaveProfile = async (e?: React.FormEvent) => {
@@ -180,9 +230,31 @@ export const ProfileView: React.FC = () => {
     }
   };
 
-  const handleRemoveAvatar = () => {
-    setAvatarUrl('');
+  const handleRemoveAvatar = async () => {
+    const fallbackSvg = generateInitialsAvatarSvg(user.displayName);
+    setAvatarUrl(fallbackSvg);
+    setAvatarOptimizationInfo(null);
+    setAvatarError(null);
     setIsEditing(true);
+
+    if (user?.id) {
+      await ProfileService.updateAvatar(user.id, '', user.email);
+      useAuthStore.setState((state) => ({
+        user: state.user
+          ? {
+              ...state.user,
+              avatarUrl: fallbackSvg,
+              customAvatarUrl: '',
+              hasCustomAvatar: false
+            }
+          : null
+      }));
+      await updateProfile({
+        avatarUrl: '',
+        customAvatarUrl: '',
+        hasCustomAvatar: false
+      });
+    }
   };
 
   const formattedJoinDate = user.createdAt
@@ -431,15 +503,23 @@ export const ProfileView: React.FC = () => {
                 />
               </div>
 
-              {/* Chỉnh sửa và chọn Avatar */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-medium text-zinc-300">
-                    Ảnh Đại Diện (Tải lên từ thiết bị hoặc chọn Avatar hình học tối giản)
-                  </label>
+              {/* Chỉnh sửa và chọn Avatar (All-in-One: Máy tính/Điện thoại & URL Mạng) */}
+              <div className="space-y-3.5 p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <Sparkles size={13} className="text-amber-400" />
+                      <span>Ảnh Đại Diện Tùy Chỉnh (All-in-One Avatar)</span>
+                    </label>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono">
+                      Cloud Sync 1:1
+                    </span>
+                  </div>
+
                   {avatarUrl && (
                     <button
                       type="button"
+                      data-testid="profile-btn-remove-avatar"
                       onClick={handleRemoveAvatar}
                       className="text-[11px] text-rose-400 hover:text-rose-300 flex items-center gap-1 transition cursor-pointer"
                     >
@@ -449,27 +529,109 @@ export const ProfileView: React.FC = () => {
                   )}
                 </div>
 
-                {/* Upload Buttons */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Upload size={13} className="text-emerald-400" />
-                    <span>Tải ảnh từ điện thoại / máy tính</span>
-                  </button>
+                {/* Banner trạng thái đang xử lý nén / tải ảnh */}
+                {isProcessingAvatar && (
+                  <div className="p-3 rounded-xl border border-blue-500/30 bg-blue-950/40 text-blue-300 text-xs flex items-center gap-2.5 animate-pulse">
+                    <Loader2 size={15} className="animate-spin text-blue-400 shrink-0" />
+                    <span>Đang cắt vuông 1:1, nén nhẹ tối ưu và lưu vào Supabase Cloud...</span>
+                  </div>
+                )}
+
+                {/* Badge thông báo tối ưu hóa thành công */}
+                {avatarOptimizationInfo && (
+                  <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+                    <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+                    <span className="font-medium">
+                      ✓ Đã cắt vuông 1:1 • Nén còn {avatarOptimizationInfo.sizeKb} KB • {avatarOptimizationInfo.isCloud ? 'Supabase Storage CDN' : 'Supabase Cloud Profile'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Banner báo lỗi ảnh / CORS */}
+                {avatarError && (
+                  <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
+                    <AlertCircle size={15} className="text-rose-400 shrink-0" />
+                    <span>{avatarError}</span>
+                  </div>
+                )}
+
+                {/* 2 Nguồn Tải Ảnh: Thiết Bị & URL Mạng */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {/* NGUỒN 1: Tải từ thiết bị */}
+                  <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/50 flex flex-col justify-between space-y-2.5">
+                    <div>
+                      <div className="text-xs font-medium text-white flex items-center gap-1.5 mb-1">
+                        <Upload size={13} className="text-emerald-400" />
+                        <span>Nguồn 1: Tải từ thiết bị</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 leading-relaxed">
+                        Hỗ trợ PNG, JPG, WebP. Tự động cắt vuông và nén dưới 50KB.
+                      </div>
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      data-testid="input-upload-avatar-file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+
+                    <button
+                      type="button"
+                      data-testid="btn-upload-avatar-device"
+                      disabled={isProcessingAvatar}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Upload size={13} className="text-emerald-400" />
+                      <span>{isProcessingAvatar ? 'Đang Xử Lý...' : 'Chọn Ảnh Từ Máy / Điện Thoại'}</span>
+                    </button>
+                  </div>
+
+                  {/* NGUỒN 2: Dán URL từ mạng */}
+                  <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/50 flex flex-col justify-between space-y-2.5">
+                    <div>
+                      <div className="text-xs font-medium text-white flex items-center gap-1.5 mb-1">
+                        <Globe size={13} className="text-blue-400" />
+                        <span>Nguồn 2: Dán URL ảnh mạng</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 leading-relaxed">
+                        Discord, Imgur, Facebook, Pinterest. Tự động vượt tường lửa CORS qua Proxy.
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="url"
+                        data-testid="input-edit-avatar-url"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyUrlAvatar();
+                          }
+                        }}
+                        placeholder="https://... dán link ảnh"
+                        className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-zinc-700 bg-zinc-950 text-white text-xs font-mono focus:outline-none focus:border-white transition"
+                      />
+                      <button
+                        type="button"
+                        data-testid="btn-apply-avatar-url"
+                        disabled={!urlInput.trim() || isProcessingAvatar}
+                        onClick={() => handleApplyUrlAvatar()}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white text-xs font-medium transition cursor-pointer shrink-0 whitespace-nowrap"
+                      >
+                        {isProcessingAvatar ? 'Đang Tải...' : 'Áp Dụng'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Kho 6 Avatar Tối Giản Hình Học (Monochrome Geometric Avatars) */}
-                <div className="space-y-2 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800">
+                {/* NGUỒN 3: Kho 6 Avatar Tối Giản Hình Học (Monochrome Geometric Avatars) */}
+                <div className="space-y-2 pt-2 border-t border-zinc-850">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-zinc-300 flex items-center gap-1.5">
                       <Sparkles size={12} className="text-amber-400" />
@@ -484,7 +646,7 @@ export const ProfileView: React.FC = () => {
                         type="button"
                         key={geo.id}
                         data-testid={`avatar-preset-${geo.id}`}
-                        onClick={() => setAvatarUrl(geo.svgDataUri)}
+                        onClick={() => handleSelectPresetAvatar(geo.svgDataUri)}
                         className={`group relative p-1.5 rounded-xl border flex flex-col items-center gap-1.5 transition cursor-pointer ${
                           avatarUrl === geo.svgDataUri
                             ? 'bg-zinc-800 border-white shadow-md shadow-white/10 scale-102'
@@ -508,18 +670,6 @@ export const ProfileView: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Input URL tùy chọn */}
-                <div>
-                  <input
-                    type="url"
-                    data-testid="input-edit-avatar-url"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition font-mono"
-                    placeholder="Hoặc dán URL ảnh trực tiếp (https://...)"
-                  />
                 </div>
               </div>
 
