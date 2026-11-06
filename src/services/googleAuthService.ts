@@ -304,7 +304,7 @@ export const googleAuthService = {
   getGoogleOAuthRedirectUrl(redirectTo?: string): string {
     const clientId = this.getClientId();
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
-    const redirectUri = redirectTo || `${origin}/app`;
+    const redirectUri = redirectTo || origin;
     const nonce = Math.random().toString(36).substring(2);
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
   },

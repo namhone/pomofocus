@@ -510,11 +510,17 @@ const activeChannels = new Map<string, RealtimeChannel>();
 
 const authSubscribers = new Set<(event: string, session: any) => void>();
 
+let pendingOAuthUserInfoPromise: Promise<any> | null = null;
+
 function parseOAuthHashSession(): any {
   if (typeof window === 'undefined') return null;
   const hash = window.location.hash || '';
   if (hash.includes('access_token=') || hash.includes('id_token=')) {
     try {
+      try {
+        sessionStorage.setItem('pomodoro_oauth_redirect_completed', '1');
+      } catch {}
+
       const params = new URLSearchParams(hash.replace(/^#/, ''));
       const idToken = params.get('id_token');
       const accessToken = params.get('access_token');
@@ -563,6 +569,53 @@ function parseOAuthHashSession(): any {
           access_token: accessToken || jwtToken,
           refresh_token: refreshToken,
         };
+      }
+
+      // Nếu Google chỉ trả về opaque access_token (ya29...) mà không có id_token JWT
+      if (accessToken && !pendingOAuthUserInfoPromise) {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        pendingOAuthUserInfoPromise = fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((profile) => {
+            if (!profile || !profile.email) return null;
+            const email = profile.email.toLowerCase();
+            const displayName = profile.name || email.split('@')[0];
+            const avatarUrl = profile.picture || '';
+            const session = {
+              user: {
+                id: profile.sub || `g_${Date.now()}`,
+                email,
+                user_metadata: {
+                  full_name: displayName,
+                  name: displayName,
+                  avatar_url: avatarUrl,
+                  picture: avatarUrl,
+                  email_verified: Boolean(profile.email_verified),
+                },
+                app_metadata: { provider: 'google' },
+                role: 'authenticated',
+              },
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            };
+            if (window.localStorage) {
+              localStorage.setItem('sb_auth_session', JSON.stringify(session));
+            }
+            authSubscribers.forEach((cb) => {
+              try {
+                cb('SIGNED_IN', session);
+              } catch {}
+            });
+            return session;
+          })
+          .catch(() => null)
+          .finally(() => {
+            pendingOAuthUserInfoPromise = null;
+          });
       }
     } catch (e) {
       console.warn('[Supabase Auth] Lỗi giải mã token OAuth từ hash:', e);
@@ -734,7 +787,8 @@ export const supabase = {
           if (provider === 'google' && options?.directGoogle) {
             const clientId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) || '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
             const nonce = Math.random().toString(36).substring(2);
-            window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+            const googleRedirectUri = window.location.origin;
+            window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
           } else {
             window.location.href = oauthUrl;
           }
@@ -801,6 +855,12 @@ export const supabase = {
           localStorage.setItem('sb_auth_session', JSON.stringify(oauthSession));
         }
         return { data: { session: oauthSession }, error: null };
+      }
+      if (pendingOAuthUserInfoPromise) {
+        const resolved = await pendingOAuthUserInfoPromise;
+        if (resolved) {
+          return { data: { session: resolved }, error: null };
+        }
       }
 
       // 2. Đọc session đã lưu trong localStorage

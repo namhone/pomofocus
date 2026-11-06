@@ -148,12 +148,27 @@ export const App: React.FC = () => {
     };
   }, []);
 
+  const router = useRouter();
+  const currentPath = router.currentRoute.path;
+
   // 1. Bổ sung useEffect lắng nghe sự kiện thay đổi trạng thái đăng nhập của Supabase
   useEffect(() => {
+    const checkAndRedirectOAuth = () => {
+      try {
+        if (sessionStorage.getItem('pomodoro_oauth_redirect_completed') === '1') {
+          sessionStorage.removeItem('pomodoro_oauth_redirect_completed');
+          if (window.location.pathname === '/' || window.location.pathname === '/login') {
+            router.navigate('/app');
+          }
+        }
+      } catch {}
+    };
+
     // 1. Kiểm tra session hiện tại khi vừa nạp trang
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         useAuthStore.getState().syncUserFromSupabase(session.user);
+        checkAndRedirectOAuth();
       } else {
         const currentUser = useAuthStore.getState().user;
         if (currentUser?.id) {
@@ -166,6 +181,7 @@ export const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
         useAuthStore.getState().syncUserFromSupabase(session.user);
+        checkAndRedirectOAuth();
       } else if (event === 'SIGNED_OUT') {
         useAuthStore.getState().logout();
       }
@@ -173,9 +189,6 @@ export const App: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const router = useRouter();
-  const currentPath = router.currentRoute.path;
 
   // Dọn dẹp & Khôi phục tiêu đề trang tĩnh hoặc tiêu đề đếm ngược Pomodoro khi đổi tuyến đường
   useEffect(() => {

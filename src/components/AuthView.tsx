@@ -188,7 +188,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         typeof window !== 'undefined'
           ? window.location.origin
           : 'https://pomofocus-workspace.vercel.app';
-      const redirectUri = `${origin}/app`;
+      const redirectUri = origin;
 
       // 1. Trên Mobile: Trình duyệt di động mặc định chặn popup ngầm -> BẮT BUỘC dùng Full-page Redirect
       if (isMobile) {
