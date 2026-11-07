@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Zap, CheckCircle2, Copy, ShieldCheck, QrCode, Loader2, Sparkles } from 'lucide-react';
-import { useAiStore } from '../stores/useAiStore';
+import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { supabase } from '../lib/supabase';
 
@@ -17,48 +17,90 @@ export function calculateCreditPrice(credits: number): {
   finalPrice: number;
 } {
   const safeCredits = Math.max(50, Math.round(credits));
-  const originalPrice = safeCredits * 100;
 
-  let unitPrice = 100;
+  // 1. Khớp chính xác 4 gói chuẩn nếu được chọn
+  if (safeCredits === 300) {
+    return {
+      unitPrice: 63,
+      discountPercent: 0,
+      discountBadge: null,
+      originalPrice: 19000,
+      finalPrice: 19000
+    };
+  }
+  if (safeCredits === 700) {
+    return {
+      unitPrice: 56,
+      discountPercent: 15,
+      discountBadge: 'Tiết kiệm 15%',
+      originalPrice: 45000,
+      finalPrice: 39000
+    };
+  }
+  if (safeCredits === 1500) {
+    return {
+      unitPrice: 46,
+      discountPercent: 28,
+      discountBadge: 'Tiết kiệm 28% 🔥',
+      originalPrice: 95000,
+      finalPrice: 69000
+    };
+  }
+  if (safeCredits === 4000) {
+    return {
+      unitPrice: 37,
+      discountPercent: 40,
+      discountBadge: 'Tiết kiệm 40% 👑',
+      originalPrice: 250000,
+      finalPrice: 149000
+    };
+  }
+
+  // 2. Tính toán linh hoạt theo bậc thang chiết khấu cho thanh kéo Slider
+  let unitPrice = 63.33;
   let discountPercent = 0;
   let discountBadge: string | null = null;
 
-  if (safeCredits >= 2500) {
-    unitPrice = 55;
-    discountPercent = 45;
-    discountBadge = 'Tiết kiệm 45% 👑';
+  if (safeCredits >= 3000) {
+    unitPrice = 37.25;
+    discountPercent = 40;
+    discountBadge = 'Tiết kiệm 40% 👑';
   } else if (safeCredits >= 1000) {
-    unitPrice = 70;
-    discountPercent = 30;
-    discountBadge = 'Tiết kiệm 30% ⚡';
+    unitPrice = 46;
+    discountPercent = 28;
+    discountBadge = 'Tiết kiệm 28% 🔥';
   } else if (safeCredits >= 500) {
-    unitPrice = 82;
-    discountPercent = 18;
-    discountBadge = 'Tiết kiệm 18% 🔥';
-  } else if (safeCredits >= 200) {
-    unitPrice = 95;
-    discountPercent = 5;
-    discountBadge = 'Tiết kiệm 5%';
+    unitPrice = 55.71;
+    discountPercent = 15;
+    discountBadge = 'Tiết kiệm 15%';
   }
 
-  // Làm tròn đến hàng nghìn đồng
-  const rawPrice = safeCredits * unitPrice;
-  const finalPrice = Math.round(rawPrice / 1000) * 1000;
+  const rawOriginal = safeCredits * (19000 / 300);
+  const originalPrice = Math.max(Math.round(rawOriginal / 1000) * 1000, 10000);
+  const rawFinal = safeCredits * unitPrice;
+  const finalPrice = Math.max(Math.round(rawFinal / 1000) * 1000, 10000);
 
   return {
-    unitPrice,
+    unitPrice: Math.round(unitPrice),
     discountPercent,
     discountBadge,
-    originalPrice,
+    originalPrice: discountPercent > 0 ? originalPrice : finalPrice,
     finalPrice
   };
 }
 
 export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen, onClose }) => {
-  const { aiCreditsBalance, refreshCreditsFromCloud } = useAiStore();
+  const { aiCreditsBalance, refreshCreditsFromCloud, topupModalInitialCredits } = useAiStore();
   const { user } = useAuthStore();
 
-  const [selectedCredits, setSelectedCredits] = useState<number>(600);
+  const [selectedCredits, setSelectedCredits] = useState<number>(topupModalInitialCredits || 1500);
+
+  // Tự động đồng bộ số điểm khi mở modal từ nút "Nạp ⚡" ngoài trang Bảng Giá
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCredits(topupModalInitialCredits || 1500);
+    }
+  }, [isOpen, topupModalInitialCredits]);
   const [orderCode, setOrderCode] = useState<string>('');
   const [serverQrUrl, setServerQrUrl] = useState<string>('');
   const [isLoadingOrder, setIsLoadingOrder] = useState<boolean>(false);
@@ -157,12 +199,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
       displayMemo
     )}&accountName=HO%20NGOC%20BAO%20NAM`;
 
-  const presets = [
-    { credits: 200, label: '200⚡', priceText: '19.000đ', badge: '5%' },
-    { credits: 600, label: '600⚡', priceText: '49.000đ', badge: '18% 🔥', popular: true },
-    { credits: 1500, label: '1.500⚡', priceText: '99.000đ', badge: '30% ⚡' },
-    { credits: 3500, label: '3.500⚡', priceText: '190.000đ', badge: '45% 👑' }
-  ];
+  const presets = AI_CREDIT_PACKS;
 
   const handleCopyMemo = async () => {
     try {
@@ -267,8 +304,10 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                       <div className="text-sm font-bold flex items-center gap-1 text-amber-400">
                         {preset.label}
                       </div>
-                      <div className="text-xs font-semibold text-white mt-1">{preset.priceText}</div>
-                      <div className="text-[10px] text-emerald-400 mt-0.5">-{preset.badge}</div>
+                      <div className="text-xs font-semibold text-white mt-1">{preset.formattedPrice}</div>
+                      <div className="text-[10px] text-emerald-400 mt-0.5">
+                        {preset.discountPercent > 0 ? `-${preset.discountPercent}%` : 'Chuẩn'}
+                      </div>
                     </button>
                   );
                 })}

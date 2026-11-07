@@ -127,10 +127,6 @@ export const SharedFooter: React.FC = () => {
             <p className="text-[11px] text-zinc-400 leading-relaxed text-pretty">
               Không gian học tập &amp; làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
             </p>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-              <span>v1.1.0 Production</span>
-            </div>
           </div>
 
           {/* Col 2: Kênh Liên Hệ Trực Tiếp */}

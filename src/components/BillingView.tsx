@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
-import { useAiStore } from '../stores/useAiStore';
+import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
 import { useRouter } from '../services/router';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -83,13 +83,6 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
     </span>
   );
 };
-
-const CREDIT_PACKS = [
-  { id: 'pack_300', credits: 300, priceVnd: 19000, formatted: '19.000₫', discount: '0%', popular: false },
-  { id: 'pack_700', credits: 700, priceVnd: 39000, formatted: '39.000₫', discount: 'Tiết kiệm 15%', popular: false },
-  { id: 'pack_1500', credits: 1500, priceVnd: 69000, formatted: '69.000₫', discount: 'Tiết kiệm 28%', popular: true },
-  { id: 'pack_4000', credits: 4000, priceVnd: 149000, formatted: '149.000₫', discount: 'Tiết kiệm 40%', popular: false }
-];
 
 export const BillingView: React.FC = () => {
   const router = useRouter();
@@ -1161,7 +1154,7 @@ export const BillingView: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                    {CREDIT_PACKS.map((pack) => (
+                    {AI_CREDIT_PACKS.map((pack) => (
                       <div
                         key={pack.id}
                         className={`p-3 rounded-xl border flex flex-col justify-between text-center relative transition hover:scale-[1.02] ${
@@ -1180,18 +1173,18 @@ export const BillingView: React.FC = () => {
                             {pack.credits.toLocaleString()}⚡
                           </div>
                           <div className="text-xs font-bold text-white">
-                            {pack.formatted}
+                            {pack.formattedPrice}
                           </div>
-                          {pack.discount !== '0%' && (
+                          {pack.discountPercent > 0 && (
                             <span className="text-[9px] font-semibold text-emerald-400 block">
-                              {pack.discount}
+                              Tiết kiệm {pack.discountPercent}%
                             </span>
                           )}
                         </div>
                         <button
                           type="button"
                           onClick={() => {
-                            useAiStore.getState().openTopupModal();
+                            useAiStore.getState().openTopupModal(pack.credits);
                           }}
                           className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >

@@ -313,9 +313,9 @@ export const AiCompanionWidget: React.FC = () => {
           <button
             type="button"
             data-testid="ai-credits-topup-btn"
-            onClick={openTopupModal}
+            onClick={() => openTopupModal()}
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
-            title="Bấm để nạp thêm AI Credits (Chiết khấu tới 45%)"
+            title="Bấm để nạp thêm AI Credits (Chiết khấu tới 40%)"
           >
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
             <span className="font-mono text-[11px] font-semibold" data-testid="ai-hud-credits">
@@ -631,7 +631,7 @@ export const AiCompanionWidget: React.FC = () => {
                 <button
                   type="button"
                   data-testid="ai-error-billing-link"
-                  onClick={openTopupModal}
+                  onClick={() => openTopupModal()}
                   className="font-bold underline text-amber-300 hover:text-amber-200 cursor-pointer block text-[11px]"
                 >
                   Nạp thêm AI Credits ngay chỉ từ 19.000đ →

@@ -41,6 +41,64 @@ export const AI_PLAN_LIMITS: Record<AiPlanType, number> = {
   lifetime: 1000 // Tối đa 1.000 điểm mỗi tuần (reset vào Thứ Hai)
 };
 
+export interface AiCreditPack {
+  id: string;
+  credits: number;
+  label: string;
+  price: number;
+  formattedPrice: string;
+  originalPrice: number;
+  discountPercent: number;
+  badge?: string;
+  popular?: boolean;
+}
+
+export const AI_CREDIT_PACKS: AiCreditPack[] = [
+  {
+    id: 'pack_300',
+    credits: 300,
+    label: '300⚡',
+    price: 19000,
+    formattedPrice: '19.000₫',
+    originalPrice: 19000,
+    discountPercent: 0,
+    popular: false
+  },
+  {
+    id: 'pack_700',
+    credits: 700,
+    label: '700⚡',
+    price: 39000,
+    formattedPrice: '39.000₫',
+    originalPrice: 45000,
+    discountPercent: 15,
+    badge: 'Tiết kiệm 15%',
+    popular: false
+  },
+  {
+    id: 'pack_1500',
+    credits: 1500,
+    label: '1.500⚡',
+    price: 69000,
+    formattedPrice: '69.000₫',
+    originalPrice: 95000,
+    discountPercent: 28,
+    badge: 'Tiết kiệm 28% 🔥',
+    popular: true
+  },
+  {
+    id: 'pack_4000',
+    credits: 4000,
+    label: '4.000⚡',
+    price: 149000,
+    formattedPrice: '149.000₫',
+    originalPrice: 250000,
+    discountPercent: 40,
+    badge: 'Tiết kiệm 40% 👑',
+    popular: false
+  }
+];
+
 export const OWNER_EMAILS = [
   'namho03052k9@gmail.com',
   'huyentrantt09@gmail.com',
@@ -210,10 +268,11 @@ export interface AiState {
   sessions: AiSession[];
   currentSessionId: string | null;
   isTopupModalOpen: boolean;
+  topupModalInitialCredits?: number;
 
   // Actions
   toggleOpen: (force?: boolean) => void;
-  openTopupModal: () => void;
+  openTopupModal: (initialCredits?: number | unknown) => void;
   closeTopupModal: () => void;
   setAiPlan: (plan: AiPlanType) => void;
   addCredits: (amount: number) => void;
@@ -268,6 +327,7 @@ export const useAiStore = create<AiState>()(
       sessions: [],
       currentSessionId: null,
       isTopupModalOpen: false,
+      topupModalInitialCredits: undefined,
       messages: [
         {
           id: 'welcome-1',
@@ -284,8 +344,8 @@ export const useAiStore = create<AiState>()(
         get().checkPeriodicReset();
       },
 
-      openTopupModal: () => set({ isTopupModalOpen: true }),
-      closeTopupModal: () => set({ isTopupModalOpen: false }),
+      openTopupModal: (initialCredits?: number | unknown) => set({ isTopupModalOpen: true, topupModalInitialCredits: typeof initialCredits === 'number' ? initialCredits : 1500 }),
+      closeTopupModal: () => set({ isTopupModalOpen: false, topupModalInitialCredits: undefined }),
 
       setAiPlan: (plan) => {
         const currentBalance = get().aiCreditsBalance;

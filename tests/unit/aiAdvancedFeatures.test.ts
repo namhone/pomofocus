@@ -15,48 +15,67 @@ describe('AI Companion Advanced Upgrades: Streaming, 8192 Tokens, Multimodal & T
     });
   });
 
-  describe('1. Công Thức Chiết Khấu Nạp Thêm AI Credits Lẻ ⚡', () => {
-    it('Dưới 200⚡: Giảm 0% (Giá gốc 100đ/⚡, min 50⚡)', () => {
+  describe('1. Công Thức Chiết Khấu Nạp Thêm AI Credits Lẻ ⚡ & Đồng Bộ Bảng Giá', () => {
+    it('Dưới 500⚡ (ví dụ 100⚡): Giảm 0% (Giá chuẩn min 10.000đ)', () => {
       const calc100 = calculateCreditPrice(100);
       expect(calc100.discountPercent).toBe(0);
-      expect(calc100.unitPrice).toBe(100);
+      expect(calc100.unitPrice).toBe(63);
       expect(calc100.originalPrice).toBe(10000);
       expect(calc100.finalPrice).toBe(10000);
       expect(calc100.discountBadge).toBeNull();
     });
 
-    it('200 đến 499⚡: Giảm 5% (95đ/⚡) — Gói 200⚡ giá đúng 19.000đ', () => {
-      const calc200 = calculateCreditPrice(200);
-      expect(calc200.discountPercent).toBe(5);
-      expect(calc200.unitPrice).toBe(95);
-      expect(calc200.originalPrice).toBe(20000);
-      expect(calc200.finalPrice).toBe(19000); // 200 * 95 = 19.000đ
-      expect(calc200.discountBadge).toBe('Tiết kiệm 5%');
+    it('Gói chuẩn 1 (300⚡): Giá đúng 19.000đ, Giảm 0%', () => {
+      const calc300 = calculateCreditPrice(300);
+      expect(calc300.discountPercent).toBe(0);
+      expect(calc300.unitPrice).toBe(63);
+      expect(calc300.originalPrice).toBe(19000);
+      expect(calc300.finalPrice).toBe(19000);
+      expect(calc300.discountBadge).toBeNull();
     });
 
-    it('500 đến 999⚡: Giảm 18% 🔥 (82đ/⚡) — Gói 600⚡ giá đúng 49.000đ', () => {
-      const calc600 = calculateCreditPrice(600);
-      expect(calc600.discountPercent).toBe(18);
-      expect(calc600.unitPrice).toBe(82);
-      expect(calc600.originalPrice).toBe(60000);
-      expect(calc600.finalPrice).toBe(49000); // 600 * 82 = 49.200đ -> làm tròn 49.000đ
-      expect(calc600.discountBadge).toContain('18%');
+    it('Gói chuẩn 2 (700⚡): Giá đúng 39.000đ, Tiết kiệm 15%', () => {
+      const calc700 = calculateCreditPrice(700);
+      expect(calc700.discountPercent).toBe(15);
+      expect(calc700.unitPrice).toBe(56);
+      expect(calc700.originalPrice).toBe(45000);
+      expect(calc700.finalPrice).toBe(39000);
+      expect(calc700.discountBadge).toBe('Tiết kiệm 15%');
     });
 
-    it('1.000 đến 2.499⚡: Giảm 30% ⚡ (70đ/⚡) — Gói 1.500⚡ giá đúng 99.000đ (hoặc ~105.000đ chuẩn làm tròn)', () => {
+    it('Gói chuẩn 3 (1.500⚡): Giá đúng 69.000đ, Tiết kiệm 28% 🔥 (Phổ biến)', () => {
       const calc1500 = calculateCreditPrice(1500);
-      expect(calc1500.discountPercent).toBe(30);
-      expect(calc1500.unitPrice).toBe(70);
-      expect(calc1500.finalPrice).toBe(105000); // 1500 * 70 = 105.000đ
-      expect(calc1500.discountBadge).toContain('30%');
+      expect(calc1500.discountPercent).toBe(28);
+      expect(calc1500.unitPrice).toBe(46);
+      expect(calc1500.originalPrice).toBe(95000);
+      expect(calc1500.finalPrice).toBe(69000);
+      expect(calc1500.discountBadge).toBe('Tiết kiệm 28% 🔥');
     });
 
-    it('Từ 2.500⚡ trở lên: Giảm 45% 👑 (55đ/⚡) — Gói 3.500⚡ giá đúng 192.500đ làm tròn 193.000đ', () => {
-      const calc3500 = calculateCreditPrice(3500);
-      expect(calc3500.discountPercent).toBe(45);
-      expect(calc3500.unitPrice).toBe(55);
-      expect(calc3500.finalPrice).toBe(193000); // 3500 * 55 = 192.500đ -> làm tròn 193.000đ
-      expect(calc3500.discountBadge).toContain('45%');
+    it('Gói chuẩn 4 (4.000⚡): Giá đúng 149.000đ, Tiết kiệm 40% 👑', () => {
+      const calc4000 = calculateCreditPrice(4000);
+      expect(calc4000.discountPercent).toBe(40);
+      expect(calc4000.unitPrice).toBe(37);
+      expect(calc4000.originalPrice).toBe(250000);
+      expect(calc4000.finalPrice).toBe(149000);
+      expect(calc4000.discountBadge).toBe('Tiết kiệm 40% 👑');
+    });
+
+    it('1-Click Presets Sync: openTopupModal(credits) chọn đúng số điểm và cập nhật state', () => {
+      useAiStore.getState().closeTopupModal();
+      expect(useAiStore.getState().isTopupModalOpen).toBe(false);
+      expect(useAiStore.getState().topupModalInitialCredits).toBeUndefined();
+
+      useAiStore.getState().openTopupModal(700);
+      expect(useAiStore.getState().isTopupModalOpen).toBe(true);
+      expect(useAiStore.getState().topupModalInitialCredits).toBe(700);
+
+      useAiStore.getState().openTopupModal(4000);
+      expect(useAiStore.getState().topupModalInitialCredits).toBe(4000);
+
+      useAiStore.getState().closeTopupModal();
+      expect(useAiStore.getState().isTopupModalOpen).toBe(false);
+      expect(useAiStore.getState().topupModalInitialCredits).toBeUndefined();
     });
   });
 
