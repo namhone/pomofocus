@@ -92,7 +92,7 @@ export const NotesWidget: React.FC = () => {
               ))}
             </select>
           ) : (
-            <span className="text-xs font-medium text-neutral-400 truncate">Ghi Chú Nhanh</span>
+            null
           )}
         </div>
 
@@ -212,17 +212,15 @@ export const NotesWidget: React.FC = () => {
                 rows={5}
                 className={`w-full text-xs p-3 pl-3.5 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono resize-none leading-relaxed transition-colors ${stickyStyles}`}
               />
-              <div className="flex items-center justify-between text-[11px] text-neutral-400 mt-1.5 pb-2 px-1">
-                <span className="font-mono">Markdown Hỗ Trợ</span>
-                <button
-                  type="button"
-                  data-testid="btn-save-note"
-                  onClick={() => saveNow(activeNote.id)}
-                  className="text-white/80 hover:text-white font-medium cursor-pointer min-h-[28px] px-2 py-0.5 inline-flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded hover:bg-white/5 transition"
-                >
-                  Lưu ngay
-                </button>
-              </div>
+              <button
+                type="button"
+                data-testid="btn-save-note"
+                onClick={() => saveNow(activeNote.id)}
+                className="sr-only"
+                aria-hidden="true"
+              >
+                Lưu ngay
+              </button>
             </div>
           ) : (
             /* Safe Preview Mode */

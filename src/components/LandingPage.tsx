@@ -24,7 +24,7 @@ export const LandingPage: React.FC = () => {
     },
     {
       q: 'Dữ liệu cá nhân của tôi được lưu trữ ở đâu?',
-      a: 'Ứng dụng theo triết lý Local-First: toàn bộ danh sách công việc, ghi chú và lịch sử phiên học được lưu trực tiếp trên thiết bị của bạn bằng Dexie IndexedDB. Bạn có thể sử dụng hoàn toàn ẩn danh mà không cần đăng nhập. Khi đăng ký tài khoản, dữ liệu sẽ được sao lưu an toàn lên đám mây.'
+      a: 'Ứng dụng theo triết lý Local-First: toàn bộ danh sách công việc, ghi chú và lịch sử phiên học được lưu an toàn trực tiếp trên thiết bị của bạn. Bạn có thể sử dụng hoàn toàn ẩn danh mà không cần đăng nhập. Khi đăng ký tài khoản, dữ liệu sẽ được sao lưu an toàn lên đám mây.'
     },
     {
       q: 'Chương trình Demo Beta (Tặng 3 Năm PRO) áp dụng như thế nào?',
@@ -54,8 +54,8 @@ export const LandingPage: React.FC = () => {
 
         <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl leading-[1.28] sm:leading-[1.18] mb-5 sm:mb-6">
           <span className="block sm:inline">
-            <span className="whitespace-nowrap">Không Gian Học Tập</span>{' '}
-            <span className="whitespace-nowrap">Đắm Chìm.</span>
+            <span className="whitespace-nowrap">Không Gian Học Tập.</span>
+
           </span>{' '}
           <span className="block sm:inline">
             <span className="whitespace-nowrap">Tối Giản, Khoa Học</span>{' '}
@@ -64,7 +64,7 @@ export const LandingPage: React.FC = () => {
         </h1>
 
         <p className="text-xs sm:text-base text-zinc-400 max-w-2xl leading-relaxed mb-8 sm:mb-10 font-normal text-pretty">
-          Kết hợp kỹ thuật Pomodoro chính xác chuẩn millisecond, âm thanh môi trường thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực tuyến. Giúp bạn đạt trạng thái dòng chảy năng suất cao nhất.
+          Không gian Pomodoro kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm. Đưa bạn vào trạng thái tập trung sâu.
         </p>
 
         <div className="flex flex-col items-center gap-3.5 w-full sm:w-auto">
@@ -113,7 +113,7 @@ export const LandingPage: React.FC = () => {
                 <div className="flex items-center gap-1.5 whitespace-nowrap text-[10px] sm:text-xs">
                   <span>101 Cảnh Quan HD</span>
                   <span>•</span>
-                  <span>Web Audio Engine</span>
+                  <span>Âm Thanh Thiên Nhiên</span>
                 </div>
               </div>
 
@@ -186,14 +186,14 @@ export const LandingPage: React.FC = () => {
                 <Clock size={18} strokeWidth={1.75} />
               </div>
               <h3 className="text-base font-semibold text-white mb-2 text-balance">
-                Đồng Hồ Pomodoro Nguyên Tử
+                Đồng Hồ Pomodoro
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed mb-6 font-normal text-pretty">
-                Vòng đời bộ đếm chạy chính xác từng millisecond qua Web Worker và Service Worker. Chống trôi thời gian khi tab bị ẩn hoặc trình duyệt ngủ. Hỗ trợ tùy biến thời lượng làm việc, nghỉ ngắn, nghỉ dài.
+                Bộ đếm thời gian khoa học, hoạt động mượt mà và bền bỉ kể cả khi ẩn tab. Hỗ trợ tùy biến thời lượng làm việc, nghỉ ngắn, nghỉ dài theo nhu cầu.
               </p>
             </div>
             <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-400 flex justify-between">
-              <span className="whitespace-nowrap">ĐỘ TRỄ &lt; 2MS</span>
+              <span className="whitespace-nowrap">TẬP TRUNG SÂU</span>
               <span className="whitespace-nowrap">ĐỒNG BỘ MULTI-TAB</span>
             </div>
           </div>
@@ -205,14 +205,14 @@ export const LandingPage: React.FC = () => {
                 <Volume2 size={18} strokeWidth={1.75} />
               </div>
               <h3 className="text-base font-semibold text-white mb-2 text-balance">
-                Web Audio &amp; Phát Nền Độc Lập
+                Âm Thanh Thiên Nhiên
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed mb-6 font-normal text-pretty">
-                Bộ tổng hợp âm thanh thiên nhiên (mưa, sóng biển, quán cà phê, bàn phím cơ) tiếp tục phát nền mượt mà ngay cả khi đóng widget. Hỗ trợ thu nhỏ thành thanh video Mini PiP thông minh.
+                Bộ tổng hợp âm thanh thiên nhiên (mưa, sóng biển, quán cà phê, bàn phím cơ) tiếp tục phát nền mượt mà ngay cả khi chuyển tab hoặc thu nhỏ cửa sổ.
               </p>
             </div>
             <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-400 flex justify-between">
-              <span className="whitespace-nowrap">ZERO INTERRUPT</span>
+              <span className="whitespace-nowrap">PHÁT NỀN LIÊN TỤC</span>
               <span className="whitespace-nowrap">MINI PIP VIDEO</span>
             </div>
           </div>
@@ -225,7 +225,7 @@ export const LandingPage: React.FC = () => {
               <Users size={16} strokeWidth={1.75} />
             </div>
             <h4 className="text-sm font-semibold text-white mb-1.5 text-balance">
-              Phòng Học Nhóm WebRTC Live
+              Phòng Học Nhóm
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
               Kết nối học cùng bạn bè với camera/mic trực tiếp, chia sẻ màn hình, bảng vẽ tương tác Canvas và đồng hồ Pomodoro nhóm đồng bộ.
@@ -254,7 +254,7 @@ export const LandingPage: React.FC = () => {
               101 Cảnh Quan Tuyển Chọn
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
-              Thư viện 101 hình ảnh HD được tuyển chọn thủ công, cam kết 100% không trùng lặp cảnh, kết hợp lưu trữ an toàn Dexie IndexedDB.
+              Thư viện 101 hình ảnh HD được tuyển chọn thủ công, cam kết 100% không trùng lặp cảnh, lưu trữ an toàn ngay trên thiết bị.
             </p>
           </div>
         </div>
@@ -351,13 +351,13 @@ export const LandingPage: React.FC = () => {
 
               <ul className="space-y-2.5 text-xs text-zinc-300 mb-8 text-pretty">
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Đồng hồ Pomodoro khoa học chuẩn millisecond
+                  <Check size={14} className="text-white shrink-0" /> Đồng hồ Pomodoro khoa học, dễ sử dụng
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Bảng âm thanh thiên nhiên Web Audio
+                  <Check size={14} className="text-white shrink-0" /> Bảng âm thanh thiên nhiên chất lượng cao
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Quản lý công việc &amp; ghi chú cục bộ IndexedDB
+                  <Check size={14} className="text-white shrink-0" /> Quản lý công việc &amp; ghi chú bảo mật
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={14} className="text-white shrink-0" /> Cửa sổ tự do, Mini Pill &amp; Chế độ Focus Mode
@@ -402,7 +402,7 @@ export const LandingPage: React.FC = () => {
                   <Check size={14} className="text-white shrink-0" /> Mở khóa toàn bộ 101 không gian HD tuyển chọn
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Tạo &amp; chủ trì Phòng học nhóm (WebRTC Video Sync)
+                  <Check size={14} className="text-white shrink-0" /> Tạo &amp; chủ trì Phòng học nhóm trực tuyến
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={14} className="text-white shrink-0" /> Lập kế hoạch Time-Blocking chuyên sâu

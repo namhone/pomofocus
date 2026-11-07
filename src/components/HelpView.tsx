@@ -22,11 +22,11 @@ const SHORTCUTS = [
 const FAQS = [
   {
     q: 'Dữ liệu công việc và thời gian Pomodoro của tôi được lưu ở đâu?',
-    a: 'PomoFocus sử dụng kiến trúc đồng bộ đám mây Supabase Cloud Sync kết hợp Offline-First PWA: Mọi nhiệm vụ, ghi chú, dữ liệu bảo mật (2FA TOTP) và lịch sử tập trung được đồng bộ tự động lên máy chủ đám mây Supabase Cloud đồng thời lưu trữ an toàn trong IndexedDB trên thiết bị. Bạn có thể chuyển đổi mượt mà giữa điện thoại, máy tính bảng và máy tính mà không lo mất dữ liệu.'
+    a: 'Dữ liệu học tập của bạn được lưu an toàn trên máy và tự động đồng bộ khi có mạng.'
   },
   {
     q: 'Gói PRO Beta được miễn phí trong bao lâu?',
-    a: 'Trong giai đoạn thử nghiệm cộng đồng, mọi tài khoản đăng ký mới đều được tự động cấp quyền PRO Beta miễn phí 3 năm với đầy đủ 100% tính năng cao cấp (101+ cảnh nền HD, phòng học nhóm WebRTC, âm thanh thiên nhiên, đồng bộ đám mây).'
+    a: 'Trong giai đoạn thử nghiệm cộng đồng, mọi tài khoản đăng ký mới đều được tự động cấp quyền PRO Beta miễn phí 3 năm với đầy đủ 100% tính năng cao cấp (101+ cảnh nền HD, phòng học nhóm trực tuyến, âm thanh thiên nhiên, đồng bộ đám mây).'
   },
   {
     q: 'Tôi có thể tải lên video hoặc hình nền cá nhân không?',

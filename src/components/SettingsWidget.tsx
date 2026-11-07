@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sliders,
   Move,
   RotateCcw,
   Grid,
@@ -132,16 +131,7 @@ export const SettingsWidget: React.FC = () => {
         </div>
       )}
 
-      <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
-            <Sliders size={15} strokeWidth={1.75} />
-          </div>
-          <div>
-            <h3 className="font-medium text-white text-xs">Cài Đặt Không Gian Làm Việc</h3>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Button: Chỉnh sửa bố cục */}
       <div>

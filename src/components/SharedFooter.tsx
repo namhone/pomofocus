@@ -235,10 +235,8 @@ export const SharedFooter: React.FC = () => {
             <span>© 2026 PomoFocus. Bản quyền phát triển bởi</span>
             <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam.</span>
           </div>
-          <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 font-mono whitespace-nowrap">
-            <span>Local-First &amp; Offline</span>
-            <span>•</span>
-            <span className="text-zinc-300">v1.1.0 Production · Bản quyền thuộc PomoFocus</span>
+          <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 whitespace-nowrap">
+            <span className="text-zinc-400">Bản quyền thuộc PomoFocus</span>
           </div>
         </div>
       </div>

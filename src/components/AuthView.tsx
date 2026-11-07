@@ -7,7 +7,6 @@ import {
   Lock,
   Mail,
   User,
-  Sparkles,
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
@@ -284,10 +283,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             <ArrowLeft size={14} />
             <span>Vào Không Gian</span>
           </button>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-[11px] font-medium text-emerald-300">
-            <Sparkles size={12} />
-            <span>Đồng bộ Cloud & VIP</span>
-          </div>
+          
         </div>
 
         {/* Brand title */}
@@ -583,7 +579,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 {isLoading
                   ? 'Đang xử lý...'
                   : mode === 'login'
-                  ? 'Đăng Nhập Email'
+                  ? 'Đăng Nhập'
                   : 'Tạo Tài Khoản Mới'}
               </button>
             </form>

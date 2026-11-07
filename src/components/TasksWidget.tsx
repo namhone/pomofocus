@@ -251,11 +251,7 @@ export const TasksWidget: React.FC = () => {
 
       {/* Danh Sách Tasks (khoảng cách 8px chuẩn 8-point grid, min-h 48px) */}
       <div className="space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-0.5">
-        {filteredTasks.length === 0 ? (
-          <div className="text-center py-6 px-3 rounded-xl border border-dashed border-white/[0.08] text-neutral-400">
-            <p className="text-xs text-neutral-400">Chưa có công việc. Nhập việc và nhấn Enter.</p>
-          </div>
-        ) : (
+        {filteredTasks.length === 0 ? null : (
           filteredTasks.map((task) => {
             const isLinked = activeTaskId === task.id;
             const isCompleted = task.status === 'completed';

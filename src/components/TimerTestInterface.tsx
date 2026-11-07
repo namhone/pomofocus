@@ -150,9 +150,6 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
           >
             {formatTime(remainingMs)}
           </div>
-          <div className="mt-0.5 text-[10px] uppercase tracking-widest text-neutral-400 font-medium">
-            {currentPhaseStyle.label}
-          </div>
 
           {/* Session Round Dots */}
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -250,7 +247,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             className="rounded-full border border-white/10 bg-white/[0.05] py-1.5 px-2.5 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] min-w-[34px] inline-flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             <FastForward size={12} className="-translate-y-[0.5px]" />
-            <span className="text-[11px]">Skip</span>
+            <span className="text-[11px]">Bỏ qua</span>
           </button>
         </div>
 

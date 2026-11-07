@@ -527,7 +527,7 @@ export const BillingView: React.FC = () => {
                   <div className="space-y-2 pt-3 border-t border-zinc-800 text-xs">
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
-                      <span>Sức chứa phòng học: Lên đến 60 người (Dạy học / Workshop)</span>
+                      <span>Sức chứa phòng học: Lên đến 60 người</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
@@ -637,7 +637,7 @@ export const BillingView: React.FC = () => {
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Thời lượng phòng riêng: Tối đa 45 phút/phiên (Reset sau 5p)</span>
+                      <span className="text-zinc-300 leading-snug">Thời lượng phòng riêng: Tối đa 45 phút/phiên</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
@@ -653,7 +653,7 @@ export const BillingView: React.FC = () => {
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Bảng vẽ Whiteboard: 1 trang nháp (Không xuất file)</span>
+                      <span className="text-zinc-300 leading-snug">Bảng vẽ Whiteboard: 1 trang nháp</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
@@ -733,7 +733,7 @@ export const BillingView: React.FC = () => {
                             : `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(468000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / năm`)
                         : (cycle === 'monthly'
                             ? '59.000đ / tháng • Hủy bất kỳ lúc nào'
-                            : '39.000đ / tháng • Thanh toán 468.000đ/năm (Tiết kiệm 34%)')}
+                            : '39.000đ / tháng (Tiết kiệm 34%)')}
                     </p>
                   </div>
 
@@ -744,7 +744,7 @@ export const BillingView: React.FC = () => {
                       <span className="text-white leading-snug font-semibold">
                         {cycle === 'monthly'
                           ? '1.500⚡ AI Study Credits / tháng'
-                          : '20.000⚡ AI Study Credits / năm (Ưu đãi tối đa)'}
+                          : '20.000⚡ AI Study Credits / năm'}
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
@@ -858,7 +858,7 @@ export const BillingView: React.FC = () => {
                     <p className="text-[11px] text-amber-300/80 mt-1 font-mono leading-tight">
                       {appliedDiscount
                         ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(799000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ (Tiết kiệm ${appliedDiscount.percent}%)`
-                        : 'Sở hữu vĩnh viễn trọn đời • Không gia hạn • 1 lần duy nhất'}
+                        : 'Thanh toán 1 lần duy nhất • Sử dụng trọn đời'}
                     </p>
                   </div>
 
@@ -879,7 +879,7 @@ export const BillingView: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Sức chứa phòng học: <strong>Lên đến 60 người (Dạy học / Workshop)</strong>
+                        Sức chứa phòng học: <strong>Lên đến 60 người</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">

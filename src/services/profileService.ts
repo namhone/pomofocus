@@ -139,6 +139,7 @@ export class ProfileService {
     displayName?: string;
     avatarUrl?: string;
     customAvatarUrl?: string;
+    hasCustomAvatar?: boolean;
     googleId?: string;
     isGoogleLinked?: boolean;
   }): Promise<CloudProfile> {

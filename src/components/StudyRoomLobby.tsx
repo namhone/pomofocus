@@ -356,9 +356,8 @@ export const StudyRoomLobby: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-zinc-300 mb-1 flex items-center justify-between">
-                    <span>Đường dẫn / Slug phòng độc quyền</span>
-                    <span className="text-[10px] text-zinc-500 font-mono">/rooms/[slug]</span>
+                  <label className="block text-[11px] font-medium text-zinc-300 mb-1">
+                    <span>Đặt tên phòng của bạn</span>
                   </label>
                   <input
                     type="text"
@@ -581,7 +580,7 @@ export const StudyRoomLobby: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Sparkles size={16} className="text-zinc-300" />
-                <h3 className="font-bold text-sm text-white">10 Phòng Học Tập Trung Công Khai (Public Study Pods)</h3>
+                <h3 className="font-bold text-sm text-white">Phòng Học Công Khai</h3>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold uppercase tracking-wider">
                   MIỄN PHÍ • 10 NGƯỜI
                 </span>

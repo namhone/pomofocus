@@ -155,6 +155,10 @@ export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
 
   // 2. ƯU TIÊN 2: CHỈ KHI hoàn toàn KHÔNG CÓ custom avatar nào, mới dùng ảnh từ Google OAuth
   const candidateGoogle =
+    (user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) && !isCustomAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
+    (user?.avatar_url && isValidAvatarUrl(user.avatar_url) && !isCustomAvatarUrl(user.avatar_url) ? user.avatar_url : null) ||
+    (profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) && !isCustomAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
+    (profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) && !isCustomAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
     (user?.user_metadata?.avatar_url && isValidAvatarUrl(user.user_metadata.avatar_url) ? user.user_metadata.avatar_url : null) ||
     (user?.user_metadata?.picture && isValidAvatarUrl(user.user_metadata.picture) ? user.user_metadata.picture : null) ||
     (user?.raw_user_meta_data?.avatar_url && isValidAvatarUrl(user.raw_user_meta_data.avatar_url) ? user.raw_user_meta_data.avatar_url : null) ||

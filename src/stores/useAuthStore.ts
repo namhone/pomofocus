@@ -444,8 +444,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
               (state.user.avatarUrl && isCustomAvatarUrl(state.user.avatarUrl))
             );
             const resolvedAvatar = getEffectiveAvatarUrl(state.user, cloudProf);
-            const canonicalCustom = isCustom
-              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : null) || state.user.customAvatarUrl || (isCustomAvatarUrl(state.user.avatarUrl) ? state.user.avatarUrl : null))
+            const canonicalCustom: string | undefined = isCustom
+              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : undefined) || state.user.customAvatarUrl || (isCustomAvatarUrl(state.user.avatarUrl) ? state.user.avatarUrl : undefined) || undefined)
               : undefined;
 
             if (isCustom && canonicalCustom && typeof window !== 'undefined' && profile.email) {
@@ -860,8 +860,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
             (latestUser.avatarUrl && isCustomAvatarUrl(latestUser.avatarUrl))
           );
           const resolvedAvatar = getEffectiveAvatarUrl(latestUser, cloudProfile);
-          const canonicalCustom = isCustom
-            ? (cloudProfile.custom_avatar_url || (isCustomAvatarUrl(cloudProfile.avatar_url) ? cloudProfile.avatar_url : null) || latestUser.customAvatarUrl || (isCustomAvatarUrl(latestUser.avatarUrl) ? latestUser.avatarUrl : null))
+          const canonicalCustom: string | undefined = isCustom
+            ? (cloudProfile.custom_avatar_url || (isCustomAvatarUrl(cloudProfile.avatar_url) ? cloudProfile.avatar_url : undefined) || latestUser.customAvatarUrl || (isCustomAvatarUrl(latestUser.avatarUrl) ? latestUser.avatarUrl : undefined) || undefined)
             : undefined;
 
           if (isCustom && canonicalCustom && typeof window !== 'undefined' && latestUser.email) {
@@ -945,8 +945,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
               (current?.avatarUrl && isCustomAvatarUrl(current.avatarUrl))
             );
             const resolvedAvatar = getEffectiveAvatarUrl(current || { id: userId, email: cloudProf.email }, cloudProf);
-            const canonicalCustom = hasCustom
-              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : null) || current?.customAvatarUrl || (isCustomAvatarUrl(current?.avatarUrl) ? current?.avatarUrl : null))
+            const canonicalCustom: string | undefined = hasCustom
+              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : undefined) || current?.customAvatarUrl || (isCustomAvatarUrl(current?.avatarUrl) ? current?.avatarUrl : undefined) || undefined)
               : undefined;
 
             if (hasCustom && canonicalCustom && typeof window !== 'undefined' && cloudProf.email) {

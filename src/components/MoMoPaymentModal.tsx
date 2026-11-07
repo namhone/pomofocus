@@ -325,14 +325,9 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
             </div>
 
             {/* Cảnh báo Demo Beta */}
-            <div data-testid="momo-beta-warning" className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs flex items-start gap-2.5">
-              <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <div className="font-bold text-amber-300">DEMO BETA — KHÔNG THU TIỀN THẬT</div>
-                <div className="text-[11px] text-amber-200/80 mt-0.5">
-                  Đây là môi trường thử nghiệm. Bạn có thể bấm &quot;Xác Nhận Đã Chuyển Khoản&quot; hoặc quét mã để kiểm thử quy trình nâng cấp tự động.
-                </div>
-              </div>
+            <div data-testid="momo-beta-warning" className="px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs flex items-center gap-2">
+              <Sparkles size={14} className="text-amber-400 shrink-0" />
+              <div className="font-semibold text-amber-300 text-[11px]">DEMO BETA — KHÔNG THU TIỀN THẬT</div>
             </div>
 
             {/* Thông tin tài khoản nhận PRO */}
@@ -418,27 +413,6 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 <Smartphone size={15} />
                 <span>Mở App Ngân Hàng Để Quét QR</span>
               </a>
-
-              {/* Hướng dẫn 3 bước chuẩn */}
-              <div className="w-full max-w-sm pt-2 text-left">
-                <div className="text-[11px] font-semibold text-zinc-300 mb-1.5">
-                  Hướng dẫn thanh toán 3 bước:
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="block text-[10px] font-mono text-zinc-500 mb-0.5">BƯỚC 1</span>
-                    <span className="text-[11px] font-medium text-zinc-200">Mở app Ngân hàng</span>
-                  </div>
-                  <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="block text-[10px] font-mono text-zinc-500 mb-0.5">BƯỚC 2</span>
-                    <span className="text-[11px] font-medium text-zinc-200">Quét mã QR</span>
-                  </div>
-                  <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="block text-[10px] font-mono text-zinc-500 mb-0.5">BƯỚC 3</span>
-                    <span className="text-[11px] font-medium text-zinc-200">Hoàn tất</span>
-                  </div>
-                </div>
-              </div>
 
               {/* Chi tiết tài khoản Vietcombank nhận tiền */}
               <div className="w-full max-w-sm pt-2 border-t border-zinc-800/80 text-xs space-y-2 text-left">
