@@ -6,6 +6,13 @@ export default {
   ],
   theme: {
     extend: {
+      zIndex: {
+        '60': '60',
+        '70': '70',
+        '80': '80',
+        '90': '90',
+        '100': '100',
+      },
       colors: {
         brand: {
           pomodoro: '#FF5A5F',

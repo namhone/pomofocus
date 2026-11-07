@@ -87,7 +87,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
       <div
         data-testid="mobile-more-backdrop"
         onClick={onClose}
-        className={`fixed inset-0 z-60 bg-black/50 backdrop-blur-md transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[55] bg-black/50 backdrop-blur-md transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden="true"
@@ -102,7 +102,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
         aria-label="Menu chức năng mở rộng"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className={`fixed bottom-0 left-0 right-0 z-60 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-zinc-800 bg-zinc-950/95 p-5 pb-8 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out transform ${
+        className={`fixed bottom-0 left-0 right-0 z-[60] max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-zinc-800 bg-zinc-950/95 p-5 pb-8 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out transform ${
           isOpen
             ? 'translate-y-0 opacity-100 pointer-events-auto'
             : 'translate-y-full opacity-0 pointer-events-none'
