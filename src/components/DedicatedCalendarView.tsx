@@ -286,22 +286,35 @@ export const DedicatedCalendarView: React.FC = () => {
                         >
                           {matchingBlocks.map((blk) => {
                             const linkedTask = tasks.find((t) => t.id === blk.taskId);
+                            const startTime = `${blk.startHour.toString().padStart(2, '0')}:00`;
+                            const endTime = `${(blk.startHour + 1).toString().padStart(2, '0')}:00`;
+                            const timeRange = `${startTime} - ${endTime}`;
+                            const fullTitle = `${blk.title} • ${timeRange}`;
+
                             return (
                               <div
                                 key={blk.id}
                                 onClick={(e) => e.stopPropagation()}
-                                className={`p-2 rounded-lg text-xs border mb-1 flex items-start justify-between gap-1 shadow-sm transition-all ${
+                                title={fullTitle}
+                                className={`group relative p-2 rounded-lg text-xs border mb-1 flex items-start justify-between gap-1 shadow-sm transition-all cursor-pointer ${
                                   blk.completed
                                     ? 'bg-neutral-800/60 border-white/5 text-neutral-500 line-through'
                                     : 'bg-emerald-950/60 border-emerald-500/30 text-emerald-200'
                                 }`}
                               >
+                                {/* Floating Tooltip sắc nét khi hover */}
+                                <div className="absolute -top-9 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none bg-neutral-950 border border-neutral-700 text-[11px] px-2.5 py-1 rounded-lg shadow-xl z-30 whitespace-nowrap hidden sm:block">
+                                  <span className="font-semibold text-emerald-300">{blk.title}</span>
+                                  <span className="text-neutral-400 ml-1.5 font-mono">({timeRange})</span>
+                                </div>
+
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center gap-1.5 font-medium truncate">
                                     <button
                                       type="button"
                                       onClick={() => handleToggleBlock(blk.id, blk.completed)}
-                                      className="hover:text-white transition cursor-pointer"
+                                      className="hover:text-white transition cursor-pointer shrink-0"
+                                      title={blk.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
                                     >
                                       {blk.completed ? (
                                         <CheckCircle2 size={13} className="text-neutral-500" />
@@ -309,11 +322,15 @@ export const DedicatedCalendarView: React.FC = () => {
                                         <Circle size={13} className="text-emerald-400" />
                                       )}
                                     </button>
-                                    <span className="truncate">{blk.title}</span>
+                                    <span className="font-medium truncate block">{blk.title}</span>
                                   </div>
+                                  {/* Nhãn khung giờ nhỏ bên dưới tên sự kiện */}
+                                  <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 truncate">
+                                    {timeRange}
+                                  </span>
                                   {linkedTask && (
                                     <div className="flex items-center gap-1 text-[10px] text-neutral-400 mt-1">
-                                      <LinkIcon size={10} />
+                                      <LinkIcon size={10} className="shrink-0" />
                                       <span className="truncate">{linkedTask.title}</span>
                                     </div>
                                   )}
@@ -321,7 +338,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteBlock(blk.id)}
-                                  className="text-neutral-500 hover:text-rose-400 p-0.5 transition opacity-0 group-hover:opacity-100 cursor-pointer"
+                                  className="text-neutral-500 hover:text-rose-400 p-0.5 transition opacity-0 group-hover:opacity-100 cursor-pointer shrink-0"
                                   title="Xóa block này"
                                 >
                                   <X size={12} />
@@ -367,38 +384,51 @@ export const DedicatedCalendarView: React.FC = () => {
                         {matching.length === 0 ? (
                           <span className="text-xs text-neutral-600 italic">Trống</span>
                         ) : (
-                          matching.map((blk) => (
-                            <div
-                              key={blk.id}
-                              onClick={(e) => e.stopPropagation()}
-                              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ${
-                                blk.completed
-                                  ? 'bg-neutral-800/80 border-white/5 text-neutral-500 line-through'
-                                  : 'bg-emerald-950/70 border-emerald-500/30 text-emerald-200'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 min-w-0">
+                          matching.map((blk) => {
+                            const startTime = `${blk.startHour.toString().padStart(2, '0')}:00`;
+                            const endTime = `${(blk.startHour + 1).toString().padStart(2, '0')}:00`;
+                            const timeRange = `${startTime} - ${endTime}`;
+                            const fullTitle = `${blk.title} • ${timeRange}`;
+
+                            return (
+                              <div
+                                key={blk.id}
+                                onClick={(e) => e.stopPropagation()}
+                                title={fullTitle}
+                                className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] cursor-pointer group relative ${
+                                  blk.completed
+                                    ? 'bg-neutral-800/80 border-white/5 text-neutral-500 line-through'
+                                    : 'bg-emerald-950/70 border-emerald-500/30 text-emerald-200'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleBlock(blk.id, blk.completed)}
+                                    className="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition-all duration-150 active:scale-[0.97] cursor-pointer shrink-0"
+                                    title={blk.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
+                                  >
+                                    {blk.completed ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                                  </button>
+                                  <div className="min-w-0 flex-1">
+                                    <span className="font-medium truncate block">{blk.title}</span>
+                                    <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 truncate">
+                                      {timeRange}
+                                    </span>
+                                  </div>
+                                </div>
                                 <button
                                   type="button"
-                                  onClick={() => handleToggleBlock(blk.id, blk.completed)}
-                                  className="p-1 min-w-[28px] min-h-[28px] flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition-all duration-150 active:scale-[0.97] cursor-pointer"
-                                  title={blk.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
+                                  data-testid="btn-delete-schedule"
+                                  onClick={() => handleDeleteBlock(blk.id)}
+                                  className="hit-slop-48 min-w-[32px] min-h-[32px] flex items-center justify-center p-1 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-[0.97] cursor-pointer shrink-0"
+                                  title="Xóa lịch học này"
                                 >
-                                  {blk.completed ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                                  <X size={14} />
                                 </button>
-                                <span className="truncate" title={blk.title}>{blk.title}</span>
                               </div>
-                              <button
-                                type="button"
-                                data-testid="btn-delete-schedule"
-                                onClick={() => handleDeleteBlock(blk.id)}
-                                className="hit-slop-48 min-w-[32px] min-h-[32px] flex items-center justify-center p-1 rounded-lg text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-[0.97] cursor-pointer shrink-0"
-                                title="Xóa lịch học này"
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
                     </div>

@@ -127,11 +127,14 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                   </span>
 
                   {hourBlock ? (
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div
+                      className="flex items-center gap-2 min-w-0 flex-1 relative group cursor-pointer"
+                      title={`${hourBlock.title} • ${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`}
+                    >
                       <button
                         type="button"
                         onClick={() => handleToggleComplete(hourBlock)}
-                        className={`w-4 h-4 rounded flex items-center justify-center transition cursor-pointer ${
+                        className={`w-4 h-4 rounded flex items-center justify-center transition cursor-pointer shrink-0 ${
                           hourBlock.completed
                             ? 'bg-emerald-600 text-white'
                             : 'border border-neutral-600 bg-neutral-800'
@@ -139,13 +142,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                       >
                         {hourBlock.completed && <Check size={11} strokeWidth={2.5} />}
                       </button>
-                      <span
-                        className={`text-xs truncate ${
-                          hourBlock.completed ? 'line-through text-neutral-500' : 'text-neutral-200'
-                        }`}
-                      >
-                        {hourBlock.title}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <span
+                          className={`text-xs truncate block ${
+                            hourBlock.completed ? 'line-through text-neutral-500' : 'text-neutral-200'
+                          }`}
+                        >
+                          {hourBlock.title}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 block opacity-75 font-mono">
+                          {hour.toString().padStart(2, '0')}:00 - {(hour + 1).toString().padStart(2, '0')}:00
+                        </span>
+                      </div>
                     </div>
                   ) : selectedHour === hour ? (
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
