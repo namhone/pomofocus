@@ -62,14 +62,12 @@ describe('Header Guest Quick Menu & Google OAuth Guidance Specifications', () =>
       expect(state.activeMobileTab).toBe('settings');
     });
 
-    it('Mobile slide-down menu dùng thẻ đặc bg-zinc-900 border-zinc-800 shadow-2xl và backdrop trong trẻo không blur', () => {
+    it('Mobile slide-down menu dùng thẻ đặc bg-zinc-950 border-zinc-800 shadow-2xl và backdrop mờ sâu (backdrop-blur-md)', () => {
       const headerCode = fs.readFileSync('src/components/PlatformHeader.tsx', 'utf8');
       expect(headerCode).toContain('id="mobile-slidedown-menu"');
-      expect(headerCode).toContain('bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl');
+      expect(headerCode).toContain('bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl');
       expect(headerCode).toContain('data-testid="mobile-drawer-backdrop"');
-      expect(headerCode).toContain('bg-black/20 lg:bg-transparent');
-      const backdropSnippet = headerCode.split('data-testid="mobile-drawer-backdrop"')[1].slice(0, 300);
-      expect(backdropSnippet).not.toContain('backdrop-blur');
+      expect(headerCode).toContain('bg-black/50 backdrop-blur-md');
       expect(headerCode).toContain('text-sm font-medium');
       expect(headerCode).toContain('text-zinc-100 hover:text-white');
       expect(headerCode).toContain('bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-sm');

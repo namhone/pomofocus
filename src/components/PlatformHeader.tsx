@@ -770,7 +770,7 @@ export const PlatformHeader: React.FC = () => {
       {/* 1. Lớp phủ mờ bắt sự kiện click outside */}
       <div
         data-testid="mobile-drawer-backdrop"
-        className={`fixed inset-0 z-40 bg-black/20 lg:bg-transparent transition-opacity duration-200 ${
+        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-md transition-opacity duration-200 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -784,7 +784,7 @@ export const PlatformHeader: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label="Menu Điều Hướng"
-        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
