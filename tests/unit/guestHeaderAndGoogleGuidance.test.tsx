@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import fs from 'fs';
 import { googleAuthService, GOOGLE_OAUTH_GUIDANCE_MESSAGE } from '../../src/services/googleAuthService';
 import { useLayoutStore } from '../../src/stores/useLayoutStore';
 import { useAuthStore } from '../../src/stores/useAuthStore';
@@ -59,6 +60,14 @@ describe('Header Guest Quick Menu & Google OAuth Guidance Specifications', () =>
       const state = useLayoutStore.getState();
       expect(state.widgets.settings?.isOpen).toBe(true);
       expect(state.activeMobileTab).toBe('settings');
+    });
+
+    it('Mobile slide-down menu và backdrop đảm bảo độ đục cao chống UI overlap (bg-zinc-950/95, backdrop-blur-xl, shadow-2xl, border-zinc-800)', () => {
+      const headerCode = fs.readFileSync('src/components/PlatformHeader.tsx', 'utf8');
+      expect(headerCode).toContain('id="mobile-slidedown-menu"');
+      expect(headerCode).toContain('bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl');
+      expect(headerCode).toContain('data-testid="mobile-drawer-backdrop"');
+      expect(headerCode).toContain('bg-black/60 backdrop-blur-sm');
     });
 
     it('Khi chưa đăng nhập, trạng thái tài khoản là khách với số dư mặc định 50⚡', () => {

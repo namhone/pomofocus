@@ -563,7 +563,7 @@ export const PlatformHeader: React.FC = () => {
               {isUserDropdownOpen && (
                 <div
                   data-testid="header-user-dropdown"
-                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-white/15 bg-[#121216]/95 backdrop-blur-2xl p-2 shadow-2xl z-60 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-zinc-800 bg-zinc-950/95 backdrop-blur-xl p-2 shadow-2xl z-60 animate-in fade-in zoom-in-95 duration-150"
                 >
                   {/* Mini Header Profile Info */}
                   <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
@@ -770,7 +770,7 @@ export const PlatformHeader: React.FC = () => {
       {/* 1. Lớp phủ mờ bắt sự kiện click outside */}
       <div
         data-testid="mobile-drawer-backdrop"
-        className={`lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity duration-200 ${
+        className={`lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -784,7 +784,7 @@ export const PlatformHeader: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label="Menu Điều Hướng"
-        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
@@ -896,7 +896,7 @@ export const PlatformHeader: React.FC = () => {
         {/* Chân menu: Nút Đăng Nhập / Đăng Ký hoặc Thẻ profile + Đăng xuất */}
         {isAuthenticated && user ? (
           <div className="pt-2 mt-1 border-t border-zinc-800/80 space-y-1.5">
-            <div className="p-2 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between">
+            <div className="p-2 rounded-xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-7 h-7 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
                   <img
@@ -1031,7 +1031,7 @@ export const PlatformHeader: React.FC = () => {
           <div
             data-testid="guest-quick-menu-backdrop"
             onClick={() => setIsGuestMenuOpen(false)}
-            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in"
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity duration-200 animate-in fade-in"
             aria-hidden="true"
           />
           <div
@@ -1039,7 +1039,7 @@ export const PlatformHeader: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Tài khoản và Menu tiện ích khách"
-            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-16 sm:right-6 sm:left-auto sm:w-84 z-[100] bg-zinc-950/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl sm:rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3 animate-in slide-in-from-bottom sm:slide-in-from-top-2 duration-200 select-none"
+            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-16 sm:right-6 sm:left-auto sm:w-84 z-[100] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3 animate-in slide-in-from-bottom sm:slide-in-from-top-2 duration-200 select-none"
           >
             {/* Mobile Drag Indicator */}
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-1 sm:hidden cursor-pointer" onClick={() => setIsGuestMenuOpen(false)} />
