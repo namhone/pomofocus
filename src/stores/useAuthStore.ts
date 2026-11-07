@@ -11,7 +11,8 @@ import {
   isLadyBoss,
   isVipFriend,
   getPlanLabel,
-  getEffectiveAvatarUrl
+  getEffectiveAvatarUrl,
+  isCustomAvatarUrl
 } from '../services/authService';
 import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
@@ -287,14 +288,32 @@ export const useAuthStore = create<AuthState>((set, get) => {
       const currentSession = get().user || authService.getCurrentSession();
       const isFounder = isOwnerEmail(email);
 
+      // Canonical ID: Kiểm tra cả cache profile và cloud profile theo email
+      const cachedProf = email ? (localProfileCache.get(email) || localProfileCache.get(supabaseUser.id)) : null;
+
       // KIỂM TRA AVATAR TÙY CHỈNH: Không bao giờ lấy ảnh Google đè lên Custom Avatar
+      const localStoredAvatar = (typeof window !== 'undefined' && email) ? localStorage.getItem('pomodoro_avatar_cache_' + email) : null;
       const hasCustom = Boolean(
         currentSession?.customAvatarUrl ||
-        currentSession?.hasCustomAvatar
+        currentSession?.hasCustomAvatar ||
+        (currentSession?.avatarUrl && isCustomAvatarUrl(currentSession.avatarUrl)) ||
+        cachedProf?.custom_avatar_url ||
+        cachedProf?.has_custom_avatar ||
+        (cachedProf?.avatar_url && isCustomAvatarUrl(cachedProf.avatar_url)) ||
+        localStoredAvatar
       );
-      const resolvedAvatar = hasCustom
-        ? (currentSession?.customAvatarUrl || currentSession?.avatarUrl || getEffectiveAvatarUrl(supabaseUser, currentSession))
-        : getEffectiveAvatarUrl(supabaseUser, currentSession);
+      const customAvatar =
+        currentSession?.customAvatarUrl ||
+        (currentSession?.hasCustomAvatar ? currentSession?.avatarUrl : null) ||
+        (isCustomAvatarUrl(currentSession?.avatarUrl) ? currentSession?.avatarUrl : null) ||
+        cachedProf?.custom_avatar_url ||
+        ((cachedProf?.has_custom_avatar || isCustomAvatarUrl(cachedProf?.avatar_url)) ? cachedProf?.avatar_url : null) ||
+        localStoredAvatar ||
+        null;
+
+      const resolvedAvatar = hasCustom && customAvatar
+        ? customAvatar
+        : getEffectiveAvatarUrl(supabaseUser, cachedProf || currentSession);
 
       const displayName =
         currentSession?.displayName ||
@@ -303,8 +322,6 @@ export const useAuthStore = create<AuthState>((set, get) => {
         supabaseUser.displayName ||
         (email ? email.split('@')[0] : 'Người dùng');
 
-      // Canonical ID: Kiểm tra cả cache profile và cloud profile theo email
-      const cachedProf = email ? (localProfileCache.get(email) || localProfileCache.get(supabaseUser.id)) : null;
       const userId = (currentSession?.email && currentSession.email.trim().toLowerCase() === email)
         ? (currentSession.id || supabaseUser.id)
         : (cachedProf?.id || supabaseUser.id || `g_${Date.now()}`);
@@ -400,7 +417,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
         id: profile.id,
         email: profile.email,
         displayName: profile.displayName,
-        avatarUrl: profile.avatarUrl,
+        avatarUrl: hasCustom ? resolvedAvatar : undefined,
+        customAvatarUrl: hasCustom ? resolvedAvatar : undefined,
+        hasCustomAvatar: hasCustom,
         googleId: supabaseUser.id,
         isGoogleLinked: true
       }).then((cloudProf) => {
@@ -416,8 +435,24 @@ export const useAuthStore = create<AuthState>((set, get) => {
           }
           set((state) => {
             if (!state.user) return state;
-            const isCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || state.user.customAvatarUrl || state.user.hasCustomAvatar);
+            const isCustom = Boolean(
+              cloudProf.custom_avatar_url ||
+              cloudProf.has_custom_avatar ||
+              isCustomAvatarUrl(cloudProf.avatar_url) ||
+              state.user.customAvatarUrl ||
+              state.user.hasCustomAvatar ||
+              (state.user.avatarUrl && isCustomAvatarUrl(state.user.avatarUrl))
+            );
             const resolvedAvatar = getEffectiveAvatarUrl(state.user, cloudProf);
+            const canonicalCustom = isCustom
+              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : null) || state.user.customAvatarUrl || (isCustomAvatarUrl(state.user.avatarUrl) ? state.user.avatarUrl : null))
+              : undefined;
+
+            if (isCustom && canonicalCustom && typeof window !== 'undefined' && profile.email) {
+              try {
+                localStorage.setItem('pomodoro_avatar_cache_' + profile.email, canonicalCustom);
+              } catch {}
+            }
 
             if (cloudProf.settings) {
               userSettingsService.applySettings(cloudProf.settings);
@@ -430,7 +465,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               isGoogleLinked: true,
               displayName: cloudProf.full_name || state.user.displayName,
               avatarUrl: resolvedAvatar,
-              customAvatarUrl: cloudProf.custom_avatar_url || state.user.customAvatarUrl,
+              customAvatarUrl: canonicalCustom,
               hasCustomAvatar: isCustom,
               username: cloudProf.handle || state.user.username,
               bio: cloudProf.bio || state.user.bio,
@@ -816,14 +851,30 @@ export const useAuthStore = create<AuthState>((set, get) => {
             });
           }
 
-          const isCustom = Boolean(cloudProfile.custom_avatar_url || cloudProfile.has_custom_avatar || latestUser.customAvatarUrl || latestUser.hasCustomAvatar);
+          const isCustom = Boolean(
+            cloudProfile.custom_avatar_url ||
+            cloudProfile.has_custom_avatar ||
+            isCustomAvatarUrl(cloudProfile.avatar_url) ||
+            latestUser.customAvatarUrl ||
+            latestUser.hasCustomAvatar ||
+            (latestUser.avatarUrl && isCustomAvatarUrl(latestUser.avatarUrl))
+          );
           const resolvedAvatar = getEffectiveAvatarUrl(latestUser, cloudProfile);
+          const canonicalCustom = isCustom
+            ? (cloudProfile.custom_avatar_url || (isCustomAvatarUrl(cloudProfile.avatar_url) ? cloudProfile.avatar_url : null) || latestUser.customAvatarUrl || (isCustomAvatarUrl(latestUser.avatarUrl) ? latestUser.avatarUrl : null))
+            : undefined;
+
+          if (isCustom && canonicalCustom && typeof window !== 'undefined' && latestUser.email) {
+            try {
+              localStorage.setItem('pomodoro_avatar_cache_' + latestUser.email.toLowerCase().trim(), canonicalCustom);
+            } catch {}
+          }
 
           const updatedUser: UserProfile = {
             ...latestUser,
             displayName: cloudProfile.full_name || latestUser.displayName,
             avatarUrl: resolvedAvatar,
-            customAvatarUrl: cloudProfile.custom_avatar_url || latestUser.customAvatarUrl,
+            customAvatarUrl: canonicalCustom,
             hasCustomAvatar: isCustom,
             username: cloudProfile.handle || latestUser.username,
             bio: cloudProfile.bio || latestUser.bio,
@@ -885,8 +936,24 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
           set((state) => {
             const current = state.user;
-            const hasCustom = Boolean(cloudProf.custom_avatar_url || cloudProf.has_custom_avatar || current?.customAvatarUrl || current?.hasCustomAvatar);
+            const hasCustom = Boolean(
+              cloudProf.custom_avatar_url ||
+              cloudProf.has_custom_avatar ||
+              isCustomAvatarUrl(cloudProf.avatar_url) ||
+              current?.customAvatarUrl ||
+              current?.hasCustomAvatar ||
+              (current?.avatarUrl && isCustomAvatarUrl(current.avatarUrl))
+            );
             const resolvedAvatar = getEffectiveAvatarUrl(current || { id: userId, email: cloudProf.email }, cloudProf);
+            const canonicalCustom = hasCustom
+              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : null) || current?.customAvatarUrl || (isCustomAvatarUrl(current?.avatarUrl) ? current?.avatarUrl : null))
+              : undefined;
+
+            if (hasCustom && canonicalCustom && typeof window !== 'undefined' && cloudProf.email) {
+              try {
+                localStorage.setItem('pomodoro_avatar_cache_' + cloudProf.email.toLowerCase().trim(), canonicalCustom);
+              } catch {}
+            }
 
             const merged: UserProfile = {
               ...(current || {
@@ -899,7 +966,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               email: cloudProf.email || current?.email || '',
               displayName: cloudProf.full_name || current?.displayName || (isOwner ? 'Nam Hồ' : 'Người dùng'),
               avatarUrl: resolvedAvatar,
-              customAvatarUrl: cloudProf.custom_avatar_url || current?.customAvatarUrl,
+              customAvatarUrl: canonicalCustom,
               hasCustomAvatar: hasCustom,
               role: effectiveRole,
               plan: effectivePlan as any,

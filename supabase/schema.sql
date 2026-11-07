@@ -112,7 +112,13 @@ begin
     set
       google_id = case when v_is_google then new.id::text else public.profiles.google_id end,
       is_google_linked = public.profiles.is_google_linked or v_is_google,
-      avatar_url = coalesce(public.profiles.custom_avatar_url, public.profiles.avatar_url, v_avatar),
+      avatar_url = case
+        when coalesce(public.profiles.has_custom_avatar, false) = true or (public.profiles.custom_avatar_url is not null and public.profiles.custom_avatar_url <> '')
+          then coalesce(public.profiles.custom_avatar_url, public.profiles.avatar_url)
+        else coalesce(public.profiles.custom_avatar_url, public.profiles.avatar_url, v_avatar)
+      end,
+      custom_avatar_url = public.profiles.custom_avatar_url,
+      has_custom_avatar = coalesce(public.profiles.has_custom_avatar, false),
       role = case when v_is_owner then 'founder' else public.profiles.role end,
       is_owner = public.profiles.is_owner or v_is_owner,
       updated_at = now()

@@ -88,29 +88,72 @@ export const generateInitialsAvatarSvg = (name?: string, size = 128): string => 
 };
 
 /**
- * CƠ CHẾ RESOLVE AVATAR CHUẨN XÁC (ƯU TIÊN ẢNH THỰC TẾ)
+ * KIỂM TRA AVATAR TÙY CHỈNH (CUSTOM AVATAR) BẤT BIẾN
+ * Xác định chính xác URL ảnh tùy chỉnh người dùng tự tải lên hoặc cấu hình riêng:
+ * - Data URI ảnh nén (data:image/jpeg, data:image/png, data:image/webp)
+ * - URL lưu trữ trên Supabase Storage bucket 'avatars'
+ * - Bất kỳ URL ảnh hợp lệ nào không phải là ảnh mặc định từ Google OAuth hoặc SVG initials
+ */
+export const isCustomAvatarUrl = (url: unknown): boolean => {
+  if (!isValidAvatarUrl(url)) return false;
+  const trimmed = url.trim();
+
+  // 1. Data URI ảnh thực tế (Base64 raster image, loại trừ SVG initials)
+  if (trimmed.startsWith('data:image/') && !trimmed.startsWith('data:image/svg+xml')) {
+    return true;
+  }
+
+  // 2. Supabase Storage buckets
+  if (
+    trimmed.includes('/storage/v1/object/public/avatars') ||
+    trimmed.includes('/storage/v1/object/avatars') ||
+    (trimmed.includes('supabase.co') && trimmed.includes('/storage/'))
+  ) {
+    return true;
+  }
+
+  // 3. Phủ định các loại avatar mặc định hoặc từ Google OAuth
+  const isGoogle = trimmed.includes('googleusercontent.com') || trimmed.includes('ggpht.com');
+  const isInitials = trimmed.startsWith('data:image/svg+xml') || trimmed.includes('api.dicebear.com') || trimmed.includes('ui-avatars.com');
+  const isUnsplash = trimmed.includes('unsplash.com');
+
+  if (isGoogle || isInitials || isUnsplash) {
+    return false;
+  }
+
+  // Các URL http/https hợp lệ khác do người dùng tự dán link (Imgur, Discord, CDN cá nhân...)
+  return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+};
+
+/**
+ * CƠ CHẾ RESOLVE AVATAR CHUẨN XÁC (QUY TẮC BẤT KHẢ XÂM PHẠM CỦA AVATAR TÙY CHỈNH)
  * ==============================================================================
- * 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (lưu trên Supabase profiles)
- * 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (kiểm tra cả picture lẫn avatar_url)
- * 3. Fallback cuối cùng: Tạo avatar chữ cái động SVG cục bộ sắc nét, cấm hardcode Unsplash, không bao giờ để ô đen
+ * 1. Ưu tiên 1 (Tuyệt đối): Avatar tùy chỉnh người dùng tự upload (giữ nguyên 100%, cấm Google đè lên)
+ * 2. Ưu tiên 2: CHỈ KHI người dùng chưa từng tải custom avatar, mới dùng ảnh từ Google OAuth
+ * 3. Ưu tiên 3: Fallback cuối cùng: Tạo avatar chữ cái động SVG cục bộ sắc nét, không bao giờ để ô đen
  */
 export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
-  // 1. Ưu tiên cao nhất: Avatar tùy chỉnh người dùng tự upload (camelCase & snake_case)
+  // 1. ƯU TIÊN 1 (TUYỆT ĐỐI BẤT BIẾN): Avatar tùy chỉnh người dùng tự upload
   const candidateCustom =
     (profile?.customAvatarUrl && isValidAvatarUrl(profile.customAvatarUrl) ? profile.customAvatarUrl : null) ||
     (profile?.custom_avatar_url && isValidAvatarUrl(profile.custom_avatar_url) ? profile.custom_avatar_url : null) ||
-    (profile?.hasCustomAvatar && profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
-    (profile?.has_custom_avatar && profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
+    ((profile?.hasCustomAvatar || profile?.has_custom_avatar) && profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
+    ((profile?.hasCustomAvatar || profile?.has_custom_avatar) && profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
     (user?.customAvatarUrl && isValidAvatarUrl(user.customAvatarUrl) ? user.customAvatarUrl : null) ||
     (user?.custom_avatar_url && isValidAvatarUrl(user.custom_avatar_url) ? user.custom_avatar_url : null) ||
-    (user?.hasCustomAvatar && user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
-    (user?.has_custom_avatar && user?.avatar_url && isValidAvatarUrl(user.avatar_url) ? user.avatar_url : null);
+    ((user?.hasCustomAvatar || user?.has_custom_avatar) && user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
+    ((user?.hasCustomAvatar || user?.has_custom_avatar) && user?.avatar_url && isValidAvatarUrl(user.avatar_url) ? user.avatar_url : null) ||
+    // Tự động nhận diện URL custom dựa trên nội dung URL
+    (profile?.avatar_url && isCustomAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
+    (profile?.avatarUrl && isCustomAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
+    (user?.avatarUrl && isCustomAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
+    (user?.avatar_url && isCustomAvatarUrl(user.avatar_url) ? user.avatar_url : null);
 
   if (candidateCustom) {
     return candidateCustom;
   }
 
-  // 2. Ưu tiên nhì: Ảnh đại diện từ Google OAuth thật (picture / avatar_url)
+  // 2. ƯU TIÊN 2: CHỈ KHI hoàn toàn KHÔNG CÓ custom avatar nào, mới dùng ảnh từ Google OAuth
   const candidateGoogle =
     (user?.user_metadata?.avatar_url && isValidAvatarUrl(user.user_metadata.avatar_url) ? user.user_metadata.avatar_url : null) ||
     (user?.user_metadata?.picture && isValidAvatarUrl(user.user_metadata.picture) ? user.user_metadata.picture : null) ||
@@ -118,15 +161,13 @@ export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
     (user?.raw_user_meta_data?.picture && isValidAvatarUrl(user.raw_user_meta_data.picture) ? user.raw_user_meta_data.picture : null) ||
     (user?.picture && isValidAvatarUrl(user.picture) ? user.picture : null) ||
     (profile?.google_avatar && isValidAvatarUrl(profile.google_avatar) ? profile.google_avatar : null) ||
-    (profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
-    (profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
-    (user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null);
+    (profile?.google_picture && isValidAvatarUrl(profile.google_picture) ? profile.google_picture : null);
 
   if (candidateGoogle) {
     return candidateGoogle;
   }
 
-  // 3. Fallback cuối cùng an toàn tuyệt đối: Avatar SVG chữ cái cục bộ (hoàn toàn không phụ thuộc mạng ngoại vi)
+  // 3. ƯU TIÊN 3: Fallback cuối cùng an toàn tuyệt đối: Avatar SVG chữ cái cục bộ (hoàn toàn không phụ thuộc mạng ngoại vi)
   const name =
     profile?.full_name ||
     profile?.display_name ||
@@ -548,7 +589,14 @@ export const authService = {
     const defaultIdPrefix = isOwner ? 'usr_founder_owner' : isLady ? 'usr_lady_boss' : isVip ? 'usr_vip_friend' : 'usr_g';
     const userId = cloudProfile?.id || `${defaultIdPrefix}_${Math.random().toString(36).substring(2, 8)}_${Date.now()}`;
     // BẢO VỆ AVATAR BẤT BIẾN: Nếu đã có custom avatar trong cloudProfile thì giữ nguyên 100%, KHÔNG bị Google đè lên!
-    const customAvatar = cloudProfile?.custom_avatar_url || (cloudProfile?.has_custom_avatar ? cloudProfile?.avatar_url : null);
+    const isCloudCustom = Boolean(
+      cloudProfile?.custom_avatar_url ||
+      cloudProfile?.has_custom_avatar ||
+      (cloudProfile?.avatar_url && isCustomAvatarUrl(cloudProfile.avatar_url))
+    );
+    const customAvatar = isCloudCustom
+      ? (cloudProfile?.custom_avatar_url || cloudProfile?.avatar_url || null)
+      : null;
     const googlePhoto = payload.picture || (payload as any).avatarUrl;
     const resolvedAvatar = customAvatar || googlePhoto || cloudProfile?.avatar_url || undefined;
     const hasCustom = Boolean(customAvatar);

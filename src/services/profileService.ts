@@ -7,7 +7,7 @@
  */
 
 import { supabase } from '../lib/supabase';
-import { isOwnerEmail, isLadyBoss, isVipFriend } from './authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, isCustomAvatarUrl } from './authService';
 
 export const OWNER_EMAILS = [
   'namho03052k9@gmail.com',
@@ -165,12 +165,30 @@ export class ProfileService {
       const isExternalProviderSwitch = user.id && user.id !== canonicalId;
 
       // BẤT BIẾN: Nếu người dùng đã có avatar custom trong database thì giữ nguyên 100%
-      if (existing.custom_avatar_url || existing.has_custom_avatar) {
-        existing.avatar_url = existing.custom_avatar_url || existing.avatar_url;
-      } else if (user.customAvatarUrl || (user as any).hasCustomAvatar) {
-        existing.avatar_url = user.customAvatarUrl || user.avatarUrl || '';
-        existing.custom_avatar_url = user.customAvatarUrl || user.avatarUrl || '';
+      const existingHasCustom = Boolean(
+        existing.has_custom_avatar ||
+        existing.custom_avatar_url ||
+        (existing.avatar_url && isCustomAvatarUrl(existing.avatar_url))
+      );
+      const incomingHasCustom = Boolean(
+        user.hasCustomAvatar ||
+        user.customAvatarUrl ||
+        (user.avatarUrl && isCustomAvatarUrl(user.avatarUrl))
+      );
+
+      if (existingHasCustom) {
+        const canonicalCustom = existing.custom_avatar_url || existing.avatar_url;
+        existing.avatar_url = canonicalCustom;
+        existing.custom_avatar_url = canonicalCustom;
         existing.has_custom_avatar = true;
+      } else if (incomingHasCustom) {
+        const customUrl = user.customAvatarUrl || user.avatarUrl || '';
+        existing.avatar_url = customUrl;
+        existing.custom_avatar_url = customUrl;
+        existing.has_custom_avatar = true;
+      } else if (!existing.avatar_url && user.avatarUrl) {
+        existing.avatar_url = user.avatarUrl;
+        existing.has_custom_avatar = false;
       }
 
       // Lưu liên kết Google ID nếu có hoặc nếu chuyển từ Google sang Email/ngược lại
@@ -181,6 +199,9 @@ export class ProfileService {
         await this.upsertProfile({
           id: canonicalId,
           email: existing.email,
+          avatar_url: existing.avatar_url,
+          custom_avatar_url: existing.custom_avatar_url,
+          has_custom_avatar: existing.has_custom_avatar,
           google_id: existing.google_id,
           is_google_linked: true
         });
@@ -247,7 +268,28 @@ export class ProfileService {
    * Lưu hoặc cập nhật thông tin hồ sơ lên public.profiles
    */
   static async upsertProfile(profile: Partial<CloudProfile> & { id: string }): Promise<CloudProfile | null> {
-    const existing = localProfileCache.get(profile.id) || (profile.email ? localProfileCache.get(profile.email.toLowerCase().trim()) : null) || {};
+    const existing: Partial<CloudProfile> = localProfileCache.get(profile.id) || (profile.email ? localProfileCache.get(profile.email.toLowerCase().trim()) : null) || {};
+
+    // BẢO VỆ AVATAR BẤT BIẾN: Nếu profile trong DB hoặc cache đã có custom avatar, không cho phép Google photo đè lên
+    const existingHasCustom = Boolean(
+      existing.has_custom_avatar ||
+      existing.custom_avatar_url ||
+      (existing.avatar_url && isCustomAvatarUrl(existing.avatar_url))
+    );
+    if (existingHasCustom) {
+      const canonicalCustom = existing.custom_avatar_url || existing.avatar_url;
+      const incomingIsCustom = Boolean(
+        profile.has_custom_avatar ||
+        profile.custom_avatar_url ||
+        (profile.avatar_url && isCustomAvatarUrl(profile.avatar_url))
+      );
+      if (!incomingIsCustom) {
+        profile.avatar_url = canonicalCustom;
+        profile.custom_avatar_url = canonicalCustom;
+        profile.has_custom_avatar = true;
+      }
+    }
+
     const merged: CloudProfile = {
       ...existing,
       ...profile,
