@@ -87,7 +87,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
       <div
         data-testid="mobile-more-backdrop"
         onClick={onClose}
-        className={`fixed inset-0 z-60 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-60 bg-black/30 transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden="true"

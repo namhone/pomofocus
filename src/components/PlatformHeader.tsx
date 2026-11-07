@@ -770,7 +770,7 @@ export const PlatformHeader: React.FC = () => {
       {/* 1. Lớp phủ mờ bắt sự kiện click outside */}
       <div
         data-testid="mobile-drawer-backdrop"
-        className={`lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${
+        className={`fixed inset-0 z-40 bg-black/20 lg:bg-transparent transition-opacity duration-200 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -784,7 +784,7 @@ export const PlatformHeader: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label="Menu Điều Hướng"
-        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-60 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
@@ -799,10 +799,10 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/app');
             }}
-            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/app'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                ? 'bg-zinc-800 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -819,10 +819,10 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/rooms');
             }}
-            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath.startsWith('/rooms')
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                ? 'bg-zinc-800 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -839,10 +839,10 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/calendar');
             }}
-            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/calendar'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                ? 'bg-zinc-800 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -859,10 +859,10 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/billing');
             }}
-            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/billing'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                ? 'bg-zinc-800 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -879,10 +879,10 @@ export const PlatformHeader: React.FC = () => {
               setIsMobileMenuOpen(false);
               handleNavigate('/account/security');
             }}
-            className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/account/security'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                ? 'bg-zinc-800 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -951,9 +951,9 @@ export const PlatformHeader: React.FC = () => {
                 setIsMobileMenuOpen(false);
                 handleNavigate('/login');
               }}
-              className="w-full h-9 flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition active:scale-98 shadow-sm cursor-pointer"
+              className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-sm transition active:scale-98 shadow-md cursor-pointer"
             >
-              <User size={14} className="shrink-0" />
+              <User size={15} className="shrink-0" />
               <span>Đăng Nhập / Đăng Ký</span>
             </button>
           </div>
