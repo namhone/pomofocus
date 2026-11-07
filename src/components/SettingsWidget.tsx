@@ -22,7 +22,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useAiStore } from '../stores/useAiStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { useRouter } from '../services/router';
-import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
+import { generateInitialsAvatarSvg, getDisplayAvatar } from '../services/authService';
 import { DockPosition } from '../types/layout';
 
 export const SettingsWidget: React.FC = () => {
@@ -85,12 +85,13 @@ export const SettingsWidget: React.FC = () => {
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-amber-500/40 shrink-0 flex items-center justify-center">
               <img
-                src={getEffectiveAvatarUrl(user)}
+                src={getDisplayAvatar(user)}
                 alt={user.displayName || 'Avatar'}
                 className="w-full h-full object-cover bg-zinc-800"
                 onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = generateInitialsAvatarSvg(user.displayName, 64);
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  target.src = generateInitialsAvatarSvg(user.displayName || user.email || 'User', 64);
                 }}
               />
             </div>

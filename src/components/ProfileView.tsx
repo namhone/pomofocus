@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
-import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
+import { generateInitialsAvatarSvg, getDisplayAvatar, isValidAvatarUrl } from '../services/authService';
 import { ProfileService } from '../services/profileService';
 import { processAndSaveCustomAvatar } from '../services/avatarUploadService';
 import { PlatformHeader } from './PlatformHeader';
@@ -296,7 +296,7 @@ export const ProfileView: React.FC = () => {
           </button>
 
           <span
-            className="text-[11px] sm:text-xs text-zinc-500 font-mono truncate max-w-[140px] sm:max-w-xs"
+            className="text-[11px] sm:text-xs text-zinc-400 font-mono truncate max-w-[140px] sm:max-w-xs"
             title={user.email}
           >
             {user.email}
@@ -360,12 +360,13 @@ export const ProfileView: React.FC = () => {
               <div className="relative group shrink-0">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 shadow-md group-hover:border-zinc-500 transition overflow-hidden flex items-center justify-center">
                   <img
-                    src={avatarUrl || getEffectiveAvatarUrl(user)}
-                    alt={user.displayName}
-                    className="w-full h-full object-cover bg-zinc-800"
+                    src={isValidAvatarUrl(avatarUrl) ? avatarUrl : getDisplayAvatar(user)}
+                    alt={displayName || user.displayName || 'Avatar'}
+                    className="w-full h-full object-cover rounded-2xl"
                     onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = generateInitialsAvatarSvg(user?.displayName || 'User');
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = generateInitialsAvatarSvg(displayName || user?.displayName || user?.email || 'User');
                     }}
                   />
                 </div>
@@ -378,7 +379,8 @@ export const ProfileView: React.FC = () => {
                     setIsEditing(true);
                     fileInputRef.current?.click();
                   }}
-                  className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 shadow-lg transition cursor-pointer"
+                  className="absolute -bottom-1 -right-1 min-w-[24px] min-h-[24px] w-6 h-6 p-1 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 shadow-lg transition cursor-pointer flex items-center justify-center"
+                  aria-label="Thay đổi ảnh đại diện"
                   title="Thay đổi ảnh đại diện"
                 >
                   <Camera size={13} />
@@ -427,11 +429,11 @@ export const ProfileView: React.FC = () => {
                 {/* Email and Join Date */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-zinc-400">
                   <span className="flex items-center gap-1.5 font-mono truncate">
-                    <Mail size={12} className="shrink-0 text-zinc-500" />
+                    <Mail size={12} className="shrink-0 text-zinc-400" />
                     <span className="truncate">{user.hideEmailInRoom ? '••••••••@••••.com (Đã ẩn trong phòng)' : user.email}</span>
                   </span>
                   <span className="flex items-center gap-1.5 text-zinc-400 whitespace-nowrap">
-                    <Calendar size={12} className="shrink-0 text-zinc-500" />
+                    <Calendar size={12} className="shrink-0 text-zinc-400" />
                     <span>Tham gia: {formattedJoinDate}</span>
                   </span>
                 </div>
@@ -446,7 +448,7 @@ export const ProfileView: React.FC = () => {
               className="w-full sm:w-auto px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-medium transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
             >
               <Edit2 size={13} />
-              <span>{isEditing ? 'Đóng Chỉnh Sửa' : 'Chỉnh Sửa Hồ Sơ & Avt'}</span>
+              <span>{isEditing ? 'Đóng Chỉnh Sửa' : 'Chỉnh sửa hồ sơ'}</span>
             </button>
           </div>
 
@@ -637,7 +639,7 @@ export const ProfileView: React.FC = () => {
                       <Sparkles size={12} className="text-amber-400" />
                       <span>Kho 6 Avatar Hình Học Tối Giản (Monochrome Geometric)</span>
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-mono">Retina SVG Ready</span>
+                    <span className="text-[10px] text-zinc-400 font-mono">Retina SVG Ready</span>
                   </div>
 
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 pt-1">
@@ -791,7 +793,7 @@ export const ProfileView: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-400">
               <div className="flex items-center gap-2">
                 <Check size={14} className="text-emerald-400 shrink-0" />
-                <span>101+ Không gian học tập HD thực tế</span>
+                <span>100+ bối cảnh tập trung</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check size={14} className="text-emerald-400 shrink-0" />

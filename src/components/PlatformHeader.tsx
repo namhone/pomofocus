@@ -4,7 +4,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
-import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, generateInitialsAvatarSvg, getDisplayAvatar } from '../services/authService';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -88,10 +88,7 @@ export const PlatformHeader: React.FC = () => {
         (user?.email && isOwnerEmail(user.email)))
   );
 
-  const getInitialsFallback = (name?: string) =>
-    generateInitialsAvatarSvg(name, 64);
-
-  const effectiveAvatar = user ? getEffectiveAvatarUrl(user) : undefined;
+    const effectiveAvatar = user ? getDisplayAvatar(user) : undefined;
 
   const isProAccount = Boolean(
     isAuthenticated &&
@@ -304,8 +301,9 @@ export const PlatformHeader: React.FC = () => {
                   alt={user?.displayName || 'Avatar'}
                   className="w-full h-full object-cover bg-zinc-800"
                   onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = getInitialsFallback(user?.displayName);
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 64);
                   }}
                 />
               </div>
@@ -544,8 +542,9 @@ export const PlatformHeader: React.FC = () => {
                     alt={user.displayName}
                     className="w-full h-full object-cover bg-zinc-800"
                     onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = getInitialsFallback(user?.displayName);
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 48);
                     }}
                   />
                 </div>
@@ -574,8 +573,9 @@ export const PlatformHeader: React.FC = () => {
                         alt={user.displayName}
                         className="w-full h-full object-cover bg-zinc-800"
                         onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = getInitialsFallback(user?.displayName);
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 64);
                         }}
                       />
                     </div>
@@ -904,8 +904,9 @@ export const PlatformHeader: React.FC = () => {
                     alt={user.displayName}
                     className="w-full h-full object-cover bg-zinc-800"
                     onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = getInitialsFallback(user?.displayName);
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 56);
                     }}
                   />
                 </div>

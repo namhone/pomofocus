@@ -132,6 +132,14 @@ export const isCustomAvatarUrl = (url: unknown): boolean => {
  * 2. Ưu tiên 2: CHỈ KHI người dùng chưa từng tải custom avatar, mới dùng ảnh từ Google OAuth
  * 3. Ưu tiên 3: Fallback cuối cùng: Tạo avatar chữ cái động SVG cục bộ sắc nét, không bao giờ để ô đen
  */
+/**
+ * LẤY AVATAR AN TOÀN TUYỆT ĐỐI (ZERO PITCH-BLACK BOX, OFFLINE SVG FALLBACK)
+ * Helper chuẩn hóa cho mọi component hiển thị avatar người dùng.
+ */
+export const getDisplayAvatar = (user: any, profile?: any): string => {
+  return getEffectiveAvatarUrl(user, profile);
+};
+
 export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
   // 1. ƯU TIÊN 1 (TUYỆT ĐỐI BẤT BIẾN): Avatar tùy chỉnh người dùng tự upload
   const candidateCustom =

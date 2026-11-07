@@ -54,7 +54,7 @@ export const LandingPage: React.FC = () => {
 
         <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl leading-[1.28] sm:leading-[1.18] mb-5 sm:mb-6">
           <span className="block sm:inline">
-            <span className="whitespace-nowrap">Không Gian Học Tập.</span>
+            <span className="whitespace-nowrap">Không Gian Học Tập</span>
 
           </span>{' '}
           <span className="block sm:inline">

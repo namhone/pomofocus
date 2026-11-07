@@ -163,7 +163,7 @@ test.describe('PomoFocus Demo Beta — Comprehensive User Journey & Views', () =
 
     // Kiểm tra Landing Page hiển thị
     await expect(page.getByTestId('landing-page-root')).toBeVisible();
-    await expect(page.getByText('Không Gian Học Tập.')).toBeVisible();
+    await expect(page.getByText('Không Gian Học Tập')).toBeVisible();
     await expect(page.getByText('3 Bước bắt đầu học tập năng suất cùng PomoFocus')).toBeVisible();
     await expect(page.getByText('namho03052k9@gmail.com').first()).toBeVisible();
     await expect(page.getByText('0704 862 629').first()).toBeVisible();

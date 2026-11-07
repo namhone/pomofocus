@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { authService, isValidAvatarUrl, generateInitialsAvatarSvg, getEffectiveAvatarUrl } from '../../src/services/authService';
+import { authService, isValidAvatarUrl, generateInitialsAvatarSvg, getEffectiveAvatarUrl, getDisplayAvatar } from '../../src/services/authService';
 import { useAuthStore } from '../../src/stores/useAuthStore';
 import { localProfileCache } from '../../src/services/profileService';
 
@@ -129,6 +129,33 @@ describe('Avatar Resilience & Pitch-Black Box Elimination Specification', () => 
       const result = getEffectiveAvatarUrl(userDeadBlob);
       expect(result.startsWith('data:image/svg+xml')).toBe(true);
       expect(decodeURIComponent(result)).toContain('TG');
+    });
+  });
+
+  describe('5. getDisplayAvatar an toàn tuyệt đối cho Email user (ISO/IEC 25010 & WCAG 2.2 AA)', () => {
+    it('trả về SVG Data URI sắc nét cho tài khoản mới chưa có avatar, không bao giờ để rỗng', () => {
+      const emailUser = {
+        id: 'usr_new_email_1',
+        email: 'taogay2k@gmail.com',
+        displayName: 'Tao Gay',
+        avatarUrl: '',
+        customAvatarUrl: undefined
+      };
+      const result = getDisplayAvatar(emailUser);
+      expect(result).toBeDefined();
+      expect(result.startsWith('data:image/svg+xml')).toBe(true);
+      expect(decodeURIComponent(result)).toContain('TG');
+    });
+
+    it('bảo toàn custom avatar nếu có', () => {
+      const customUser = {
+        id: 'usr_custom_1',
+        email: 'custom@study.io',
+        displayName: 'Custom User',
+        avatarUrl: 'https://pomofocus.app/custom.png',
+        customAvatarUrl: 'https://pomofocus.app/custom.png'
+      };
+      expect(getDisplayAvatar(customUser)).toBe('https://pomofocus.app/custom.png');
     });
   });
 });
