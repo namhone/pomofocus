@@ -52,10 +52,10 @@ Every feature identified during the Survey Phase is cataloged below and assigned
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | M1 | Zero-FOUT & Typography Foundation | Features 1, 2, 3 (`index.html`, splash curtain, font loading) | none | DONE |
-| M2 | Workspace Top Clearance ($y=8\text{px}$) & AI Collision Resolution | Features 4, 5, 6 (`WidgetContainer.tsx`, `useLayoutStore.ts`, `PlatformHeader.tsx`, `AiCompanionWidget.tsx`) | M1 | IN_PROGRESS |
-| M3 | macOS Liquid Dock Magnification & Tooltips | Features 7, 8, 9, 10, 11 (`DockBar.tsx` / `FloatingDock.tsx`, `liquidDock.css`, testids) | M1 | PLANNED |
-| M4 | Dimension Guardrails, Zen Cleanup & Cascade Logic | Features 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 (Widgets, Audio, Spaces, Tasks, test adjustment) | M2, M3 | PLANNED |
-| M5 | Final Milestone: E2E Verification, Adversarial Hardening & Production Deploy | Features 24, 25, 26, 27 (100% E2E tests, Tier 5 hardening, build, git push master/main, Vercel alias) | M1, M2, M3, M4 | PLANNED |
+| M2 | Workspace Top Clearance ($y=8\text{px}$) & AI Collision Resolution | Features 4, 5, 6 (`WidgetContainer.tsx`, `useLayoutStore.ts`, `PlatformHeader.tsx`, `AiCompanionWidget.tsx`) | M1 | DONE |
+| M3 | macOS Liquid Dock Magnification & Tooltips | Features 7, 8, 9, 10, 11 (`DockBar.tsx` / `FloatingDock.tsx`, `liquidDock.css`, testids) | M1 | DONE |
+| M4 | Dimension Guardrails, Zen Cleanup & Cascade Logic | Features 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 (Widgets, Audio, Spaces, Tasks, test adjustment) | M2, M3 | DONE |
+| M5 | Final Milestone: E2E Verification, Adversarial Hardening & Production Deploy | Features 24, 25, 26, 27 (100% E2E tests, Tier 5 hardening, build, git push master/main, Vercel alias) | M1, M2, M3, M4 | DONE |
 
 ## Interface Contracts
 
