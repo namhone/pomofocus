@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Play,
   Pause,
-  Maximize2,
+  ArrowUpRight,
   CheckSquare,
   CheckCircle2,
   FileText,
@@ -117,7 +117,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
       <div
         data-testid="collapsed-timer-bar"
         data-control="collapsed-timer-controls"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-neutral-900/60 to-neutral-900/80 border border-emerald-500/25 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           {/* Status Dot with Glow */}
@@ -205,7 +205,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng cửa sổ Pomodoro"
             aria-label="Mở rộng cửa sổ Pomodoro"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -221,7 +221,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     return (
       <div
         data-testid="collapsed-tasks-card"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
@@ -297,7 +297,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng danh sách công việc"
             aria-label="Mở rộng danh sách công việc"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -313,7 +313,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     return (
       <div
         data-testid="collapsed-notes-card"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
@@ -355,7 +355,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng khung ghi chú"
             aria-label="Mở rộng khung ghi chú"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -370,7 +370,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
       <div
         data-testid="collapsed-media-bar"
         data-control="collapsed-audio-controls"
-        className="w-full h-full min-h-[64px] p-2 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
@@ -432,7 +432,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng bảng âm thanh"
             aria-label="Mở rộng bảng âm thanh"
           >
-            <Maximize2 size={13} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -456,7 +456,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     return (
       <div
         data-testid="collapsed-spaces-card"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
@@ -485,7 +485,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng bảng đổi không gian"
             aria-label="Mở rộng bảng đổi không gian"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -503,7 +503,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
     return (
       <div
         data-testid="collapsed-calendar-card"
-        className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
       >
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400 shrink-0">
@@ -555,7 +555,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             title="Mở rộng lịch biểu"
             aria-label="Mở rộng lịch biểu"
           >
-            <Maximize2 size={14} strokeWidth={2} />
+            <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
           </button>
         </div>
       </div>
@@ -566,7 +566,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
   return (
     <div
       data-testid="collapsed-settings-card"
-      className="w-full h-full min-h-[68px] p-2.5 sm:p-3 rounded-2xl bg-neutral-900/70 border border-white/10 flex items-center justify-between gap-3 select-none backdrop-blur-md"
+        className="w-full flex items-center justify-between gap-3 select-none bg-transparent border-0 p-0"
     >
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-white/10 flex items-center justify-center text-neutral-300 shrink-0">
@@ -595,7 +595,7 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
           title="Mở rộng cài đặt"
           aria-label="Mở rộng cài đặt"
         >
-          <Maximize2 size={14} strokeWidth={2} />
+          <ArrowUpRight size={15} strokeWidth={2} className="text-zinc-400 group-hover:text-white transition-colors" />
         </button>
       </div>
     </div>

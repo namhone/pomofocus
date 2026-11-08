@@ -273,6 +273,26 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Mobile layout: render dạng block trong luồng cuộn dọc
   if (isMobile) {
+    // Khi thu nhỏ trên mobile: Chỉ render DUY NHẤT một chiếc viên nang nổi (Floating Capsule), triệt tiêu vỏ bọc kép
+    if (widget.isCollapsed && !isMedia) {
+      return (
+        <section
+          ref={containerRef}
+          data-testid={`widget-container-${id}`}
+          aria-label={`${widget.title} (Đang thu nhỏ)`}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest('button, input, select, textarea, [data-no-drag="true"]')) {
+              toggleCollapseWidget(id);
+            }
+          }}
+          className={`w-full max-w-xl mx-auto mb-3 cursor-pointer select-none bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl hover:border-white/25 transition-all duration-200 flex items-center justify-between gap-3 touch-pan-y group ${className}`}
+          title={`Bấm 1-chạm hoặc bấm ↗ để mở rộng ${widget.title}`}
+        >
+          <CollapsedWidgetCard id={id} isMobile={true} />
+        </section>
+      );
+    }
     return (
       <section
         ref={containerRef}
@@ -435,6 +455,43 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Desktop layout: Cửa sổ nổi tự do (Floating Window)
   const isCollapsed = widget.isCollapsed;
+
+  // Khi thu nhỏ trên Desktop: Chỉ render DUY NHẤT một chiếc viên nang nổi (Floating Capsule), triệt tiêu vỏ bọc kép
+  if (isCollapsed && !isMedia) {
+    return (
+      <section
+        ref={containerRef}
+        data-testid={`widget-container-${id}`}
+        data-drag-handle="true"
+        aria-label={`${widget.title} (Đang thu nhỏ)`}
+        onMouseDown={() => bringToFront(id)}
+        onPointerDown={handlePointerDownHeader}
+        onPointerMove={handlePointerMoveHeader}
+        onPointerUp={handlePointerUpHeader}
+        onPointerCancel={handlePointerUpHeader}
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (!target.closest('button, input, select, textarea, [data-no-drag="true"]')) {
+            toggleCollapseWidget(id);
+          }
+        }}
+        style={{
+          position: 'absolute',
+          left: `${widget.x}px`,
+          top: `${widget.y}px`,
+          zIndex: widget.zIndex,
+          minWidth: '220px',
+          maxWidth: '360px',
+        }}
+        className={`pointer-events-auto cursor-pointer select-none bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl hover:border-white/25 transition-all duration-200 flex items-center justify-between gap-3 group ${
+          !widget.isLocked ? 'cursor-grab active:cursor-grabbing touch-none' : ''
+        } ${isDragging ? 'ring-2 ring-emerald-400/40 shadow-emerald-950/40' : ''} ${className}`}
+        title={`Bấm 1-chạm hoặc bấm ↗ để mở rộng ${widget.title}`}
+      >
+        <CollapsedWidgetCard id={id} isMobile={false} />
+      </section>
+    );
+  }
   const currentWidth = isMedia && isCollapsed ? mediaPipWidth : widget.width;
   const currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
 
@@ -568,13 +625,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         />
       )}
 
-      {/* Collapsed Widget Card: Render dạng thẻ thông tin cốt lõi cho TẤT CẢ các widget (trừ media tiếp tục chiếu Mini PiP 16:9) */}
-      {isCollapsed && !isMedia && (
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center p-1.5 sm:p-2">
-          <CollapsedWidgetCard id={id} isMobile={false} />
-        </div>
-      )}
-
+      
       {/* Widget Content Body: Giữ mount trong DOM để bảo toàn state, bộ đếm, form input khi thu nhỏ */}
       <div
         className={`relative min-h-0 flex-1 overflow-x-hidden overscroll-contain ${

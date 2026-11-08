@@ -127,4 +127,29 @@ describe('PomoFocus v6.1 Ultimate Verification Suite', () => {
       expect(content).toContain('setIsDeviceModalOpen(true)');
     });
   });
+  describe('7. Single Floating Capsule Minimization (Zero Double-Wrapper)', () => {
+    it('verifies WidgetContainer renders single floating capsule without outer header when minimized', () => {
+      const containerPath = path.resolve('src/components/WidgetContainer.tsx');
+      const containerContent = fs.readFileSync(containerPath, 'utf8');
+
+      // Có Floating Capsule duy nhất
+      expect(containerContent).toContain('bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl');
+      // Cho phép kéo thả trực tiếp viên nang
+      expect(containerContent).toContain('data-drag-handle="true"');
+      // Cho phép 1-chạm mở rộng
+      expect(containerContent).toContain('toggleCollapseWidget(id)');
+    });
+
+    it('verifies CollapsedWidgetCard eliminates redundant inner borders and renders ↗ icon', () => {
+      const cardPath = path.resolve('src/components/CollapsedWidgetCard.tsx');
+      const cardContent = fs.readFileSync(cardPath, 'utf8');
+
+      // Đã triệt tiêu viền lồng bg-neutral-900/70 border border-white/10
+      expect(cardContent).not.toContain('bg-neutral-900/70 border border-white/10');
+      // Dùng nền trong suốt liền mạch
+      expect(cardContent).toContain('bg-transparent border-0 p-0');
+      // Dùng icon phóng to ↗ ArrowUpRight
+      expect(cardContent).toContain('ArrowUpRight');
+    });
+  });
 });
