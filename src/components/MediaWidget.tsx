@@ -352,8 +352,38 @@ export const MediaWidget: React.FC = () => {
         )}
       </div>
 
-      {/* 2. Thanh điều khiển tách biệt ở đáy, hoàn toàn ngoài khung video */}
-      <div className="h-12 px-3 flex items-center justify-between border-t border-zinc-800 bg-zinc-950/95 shrink-0 gap-2">
+      {/* 2. Thanh nhập URL / Video ID trực diện bên dưới video */}
+      {customMusicError && (
+        <div className="px-3 py-1 text-[11px] text-rose-400 bg-rose-950/40 border-t border-rose-900/50">
+          {customMusicError}
+        </div>
+      )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleApplyUrl(inputUrl);
+        }}
+        className="px-2.5 py-1.5 flex items-center gap-2 border-t border-white/10 bg-zinc-950/90 shrink-0"
+      >
+        <input
+          data-testid="input-media-direct-url"
+          type="text"
+          value={inputUrl}
+          onChange={(e) => setInputUrl(e.target.value)}
+          placeholder="Dán link YouTube hoặc Video ID (11 ký tự)..."
+          className="bg-white/5 border border-white/10 rounded-xl px-3 py-1 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 flex-1 transition"
+        />
+        <button
+          data-testid="btn-apply-direct-media"
+          type="submit"
+          className="liquid-glass-btn text-xs px-3 py-1 rounded-xl font-medium shrink-0 cursor-pointer text-emerald-300 border border-emerald-500/30 bg-emerald-500/15 hover:bg-emerald-500/25 active:scale-95 transition"
+        >
+          Phát
+        </button>
+      </form>
+
+      {/* 3. Thanh điều khiển tách biệt ở đáy, hoàn toàn ngoài khung video */}
+      <div className="h-11 px-3 flex items-center justify-between border-t border-white/5 bg-zinc-950/95 shrink-0 gap-2">
         {/* Bên trái: Thông tin trạm / Mix / Playlist */}
         <div className="flex items-center gap-1.5 min-w-0 max-w-[38%]">
           <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />

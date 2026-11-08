@@ -144,22 +144,23 @@
   }
 }
 
-/* ===== Custom Scrollbar: Tối giản, đồng bộ giao diện tối ===== */
+/* ===== Custom Scrollbar: Siêu mảnh 5px, trong suốt Zen Liquid ===== */
 @layer base {
   /* Chrome, Edge, Safari */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 9999px;
+    transition: background 0.2s ease;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.35);
   }
   ::-webkit-scrollbar-corner {
     background: transparent;
@@ -168,7 +169,7 @@
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
 
   /* Thanh điều khiển phòng học mobile (#room-compact) tuân thủ safe area */

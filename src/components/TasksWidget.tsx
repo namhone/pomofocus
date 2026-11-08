@@ -188,16 +188,18 @@ export const TasksWidget: React.FC = () => {
         {/* Hàng 2: Nhóm ưu tiên & Stepper bên trái; Nút + Thêm nằm gọn bên phải */}
         <div className="flex items-center justify-between gap-1.5 pt-1 text-xs">
           <div className="flex items-center gap-1.5 overflow-hidden">
-            {/* Priority Chips */}
-            <div className="flex items-center gap-0.5">
+            {/* Priority Chips kính mờ */}
+            <div className="flex items-center gap-1">
               {(['p1', 'p2', 'p3'] as TaskPriority[]).map((p) => (
                 <button
                   key={p}
                   type="button"
                   data-testid={`priority-btn-${p}`}
                   onClick={() => setPriority(p)}
-                  className={`px-2 py-0.5 rounded-xl border text-[9px] uppercase font-bold transition cursor-pointer h-6 min-w-[26px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-                    priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-neutral-400 hover:text-neutral-200'
+                  className={`px-2 py-0.5 rounded-xl border text-[10px] uppercase font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                    priority === p
+                      ? getPriorityStyle(p)
+                      : 'bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20'
                   }`}
                 >
                   {p}
@@ -205,12 +207,12 @@ export const TasksWidget: React.FC = () => {
               ))}
             </div>
 
-            {/* Stepper for Estimated Pomodoros */}
-            <div className="flex items-center gap-0.5 bg-black/40 border border-white/10 rounded-md px-1 py-0.5 h-6">
+            {/* Apple Stepper Pill for Estimated Pomodoros */}
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-7">
               <button
                 type="button"
                 onClick={() => setEstimatedPomodoros((v) => Math.max(1, v - 1))}
-                className="w-5 h-5 flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer text-xs"
+                className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer"
                 title="Giảm 1 phiên"
               >
                 -
@@ -223,17 +225,17 @@ export const TasksWidget: React.FC = () => {
                 aria-label="Số Pomodoro dự kiến"
                 value={estimatedPomodoros}
                 onChange={(e) => setEstimatedPomodoros(parseInt(e.target.value, 10) || 1)}
-                className="w-6 text-center bg-transparent text-white text-[11px] font-semibold focus:outline-none"
+                className="w-6 text-center bg-transparent text-white text-xs font-mono font-semibold focus:outline-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
               <button
                 type="button"
                 onClick={() => setEstimatedPomodoros((v) => Math.min(20, v + 1))}
-                className="w-5 h-5 flex items-center justify-center text-neutral-400 hover:text-white rounded cursor-pointer text-xs"
+                className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer"
                 title="Tăng 1 phiên"
               >
                 +
               </button>
-              <span className="text-[10px] text-rose-400 pr-0.5 flex items-center" title="Số phiên Pomodoro dự tính">
+              <span className="text-[10px] text-rose-400 px-1 flex items-center" title="Số phiên Pomodoro dự tính">
                 <Timer size={11} />
               </span>
             </div>

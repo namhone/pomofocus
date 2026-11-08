@@ -155,7 +155,16 @@ export const SettingsWidget: React.FC = () => {
             <label htmlFor="settings-pomo-min" className="block mb-1 text-[10.5px] text-neutral-400">
               Tập trung
             </label>
-            <div className="relative">
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ pomodoroMinutes: Math.max(1, timerSettings.pomodoroMinutes - 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Giảm 1 phút"
+              >
+                -
+              </button>
               <input
                 id="settings-pomo-min"
                 data-testid="settings-input-pomodoro-min"
@@ -165,16 +174,34 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.pomodoroMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
+                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ pomodoroMinutes: Math.min(120, timerSettings.pomodoroMinutes + 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Tăng 1 phút"
+              >
+                +
+              </button>
             </div>
           </div>
           <div>
             <label htmlFor="settings-short-min" className="block mb-1 text-[10.5px] text-neutral-400">
               Nghỉ ngắn
             </label>
-            <div className="relative">
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ shortBreakMinutes: Math.max(1, timerSettings.shortBreakMinutes - 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Giảm 1 phút"
+              >
+                -
+              </button>
               <input
                 id="settings-short-min"
                 data-testid="settings-input-short-min"
@@ -184,16 +211,34 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.shortBreakMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ shortBreakMinutes: Math.min(60, timerSettings.shortBreakMinutes + 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Tăng 1 phút"
+              >
+                +
+              </button>
             </div>
           </div>
           <div>
             <label htmlFor="settings-long-min" className="block mb-1 text-[10.5px] text-neutral-400">
               Nghỉ dài
             </label>
-            <div className="relative">
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ longBreakMinutes: Math.max(1, timerSettings.longBreakMinutes - 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Giảm 1 phút"
+              >
+                -
+              </button>
               <input
                 id="settings-long-min"
                 data-testid="settings-input-long-min"
@@ -203,9 +248,18 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.longBreakMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
+                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <button
+                type="button"
+                disabled={timerStatus !== 'idle'}
+                onClick={() => handleTimerChange({ longBreakMinutes: Math.min(60, timerSettings.longBreakMinutes + 1) })}
+                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                title="Tăng 1 phút"
+              >
+                +
+              </button>
             </div>
           </div>
         </div>

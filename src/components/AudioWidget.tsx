@@ -326,14 +326,14 @@ export const AudioWidget: React.FC = () => {
                       type="button"
                       data-testid={`btn-toggle-track-${track.id}`}
                       onClick={() => toggleTrack(track.id)}
-                      className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-lg flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+                      className={`w-8 h-8 min-w-[32px] min-h-[32px] rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                         track.isPlaying
-                          ? 'bg-white text-black shadow-md'
+                          ? 'bg-white text-zinc-950 font-bold shadow-md shadow-white/20'
                           : 'bg-white/10 text-neutral-300 hover:bg-white/20 hover:text-white'
                       }`}
                       aria-label={`${track.isPlaying ? 'Dừng' : 'Bật'} ${track.name}`}
                     >
-                      {track.isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+                      {track.isPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
                     </button>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
