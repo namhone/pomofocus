@@ -54,6 +54,20 @@ export const AudioWidget: React.FC = () => {
 
   const activePlayingCount = tracks.filter((t) => t.isPlaying).length;
 
+  const [ambientCategory, setAmbientCategory] = useState<'all' | 'nature' | 'life' | 'binaural' | 'noise'>('all');
+
+  const ambientTabs = [
+    { id: 'all' as const, label: 'Tất Cả', count: tracks.length },
+    { id: 'nature' as const, label: 'Tự Nhiên', count: tracks.filter((t) => t.category === 'nature').length },
+    { id: 'life' as const, label: 'Cuộc Sống', count: tracks.filter((t) => t.category === 'life').length },
+    { id: 'binaural' as const, label: 'Sóng Não', count: tracks.filter((t) => t.category === 'binaural').length },
+    { id: 'noise' as const, label: 'Tiếng Ồn', count: tracks.filter((t) => t.category === 'noise').length },
+  ];
+
+  const displayedTracks = ambientCategory === 'all'
+    ? tracks
+    : tracks.filter((t) => t.category === ambientCategory);
+
   return (
     <div
       data-testid="audio-widget-root"
@@ -83,9 +97,23 @@ export const AudioWidget: React.FC = () => {
       {/* Master Volume Section */}
       <div className="p-3 bg-black/25 rounded-2xl border border-white/5 mb-3 shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <label htmlFor="master-volume-slider" className="text-xs font-medium text-neutral-300">
-            Âm Lượng Tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
-          </label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="master-volume-slider" className="text-xs font-medium text-neutral-300">
+              Âm Lượng Tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
+            </label>
+            {activePlayingCount > 0 && !settings.isMuted && (
+              <div
+                data-testid="audio-equalizer-wave"
+                className="flex items-end gap-0.5 h-3.5 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30"
+                title={`${activePlayingCount} âm thanh đang phát`}
+              >
+                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-1.5" />
+                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-3.5" />
+                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2" />
+                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2.5" />
+              </div>
+            )}
+          </div>
           <button
             type="button"
             data-testid="btn-toggle-mute"
@@ -224,9 +252,22 @@ export const AudioWidget: React.FC = () => {
       {activeTab === 'ambient' && (
         <div className="flex-1 overflow-y-auto space-y-3 pr-0.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400 font-medium">
-              Bộ phối âm thanh tập trung (hỗ trợ phối nhiều âm thanh cùng lúc)
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-neutral-400 font-medium">
+                Bộ phối âm thanh ({tracks.length} âm thanh)
+              </span>
+              {activePlayingCount > 0 && (
+                <div
+                  data-testid="audio-equalizer-wave-ambient"
+                  className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30"
+                  title={`${activePlayingCount} âm thanh đang phát`}
+                >
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-1.5" />
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-3" />
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2" />
+                </div>
+              )}
+            </div>
             {activePlayingCount > 0 && (
               <button
                 type="button"
@@ -239,8 +280,37 @@ export const AudioWidget: React.FC = () => {
             )}
           </div>
 
+          {/* 4 Nhóm Tab Âm Thanh: Tự Nhiên (7) | Cuộc Sống (10) | Sóng Não (4) | Tiếng Ồn (4) | Tất Cả */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+            {ambientTabs.map((tab) => {
+              const activeCountInCat = tab.id === 'all'
+                ? activePlayingCount
+                : tracks.filter((t) => t.category === tab.id && t.isPlaying).length;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  data-testid={`ambient-category-${tab.id}`}
+                  onClick={() => setAmbientCategory(tab.id)}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-medium transition shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+                    ambientCategory === tab.id
+                      ? 'bg-neutral-800 text-white border border-white/25 shadow-sm'
+                      : 'bg-black/25 text-neutral-400 hover:text-neutral-200 border border-white/5'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">({tab.count})</span>
+                  {activeCountInCat > 0 && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="space-y-2">
-            {tracks.map((track) => (
+            {displayedTracks.map((track) => (
               <div
                 key={track.id}
                 data-testid={`ambient-track-${track.id}`}
@@ -266,15 +336,27 @@ export const AudioWidget: React.FC = () => {
                       {track.isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
                     </button>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-xs font-medium text-neutral-200 truncate" title={track.name}>
                           {track.name}
                         </span>
-                        {track.category === 'binaural' && (
+                        {track.badge ? (
+                          <span className={`px-1.5 py-0.2 text-[9px] font-medium rounded border shrink-0 ${
+                            track.category === 'binaural'
+                              ? 'bg-purple-500/15 text-purple-300 border-purple-500/25'
+                              : track.category === 'noise'
+                              ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/25'
+                              : track.category === 'nature'
+                              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25'
+                              : 'bg-amber-500/15 text-amber-300 border-amber-500/25'
+                          }`}>
+                            {track.badge}
+                          </span>
+                        ) : track.category === 'binaural' ? (
                           <span className="px-1.5 py-0.2 text-[9px] rounded bg-purple-500/15 text-purple-300 border border-purple-500/25 shrink-0">
                             Binaural
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>

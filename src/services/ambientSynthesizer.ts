@@ -52,7 +52,7 @@ export class AmbientSynthesizer {
     const stopNodes: Array<{ stop: () => void; disconnect: () => void }> = [];
 
     if (id.startsWith('noise_')) {
-      this.startNoiseTrack(ctx, id as 'noise_white' | 'noise_pink' | 'noise_brown', trackGain, stopNodes);
+      this.startNoiseTrack(ctx, id as 'noise_white' | 'noise_pink' | 'noise_brown' | 'noise_blue', trackGain, stopNodes);
     } else if (id.startsWith('binaural_')) {
       this.startBinauralTrack(ctx, id, trackGain, stopNodes);
     } else {
@@ -132,7 +132,7 @@ export class AmbientSynthesizer {
   // THUẬT TOÁN TẠO NOISE (WHITE / PINK / BROWN)
   // ==========================================
 
-  private getNoiseBuffer(ctx: AudioContext, type: 'white' | 'pink' | 'brown'): AudioBuffer {
+  private getNoiseBuffer(ctx: AudioContext, type: 'white' | 'pink' | 'brown' | 'blue'): AudioBuffer {
     const cached = this.noiseBuffers.get(type);
     if (cached) return cached;
 
@@ -168,6 +168,14 @@ export class AmbientSynthesizer {
         lastOut = data[i];
         data[i] *= 3.5; // Gain bù
       }
+    } else if (type === 'blue') {
+      // Blue noise: +3dB/octave differentiator filter
+      let lastWhite = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (white - lastWhite) * 0.7;
+        lastWhite = white;
+      }
     }
 
     this.noiseBuffers.set(type, buffer);
@@ -176,11 +184,11 @@ export class AmbientSynthesizer {
 
   private startNoiseTrack(
     ctx: AudioContext,
-    type: 'noise_white' | 'noise_pink' | 'noise_brown',
+    type: 'noise_white' | 'noise_pink' | 'noise_brown' | 'noise_blue',
     destination: GainNode,
     stopNodes: Array<{ stop: () => void; disconnect: () => void }>
   ): void {
-    const rawType = type.replace('noise_', '') as 'white' | 'pink' | 'brown';
+    const rawType = type.replace('noise_', '') as 'white' | 'pink' | 'brown' | 'blue';
     const buffer = this.getNoiseBuffer(ctx, rawType);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -438,6 +446,28 @@ export class AmbientSynthesizer {
         disconnect: () => {
           source.disconnect();
           bp.disconnect();
+        },
+      });
+    } else {
+      // Fallback procedural ambient sound
+      const buffer = this.getNoiseBuffer(ctx, 'pink');
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(600, ctx.currentTime);
+
+      source.connect(lp);
+      lp.connect(destination);
+      source.start();
+
+      stopNodes.push({
+        stop: () => source.stop(),
+        disconnect: () => {
+          source.disconnect();
+          lp.disconnect();
         },
       });
     }

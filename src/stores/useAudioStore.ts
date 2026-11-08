@@ -8,6 +8,11 @@ import {
 import { AudioContextManager } from '../services/audioContextManager';
 import { ChimeSynthesizer } from '../services/chimeSynthesizer';
 import { AmbientSynthesizer } from '../services/ambientSynthesizer';
+import { ALL_AMBIENT_TRACKS } from '../data/ambientTracks';
+
+// Multi-Channel Audio Engine lưu trữ và quản lý các HTMLAudioElement đang chạy
+const activeAudioElements = new Map<string, HTMLAudioElement>();
+export const getActiveAudioElements = (): Map<string, HTMLAudioElement> => activeAudioElements;
 
 const SETTINGS_KEY = 'pomodoro_audio_settings_v1';
 const TRACKS_CONFIG_KEY = 'pomodoro_audio_tracks_v1';
@@ -118,139 +123,7 @@ export const DEFAULT_SETTINGS: AudioSettings = {
   chimeVolume: 0.8,
 };
 
-export const INITIAL_TRACKS: AmbientTrackConfig[] = [
-  {
-    id: 'rain',
-    name: 'Mưa Rào',
-    category: 'nature',
-    volume: 0.5,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Tiếng mưa rơi đều đặn xoa dịu tâm trí',
-  },
-  {
-    id: 'ocean_waves',
-    name: 'Sóng Biển',
-    category: 'nature',
-    volume: 0.5,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Sóng biển dạt dào êm ả vỗ về từng đợt',
-  },
-  {
-    id: 'cafe',
-    name: 'Quán Cà Phê',
-    category: 'life',
-    volume: 0.4,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Không gian ấm cúng, êm đềm của quán quen',
-  },
-  {
-    id: 'keyboard',
-    name: 'Bàn Phím Cơ',
-    category: 'life',
-    volume: 0.35,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Tiếng gõ phím cơ nhịp nhàng tăng năng suất tập trung',
-  },
-  {
-    id: 'stream',
-    name: 'Suối Nước',
-    category: 'nature',
-    volume: 0.45,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Dòng suối êm ả róc rách qua ghềnh đá',
-  },
-  {
-    id: 'campfire',
-    name: 'Lửa Trại',
-    category: 'nature',
-    volume: 0.45,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Đốm lửa bập bùng lách tách ấm áp trong đêm',
-  },
-  {
-    id: 'noise_white',
-    name: 'White Noise',
-    category: 'noise',
-    volume: 0.4,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Tiếng ồn trắng triệt tiêu tiếng ồn môi trường',
-  },
-  {
-    id: 'noise_pink',
-    name: 'Pink Noise',
-    category: 'noise',
-    volume: 0.5,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Tiếng ồn hồng êm dịu, giảm căng thẳng não bộ',
-  },
-  {
-    id: 'noise_brown',
-    name: 'Brown Noise',
-    category: 'noise',
-    volume: 0.5,
-    isPlaying: false,
-    isMuted: false,
-    description: 'Tiếng ồn nâu trầm ấm, thư giãn sâu',
-  },
-  {
-    id: 'binaural_alpha',
-    name: 'Sóng Alpha (10Hz)',
-    category: 'binaural',
-    volume: 0.35,
-    isPlaying: false,
-    isMuted: false,
-    binauralBeatHz: 10,
-    description: 'Âm thanh mô phỏng nhịp hai tai hỗ trợ thư giãn, tỉnh táo',
-  },
-  {
-    id: 'binaural_beta',
-    name: 'Sóng Beta (18Hz)',
-    category: 'binaural',
-    volume: 0.35,
-    isPlaying: false,
-    isMuted: false,
-    binauralBeatHz: 18,
-    description: 'Âm thanh mô phỏng nhịp hai tai hỗ trợ tư duy, phân tích',
-  },
-  {
-    id: 'binaural_gamma',
-    name: 'Sóng Gamma (40Hz)',
-    category: 'binaural',
-    volume: 0.3,
-    isPlaying: false,
-    isMuted: false,
-    binauralBeatHz: 40,
-    description: 'Âm thanh mô phỏng nhịp hai tai hỗ trợ tập trung cao độ',
-  },
-  {
-    id: 'binaural_theta',
-    name: 'Sóng Theta (6Hz)',
-    category: 'binaural',
-    volume: 0.35,
-    isPlaying: false,
-    isMuted: false,
-    binauralBeatHz: 6,
-    description: 'Âm thanh mô phỏng nhịp hai tai hỗ trợ trực giác, sáng tạo',
-  },
-  {
-    id: 'binaural_delta',
-    name: 'Sóng Delta (2.5Hz)',
-    category: 'binaural',
-    volume: 0.35,
-    isPlaying: false,
-    isMuted: false,
-    binauralBeatHz: 2.5,
-    description: 'Âm thanh mô phỏng nhịp hai tai hỗ trợ nghỉ ngơi, phục hồi',
-  },
-];
+export const INITIAL_TRACKS: AmbientTrackConfig[] = ALL_AMBIENT_TRACKS;
 
 function loadSavedSettings(): AudioSettings {
   if (typeof window === 'undefined' || !window.localStorage) return DEFAULT_SETTINGS;
@@ -476,6 +349,16 @@ export const useAudioStore = create<AudioState>((set, get) => {
       set((state) => {
         const nextSettings = { ...state.settings, masterVolume: safe, isMuted: false };
         audioMgr.setMasterVolume(safe, false);
+
+        // Cập nhật âm lượng mượt mà thời gian thực cho tất cả HTMLAudioElement đang chạy
+        activeAudioElements.forEach((audio, trackId) => {
+          const tr = state.tracks.find((t) => t.id === trackId);
+          const trackVol = tr ? tr.volume : 0.5;
+          try {
+            audio.volume = Math.max(0, Math.min(1, trackVol * safe));
+          } catch {}
+        });
+
         persistSettings(nextSettings);
         return { settings: nextSettings };
       });
@@ -486,6 +369,20 @@ export const useAudioStore = create<AudioState>((set, get) => {
         const nextMuted = !state.settings.isMuted;
         const nextSettings = { ...state.settings, isMuted: nextMuted };
         audioMgr.setMasterVolume(nextSettings.masterVolume, nextMuted);
+
+        // Mute / Unmute tức thời cho các track HTMLAudioElement
+        activeAudioElements.forEach((audio, trackId) => {
+          try {
+            if (nextMuted) {
+              audio.volume = 0;
+            } else {
+              const tr = state.tracks.find((t) => t.id === trackId);
+              const trackVol = tr ? tr.volume : 0.5;
+              audio.volume = Math.max(0, Math.min(1, trackVol * nextSettings.masterVolume));
+            }
+          } catch {}
+        });
+
         persistSettings(nextSettings);
         return { settings: nextSettings };
       });
@@ -535,20 +432,66 @@ export const useAudioStore = create<AudioState>((set, get) => {
       }));
 
       if (nextPlaying) {
-        const resumed = await audioMgr.ensureResumed();
-        if (!resumed && !audioMgr.isRunning()) {
-          set({ isAudioBlocked: true });
+        if (track.url && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
+          try {
+            let audio = activeAudioElements.get(id);
+            if (!audio) {
+              audio = new Audio(track.url);
+              audio.loop = true;
+              audio.crossOrigin = 'anonymous';
+              activeAudioElements.set(id, audio);
+            }
+            const currentSettings = get().settings;
+            const effectiveVol = currentSettings.isMuted ? 0 : track.volume * currentSettings.masterVolume;
+            audio.volume = Math.max(0, Math.min(1, effectiveVol));
+            const playPromise = audio.play();
+            if (playPromise !== undefined && typeof playPromise.catch === 'function') {
+              await playPromise.catch((err) => {
+                console.debug(`[useAudioStore] Audio play caught for ${id}:`, err);
+              });
+            }
+          } catch (err) {
+            console.debug(`[useAudioStore] Audio initialization error for ${id}:`, err);
+          }
         } else {
-          set({ isAudioBlocked: false });
+          // Tổng hợp âm thanh bằng Web Audio API (Noise Pink/Brown/Blue & Binaural Beats)
+          const resumed = await audioMgr.ensureResumed();
+          if (!resumed && !audioMgr.isRunning()) {
+            set({ isAudioBlocked: true });
+          } else {
+            set({ isAudioBlocked: false });
+          }
+          await ambientSynth.playTrack(id, track.volume);
         }
-        await ambientSynth.playTrack(id, track.volume);
       } else {
+        // Dừng HTMLAudioElement nếu đang chạy
+        const audio = activeAudioElements.get(id);
+        if (audio) {
+          try {
+            audio.pause();
+            audio.currentTime = 0;
+          } catch {}
+          activeAudioElements.delete(id);
+        }
+        // Dừng synthesizer nếu đang phát
         ambientSynth.stopTrack(id);
       }
     },
 
     setTrackVolume: (id: AmbientTrackId, vol: number) => {
       const safe = Math.max(0, Math.min(1, vol));
+
+      // 1. Cập nhật HTMLAudioElement theo thời gian thực
+      const audio = activeAudioElements.get(id);
+      if (audio) {
+        const currentSettings = get().settings;
+        const effectiveVol = currentSettings.isMuted ? 0 : safe * currentSettings.masterVolume;
+        try {
+          audio.volume = Math.max(0, Math.min(1, effectiveVol));
+        } catch {}
+      }
+
+      // 2. Cập nhật Web Audio API synthesizer
       ambientSynth.setTrackVolume(id, safe);
 
       set((state) => {
@@ -561,7 +504,15 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     stopAllTracks: () => {
+      activeAudioElements.forEach((audio) => {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+        } catch {}
+      });
+      activeAudioElements.clear();
       ambientSynth.stopAll();
+
       set((state) => ({
         tracks: state.tracks.map((t) => ({ ...t, isPlaying: false })),
       }));
@@ -574,7 +525,15 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     resetToDefaults: () => {
+      activeAudioElements.forEach((audio) => {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+        } catch {}
+      });
+      activeAudioElements.clear();
       ambientSynth.stopAll();
+
       audioMgr.setMasterVolume(DEFAULT_SETTINGS.masterVolume, DEFAULT_SETTINGS.isMuted);
       persistSettings(DEFAULT_SETTINGS);
       if (typeof window !== 'undefined' && window.localStorage) {

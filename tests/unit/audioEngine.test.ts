@@ -86,6 +86,10 @@ class MockAudioContext {
 describe('Audio Engine & Synthesis Unit Tests', () => {
   beforeEach(() => {
     (window as unknown as { AudioContext: typeof MockAudioContext }).AudioContext = MockAudioContext;
+    if (typeof window !== 'undefined' && typeof window.HTMLMediaElement !== 'undefined') {
+      window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
+      window.HTMLMediaElement.prototype.pause = vi.fn();
+    }
     localStorage.clear();
     useAudioStore.getState().resetToDefaults();
   });
@@ -235,12 +239,12 @@ describe('Audio Engine & Synthesis Unit Tests', () => {
   });
 
   describe('4. useAudioStore', () => {
-    it('khởi tạo với cấu hình mặc định và 14 tracks bao gồm Rain, Ocean Waves, Cafe, Keyboard', () => {
+    it('khởi tạo với cấu hình mặc định và danh mục tracks đầy đủ (>= 25 tracks)', () => {
       const state = useAudioStore.getState();
       expect(state.settings.masterVolume).toBe(DEFAULT_SETTINGS.masterVolume);
       expect(state.settings.selectedChime).toBe('twinkle');
       expect(state.settings.isMuted).toBe(false);
-      expect(state.tracks.length).toBe(14);
+      expect(state.tracks.length).toBeGreaterThanOrEqual(25);
 
       const requiredTracks = ['rain', 'ocean_waves', 'cafe', 'keyboard'];
       for (const id of requiredTracks) {
