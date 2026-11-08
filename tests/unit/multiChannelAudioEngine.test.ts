@@ -115,6 +115,8 @@ describe('Multi-Channel Audio Engine & Comprehensive Ambient Suite (v6.3)', () =
       const rainAudio = activeMap.get('rain');
       expect(rainAudio).toBeDefined();
       expect(rainAudio?.loop).toBe(true);
+      // Đảm bảo không gán crossOrigin để trình duyệt phát ở chế độ HTML5 No-CORS chuẩn (tránh bị CDN Google chặn CORS)
+      expect(rainAudio?.crossOrigin).toBeFalsy();
 
       const track = useAudioStore.getState().tracks.find((t) => t.id === 'rain');
       expect(track?.isPlaying).toBe(true);

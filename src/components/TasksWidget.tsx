@@ -196,7 +196,7 @@ export const TasksWidget: React.FC = () => {
                   type="button"
                   data-testid={`priority-btn-${p}`}
                   onClick={() => setPriority(p)}
-                  className={`px-2 py-0.5 rounded-xl border text-[10px] uppercase font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                  className={`px-2 py-0.5 rounded-xl border text-[9px] uppercase font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                     priority === p
                       ? getPriorityStyle(p)
                       : 'bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20'

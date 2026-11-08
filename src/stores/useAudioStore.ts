@@ -438,7 +438,7 @@ export const useAudioStore = create<AudioState>((set, get) => {
             if (!audio) {
               audio = new Audio(track.url);
               audio.loop = true;
-              audio.crossOrigin = 'anonymous';
+              // TUYỆT ĐỐI KHÔNG GÁN crossOrigin = 'anonymous' để tránh bị chặn CORS từ CDN audio ngoài
               activeAudioElements.set(id, audio);
             }
             const currentSettings = get().settings;
