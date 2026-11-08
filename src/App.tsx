@@ -352,7 +352,7 @@ export const App: React.FC = () => {
                   </div>
                 </main>
               ) : (
-                <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-14 pb-28">
+                <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28">
                   <WidgetContainer id="timer">
                     <TimerTestInterface />
                   </WidgetContainer>

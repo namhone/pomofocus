@@ -15,7 +15,8 @@ import {
   Clock,
   CheckCircle2,
   HardDrive,
-  User
+  User,
+  Home
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -132,7 +133,29 @@ export const SettingsWidget: React.FC = () => {
         </div>
       )}
 
-      
+      {/* Quick Navigation: Lối tắt về Trang Chủ */}
+      <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
+            <Home size={14} />
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs font-semibold text-white truncate">Về Trang Chủ PomoFocus</div>
+            <p className="text-[10px] text-neutral-400 truncate">Giới thiệu, tính năng & cộng đồng</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          data-testid="settings-home-btn"
+          onClick={() => router.navigate('/')}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white text-xs font-medium border border-white/10 transition cursor-pointer active:scale-95 shrink-0"
+          title="Về Trang Chủ PomoFocus"
+          aria-label="Về Trang Chủ"
+        >
+          <span>Trang Chủ</span>
+          <ArrowRight size={11} className="text-neutral-400" />
+        </button>
+      </div>
 
       {/* Button: Chỉnh sửa bố cục */}
       <div>

@@ -62,11 +62,11 @@ describe('Layout Store & Zen Mode Unit Tests', () => {
     expect(clamped.width).toBeGreaterThanOrEqual(tasksWidget.minWidth);
     expect(clamped.height).toBeGreaterThanOrEqual(tasksWidget.minHeight);
 
-    // Đặt kích thước hợp lệ
+    // Đặt kích thước hợp lệ (có kẹp theo maxHeight = 650)
     updateWidgetSize('tasks', 500, 700);
     const expanded = useLayoutStore.getState().widgets.tasks;
     expect(expanded.width).toBe(500);
-    expect(expanded.height).toBe(700);
+    expect(expanded.height).toBe(650);
   });
 
   it('5. Mang widget lên phía trước (bringToFront) tăng zIndex', () => {

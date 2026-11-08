@@ -1,11 +1,48 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" class="dark" style="background-color: #09090b !important; color: #f4f4f5;">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="theme-color" content="#09090b" />
+
+    <!-- Zero-FOUT & Instant Dark Shell Critical Styling -->
+    <style>
+      html, body {
+        background-color: #09090b !important;
+        color: #f4f4f5 !important;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      #pomo-splash-curtain {
+        position: fixed;
+        inset: 0;
+        background-color: #09090b;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms;
+        pointer-events: none;
+      }
+      #pomo-splash-curtain.loaded {
+        opacity: 0;
+        visibility: hidden;
+      }
+      .pomo-spinner {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #10b981;
+        animation: pomoSpin 0.7s linear infinite;
+      }
+      @keyframes pomoSpin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
     <meta name="description" content="PomoFocus — Không gian làm việc và học tập tập trung tối ưu với Pomodoro, âm thanh ambient và phòng học nhóm WebRTC." />
     <meta name="keywords" content="PomoFocus, Pomodoro timer, virtual study space, AI study companion, phòng học nhóm WebRTC, lofi study room, focus workspace, gia sư AI" />
     <link rel="canonical" href="https://pomofocus-workspace.vercel.app" />
@@ -99,7 +136,12 @@
 
     <title>PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung</title>
   </head>
-  <body class="bg-slate-900 text-slate-100 select-none">
+  <body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">
+    <!-- Zero-FOUT Splash Curtain Preloader -->
+    <div id="pomo-splash-curtain" aria-hidden="true">
+      <div class="pomo-spinner"></div>
+    </div>
+
     <div id="root">
       <!-- Nội dung tĩnh cho AI Crawlers & Trình duyệt không bật JavaScript -->
       <header>
@@ -132,5 +174,24 @@
       </footer>
     </div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Zero-FOUT Splash Curtain Dismissal Script -->
+    <script>
+      (function() {
+        function dismissCurtain() {
+          var curtain = document.getElementById('pomo-splash-curtain');
+          if (curtain && !curtain.classList.contains('loaded')) {
+            curtain.classList.add('loaded');
+          }
+        }
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+          setTimeout(dismissCurtain, 100);
+        } else {
+          window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(dismissCurtain, 100);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

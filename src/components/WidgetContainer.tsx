@@ -128,7 +128,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     const maxY = Math.max(0, window.innerHeight - height);
 
     let targetX = Math.max(0, Math.min(nextX, maxX));
-    let targetY = Math.max(0, Math.min(nextY, maxY));
+    let targetY = Math.max(8, Math.min(nextY, maxY));
 
     if (snapEnabled && !widget.isMiniPill) {
       // 16px Grid snapping
@@ -157,7 +157,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       }
 
       targetX = Math.max(0, Math.min(snappedX, maxX));
-      targetY = Math.max(68, Math.min(snappedY, maxY));
+      targetY = Math.max(8, Math.min(snappedY, maxY));
     }
 
     updateWidgetPosition(id, targetX, targetY, false);
@@ -221,13 +221,16 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       const maxH = currentWidget.maxHeight ?? 900;
 
       const screenMaxW = Math.max(minW, window.innerWidth - (west ? 10 : start.startX) - 12);
-      const screenMaxH = Math.max(minH, window.innerHeight - (north ? 50 : start.startY) - 12);
+      const screenMaxH = Math.max(minH, window.innerHeight - (north ? 8 : start.startY) - 12);
 
       const effectiveMaxW = Math.min(maxW, screenMaxW);
       const effectiveMaxH = Math.min(maxH, screenMaxH);
 
       const width = Math.max(minW, Math.min(requestedWidth, effectiveMaxW));
-      const height = Math.max(minH, Math.min(requestedHeight, effectiveMaxH));
+      let height = Math.max(minH, Math.min(requestedHeight, effectiveMaxH));
+      if (id === 'media') {
+        height = Math.max(minH, Math.min(Math.round(width * (9 / 16)), effectiveMaxH));
+      }
       const x = west ? start.startX + start.startW - width : start.startX;
       const y = north ? start.startY + start.startH - height : start.startY;
 
@@ -374,10 +377,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             data-testid="mini-timer-status-dot"
             className={`w-2 h-2 rounded-full transition-all ${
               timerStatus === 'running'
-                ? 'bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse'
+                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse'
                 : timerStatus === 'paused'
-                ? 'bg-amber-400 shadow-[0_0_6px_#fbbf24]'
-                : 'bg-neutral-500'
+                ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                : 'bg-zinc-500'
             }`}
             title={timerStatus === 'running' ? 'Đang chạy' : timerStatus === 'paused' ? 'Tạm dừng' : 'Chờ'}
           />

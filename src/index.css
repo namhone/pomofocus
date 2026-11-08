@@ -1,3 +1,4 @@
+@import './styles/liquidDock.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,6 +20,12 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
+
+  /* Quy chuẩn Zero-FOUT & Typography Invariant:
+   * - Mặc định ưu tiên System Font Stack để đạt 0ms latency và 0 layout shift (CLS = 0.00).
+   * - Mọi @font-face hoặc web font nạp ngoài bắt buộc phải sử dụng 'font-display: optional'
+   *   theo chuẩn kỹ thuật Pomofocus v6.0 Ultimate. Tuyệt đối không dùng 'font-display: swap'.
+   */
 
   /* Quy chuẩn Typography tiếng Việt: triệt tiêu ngắt từ thô bạo (hyphens), cân bằng dòng tiêu đề và đoạn văn */
   h1, h2, h3, h4, h5, h6, .text-balance {

@@ -30,19 +30,19 @@ export const GLASS_PRESETS: Record<GlassPreset, GlassSettings> = {
 
 export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: number; height: number }>> = {
   timer: {
-    S: { width: 280, height: 380 },
-    M: { width: 320, height: 440 },
-    L: { width: 380, height: 480 }
+    S: { width: 300, height: 240 },
+    M: { width: 320, height: 320 },
+    L: { width: 400, height: 340 }
   },
   tasks: {
-    S: { width: 280, height: 360 },
-    M: { width: 320, height: 420 },
-    L: { width: 380, height: 420 }
+    S: { width: 320, height: 360 },
+    M: { width: 360, height: 480 },
+    L: { width: 440, height: 600 }
   },
   notes: {
-    S: { width: 280, height: 360 },
+    S: { width: 280, height: 320 },
     M: { width: 330, height: 400 },
-    L: { width: 420, height: 500 }
+    L: { width: 480, height: 600 }
   },
   calendar: {
     S: { width: 320, height: 400 },
@@ -65,9 +65,9 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
     L: { width: 460, height: 620 }
   },
   media: {
-    S: { width: 320, height: 216 },
-    M: { width: 480, height: 306 },
-    L: { width: 640, height: 396 }
+    S: { width: 280, height: 158 },
+    M: { width: 384, height: 216 },
+    L: { width: 420, height: 236 }
   }
 };
 
@@ -158,11 +158,11 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 24,
     y: 76,
     width: 320,
-    height: 440,
-    minWidth: 280,
-    minHeight: 300,
-    maxWidth: 520,
-    maxHeight: 760,
+    height: 320,
+    minWidth: 300,
+    minHeight: 220,
+    maxWidth: 440,
+    maxHeight: 340,
     resizable: true,
     zIndex: 10
   },
@@ -174,11 +174,11 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 360,
     y: 76,
     width: 320,
-    height: 420,
-    minWidth: 280,
-    minHeight: 300,
-    maxWidth: 850,
-    maxHeight: 900,
+    height: 480,
+    minWidth: 320,
+    minHeight: 280,
+    maxWidth: 500,
+    maxHeight: 650,
     resizable: true,
     zIndex: 11
   },
@@ -192,9 +192,9 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     width: 330,
     height: 400,
     minWidth: 280,
-    minHeight: 300,
-    maxWidth: 900,
-    maxHeight: 900,
+    minHeight: 240,
+    maxWidth: 680,
+    maxHeight: 720,
     resizable: true,
     zIndex: 12
   },
@@ -269,12 +269,12 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     isCollapsed: false,
     x: 480,
     y: 120,
-    width: 480,
-    height: 306,
-    minWidth: 320,
-    minHeight: 216,
-    maxWidth: 960,
-    maxHeight: 576,
+    width: 384,
+    height: 216,
+    minWidth: 280,
+    minHeight: 140,
+    maxWidth: 420,
+    maxHeight: 260,
     resizable: true,
     zIndex: 18
   }
@@ -632,15 +632,36 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
 
     const willOpen = !current.isOpen;
     let nextZ = current.zIndex;
+    let nextX = current.x;
+    let nextY = Math.max(8, current.y);
 
     if (willOpen) {
       nextZ = get().highestZIndex + 1;
       set({ highestZIndex: nextZ });
+
+      const winW = typeof window !== 'undefined' ? window.innerWidth : 1440;
+      const winH = typeof window !== 'undefined' ? window.innerHeight : 900;
+      const maxX = Math.max(0, winW - current.width);
+      const maxY = Math.max(8, winH - current.height);
+
+      nextX = Math.max(0, Math.min(current.x, maxX));
+      nextY = Math.max(8, Math.min(current.y, maxY));
+
+      // 24px Cascade Staggering: If another open widget collides at the same (x, y) within 16px
+      const colliding = Object.values(widgets).find(
+        (w) => w.id !== id && w.isOpen && Math.abs(w.x - nextX) < 16 && Math.abs(w.y - nextY) < 16
+      );
+      if (colliding) {
+        nextX = nextX + 24 > maxX ? 24 : nextX + 24;
+        nextY = Math.max(8, nextY + 24 > maxY ? 24 : nextY + 24);
+      }
     }
 
     widgets[id] = {
       ...current,
       isOpen: willOpen,
+      x: nextX,
+      y: nextY,
       zIndex: nextZ
     };
 
@@ -657,13 +678,25 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const winW = typeof window !== 'undefined' ? window.innerWidth : 1440;
     const winH = typeof window !== 'undefined' ? window.innerHeight : 900;
     const maxX = Math.max(0, winW - current.width);
-    const maxY = Math.max(0, winH - current.height);
+    const maxY = Math.max(8, winH - current.height);
+
+    let nextX = Math.max(0, Math.min(current.x, maxX));
+    let nextY = Math.max(8, Math.min(current.y, maxY));
+
+    // 24px Cascade Staggering: If another open widget collides at the same (x, y) within 16px
+    const colliding = Object.values(widgets).find(
+      (w) => w.id !== id && w.isOpen && Math.abs(w.x - nextX) < 16 && Math.abs(w.y - nextY) < 16
+    );
+    if (colliding) {
+      nextX = nextX + 24 > maxX ? 24 : nextX + 24;
+      nextY = Math.max(8, nextY + 24 > maxY ? 24 : nextY + 24);
+    }
 
     widgets[id] = {
       ...current,
       isOpen: true,
-      x: Math.max(0, Math.min(current.x, maxX)),
-      y: Math.max(0, Math.min(current.y, maxY)),
+      x: nextX,
+      y: nextY,
       zIndex: nextZ
     };
 
@@ -742,12 +775,12 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     if (!current) return;
 
     let targetX = Math.round(x);
-    let targetY = Math.max(68, Math.round(y));
+    let targetY = Math.max(8, Math.round(y));
 
     // Magnetic Snapping (8px threshold)
     const SNAP = 8;
     if (Math.abs(targetX) < SNAP) targetX = 0;
-    if (Math.abs(targetY - 68) < SNAP) targetY = 68;
+    if (Math.abs(targetY - 8) < SNAP) targetY = 8;
     if (typeof window !== 'undefined') {
       if (Math.abs(window.innerWidth - (targetX + current.width)) < SNAP) {
         targetX = window.innerWidth - current.width;
@@ -800,7 +833,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const width = moving.isMiniPill ? 190 : moving.width;
     const height = moving.isMiniPill ? 52 : moving.isCollapsed ? 48 : moving.height;
     const minX = 0;
-    const minY = 0;
+    const minY = 8;
     const maxX = Math.max(minX, viewportWidth - width);
     const maxY = Math.max(minY, viewportHeight - height);
 
@@ -903,7 +936,9 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       widgets: resetWidgets,
       isZenMode: false,
       highestZIndex: 20,
-      isLayoutEditMode: false
+      isLayoutEditMode: false,
+      isHeaderExpanded: false,
+      isMobileHeaderOpen: false
     });
 
     get().saveLayout();
@@ -1046,9 +1081,9 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const openIds = (Object.keys(widgets) as WidgetId[]).filter((id) => widgets[id].isOpen);
     if (openIds.length === 0) return;
 
-    const startX = 32;
-    const startY = 50;
-    const step = 36;
+    const startX = 24;
+    const startY = 24;
+    const step = 24;
     const baseZ = get().highestZIndex + 1;
 
     openIds.forEach((id, idx) => {
@@ -1056,7 +1091,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
       widgets[id] = {
         ...w,
         x: startX + idx * step,
-        y: startY + idx * step,
+        y: Math.max(8, startY + idx * step),
         zIndex: baseZ + idx,
         isCollapsed: false,
         isMiniPill: false
@@ -1189,14 +1224,14 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
         changed = true;
       }
 
-      // Giới hạn tọa độ Y hợp lệ: tự do sát mép trên 0
-      const maxAllowedY = Math.max(0, viewportHeight - activeHeight);
+      // Giới hạn tọa độ Y hợp lệ: tự do sát mép trên 8px
+      const maxAllowedY = Math.max(8, viewportHeight - activeHeight);
       if (w.y > maxAllowedY) {
         w.y = maxAllowedY;
         changed = true;
       }
-      if (w.y < 0) {
-        w.y = 0;
+      if (w.y < 8) {
+        w.y = 8;
         changed = true;
       }
 

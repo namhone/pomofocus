@@ -96,7 +96,6 @@ export const SettingsView: React.FC = () => {
     { id: 'playtime', name: 'Giai Điệu Playtime' },
     { id: 'scifi', name: 'Khoa Học Viễn Tưởng' },
     { id: 'slow_rise', name: 'Âm Vang Dần' },
-    { id: 'rooster', name: 'Tiếng Gà Gáy' },
     { id: 'bird', name: 'Tiếng Chim Hót' }
   ];
 

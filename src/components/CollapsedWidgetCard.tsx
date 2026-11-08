@@ -125,10 +125,10 @@ export const CollapsedWidgetCard: React.FC<CollapsedWidgetCardProps> = ({ id, is
             <span
               className={`w-3 h-3 rounded-full transition-all ${
                 timerStatus === 'running'
-                  ? 'bg-emerald-400 shadow-[0_0_12px_#34d399] animate-pulse'
+                  ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse'
                   : timerStatus === 'paused'
-                  ? 'bg-amber-400 shadow-[0_0_8px_#fbbf24]'
-                  : 'bg-neutral-600'
+                  ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                  : 'bg-zinc-500'
               }`}
             />
           </div>

@@ -237,7 +237,7 @@ export const DockBar: React.FC = () => {
         type="button"
         data-testid={testId}
         onClick={() => toggleWidget(id)}
-        className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+        className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
           isOpen
             ? 'bg-white/15 text-white border border-white/10 shadow-sm'
             : 'text-zinc-300 hover:text-white hover:bg-white/10'
@@ -247,9 +247,10 @@ export const DockBar: React.FC = () => {
         aria-pressed={isOpen}
       >
         {icon}
+        <span className="dock__tooltip">{`${isOpen ? 'Ẩn' : 'Hiện'} ${label}`}</span>
         {/* Active indicator dot */}
         {isOpen && (
-          <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
+          <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
         )}
       </button>
     );
@@ -286,7 +287,7 @@ export const DockBar: React.FC = () => {
           scheduleHide();
         }
       }}
-      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center overflow-visible rounded-2xl border ${
+      className={`fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center overflow-visible rounded-2xl border dock ${
         isEcoMode
           ? 'border-zinc-800 bg-[#0c0c0e] shadow-2xl'
           : 'border-white/10 bg-[rgba(14,17,25,0.78)] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl backdrop-saturate-[190%]'
@@ -318,7 +319,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-focus"
           onClick={toggleFocusMode}
-          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             isFocusMode
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
@@ -328,8 +329,9 @@ export const DockBar: React.FC = () => {
           aria-pressed={isFocusMode}
         >
           <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-zinc-300'} />
+          <span className="dock__tooltip">{isFocusMode ? 'Tắt Focus Mode' : 'Bật Focus Mode'}</span>
           {isFocusMode && (
-            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
           )}
         </button>
 
@@ -338,7 +340,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-zen"
           onClick={toggleZenMode}
-          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
+          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 cursor-pointer ${
             isZenMode
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
@@ -352,13 +354,14 @@ export const DockBar: React.FC = () => {
           ) : (
             <Maximize2 size={16} strokeWidth={1.75} className="shrink-0" />
           )}
+          <span className="dock__tooltip">{isZenMode ? "Tắt chế độ Zen (Z)" : "Bật chế độ Zen (Z)"}</span>
           {isZenMode && (
-            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
           )}
         </button>
       </div>
 
-      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`dock__divider ${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
       {/* NHÓM 2: 📋 KẾ HOẠCH (TASKS, NOTES, CALENDAR)                               */}
@@ -372,7 +375,7 @@ export const DockBar: React.FC = () => {
         {planButtons.map(renderDockButton)}
       </div>
 
-      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`dock__divider ${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
       {/* NHÓM 3: 🎧 KHÔNG GIAN (SPACES, SOUNDS, MEDIA)                              */}
@@ -386,7 +389,7 @@ export const DockBar: React.FC = () => {
         {atmosphereButtons.map(renderDockButton)}
       </div>
 
-      <div className={`${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
+      <div className={`dock__divider ${isVertical ? 'h-px w-5 my-0.5' : 'h-5 w-px mx-0.5'} bg-white/10`} />
 
       {/* ========================================================================= */}
       {/* NHÓM 4: ✨ TRỢ LÝ AI & CÀI ĐẶT BỐ CỤC (TINH GỌN 2 NÚT CHÍNH)               */}
@@ -402,7 +405,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-ai"
           onClick={() => toggleAi()}
-          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
             isAiOpen
               ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
               : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
@@ -415,8 +418,9 @@ export const DockBar: React.FC = () => {
           <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-neutral-950 font-mono shadow-xs">
             ⚡
           </span>
+          <span className="dock__tooltip">Trợ lý AI Companion (⚡)</span>
           {isAiOpen && (
-            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.7)]" />
           )}
         </button>
 
@@ -425,7 +429,7 @@ export const DockBar: React.FC = () => {
           type="button"
           data-testid="dock-btn-presets"
           onClick={() => setShowQuickDockMenu((prev) => !prev)}
-          className={`relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             showQuickDockMenu || settingsOpen
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
@@ -435,8 +439,9 @@ export const DockBar: React.FC = () => {
           aria-expanded={showQuickDockMenu}
         >
           <Sliders size={16} strokeWidth={1.75} />
+          <span className="dock__tooltip">Cài đặt & Bố cục</span>
           {(showQuickDockMenu || settingsOpen) && (
-            <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.7)]" />
           )}
         </button>
       </div>

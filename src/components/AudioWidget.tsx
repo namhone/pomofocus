@@ -7,11 +7,9 @@ import {
   Bell,
   Waves,
   AlertTriangle,
-  RotateCcw,
-  Film
+  RotateCcw
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
-import { useLayoutStore } from '../stores/useLayoutStore';
 import { ChimeSoundType } from '../types/audio';
 
 export const AudioWidget: React.FC = () => {
@@ -33,7 +31,6 @@ export const AudioWidget: React.FC = () => {
     resetToDefaults
   } = useAudioStore();
 
-  const openWidget = useLayoutStore((s) => s.openWidget);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
   const handlePreview = async () => {
@@ -52,8 +49,7 @@ export const AudioWidget: React.FC = () => {
     { value: 'playtime', label: 'Playtime', desc: 'Chuông gõ vui tươi' },
     { value: 'scifi', label: 'Sci-Fi', desc: 'Âm sắc tương lai không gian' },
     { value: 'slow_rise', label: 'Slow Rise', desc: 'Âm ngân chậm ấm áp' },
-    { value: 'bird', label: 'Tiếng Chim', desc: 'Tiếng chim hót rộn ràng' },
-    { value: 'rooster', label: 'Gà Gáy', desc: 'Tiếng gà ban mai sinh động' }
+    { value: 'bird', label: 'Tiếng Chim', desc: 'Tiếng chim hót rộn ràng' }
   ];
 
   const activePlayingCount = tracks.filter((t) => t.isPlaying).length;
@@ -280,9 +276,6 @@ export const AudioWidget: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      {track.description && (
-                        <p className="text-[10px] text-neutral-400 truncate" title={track.description}>{track.description}</p>
-                      )}
                     </div>
                   </div>
 
@@ -316,22 +309,6 @@ export const AudioWidget: React.FC = () => {
         </div>
       )}
 
-      {/* Media Window Quick Launch Banner */}
-      <div className="my-2 p-2.5 rounded-xl bg-neutral-900/60 border border-white/10 flex items-center justify-between gap-2 shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <Film size={14} className="text-neutral-400 shrink-0" />
-          <span className="text-[11px] text-neutral-300 truncate">
-            Muốn xem video YouTube hoặc Livestream học tập?
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => openWidget('media')}
-          className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
-        >
-          Mở Media
-        </button>
-      </div>
 
       {/* Footer: Reset to defaults */}
       <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">

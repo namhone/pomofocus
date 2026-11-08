@@ -1,0 +1,202 @@
+/* ========================================================================= */
+/* macOS Apple Liquid Glass Dockbar Physics & Specular Material             */
+/* Reference: pomofocus-design-system/references/apple-liquid-dock.md       */
+/* ========================================================================= */
+
+.dock,
+.dock * {
+  box-sizing: border-box;
+}
+
+.dock {
+  --s: 48px;
+  --max: 1.75;
+  --gap: max(3px, calc(var(--s) * 0.08));
+  --pad: max(6px, calc(var(--s) * 0.12));
+
+  display: inline-flex;
+  align-items: center;
+  padding: var(--pad) calc(var(--pad) - var(--gap) / 2);
+
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.13),
+      rgba(255, 255, 255, 0.05)
+    ),
+    rgba(30, 30, 35, 0.75) !important;
+
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: max(16px, calc(var(--s) * 0.4));
+
+  box-shadow:
+    0 max(4px, calc(var(--s) * 0.1)) max(20px, calc(var(--s) * 0.4)) rgba(0, 0, 0, 0.4),
+    0 max(2px, calc(var(--s) * 0.05)) max(8px, calc(var(--s) * 0.2)) rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+
+  isolation: isolate;
+  position: relative;
+}
+
+.dock::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  height: 45%;
+  border-radius: max(14px, calc(var(--s) * 0.38)) max(14px, calc(var(--s) * 0.38)) 45% 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dock__row {
+  display: flex;
+  align-items: center;
+  height: var(--s);
+  width: 100%;
+}
+
+.dock__item {
+  --k: 1;
+  --shadow-y: max(1px, calc(var(--s) * 0.03));
+  --shadow-b: max(2px, calc(var(--s) * 0.06));
+
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--s) * var(--k) + var(--gap));
+  height: calc(var(--s) * var(--k));
+  padding: 0 calc(var(--gap) / 2);
+  cursor: pointer;
+  z-index: 10;
+  transform-origin: bottom center;
+  transition:
+    width 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock__item:hover {
+  --k: var(--max);
+  z-index: 18;
+}
+
+/* Sibling Magnification (macOS Concosine Curve: 1.42x for +/-1, 1.04x for +/-2) */
+.dock__item:hover + .dock__item,
+.dock__item:has(+ .dock__item:hover) {
+  --k: calc(1 + (var(--max) - 1) * 0.56);
+  z-index: 15;
+}
+
+.dock__item:hover + .dock__divider + .dock__item,
+.dock__item:has(+ .dock__divider + .dock__item:hover) {
+  --k: calc(1 + (var(--max) - 1) * 0.56);
+  z-index: 15;
+}
+
+.dock__item:hover + .dock__item + .dock__item,
+.dock__item:has(+ .dock__item + .dock__item:hover),
+.dock__item:hover + .dock__divider + .dock__item + .dock__item,
+.dock__item:has(+ .dock__item + .dock__divider + .dock__item:hover),
+.dock__item:hover + .dock__item + .dock__divider + .dock__item,
+.dock__item:has(+ .dock__divider + .dock__item + .dock__item:hover) {
+  --k: calc(1 + (var(--max) - 1) * 0.05);
+}
+
+.dock__item:active {
+  transform: translateY(max(-8px, calc(var(--s) * -0.15)));
+  transition-duration: 0.15s;
+}
+
+.dock__item svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 var(--shadow-y) var(--shadow-b) rgba(0, 0, 0, calc(0.2 + (var(--k) - 1) * 0.15)));
+  transition: transform 0.2s ease-out;
+}
+
+.dock__item:hover svg {
+  transform: scale(1.15);
+}
+
+/* Pearl White Activity Dot */
+.dock__dot {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.dock__divider {
+  width: 1px;
+  height: calc(var(--s) * 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 3px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Glass Tooltip: 14px above, 18px blur */
+.dock__tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  min-width: max-content;
+  transform: translateX(-50%) translateY(6px) scale(0.92);
+  transform-origin: bottom center;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)), rgba(20, 20, 25, 0.9);
+  color: rgba(255, 255, 255, 0.97);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  transition:
+    opacity 160ms ease,
+    visibility 160ms ease,
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 100;
+}
+
+.dock__item:hover .dock__tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+@media (max-width: 767px) {
+  .dock {
+    --s: 40px;
+    --max: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock,
+  .dock__item,
+  .dock__item svg,
+  .dock__tooltip {
+    transition: none !important;
+  }
+}

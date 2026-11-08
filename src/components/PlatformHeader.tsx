@@ -40,6 +40,7 @@ export const PlatformHeader: React.FC = () => {
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
+  const isAiOpen = useAiStore((s) => s.isOpen);
   const isHeaderExpanded = useLayoutStore((s) => s.isHeaderExpanded);
   const setHeaderExpanded = useLayoutStore((s) => s.setHeaderExpanded);
   const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
@@ -167,6 +168,13 @@ export const PlatformHeader: React.FC = () => {
 
 
 
+  // Tại /app, luôn giữ Header ở trạng thái thu gọn mặc định (!isHeaderPinned)
+  useEffect(() => {
+    if (isWorkspace && !isHeaderPinned) {
+      setHeaderExpanded(false);
+    }
+  }, [isWorkspace, isHeaderPinned, setHeaderExpanded]);
+
   // Lắng nghe Click Outside để đóng Dropdown Avatar
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -270,9 +278,11 @@ export const PlatformHeader: React.FC = () => {
           className={`fixed top-3 right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full ${
             isEcoMode ? 'bg-[#0c0c0e]/95' : 'bg-zinc-950/85 backdrop-blur-xl'
           } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
-            !isHeaderExpanded
-              ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
-              : 'opacity-0 -translate-y-2 pointer-events-none scale-90 hidden'
+            isAiOpen
+              ? 'opacity-0 -translate-y-2 pointer-events-none scale-95'
+              : !isHeaderExpanded
+                ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+                : 'opacity-0 -translate-y-2 pointer-events-none scale-90 hidden'
           }`}
         >
           {/* Avatar tròn 24px */}
@@ -325,6 +335,18 @@ export const PlatformHeader: React.FC = () => {
           >
             <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
             <span>{capsuleCreditsLabel}</span>
+          </button>
+
+          {/* 🏠 Về Trang Chủ (Home) */}
+          <button
+            type="button"
+            data-testid="capsule-home-btn"
+            onClick={() => handleNavigate('/')}
+            className="p-1 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white transition cursor-pointer shrink-0 active:scale-95"
+            title="Về Trang Chủ (Home)"
+            aria-label="Về Trang Chủ"
+          >
+            <Home size={14} className="shrink-0" />
           </button>
 
           {/* ⚙️ Cài đặt */}
@@ -442,7 +464,9 @@ export const PlatformHeader: React.FC = () => {
         </nav>
 
         {/* User Actions & Mobile Toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className={`flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-200 ${
+          isAiOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}>
           {/* Nút Ghim Header (Pin) chỉ hiển thị khi ở /app */}
           {isWorkspace && (
             <button
@@ -479,7 +503,10 @@ export const PlatformHeader: React.FC = () => {
           <button
             type="button"
             data-testid="header-ai-btn"
-            onClick={handleCreditsBadgeClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              useAiStore.getState().toggleOpen();
+            }}
             className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             title={
               isVipOrOwner
@@ -605,12 +632,25 @@ export const PlatformHeader: React.FC = () => {
                     {/* Lối tắt điều hướng nhanh */}
                     <button
                       type="button"
+                      data-testid="header-user-home-btn"
+                      onClick={() => handleNavigate('/')}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Home size={14} className="text-teal-400 shrink-0" />
+                        <span className="font-medium">Trang Chủ (Giới thiệu)</span>
+                      </div>
+                      {currentPath === '/' && <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />}
+                    </button>
+
+                    <button
+                      type="button"
                       data-testid="header-user-app-btn"
                       onClick={() => handleNavigate('/app')}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-2.5">
-                        <Home size={14} className="text-emerald-400 shrink-0" />
+                        <Layout size={14} className="text-emerald-400 shrink-0" />
                         <span className="font-medium">Không Gian Học</span>
                       </div>
                       {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
@@ -1146,6 +1186,29 @@ export const PlatformHeader: React.FC = () => {
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
                     Tùy chỉnh đồng hồ, âm thanh lofi, kính mờ &amp; widget
+                  </div>
+                </div>
+              </button>
+
+              {/* 4. Về Trang Chủ */}
+              <button
+                type="button"
+                data-testid="guest-menu-home-btn"
+                onClick={() => {
+                  setIsGuestMenuOpen(false);
+                  handleNavigate('/');
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 transition shrink-0">
+                  <Home size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-white group-hover:text-indigo-300 transition">
+                    Về Trang Chủ
+                  </div>
+                  <div className="text-[10px] text-zinc-400 leading-tight">
+                    Tìm hiểu tính năng, phương pháp Pomodoro &amp; cộng đồng
                   </div>
                 </div>
               </button>

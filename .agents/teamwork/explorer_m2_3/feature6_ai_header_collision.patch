@@ -1,0 +1,62 @@
+diff --git a/src/components/AiCompanionWidget.tsx b/src/components/AiCompanionWidget.tsx
+--- a/src/components/AiCompanionWidget.tsx
++++ b/src/components/AiCompanionWidget.tsx
+@@ -276,7 +276,7 @@ export const AiCompanionWidget: React.FC = () => {
+       {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Mobile Backdrop) */}
+       <div
+         data-testid="ai-backdrop"
+-        className={`fixed inset-0 top-14 z-30 bg-black/50 backdrop-blur-xs transition-opacity duration-300 sm:hidden ${
++        className={`fixed inset-0 z-[75] bg-black/50 backdrop-blur-xs transition-opacity duration-300 sm:hidden ${
+           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+         }`}
+         onClick={() => toggleOpen(false)}
+@@ -286,7 +286,7 @@ export const AiCompanionWidget: React.FC = () => {
+       {/* Khung chat AI Companion với hiệu ứng trượt mượt mà (Linear / Apple slide-over) */}
+       <div
+         data-testid="ai-companion-drawer"
+         aria-hidden={!isOpen}
+-        className={`fixed top-14 bottom-0 right-0 z-40 w-full sm:w-[420px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
++        className={`fixed top-0 bottom-0 right-0 z-[80] w-full sm:w-[420px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+           isOpen
+             ? 'translate-x-0 opacity-100 pointer-events-auto'
+             : 'translate-x-full opacity-0 pointer-events-none'
+
+diff --git a/src/components/PlatformHeader.tsx b/src/components/PlatformHeader.tsx
+--- a/src/components/PlatformHeader.tsx
++++ b/src/components/PlatformHeader.tsx
+@@ -42,6 +42,7 @@ export const PlatformHeader: React.FC = () => {
+   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
+   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
++  const isAiOpen = useAiStore((s) => s.isOpen);
+   const isHeaderExpanded = useLayoutStore((s) => s.isHeaderExpanded);
+   const setHeaderExpanded = useLayoutStore((s) => s.setHeaderExpanded);
+   const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
+@@ -270,7 +271,9 @@ export const PlatformHeader: React.FC = () => {
+           className={`fixed top-3 right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full ${
+             isEcoMode ? 'bg-[#0c0c0e]/95' : 'bg-zinc-950/85 backdrop-blur-xl'
+           } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
+-            !isHeaderExpanded
++            isAiOpen
++              ? 'opacity-0 -translate-y-2 pointer-events-none scale-95'
++              : !isHeaderExpanded
+               ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+               : 'opacity-0 -translate-y-2 pointer-events-none scale-90 hidden'
+           }`}
+@@ -445,7 +448,9 @@ export const PlatformHeader: React.FC = () => {
+-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
++        <div className={`flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-200 ${
++          isAiOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
++        }`}>
+           {/* Nút Ghim Header (Pin) chỉ hiển thị khi ở /app */}
+           {isWorkspace && (
+             <button
+@@ -481,7 +486,7 @@ export const PlatformHeader: React.FC = () => {
+           {/* AI Study Companion Quick HUD */}
+           <button
+             type="button"
+             data-testid="header-ai-btn"
+-            onClick={handleCreditsBadgeClick}
++            onClick={(e) => {
++              e.stopPropagation();
++              useAiStore.getState().toggleOpen();
++            }}

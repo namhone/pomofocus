@@ -372,26 +372,6 @@ export const SpacesWidget: React.FC = () => {
             </button>
           </div>
 
-          {/* Freemium PRO Banner */}
-          {!isPro && (
-            <div
-              data-testid="spaces-pro-upgrade-banner"
-              className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/20 text-xs shrink-0"
-            >
-              <div className="flex items-center gap-1.5 text-amber-300 min-w-0">
-                <Sparkles size={12} className="shrink-0" />
-                <span className="text-[10px] font-medium truncate">Mở khóa toàn bộ 1.000+ ảnh 4K & Cyberpunk</span>
-              </div>
-              <button
-                type="button"
-                data-testid="spaces-pro-upgrade-btn"
-                onClick={() => router.navigate('/billing')}
-                className="px-2 py-0.5 rounded-md bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-[10px] transition shrink-0 cursor-pointer"
-              >
-                Nâng cấp
-              </button>
-            </div>
-          )}
 
           {/* Lưới Ảnh Thumbnail (2 cột bo góc, hover mượt) */}
           <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">

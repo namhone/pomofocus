@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PomoFocus Design System & Visual Showcase (Curated Sources & Apple Dock)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .liquid-glass {
+      background: rgba(9, 9, 11, 0.45);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    }
+    .apple-spring {
+      transition: all 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-press:active {
+      transform: scale(0.95);
+    }
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+
+    /* macOS Liquid Dock Styles */
+    .dock-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 0;
+    }
+    .dock {
+      --s: 56px;
+      --max: 1.75;
+      --gap: max(4px, calc(var(--s) * 0.08));
+      --pad: max(8px, calc(var(--s) * 0.12));
+      display: inline-flex;
+      padding: var(--pad) calc(var(--pad) - var(--gap) / 2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)), rgba(30, 30, 35, 0.75);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: max(16px, calc(var(--s) * 0.4));
+      box-shadow: 0 max(4px, calc(var(--s) * 0.1)) max(20px, calc(var(--s) * 0.4)) rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      position: relative;
+    }
+    .dock__row {
+      display: flex;
+      align-items: flex-end;
+      height: var(--s);
+      width: 100%;
+    }
+    .dock__item {
+      --k: 1;
+      position: relative;
+      flex: none;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: calc(var(--s) * var(--k) + var(--gap));
+      height: calc(var(--s) * var(--k));
+      padding: 0 calc(var(--gap) / 2);
+      cursor: pointer;
+      z-index: 10;
+      transform-origin: bottom center;
+      transition: width 0.2s ease-out, height 0.2s ease-out, transform 0.2s ease-out;
+    }
+    .dock__item svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 8%;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      transition: filter 0.2s ease-out;
+    }
+    .dock__item:hover {
+      --k: var(--max);
+      z-index: 18;
+    }
+    .dock__item:hover + .dock__item,
+    .dock__item:has(+ .dock__item:hover) {
+      --k: calc(1 + (var(--max) - 1) * 0.56);
+      z-index: 15;
+    }
+    .dock__item:hover + .dock__item + .dock__item,
+    .dock__item:has(+ .dock__item + .dock__item:hover) {
+      --k: calc(1 + (var(--max) - 1) * 0.05);
+    }
+    .dock__item:active {
+      transform: translateY(-8px);
+    }
+    .dock__dot {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.75);
+    }
+  </style>
+</head>
+<body class="p-6 md:p-12 space-y-12 max-w-7xl mx-auto">
+
+  <!-- Header & Live Curated Sources -->
+  <header class="space-y-4 border-b border-zinc-800 pb-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      Curated Real-World Sources & Component Library v6.2
+    </div>
+    <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white">PomoFocus Visual Design System</h1>
+    <p class="text-zinc-400 text-sm md:text-base max-w-3xl leading-relaxed">
+      Bộ quy chuẩn thiết kế trực quan kết hợp Apple Liquid Glass (cho <code class="text-emerald-400 font-mono">/app</code>) và Zen Minimalism (cho các trang ngoại vi), được đối chiếu trực tiếp từ các kho thiết kế uy tín nhất thế giới.
+    </p>
+
+    <!-- Source Links Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2">
+      <a href="https://minimal.gallery/" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Minimal Gallery</span>
+        <span class="text-[10px] text-zinc-500">minimal.gallery</span>
+      </a>
+      <a href="https://siiimple.com/" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Siiimple</span>
+        <span class="text-[10px] text-zinc-500">siiimple.com</span>
+      </a>
+      <a href="https://www.awwwards.com/websites/minimal/" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Awwwards</span>
+        <span class="text-[10px] text-zinc-500">awwwards.com</span>
+      </a>
+      <a href="https://uiverse.io/tags/glassmorphism" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Uiverse.io</span>
+        <span class="text-[10px] text-zinc-500">uiverse.io</span>
+      </a>
+      <a href="https://motion.dev/" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Motion.dev</span>
+        <span class="text-[10px] text-zinc-500">Framer Motion</span>
+      </a>
+      <a href="https://jitter.video/templates/" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-600 transition flex flex-col items-center text-center group">
+        <span class="text-xs font-semibold text-white group-hover:text-emerald-400">Jitter</span>
+        <span class="text-[10px] text-zinc-500">jitter.video</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Section 0: Live macOS Liquid Dockbar Preview -->
+  <section class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+        <span>✨ Thanh macOS Liquid Dock Mẫu (Rê chuột để thử Magnification)</span>
+      </h2>
+      <span class="text-xs text-zinc-500 font-mono">references/apple-liquid-dock.md</span>
+    </div>
+    
+    <div class="liquid-glass rounded-3xl p-8 flex flex-col items-center justify-center min-h-[160px]">
+      <div class="dock-stage">
+        <div class="dock">
+          <div class="dock__row">
+            
+            <div class="dock__item">
+              <svg viewBox="0 0 64 64">
+                <rect width="64" height="64" rx="14" fill="#34d399" />
+                <circle cx="32" cy="34" r="16" fill="none" stroke="#ffffff" stroke-width="4" />
+                <path d="M32 24v10l6 4" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+              </svg>
+              <span class="dock__dot"></span>
+            </div>
+
+            <div class="dock__item">
+              <svg viewBox="0 0 64 64">
+                <rect width="64" height="64" rx="14" fill="#f59e0b" />
+                <path d="M18 24h28M18 32h28M18 40h18" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+              </svg>
+              <span class="dock__dot"></span>
+            </div>
+
+            <div class="dock__item">
+              <svg viewBox="0 0 64 64">
+                <rect width="64" height="64" rx="14" fill="#7c3aed" />
+                <path d="M22 26h20M22 34h14" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <div class="dock__item">
+              <svg viewBox="0 0 64 64">
+                <rect width="64" height="64" rx="14" fill="#2878f0" />
+                <path d="M22 36v-8a6 6 0 0 1 12 0v8" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <div class="dock__item">
+              <svg viewBox="0 0 64 64">
+                <rect width="64" height="64" rx="14" fill="#db2777" />
+                <path d="M32 18l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" fill="#ffffff" />
+              </svg>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase 1: Apple Liquid Glass Cards (/app) -->
+  <section class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+        <span>1. Mẫu Trực Quan Apple Liquid Glass (Không Gian /app)</span>
+      </h2>
+      <a href="https://uiverse.io/ui/glassmorphism-cards" target="_blank" class="text-xs text-emerald-400 hover:underline">Xem nguồn mẫu Uiverse.io &rarr;</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Card 1: Pomodoro Liquid Timer -->
+      <div class="liquid-glass rounded-3xl p-6 relative overflow-hidden group">
+        <div class="flex items-center justify-between text-xs text-zinc-400 mb-6">
+          <span class="font-medium flex items-center gap-1.5 text-zinc-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+            HIỆP TẬP TRUNG
+          </span>
+          <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="w-2 h-2 rounded-full bg-white/20"></span>
+            <span class="w-2 h-2 rounded-full bg-white/20"></span>
+          </div>
+        </div>
+        <div class="text-center py-4">
+          <span class="text-6xl font-mono font-bold tracking-tight text-white drop-shadow-[0_4px_16px_rgba(255,255,255,0.15)]">25:00</span>
+        </div>
+        <div class="mt-6 flex justify-center gap-3">
+          <button class="bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-2.5 rounded-full border border-white/15 backdrop-blur-md apple-spring apple-press text-sm">
+            Bắt Đầu
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2: Liquid Task List -->
+      <div class="liquid-glass rounded-3xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-semibold text-white text-sm">Nhiệm Vụ Ưu Tiên</span>
+            <span class="text-xs text-zinc-400 font-mono">1/3 Xong</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] transition">
+              <span class="w-4 h-4 rounded-full border border-emerald-400 bg-emerald-500/20 flex items-center justify-center text-[10px] text-emerald-400">✓</span>
+              <span class="text-xs text-zinc-400 line-through">Thiết kế hệ thống Liquid Glass</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] transition">
+              <span class="w-4 h-4 rounded-full border border-white/30"></span>
+              <span class="text-xs text-zinc-100 font-medium">Tối ưu co dãn các khung widget</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] transition">
+              <span class="w-4 h-4 rounded-full border border-white/30"></span>
+              <span class="text-xs text-zinc-100 font-medium">Triệt tiêu nháy chữ khi tải trang</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/5">
+          <input type="text" placeholder="Thêm việc mới... (Enter)" class="w-full bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none" />
+        </div>
+      </div>
+
+      <!-- Card 3: Quick Notes Liquid Glass -->
+      <div class="liquid-glass rounded-3xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-semibold text-white text-sm">Ghi Chú Nhanh</span>
+            <span class="w-2 h-2 rounded-full bg-zinc-500" title="Tự động lưu"></span>
+          </div>
+          <textarea rows="4" class="w-full bg-transparent text-xs text-zinc-200 resize-none focus:outline-none leading-relaxed placeholder-zinc-500" placeholder="Nhập ghi chú ý tưởng tập trung...">- Tập trung vào khoảng thở Zen
+- Tránh màu sắc lòe loẹt
+- Animation mượt mà chuẩn Apple Spring</textarea>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-zinc-500 pt-2 border-t border-white/5 font-mono">
+          <span>Tự động lưu</span>
+          <span>78 ký tự</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Showcase 2: 3-State Micro Dots & Zero Color Noise -->
+  <section class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-white">2. Hệ Thống Chấm Trạng Thái 3 Cấp (3-State Micro Dots)</h2>
+      <a href="https://minimal.gallery/tag/startup/" target="_blank" class="text-xs text-emerald-400 hover:underline">Xem cảm hứng Minimal Gallery &rarr;</a>
+    </div>
+
+    <div class="liquid-glass rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="flex items-center gap-3 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+        <div>
+          <span class="text-xs font-semibold text-white block">Active / Live</span>
+          <span class="text-[11px] text-zinc-400">Đang chạy, phòng học đang mở</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]"></span>
+        <div>
+          <span class="text-xs font-semibold text-white block">Pending / Wait</span>
+          <span class="text-[11px] text-zinc-400">Hiệp nghỉ, phòng học đang chờ</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800">
+        <span class="w-2.5 h-2.5 rounded-full bg-zinc-500"></span>
+        <div>
+          <span class="text-xs font-semibold text-white block">Offline / Resting</span>
+          <span class="text-[11px] text-zinc-400">Đã dừng, tắt mic, hết giờ</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

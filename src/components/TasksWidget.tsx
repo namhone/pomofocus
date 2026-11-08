@@ -77,7 +77,7 @@ export const TasksWidget: React.FC = () => {
   return (
     <div
       data-testid="tasks-widget"
-      className="w-full h-full max-h-[420px] flex flex-col text-neutral-100 overflow-hidden"
+      className="w-full h-full flex flex-col text-neutral-100 overflow-hidden"
     >
       {/* Daily Focus Summary Bar & Quick Project Trigger */}
       <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/[0.06] text-xs">
@@ -179,7 +179,7 @@ export const TasksWidget: React.FC = () => {
         <input
           data-testid="input-new-task"
           type="text"
-          placeholder="Bạn cần tập trung làm gì tiếp theo? (Enter để thêm)..."
+          placeholder="Thêm nhiệm vụ mới... (Enter)"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           className="w-full text-xs px-2 py-1.5 rounded-lg bg-black/25 border border-white/5 text-white placeholder-neutral-500 focus:outline-none focus:border-white/20"
