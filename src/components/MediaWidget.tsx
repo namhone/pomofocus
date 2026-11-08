@@ -163,6 +163,9 @@ export const MediaWidget: React.FC = () => {
 
   const onPlayerReady: YouTubeProps['onReady'] = (event) => {
     youtubePlayerRef.current = event.target;
+    if (typeof window !== 'undefined') {
+      (window as any).__pomoYoutubePlayer = event.target;
+    }
     setIsPlaying(true);
     try {
       const data = event.target.getVideoData();

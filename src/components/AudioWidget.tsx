@@ -10,7 +10,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
-import { ChimeSoundType } from '../types/audio';
+import { ALARM_CHIMES } from '../data/alarmSounds';
 
 export const AudioWidget: React.FC = () => {
   const {
@@ -44,13 +44,11 @@ export const AudioWidget: React.FC = () => {
     }
   };
 
-  const chimeOptions: { value: ChimeSoundType; label: string; desc: string }[] = [
-    { value: 'twinkle', label: 'Twinkle', desc: 'Arpeggio trong trẻo' },
-    { value: 'playtime', label: 'Playtime', desc: 'Chuông gõ vui tươi' },
-    { value: 'scifi', label: 'Sci-Fi', desc: 'Âm sắc tương lai không gian' },
-    { value: 'slow_rise', label: 'Slow Rise', desc: 'Âm ngân chậm ấm áp' },
-    { value: 'bird', label: 'Tiếng Chim', desc: 'Tiếng chim hót rộn ràng' }
-  ];
+  const chimeOptions = ALARM_CHIMES.map((c) => ({
+    value: c.id,
+    label: c.name,
+    desc: c.desc
+  }));
 
   const activePlayingCount = tracks.filter((t) => t.isPlaying).length;
 

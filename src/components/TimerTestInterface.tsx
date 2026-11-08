@@ -64,8 +64,8 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className={`flex w-full flex-col items-center justify-center mx-auto select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
-      <div className={isEmbeddedInZen ? 'w-full rounded-[20px] border-t border-t-white/[0.24] border-x border-x-white/[0.10] border-b border-b-white/[0.05] bg-[rgba(12,15,22,0.45)] p-6 shadow-2xl backdrop-blur-2xl backdrop-saturate-[180%]' : 'w-full flex flex-col'}>
+    <div className={`flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
+      <div className={isEmbeddedInZen ? 'w-full rounded-[20px] border-t border-t-white/[0.24] border-x border-x-white/[0.10] border-b border-b-white/[0.05] bg-[rgba(12,15,22,0.45)] p-6 shadow-2xl backdrop-blur-2xl backdrop-saturate-[180%]' : 'w-full flex flex-col justify-between h-auto overflow-visible'}>
         {/* Header Indicators */}
         <div className="flex items-center justify-between text-xs text-neutral-300 mb-2 select-none">
           <div className="flex items-center gap-1.5">
@@ -195,7 +195,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               onClick={start}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
-              className="liquid-glass-btn flex-1 py-1.5 px-4 text-xs font-semibold text-white shadow-[0_6px_20px_rgba(255,255,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.5)] min-h-[34px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+              className="liquid-glass-btn flex-1 py-1.5 px-4 text-xs font-semibold text-white shadow-lg min-h-[34px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
               <Play size={13} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Bắt đầu</span>
@@ -285,7 +285,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                   value={settings.pomodoroMinutes}
                   disabled={status !== 'idle'}
                   onChange={(e) => updateSettings({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
               <div>
@@ -302,7 +302,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                   value={settings.shortBreakMinutes}
                   disabled={status !== 'idle'}
                   onChange={(e) => updateSettings({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
               <div>
@@ -319,7 +319,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
                   value={settings.longBreakMinutes}
                   disabled={status !== 'idle'}
                   onChange={(e) => updateSettings({ longBreakMinutes: Number(e.target.value) || 1 })}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>

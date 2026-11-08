@@ -99,6 +99,17 @@
     z-index: 1;
   }
 
+  /* Triệt tiêu hoàn toàn mũi tên spinner mặc định xấu xí của trình duyệt trên mọi input type="number" */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+  }
+
   /* Hiệu ứng viền tiêu điểm bàn phím toàn cục chuẩn WCAG 2.1 AA */
   button:focus-visible,
   a:focus-visible,

@@ -7,6 +7,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { studyRoomService } from '../services/studyRoomService';
 import { AdminCouponManager } from './AdminCouponManager';
 import { ChimeSoundType } from '../types/audio';
+import { ALARM_CHIMES } from '../data/alarmSounds';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
 import {
@@ -91,13 +92,10 @@ export const SettingsView: React.FC = () => {
     showToast('Đã đặt lại bố cục cửa sổ mặc định');
   };
 
-  const chimes: { id: ChimeSoundType; name: string }[] = [
-    { id: 'twinkle', name: 'Chuông Ngân Twinkle' },
-    { id: 'playtime', name: 'Giai Điệu Playtime' },
-    { id: 'scifi', name: 'Khoa Học Viễn Tưởng' },
-    { id: 'slow_rise', name: 'Âm Vang Dần' },
-    { id: 'bird', name: 'Tiếng Chim Hót' }
-  ];
+  const chimes: { id: ChimeSoundType; name: string }[] = ALARM_CHIMES.map((c) => ({
+    id: c.id,
+    name: c.name
+  }));
 
   return (
     <div
@@ -192,7 +190,7 @@ export const SettingsView: React.FC = () => {
                 max={120}
                 value={timerSettings.pomodoroMinutes}
                 onChange={(e) => handlePomodoroChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition"
+                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -205,7 +203,7 @@ export const SettingsView: React.FC = () => {
                 max={60}
                 value={timerSettings.shortBreakMinutes}
                 onChange={(e) => handleShortBreakChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition"
+                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -218,7 +216,7 @@ export const SettingsView: React.FC = () => {
                 max={90}
                 value={timerSettings.longBreakMinutes}
                 onChange={(e) => handleLongBreakChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition"
+                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -231,7 +229,7 @@ export const SettingsView: React.FC = () => {
                 max={12}
                 value={timerSettings.roundsBeforeLongBreak}
                 onChange={(e) => handleRoundsChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition"
+                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>

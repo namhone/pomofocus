@@ -1,4 +1,8 @@
 export type ChimeSoundType =
+  | 'tibetan_bowl'
+  | 'crystal_chime'
+  | 'digital_alarm'
+  | 'brass_bell'
   | 'twinkle'
   | 'playtime'
   | 'scifi'

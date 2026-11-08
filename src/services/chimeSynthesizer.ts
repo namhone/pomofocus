@@ -40,6 +40,18 @@ export class ChimeSynthesizer {
     const now = ctx.currentTime + 0.02; // Bắt đầu sau 20ms tránh click/pop
 
     switch (type) {
+      case 'tibetan_bowl':
+        this.synthTibetanBowl(ctx, chimeGain, now);
+        break;
+      case 'crystal_chime':
+        this.synthCrystalChime(ctx, chimeGain, now);
+        break;
+      case 'digital_alarm':
+        this.synthDigitalAlarm(ctx, chimeGain, now);
+        break;
+      case 'brass_bell':
+        this.synthBrassBell(ctx, chimeGain, now);
+        break;
       case 'twinkle':
         this.synthTwinkle(ctx, chimeGain, now);
         break;
@@ -59,18 +71,18 @@ export class ChimeSynthesizer {
         this.synthBird(ctx, chimeGain, now);
         break;
       default:
-        this.synthTwinkle(ctx, chimeGain, now);
+        this.synthTibetanBowl(ctx, chimeGain, now);
         break;
     }
 
-    // Tự động ngắt kết nối chimeGain sau khi chuông hoàn tất (tối đa 2.0s) để tránh tích lũy AudioNode
+    // Tự động ngắt kết nối chimeGain sau khi chuông hoàn tất (3.6s cho chuông ngân Tây Tạng)
     setTimeout(() => {
       try {
         chimeGain.disconnect();
       } catch {
         // Bỏ qua nếu đã ngắt kết nối
       }
-    }, 2000);
+    }, 3600);
   }
 
   /**
@@ -276,6 +288,125 @@ export class ChimeSynthesizer {
 
       osc.start(t);
       osc.stop(t + c.dur + 0.02);
+    });
+  }
+
+  /**
+   * 7. Tibetan Bowl: Chuông Tây Tạng trầm hùng ngân vang 3.5s với hòa âm 216Hz, 432Hz, 648Hz
+   */
+  private synthTibetanBowl(ctx: AudioContext, destination: GainNode, startTime: number): void {
+    const harmonics = [
+      { freq: 216, gain: 0.5, decay: 3.4 },
+      { freq: 432, gain: 0.35, decay: 2.8 },
+      { freq: 648, gain: 0.2, decay: 2.2 },
+      { freq: 864, gain: 0.1, decay: 1.6 }
+    ];
+
+    harmonics.forEach((h) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(h.freq, startTime);
+
+      gainNode.gain.setValueAtTime(0.0001, startTime);
+      gainNode.gain.linearRampToValueAtTime(h.gain, startTime + 0.04);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + h.decay);
+
+      osc.connect(gainNode);
+      gainNode.connect(destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + h.decay + 0.05);
+    });
+  }
+
+  /**
+   * 8. Crystal Chime: Chuông Pha Lê cao vút 3.2kHz trong vắt giòn tan
+   */
+  private synthCrystalChime(ctx: AudioContext, destination: GainNode, startTime: number): void {
+    const tones = [
+      { freq: 3200, gain: 0.45, decay: 2.8 },
+      { freq: 4800, gain: 0.25, decay: 2.2 },
+      { freq: 6400, gain: 0.15, decay: 1.5 }
+    ];
+
+    tones.forEach((t) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(t.freq, startTime);
+
+      gainNode.gain.setValueAtTime(0.0001, startTime);
+      gainNode.gain.linearRampToValueAtTime(t.gain, startTime + 0.015);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + t.decay);
+
+      osc.connect(gainNode);
+      gainNode.connect(destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + t.decay + 0.05);
+    });
+  }
+
+  /**
+   * 9. Digital Alarm: Nhịp chuông đôi sắc sảo chuẩn Apple Timer (880Hz / 1760Hz)
+   */
+  private synthDigitalAlarm(ctx: AudioContext, destination: GainNode, startTime: number): void {
+    const beeps = [
+      { t: 0.0, freq: 880, dur: 0.08 },
+      { t: 0.12, freq: 1760, dur: 0.10 },
+      { t: 0.35, freq: 880, dur: 0.08 },
+      { t: 0.47, freq: 1760, dur: 0.12 }
+    ];
+
+    beeps.forEach((b) => {
+      const noteTime = startTime + b.t;
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(b.freq, noteTime);
+
+      gainNode.gain.setValueAtTime(0.0001, noteTime);
+      gainNode.gain.linearRampToValueAtTime(0.35, noteTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, noteTime + b.dur);
+
+      osc.connect(gainNode);
+      gainNode.connect(destination);
+
+      osc.start(noteTime);
+      osc.stop(noteTime + b.dur + 0.02);
+    });
+  }
+
+  /**
+   * 10. Brass Bell: Chuông Gió Đồng rung ngân êm dịu (440Hz / 880Hz / 1320Hz)
+   */
+  private synthBrassBell(ctx: AudioContext, destination: GainNode, startTime: number): void {
+    const harmonics = [
+      { freq: 440, gain: 0.45, decay: 3.0 },
+      { freq: 880, gain: 0.3, decay: 2.4 },
+      { freq: 1320, gain: 0.2, decay: 1.8 }
+    ];
+
+    harmonics.forEach((h) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(h.freq, startTime);
+
+      gainNode.gain.setValueAtTime(0.0001, startTime);
+      gainNode.gain.linearRampToValueAtTime(h.gain, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + h.decay);
+
+      osc.connect(gainNode);
+      gainNode.connect(destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + h.decay + 0.05);
     });
   }
 }

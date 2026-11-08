@@ -9,10 +9,16 @@ import { AudioContextManager } from '../services/audioContextManager';
 import { ChimeSynthesizer } from '../services/chimeSynthesizer';
 import { AmbientSynthesizer } from '../services/ambientSynthesizer';
 import { ALL_AMBIENT_TRACKS } from '../data/ambientTracks';
+import { ALARM_CHIMES } from '../data/alarmSounds';
 
 // Multi-Channel Audio Engine lưu trữ và quản lý các HTMLAudioElement đang chạy
 const activeAudioElements = new Map<string, HTMLAudioElement>();
 export const getActiveAudioElements = (): Map<string, HTMLAudioElement> => activeAudioElements;
+
+// Audio Ducking Engine: Lưu trữ mức âm lượng trước khi hạ nhạc
+const originalDuckedVolumes = new Map<string, number>();
+let duckingTimer: any = null;
+let restoreInterval: any = null;
 
 const SETTINGS_KEY = 'pomodoro_audio_settings_v1';
 const TRACKS_CONFIG_KEY = 'pomodoro_audio_tracks_v1';
@@ -196,6 +202,8 @@ export interface AudioState {
   toggleMasterMute: () => void;
   setSelectedChime: (chime: ChimeSoundType) => void;
   setChimeVolume: (vol: number) => void;
+  applyAudioDucking: () => void;
+  restoreAudioDucking: () => void;
   previewChime: (chime?: ChimeSoundType) => Promise<void>;
   playChime: (chime?: ChimeSoundType) => Promise<void>;
   toggleTrack: (id: AmbientTrackId) => Promise<void>;
@@ -213,12 +221,34 @@ export interface AudioState {
   removeCustomMusicFromList: (id: string) => void;
 }
 
+async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<void> {
+  const chimeConfig = ALARM_CHIMES.find((c) => c.id === type);
+  const safeVol = Math.max(0, Math.min(1, volume * 1.25)); // Chuẩn hóa 0dB True Peak
+  if (chimeConfig?.url && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
+    try {
+      const audio = new Audio(chimeConfig.url);
+      audio.volume = safeVol;
+      const playPromise = audio.play();
+      if (playPromise !== undefined && typeof playPromise.catch === 'function') {
+        await playPromise.catch((e) => {
+          console.debug('[useAudioStore] CDN chime fallback to synth:', e);
+          return ChimeSynthesizer.getInstance().playChime(type, volume);
+        });
+      }
+      return;
+    } catch (e) {
+      console.debug('[useAudioStore] Audio constructor error, fallback to synth:', e);
+    }
+  }
+  // Fallback Web Audio synthesis (offline / headless)
+  await ChimeSynthesizer.getInstance().playChime(type, volume);
+}
+
 export const useAudioStore = create<AudioState>((set, get) => {
   const initialSettings = loadSavedSettings();
   const savedVolumes = loadSavedTrackVolumes();
   const initialCustomMusic = loadSavedCustomMusic();
   const audioMgr = AudioContextManager.getInstance();
-  const chimeSynth = ChimeSynthesizer.getInstance();
   const ambientSynth = AmbientSynthesizer.getInstance();
 
   audioMgr.setMasterVolume(initialSettings.masterVolume, initialSettings.isMuted);
@@ -405,17 +435,101 @@ export const useAudioStore = create<AudioState>((set, get) => {
       });
     },
 
+    applyAudioDucking: () => {
+      // 1. Hạ âm lượng toàn bộ ambient HTMLAudioElements xuống 15%
+      activeAudioElements.forEach((audio, id) => {
+        if (!originalDuckedVolumes.has(id)) {
+          originalDuckedVolumes.set(id, audio.volume);
+        }
+        audio.volume = originalDuckedVolumes.get(id)! * 0.15;
+      });
+
+      // 2. Hạ âm lượng Web Audio synth
+      const masterGain = AudioContextManager.getInstance().getMasterGain();
+      if (masterGain) {
+        try {
+          const ctx = AudioContextManager.getInstance().getContext();
+          if (ctx) {
+            masterGain.gain.setValueAtTime(0.15, ctx.currentTime);
+          }
+        } catch {}
+      }
+
+      // 3. Hạ âm lượng YouTube nếu đang phát
+      try {
+        const yt = (window as any).__pomoYoutubePlayer;
+        if (yt && typeof yt.getVolume === 'function' && typeof yt.setVolume === 'function') {
+          if ((window as any).__pomoYtOriginalVol === undefined) {
+            (window as any).__pomoYtOriginalVol = yt.getVolume();
+          }
+          yt.setVolume(Math.round((window as any).__pomoYtOriginalVol * 0.15));
+        }
+      } catch {}
+
+      // Tự động khôi phục âm lượng sau 2.5s
+      if (duckingTimer) clearTimeout(duckingTimer);
+      if (restoreInterval) clearInterval(restoreInterval);
+      duckingTimer = setTimeout(() => {
+        get().restoreAudioDucking();
+      }, 2500);
+    },
+
+    restoreAudioDucking: () => {
+      const steps = 10;
+      const intervalMs = 50; // 10 * 50ms = 500ms
+      let currentStep = 0;
+
+      if (restoreInterval) clearInterval(restoreInterval);
+      restoreInterval = setInterval(() => {
+        currentStep++;
+        const factor = 0.15 + (0.85 * (currentStep / steps));
+
+        activeAudioElements.forEach((audio, id) => {
+          const orig = originalDuckedVolumes.get(id);
+          if (orig !== undefined) {
+            audio.volume = orig * factor;
+          }
+        });
+
+        const masterGain = AudioContextManager.getInstance().getMasterGain();
+        if (masterGain) {
+          try {
+            const ctx = AudioContextManager.getInstance().getContext();
+            if (ctx) {
+              masterGain.gain.setValueAtTime(factor, ctx.currentTime);
+            }
+          } catch {}
+        }
+
+        try {
+          const yt = (window as any).__pomoYoutubePlayer;
+          const origYt = (window as any).__pomoYtOriginalVol;
+          if (yt && origYt !== undefined && typeof yt.setVolume === 'function') {
+            yt.setVolume(Math.round(origYt * factor));
+          }
+        } catch {}
+
+        if (currentStep >= steps) {
+          clearInterval(restoreInterval);
+          originalDuckedVolumes.clear();
+          delete (window as any).__pomoYtOriginalVol;
+        }
+      }, intervalMs);
+    },
+
     previewChime: async (chime?: ChimeSoundType) => {
       const targetChime = chime || get().settings.selectedChime;
       const vol = get().settings.chimeVolume;
-      await chimeSynth.previewChime(targetChime, vol);
+      get().applyAudioDucking();
+      await playAlarmChimeSound(targetChime, vol);
     },
 
     playChime: async (chime?: ChimeSoundType) => {
       const { settings } = get();
       if (settings.isMuted) return;
       const targetChime = chime || settings.selectedChime;
-      await chimeSynth.playChime(targetChime, settings.chimeVolume);
+      get().applyAudioDucking();
+      await playAlarmChimeSound(targetChime, settings.chimeVolume);
     },
 
     toggleTrack: async (id: AmbientTrackId) => {
