@@ -736,9 +736,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     exportUserData: async () => {
       const { user } = get();
-      if (!user) return null;
+      const effectiveUserId = user ? user.id : 'guest_user';
       try {
-        return await authService.exportUserData(user.id);
+        return await authService.exportUserData(effectiveUserId);
       } catch (err) {
         console.warn('Lỗi xuất dữ liệu:', err);
         return null;

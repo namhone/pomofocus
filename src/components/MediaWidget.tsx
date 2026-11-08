@@ -13,7 +13,8 @@ import {
   SkipForward,
   SkipBack,
   Play,
-  Pause
+  Pause,
+  Maximize2
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
 import {
@@ -96,7 +97,7 @@ export const MediaWidget: React.FC = () => {
     customMusicError
   } = useAudioStore();
 
-  const playerRef = useRef<YouTubePlayer | null>(null);
+  const youtubePlayerRef = useRef<YouTubePlayer | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [videoTitle, setVideoTitle] = useState<string>('');
   const [inputUrl, setInputUrl] = useState('');
@@ -137,7 +138,9 @@ export const MediaWidget: React.FC = () => {
   const activeUrl = customMusicUrl || currentStation.url;
   const cleanVideoId = extractYouTubeVideoId(activeUrl) || currentStation.videoId;
   const playlistId = extractYouTubePlaylistId(activeUrl);
-  const isMix = isYouTubeMix(activeUrl);
+  // Tự động kích hoạt YouTube Radio Mix (list=RD${cleanVideoId}) khi người dùng dán URL/ID đơn lẻ
+  const effectivePlaylistId = playlistId || (cleanVideoId ? `RD${cleanVideoId}` : undefined);
+  const isMix = isYouTubeMix(activeUrl) || Boolean(!playlistId && cleanVideoId);
   const matchedFavorite = favorites.find((f) => f.url === activeUrl);
 
   const opts: YouTubeProps['opts'] = useMemo(() => {
@@ -151,17 +154,15 @@ export const MediaWidget: React.FC = () => {
         rel: 0,
         origin,
         enablejsapi: 1,
-        ...(playlistId
-          ? { listType: 'playlist', list: playlistId }
-          : isMix && cleanVideoId
-          ? { listType: 'playlist', list: `RD${cleanVideoId}` }
+        ...(effectivePlaylistId
+          ? { listType: 'playlist', list: effectivePlaylistId }
           : {})
       }
     };
-  }, [activeUrl, cleanVideoId, playlistId, isMix]);
+  }, [activeUrl, cleanVideoId, effectivePlaylistId]);
 
   const onPlayerReady: YouTubeProps['onReady'] = (event) => {
-    playerRef.current = event.target;
+    youtubePlayerRef.current = event.target;
     setIsPlaying(true);
     try {
       const data = event.target.getVideoData();
@@ -180,7 +181,7 @@ export const MediaWidget: React.FC = () => {
     } else if (event.data === 2) {
       setIsPlaying(false);
     } else if (event.data === 0) {
-      if (playlistId || isMix) {
+      if (effectivePlaylistId || isMix) {
         try {
           event.target.nextVideo();
         } catch {}
@@ -191,22 +192,22 @@ export const MediaWidget: React.FC = () => {
   };
 
   const togglePlay = () => {
-    if (!playerRef.current) return;
+    if (!youtubePlayerRef.current) return;
     try {
       if (isPlaying) {
-        playerRef.current.pauseVideo();
+        youtubePlayerRef.current.pauseVideo();
         setIsPlaying(false);
       } else {
-        playerRef.current.playVideo();
+        youtubePlayerRef.current.playVideo();
         setIsPlaying(true);
       }
     } catch {}
   };
 
   const handleNextVideo = () => {
-    if ((playlistId || isMix) && playerRef.current && typeof playerRef.current.nextVideo === 'function') {
+    if (youtubePlayerRef.current && typeof youtubePlayerRef.current.nextVideo === 'function') {
       try {
-        playerRef.current.nextVideo();
+        youtubePlayerRef.current.nextVideo();
         return;
       } catch (err) {
         console.debug('[MediaWidget] nextVideo error:', err);
@@ -222,10 +223,18 @@ export const MediaWidget: React.FC = () => {
   };
 
   const handlePrevVideo = () => {
-    if ((playlistId || isMix) && playerRef.current && typeof playerRef.current.previousVideo === 'function') {
+    if (youtubePlayerRef.current) {
       try {
-        playerRef.current.previousVideo();
-        return;
+        const currentTime = typeof youtubePlayerRef.current.getCurrentTime === 'function'
+          ? youtubePlayerRef.current.getCurrentTime()
+          : 0;
+        if (currentTime > 3 && typeof youtubePlayerRef.current.seekTo === 'function') {
+          youtubePlayerRef.current.seekTo(0, true); // Tua lại từ đầu bài hát
+          return;
+        } else if (typeof youtubePlayerRef.current.previousVideo === 'function') {
+          youtubePlayerRef.current.previousVideo(); // Lùi về bài trước đó trong hàng chờ
+          return;
+        }
       } catch (err) {
         console.debug('[MediaWidget] previousVideo error:', err);
       }
@@ -396,6 +405,31 @@ export const MediaWidget: React.FC = () => {
           >
             <ListMusic size={12} />
             <span>Đổi trạm</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="btn-toggle-media-fullscreen"
+            onClick={() => {
+              const root = document.querySelector('[data-testid="media-widget-root"]')?.parentElement;
+              if (!document.fullscreenElement) {
+                if (root?.requestFullscreen) {
+                  root.requestFullscreen();
+                } else if ((root as any)?.webkitRequestFullscreen) {
+                  (root as any).webkitRequestFullscreen();
+                }
+              } else {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } else if ((document as any)?.webkitExitFullscreen) {
+                  (document as any).webkitExitFullscreen();
+                }
+              }
+            }}
+            className="p-1 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg transition active:scale-95 cursor-pointer"
+            title="Toàn màn hình"
+          >
+            <Maximize2 size={13} />
           </button>
 
           <button

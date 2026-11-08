@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { X, GripHorizontal, Minus, Maximize2, Minimize2, Play, Pause, Lock, Unlock } from 'lucide-react';
+import { X, GripHorizontal, Minus, Maximize2, Maximize, Minimize2, Play, Pause, Lock, Unlock } from 'lucide-react';
 import { WidgetId } from '../types/layout';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useTimerStore } from '../stores/useTimerStore';
@@ -75,6 +75,25 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     pointerY: number;
     direction: string;
   }>({ startW: 0, startH: 0, startX: 0, startY: 0, pointerX: 0, pointerY: 0, direction: 'se' });
+
+  const handleToggleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const elem = containerRef.current;
+    if (!elem) return;
+    if (!document.fullscreenElement) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        (elem as any).webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    }
+  };
 
   if (!widget || !widget.isOpen) {
     return null;
@@ -332,6 +351,18 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             {widget.title}
           </h2>
           <div className="flex items-center gap-1">
+            {id === 'media' && (
+              <button
+                type="button"
+                data-testid="btn-media-fullscreen-mobile"
+                onClick={handleToggleFullscreen}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center active:scale-95"
+                title="Toàn màn hình"
+                aria-label="Toàn màn hình"
+              >
+                <Maximize size={13} strokeWidth={1.75} />
+              </button>
+            )}
             <button
               type="button"
               data-testid={`collapse-widget-${id}`}
@@ -604,6 +635,20 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               aria-label="Thu nhỏ thành Mini Pill"
             >
               <Minimize2 size={13} strokeWidth={1.75} />
+            </button>
+          )}
+
+          {/* Fullscreen Button for Media */}
+          {id === 'media' && (
+            <button
+              type="button"
+              data-testid="btn-media-fullscreen"
+              onClick={handleToggleFullscreen}
+              className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+              title="Phóng to toàn màn hình (Fullscreen)"
+              aria-label="Toàn màn hình"
+            >
+              <Maximize size={13} strokeWidth={1.75} />
             </button>
           )}
 

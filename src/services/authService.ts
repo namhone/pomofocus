@@ -1014,31 +1014,35 @@ export const authService = {
       createdAt: Date.now()
     };
 
-    const [tasks, notes, focus_sessions, projects, planner_blocks] = await Promise.all([
-      db.tasks.toArray(),
-      db.notes.toArray(),
-      db.focus_sessions.toArray(),
-      db.projects.toArray(),
-      db.planner_blocks.toArray()
-    ]);
+    let tasks: any[] = [];
+    let notes: any[] = [];
+    let focus_sessions: any[] = [];
+    let projects: any[] = [];
+    let planner_blocks: any[] = [];
+
+    try { tasks = await db.tasks.toArray(); } catch { tasks = []; }
+    try { notes = await db.notes.toArray(); } catch { notes = []; }
+    try { focus_sessions = await db.focus_sessions.toArray(); } catch { focus_sessions = []; }
+    try { projects = await db.projects.toArray(); } catch { projects = []; }
+    try { planner_blocks = await db.planner_blocks.toArray(); } catch { planner_blocks = []; }
 
     const exportPayload: UserDataExport = {
       exportedAt: new Date().toISOString(),
       exportTimestamp: Date.now(),
       user: targetUser,
       stats: {
-        tasksCount: tasks.length,
-        notesCount: notes.length,
-        sessionsCount: focus_sessions.length,
-        projectsCount: projects.length,
-        plannerBlocksCount: planner_blocks.length
+        tasksCount: (tasks || []).length,
+        notesCount: (notes || []).length,
+        sessionsCount: (focus_sessions || []).length,
+        projectsCount: (projects || []).length,
+        plannerBlocksCount: (planner_blocks || []).length
       },
       data: {
-        tasks,
-        notes,
-        focus_sessions,
-        projects,
-        planner_blocks
+        tasks: tasks || [],
+        notes: notes || [],
+        focus_sessions: focus_sessions || [],
+        projects: projects || [],
+        planner_blocks: planner_blocks || []
       }
     };
 

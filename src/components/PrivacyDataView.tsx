@@ -68,21 +68,62 @@ export const PrivacyDataView: React.FC = () => {
   const handleExportData = async () => {
     setIsExporting(true);
     try {
-      const payload = await exportUserData();
-      if (!payload) {
-        showToast('error', 'Không thể tạo bản sao lưu.');
-        setIsExporting(false);
-        return;
+      let rawData: any = null;
+      try {
+        rawData = await exportUserData();
+      } catch {
+        rawData = null;
       }
 
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      let tasks: any[] = rawData?.data?.tasks;
+      let notes: any[] = rawData?.data?.notes;
+      let sessions: any[] = rawData?.data?.focus_sessions;
+      let settings: any = {};
+
+      if (!Array.isArray(tasks)) {
+        try { tasks = await db.tasks.toArray(); } catch { tasks = []; }
+      }
+      if (!Array.isArray(notes)) {
+        try { notes = await db.notes.toArray(); } catch { notes = []; }
+      }
+      if (!Array.isArray(sessions)) {
+        try { sessions = await db.focus_sessions.toArray(); } catch { sessions = []; }
+      }
+
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const rawSettings = localStorage.getItem('pomodoro_user_settings_v1') || localStorage.getItem('pomodoro_workspace_layout_v1');
+          if (rawSettings) settings = JSON.parse(rawSettings);
+        } catch {
+          settings = {};
+        }
+      }
+
+      const safeTasks = Array.isArray(tasks) ? tasks : [];
+      const safeNotes = Array.isArray(notes) ? notes : [];
+      const safeSessions = Array.isArray(sessions) ? sessions : [];
+      const safeSettings = settings && typeof settings === 'object' ? settings : {};
+
+      const exportPayload = {
+        appName: "PomoFocus Workspace",
+        version: "6.2",
+        exportDate: new Date().toISOString(),
+        data: {
+          tasks: safeTasks,
+          notes: safeNotes,
+          sessions: safeSessions,
+          settings: safeSettings
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
         type: 'application/json'
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       const dateStr = new Date().toISOString().slice(0, 10);
       a.href = url;
-      a.download = `pomofocus-data-backup-${dateStr}.json`;
+      a.download = `pomofocus-backup-${dateStr}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

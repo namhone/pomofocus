@@ -29,12 +29,18 @@ export function isYouTubeMix(url: string): boolean {
   return Boolean(listId && listId.startsWith('RD'));
 }
 
-export function extractYouTubeEmbedUrl(url: string): string | null {
+export function buildYouTubeMixEmbedUrl(videoId: string, origin?: string): string {
+  const hostOrigin = origin || (typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app');
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&list=RD${videoId}&origin=${hostOrigin}`;
+}
+
+export function extractYouTubeEmbedUrl(url: string, autoMix: boolean = false): string | null {
   if (!url) return null;
   const trimmed = url.trim();
   try {
     const listId = extractYouTubePlaylistId(trimmed);
     const videoId = extractYouTubeVideoId(trimmed);
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
 
     if (listId) {
       // YouTube Mix (RD...) requires starting videoId in embed URL to avoid "Playlist does not exist" error
@@ -45,6 +51,9 @@ export function extractYouTubeEmbedUrl(url: string): string | null {
     }
 
     if (videoId) {
+      if (autoMix) {
+        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&list=RD${videoId}&origin=${origin}&autoplay=1`;
+      }
       return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
     }
 

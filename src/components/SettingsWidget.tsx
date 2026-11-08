@@ -133,6 +133,97 @@ export const SettingsWidget: React.FC = () => {
         </div>
       )}
 
+      {/* Khối ưu tiên 1: Thời lượng Pomodoro & Hiệp (Đưa lên đầu bảng Cài Đặt theo UX Final Polish) */}
+      <div className="space-y-2.5 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-200">
+            <Clock size={13} className="text-rose-400" />
+            <span>Thời lượng Pomodoro & Hiệp</span>
+          </div>
+          {saveFeedback ? (
+            <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 animate-fade-in">
+              <CheckCircle2 size={11} />
+              Đã lưu
+            </span>
+          ) : (
+            <span className="text-[9.5px] text-neutral-400">Tự động lưu tức thì</span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <label htmlFor="settings-pomo-min" className="block mb-1 text-[10.5px] text-neutral-400">
+              Tập trung
+            </label>
+            <div className="relative">
+              <input
+                id="settings-pomo-min"
+                data-testid="settings-input-pomodoro-min"
+                type="number"
+                min="1"
+                max="120"
+                value={timerSettings.pomodoroMinutes}
+                disabled={timerStatus !== 'idle'}
+                onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
+              />
+              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="settings-short-min" className="block mb-1 text-[10.5px] text-neutral-400">
+              Nghỉ ngắn
+            </label>
+            <div className="relative">
+              <input
+                id="settings-short-min"
+                data-testid="settings-input-short-min"
+                type="number"
+                min="1"
+                max="60"
+                value={timerSettings.shortBreakMinutes}
+                disabled={timerStatus !== 'idle'}
+                onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+              />
+              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="settings-long-min" className="block mb-1 text-[10.5px] text-neutral-400">
+              Nghỉ dài
+            </label>
+            <div className="relative">
+              <input
+                id="settings-long-min"
+                data-testid="settings-input-long-min"
+                type="number"
+                min="1"
+                max="60"
+                value={timerSettings.longBreakMinutes}
+                disabled={timerStatus !== 'idle'}
+                onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
+              />
+              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              data-testid="settings-checkbox-auto-transition"
+              type="checkbox"
+              checked={timerSettings.autoTransition}
+              onChange={(e) => handleTimerChange({ autoTransition: e.target.checked })}
+              className="rounded border-neutral-700 bg-neutral-800 text-rose-500 focus:ring-0"
+            />
+            <span className="text-neutral-300 text-[11px]">Tự động chuyển tiếp giữa các hiệp</span>
+          </label>
+        </div>
+      </div>
+
       {/* Quick Navigation: Lối tắt về Trang Chủ */}
       <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -420,97 +511,6 @@ export const SettingsWidget: React.FC = () => {
             <RotateCcw size={13} className="text-amber-400" />
             <span>Bố cục mặc định Workspace</span>
           </button>
-        </div>
-      </div>
-
-      {/* Section 5: Pomodoro Settings & Persistence */}
-      <div className="space-y-2.5 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-200">
-            <Clock size={13} className="text-rose-400" />
-            <span>Thời lượng Pomodoro & Hiệp</span>
-          </div>
-          {saveFeedback ? (
-            <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 animate-fade-in">
-              <CheckCircle2 size={11} />
-              Đã lưu
-            </span>
-          ) : (
-            <span className="text-[9.5px] text-neutral-400">Tự động lưu tức thì</span>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <div>
-            <label htmlFor="settings-pomo-min" className="block mb-1 text-[10.5px] text-neutral-400">
-              Tập trung
-            </label>
-            <div className="relative">
-              <input
-                id="settings-pomo-min"
-                data-testid="settings-input-pomodoro-min"
-                type="number"
-                min="1"
-                max="120"
-                value={timerSettings.pomodoroMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
-              />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
-            </div>
-          </div>
-          <div>
-            <label htmlFor="settings-short-min" className="block mb-1 text-[10.5px] text-neutral-400">
-              Nghỉ ngắn
-            </label>
-            <div className="relative">
-              <input
-                id="settings-short-min"
-                data-testid="settings-input-short-min"
-                type="number"
-                min="1"
-                max="60"
-                value={timerSettings.shortBreakMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
-              />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
-            </div>
-          </div>
-          <div>
-            <label htmlFor="settings-long-min" className="block mb-1 text-[10.5px] text-neutral-400">
-              Nghỉ dài
-            </label>
-            <div className="relative">
-              <input
-                id="settings-long-min"
-                data-testid="settings-input-long-min"
-                type="number"
-                min="1"
-                max="60"
-                value={timerSettings.longBreakMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-center text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
-              />
-              <span className="absolute right-1.5 top-1 text-[9px] text-neutral-500 pointer-events-none">p</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              data-testid="settings-checkbox-auto-transition"
-              type="checkbox"
-              checked={timerSettings.autoTransition}
-              onChange={(e) => handleTimerChange({ autoTransition: e.target.checked })}
-              className="rounded border-neutral-700 bg-neutral-800 text-rose-500 focus:ring-0"
-            />
-            <span className="text-neutral-300 text-[11px]">Tự động chuyển tiếp giữa các hiệp</span>
-          </label>
         </div>
       </div>
 
