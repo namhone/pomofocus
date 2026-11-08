@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, Suspense, lazy } from 'react';
-import { TimerTestInterface } from './components/TimerTestInterface';
+import { TimerWidget } from './components/TimerWidget';
 import { WidgetContainer } from './components/WidgetContainer';
 import { BackgroundCanvas } from './components/BackgroundCanvas';
 import { WidgetSkeleton } from './components/WidgetSkeleton';
@@ -300,7 +300,7 @@ export const App: React.FC = () => {
                 }`}>
                   <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'timer' ? 'hidden' : ''}`}>
                     <WidgetContainer id="timer">
-                      <TimerTestInterface />
+                      <TimerWidget />
                     </WidgetContainer>
                   </div>
 
@@ -356,7 +356,7 @@ export const App: React.FC = () => {
               ) : (
                 <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28">
                   <WidgetContainer id="timer">
-                    <TimerTestInterface />
+                    <TimerWidget />
                   </WidgetContainer>
 
                   <WidgetContainer id="tasks">

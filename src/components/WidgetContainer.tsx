@@ -246,10 +246,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       const requestedHeight = start.startH + (south ? deltaY : north ? -deltaY : 0);
 
       const currentWidget = useLayoutStore.getState().widgets[id];
-      const minW = currentWidget.minWidth ?? 280;
-      const minH = currentWidget.minHeight ?? 240;
-      const maxW = id === 'timer' ? 420 : (currentWidget.maxWidth ?? 900);
-      const maxH = id === 'timer' ? 320 : (currentWidget.maxHeight ?? 900);
+      const minW = id === 'timer' ? 300 : (currentWidget.minWidth ?? 280);
+      const minH = id === 'timer' ? 360 : (currentWidget.minHeight ?? 240);
+      const maxW = id === 'timer' ? 460 : (currentWidget.maxWidth ?? 900);
+      const maxH = id === 'timer' ? 520 : (currentWidget.maxHeight ?? 900);
 
       const screenMaxW = Math.max(minW, window.innerWidth - (west ? 10 : start.startX) - 12);
       const screenMaxH = Math.max(minH, window.innerHeight - (north ? 8 : start.startY) - 12);
@@ -539,8 +539,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   let currentWidth = isMedia && isCollapsed ? mediaPipWidth : widget.width;
   let currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
   if (id === 'timer' && !widget.isMiniPill && !isCollapsed) {
-    currentWidth = Math.min(420, currentWidth);
-    currentHeight = Math.min(320, currentHeight);
+    currentWidth = Math.min(460, Math.max(300, currentWidth));
+    currentHeight = Math.min(520, Math.max(360, currentHeight));
   }
 
   return (
@@ -553,7 +553,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         position: isCompact ? 'fixed' : 'absolute',
         ...(isCompact ? {} : { left: `${widget.x}px`, top: `${widget.y}px` }),
         width: `${currentWidth}px`,
-        height: `${currentHeight}px`,
+        height: id === 'timer' && !isCollapsed ? 'auto' : `${currentHeight}px`,
+        minHeight: id === 'timer' && !isCollapsed ? `${currentHeight}px` : undefined,
+        maxHeight: id === 'timer' && !isCollapsed ? '520px' : undefined,
         zIndex: widget.zIndex,
         backgroundColor: isEcoMode
           ? 'rgba(12, 12, 14, 0.96)'
@@ -577,7 +579,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         id === 'timer'
           ? 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)]'
           : 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)]'
-      } border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150 ${
+      } border-b border-b-white/5 border-x border-x-white/10 flex flex-col ${id === 'timer' ? 'overflow-visible h-auto min-h-fit' : 'overflow-hidden'} transition-[box-shadow,border-color] duration-150 ${
         isDragging || isResizing ? 'ring-2 ring-emerald-300/45 shadow-2xl' : ''
       } ${
         isLayoutEditMode ? 'outline outline-1 outline-dashed outline-white/25' : ''
@@ -695,7 +697,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-3' : 'p-3.5 sm:p-4'
         } ${
           id === 'timer'
-            ? 'overflow-y-auto items-center justify-start w-full'
+            ? 'overflow-visible items-center justify-start w-full h-auto min-h-fit'
             : isMedia
             ? 'overflow-hidden'
             : 'overflow-y-auto'

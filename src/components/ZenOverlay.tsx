@@ -1,7 +1,7 @@
 import React from 'react';
 import { Minimize2, Sparkles } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
-import { TimerTestInterface } from './TimerTestInterface';
+import { TimerWidget } from './TimerWidget';
 
 export const ZenOverlay: React.FC = () => {
   const { isZenMode, setZenMode } = useLayoutStore();
@@ -40,7 +40,7 @@ export const ZenOverlay: React.FC = () => {
       {/* Main Centered Timer Container with Ambient Radial Glow */}
       <main className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto my-0 relative min-h-0">
         <div className="absolute w-72 h-72 sm:w-80 sm:h-80 bg-emerald-500/15 blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" />
-        <TimerTestInterface isEmbeddedInZen={true} />
+        <TimerWidget isEmbeddedInZen={true} />
       </main>
 
       {/* Bottom Hint */}

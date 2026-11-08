@@ -71,11 +71,11 @@ describe('Mobile Centering, Settings Streamline & Fluid Widget Resizing Invarian
       expect(tasksCode).toContain('flex-1 overflow-y-auto min-h-0');
     });
 
-    it('WidgetContainer: Áp dụng clamp giới hạn cho thẻ Timer (maxWidth: 420, maxHeight: 320)', () => {
-      expect(containerCode).toContain("maxW = id === 'timer' ? 420");
-      expect(containerCode).toContain("maxH = id === 'timer' ? 320");
-      expect(containerCode).toContain("Math.min(420, currentWidth)");
-      expect(containerCode).toContain("Math.min(320, currentHeight)");
+    it('WidgetContainer: Áp dụng clamp giới hạn cho thẻ Timer (maxWidth: 460, maxHeight: 520, minHeight: 360)', () => {
+      expect(containerCode).toContain("maxW = id === 'timer' ? 460");
+      expect(containerCode).toContain("maxH = id === 'timer' ? 520");
+      expect(containerCode).toContain("Math.min(460");
+      expect(containerCode).toContain("Math.min(520");
     });
   });
 });

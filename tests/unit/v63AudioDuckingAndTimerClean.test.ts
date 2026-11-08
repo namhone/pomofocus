@@ -40,23 +40,25 @@ describe('Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX', () =
 
     const widgetContainerPath = path.resolve(__dirname, '../../src/components/WidgetContainer.tsx');
     const containerContent = fs.readFileSync(widgetContainerPath, 'utf-8');
-    expect(containerContent).toContain('Math.min(320, currentHeight)');
-    expect(containerContent).toContain('Math.min(420, currentWidth)');
+    expect(containerContent).toContain('Math.min(520');
+    expect(containerContent).toContain('Math.min(460');
   });
 
-  it('should remove whitish smudge shadow from start button in TimerTestInterface', () => {
-    const timerPath = path.resolve(__dirname, '../../src/components/TimerTestInterface.tsx');
+  it('should remove whitish smudge shadow from start button in TimerWidget', () => {
+    const timerPath = path.resolve(__dirname, '../../src/components/TimerWidget.tsx');
     const timerContent = fs.readFileSync(timerPath, 'utf-8');
     expect(timerContent).not.toContain('shadow-[0_6px_20px_rgba(255,255,255,0.18)');
     expect(timerContent).toContain('data-testid="timer-start-btn"');
+    expect(timerContent).toContain('shadow-md');
   });
 
-  it('should suppress browser spin buttons on all minute inputs in TimerTestInterface', () => {
-    const timerPath = path.resolve(__dirname, '../../src/components/TimerTestInterface.tsx');
+  it('should suppress browser spin buttons on all minute inputs in TimerWidget', () => {
+    const timerPath = path.resolve(__dirname, '../../src/components/TimerWidget.tsx');
     const timerContent = fs.readFileSync(timerPath, 'utf-8');
     expect(timerContent).toContain('input-pomodoro-min');
     expect(timerContent).toContain('input-short-min');
     expect(timerContent).toContain('input-long-min');
+    expect(timerContent).toContain('[appearance:textfield]');
     expect(timerContent).toContain('[&::-webkit-inner-spin-button]:appearance-none');
     expect(timerContent).toContain('[-moz-appearance:textfield]');
   });
