@@ -291,7 +291,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               }
             : {})
         }}
-        className={`w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/[0.24] border-b border-b-white/[0.06] border-x border-x-white/[0.10] shadow-[0_16px_36px_-6px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
+        className={`w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
       >
         {/* Mobile Header Bar */}
         <div className="h-10 flex items-center justify-between px-3.5 border-b border-white/[0.08] bg-white/[0.02] select-none touch-pan-y">
@@ -471,9 +471,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       data-layout-editing={isLayoutEditMode ? 'true' : undefined}
       className={`pointer-events-auto rounded-[20px] border-t ${
         id === 'timer'
-          ? 'border-t-white/[0.28] shadow-[0_28px_60px_-12px_rgba(0,0,0,0.55),inset_0_1px_1px_0_rgba(255,255,255,0.22),inset_0_0_24px_rgba(255,255,255,0.02)]'
-          : 'border-t-white/[0.20] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.45),inset_0_1px_1px_0_rgba(255,255,255,0.16),inset_0_0_20px_rgba(255,255,255,0.015)]'
-      } border-b border-b-white/[0.05] border-x border-x-white/[0.10] flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150 ${
+          ? 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)]'
+          : 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)]'
+      } border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150 ${
         isDragging || isResizing ? 'ring-2 ring-emerald-300/45 shadow-2xl' : ''
       } ${
         isLayoutEditMode ? 'outline outline-1 outline-dashed outline-white/25' : ''

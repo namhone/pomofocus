@@ -43,19 +43,19 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
       case 'pomodoro':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'bg-rose-500/20 text-rose-200 border border-rose-500/35 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-rose text-rose-200 font-medium shadow-xs',
           label: 'Tập trung'
         };
       case 'short_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/35 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-emerald text-emerald-200 font-medium shadow-xs',
           label: 'Nghỉ ngắn'
         };
       case 'long_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'bg-sky-500/20 text-sky-200 border border-sky-500/35 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-sky text-sky-200 font-medium shadow-xs',
           label: 'Nghỉ dài'
         };
     }
@@ -64,7 +64,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className={`flex w-full flex-col items-center justify-center mx-auto select-none ${isEmbeddedInZen ? 'scale-105 transition-transform max-w-md' : 'max-w-full'}`}>
+    <div className={`flex w-full flex-col items-center justify-center mx-auto select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
       <div className={isEmbeddedInZen ? 'w-full rounded-[20px] border-t border-t-white/[0.24] border-x border-x-white/[0.10] border-b border-b-white/[0.05] bg-[rgba(12,15,22,0.45)] p-6 shadow-2xl backdrop-blur-2xl backdrop-saturate-[180%]' : 'w-full flex flex-col'}>
         {/* Header Indicators */}
         <div className="flex items-center justify-between text-xs text-neutral-300 mb-2 select-none">
@@ -142,7 +142,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
 
         {/* Timer Display Display Area (Specular Highlight + Tabular Figures Không Rung) */}
         <div
-          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-2 px-3 text-center transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg}`}
+          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-2 px-3 text-center transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg} ${status === 'running' ? 'animate-zen-breathe' : ''}`}
         >
           <div
             data-testid="timer-display"
@@ -195,7 +195,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               onClick={start}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
-              className="flex-1 rounded-full bg-white py-1.5 px-4 text-xs font-semibold text-neutral-900 shadow-[0_4px_20px_rgba(255,255,255,0.18)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-neutral-100 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+              className="liquid-glass-btn flex-1 py-1.5 px-4 text-xs font-semibold text-white shadow-[0_6px_20px_rgba(255,255,255,0.18),inset_0_1px_1px_rgba(255,255,255,0.5)] min-h-[34px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
             >
               <Play size={13} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Bắt đầu</span>
@@ -208,7 +208,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               onClick={pause}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
-              className="flex-1 rounded-full bg-amber-400 py-1.5 px-4 text-xs font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(251,191,36,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-amber-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              className="liquid-glass-btn liquid-glass-btn-amber flex-1 py-1.5 px-4 text-xs font-semibold min-h-[34px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
             >
               <Pause size={13} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Tạm dừng</span>
@@ -221,7 +221,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
               onClick={resume}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
-              className="flex-1 rounded-full bg-emerald-400 py-1.5 px-4 text-xs font-semibold text-neutral-950 shadow-[0_4px_16px_rgba(52,211,153,0.25)] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-emerald-300 active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="liquid-glass-btn liquid-glass-btn-emerald flex-1 py-1.5 px-4 text-xs font-semibold min-h-[34px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
               <Play size={13} fill="currentColor" className="-translate-y-[0.5px]" />
               <span>Tiếp tục</span>
@@ -233,7 +233,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             onClick={reset}
             title="Đặt lại về mặc định"
             aria-label="Đặt lại về mặc định"
-            className="rounded-full border border-white/10 bg-white/[0.05] py-1.5 px-2.5 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] min-w-[34px] inline-flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-white min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <RotateCcw size={12} className="-translate-y-[0.5px]" />
             <span className="text-[11px]">Đặt lại</span>
@@ -244,7 +244,7 @@ export const TimerTestInterface: React.FC<TimerTestInterfaceProps> = ({
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp"
             aria-label="Chuyển sang hiệp kế tiếp"
-            className="rounded-full border border-white/10 bg-white/[0.05] py-1.5 px-2.5 text-neutral-300 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.12] hover:text-white active:scale-[0.97] active:opacity-90 cursor-pointer min-h-[34px] min-w-[34px] inline-flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-white min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <FastForward size={12} className="-translate-y-[0.5px]" />
             <span className="text-[11px]">Bỏ qua</span>

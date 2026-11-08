@@ -4,13 +4,23 @@
 
 export function extractYouTubePlaylistId(url: string): string | null {
   if (!url) return null;
-  const match = url.trim().match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  const trimmed = url.trim();
+  // Nhận dạng trực tiếp Playlist ID (bắt đầu bằng PL, RD, hoặc OLAK5uy_)
+  if (/^(?:PL|RD|OLAK5uy_)[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    return trimmed;
+  }
+  const match = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
   return match && match[1] ? match[1] : null;
 }
 
 export function extractYouTubeVideoId(url: string): string | null {
   if (!url) return null;
-  const match = url.trim().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  const trimmed = url.trim();
+  // Nhận dạng trực tiếp 11 ký tự YouTube Video ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const match = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/))([a-zA-Z0-9_-]{11})/);
   return match && match[1] ? match[1] : null;
 }
 

@@ -409,6 +409,7 @@ function persistLayout(
 export interface LayoutStoreState {
   widgets: Record<WidgetId, WidgetState>;
   isZenMode: boolean;
+  isShortcutsModalOpen: boolean;
   isFocusMode: boolean;
   density: WorkspaceDensity;
   isMobile: boolean;
@@ -434,6 +435,8 @@ export interface LayoutStoreState {
   // Actions
   setZenMode: (enabled: boolean) => void;
   toggleZenMode: () => void;
+  setShortcutsModalOpen: (open: boolean) => void;
+  toggleShortcutsModal: () => void;
   setFocusMode: (enabled: boolean) => void;
   toggleFocusMode: () => void;
   setDensity: (density: WorkspaceDensity) => void;
@@ -487,6 +490,7 @@ const initialHighestZ = Math.max(
 export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   widgets: initial.widgets,
   isZenMode: initial.isZenMode,
+  isShortcutsModalOpen: false,
   isFocusMode: initial.isFocusMode,
   density: initial.density,
   isMobile: typeof window !== 'undefined' ? window.innerWidth < 1100 : false,
@@ -547,7 +551,12 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     set({ isZenMode: next });
     get().saveLayout();
   },
-
+  setShortcutsModalOpen: (open: boolean) => {
+    set({ isShortcutsModalOpen: open });
+  },
+  toggleShortcutsModal: () => {
+    set((state) => ({ isShortcutsModalOpen: !state.isShortcutsModalOpen }));
+  },
   setFocusMode: (enabled: boolean) => {
     set({ isFocusMode: enabled });
     get().saveLayout();

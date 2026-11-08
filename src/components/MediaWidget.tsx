@@ -248,7 +248,7 @@ export const MediaWidget: React.FC = () => {
     }
     const embed = extractYouTubeEmbedUrl(trimmed);
     if (!embed) {
-      setCustomMusicError('Vui lòng nhập đường dẫn YouTube hợp lệ (video, live stream, playlist hoặc YouTube Mix)');
+      setCustomMusicError('Vui lòng nhập đường dẫn YouTube hoặc Video ID (11 ký tự), Playlist hoặc YouTube Mix hợp lệ');
       return;
     }
     setCustomMusicError(null);
@@ -451,7 +451,7 @@ export const MediaWidget: React.FC = () => {
               type="text"
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="Dán link Video, Playlist (list=PL...) hoặc Mix (list=RD...)"
+              placeholder="Dán link Video, Video ID (11 ký tự), Playlist hoặc Mix..."
               data-testid="input-media-url"
               className="flex-1 min-w-0 bg-neutral-900 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
             />

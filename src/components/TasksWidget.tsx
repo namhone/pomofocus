@@ -63,11 +63,11 @@ export const TasksWidget: React.FC = () => {
   const getPriorityStyle = (p: TaskPriority) => {
     switch (p) {
       case 'p1':
-        return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+        return 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.25)]';
       case 'p2':
-        return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+        return 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]';
       case 'p3':
-        return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]';
     }
   };
 
@@ -136,13 +136,13 @@ export const TasksWidget: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex rounded-full bg-black/30 p-1 border border-white/10 gap-1 shrink-0">
+        <div className="flex rounded-xl bg-black/30 p-1 border border-white/10 gap-1 shrink-0">
           <button
             type="button"
             data-testid="filter-status-all"
             onClick={() => setStatusFilter('all')}
             className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-              statusFilter === 'all' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+              statusFilter === 'all' ? 'liquid-glass-btn-active bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Tất cả
@@ -152,7 +152,7 @@ export const TasksWidget: React.FC = () => {
             data-testid="filter-status-todo"
             onClick={() => setStatusFilter('todo')}
             className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-              statusFilter === 'todo' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+              statusFilter === 'todo' ? 'liquid-glass-btn-active bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Cần làm
@@ -162,7 +162,7 @@ export const TasksWidget: React.FC = () => {
             data-testid="filter-status-completed"
             onClick={() => setStatusFilter('completed')}
             className={`px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
-              statusFilter === 'completed' ? 'bg-white/15 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+              statusFilter === 'completed' ? 'liquid-glass-btn-active bg-emerald-500/20 text-emerald-300 font-semibold' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Đã xong
@@ -196,7 +196,7 @@ export const TasksWidget: React.FC = () => {
                   type="button"
                   data-testid={`priority-btn-${p}`}
                   onClick={() => setPriority(p)}
-                  className={`px-1.5 py-0.5 rounded-md border text-[9px] uppercase font-bold transition cursor-pointer h-6 min-w-[24px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                  className={`px-2 py-0.5 rounded-xl border text-[9px] uppercase font-bold transition cursor-pointer h-6 min-w-[26px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                     priority === p ? getPriorityStyle(p) : 'bg-transparent border-transparent text-neutral-400 hover:text-neutral-200'
                   }`}
                 >
@@ -242,7 +242,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="px-3.5 py-1 text-xs rounded-full bg-white text-neutral-950 hover:bg-neutral-200 font-semibold transition shadow-sm cursor-pointer h-7 flex items-center gap-1 shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="liquid-glass-btn px-3.5 py-1 text-xs font-semibold text-white transition cursor-pointer h-7 gap-1 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             + Thêm
           </button>
@@ -267,14 +267,27 @@ export const TasksWidget: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <label className="flex items-center justify-center min-w-[32px] min-h-[32px] cursor-pointer -m-1 p-1">
+                  <label className="relative flex items-center justify-center min-w-[32px] min-h-[32px] cursor-pointer -m-1 p-1">
                     <input
                       data-testid={`toggle-task-${task.id}`}
                       type="checkbox"
                       checked={isCompleted}
                       onChange={() => toggleTaskComplete(task.id)}
-                      className="w-4 h-4 rounded border-neutral-600 bg-neutral-800 text-white focus:ring-0 cursor-pointer"
+                      className="sr-only"
                     />
+                    <div
+                      className={`w-4 h-4 rounded-full border transition-all flex items-center justify-center ${
+                        isCompleted
+                          ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'
+                          : 'border-white/35 bg-white/[0.04] hover:border-emerald-400 hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      {isCompleted && (
+                        <svg className="w-2.5 h-2.5 text-neutral-950" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="2.5 6 5 8.5 9.5 3.5" />
+                        </svg>
+                      )}
+                    </div>
                   </label>
                   <div className="min-w-0 flex-1">
                     <div

@@ -3016,10 +3016,19 @@ export const StudyRoomView: React.FC = () => {
               <Settings size={15} />
             </button>
 
-            <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-              <Users size={14} />
+            <button
+              type="button"
+              data-testid="btn-room-participants-list"
+              onClick={() => {
+                setActiveSettingsTab('room_admin');
+                setIsDeviceModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+              title="Xem danh sách thành viên trong phòng"
+            >
+              <Users size={14} className="text-emerald-400" />
               <span>{otherParticipants.length + 1} thành viên</span>
-            </div>
+            </button>
           </div>
         </div>
 

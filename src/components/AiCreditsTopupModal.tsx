@@ -101,6 +101,21 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
       setSelectedCredits(topupModalInitialCredits || 1500);
     }
   }, [isOpen, topupModalInitialCredits]);
+
+  // Luôn lắng nghe phím Escape trên window ở capture phase để đóng modal ngay cả khi focus vào ô input
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [isOpen, onClose]);
   const [orderCode, setOrderCode] = useState<string>('');
   const [serverQrUrl, setServerQrUrl] = useState<string>('');
   const [isLoadingOrder, setIsLoadingOrder] = useState<boolean>(false);

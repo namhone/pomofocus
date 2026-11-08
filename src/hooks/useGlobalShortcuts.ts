@@ -48,7 +48,8 @@ export function useGlobalShortcuts(): void {
     toggleWidget,
     tileWidgets,
     cascadeWidgets,
-    toggleSnap
+    toggleSnap,
+    toggleShortcutsModal
   } = useLayoutStore();
 
   useEffect(() => {
@@ -64,6 +65,13 @@ export function useGlobalShortcuts(): void {
           e.preventDefault();
           setZenMode(false);
         }
+        return;
+      }
+
+      // 2b. Phím ? hoặc Shift + / để mở/đóng Modal Bảng Tra Cứu Phím Tắt
+      if ((e.key === '?' || (e.key === '/' && e.shiftKey)) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        toggleShortcutsModal();
         return;
       }
 
@@ -162,6 +170,7 @@ export function useGlobalShortcuts(): void {
     toggleWidget,
     tileWidgets,
     cascadeWidgets,
-    toggleSnap
+    toggleSnap,
+    toggleShortcutsModal
   ]);
 }

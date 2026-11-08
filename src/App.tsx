@@ -29,6 +29,7 @@ import { useTimerStore } from './stores/useTimerStore';
 import { useAuthStore } from './stores/useAuthStore';
 import { useAiStore } from './stores/useAiStore';
 import { AiCreditsTopupModal } from './components/AiCreditsTopupModal';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { TwoFactorGateModal } from './components/TwoFactorGateModal';
 import { supabase } from './lib/supabase';
 import { usePwaInstallStore } from './stores/usePwaInstallStore';
@@ -289,6 +290,7 @@ export const App: React.FC = () => {
             <>
               <PlatformHeader />
               <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
+      <KeyboardShortcutsModal />
 
               <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
               {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}

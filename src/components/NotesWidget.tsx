@@ -210,7 +210,7 @@ export const NotesWidget: React.FC = () => {
                 onBlur={() => saveNow(activeNote.id)}
                 placeholder="Nhập nội dung Markdown tại đây (hỗ trợ # header, **in đậm**, - checklist, [link](url))..."
                 rows={5}
-                className={`w-full text-xs p-3 pl-3.5 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono resize-none leading-relaxed transition-colors ${stickyStyles}`}
+                className={`w-full text-xs p-3 pl-3.5 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-sans resize-none leading-relaxed transition-colors ${stickyStyles}`}
               />
               <button
                 type="button"
