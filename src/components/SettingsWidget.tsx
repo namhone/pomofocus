@@ -265,15 +265,43 @@ export const SettingsWidget: React.FC = () => {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              data-testid="settings-checkbox-auto-transition"
-              type="checkbox"
-              checked={timerSettings.autoTransition}
-              onChange={(e) => handleTimerChange({ autoTransition: e.target.checked })}
-              className="rounded border-neutral-700 bg-neutral-800 text-rose-500 focus:ring-0"
-            />
-            <span className="text-neutral-300 text-[11px]">Tự động chuyển tiếp giữa các hiệp</span>
+          <label className="flex items-center gap-2.5 cursor-pointer select-none group py-1">
+            <div className="relative flex items-center justify-center">
+              {/* Input ẩn nguyên bản bảo đảm accessibility & form state */}
+              <input
+                data-testid="settings-checkbox-auto-transition"
+                type="checkbox"
+                checked={timerSettings.autoTransition}
+                onChange={(e) => handleTimerChange({ autoTransition: e.target.checked })}
+                className="sr-only peer"
+              />
+              {/* Hộp Checkmark Kính Lỏng Tùy Chỉnh */}
+              <div
+                className={`w-5 h-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-200 ease-out group-hover:border-white/40 group-hover:bg-white/15 peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400 peer-checked:border-emerald-400/60 peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)] peer-checked:[&>svg]:opacity-100 peer-checked:[&>svg]:scale-100 flex items-center justify-center ${
+                  timerSettings.autoTransition
+                    ? 'bg-gradient-to-tr from-emerald-600 to-teal-400 border-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.45)]'
+                    : ''
+                }`}
+              >
+                {/* Dấu tick SVG sắc nét hiện mượt khi checked */}
+                <svg
+                  className={`w-3 h-3 text-white transition-all duration-150 transform ${
+                    timerSettings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+                  } peer-checked:opacity-100 peer-checked:scale-100`}
+                  viewBox="0 0 14 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1.5 5.5L5 9L12.5 1.5" />
+                </svg>
+              </div>
+            </div>
+            <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors">
+              Tự động chuyển tiếp giữa các hiệp
+            </span>
           </label>
         </div>
       </div>

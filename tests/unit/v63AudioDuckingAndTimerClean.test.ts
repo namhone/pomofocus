@@ -70,4 +70,20 @@ describe('Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX', () =
     expect(cssContent).toContain('input[type="number"]::-webkit-inner-spin-button');
     expect(cssContent).toContain('-webkit-appearance: none');
   });
+
+  it('should render custom liquid glass checkbox instead of default browser checkbox in TimerWidget & SettingsWidget', () => {
+    const timerPath = path.resolve(__dirname, '../../src/components/TimerWidget.tsx');
+    const timerContent = fs.readFileSync(timerPath, 'utf-8');
+    expect(timerContent).toContain('data-testid="checkbox-auto-transition"');
+    expect(timerContent).toContain('className="sr-only peer"');
+    expect(timerContent).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
+    expect(timerContent).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+
+    const settingsPath = path.resolve(__dirname, '../../src/components/SettingsWidget.tsx');
+    const settingsContent = fs.readFileSync(settingsPath, 'utf-8');
+    expect(settingsContent).toContain('data-testid="settings-checkbox-auto-transition"');
+    expect(settingsContent).toContain('className="sr-only peer"');
+    expect(settingsContent).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
+    expect(settingsContent).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+  });
 });
