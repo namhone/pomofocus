@@ -103,7 +103,9 @@
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none !important;
+    appearance: none !important;
     margin: 0 !important;
+    display: none !important;
   }
   input[type="number"] {
     -moz-appearance: textfield !important;
@@ -118,6 +120,14 @@
   textarea:focus-visible {
     outline: none !important;
     box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.8), 0 0 0 4px #09090b !important;
+  }
+
+  /* Miễn trừ focus-ring toàn cục cho các input/textarea trong Liquid Glass Capsule có class no-focus-ring */
+  input.no-focus-ring:focus-visible,
+  textarea.no-focus-ring:focus-visible,
+  .no-focus-ring:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
   }
 }
 

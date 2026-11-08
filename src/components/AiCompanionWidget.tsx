@@ -126,7 +126,7 @@ export const AiCompanionWidget: React.FC = () => {
   const [fileError, setFileError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Khởi tạo cuộc trò chuyện khi widget mở và user đã đăng nhập
@@ -263,7 +263,7 @@ export const AiCompanionWidget: React.FC = () => {
     await executeSendMessage(textToSend, effectiveAction, attachmentInfo || undefined);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend('chat');
@@ -687,18 +687,18 @@ export const AiCompanionWidget: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 4. Khung Nhập Liệu & Đính Kèm File (Safe Area Mobile & Clean Desktop) */}
-      <div className="relative z-10 p-3 pb-4 bg-zinc-950/98 backdrop-blur-2xl border-t border-zinc-800/80 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      {/* 4. Khung Nhập Liệu & Đính Kèm File (Liquid Glass Unified Capsule) */}
+      <div className="relative z-10 p-3 pb-4 bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         {/* File Preview Pill nếu có file được chọn */}
         {selectedFile && (
-          <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-cyan-500/40 flex items-center justify-between text-xs text-zinc-200">
+          <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-emerald-500/40 flex items-center justify-between text-xs text-zinc-200">
             <div className="flex items-center gap-2 truncate max-w-[340px]">
-              <Paperclip size={14} className="text-cyan-400 shrink-0" />
+              <Paperclip size={14} className="text-emerald-400 shrink-0" />
               <span className="font-medium truncate">{selectedFile.name}</span>
               <span className="text-[10px] text-zinc-500">
                 ({(selectedFile.size / 1024).toFixed(0)} KB)
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">
+              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
                 -5⚡
               </span>
             </div>
@@ -729,6 +729,7 @@ export const AiCompanionWidget: React.FC = () => {
           onChange={handleFileSelect}
         />
 
+        {/* Form Nhập Liệu Kính Lỏng Hợp Nhất (Liquid Glass Unified Capsule) */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -738,7 +739,7 @@ export const AiCompanionWidget: React.FC = () => {
             }
             handleSend('chat');
           }}
-          className="relative flex items-center gap-1.5 rounded-xl bg-[#0e0e10] border border-zinc-800 focus-within:border-cyan-500/60 px-2.5 py-2 transition-all"
+          className="w-full flex items-center gap-2 bg-zinc-900/80 border border-white/10 focus-within:border-white/25 focus-within:ring-1 focus-within:ring-white/10 rounded-2xl px-3 py-1.5 shadow-xl transition-all duration-200"
         >
           {/* Nút Ghim Đính Kèm File */}
           <button
@@ -746,20 +747,22 @@ export const AiCompanionWidget: React.FC = () => {
             data-testid="ai-attach-file-btn"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading || isProcessingFile}
-            className={`p-2 rounded-lg transition cursor-pointer shrink-0 flex items-center justify-center ${
-              selectedFile
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-            }`}
             title="Đính kèm đề cương / tài liệu ôn tập (.docx, .pdf, ảnh tối đa 10MB)"
             aria-label="Đính kèm đề cương / tài liệu ôn tập"
+            className={`w-7 h-7 rounded-xl flex items-center justify-center transition active:scale-95 shrink-0 cursor-pointer ${
+              selectedFile
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
           >
-            <Paperclip size={16} />
+            <Paperclip size={15} />
           </button>
 
-          <textarea
+          {/* Ô Nhập Câu Hỏi Liền Mạch (Không Viền Phụ, Không Scrollbar Thô) */}
+          <input
             ref={inputRef}
             data-testid="ai-prompt-input"
+            type="text"
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -767,29 +770,36 @@ export const AiCompanionWidget: React.FC = () => {
               aiCreditsBalance < 1
                 ? 'Hết điểm AI Credits. Bấm để nạp thêm...'
                 : selectedFile
-                ? `Yêu cầu phân tích "${selectedFile.name}"... (Enter để gửi)`
+                ? `Yêu cầu phân tích "${selectedFile.name}"... (Enter)`
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Enter để gửi)'
             }
-            rows={1}
-            className="flex-1 bg-transparent text-sm text-zinc-100 placeholder-zinc-500 resize-none max-h-24 min-h-[50px] py-2.5 px-3.5 leading-normal focus:outline-none"
+            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-normal"
           />
 
+          {/* Nút Gửi Máy Bay Giấy Thông Minh */}
           <button
             type="submit"
             data-testid="ai-submit-btn"
             disabled={(!inputPrompt.trim() && !selectedFile) || isLoading || isProcessingFile}
-            className="p-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 text-zinc-950 disabled:text-zinc-500 transition cursor-pointer disabled:cursor-not-allowed shrink-0 flex items-center justify-center font-semibold shadow-xs"
             title="Gửi câu hỏi (Enter)"
             aria-label="Gửi câu hỏi"
+            className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-150 active:scale-95 shrink-0 ${
+              (inputPrompt.trim() || selectedFile) && !isLoading && !isProcessingFile
+                ? 'bg-emerald-500 text-zinc-950 font-bold hover:bg-emerald-400 shadow-md shadow-emerald-500/20 cursor-pointer'
+                : 'text-zinc-600 bg-transparent cursor-not-allowed'
+            }`}
           >
-            <Send size={14} />
+            <Send size={13} className="transform translate-x-px -translate-y-px" />
           </button>
         </form>
 
-        {/* Chân Trang: Thông tin chi phí minh bạch */}
-        <div className="flex items-center justify-between pt-1.5 px-1 text-[10px] text-zinc-400">
-          <span className="truncate whitespace-nowrap shrink-0 text-zinc-400">1⚡ / câu hỏi</span>
-          <span className="text-emerald-400 font-medium shrink-0 ml-2">⚡ Phản hồi tức thì</span>
+        {/* Chân Trang: Thông tin năng lượng đơn sắc chuẩn Zen */}
+        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-2 px-1">
+          <span>1 ⚡ / câu hỏi</span>
+          <span className="flex items-center gap-1 text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Phản hồi tức thì
+          </span>
         </div>
       </div>
     </div>
