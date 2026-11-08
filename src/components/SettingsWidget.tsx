@@ -158,7 +158,7 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Button: Chỉnh sửa bố cục */}
-      <div>
+      <div className="hidden lg:block">
         <button
           type="button"
           data-testid="dock-btn-edit-layout"
@@ -183,7 +183,7 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Section 1: Glassmorphism */}
-      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08] hidden lg:block">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-medium text-neutral-200">Hiệu ứng kính mờ</span>
           <button
@@ -275,7 +275,7 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Section 2: Window Management & Snap */}
-      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08] hidden lg:block">
         <span className="text-[11px] font-medium text-neutral-200 block">Sắp xếp cửa sổ tự động</span>
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -325,7 +325,7 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Section 3: Dock Position & Auto-Hide */}
-      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+      <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08] hidden lg:block">
         <span className="block text-[11px] font-medium text-neutral-200">Vị trí thanh công cụ DockBar</span>
         <div className="grid grid-cols-4 gap-1.5">
           {dockPositions.map((position) => (
@@ -393,7 +393,7 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Section 4: Layout Templates */}
-      <div className="space-y-1.5 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+      <div className="space-y-1.5 rounded-xl bg-black/25 p-3 border border-white/[0.08] hidden lg:block">
         <span className="text-[11px] font-medium text-neutral-200 block">Bố cục định sẵn</span>
         <div className="space-y-1">
           <button

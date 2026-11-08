@@ -250,7 +250,7 @@ export const TasksWidget: React.FC = () => {
       </form>
 
       {/* Danh Sách Tasks (khoảng cách 8px chuẩn 8-point grid, min-h 48px) */}
-      <div className="space-y-2 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-0.5">
+      <div className="space-y-2 flex-1 overflow-y-auto min-h-0 w-full overflow-x-hidden pr-0.5">
         {filteredTasks.length === 0 ? null : (
           filteredTasks.map((task) => {
             const isLinked = activeTaskId === task.id;

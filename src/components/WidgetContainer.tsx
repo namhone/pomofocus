@@ -43,6 +43,18 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const [windowWidth, setWindowWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1440
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isCompact = windowWidth < 1024;
+
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const isResizingRef = useRef(false);
@@ -82,7 +94,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Xử lý kéo thả bằng Pointer Events (Desktop & Mini Pill)
   const handlePointerDownHeader = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isMobile || widget.isLocked) return;
+    if (isMobile || isCompact || widget.isLocked) return;
 
     // Không kích hoạt kéo nếu click trúng button, input, textarea, select, a
     const target = e.target as HTMLElement;
@@ -217,8 +229,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       const currentWidget = useLayoutStore.getState().widgets[id];
       const minW = currentWidget.minWidth ?? 280;
       const minH = currentWidget.minHeight ?? 240;
-      const maxW = currentWidget.maxWidth ?? 900;
-      const maxH = currentWidget.maxHeight ?? 900;
+      const maxW = id === 'timer' ? 420 : (currentWidget.maxWidth ?? 900);
+      const maxH = id === 'timer' ? 320 : (currentWidget.maxHeight ?? 900);
 
       const screenMaxW = Math.max(minW, window.innerWidth - (west ? 10 : start.startX) - 12);
       const screenMaxH = Math.max(minH, window.innerHeight - (north ? 8 : start.startY) - 12);
@@ -273,6 +285,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   // Mobile layout: render dạng block trong luồng cuộn dọc
   if (isMobile) {
+    const isCenteredModal = id === 'spaces' || id === 'settings';
     // Khi thu nhỏ trên mobile: Chỉ render DUY NHẤT một chiếc viên nang nổi (Floating Capsule), triệt tiêu vỏ bọc kép
     if (widget.isCollapsed && !isMedia) {
       return (
@@ -311,7 +324,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               }
             : {})
         }}
-        className={`w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
+        className={isCenteredModal ? `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-lg z-50 max-h-[85vh] rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}` : `w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
       >
         {/* Mobile Header Bar */}
         <div className="h-10 flex items-center justify-between px-3.5 border-b border-white/[0.08] bg-white/[0.02] select-none touch-pan-y">
@@ -492,8 +505,12 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       </section>
     );
   }
-  const currentWidth = isMedia && isCollapsed ? mediaPipWidth : widget.width;
-  const currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
+  let currentWidth = isMedia && isCollapsed ? mediaPipWidth : widget.width;
+  let currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
+  if (id === 'timer' && !widget.isMiniPill && !isCollapsed) {
+    currentWidth = Math.min(420, currentWidth);
+    currentHeight = Math.min(320, currentHeight);
+  }
 
   return (
     <section
@@ -502,9 +519,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       aria-label={widget.title}
       onMouseDown={() => bringToFront(id)}
       style={{
-        position: 'absolute',
-        left: `${widget.x}px`,
-        top: `${widget.y}px`,
+        position: isCompact ? 'fixed' : 'absolute',
+        ...(isCompact ? {} : { left: `${widget.x}px`, top: `${widget.y}px` }),
         width: `${currentWidth}px`,
         height: `${currentHeight}px`,
         zIndex: widget.zIndex,

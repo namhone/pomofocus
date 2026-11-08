@@ -74,7 +74,7 @@ export const NotesWidget: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col text-neutral-100">
+    <div className="h-full w-full flex flex-col justify-between p-3 select-none">
       {/* Header bar: Switcher + Status + Nút Thêm */}
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.08] gap-2">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
@@ -167,7 +167,7 @@ export const NotesWidget: React.FC = () => {
 
           {/* Editor Mode */}
           {activeTab === 'edit' ? (
-            <div className="relative">
+            <div className="relative flex-1 flex flex-col min-h-0">
               {/* Pastel Theme Color Bar */}
               <div className="flex items-center justify-between pb-1 mb-1.5 border-b border-white/[0.04]">
                 <div className="flex items-center gap-1.5">
@@ -209,8 +209,7 @@ export const NotesWidget: React.FC = () => {
                 }
                 onBlur={() => saveNow(activeNote.id)}
                 placeholder="Nhập nội dung Markdown tại đây (hỗ trợ # header, **in đậm**, - checklist, [link](url))..."
-                rows={5}
-                className={`w-full text-xs p-3 pl-3.5 rounded-xl border placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/30 font-sans resize-none leading-relaxed transition-colors ${stickyStyles}`}
+                className={`flex-1 w-full h-full min-h-[140px] bg-transparent text-sm text-zinc-100 placeholder-zinc-500 font-sans resize-none focus:outline-none leading-relaxed overflow-y-auto p-1 ${stickyStyles}`}
               />
               <button
                 type="button"
@@ -226,7 +225,7 @@ export const NotesWidget: React.FC = () => {
             /* Safe Preview Mode */
             <div
               data-testid="markdown-preview-container"
-              className={`p-3.5 rounded-xl border min-h-[175px] max-h-64 overflow-y-auto text-xs transition-colors ${stickyStyles}`}
+              className={`flex-1 w-full h-full min-h-[140px] overflow-y-auto p-3.5 rounded-xl border text-xs transition-colors ${stickyStyles}`}
               dangerouslySetInnerHTML={{
                 __html:
                   renderSafeMarkdown(activeNote.contentMarkdown) ||
