@@ -21,19 +21,25 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
   const todayStr = getVietnamTodayDateKey();
   const currentHour = new Date().getHours();
 
-  // Load blocks from Dexie
+  // Load blocks from Dexie and sync with external events
   useEffect(() => {
     let isMounted = true;
-    db.planner_blocks
-      .where('dateString')
-      .equals(todayStr)
-      .toArray()
-      .then((records) => {
-        if (isMounted) setBlocks(records);
-      })
-      .catch((err) => console.warn('Lỗi load planner_blocks:', err));
+    const reloadWidgetBlocks = () => {
+      db.planner_blocks
+        .where('dateString')
+        .equals(todayStr)
+        .toArray()
+        .then((records) => {
+          if (isMounted) setBlocks(records);
+        })
+        .catch((err) => console.warn('Lỗi load planner_blocks:', err));
+    };
+
+    reloadWidgetBlocks();
+    window.addEventListener('pomofocus_planner_sync', reloadWidgetBlocks);
     return () => {
       isMounted = false;
+      window.removeEventListener('pomofocus_planner_sync', reloadWidgetBlocks);
     };
   }, [todayStr]);
 
@@ -49,6 +55,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
     };
 
     await db.planner_blocks.put(newBlock);
+    window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
     setBlocks((prev) => [...prev.filter((b) => b.id !== newBlock.id), newBlock]);
     setSelectedHour(null);
     setNewTitle('');
@@ -58,11 +65,13 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
   const handleToggleComplete = async (block: PlannerBlockRecord) => {
     const updated = { ...block, completed: !block.completed };
     await db.planner_blocks.put(updated);
+    window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? updated : b)));
   };
 
   const handleDeleteBlock = async (id: string) => {
     await db.planner_blocks.delete(id);
+    window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
     setBlocks((prev) => prev.filter((b) => b.id !== id));
   };
 
@@ -104,7 +113,15 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
           return (
             <div
               key={hour}
+              onClick={() => {
+                if (!hourBlock && selectedHour !== hour) {
+                  setSelectedHour(hour);
+                  setNewTitle('');
+                }
+              }}
               className={`p-2 rounded-xl border transition-colors ${
+                !hourBlock ? 'cursor-pointer hover:bg-white/[0.04]' : ''
+              } ${
                 isCurrent
                   ? 'bg-indigo-950/30 border-indigo-500/40'
                   : hourBlock
@@ -189,7 +206,12 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                       </button>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-neutral-500 italic">Trống</span>
+                    <span
+                      data-testid={`calendar-empty-slot-${hour}`}
+                      className="text-[11px] text-neutral-500 italic hover:text-neutral-300 transition-colors"
+                    >
+                      Trống (Nhấp để thêm)
+                    </span>
                   )}
                 </div>
 

@@ -27,6 +27,59 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 /**
+ * Khối code chuyên nghiệp: Hiển thị ngôn ngữ badge và nút 📋 Sao chép code kính mờ
+ */
+export const AiCodeBlock: React.FC<{ language?: string; codeString: string }> = ({
+  language,
+  codeString
+}) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(codeString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn('Lỗi chép code:', err);
+    }
+  };
+
+  return (
+    <div className="relative my-2.5 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950/90 shadow-md">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-900/90 border-b border-zinc-800/80 text-[11px] text-zinc-400 font-mono">
+        <span className="uppercase text-[10px] font-bold text-cyan-400 tracking-wider">
+          {language || 'code'}
+        </span>
+        <button
+          type="button"
+          data-testid="ai-copy-code-btn"
+          onClick={handleCopyCode}
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 hover:text-white border border-white/5 text-zinc-300 text-[10px] transition cursor-pointer select-none"
+          title="Sao chép toàn bộ khối code này"
+        >
+          {copied ? (
+            <>
+              <Check size={11} className="text-emerald-400" />
+              <span className="text-emerald-400 font-sans">Đã chép</span>
+            </>
+          ) : (
+            <>
+              <Copy size={11} />
+              <span className="font-sans">📋 Sao chép code</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre className="p-3 overflow-x-auto text-xs font-mono text-emerald-300 leading-relaxed scrollbar-thin">
+        <code>{codeString}</code>
+      </pre>
+    </div>
+  );
+};
+
+/**
  * Trình phân giải & kết xuất công thức toán học KaTeX và Markdown chuẩn mực cho AI Companion
  */
 export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) => {
@@ -48,10 +101,10 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
           hr: () => <hr className="border-zinc-800 my-2" />,
           code: ({ className, children, ...props }: any) => {
             const isBlock = Boolean(className) || String(children).includes('\n');
+            const match = /language-(\w+)/.exec(className || '');
+            const lang = match ? match[1] : undefined;
             return isBlock ? (
-              <pre className="bg-zinc-950 border border-zinc-800 p-2.5 rounded-lg overflow-x-auto my-2 text-xs font-mono text-emerald-300">
-                <code {...props}>{children}</code>
-              </pre>
+              <AiCodeBlock language={lang} codeString={String(children).replace(/\n$/, '')} />
             ) : (
               <code className="bg-zinc-800/80 px-1.5 py-0.5 rounded text-[11px] font-mono text-pink-300 border border-zinc-700/50" {...props}>
                 {children}
@@ -126,7 +179,7 @@ export const AiCompanionWidget: React.FC = () => {
   const [fileError, setFileError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Khởi tạo cuộc trò chuyện khi widget mở và user đã đăng nhập
@@ -139,8 +192,8 @@ export const AiCompanionWidget: React.FC = () => {
 
   // Tự động cuộn xuống đáy khi có tin nhắn mới hoặc streaming
   useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: isStreaming ? 'auto' : 'smooth' });
+    if (isOpen && typeof messagesEndRef.current?.scrollIntoView === 'function') {
+      messagesEndRef.current.scrollIntoView({ behavior: isStreaming ? 'auto' : 'smooth' });
     }
   }, [messages, isOpen, isLoading, isStreaming]);
 
@@ -150,6 +203,14 @@ export const AiCompanionWidget: React.FC = () => {
       setTimeout(() => inputRef.current?.focus(), 150);
     }
   }, [isOpen]);
+
+  // Tự động dãn nở chiều cao textarea theo nội dung (tối đa 140px)
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 140)}px`;
+    }
+  }, [inputPrompt]);
 
   // if (!isOpen) return null; // Giữ trong DOM để kích hoạt CSS Transition trượt mượt mà (slide-over animation)
 
@@ -758,11 +819,11 @@ export const AiCompanionWidget: React.FC = () => {
             <Paperclip size={15} />
           </button>
 
-          {/* Ô Nhập Câu Hỏi Liền Mạch (Không Viền Phụ, Không Scrollbar Thô) */}
-          <input
+          {/* Ô Nhập Câu Hỏi Liền Mạch Tự Dãn Nở Đa Dòng (Shift+Enter để xuống dòng) */}
+          <textarea
             ref={inputRef}
+            rows={1}
             data-testid="ai-prompt-input"
-            type="text"
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -770,10 +831,10 @@ export const AiCompanionWidget: React.FC = () => {
               aiCreditsBalance < 1
                 ? 'Hết điểm AI Credits. Bấm để nạp thêm...'
                 : selectedFile
-                ? `Yêu cầu phân tích "${selectedFile.name}"... (Enter)`
-                : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Enter để gửi)'
+                ? `Yêu cầu phân tích "${selectedFile.name}"... (Shift+Enter xuống dòng)`
+                : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Shift+Enter để xuống dòng)'
             }
-            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-normal"
+            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-thin"
           />
 
           {/* Nút Gửi Máy Bay Giấy Thông Minh */}

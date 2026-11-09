@@ -17,7 +17,7 @@ export interface TimerSyncPayload {
 
 export type TabMessage =
   | { type: 'SYNC_STATE'; payload: TimerSyncPayload }
-  | { type: 'TRIGGER_ACTION'; action: 'start' | 'pause' | 'resume' | 'reset' | 'skip'; payload: TimerSyncPayload }
+  | { type: 'TRIGGER_ACTION'; action: 'start' | 'pause' | 'resume' | 'reset' | 'reset_cycle' | 'set_phase' | 'skip'; payload: TimerSyncPayload }
   | { type: 'REQUEST_CURRENT_STATE' };
 
 export class TabCoordinator {

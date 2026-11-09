@@ -84,13 +84,16 @@ export const BackgroundCanvas: React.FC = () => {
     transition: 'filter 0.3s ease, transform 0.3s ease'
   };
 
-  const isVideo = preset.category === 'video' && !useStaticFallback && !hasError && !isEcoMode;
+  const isSolid = preset.category === 'solid' || preset.url?.startsWith('#') || preset.id?.startsWith('zen-');
+  const isVideo = !isSolid && preset.category === 'video' && !useStaticFallback && !hasError && !isEcoMode;
 
   // Xác định nguồn ảnh tĩnh:
   // 1. Nếu preset là ảnh: nạp preset.url (nếu có lỗi nạp fallbackUrl nếu là ảnh)
   // 2. Nếu preset là video: luôn cung cấp fallbackUrl làm ảnh nền móng và poster trước khi video sẵn sàng
   let imageSrc: string | null = null;
-  if (preset.category === 'image') {
+  if (isSolid) {
+    imageSrc = null;
+  } else if (preset.category === 'image') {
     if (!hasError) {
       imageSrc = preset.url;
     } else if (
@@ -116,9 +119,11 @@ export const BackgroundCanvas: React.FC = () => {
     if (!hasError) imageSrc = preset.url;
   }
 
-  // Luôn đảm bảo gradient CSS hợp lệ (tránh gán URL ảnh vào background shorthand)
+  // Luôn đảm bảo gradient/solid CSS hợp lệ (tránh gán URL ảnh vào background shorthand)
   const validGradient =
-    preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
+    isSolid
+      ? preset.url
+      : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
       ? preset.fallbackUrl
       : FALLBACK_GRADIENTS[preset.id as keyof typeof FALLBACK_GRADIENTS] || FALLBACK_GRADIENTS.deepSpace;
 

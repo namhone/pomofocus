@@ -74,6 +74,9 @@ interface WhiteboardViewProps {
   onDrawerActivity?: (isDrawing: boolean, drawerName?: string) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  initialStrokes?: WhiteboardStroke[];
+  onStrokesChange?: (strokes: WhiteboardStroke[]) => void;
+  isVisible?: boolean;
 }
 
 export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
@@ -84,7 +87,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   isHost,
   onDrawerActivity,
   isFullscreen,
-  onToggleFullscreen
+  onToggleFullscreen,
+  initialStrokes,
+  onStrokesChange,
+  isVisible
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -123,7 +129,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   const [isStylePickerOpen, setIsStylePickerOpen] = useState(false);
 
   // Stroke History
-  const [strokes, setStrokes] = useState<WhiteboardStroke[]>([]);
+  const [strokes, setStrokes] = useState<WhiteboardStroke[]>(() => initialStrokes || []);
   const [redoStack, setRedoStack] = useState<WhiteboardStroke[]>([]);
   // Lưu strokes riêng theo từng trang tài liệu (PDF)
   const pageStrokesMapRef = useRef<Record<string, WhiteboardStroke[]>>({});
@@ -132,6 +138,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   const [material, setMaterial] = useState<StudyMaterial | null>(null);
   const [pdfViewMode, setPdfViewMode] = useState<'single' | 'book'>('single');
   const pdfDocRef = useRef<any>(null);
+  const materialRef = useRef(material);
+  materialRef.current = material;
+  const pdfViewModeRef = useRef(pdfViewMode);
+  pdfViewModeRef.current = pdfViewMode;
+  const switchPdfPageOrModeRef = useRef<((newPage: number, newMode: 'single' | 'book', broadcast?: boolean) => Promise<void>) | null>(null);
   const materialImageRef = useRef<HTMLCanvasElement | HTMLImageElement | null>(null);
   const [isLoadingMaterial, setIsLoadingMaterial] = useState(false);
 
@@ -287,6 +298,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       renderStroke(ctx, draftStroke, width, height);
     }
   }, [strokes, panOffset, zoomScale, activeTool, currentColor, currentSize, currentUserId]);
+
+  // 1b. Giữ reference mới nhất của redrawCanvas để tránh dependency churn trong useEffect và ResizeObserver
+  const redrawCanvasRef = useRef(redrawCanvas);
+  redrawCanvasRef.current = redrawCanvas;
 
   // Helper render 1 stroke
   const renderStroke = (
@@ -597,14 +612,14 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         if (width > 0 && height > 0) {
           canvas.width = Math.round(width);
           canvas.height = Math.round(height);
-          redrawCanvas();
+          redrawCanvasRef.current();
         }
       }
     });
 
     resizeObserver.observe(container);
     return () => resizeObserver.disconnect();
-  }, [redrawCanvas]);
+  }, []);
 
   // Realtime Broadcast Cursor
   const broadcastCursor = useCallback(
@@ -632,16 +647,16 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     if (!channel) return;
 
     // 1. Nhận nét vẽ từ các thành viên khác
-    channel.on('broadcast', { event: 'WHITEBOARD_DRAW' }, (event: { payload: WhiteboardDrawPayload }) => {
+    const handleDraw = (event: { payload: WhiteboardDrawPayload }) => {
       const { stroke, userId } = event.payload;
       if (userId !== currentUserId) {
         delete remoteStreamsRef.current[userId];
         setStrokes((prev) => [...prev, stroke]);
       }
-    });
+    };
 
     // 1b. Nhận nét vẽ in-flight streaming (<50ms)
-    channel.on('broadcast', { event: 'WHITEBOARD_DRAW_STREAM' }, (event: { payload: WhiteboardDrawStreamPayload }) => {
+    const handleDrawStream = (event: { payload: WhiteboardDrawStreamPayload }) => {
       const p = event.payload;
       if (p.userId !== currentUserId) {
         remoteStreamsRef.current[p.userId] = {
@@ -654,12 +669,12 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           points: p.points,
           createdAt: Date.now()
         };
-        redrawCanvas();
+        redrawCanvasRef.current();
       }
-    });
+    };
 
     // 1c. Nhận con trỏ chuột thời gian thực từ bạn học (Live Cursors)
-    channel.on('broadcast', { event: 'WHITEBOARD_CURSOR' }, (event: { payload: WhiteboardCursorPayload }) => {
+    const handleCursor = (event: { payload: WhiteboardCursorPayload }) => {
       const p = event.payload;
       if (p.userId !== currentUserId) {
         setRemoteCursors((prev) => ({
@@ -667,35 +682,32 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           [p.userId]: { ...p, lastActive: Date.now() }
         }));
       }
-    });
+    };
 
     // 2. Nhận yêu cầu xóa sạch bảng
-    channel.on('broadcast', { event: 'WHITEBOARD_CLEAR' }, () => {
+    const handleClear = () => {
       setStrokes([]);
       setRedoStack([]);
       pageStrokesMapRef.current = {};
-    });
+    };
 
     // 3. Nhận sự kiện Undo từ peer
-    channel.on('broadcast', { event: 'WHITEBOARD_UNDO' }, (event: { payload: WhiteboardUndoPayload }) => {
+    const handleUndo = (event: { payload: WhiteboardUndoPayload }) => {
       const { strokeId } = event.payload;
       setStrokes((prev) => prev.filter((s) => s.id !== strokeId));
-    });
+    };
 
     // 4. Nhận sự kiện lật trang / đổi chế độ sách từ người giảng bài
-    channel.on(
-      'broadcast',
-      { event: 'WHITEBOARD_MATERIAL_PAGE' },
-      (event: { payload: { page: number; mode?: 'single' | 'book' } }) => {
-        const { page, mode } = event.payload;
-        if (material && material.type === 'pdf') {
-          switchPdfPageOrMode(page, mode || pdfViewMode, false);
-        }
+    const handleMaterialPage = (event: { payload: { page: number; mode?: 'single' | 'book' } }) => {
+      const { page, mode } = event.payload;
+      const currentMaterial = materialRef.current;
+      if (currentMaterial && currentMaterial.type === 'pdf') {
+        switchPdfPageOrModeRef.current?.(page, mode || pdfViewModeRef.current, false);
       }
-    );
+    };
 
     // 5. Nhận yêu cầu đồng bộ từ người mới vào
-    channel.on('broadcast', { event: 'WHITEBOARD_SYNC_REQUEST' }, (event: { payload: WhiteboardSyncRequestPayload }) => {
+    const handleSyncRequest = (event: { payload: WhiteboardSyncRequestPayload }) => {
       const { requesterId } = event.payload;
       if (requesterId !== currentUserId) {
         setStrokes((currentStrokes) => {
@@ -712,22 +724,52 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           return currentStrokes;
         });
       }
-    });
+    };
 
     // 6. Nhận snapshot đồng bộ cho chính mình
-    channel.on('broadcast', { event: 'WHITEBOARD_SYNC_SNAPSHOT' }, (event: { payload: WhiteboardSyncSnapshotPayload }) => {
+    const handleSyncSnapshot = (event: { payload: WhiteboardSyncSnapshotPayload }) => {
       const { targetId, strokes: syncedStrokes } = event.payload;
       if (targetId === currentUserId) {
         setStrokes(syncedStrokes);
       }
-    });
+    };
+
+    const subDraw = channel.on('broadcast', { event: 'WHITEBOARD_DRAW' }, handleDraw);
+    const subStream = channel.on('broadcast', { event: 'WHITEBOARD_DRAW_STREAM' }, handleDrawStream);
+    const subCursor = channel.on('broadcast', { event: 'WHITEBOARD_CURSOR' }, handleCursor);
+    const subClear = channel.on('broadcast', { event: 'WHITEBOARD_CLEAR' }, handleClear);
+    const subUndo = channel.on('broadcast', { event: 'WHITEBOARD_UNDO' }, handleUndo);
+    const subPage = channel.on('broadcast', { event: 'WHITEBOARD_MATERIAL_PAGE' }, handleMaterialPage);
+    const subSyncReq = channel.on('broadcast', { event: 'WHITEBOARD_SYNC_REQUEST' }, handleSyncRequest);
+    const subSyncSnap = channel.on('broadcast', { event: 'WHITEBOARD_SYNC_SNAPSHOT' }, handleSyncSnapshot);
 
     channel.send({
       type: 'broadcast',
       event: 'WHITEBOARD_SYNC_REQUEST',
       payload: { requesterId: currentUserId }
     });
-  }, [channel, currentUserId, material, pdfViewMode, redrawCanvas]);
+
+    return () => {
+      if (typeof (channel as any).off === 'function') {
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_DRAW' }, handleDraw);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_DRAW_STREAM' }, handleDrawStream);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_CURSOR' }, handleCursor);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_CLEAR' }, handleClear);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_UNDO' }, handleUndo);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_MATERIAL_PAGE' }, handleMaterialPage);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_SYNC_REQUEST' }, handleSyncRequest);
+        (channel as any).off('broadcast', { event: 'WHITEBOARD_SYNC_SNAPSHOT' }, handleSyncSnapshot);
+      }
+      if (subDraw && typeof (subDraw as any).unsubscribe === 'function') (subDraw as any).unsubscribe();
+      if (subStream && typeof (subStream as any).unsubscribe === 'function') (subStream as any).unsubscribe();
+      if (subCursor && typeof (subCursor as any).unsubscribe === 'function') (subCursor as any).unsubscribe();
+      if (subClear && typeof (subClear as any).unsubscribe === 'function') (subClear as any).unsubscribe();
+      if (subUndo && typeof (subUndo as any).unsubscribe === 'function') (subUndo as any).unsubscribe();
+      if (subPage && typeof (subPage as any).unsubscribe === 'function') (subPage as any).unsubscribe();
+      if (subSyncReq && typeof (subSyncReq as any).unsubscribe === 'function') (subSyncReq as any).unsubscribe();
+      if (subSyncSnap && typeof (subSyncSnap as any).unsubscribe === 'function') (subSyncSnap as any).unsubscribe();
+    };
+  }, [channel, currentUserId]);
 
   // Periodic cleanup of inactive cursors & active drawer indicator
   useEffect(() => {
@@ -764,6 +806,25 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   useEffect(() => {
     redrawCanvas();
   }, [redrawCanvas]);
+
+  // Đồng bộ nét vẽ ngược lên Parent Store/State
+  useEffect(() => {
+    onStrokesChange?.(strokes);
+  }, [strokes, onStrokesChange]);
+
+  // Cập nhật khi initialStrokes thay đổi từ ngoài
+  useEffect(() => {
+    if (initialStrokes && initialStrokes !== strokes && strokes.length === 0 && initialStrokes.length > 0) {
+      setStrokes(initialStrokes);
+    }
+  }, [initialStrokes]);
+
+  // Tự động redraw khi tab Bảng Vẽ Chung được kích hoạt hiển thị
+  useEffect(() => {
+    if (isVisible) {
+      redrawCanvasRef.current();
+    }
+  }, [isVisible]);
 
   // Helper render PDF View (Single page hoặc Book Spread 2 trang)
   const renderPdfToOffscreen = async (pdf: any, page: number, mode: 'single' | 'book') => {
@@ -912,6 +973,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       setIsLoadingMaterial(false);
     }
   };
+  switchPdfPageOrModeRef.current = switchPdfPageOrMode;
 
   // 4. Trích xuất chữ từ PDF thành Đề Cương Soạn Thảo
   const handleExtractPdfToEditor = async () => {

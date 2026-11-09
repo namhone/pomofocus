@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Play, Pause, RotateCcw, FastForward, Bell, Target } from 'lucide-react';
+import { Play, Pause, RotateCcw, FastForward, Bell, Target, Sparkles } from 'lucide-react';
 import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
 
@@ -24,10 +24,15 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
   const settings = useTimerStore((state) => state.settings);
   const isLeader = useTimerStore((state) => state.isLeader);
   const linkedTaskTitle = useTimerStore((state) => state.linkedTaskTitle);
+  const dailyProgress = useTimerStore((state) => state.dailyProgress);
+  const celebrationToast = useTimerStore((state) => state.celebrationToast);
   const start = useTimerStore((state) => state.start);
   const pause = useTimerStore((state) => state.pause);
   const resume = useTimerStore((state) => state.resume);
   const reset = useTimerStore((state) => state.reset);
+  const resetCycle = useTimerStore((state) => state.resetCycle);
+  const setPhase = useTimerStore((state) => state.setPhase);
+  const setCelebrationToast = useTimerStore((state) => state.setCelebrationToast);
   const skip = useTimerStore((state) => state.skip);
   const setLinkedTask = useTimerStore((state) => state.setLinkedTask);
   const updateSettings = useTimerStore((state) => state.updateSettings);
@@ -119,17 +124,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                 key={p}
                 data-testid={`tab-${p}`}
                 disabled={status !== 'idle'}
-                onClick={() => {
-                  useTimerStore.setState({
-                    phase: p,
-                    remainingMs:
-                      p === 'pomodoro'
-                        ? settings.pomodoroMinutes * 60 * 1000
-                        : p === 'short_break'
-                        ? settings.shortBreakMinutes * 60 * 1000
-                        : settings.longBreakMinutes * 60 * 1000
-                  });
-                }}
+                onClick={() => setPhase(p)}
                 className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
                   isActive ? style.activeTab : 'text-neutral-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
@@ -153,19 +148,28 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           {/* Session Round Dots */}
           <div className="flex items-center gap-1.5 mt-0.5">
-            {Array.from({ length: settings.roundsBeforeLongBreak }).map((_, idx) => (
-              <div
-                key={idx}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  idx + 1 < currentRound
-                    ? 'bg-rose-500'
-                    : idx + 1 === currentRound
-                    ? 'bg-rose-400 animate-pulse'
-                    : 'bg-white/15'
-                }`}
-                title={`Hiệp ${idx + 1}`}
-              />
-            ))}
+            {Array.from({ length: settings.roundsBeforeLongBreak }).map((_, idx) => {
+              const isCompleted = idx + 1 < currentRound;
+              const isCurrent = idx + 1 === currentRound;
+              const isRunning = status === 'running';
+              const isPaused = status === 'paused';
+              let dotClass = 'bg-white/15';
+              if (isCompleted) {
+                dotClass = 'bg-rose-500';
+              } else if (isCurrent && isRunning) {
+                dotClass = 'bg-rose-400 animate-pulse';
+              } else if (isCurrent && isPaused) {
+                dotClass = 'bg-rose-400/70';
+              }
+              return (
+                <div
+                  key={idx}
+                  data-testid={`round-dot-${idx}`}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${dotClass}`}
+                  title={`Hiệp ${idx + 1}`}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -173,15 +177,16 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
         <div className="w-full mt-1 px-0.5">
           <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-0.5">
             <span>Tiến độ ngày</span>
-            <span className="font-mono text-neutral-300">
-              {currentRound}/{settings.roundsBeforeLongBreak * 2}
+            <span data-testid="daily-progress-text" className="font-mono text-neutral-300">
+              {dailyProgress}/{settings.roundsBeforeLongBreak * 2}
             </span>
           </div>
           <div className="w-full h-1 bg-white/[0.08] rounded-full overflow-hidden">
             <div
+              data-testid="daily-progress-bar"
               className="h-full bg-rose-600 rounded-full transition-all duration-300"
               style={{
-                width: `${Math.min(100, (currentRound / (settings.roundsBeforeLongBreak * 2)) * 100)}%`
+                width: `${Math.min(100, (dailyProgress / (settings.roundsBeforeLongBreak * 2)) * 100)}%`
               }}
             />
           </div>
@@ -240,6 +245,17 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           </button>
 
           <button
+            data-testid="timer-reset-cycle-btn"
+            onClick={resetCycle}
+            title="Đặt lại toàn bộ chu kỳ về Hiệp 1/4"
+            aria-label="Đặt lại toàn bộ chu kỳ"
+            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-rose-300 min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/40"
+          >
+            <RotateCcw size={12} className="-translate-y-[0.5px] text-rose-400" />
+            <span className="text-[11px]">Chu kỳ</span>
+          </button>
+
+          <button
             data-testid="timer-skip-btn"
             onClick={skip}
             title="Chuyển sang hiệp kế tiếp"
@@ -250,6 +266,30 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             <span className="text-[11px]">Bỏ qua</span>
           </button>
         </div>
+
+        {/* Toast / Banner chúc mừng nhẹ nhàng khi hoàn thành hiệp */}
+        {celebrationToast && (
+          <div
+            data-testid="timer-celebration-toast"
+            role="status"
+            aria-live="polite"
+            className="w-full mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs shadow-lg backdrop-blur-md animate-in fade-in duration-300"
+          >
+            <div className="flex items-center gap-1.5 font-medium truncate">
+              <Sparkles size={13} className="text-amber-300 shrink-0" />
+              <span className="truncate">{celebrationToast}</span>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-dismiss-toast"
+              onClick={() => setCelebrationToast(null)}
+              className="text-neutral-400 hover:text-white text-xs cursor-pointer ml-1 p-0.5 rounded transition"
+              aria-label="Đóng thông báo"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Quick Settings Panel (chỉ hiển thị ở Workspace thường, ẩn trong Zen Mode) */}
         {!isEmbeddedInZen && (

@@ -1,4 +1,4 @@
-export type BackgroundCategory = 'all' | 'gradient' | 'image' | 'video';
+export type BackgroundCategory = 'all' | 'gradient' | 'image' | 'video' | 'solid';
 
 export type AmbientEffectType = 'none' | 'rain' | 'snow' | 'sakura' | 'fireflies';
 
@@ -29,7 +29,7 @@ export interface CatalogItem {
 export interface BackgroundPreset {
   id: string;
   title: string;
-  category: 'gradient' | 'image' | 'video';
+  category: 'gradient' | 'image' | 'video' | 'solid';
   url: string;
   fallbackUrl: string; // URL ảnh tĩnh hoặc CSS gradient dùng khi lỗi hoặc prefers-reduced-motion
   thumbnailUrl: string;

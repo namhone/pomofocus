@@ -338,6 +338,29 @@ export class RealtimeChannel {
     return this;
   }
 
+  off(type: 'postgres_changes' | 'presence' | 'broadcast', filter?: { event?: string }, callback?: (payload: any) => void): this {
+    if (type === 'broadcast') {
+      this.broadcastListeners = this.broadcastListeners.filter((l) => {
+        if (filter?.event && l.event !== filter.event && filter.event !== '*') return true;
+        if (callback && l.callback !== callback) return true;
+        return false;
+      });
+    } else if (type === 'presence') {
+      this.presenceListeners = this.presenceListeners.filter((l) => {
+        if (filter?.event && l.event !== filter.event) return true;
+        if (callback && l.callback !== callback) return true;
+        return false;
+      });
+    } else if (type === 'postgres_changes') {
+      this.postgresChangeListeners = this.postgresChangeListeners.filter((l) => {
+        if (filter?.event && l.event !== filter.event) return true;
+        if (callback && l.callback !== callback) return true;
+        return false;
+      });
+    }
+    return this;
+  }
+
   subscribe(callback?: (status: string) => void): this {
     this.isSubscribed = true;
     this.initWebSocket(callback);

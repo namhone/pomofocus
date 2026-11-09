@@ -18,6 +18,7 @@ import {
   ROOM_CATEGORIES
 } from '../services/studyRoomService';
 import { WhiteboardView } from './WhiteboardView';
+import { WhiteboardStroke } from '../types/whiteboard';
 import { AiCompanionWidget } from './AiCompanionWidget';
 import { useAiStore } from '../stores/useAiStore';
 import {
@@ -74,6 +75,9 @@ interface FloatingReaction {
   duration?: number;
   delay?: number;
 }
+
+// Cache nét vẽ Whiteboard theo roomId phòng học
+export const roomCanvasStrokesMap = new Map<string, any[]>();
 
 interface RemotePeerTileProps {
   peer: { id: string; name: string; isMicOn?: boolean; role?: string; userId?: string };
@@ -261,6 +265,18 @@ export const StudyRoomView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
   const [isWhiteboardVideoExpanded, setIsWhiteboardVideoExpanded] = useState(true);
   const [isWhiteboardFullscreen, setIsWhiteboardFullscreen] = useState(false);
+
+  // Lưu bền vững nét vẽ Whiteboard khi chuyển giữa Lưới Video và Bảng Vẽ Chung
+  const [canvasStrokes, setCanvasStrokes] = useState<WhiteboardStroke[]>(() => {
+    return roomCanvasStrokesMap.get(roomId) || [];
+  });
+
+  const handleStrokesChange = useCallback((updatedStrokes: WhiteboardStroke[]) => {
+    setCanvasStrokes(updatedStrokes);
+    if (roomId) {
+      roomCanvasStrokesMap.set(roomId, updatedStrokes);
+    }
+  }, [roomId]);
   const [wbCameraCoords, setWbCameraCoords] = useState<{ x: number; y: number } | null>(null);
   const [isDraggingWbCamera, setIsDraggingWbCamera] = useState(false);
   const wbCameraDragRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
@@ -3251,13 +3267,13 @@ export const StudyRoomView: React.FC = () => {
             </div>
           )}
 
-          {/* Stage View: Grid or Whiteboard */}
-          {activeTab === 'grid' ? (
-            /* Participant Video Grid (Tự động co giãn theo sĩ số 1 đến 10 học viên) */
-            <div
-              data-testid="video-grid-container"
-              className={`${gridLayoutClass} gap-3 sm:gap-4 transition-all duration-300`}
-            >
+          {/* Stage View: Participant Video Grid (Giữ nguyên DOM, chuyển display để tránh huỷ kết nối) */}
+          <div
+            data-testid="video-grid-container"
+            className={`${gridLayoutClass} gap-3 sm:gap-4 transition-all duration-300 ${
+              activeTab === 'grid' ? 'grid' : 'hidden'
+            }`}
+          >
               {/* CURRENT USER TILE */}
               {(() => {
                 const isLocalSpeaking = Boolean(speakingMap[participantId] && micEnabled);
@@ -3358,13 +3374,13 @@ export const StudyRoomView: React.FC = () => {
                 </div>
               )}
             </div>
-          ) : (
-            /* Shared Collaborative Whiteboard View - FULL WORKSPACE 100% */
-            <div
-              className={`w-full h-full overflow-hidden bg-zinc-950 ${
-                isWhiteboardFullscreen ? 'fixed inset-0 z-50' : 'absolute inset-0'
-              }`}
-            >
+
+          {/* Shared Collaborative Whiteboard View - FULL WORKSPACE 100% */}
+          <div
+            className={`w-full h-full overflow-hidden bg-zinc-950 ${
+              isWhiteboardFullscreen ? 'fixed inset-0 z-50' : 'absolute inset-0'
+            } ${activeTab === 'whiteboard' ? 'block' : 'hidden'}`}
+          >
               {/* Floating Mini Video Strip (Góc trên bên phải, có thể kéo thả tự do khắp màn hình) */}
               <div
                 data-testid="whiteboard-floating-video-strip"
@@ -3538,10 +3554,12 @@ export const StudyRoomView: React.FC = () => {
                   }}
                   isFullscreen={isWhiteboardFullscreen}
                   onToggleFullscreen={toggleWhiteboardFullscreen}
+                  initialStrokes={canvasStrokes}
+                  onStrokesChange={handleStrokesChange}
+                  isVisible={activeTab === 'whiteboard'}
                 />
               </div>
             </div>
-          )}
         </div>
 
         {/* Study Room Chat Sidebar (Desktop & Mobile) */}

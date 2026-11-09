@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2, Sparkles, Timer, Target, Play } from 'lucide-react';
+import { Trash2, Sparkles, Timer, Target, Play, Pencil } from 'lucide-react';
 import { useTaskStore } from '../stores/useTaskStore';
+import { useTimerStore } from '../stores/useTimerStore';
 import { TaskPriority } from '../types/tasks';
 
 export const TasksWidget: React.FC = () => {
@@ -12,19 +13,26 @@ export const TasksWidget: React.FC = () => {
     statusFilter,
     loadTasksAndProjects,
     createTask,
+    updateTask,
     toggleTaskComplete,
     deleteTask,
+    clearCompletedTasks,
     linkTaskToTimer,
     createProject,
     setStatusFilter,
     setSelectedProjectId
   } = useTaskStore();
 
+  const timerDailyProgress = useTimerStore((s) => s.dailyProgress);
+  const timerTodayMinutes = useTimerStore((s) => s.todayFocusMinutes);
+
   const [newTitle, setNewTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('p2');
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(2);
   const [newProjectName, setNewProjectName] = useState('');
   const [showAddProject, setShowAddProject] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState('');
 
   useEffect(() => {
     loadTasksAndProjects();
@@ -52,6 +60,23 @@ export const TasksWidget: React.FC = () => {
     setShowAddProject(false);
   };
 
+  const startEditingTask = (id: string, currentTitle: string) => {
+    setEditingTaskId(id);
+    setEditingTaskTitle(currentTitle);
+  };
+
+  const handleSaveTaskTitle = async (id: string) => {
+    const trimmed = editingTaskTitle.trim();
+    if (trimmed && trimmed !== tasks.find((t) => t.id === id)?.title) {
+      await updateTask(id, { title: trimmed });
+    }
+    setEditingTaskId(null);
+  };
+
+  const handleCancelTaskEdit = () => {
+    setEditingTaskId(null);
+  };
+
   // Lọc task theo Project và Status
   const filteredTasks = tasks.filter((t) => {
     if (selectedProjectId && t.projectId !== selectedProjectId) return false;
@@ -71,8 +96,10 @@ export const TasksWidget: React.FC = () => {
     }
   };
 
-  const totalCompleted = tasks.reduce((sum, t) => sum + (t.completedPomodoros || 0), 0);
-  const totalMinutes = totalCompleted * 25;
+  const taskCompletedPomodoros = tasks.reduce((sum, t) => sum + (t.completedPomodoros || 0), 0);
+  const totalCompleted = Math.max(timerDailyProgress || 0, taskCompletedPomodoros);
+  const totalMinutes = Math.max(timerTodayMinutes || 0, totalCompleted * 25);
+  const completedTasksCount = tasks.filter((t) => t.status === 'completed').length;
 
   return (
     <div
@@ -85,13 +112,26 @@ export const TasksWidget: React.FC = () => {
           <Sparkles size={13} className="text-amber-400" />
           Hôm nay: {totalCompleted} phiên • {totalMinutes} phút
         </span>
-        <button
-          type="button"
-          onClick={() => setShowAddProject(!showAddProject)}
-          className="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
-        >
-          {showAddProject ? 'Đóng' : '+ Dự án'}
-        </button>
+        <div className="flex items-center gap-1.5">
+          {completedTasksCount > 0 && (
+            <button
+              type="button"
+              data-testid="clear-completed-btn"
+              onClick={() => clearCompletedTasks()}
+              className="liquid-glass-btn text-xs text-zinc-400 hover:text-rose-300 px-2.5 py-1 rounded-full transition cursor-pointer flex items-center gap-1 active:scale-95 shrink-0"
+              title="Xóa toàn bộ nhiệm vụ đã hoàn thành"
+            >
+              <span>🧹 Dọn việc đã xong</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowAddProject(!showAddProject)}
+            className="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
+          >
+            {showAddProject ? 'Đóng' : '+ Dự án'}
+          </button>
+        </div>
       </div>
 
       {/* Form Thêm Dự Án (Popdown) */}
@@ -292,14 +332,47 @@ export const TasksWidget: React.FC = () => {
                     </div>
                   </label>
                   <div className="min-w-0 flex-1">
-                    <div
-                      title={task.title}
-                      className={`text-xs font-medium truncate ${
-                        isCompleted ? 'line-through text-neutral-400' : 'text-neutral-200'
-                      }`}
-                    >
-                      {task.title}
-                    </div>
+                    {editingTaskId === task.id ? (
+                      <input
+                        data-testid={`input-edit-task-${task.id}`}
+                        type="text"
+                        value={editingTaskTitle}
+                        onChange={(e) => setEditingTaskTitle(e.target.value)}
+                        onBlur={() => handleSaveTaskTitle(task.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSaveTaskTitle(task.id);
+                          } else if (e.key === 'Escape') {
+                            handleCancelTaskEdit();
+                          }
+                        }}
+                        autoFocus
+                        className="w-full text-xs px-2 py-0.5 rounded bg-black/60 border border-white/30 text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-1 group/title min-w-0">
+                        <span
+                          data-testid={`task-title-${task.id}`}
+                          onDoubleClick={() => startEditingTask(task.id, task.title)}
+                          title="Nhấp đúp hoặc bấm bút chì để sửa tên"
+                          className={`text-xs font-medium truncate cursor-pointer select-none ${
+                            isCompleted ? 'line-through text-neutral-400' : 'text-neutral-200 hover:text-white'
+                          }`}
+                        >
+                          {task.title}
+                        </span>
+                        <button
+                          type="button"
+                          data-testid={`edit-task-btn-${task.id}`}
+                          onClick={() => startEditingTask(task.id, task.title)}
+                          className="opacity-0 group-hover/title:opacity-100 hover:!opacity-100 transition-opacity p-0.5 text-neutral-400 hover:text-emerald-300 cursor-pointer shrink-0"
+                          title="Sửa tên nhiệm vụ"
+                        >
+                          <Pencil size={11} />
+                        </button>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 mt-0.5 text-[10px]">
                       <span
                         className={`px-1.5 py-0.2 rounded border uppercase font-bold text-[9px] ${getPriorityStyle(

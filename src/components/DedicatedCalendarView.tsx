@@ -52,13 +52,18 @@ export const DedicatedCalendarView: React.FC = () => {
 
   useEffect(() => {
     reloadData();
+    const handleSync = () => reloadData();
+    window.addEventListener('pomofocus_planner_sync', handleSync);
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setViewMode('day');
       }
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('pomofocus_planner_sync', handleSync);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const formatDateYMD = (d: Date) => {
@@ -92,6 +97,7 @@ export const DedicatedCalendarView: React.FC = () => {
   const handleToggleBlock = async (id: string, currentCompleted?: boolean) => {
     try {
       await db.planner_blocks.update(id, { completed: !currentCompleted });
+      window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
       await reloadData();
     } catch (err) {
       console.warn('Lỗi cập nhật block:', err);
@@ -101,6 +107,7 @@ export const DedicatedCalendarView: React.FC = () => {
   const handleDeleteBlock = async (id: string) => {
     try {
       await db.planner_blocks.delete(id);
+      window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
       await reloadData();
     } catch (err) {
       console.warn('Lỗi xóa block:', err);
@@ -121,6 +128,7 @@ export const DedicatedCalendarView: React.FC = () => {
         completed: false
       };
       await db.planner_blocks.add(newBlock);
+      window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
       setNewTitle('');
       setSelectedTaskId('');
       setIsAddModalOpen(false);

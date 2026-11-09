@@ -310,6 +310,41 @@ export const SpacesWidget: React.FC = () => {
       {/* ========================================================= */}
       {activeTab === 'wallpapers' && (
         <div className="flex-1 flex flex-col min-h-0 pt-2 space-y-2 overflow-hidden">
+          {/* Hàng chọn nhanh Màu Đơn Sắc Chuẩn Zen (Pure Solid Colors) */}
+          <div className="bg-black/40 p-2 rounded-xl border border-white/5 space-y-1.5 shrink-0">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-semibold text-neutral-300">Đơn Sắc Chuẩn Zen (Pure Flat)</span>
+              <span className="text-[10px] text-neutral-500">100% không ảnh tĩnh tâm</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'zen-pure-black', label: 'Đen Tuyền', color: '#09090b' },
+                { id: 'zen-deep-graphite', label: 'Than Chì', color: '#18181b' },
+                { id: 'zen-night-blue', label: 'Xanh Đêm', color: '#0b132b' }
+              ].map((zen) => {
+                const isSelected = activePresetId === zen.id;
+                return (
+                  <button
+                    key={zen.id}
+                    type="button"
+                    data-testid={`zen-color-${zen.id}`}
+                    onClick={() => selectPreset(zen.id)}
+                    className={`h-9 rounded-lg border flex items-center justify-center gap-1.5 px-2 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'ring-2 ring-cyan-400 border-white/40 scale-[1.02]'
+                        : 'border-white/10 hover:border-white/20'
+                    }`}
+                    style={{ backgroundColor: zen.color }}
+                    title={`${zen.label} (${zen.color})`}
+                  >
+                    <span className="text-[10px] font-medium text-zinc-300 drop-shadow-sm">{zen.label}</span>
+                    {isSelected && <Check size={11} className="text-cyan-400" strokeWidth={3} />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Thanh tìm kiếm */}
           <div className="relative shrink-0">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />

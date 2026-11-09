@@ -469,6 +469,27 @@ export const useAiStore = create<AiState>()(
 
 
       createNewSession: async () => {
+        const { sessions, currentSessionId, messages } = get();
+        let updatedSessions = [...(sessions || [])];
+        if (currentSessionId && messages.length > 0) {
+          const exists = updatedSessions.some((s) => s.id === currentSessionId);
+          if (exists) {
+            updatedSessions = updatedSessions.map((s) =>
+              s.id === currentSessionId ? { ...s, messages } : s
+            );
+          } else {
+            updatedSessions = [
+              {
+                id: currentSessionId,
+                title: 'Phiên học tập trước',
+                createdAt: Date.now(),
+                messages
+              },
+              ...updatedSessions
+            ];
+          }
+        }
+
         const uid = getStoredUserId();
         let newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         let newTitle = 'Phiên học tập mới';
@@ -490,8 +511,8 @@ export const useAiStore = create<AiState>()(
 
         AiChatService.setActiveConversationId(newConvId);
 
-        set((state) => ({
-          sessions: [newSession, ...(state.sessions || [])],
+        set({
+          sessions: [newSession, ...updatedSessions],
           activeConversationId: newConvId,
           currentSessionId: newConvId,
           messages: [
@@ -504,14 +525,48 @@ export const useAiStore = create<AiState>()(
             }
           ],
           error: null
-        }));
+        });
       },
 
       loadSession: async (sessionId: string) => {
+        const { sessions, currentSessionId, messages } = get();
+        let updatedSessions = [...(sessions || [])];
+        if (currentSessionId && messages.length > 0) {
+          const exists = updatedSessions.some((s) => s.id === currentSessionId);
+          if (exists) {
+            updatedSessions = updatedSessions.map((s) =>
+              s.id === currentSessionId ? { ...s, messages } : s
+            );
+          } else {
+            updatedSessions = [
+              {
+                id: currentSessionId,
+                title: 'Phiên học tập trước',
+                createdAt: Date.now(),
+                messages
+              },
+              ...updatedSessions
+            ];
+          }
+        }
+
+        const found = updatedSessions.find((s) => s.id === sessionId);
         AiChatService.setActiveConversationId(sessionId);
         set({
+          sessions: updatedSessions,
           activeConversationId: sessionId,
           currentSessionId: sessionId,
+          messages: found?.messages && found.messages.length > 0
+            ? found.messages
+            : [
+                {
+                  id: 'welcome-' + Date.now(),
+                  role: 'assistant',
+                  content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
+                  timestamp: Date.now(),
+                  creditsUsed: 0
+                }
+              ],
           isLoading: true,
           error: null
         });
@@ -530,29 +585,18 @@ export const useAiStore = create<AiState>()(
               attachmentName: m.attachment_name,
               isTruncated: m.is_truncated
             }));
-            set({ messages: mapped, isLoading: false });
+            set((state) => ({
+              messages: mapped,
+              sessions: (state.sessions || []).map((s) =>
+                s.id === sessionId ? { ...s, messages: mapped } : s
+              ),
+              isLoading: false
+            }));
             return;
           }
         } catch {}
 
-        const { sessions } = get();
-        const found = (sessions || []).find((s) => s.id === sessionId);
-        if (found && found.messages && found.messages.length > 0) {
-          set({ messages: found.messages, isLoading: false });
-        } else {
-          set({
-            messages: [
-              {
-                id: 'welcome-' + Date.now(),
-                role: 'assistant',
-                content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
-                timestamp: Date.now(),
-                creditsUsed: 0
-              }
-            ],
-            isLoading: false
-          });
-        }
+        set({ isLoading: false });
       },
 
       deleteSession: async (sessionId: string) => {
@@ -710,6 +754,13 @@ export const useAiStore = create<AiState>()(
         }
 
         // 2. Thêm tin nhắn của User
+        let activeId = get().activeConversationId || get().currentSessionId;
+        if (!activeId) {
+          activeId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          AiChatService.setActiveConversationId(activeId);
+          set({ activeConversationId: activeId, currentSessionId: activeId });
+        }
+
         const userMsgId = `msg-user-${Date.now()}`;
         const userMsg: AiMessage = {
           id: userMsgId,
@@ -730,12 +781,39 @@ export const useAiStore = create<AiState>()(
           actionType: effectiveAction
         };
 
-        set((state) => ({
-          messages: [...state.messages, userMsg, initialAssistantMsg],
+        const nextMessages = [...get().messages, userMsg, initialAssistantMsg];
+        const curSessions = get().sessions || [];
+        const existIdx = curSessions.findIndex((s) => s.id === activeId);
+        let updatedSessions: AiSession[];
+        if (existIdx >= 0) {
+          updatedSessions = curSessions.map((s, i) =>
+            i === existIdx
+              ? {
+                  ...s,
+                  title: s.title === 'Phiên học tập mới' || !s.title ? prompt.trim().slice(0, 36) : s.title,
+                  messages: nextMessages
+                }
+              : s
+          );
+        } else {
+          updatedSessions = [
+            {
+              id: activeId,
+              title: prompt.trim().slice(0, 36) || 'Cuộc trò chuyện',
+              createdAt: Date.now(),
+              messages: nextMessages
+            },
+            ...curSessions
+          ];
+        }
+
+        set({
+          messages: nextMessages,
+          sessions: updatedSessions,
           isLoading: true,
           isStreaming: false,
           error: null
-        }));
+        });
 
         try {
           // Lấy ghi chú hiện tại nếu là tác vụ tóm tắt
@@ -879,8 +957,8 @@ export const useAiStore = create<AiState>()(
           }
 
           // 5. Cập nhật tin nhắn hoàn tất
-          set((state) => ({
-            messages: state.messages.map((m) =>
+          set((state) => {
+            const finalMessages = state.messages.map((m) =>
               m.id === assistantMsgId
                 ? {
                     ...m,
@@ -889,10 +967,21 @@ export const useAiStore = create<AiState>()(
                     isTruncated
                   }
                 : m
-            ),
-            isLoading: false,
-            isStreaming: false
-          }));
+            );
+            return {
+              messages: finalMessages,
+              sessions: (state.sessions || []).map((s) =>
+                s.id === activeId
+                  ? {
+                      ...s,
+                      messages: finalMessages
+                    }
+                  : s
+              ),
+              isLoading: false,
+              isStreaming: false
+            };
+          });
 
           // 6. Lưu trữ bất đồng bộ lên Supabase Cloud
           const convId = get().activeConversationId;
@@ -926,12 +1015,23 @@ export const useAiStore = create<AiState>()(
           return replyText;
         } catch (err: any) {
           // Bỏ tin nhắn assistant trống nếu lỗi
-          set((state) => ({
-            messages: state.messages.filter((m) => m.id !== assistantMsgId),
-            isLoading: false,
-            isStreaming: false,
-            error: err.message || 'Đã xảy ra lỗi khi tạo phản hồi AI.'
-          }));
+          set((state) => {
+            const rollbackMessages = state.messages.filter((m) => m.id !== assistantMsgId);
+            return {
+              messages: rollbackMessages,
+              sessions: (state.sessions || []).map((s) =>
+                s.id === activeId
+                  ? {
+                      ...s,
+                      messages: rollbackMessages
+                    }
+                  : s
+              ),
+              isLoading: false,
+              isStreaming: false,
+              error: err.message || 'Đã xảy ra lỗi khi tạo phản hồi AI.'
+            };
+          });
           throw err;
         }
       },
@@ -961,8 +1061,10 @@ export const useAiStore = create<AiState>()(
         aiPlan: state.aiPlan,
         lastWeeklyReset: state.lastWeeklyReset,
         lastMonthlyReset: state.lastMonthlyReset,
-        messages: state.messages.slice(-30),
-        sessions: (state.sessions || []).slice(0, 20) // Giữ 30 tin nhắn gần nhất
+        currentSessionId: state.currentSessionId,
+        activeConversationId: state.activeConversationId,
+        messages: state.messages.slice(-50),
+        sessions: (state.sessions || []).slice(0, 20)
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { recordFocusSessionAtomic } from '../db';
+import { db, recordFocusSessionAtomic } from '../db';
 import { NotificationService } from '../services/notificationService';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
 import { TimerEngine, loadStoredSettings, persistSettings } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
@@ -15,15 +16,21 @@ interface TimerStoreState {
   notificationPermission: NotificationPermission;
   linkedTaskId: string | null;
   linkedTaskTitle: string | null;
+  dailyProgress: number;
+  todayFocusMinutes: number;
+  celebrationToast: string | null;
 
   // Actions
   start: () => void;
   pause: () => void;
   resume: () => void;
   reset: () => void;
+  resetCycle: () => void;
+  setPhase: (phase: TimerPhase, round?: number) => void;
   skip: () => void;
   updateSettings: (newSettings: Partial<TimerSettings>) => void;
   setLinkedTask: (taskId: string | null, taskTitle: string | null) => void;
+  setCelebrationToast: (toast: string | null) => void;
   requestNotificationPermission: () => Promise<void>;
   init: () => void;
   destroy: () => void;
@@ -113,6 +120,26 @@ export function updateDocumentTitle(
 
 const initialSettings = loadStoredSettings();
 
+function loadInitialDailyStats(): { dailyProgress: number; todayFocusMinutes: number } {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return { dailyProgress: 0, todayFocusMinutes: 0 };
+  }
+  try {
+    const todayStr = getVietnamTodayDateKey();
+    const raw = localStorage.getItem(`pomodoro_daily_stats_${todayStr}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        dailyProgress: typeof parsed.dailyProgress === 'number' ? parsed.dailyProgress : 0,
+        todayFocusMinutes: typeof parsed.todayFocusMinutes === 'number' ? parsed.todayFocusMinutes : 0
+      };
+    }
+  } catch {}
+  return { dailyProgress: 0, todayFocusMinutes: 0 };
+}
+
+const initialDaily = loadInitialDailyStats();
+
 export const useTimerStore = create<TimerStoreState>((set, get) => ({
   phase: 'pomodoro',
   status: 'idle',
@@ -123,6 +150,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   notificationPermission: NotificationService.getPermission(),
   linkedTaskId: null,
   linkedTaskTitle: null,
+  dailyProgress: initialDaily.dailyProgress,
+  todayFocusMinutes: initialDaily.todayFocusMinutes,
+  celebrationToast: null,
 
   init: () => {
     if (typeof window === 'undefined') return;
@@ -209,6 +239,34 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
           set({ phase, currentRound });
         },
         onComplete: async (record: FocusSessionRecord, nextPhase: TimerPhase) => {
+          // Bất kể hiệp tập trung dài 25m, 15m hay 1m, khi hoàn tất hiệp Pomodoro:
+          if (record.phase === 'pomodoro') {
+            const nextProgress = get().dailyProgress + 1;
+            const duration = record.durationMinutes || get().settings.pomodoroMinutes || 25;
+            const nextMinutes = get().todayFocusMinutes + duration;
+            const toastMsg = '🎉 Tuyệt vời! Bạn vừa hoàn thành 1 hiệp tập trung!';
+
+            set({
+              dailyProgress: nextProgress,
+              todayFocusMinutes: nextMinutes,
+              celebrationToast: toastMsg
+            });
+
+            try {
+              const todayStr = getVietnamTodayDateKey();
+              localStorage.setItem(`pomodoro_daily_stats_${todayStr}`, JSON.stringify({
+                dailyProgress: nextProgress,
+                todayFocusMinutes: nextMinutes
+              }));
+            } catch {}
+
+            setTimeout(() => {
+              if (get().celebrationToast === toastMsg) {
+                set({ celebrationToast: null });
+              }
+            }, 6000);
+          }
+
           // Thử ghi nhận phiên vào IndexedDB bằng Atomic Transaction
           let wasRecorded = false;
           try {
@@ -267,6 +325,30 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         linkedTaskId: engineInstance.getLinkedTaskId(),
         linkedTaskTitle: engineInstance.getLinkedTaskTitle()
       });
+
+      // 3. Khôi phục thống kê ngày từ IndexedDB
+      try {
+        const todayStr = getVietnamTodayDateKey();
+        db.focus_sessions
+          .where('dateString')
+          .equals(todayStr)
+          .toArray()
+          .then((sessions) => {
+            const pomodoros = sessions.filter((s) => s.phase === 'pomodoro');
+            const count = pomodoros.length;
+            const minutes = pomodoros.reduce((sum, s) => sum + (s.durationMinutes || 25), 0);
+            if (count >= get().dailyProgress) {
+              set({ dailyProgress: count, todayFocusMinutes: minutes });
+              try {
+                localStorage.setItem(`pomodoro_daily_stats_${todayStr}`, JSON.stringify({
+                  dailyProgress: count,
+                  todayFocusMinutes: minutes
+                }));
+              } catch {}
+            }
+          })
+          .catch(() => {});
+      } catch {}
     }
 
     // Gắn dọn dẹp khi đóng hoặc rời tab chuẩn Best Practices (beforeunload, pagehide)
@@ -302,6 +384,10 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
 
   start: () => {
     if (engineInstance) {
+      // BẢO TOÀN CHÍNH XÁC PHASE VÀ ROUND
+      if (engineInstance.getPhase() !== get().phase || engineInstance.getCurrentRound() !== get().currentRound) {
+        engineInstance.setPhase(get().phase, get().currentRound);
+      }
       engineInstance.start();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
@@ -367,6 +453,9 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
 
   reset: () => {
     if (engineInstance) {
+      if (engineInstance.getPhase() !== get().phase || engineInstance.getCurrentRound() !== get().currentRound) {
+        engineInstance.setPhase(get().phase, get().currentRound);
+      }
       engineInstance.reset();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
@@ -384,6 +473,71 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset', payload });
       }
     }
+  },
+
+  resetCycle: () => {
+    if (engineInstance) {
+      engineInstance.resetCycle();
+      const payload: TimerSyncPayload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset_cycle', payload });
+      }
+    } else {
+      set({
+        phase: 'pomodoro',
+        status: 'idle',
+        currentRound: 1,
+        remainingMs: get().settings.pomodoroMinutes * 60 * 1000
+      });
+    }
+  },
+
+  setPhase: (phase: TimerPhase, round?: number) => {
+    if (engineInstance) {
+      engineInstance.setPhase(phase, round ?? get().currentRound);
+      const payload = engineInstance.getSnapshot();
+      payload.fromLeader = get().isLeader;
+      lastSyncTimestamp = payload.timestamp;
+
+      set({
+        phase: payload.phase,
+        status: payload.status,
+        currentRound: payload.currentRound,
+        remainingMs: payload.remainingMs
+      });
+      updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+
+      if (coordinatorInstance) {
+        coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'set_phase', payload });
+      }
+    } else {
+      const duration =
+        phase === 'pomodoro'
+          ? get().settings.pomodoroMinutes
+          : phase === 'short_break'
+          ? get().settings.shortBreakMinutes
+          : get().settings.longBreakMinutes;
+      set({
+        phase,
+        currentRound: round ?? get().currentRound,
+        remainingMs: duration * 60 * 1000
+      });
+    }
+  },
+
+  setCelebrationToast: (celebrationToast: string | null) => {
+    set({ celebrationToast });
   },
 
   skip: () => {

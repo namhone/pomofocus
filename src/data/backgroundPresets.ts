@@ -165,5 +165,41 @@ export const BACKGROUND_PRESETS: BackgroundPreset[] = [
     license: 'MIT',
     description: 'Nền dải màu xanh ngọc bích đậm thư thái cho đôi mắt.',
     tags: ['gradient', 'minimal', 'offline', 'green']
+  },
+  {
+    id: 'zen-pure-black',
+    title: 'Đen Tuyền Tuyệt Đối',
+    category: 'solid',
+    url: '#09090b',
+    fallbackUrl: '#09090b',
+    thumbnailUrl: '',
+    author: 'Pure Zen',
+    license: 'MIT',
+    description: 'Nền đen phẳng 100% không hình ảnh, tối đa hóa tĩnh tâm.',
+    tags: ['zen', 'black', 'minimal', 'solid']
+  },
+  {
+    id: 'zen-deep-graphite',
+    title: 'Xám Than Chì Sâu',
+    category: 'solid',
+    url: '#18181b',
+    fallbackUrl: '#18181b',
+    thumbnailUrl: '',
+    author: 'Pure Zen',
+    license: 'MIT',
+    description: 'Màu xám than chì sâu phẳng 100%.',
+    tags: ['zen', 'graphite', 'minimal', 'solid']
+  },
+  {
+    id: 'zen-night-blue',
+    title: 'Xanh Bóng Đêm',
+    category: 'solid',
+    url: '#0b132b',
+    fallbackUrl: '#0b132b',
+    thumbnailUrl: '',
+    author: 'Pure Zen',
+    license: 'MIT',
+    description: 'Màu xanh bóng đêm phẳng 100%.',
+    tags: ['zen', 'night-blue', 'minimal', 'solid']
   }
 ];

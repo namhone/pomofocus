@@ -1,4 +1,5 @@
 import { FocusSessionRecord, PersistedTimerRuntime, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
+import { getVietnamTodayDateKey } from '../utils/timezone';
 import { TimerSyncPayload } from './tabCoordinator';
 
 export const DEFAULT_SETTINGS: TimerSettings = {
@@ -191,6 +192,24 @@ export class TimerEngine {
     this.notifyTick();
   }
 
+  public resetCycle(): void {
+    this.stopInterval();
+    this.status = 'idle';
+    this.targetEndTimeMs = null;
+    this.pausedRemainingMs = null;
+    this.currentRound = 1;
+    this.phase = 'pomodoro';
+    this.durationMinutes = this.getDurationForPhase(this.phase);
+    this.remainingMs = this.durationMinutes * 60 * 1000;
+    this.sessionId = this.generateId();
+
+    this.persist();
+    this.notifyTick();
+    if (this.callbacks.onPhaseChange) {
+      this.callbacks.onPhaseChange(this.phase, this.currentRound);
+    }
+  }
+
   public skip(): void {
     this.stopInterval();
     this.targetEndTimeMs = null;
@@ -283,7 +302,7 @@ export class TimerEngine {
       phase: this.phase,
       durationMinutes: this.durationMinutes,
       completedAt: Date.now(),
-      dateString: new Date().toISOString().split('T')[0]
+      dateString: getVietnamTodayDateKey()
     };
 
     const nextPhaseInfo = this.calculateNextPhase();

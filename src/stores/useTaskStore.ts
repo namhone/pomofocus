@@ -25,6 +25,7 @@ interface TaskStoreState {
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   toggleTaskComplete: (id: string) => Promise<void>;
   deleteTask: (id: string, hardDelete?: boolean) => Promise<void>;
+  clearCompletedTasks: () => Promise<void>;
   linkTaskToTimer: (id: string | null) => void;
   createProject: (name: string, colorHex?: string) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
@@ -197,6 +198,41 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     } catch {
       // Ignore if notes table is empty or error
     }
+  },
+
+  clearCompletedTasks: async () => {
+    const completed = get().tasks.filter((t) => t.status === 'completed');
+    if (completed.length === 0) return;
+
+    const completedIds = new Set(completed.map((t) => t.id));
+    const now = Date.now();
+    const userId = useAuthStore.getState().user?.id;
+
+    if (get().activeTaskId && completedIds.has(get().activeTaskId!)) {
+      set({ activeTaskId: null });
+      useTimerStore.getState().setLinkedTask(null, null);
+    }
+
+    for (const task of completed) {
+      await db.tasks.update(task.id, { status: 'archived', updatedAt: now });
+      if (userId) {
+        TaskCloudService.upsertTask({ ...task, status: 'archived', updatedAt: now } as any, userId).catch((err) =>
+          console.warn('Lỗi archive Task lên Cloud:', err)
+        );
+      }
+      try {
+        const linkedNotes = await db.notes.where('linkedTaskId').equals(task.id).toArray();
+        for (const note of linkedNotes) {
+          await db.notes.update(note.id, { linkedTaskId: null, updatedAt: now });
+        }
+      } catch {
+        // Ignore if notes table is empty or error
+      }
+    }
+
+    set((state) => ({
+      tasks: state.tasks.filter((t) => !completedIds.has(t.id))
+    }));
   },
 
   linkTaskToTimer: (id: string | null) => {
