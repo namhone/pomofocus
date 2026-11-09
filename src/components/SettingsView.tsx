@@ -190,7 +190,7 @@ export const SettingsView: React.FC = () => {
                 max={120}
                 value={timerSettings.pomodoroMinutes}
                 onChange={(e) => handlePomodoroChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -203,7 +203,7 @@ export const SettingsView: React.FC = () => {
                 max={60}
                 value={timerSettings.shortBreakMinutes}
                 onChange={(e) => handleShortBreakChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -216,7 +216,7 @@ export const SettingsView: React.FC = () => {
                 max={90}
                 value={timerSettings.longBreakMinutes}
                 onChange={(e) => handleLongBreakChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
 
@@ -229,7 +229,7 @@ export const SettingsView: React.FC = () => {
                 max={12}
                 value={timerSettings.roundsBeforeLongBreak}
                 onChange={(e) => handleRoundsChange(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-950 text-white font-mono focus:outline-none focus:border-white transition [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>

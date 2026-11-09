@@ -129,6 +129,15 @@
     box-shadow: none !important;
     outline: none !important;
   }
+
+  /* Tiện ích ẩn thanh cuộn tuyệt đối (Clean Scrollbar Suppression) */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none !important;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
 }
 
 @layer utilities {

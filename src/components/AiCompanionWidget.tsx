@@ -834,7 +834,7 @@ export const AiCompanionWidget: React.FC = () => {
                 ? `Yêu cầu phân tích "${selectedFile.name}"... (Shift+Enter xuống dòng)`
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Shift+Enter để xuống dòng)'
             }
-            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-thin"
+            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-none"
           />
 
           {/* Nút Gửi Máy Bay Giấy Thông Minh */}

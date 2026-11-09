@@ -174,7 +174,7 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.pomodoroMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
               <button
@@ -211,7 +211,7 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.shortBreakMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
               <button
@@ -248,7 +248,7 @@ export const SettingsWidget: React.FC = () => {
                 value={timerSettings.longBreakMinutes}
                 disabled={timerStatus !== 'idle'}
                 onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
-                className="w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
               <button
