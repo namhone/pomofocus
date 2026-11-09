@@ -75,7 +75,7 @@ export const AudioWidget: React.FC = () => {
       {isAudioBlocked && (
         <div
           data-testid="audio-blocked-warning"
-          className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-2"
+          className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-2 flex-nowrap shrink-0"
         >
           <div className="flex items-center gap-2">
             <AlertTriangle size={15} className="text-amber-400 shrink-0" />
@@ -85,7 +85,7 @@ export const AudioWidget: React.FC = () => {
             type="button"
             data-testid="btn-resume-audio"
             onClick={resumeAudioContext}
-            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-[11px] transition cursor-pointer shrink-0"
+            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-[11px] transition cursor-pointer shrink-0 whitespace-nowrap"
           >
             Kích hoạt
           </button>
@@ -94,7 +94,7 @@ export const AudioWidget: React.FC = () => {
 
       {/* Master Volume Section */}
       <div className="p-3 bg-black/25 rounded-2xl border border-white/5 mb-3 shrink-0">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 flex-nowrap shrink-0">
           <div className="flex items-center gap-2">
             <label htmlFor="master-volume-slider" className="text-xs font-medium text-neutral-300">
               Âm Lượng Tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
@@ -116,7 +116,7 @@ export const AudioWidget: React.FC = () => {
             type="button"
             data-testid="btn-toggle-mute"
             onClick={toggleMasterMute}
-            className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition cursor-pointer min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition cursor-pointer min-h-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 shrink-0 whitespace-nowrap ${
               settings.isMuted
                 ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                 : 'bg-white/10 text-neutral-300 hover:bg-white/15 hover:text-white'
@@ -125,12 +125,12 @@ export const AudioWidget: React.FC = () => {
             {settings.isMuted ? (
               <>
                 <VolumeX size={13} />
-                <span>Đang tắt tiếng</span>
+                <span className="whitespace-nowrap">Đang tắt tiếng</span>
               </>
             ) : (
               <>
                 <Volume2 size={13} />
-                <span>Đang bật tiếng</span>
+                <span className="whitespace-nowrap">Đang bật tiếng</span>
               </>
             )}
           </button>
@@ -249,15 +249,15 @@ export const AudioWidget: React.FC = () => {
       {/* Tab 2: Ambient Sounds */}
       {activeTab === 'ambient' && (
         <div className="flex-1 overflow-y-auto space-y-3 pr-0.5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-nowrap shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-neutral-400 font-medium">
+              <span className="text-xs text-neutral-400 font-medium truncate">
                 Bộ phối âm thanh ({tracks.length} âm thanh)
               </span>
               {activePlayingCount > 0 && (
                 <div
                   data-testid="audio-equalizer-wave-ambient"
-                  className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30"
+                  className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 shrink-0"
                   title={`${activePlayingCount} âm thanh đang phát`}
                 >
                   <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-1.5" />
@@ -271,7 +271,7 @@ export const AudioWidget: React.FC = () => {
                 type="button"
                 data-testid="btn-stop-all-ambient"
                 onClick={stopAllTracks}
-                className="text-[11px] text-rose-400 hover:text-rose-300 font-medium cursor-pointer"
+                className="text-[11px] text-rose-400 hover:text-rose-300 font-medium cursor-pointer shrink-0 whitespace-nowrap"
               >
                 Dừng tất cả
               </button>
@@ -279,7 +279,7 @@ export const AudioWidget: React.FC = () => {
           </div>
 
           {/* 4 Nhóm Tab Âm Thanh: Tự Nhiên (7) | Cuộc Sống (10) | Sóng Não (4) | Tiếng Ồn (4) | Tất Cả */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs flex-nowrap shrink-0">
             {ambientTabs.map((tab) => {
               const activeCountInCat = tab.id === 'all'
                 ? activePlayingCount
@@ -291,13 +291,13 @@ export const AudioWidget: React.FC = () => {
                   type="button"
                   data-testid={`ambient-category-${tab.id}`}
                   onClick={() => setAmbientCategory(tab.id)}
-                  className={`px-2.5 py-1 rounded-xl text-xs font-medium transition shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
+                  className={`px-2.5 py-1 rounded-xl text-xs font-medium transition shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
                     ambientCategory === tab.id
                       ? 'bg-neutral-800 text-white border border-white/25 shadow-sm'
                       : 'bg-black/25 text-neutral-400 hover:text-neutral-200 border border-white/5'
                   }`}
                 >
-                  <span>{tab.label}</span>
+                  <span className="whitespace-nowrap">{tab.label}</span>
                   <span className="text-[10px] text-neutral-400 font-mono">({tab.count})</span>
                   {activeCountInCat > 0 && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
@@ -318,7 +318,7 @@ export const AudioWidget: React.FC = () => {
                     : 'bg-black/20 border-white/5 hover:border-white/10'
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3 flex-nowrap">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <button
                       type="button"
@@ -334,7 +334,7 @@ export const AudioWidget: React.FC = () => {
                       {track.isPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
                     </button>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
                         <span className="text-xs font-medium text-neutral-200 truncate" title={track.name}>
                           {track.name}
                         </span>
@@ -391,16 +391,16 @@ export const AudioWidget: React.FC = () => {
 
 
       {/* Footer: Reset to defaults */}
-      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">
+      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400 flex-nowrap shrink-0">
         <button
           type="button"
           onClick={resetToDefaults}
-          className="flex items-center gap-1.5 hover:text-neutral-200 transition cursor-pointer text-xs min-h-[26px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 rounded-lg px-1.5 py-0.5"
+          className="flex items-center gap-1.5 hover:text-neutral-200 transition cursor-pointer text-xs min-h-[26px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 rounded-lg px-1.5 py-0.5 shrink-0 whitespace-nowrap"
         >
-          <RotateCcw size={12} />
-          <span>Đặt lại mặc định</span>
+          <RotateCcw size={12} className="shrink-0" />
+          <span className="whitespace-nowrap">Đặt lại mặc định</span>
         </button>
-        <span className="text-[10px] text-neutral-500 font-medium">Offline Audio</span>
+        <span className="text-[10px] text-neutral-500 font-medium shrink-0 whitespace-nowrap">Offline Audio</span>
       </div>
     </div>
   );

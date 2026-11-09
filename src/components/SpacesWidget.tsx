@@ -189,32 +189,32 @@ export const SpacesWidget: React.FC = () => {
       className="flex h-full w-full max-w-[420px] max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700"
     >
             {/* 2 Tab chuyển đổi rõ ràng ở đầu: [ 🖼️ Hình Nền ] | [ 🎵 Âm Thanh & Chuông ] */}
-      <div className="flex rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2">
+      <div className="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2">
         <button
           type="button"
           data-testid="spaces-tab-wallpapers"
           onClick={() => setSpaceMainTab('wallpapers')}
-          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs ${
+          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
             spaceMainTab === 'wallpapers'
               ? 'bg-white/20 text-white shadow-sm font-semibold'
               : 'text-neutral-400 hover:text-white'
           }`}
         >
           <span>🖼️</span>
-          <span>Hình Nền</span>
+          <span className="whitespace-nowrap">Hình Nền</span>
         </button>
         <button
           type="button"
           data-testid="spaces-tab-audio"
           onClick={() => setSpaceMainTab('audio')}
-          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs ${
+          className={`flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
             spaceMainTab === 'audio'
               ? 'bg-white/20 text-white shadow-sm font-semibold'
               : 'text-neutral-400 hover:text-white'
           }`}
         >
           <span>🎵</span>
-          <span>Âm Thanh & Chuông</span>
+          <span className="whitespace-nowrap">Âm Thanh & Chuông</span>
         </button>
       </div>
 
@@ -226,7 +226,7 @@ export const SpacesWidget: React.FC = () => {
         <>
       {/* Header Info & Actions */}
       <div className="pb-2 border-b border-white/[0.08] space-y-2 shrink-0">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-nowrap shrink-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <div className="p-1 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 shrink-0">
               <Palette size={14} strokeWidth={1.75} />
@@ -276,31 +276,31 @@ export const SpacesWidget: React.FC = () => {
         )}
 
         {/* 2 Tab Chính: [Kho Hình Nền] & [Hiệu Ứng & Ánh Sáng] */}
-        <div className="flex rounded-lg bg-black/40 p-0.5 border border-white/10 text-xs gap-1">
+        <div className="flex flex-nowrap shrink-0 rounded-lg bg-black/40 p-0.5 border border-white/10 text-xs gap-1">
           <button
             type="button"
             onClick={() => setActiveTab('wallpapers')}
-            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs ${
+            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
               activeTab === 'wallpapers'
                 ? 'bg-white/15 text-white shadow-xs font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <Palette size={12} />
-            <span>Kho Hình Nền</span>
+            <Palette size={12} className="shrink-0" />
+            <span className="whitespace-nowrap">Kho Hình Nền</span>
             <span className="sr-only">Thư viện Tuyển Chọn</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('effects')}
-            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs ${
+            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
               activeTab === 'effects'
                 ? 'bg-white/15 text-white shadow-xs font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <Sliders size={12} />
-            <span>Hiệu Ứng & Ánh Sáng</span>
+            <Sliders size={12} className="shrink-0" />
+            <span className="whitespace-nowrap">Hiệu Ứng & Ánh Sáng</span>
           </button>
         </div>
       </div>
@@ -358,7 +358,7 @@ export const SpacesWidget: React.FC = () => {
           </div>
 
           {/* Bộ lọc Danh mục 5 Gu Thẩm Mỹ Pinterest + All + Video */}
-          <div className="flex gap-1 overflow-x-auto pb-1 shrink-0 scrollbar-none text-[10px]">
+          <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1 shrink-0 scrollbar-none text-[10px]">
             {/* Nút All (data-testid cho E2E) */}
             <button
               type="button"

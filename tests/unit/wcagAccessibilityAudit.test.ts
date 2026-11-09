@@ -22,9 +22,9 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     expect(timerContent).toContain('data-testid="timer-resume-btn"');
     expect(timerContent).toContain('aria-label="Tiếp tục phiên tập trung"');
     expect(timerContent).toContain('data-testid="timer-reset-btn"');
-    expect(timerContent).toContain('aria-label="Đặt lại về mặc định"');
+    expect(timerContent).toContain('aria-label="Đặt lại đồng hồ hiệp này"');
     expect(timerContent).toContain('data-testid="timer-skip-btn"');
-    expect(timerContent).toContain('aria-label="Chuyển sang hiệp kế tiếp"');
+    expect(timerContent).toContain('aria-label="Bỏ qua hiệp hiện tại"');
 
     // AiCompanionWidget.tsx
     const aiPath = path.resolve('src/components/AiCompanionWidget.tsx');

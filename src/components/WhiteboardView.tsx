@@ -1313,7 +1313,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       {/* Floating Minimalist Monochrome Toolbar (Chuẩn h-12 48px, gọn 420px-460px) */}
       <div
         data-testid="whiteboard-floating-toolbar"
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center h-12 max-w-[460px] gap-1 sm:gap-1.5 px-2.5 py-1 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md overflow-x-auto sm:overflow-visible scrollbar-none"
+        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center flex-nowrap shrink-0 h-12 max-w-[460px] gap-1 sm:gap-1.5 px-2.5 py-1 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md overflow-x-auto sm:overflow-visible scrollbar-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* Nút Upload Tài Liệu / Đề Cương */}
@@ -1331,7 +1331,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         <span className="w-px h-5 bg-white/10 shrink-0" />
 
         {/* Tool Selector */}
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl shrink-0">
+        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl shrink-0 flex-nowrap">
           <button
             type="button"
             data-testid="tool-pen"
@@ -1576,7 +1576,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         )}
 
         {/* Actions: Undo / Redo / Clear / Export */}
-        <div className="flex items-center gap-1 pl-1 border-l border-white/10 shrink-0">
+        <div className="flex items-center gap-1 pl-1 border-l border-white/10 shrink-0 flex-nowrap">
           <button
             type="button"
             data-testid="btn-undo"
@@ -1618,7 +1618,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
             title="Lưu ảnh bài học về máy"
           >
             <Download size={13} className="shrink-0" />
-            <span className="whitespace-nowrap">Lưu ảnh</span>
+            <span className="hidden sm:inline whitespace-nowrap">Lưu ảnh</span>
           </button>
         </div>
       </div>
@@ -1627,7 +1627,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       {material && (
         <div
           data-testid="active-material-indicator"
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-25 flex items-center gap-2 p-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md text-xs text-white max-w-[calc(100vw-32px)]"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-25 flex items-center flex-nowrap shrink-0 gap-2 p-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md text-xs text-white max-w-[calc(100vw-32px)]"
         >
           <div className="flex items-center gap-1.5 px-2 py-1 max-w-[200px] truncate">
             <FileText size={13} className="text-emerald-400 shrink-0" />
@@ -1694,7 +1694,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       {isPdf && totalPdfPages > 1 && (
         <div
           data-testid="pdf-pagination-bar"
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md text-xs text-white"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center flex-nowrap shrink-0 gap-2 px-3 py-1.5 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-md text-xs text-white"
         >
           {/* Chuyển chế độ: 1 Trang vs Quyển Sách */}
           <div className="flex items-center gap-1 bg-white/10 p-0.5 rounded-xl border border-white/10 mr-1">
@@ -1786,7 +1786,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       {/* Bottom-Right Corner Zoom & Pan Navigation Controls */}
       <div
         data-testid="whiteboard-zoom-controls"
-        className="absolute bottom-4 right-4 z-30 flex items-center gap-1 p-1 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-2xl backdrop-blur-md text-xs text-white"
+        className="absolute bottom-4 right-4 z-30 flex items-center flex-nowrap shrink-0 gap-1 p-1 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-2xl backdrop-blur-md text-xs text-white"
       >
         <button
           type="button"

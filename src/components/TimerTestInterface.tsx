@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Play, Pause, RotateCcw, FastForward, Bell, Target, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, RefreshCw, SkipForward, Bell, Target, Sparkles } from 'lucide-react';
 import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
 
@@ -114,7 +114,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
         )}
 
         {/* Phase Selector Segmented Control (Hiển thị trọn vẹn 100%, không bị chém cụt) */}
-        <div className="flex rounded-full bg-neutral-900/70 p-1 border border-white/[0.08] mb-2 min-h-[30px] items-stretch gap-1">
+        <div className="flex flex-nowrap overflow-x-auto scrollbar-none gap-1 p-1 rounded-2xl bg-black/25 border border-white/5 mb-2 min-h-[30px] items-stretch select-none">
           {(['pomodoro', 'short_break', 'long_break'] as TimerPhase[]).map((p) => {
             const isActive = phase === p;
             const style = getPhaseStyles(p);
@@ -125,7 +125,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                 data-testid={`tab-${p}`}
                 disabled={status !== 'idle'}
                 onClick={() => setPhase(p)}
-                className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 ${
                   isActive ? style.activeTab : 'text-neutral-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
               >
@@ -193,17 +193,17 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
         </div>
 
         {/* Control Buttons Area (Snappy Spring Motion + Optical Cap-Height Alignment) */}
-        <div className="mt-1.5 flex w-full items-center justify-center gap-1.5">
+        <div className="flex flex-row items-center justify-center flex-nowrap gap-2.5 w-full shrink-0 select-none py-1">
           {status === 'idle' && (
             <button
               data-testid="timer-start-btn"
               onClick={start}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
-              className="liquid-glass-btn flex-1 py-2 px-6 rounded-full text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 shadow-md min-h-[38px] transition-all duration-200 active:scale-95 hover:scale-[1.01] cursor-pointer flex items-center justify-center gap-2"
+              className="liquid-glass-btn h-11 px-6 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
             >
-              <Play size={14} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span>Bắt đầu</span>
+              <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
+              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Bắt đầu</span>
             </button>
           )}
 
@@ -213,10 +213,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               onClick={pause}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-amber flex-1 py-2 px-6 rounded-full text-sm font-semibold min-h-[38px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-amber-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
             >
-              <Pause size={14} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span>Tạm dừng</span>
+              <Pause size={16} fill="currentColor" className="-translate-y-[0.5px]" />
+              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tạm dừng</span>
             </button>
           )}
 
@@ -226,44 +226,41 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               onClick={resume}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-emerald flex-1 py-2 px-6 rounded-full text-sm font-semibold min-h-[38px] gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="liquid-glass-btn liquid-glass-btn-emerald h-11 px-6 rounded-2xl border border-emerald-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
-              <Play size={14} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span>Tiếp tục</span>
+              <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
+              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tiếp tục</span>
             </button>
           )}
 
           <button
             data-testid="timer-reset-btn"
             onClick={reset}
-            title="Đặt lại về mặc định"
-            aria-label="Đặt lại về mặc định"
-            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-white min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            title="Đặt lại đồng hồ hiệp này"
+            aria-label="Đặt lại đồng hồ hiệp này"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <RotateCcw size={12} className="-translate-y-[0.5px]" />
-            <span className="text-[11px]">Đặt lại</span>
+            <RotateCcw size={20} className="w-5 h-5 -translate-y-[0.5px]" />
           </button>
 
           <button
             data-testid="timer-reset-cycle-btn"
             onClick={resetCycle}
-            title="Đặt lại toàn bộ chu kỳ về Hiệp 1/4"
-            aria-label="Đặt lại toàn bộ chu kỳ"
-            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-rose-300 min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/40"
+            title="Đặt lại chu kỳ về Hiệp 1/4"
+            aria-label="Đặt lại chu kỳ về Hiệp 1/4"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <RotateCcw size={12} className="-translate-y-[0.5px] text-rose-400" />
-            <span className="text-[11px]">Chu kỳ</span>
+            <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-rose-400" />
           </button>
 
           <button
             data-testid="timer-skip-btn"
             onClick={skip}
-            title="Chuyển sang hiệp kế tiếp"
-            aria-label="Chuyển sang hiệp kế tiếp"
-            className="liquid-glass-btn py-1.5 px-2.5 text-neutral-300 hover:text-white min-h-[34px] min-w-[34px] gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            title="Bỏ qua hiệp hiện tại"
+            aria-label="Bỏ qua hiệp hiện tại"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <FastForward size={12} className="-translate-y-[0.5px]" />
-            <span className="text-[11px]">Bỏ qua</span>
+            <SkipForward size={20} className="w-5 h-5 -translate-y-[0.5px]" />
           </button>
         </div>
 
