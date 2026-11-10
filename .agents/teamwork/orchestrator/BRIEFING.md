@@ -1,14 +1,14 @@
-# BRIEFING — 2026-11-08T05:57:45Z
+# BRIEFING — 2026-11-09T01:00:00Z
 
 ## Mission
-Orchestrate Pomofocus v6.0 Ultimate overhaul: Apple Liquid Glass & Zen Minimalism, Zero-FOUT, macOS Dock Magnification, Dimension Guardrails, and production validation.
+Orchestrate Pomofocus v6.4: Timer state machine fixes, tasks inline edit & clear completed, study room whiteboard stroke persistence, calendar sync & solid spaces, AI companion chat persistence & code blocks, comprehensive vitest suites, TypeScript build, git commit & push, and live deployment verification.
 
 ## 🔒 My Identity
 - Archetype: orchestrator
 - Roles: orchestrator, user_liaison, human_reporter, successor
 - Working directory: d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\orchestrator\
-- Original parent: 3c77903f-b175-4416-b0b2-6bfc2a8beb2a
-- Original parent conversation ID: 3c77903f-b175-4416-b0b2-6bfc2a8beb2a
+- Original parent: 49038ee3-0eb8-4eef-a1b0-e3b5bc372239
+- Original parent conversation ID: 49038ee3-0eb8-4eef-a1b0-e3b5bc372239
 
 ## 🔒 My Workflow
 - **Pattern**: Project Pattern
@@ -24,75 +24,87 @@ Orchestrate Pomofocus v6.0 Ultimate overhaul: Apple Liquid Glass & Zen Minimalis
    - Escalate: none (top-level Project Orchestrator redesigns)
 4. **Succession**: At 16 spawns, write handoff.md, cancel crons, spawn successor.
 - **Work items**:
-  1. Survey phase (3 parallel Explorers) [done]
+  1. Survey phase (3 parallel Explorers for Pomofocus v6.4 requirements) [done]
   2. Synthesize feature inventory and create PROJECT.md [done]
-  3. E2E Testing Track (teamwork_test_writer) [done: TEST_INFRA.md and TEST_READY.md published]
-  4. Milestone 1: Zero-FOUT & Typography Foundation [done: Gate PASS]
-  5. Milestone 2: Workspace Top Clearance ($y=8\text{px}$) & AI Collision Resolution [done: Gate PASS]
-  6. Milestone 3: macOS Liquid Dock Magnification & Tooltips [done: Gate PASS]
-  7. Milestone 4: Dimension Guardrails, Zen Cleanup & Cascade Logic [done: Gate PASS]
-  8. Milestone 5: Final Milestone (100% E2E test pass, Tier 5 hardening, build & deploy) [done: Gate PASS]
-- **Current phase**: 5 (Production Build & Git Dual-Branch Push Complete)
-- **Current focus**: Final verification & completion delivery
+  3. Milestone 1: Pomodoro Timer State Machine Fixes [done: Gate PASS]
+  4. Milestone 2: Tasks Widget Upgrades & Study Room Whiteboard Persistence [done: Gate PASS]
+  5. Milestone 3: AI Companion Persistence, Code Blocks & Textarea [done: Gate PASS]
+  6. Milestone 4: Calendar Sync & Pure Zen Solid Spaces [in-progress]
+  7. Milestone 5: E2E & Vitest Verification, Build & Deployment [planned]
+- **Current phase**: 2B (Milestone 4 Execution)
+- **Current focus**: Milestone 4: Calendar Sync & Pure Zen Solid Spaces
 
 ## 🔒 Key Constraints
 - Never write, modify, or create source code files directly.
-- Never run build/test commands yourself - require workers to do so.
-- Never explore the codebase at the code level - dispatch Explorers.
+- Never run build/test commands yourself — require workers to do so.
+- Never explore the codebase at the code level — dispatch Explorers.
 - Only edit metadata/state files (.md) in .agents/teamwork/.
 - Respect UI/UX Design Playbook (docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md) and AGENTS.md rules.
 - Hard audit veto: Forensic Auditor INTEGRITY VIOLATION means automatic failure.
-- Never reuse a subagent after handoff - always spawn fresh.
+- Never reuse a subagent after handoff — always spawn fresh.
+- Karpathy Guidelines: Surgical changes, simplicity first, loop until verified.
 
 ## Current Parent
-- Conversation ID: 1bd3b181-5618-4e23-9890-9f34e23eca19 / 3c77903f-b175-4416-b0b2-6bfc2a8beb2a
-- Updated: 2026-11-08T06:42:00Z
+- Conversation ID: 49038ee3-0eb8-4eef-a1b0-e3b5bc372239
+- Updated: 2026-11-09T01:00:00Z
 
 ## Key Decisions Made
-- Survey phase complete, PROJECT.md feature inventory complete.
-- E2E Testing Track complete (5 tiers, 61 tests, TEST_READY.md live).
-- Milestone 1 GATE PASSED (Zero-FOUT, preloader, dark lock, 100% clean audit).
-- Milestone 2 GATE PASSED (y=8px top clearance, compact home nav, AI z-[80] drawer yielding).
-- Milestone 3 GATE PASSED (macOS Liquid Dock magnification, pure CSS concosine wave, pearl dot, glass tooltips).
-- Milestone 4 GATE PASSED (dimension guardrails, 16:9 media ratio lock, micro dots, zen cleanup, 24px cascade).
-- Milestone 5 GATE PASSED (Tier 5 adversarial hardening, 62/62 Vitest suites green [603/603], tsc code 0, vite build code 0).
+- Milestone 1 GATE PASSED: 77/77 tests green, clean audit, 0 errors.
+- Milestone 2 Iteration 1 GATE FAILED: Challenger 2 discovered listener proliferation and stroke multiplication bug in `WhiteboardView.tsx`.
+- Dispatched `worker_v64_m2_remediation` to decouple `redrawCanvas` via `redrawCanvasRef` and clean up channel listeners.
+- Spawn threshold reached (16 / 16). Will execute Succession Protocol upon worker completion.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| explorer_survey_1 | teamwork_explorer | Survey Sections 0, 1, 2 | completed | 38f3011b-4b35-47b5-99e2-a559369d3119 |
-| explorer_survey_2 | teamwork_explorer | Survey Sections 3, 4 | completed | da686c51-2eed-4342-a24e-6fa259dd145f |
-| explorer_survey_3 | teamwork_explorer | Survey Sections 5, 6, 7 | completed | 3d3fdc9b-a45a-4278-9378-c6af90ce1682 |
-| test_writer_e2e | teamwork_test_writer | E2E Testing Track | completed | 9c20f7eb-1229-481f-9963-1a531695cc7a |
-| explorer_m1_1 | teamwork_explorer | M1 Preloader | completed | d6508564-e698-407b-a02e-7aa5540ee0a9 |
-| explorer_m1_2 | teamwork_explorer | M1 Fonts | completed | 47b6f186-0770-4eee-95e1-0c9a81409ecd |
-| explorer_m1_3 | teamwork_explorer | M1 Test Impact | completed | cd3a8e5b-6e1b-4806-91ea-2965bfd3c0fb |
-| worker_m1 | teamwork_worker | M1 Implementation | completed | 2ab0c47f-3c00-4156-aa52-700696124a02 |
-| reviewer_m1_1 | teamwork_reviewer | M1 Review | completed (APPROVE) | 03a61d03-c623-4e1b-a156-95c7d811c034 |
-| reviewer_m1_2 | teamwork_reviewer | M1 Independent Review | completed (APPROVE) | 236d39a7-492e-49b4-b4ea-64f53529fc9d |
-| challenger_m1_1 | teamwork_challenger | M1 Timing Challenge | completed (APPROVE) | 3224d5fc-c6cd-49c1-9a13-0b8ae50c42b0 |
-| challenger_m1_2 | teamwork_challenger | M1 Fonts Challenge | completed (APPROVE) | 7bb841ee-466d-4d69-be85-71bb9ea31c8b |
-| auditor_m1_1 | teamwork_auditor | M1 Forensic Audit | completed (CLEAN) | 9e9dec94-33e9-49aa-aa5b-3d1c26ebeaa6 |
-| explorer_m2_1 | teamwork_explorer | M2 Top Clearance (y=8px) | completed | fb0b8085-de9b-4351-a938-8f757ea15569 |
-| explorer_m2_2 | teamwork_explorer | M2 Home Nav Tuck-In | completed | e3f549df-b67f-43b5-a734-364b2b753674 |
-| explorer_m2_3 | teamwork_explorer | M2 AI Header Collision | completed | 956893ed-9c97-4c23-8969-c830bfa19874 |
+| explorer_v64_1 | teamwork_explorer | Stream 1: Timer State Machine Survey | completed | 6da9f6b1-f073-4953-871c-b8f534665e24 |
+| explorer_v64_2 | teamwork_explorer | Stream 2: Tasks & Whiteboard Survey | completed | e1165807-4225-4da4-86f2-5449b3a03761 |
+| explorer_v64_3 | teamwork_explorer | Stream 3: AI, Calendar & Spaces Survey | completed | 262bc432-6521-4b83-abd9-5b27a757699c |
+| worker_v64_m1 | teamwork_worker | M1: Timer State Machine Implementation | completed | 7aec505d-4804-43f5-8d6a-0811eeb94c85 |
+| reviewer_v64_m1_1 | teamwork_reviewer | M1: Code & Correctness Review | completed (APPROVE) | 3c2cb20e-d060-472e-a290-dbbc258a2f70 |
+| reviewer_v64_m1_2 | teamwork_reviewer | M1: WCAG & Interface Review | completed (APPROVE) | 608bb601-c427-4ce2-820e-a06d690295cd |
+| challenger_v64_m1_1 | teamwork_challenger | M1: Timing & Mode Stress Verification | completed (APPROVE) | 19c5025f-20c5-4231-b44b-c7603978d622 |
+| challenger_v64_m1_2 | teamwork_challenger | M1: Boundary & Progress Verification | completed (APPROVE) | 86e58d29-66b8-47ab-a46c-6ba32c7a0e8e |
+| auditor_v64_m1_1 | teamwork_auditor | M1: Forensic Integrity Audit | completed (CLEAN) | d7b23903-a649-47b1-818f-dfa6d9733054 |
+| worker_v64_m2 | teamwork_worker | M2: Tasks & Whiteboard Implementation | completed | 89c0b065-385d-4887-a6c3-8ce0d7e69bb2 |
+| reviewer_v64_m2_1 | teamwork_reviewer | M2: Code Correctness Review | completed (APPROVE) | 6ba2c5d8-372d-4e36-82f3-9fdb9a1baa15 |
+| reviewer_v64_m2_2 | teamwork_reviewer | M2: Token & Design System Review | completed (APPROVE) | a71e6c5d-4c5b-4c10-84d5-78e5c53735ee |
+| challenger_v64_m2_1 | teamwork_challenger | M2: Tasks Widget Adversarial Challenge | completed (APPROVE) | 1f2e301c-035b-45d9-9526-11174a37cb6b |
+| challenger_v64_m2_2 | teamwork_challenger | M2: Whiteboard Persistence Challenge | completed (REQUEST_CHANGES) | b520e61d-b864-4440-8a05-8429e57e2440 |
+| auditor_v64_m2_1 | teamwork_auditor | M2: Forensic Integrity Audit | completed (CLEAN) | e16392c3-c901-4e86-a2bb-6397a5753c63 |
+| worker_v64_m2_remediation | teamwork_worker | M2: Whiteboard Listener Proliferation Fix | completed | d501e0d7-b8d4-4495-aff5-01fc7ec31666 |
+| worker_v64_m3 | teamwork_worker | M3: AI Companion Session, Code Blocks & Textarea | completed | b16d3654-12e9-4d84-ae8d-28f7b0fe0555 |
+| reviewer_v64_m3_1 | teamwork_reviewer | M3: AI Store Code Review | completed (APPROVE) | 1bed867d-fb9e-4d1a-ad89-665b9e9f3a5a |
+| reviewer_v64_m3_2 | teamwork_reviewer | M3: AI UI & Code Block Review | completed (APPROVE) | 424534a5-eb1c-4fa7-8ae4-b22f37b24247 |
+| challenger_v64_m3_1 | teamwork_challenger | M3: AI Session Adversarial Challenger | completed (APPROVE) | fcfc49a2-fa1f-4ed5-85e2-946a9d6d1861 |
+| challenger_v64_m3_2 | teamwork_challenger | M3: AI UI Interaction Challenger | completed (APPROVE) | 4f1f2df8-2792-4d79-b31c-74504dd32e81 |
+| auditor_v64_m3 | teamwork_auditor | M3: Forensic Integrity Auditor | completed (CLEAN) | c365bfb6-c86d-496d-97e2-9ff7b1c089ac |
+| worker_v64_m4 | teamwork_worker | M4: Calendar Sync & Pure Zen Solid Spaces | completed | 1f7ade12-697d-4941-b8ae-f6d488f63bc0 |
+| reviewer_v64_m4_1 | teamwork_reviewer | M4: Calendar Sync Code Review | in-progress | a352d738-ef36-4045-83c6-766ad6e28868 |
+| reviewer_v64_m4_2 | teamwork_reviewer | M4: Spaces & UI/UX Design Review | in-progress | 2622f959-5a82-4459-83c8-9ee1d5068fc5 |
+| challenger_v64_m4_1 | teamwork_challenger | M4: Calendar Sync Adversarial Challenger | in-progress | a9c58dba-0001-4f49-8228-ba9d69601d16 |
+| challenger_v64_m4_2 | teamwork_challenger | M4: Pure Zen Spaces DOM Challenger | in-progress | cb2f683a-5028-4a77-a53c-a8b44d795acb |
+| auditor_v64_m4 | teamwork_auditor | M4: Forensic Integrity Auditor | in-progress | f1465820-a607-47b6-be94-f55115f45c00 |
 
 ## Succession Status
-- Successor spawned: a6668e2b-35fe-49f1-bba6-9dd412ec3108
-- Successor generation: gen2
+- Succession required: no (5 active gate verification subagents running)
+- Spawn count: 28 / 128
+- Pending subagents: a352d738-ef36-4045-83c6-766ad6e28868, 2622f959-5a82-4459-83c8-9ee1d5068fc5, a9c58dba-0001-4f49-8228-ba9d69601d16, cb2f683a-5028-4a77-a53c-a8b44d795acb, f1465820-a607-47b6-be94-f55115f45c00
 - Predecessor: none
-- Cumulative spawns: 16 / 16
+- Successor: not yet spawned
 
 ## Active Timers
-- Heartbeat cron: killed for succession
-- Safety timer: killed for succession
+- Heartbeat cron: 6715113d-8a46-4f2e-abb1-249c62d311ac/task-22
+- Safety timer: scheduled for Worker M2 Remediation
 
 ## Artifact Index
 - .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative user request
 - .agents/teamwork/PROJECT.md — Master project specification & feature inventory
+- .agents/teamwork/worker_v64_m1/handoff.md — Worker M1 implementation report
+- .agents/teamwork/worker_v64_m2/handoff.md — Worker M2 implementation report
+- .agents/teamwork/challenger_v64_m2_2/handoff.md — Challenger 2 defect report
+- .agents/teamwork/worker_v64_m2_remediation/DISPATCH.md — Remediation dispatch
 - .agents/teamwork/orchestrator/GATE_STATUS.md — Gate verdicts per iteration
 - .agents/teamwork/orchestrator/DISPATCH.md — Received orchestrator dispatch
 - .agents/teamwork/orchestrator/progress.md — Execution heartbeat and checklist
-- .agents/teamwork/orchestrator/handoff.md — Soft handoff state dump for successor
-- TEST_INFRA.md — E2E test infrastructure specification
-- TEST_READY.md — E2E test readiness confirmation
+- .agents/teamwork/orchestrator/plan.md — Orchestrator project plan

@@ -22,6 +22,8 @@ import { HelpView } from './components/HelpView';
 import { ContactView } from './components/ContactView';
 import { LegalViews } from './components/LegalViews';
 import { NotFoundView } from './components/NotFoundView';
+import { WebDownloadHub } from './components/landing/WebDownloadHub';
+import { LiquidUpdateBanner } from './components/LiquidUpdateBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useLayoutStore } from './stores/useLayoutStore';
 import { useFocusAutoDim } from './hooks/useFocusAutoDim';
@@ -36,6 +38,8 @@ import { usePwaInstallStore } from './stores/usePwaInstallStore';
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { useRouter } from './services/router';
 import { getStaticRouteTitle, updateDocumentTitle } from './stores/useTimerStore';
+import { useMediaQuery } from './hooks/useMediaQuery';
+import { MobileAppShell } from './components/mobile/MobileAppShell';
 
 // Lazy-load secondary / heavy floating widgets & overlays to keep entry bundle < 100kB gzip
 const TasksWidget = lazy(() =>
@@ -78,12 +82,12 @@ const AiCompanionWidget = lazy(() =>
 export const App: React.FC = () => {
   useFocusAutoDim();
   const isZenMode = useLayoutStore((state) => state.isZenMode);
-  const isMobile = useLayoutStore((state) => state.isMobile);
+  const isMobileMediaQuery = useMediaQuery('(max-width: 768px)');
+  const isMobile =
+    isMobileMediaQuery ||
+    (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
-  const mobileViewMode = useLayoutStore((state) => state.mobileViewMode);
-  const activeMobileTab = useLayoutStore((state) => state.activeMobileTab);
-  const isHeaderExpanded = useLayoutStore((state) => state.isHeaderExpanded);
   const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
   const closeTopupModal = useAiStore((state) => state.closeTopupModal);
   const initTimer = useTimerStore((state) => state.init);
@@ -107,15 +111,18 @@ export const App: React.FC = () => {
   // Kích hoạt lắng nghe phím tắt toàn cục (Space, R, S, Z, Esc)
   useGlobalShortcuts();
 
+  // Đồng bộ trạng thái isMobile vào layoutStore
+  useEffect(() => {
+    setIsMobile(isMobile);
+  }, [isMobile, setIsMobile]);
+
   // Xử lý viewport resize và đồng bộ chế độ Desktop / Mobile (tối ưu hiệu năng bằng RAF)
   useEffect(() => {
     let rafId: number | null = null;
     const handleResize = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        const isMob = window.innerWidth < 1100;
-        setIsMobile(isMob);
-        if (!isMob) {
+        if (!isMobile) {
           clampWidgetsToViewport(window.innerWidth, window.innerHeight);
         }
       });
@@ -127,7 +134,7 @@ export const App: React.FC = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [setIsMobile, clampWidgetsToViewport]);
+  }, [isMobile, clampWidgetsToViewport]);
 
   // Lắng nghe sự kiện PWA beforeinstallprompt & appinstalled
   useEffect(() => {
@@ -254,10 +261,24 @@ export const App: React.FC = () => {
     if (currentPath === '/about') {
       return <LegalViews initialTab="about" />;
     }
+    if (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk') {
+      return <WebDownloadHub />;
+    }
     if (currentPath !== '/app') {
       return <NotFoundView />;
     }
 
+    // Karpathy Invariant: Tuyến đường workspace (/app) phân nhánh rõ rệt
+    // Thiết bị di động render duy nhất MobileAppShell (Liquid Zen Architecture)
+    if (isMobile) {
+      return (
+        <ErrorBoundary>
+          <MobileAppShell />
+        </ErrorBoundary>
+      );
+    }
+
+    // Desktop: render 100% nguyên vẹn Desktop layout (WidgetContainer, DockBar, AiCompanionWidget)
     return (
       <ErrorBoundary>
         <div
@@ -290,118 +311,56 @@ export const App: React.FC = () => {
             <>
               <PlatformHeader />
               <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
-      <KeyboardShortcutsModal />
+              <KeyboardShortcutsModal />
 
               <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
-              {/* Main Workspace: Desktop Floating Windows hoặc Mobile Responsive Stack */}
-              {isMobile ? (
-                <main className={`relative z-10 w-full min-h-screen p-4 pb-32 sm:pb-28 flex flex-col items-center justify-start transition-all duration-300 ease-in-out ${
-                  isHeaderExpanded ? 'pt-14 sm:pt-16' : 'pt-3'
-                }`}>
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'timer' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="timer">
-                      <TimerWidget />
-                    </WidgetContainer>
-                  </div>
+              <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28">
+                <WidgetContainer id="timer">
+                  <TimerWidget />
+                </WidgetContainer>
 
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'tasks' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="tasks">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <TasksWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
+                <WidgetContainer id="tasks">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <TasksWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'notes' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="notes">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <NotesWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
+                <WidgetContainer id="notes">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <NotesWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'calendar' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="calendar">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <CalendarWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
+                <WidgetContainer id="calendar">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <CalendarWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  {/* Khung Không Gian Chuẩn Tích Hợp Cả Hình Nền & Âm Thanh Không Bị Xếp Chồng */}
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'spaces' && activeMobileTab !== 'sounds' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="spaces">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <SpacesWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
+                <WidgetContainer id="spaces">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <SpacesWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'media' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="media">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <MediaWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
+                <WidgetContainer id="sounds">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <AudioWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  <div className={`w-full flex justify-center ${mobileViewMode === 'single' && activeMobileTab !== 'settings' ? 'hidden' : ''}`}>
-                    <WidgetContainer id="settings">
-                      <Suspense fallback={<WidgetSkeleton />}>
-                        <SettingsWidget />
-                      </Suspense>
-                    </WidgetContainer>
-                  </div>
-                </main>
-              ) : (
-                <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28">
-                  <WidgetContainer id="timer">
-                    <TimerWidget />
-                  </WidgetContainer>
+                <WidgetContainer id="media">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <MediaWidget />
+                  </Suspense>
+                </WidgetContainer>
 
-                  <WidgetContainer id="tasks">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <TasksWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="notes">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <NotesWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="calendar">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <CalendarWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="spaces">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <SpacesWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="sounds">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <AudioWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="media">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <MediaWidget />
-                    </Suspense>
-                  </WidgetContainer>
-
-                  <WidgetContainer id="settings">
-                    <Suspense fallback={<WidgetSkeleton />}>
-                      <SettingsWidget />
-                    </Suspense>
-                  </WidgetContainer>
-                </main>
-              )}
+                <WidgetContainer id="settings">
+                  <Suspense fallback={<WidgetSkeleton />}>
+                    <SettingsWidget />
+                  </Suspense>
+                </WidgetContainer>
+              </main>
 
               {/* Navigation Control Dock */}
               <Suspense fallback={null}>
@@ -423,6 +382,7 @@ export const App: React.FC = () => {
     <>
       <TwoFactorGateModal />
       <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
+      <LiquidUpdateBanner />
       <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-mono text-xs">Đang tải không gian...</div>}>
         {renderRoutedView()}
       </Suspense>

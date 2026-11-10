@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   Lock,
   FileText,
-  Shield
+  Shield,
+  Download
 } from 'lucide-react';
 
 export const SharedFooter: React.FC = () => {
@@ -66,6 +67,11 @@ export const SharedFooter: React.FC = () => {
       label: 'Thống Kê Tập Trung',
       path: '/dashboard',
       icon: <BarChart3 size={13} className="text-rose-400 shrink-0" />
+    },
+    {
+      label: 'Tải App Android (APK)',
+      path: '/download',
+      icon: <Download size={13} className="text-emerald-400 shrink-0" />
     }
   ];
 

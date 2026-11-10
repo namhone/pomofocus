@@ -227,6 +227,7 @@ export const PlatformHeader: React.FC = () => {
     { path: '/rooms', label: 'Phòng Học', icon: Users, testId: 'header-nav-rooms' },
     { path: '/calendar', label: 'Lịch Biểu', icon: Calendar, testId: 'header-nav-calendar' },
     { path: '/dashboard', label: 'Thống Kê', icon: BarChart3, testId: 'header-nav-dashboard' },
+    { path: '/download', label: 'Tải App', icon: Download, testId: 'header-nav-download' },
     { path: '/help', label: 'Trợ Giúp', icon: HelpCircle, testId: 'header-nav-help' },
     { path: '/contact', label: 'Liên Hệ', icon: Mail, testId: 'header-nav-contact' }
   ];

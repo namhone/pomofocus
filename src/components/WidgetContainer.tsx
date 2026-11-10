@@ -5,6 +5,10 @@ import { useLayoutStore } from '../stores/useLayoutStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { CollapsedWidgetCard } from './CollapsedWidgetCard';
 
+const CANONICAL_WIDGET_TITLES: Partial<Record<WidgetId, string>> = {
+  settings: 'Cài Đặt Hệ Thống'
+};
+
 interface WidgetContainerProps {
   id: WidgetId;
   children: React.ReactNode;
@@ -17,6 +21,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   className = ''
 }) => {
   const widget = useLayoutStore((state) => state.widgets[id]);
+  const displayTitle = CANONICAL_WIDGET_TITLES[id] || widget?.title || '';
   const isMobile = useLayoutStore((state) => state.isMobile);
   const isEcoMode = useLayoutStore((state) => state.isEcoMode);
   const density = useLayoutStore((state) => state.density);
@@ -348,7 +353,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         {/* Mobile Header Bar */}
         <div className="h-10 flex items-center justify-between px-3.5 border-b border-white/[0.08] bg-white/[0.02] select-none touch-pan-y">
           <h2 className="text-[13px] font-medium text-neutral-200 tracking-tight">
-            {widget.title}
+            {displayTitle}
           </h2>
           <div className="flex items-center gap-1">
             {id === 'media' && (
@@ -367,21 +372,21 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               type="button"
               data-testid={`collapse-widget-${id}`}
               onClick={() => toggleCollapseWidget(id)}
-              className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
+              className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
               title={widget.isCollapsed ? 'Mở rộng' : 'Thu nhỏ'}
               aria-label={widget.isCollapsed ? 'Mở rộng' : 'Thu nhỏ'}
             >
-              {widget.isCollapsed ? <Maximize2 size={13} strokeWidth={1.75} /> : <Minus size={13} strokeWidth={1.75} />}
+              {widget.isCollapsed ? <Maximize2 size={14} strokeWidth={1.75} /> : <Minus size={14} strokeWidth={1.75} />}
             </button>
             <button
               type="button"
               data-testid={`close-widget-${id}`}
               onClick={() => closeWidget(id)}
-              className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
-              title={`Đóng ${widget.title}`}
-              aria-label={`Đóng ${widget.title}`}
+              className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              title={`Đóng ${displayTitle}`}
+              aria-label={`Đóng ${displayTitle}`}
             >
-              <X size={15} strokeWidth={1.75} />
+              <X size={14} strokeWidth={1.75} />
             </button>
           </div>
         </div>
@@ -392,7 +397,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             <CollapsedWidgetCard id={id} isMobile={true} />
           </div>
         ) : (
-          <div className={`${isMedia ? 'p-0 aspect-video' : 'p-4'} flex-1 min-h-0 overflow-visible touch-pan-y`}>{children}</div>
+          <div className={`${isMedia ? 'p-0 aspect-video' : isCenteredModal ? 'p-3.5 sm:p-4 overflow-y-auto scrollbar-none' : 'p-4 overflow-visible'} flex-1 min-h-0 touch-pan-y`}>{children}</div>
         )}
       </section>
     );
@@ -602,7 +607,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         <div className="flex min-w-0 items-center gap-2">
           <GripHorizontal size={13} strokeWidth={1.75} className={`shrink-0 ${widget.isLocked ? 'text-neutral-600' : isLayoutEditMode ? 'text-emerald-300' : 'text-neutral-400'}`} />
           <h2 className={`${density === 'compact' ? 'text-xs' : 'text-[13px]'} font-medium text-neutral-200 tracking-tight`}>
-            {widget.title}
+            {displayTitle}
           </h2>
         </div>
 
@@ -661,19 +666,19 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               e.stopPropagation();
               toggleCollapseWidget(id);
             }}
-            className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             title={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
             aria-label={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
           >
-            {isCollapsed ? <Maximize2 size={13} strokeWidth={1.75} /> : <Minus size={13} strokeWidth={1.75} />}
+            {isCollapsed ? <Maximize2 size={14} strokeWidth={1.75} /> : <Minus size={14} strokeWidth={1.75} />}
           </button>
           <button
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
-            title={`Đóng ${widget.title}`}
-            aria-label={`Đóng ${widget.title}`}
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            title={`Đóng ${displayTitle}`}
+            aria-label={`Đóng ${displayTitle}`}
           >
             <X size={14} strokeWidth={1.75} />
           </button>

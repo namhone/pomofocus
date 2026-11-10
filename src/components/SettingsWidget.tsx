@@ -14,9 +14,11 @@ import {
   ArrowRight,
   Clock,
   CheckCircle2,
-  HardDrive,
   User,
-  Home
+  Home,
+  Plus,
+  Minus,
+  Lock
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -77,7 +79,7 @@ export const SettingsWidget: React.FC = () => {
   return (
     <div
       data-testid="settings-widget"
-      className="flex h-full w-full flex-col text-slate-100 p-1 select-none space-y-4"
+      className="flex h-full w-full max-h-[85vh] flex-col text-slate-100 p-1 select-none space-y-3.5 overflow-y-auto scrollbar-none"
     >
       {/* Header Info */}
       {/* Account Status Card (Đồng bộ chuẩn 100% với Header) */}
@@ -126,7 +128,7 @@ export const SettingsWidget: React.FC = () => {
             type="button"
             data-testid="settings-login-btn"
             onClick={() => router.navigate('/login')}
-            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-medium border border-emerald-500/30 transition cursor-pointer"
+            className="px-4 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-medium active:scale-95 transition-all cursor-pointer"
           >
             Đăng Nhập
           </button>
@@ -152,113 +154,125 @@ export const SettingsWidget: React.FC = () => {
 
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label htmlFor="settings-pomo-min" className="block mb-1 text-[10.5px] text-neutral-400">
+            <label htmlFor="settings-pomo-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Tập trung
             </label>
-            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ pomodoroMinutes: Math.max(1, timerSettings.pomodoroMinutes - 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
+                aria-label="Giảm 1 phút"
               >
-                -
+                <Minus className="w-3.5 h-3.5" />
               </button>
-              <input
-                id="settings-pomo-min"
-                data-testid="settings-input-pomodoro-min"
-                type="number"
-                min="1"
-                max="120"
-                value={timerSettings.pomodoroMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <div className="flex flex-col items-center justify-center px-1 min-w-[42px] flex-1">
+                <input
+                  id="settings-pomo-min"
+                  data-testid="settings-input-pomodoro-min"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={timerSettings.pomodoroMinutes}
+                  disabled={timerStatus !== 'idle'}
+                  onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+              </div>
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ pomodoroMinutes: Math.min(120, timerSettings.pomodoroMinutes + 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
+                aria-label="Tăng 1 phút"
               >
-                +
+                <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
           <div>
-            <label htmlFor="settings-short-min" className="block mb-1 text-[10.5px] text-neutral-400">
+            <label htmlFor="settings-short-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Nghỉ ngắn
             </label>
-            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ shortBreakMinutes: Math.max(1, timerSettings.shortBreakMinutes - 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
+                aria-label="Giảm 1 phút"
               >
-                -
+                <Minus className="w-3.5 h-3.5" />
               </button>
-              <input
-                id="settings-short-min"
-                data-testid="settings-input-short-min"
-                type="number"
-                min="1"
-                max="60"
-                value={timerSettings.shortBreakMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <div className="flex flex-col items-center justify-center px-1 min-w-[42px] flex-1">
+                <input
+                  id="settings-short-min"
+                  data-testid="settings-input-short-min"
+                  type="number"
+                  min="1"
+                  max="60"
+                  value={timerSettings.shortBreakMinutes}
+                  disabled={timerStatus !== 'idle'}
+                  onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+              </div>
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ shortBreakMinutes: Math.min(60, timerSettings.shortBreakMinutes + 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
+                aria-label="Tăng 1 phút"
               >
-                +
+                <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
           <div>
-            <label htmlFor="settings-long-min" className="block mb-1 text-[10.5px] text-neutral-400">
+            <label htmlFor="settings-long-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Nghỉ dài
             </label>
-            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-8">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ longBreakMinutes: Math.max(1, timerSettings.longBreakMinutes - 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
+                aria-label="Giảm 1 phút"
               >
-                -
+                <Minus className="w-3.5 h-3.5" />
               </button>
-              <input
-                id="settings-long-min"
-                data-testid="settings-input-long-min"
-                type="number"
-                min="1"
-                max="60"
-                value={timerSettings.longBreakMinutes}
-                disabled={timerStatus !== 'idle'}
-                onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
-                className="no-focus-ring w-full min-w-0 bg-transparent text-center font-mono text-xs font-semibold text-white focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-[9px] text-neutral-400 font-mono pr-0.5 pointer-events-none">p</span>
+              <div className="flex flex-col items-center justify-center px-1 min-w-[42px] flex-1">
+                <input
+                  id="settings-long-min"
+                  data-testid="settings-input-long-min"
+                  type="number"
+                  min="1"
+                  max="60"
+                  value={timerSettings.longBreakMinutes}
+                  disabled={timerStatus !== 'idle'}
+                  onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+              </div>
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ longBreakMinutes: Math.min(60, timerSettings.longBreakMinutes + 1) })}
-                className="w-5 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center font-bold text-xs transition cursor-pointer disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
+                aria-label="Tăng 1 phút"
               >
-                +
+                <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -285,7 +299,7 @@ export const SettingsWidget: React.FC = () => {
               >
                 {/* Dấu tick SVG sắc nét hiện mượt khi checked */}
                 <svg
-                  className={`w-3 h-3 text-white transition-all duration-150 transform ${
+                  className={`w-3.5 h-3.5 text-white stroke-[2.5] transition-all duration-150 transform ${
                     timerSettings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
                   } peer-checked:opacity-100 peer-checked:scale-100`}
                   viewBox="0 0 14 10"
@@ -299,36 +313,14 @@ export const SettingsWidget: React.FC = () => {
                 </svg>
               </div>
             </div>
-            <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors">
-              Tự động chuyển tiếp giữa các hiệp
+            <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors select-none cursor-pointer">
+              Tự động chuyển hiệp
             </span>
           </label>
         </div>
       </div>
 
-      {/* Quick Navigation: Lối tắt về Trang Chủ */}
-      <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-7 h-7 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0">
-            <Home size={14} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs font-semibold text-white truncate">Về Trang Chủ PomoFocus</div>
-            <p className="text-[10px] text-neutral-400 truncate">Giới thiệu, tính năng & cộng đồng</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          data-testid="settings-home-btn"
-          onClick={() => router.navigate('/')}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white text-xs font-medium border border-white/10 transition cursor-pointer active:scale-95 shrink-0"
-          title="Về Trang Chủ PomoFocus"
-          aria-label="Về Trang Chủ"
-        >
-          <span>Trang Chủ</span>
-          <ArrowRight size={11} className="text-neutral-400" />
-        </button>
-      </div>
+
 
       {/* Button: Chỉnh sửa bố cục */}
       <div className="hidden lg:block">
@@ -596,22 +588,37 @@ export const SettingsWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* Persistence Status Badge */}
-      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10.5px]">
-        <HardDrive size={13} className="shrink-0 text-emerald-400" />
-        <span>Tự động lưu toàn bộ cài đặt (thời gian, giao diện, nhạc & bố cục) vào Local Storage & IndexedDB. Hoạt động ngoại tuyến 100%.</span>
+      {/* Persistence Micro-copy */}
+      <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 py-0.5">
+        <Lock className="w-3 h-3 text-emerald-400/70 shrink-0" />
+        <span>Tự động lưu ngoại tuyến 100% trên thiết bị</span>
       </div>
 
       {/* Section 6: Reset Layout */}
-      <div className="pt-2">
+      <div className="pt-1">
         <button
           type="button"
           data-testid="btn-reset-layout"
           onClick={() => setShowResetConfirm(true)}
-          className="w-full min-h-10 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-200 text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="h-9 px-4 rounded-xl border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 active:scale-95 text-red-300 text-xs font-medium transition-all w-full flex items-center justify-center gap-2 cursor-pointer"
         >
           <RotateCcw size={14} />
           <span>Khôi phục toàn bộ bố cục mặc định</span>
+        </button>
+      </div>
+
+      {/* Subtle Home Navigation Link */}
+      <div className="flex justify-center pt-1">
+        <button
+          type="button"
+          data-testid="settings-home-btn"
+          onClick={() => router.navigate('/')}
+          className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer py-1"
+          title="Về Trang Chủ PomoFocus"
+          aria-label="Về Trang Chủ PomoFocus"
+        >
+          <Home className="w-3.5 h-3.5 text-teal-400" />
+          <span>Về Trang Chủ PomoFocus</span>
         </button>
       </div>
 

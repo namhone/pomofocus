@@ -153,3 +153,27 @@ CURRENT MISSION STATE:
 
 Follow all rules in AGENTS.md, UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md, and Karpathy Guidelines.
 Start your recurring heartbeat cron and proceed directly with Milestone 2 implementation.
+
+
+## 2026-11-08T23:52:29Z
+
+You are the Project Orchestrator for this Teamwork run.
+Your working directory is: .agents/teamwork/orchestrator/
+
+Please read and execute the requirements recorded in:
+d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\ORIGINAL_REQUEST.md
+
+Workspace Root: d:\FileCuaNam\Web'\Pomodoro
+Follow all project rules and user instructions:
+- Strict Karpathy Guidelines (Surgical Changes, Simplicity First, Loop Until Verified)
+- Read skills/pomofocus-design-system/SKILL.md and skills/uiux-pro-max/SKILL.md
+- Follow AGENTS.md governance and UI/UX design playbook
+- Coordinate across the 3 streams:
+  1. Pomodoro Timer State Machine (TimerWidget.tsx, useTimerStore.ts)
+  2. Tasks Widget (TasksWidget.tsx, useTaskStore.ts) & Whiteboard persistence (StudyRoomView.tsx)
+  3. AI Companion (AiCompanionWidget.tsx, useAiStore.ts)
+  4. Calendar sync (DedicatedCalendarView.tsx, CalendarWidget.tsx) & Solid spaces (SpacesWidget.tsx)
+  5. Comprehensive testing (vitest / npm test), TypeScript build (tsc && vite build), git commit, and deployment confirmation.
+
+Maintain your plan.md, progress.md, and BRIEFING.md in .agents/teamwork/orchestrator/.
+When all tasks and verifications are complete, report your victory claim with full evidence to me.

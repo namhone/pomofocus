@@ -169,6 +169,11 @@ export const MobileBottomNav: React.FC = () => {
   }, [mobileViewMode, widgets]);
 
   const handleNavClick = (id: WidgetId) => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(10);
+      } catch {}
+    }
     isProgrammaticNavRef.current = true;
     isUserTouchingRef.current = false;
     if (touchTimeoutRef.current) clearTimeout(touchTimeoutRef.current);
@@ -372,7 +377,21 @@ export const MobileBottomNav: React.FC = () => {
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Timer size={20} strokeWidth={activeMobileTab === 'timer' ? 2.2 : 1.75} className={activeMobileTab === 'timer' ? 'text-white' : 'text-zinc-400'} />
+          <div
+            className={`px-3 py-0.5 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              activeMobileTab === 'timer'
+                ? 'bg-emerald-500/15 text-white shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                : 'text-zinc-400'
+            }`}
+          >
+            <Timer
+              size={20}
+              strokeWidth={activeMobileTab === 'timer' ? 2.2 : 1.75}
+              className={`${
+                activeMobileTab === 'timer' ? 'text-white animate-spring-bounce' : 'text-zinc-400'
+              }`}
+            />
+          </div>
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Tập trung</span>
         </button>
 
@@ -391,7 +410,23 @@ export const MobileBottomNav: React.FC = () => {
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <ClipboardList size={20} strokeWidth={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 2.2 : 1.75} className={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'text-white' : 'text-zinc-400'} />
+          <div
+            className={`px-3 py-0.5 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              activeMobileTab === 'tasks' || activeMobileTab === 'notes'
+                ? 'bg-emerald-500/15 text-white shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                : 'text-zinc-400'
+            }`}
+          >
+            <ClipboardList
+              size={20}
+              strokeWidth={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 2.2 : 1.75}
+              className={`${
+                activeMobileTab === 'tasks' || activeMobileTab === 'notes'
+                  ? 'text-white animate-spring-bounce'
+                  : 'text-zinc-400'
+              }`}
+            />
+          </div>
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Nhiệm vụ</span>
         </button>
 
@@ -410,7 +445,23 @@ export const MobileBottomNav: React.FC = () => {
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Headphones size={20} strokeWidth={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 2.2 : 1.75} className={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 'text-white' : 'text-zinc-400'} />
+          <div
+            className={`px-3 py-0.5 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media'
+                ? 'bg-emerald-500/15 text-white shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                : 'text-zinc-400'
+            }`}
+          >
+            <Headphones
+              size={20}
+              strokeWidth={activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media' ? 2.2 : 1.75}
+              className={`${
+                activeMobileTab === 'sounds' || activeMobileTab === 'spaces' || activeMobileTab === 'media'
+                  ? 'text-white animate-spring-bounce'
+                  : 'text-zinc-400'
+              }`}
+            />
+          </div>
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Không gian</span>
         </button>
 
@@ -421,7 +472,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-label="Trợ lý AI Companion"
           aria-current={isAiOpen ? 'page' : undefined}
           aria-pressed={isAiOpen}
-          onClick={() => useAiStore.getState().toggleOpen()}
+          onClick={() => {
+            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+              try {
+                navigator.vibrate(10);
+              } catch {}
+            }
+            useAiStore.getState().toggleOpen();
+          }}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             isAiOpen
@@ -429,7 +487,19 @@ export const MobileBottomNav: React.FC = () => {
               : 'text-zinc-400 hover:text-cyan-300'
           }`}
         >
-          <Sparkles size={20} strokeWidth={isAiOpen ? 2.2 : 1.75} className={isAiOpen ? 'text-cyan-300' : 'text-zinc-400'} />
+          <div
+            className={`px-3 py-0.5 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              isAiOpen
+                ? 'bg-cyan-500/15 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-zinc-400'
+            }`}
+          >
+            <Sparkles
+              size={20}
+              strokeWidth={isAiOpen ? 2.2 : 1.75}
+              className={`${isAiOpen ? 'text-cyan-300 animate-spring-bounce' : 'text-zinc-400'}`}
+            />
+          </div>
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Trợ lý AI</span>
         </button>
 
@@ -440,7 +510,14 @@ export const MobileBottomNav: React.FC = () => {
           aria-label="Menu mở rộng"
           aria-current={isMoreDrawerOpen ? 'page' : undefined}
           aria-pressed={isMoreDrawerOpen}
-          onClick={() => setIsMoreDrawerOpen(true)}
+          onClick={() => {
+            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+              try {
+                navigator.vibrate(10);
+              } catch {}
+            }
+            setIsMoreDrawerOpen(true);
+          }}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           className={`w-full flex flex-col items-center justify-center py-1 text-xs cursor-pointer select-none active:scale-95 transition-all ${
             isMoreDrawerOpen
@@ -448,7 +525,19 @@ export const MobileBottomNav: React.FC = () => {
               : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <MoreHorizontal size={20} strokeWidth={isMoreDrawerOpen ? 2.2 : 1.75} className={isMoreDrawerOpen ? 'text-white' : 'text-zinc-400'} />
+          <div
+            className={`px-3 py-0.5 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              isMoreDrawerOpen
+                ? 'bg-white/10 text-white shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+                : 'text-zinc-400'
+            }`}
+          >
+            <MoreHorizontal
+              size={20}
+              strokeWidth={isMoreDrawerOpen ? 2.2 : 1.75}
+              className={`${isMoreDrawerOpen ? 'text-white animate-spring-bounce' : 'text-zinc-400'}`}
+            />
+          </div>
           <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Thêm</span>
         </button>
       </nav>

@@ -248,7 +248,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
   },
   settings: {
     id: 'settings',
-    title: 'Cài Đặt Không Gian',
+    title: 'Cài Đặt Hệ Thống',
     isOpen: false,
     isCollapsed: false,
     x: 480,
@@ -280,7 +280,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
   }
 };
 
-function loadStoredLayout(): {
+export function loadStoredLayout(): {
   widgets: Record<WidgetId, WidgetState>;
   isZenMode: boolean;
   isFocusMode: boolean;
@@ -331,6 +331,10 @@ function loadStoredLayout(): {
           ...data.widgets[key]
         };
       }
+    }
+
+    if (mergedWidgets.settings && mergedWidgets.settings.title === 'Cài Đặt Không Gian') {
+      mergedWidgets.settings.title = 'Cài Đặt Hệ Thống';
     }
 
     const savedGlass = data.glassSettings;

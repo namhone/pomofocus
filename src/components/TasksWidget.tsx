@@ -322,12 +322,12 @@ export const TasksWidget: React.FC = () => {
                     <div
                       className={`w-4 h-4 rounded-full border transition-all flex items-center justify-center ${
                         isCompleted
-                          ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'
+                          ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-jade-burst'
                           : 'border-white/35 bg-white/[0.04] hover:border-emerald-400 hover:bg-white/[0.08]'
                       }`}
                     >
                       {isCompleted && (
-                        <svg className="w-2.5 h-2.5 text-neutral-950" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-2.5 h-2.5 text-neutral-950 animate-draw-tick" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="2.5 6 5 8.5 9.5 3.5" />
                         </svg>
                       )}
