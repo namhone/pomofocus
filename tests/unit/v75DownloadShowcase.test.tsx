@@ -313,5 +313,13 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(capacitorConfig.plugins?.StatusBar?.style).toBe('DARK');
       expect(capacitorConfig.plugins?.StatusBar?.backgroundColor).toBe('#09090b');
     });
+
+    it('3.3 Vercel Edge middleware.ts whitelists /download, /downloads, and /apk routes', () => {
+      const mwPath = path.resolve(process.cwd(), 'middleware.ts');
+      const mwSrc = fs.readFileSync(mwPath, 'utf-8');
+      expect(mwSrc).toContain("'/download'");
+      expect(mwSrc).toContain("'/downloads'");
+      expect(mwSrc).toContain("'/apk'");
+    });
   });
 });
