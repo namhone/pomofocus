@@ -40,6 +40,7 @@ let engineInstance: TimerEngine | null = null;
 let coordinatorInstance: TabCoordinator | null = null;
 let lastSyncTimestamp = 0;
 let hasBoundUnload = false;
+let visibilitySyncHandler: (() => void) | null = null;
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -354,6 +355,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       } catch {}
     }
 
+    // Đồng bộ tức thì Anchor Timestamp Engine khi mở khóa màn hình / quay lại app từ background (MIUI/Android)
+    if (!visibilitySyncHandler && typeof document !== 'undefined') {
+      visibilitySyncHandler = () => {
+        if (document.visibilityState === 'visible' && engineInstance) {
+          if (engineInstance.getStatus() === 'running') {
+            engineInstance.tick();
+          }
+        }
+      };
+      document.addEventListener('visibilitychange', visibilitySyncHandler);
+      window.addEventListener('pageshow', visibilitySyncHandler);
+    }
+
     // Gắn dọn dẹp khi đóng hoặc rời tab chuẩn Best Practices (beforeunload, pagehide)
     if (!hasBoundUnload) {
       hasBoundUnload = true;
@@ -606,6 +620,15 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   },
 
   destroy: () => {
+    if (visibilitySyncHandler) {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', visibilitySyncHandler);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('pageshow', visibilitySyncHandler);
+      }
+      visibilitySyncHandler = null;
+    }
     if (engineInstance) {
       engineInstance.destroy();
       engineInstance = null;

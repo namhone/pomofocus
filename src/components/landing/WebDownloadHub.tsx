@@ -260,6 +260,14 @@ export const WebDownloadHub: React.FC = () => {
                   Dung lượng: ~8.0 MB · Android 9.0+ · Miễn phí hoàn toàn
                 </div>
 
+                {/* Play Protect micro-hint for internal debug APK installs */}
+                <p
+                  data-testid="play-protect-micro-hint"
+                  className="text-center text-[11px] text-zinc-400/90 leading-relaxed px-2"
+                >
+                  Nếu máy hiện cảnh báo nguồn ngoài, chọn &apos;Vẫn cài đặt&apos; để trải nghiệm bản thử nghiệm nội bộ.
+                </p>
+
                 {/* Intelligent Device Detection Hint */}
                 <div className="flex items-center justify-center gap-2 text-xs text-zinc-400 pt-1">
                   {isAndroid ? (

@@ -93,10 +93,29 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 1. Predictive Back Gesture (popstate)
+  // 1. Predictive Back Gesture (popstate + Android Native OnBackPressedCallback)
   // ---------------------------------------------------------------------------
   useEffect(() => {
+    const canGoBackInApp = activeTab !== 'focus' || isTopupModalOpen;
+    const nativeBridge = (window as any).PomoNativeBack;
+    if (nativeBridge?.setCanGoBackInApp) {
+      nativeBridge.setCanGoBackInApp(canGoBackInApp);
+    }
+    return () => {
+      if (nativeBridge?.setCanGoBackInApp) {
+        nativeBridge.setCanGoBackInApp(false);
+      }
+    };
+  }, [activeTab, isTopupModalOpen]);
+
+  useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      if (useAiStore.getState().isTopupModalOpen) {
+        e.preventDefault?.();
+        useAiStore.getState().closeTopupModal();
+        return;
+      }
+
       const currentTab = (useLayoutStore.getState().activeMobileTab as unknown) as string;
       if (currentTab !== 'focus' && currentTab !== 'timer') {
         e.preventDefault?.();
@@ -104,9 +123,26 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       }
     };
 
+    const handleNativeBack = () => {
+      if (useAiStore.getState().isTopupModalOpen) {
+        useAiStore.getState().closeTopupModal();
+        return;
+      }
+
+      const currentTab = (useLayoutStore.getState().activeMobileTab as unknown) as string;
+      if (currentTab !== 'focus' && currentTab !== 'timer') {
+        useLayoutStore.setState({ activeMobileTab: 'focus' as any });
+        if (window.history?.state?.mobileTab && window.history.replaceState) {
+          window.history.replaceState({}, '');
+        }
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('pomofocus:native-back', handleNativeBack);
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('pomofocus:native-back', handleNativeBack);
     };
   }, []);
 

@@ -39,6 +39,7 @@ import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { useRouter } from './services/router';
 import { getStaticRouteTitle, updateDocumentTitle } from './stores/useTimerStore';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
 
 // Lazy-load secondary / heavy floating widgets & overlays to keep entry bundle < 100kB gzip
@@ -82,9 +83,10 @@ const AiCompanionWidget = lazy(() =>
 export const App: React.FC = () => {
   useFocusAutoDim();
   const isZenMode = useLayoutStore((state) => state.isZenMode);
+  const { isNativeCapacitor } = useDeviceDetection();
   const isMobileMediaQuery = useMediaQuery('(max-width: 768px)');
   const isMobile =
-    isMobileMediaQuery ||
+    isMobileMediaQuery || isNativeCapacitor ||
     (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
@@ -200,6 +202,10 @@ export const App: React.FC = () => {
 
   // Dọn dẹp & Khôi phục tiêu đề trang tĩnh hoặc tiêu đề đếm ngược Pomodoro khi đổi tuyến đường
   useEffect(() => {
+    if (isNativeCapacitor && (currentPath === '/' || currentPath === '/landing')) {
+      router.navigate('/app', { replace: true });
+      return;
+    }
     const isWorkspace = currentPath === '/app' || currentPath.startsWith('/app/');
     if (!isWorkspace) {
       document.title = getStaticRouteTitle(currentPath);
@@ -207,7 +213,7 @@ export const App: React.FC = () => {
       const timerState = useTimerStore.getState();
       updateDocumentTitle(timerState.remainingMs, timerState.phase, timerState.status, timerState.linkedTaskTitle);
     }
-  }, [currentPath]);
+  }, [currentPath, isNativeCapacitor, router]);
 
   const renderRoutedView = () => {
     if (currentPath === '/login') {
@@ -229,6 +235,13 @@ export const App: React.FC = () => {
       return <StudyRoomView />;
     }
     if (currentPath === '/' || currentPath === '/landing') {
+      if (isNativeCapacitor) {
+        return (
+          <ErrorBoundary>
+            <MobileAppShell />
+          </ErrorBoundary>
+        );
+      }
       return <LandingPage />;
     }
     if (currentPath === '/profile') {

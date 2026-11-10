@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import fs from 'node:fs';
 import path from 'node:path';
 import { RouterProvider } from '../../src/services/router';
@@ -8,6 +8,11 @@ import { WebDownloadHub, PUBLIC_APK_URL } from '../../src/components/landing/Web
 import { MobileSettingsView } from '../../src/components/mobile/views/MobileSettingsView';
 import { MobileFocusView } from '../../src/components/mobile/views/MobileFocusView';
 import { LiquidUpdateBanner } from '../../src/components/LiquidUpdateBanner';
+import { MobileAppShell } from '../../src/components/mobile/MobileAppShell';
+import App from '../../src/App';
+import { useLayoutStore } from '../../src/stores/useLayoutStore';
+import { useAiStore } from '../../src/stores/useAiStore';
+import { useTimerStore } from '../../src/stores/useTimerStore';
 import { generateQrMatrix, generateValidQrCodeSvg } from '../../src/utils/qrCode';
 import capacitorConfig from '../../capacitor.config';
 
@@ -370,6 +375,92 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       render(<LiquidUpdateBanner currentVersion="7.4.0" latestVersion="7.5.0" />);
       expect(screen.getByText('Đã có phiên bản mới')).toBeDefined();
       expect(screen.getByText('Tải bản cập nhật')).toBeDefined();
+    });
+  });
+
+  describe('5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync)', () => {
+    it('5.1 WebDownloadHub includes Play Protect external install micro-hint', () => {
+      render(
+        <RouterProvider>
+          <WebDownloadHub />
+        </RouterProvider>
+      );
+
+      const hint = screen.getByTestId('play-protect-micro-hint');
+      expect(hint.textContent).toContain("Nếu máy hiện cảnh báo nguồn ngoài, chọn 'Vẫn cài đặt' để trải nghiệm bản thử nghiệm nội bộ.");
+    });
+
+    it('5.2 MainActivity.java binds OnBackPressedCallback + PomoNativeBack JavascriptInterface and MobileAppShell syncs back eligibility', () => {
+      const mainActivityPath = path.resolve(
+        process.cwd(),
+        'android/app/src/main/java/com/pomofocus/workspace/MainActivity.java'
+      );
+      const javaSrc = fs.readFileSync(mainActivityPath, 'utf-8');
+      expect(javaSrc).toContain('OnBackPressedCallback');
+      expect(javaSrc).toContain('getOnBackPressedDispatcher().addCallback');
+      expect(javaSrc).toContain('PomoNativeBack');
+      expect(javaSrc).toContain('pomofocus:native-back');
+
+      const setCanGoBackInApp = vi.fn();
+      (window as any).PomoNativeBack = { setCanGoBackInApp };
+      useLayoutStore.setState({ activeMobileTab: 'focus' as any });
+      useAiStore.setState({ isTopupModalOpen: false });
+
+      render(<MobileAppShell />);
+      expect(setCanGoBackInApp).toHaveBeenCalledWith(false);
+
+      // Navigate to secondary tab -> native back interception enabled
+      fireEvent.click(screen.getByTestId('mobile-nav-tab-settings'));
+      expect(setCanGoBackInApp).toHaveBeenLastCalledWith(true);
+
+      // System fires native-back -> returns smoothly to focus and disables native interception so next swipe exits to launcher
+      act(() => {
+        window.dispatchEvent(new CustomEvent('pomofocus:native-back'));
+      });
+      expect(useLayoutStore.getState().activeMobileTab).toBe('focus');
+      expect(setCanGoBackInApp).toHaveBeenLastCalledWith(false);
+
+      delete (window as any).PomoNativeBack;
+    });
+
+    it('5.3 Native Capacitor APK launches on /app MobileAppShell instead of marketing LandingPage when pathname is /', () => {
+      window.history.pushState({}, '', '/');
+      (window as any).Capacitor = { isNativePlatform: () => true };
+
+      render(
+        <RouterProvider>
+          <App />
+        </RouterProvider>
+      );
+
+      expect(screen.getByTestId('mobile-app-shell')).toBeDefined();
+      expect(screen.queryByTestId('landing-page-root')).toBeNull();
+
+      delete (window as any).Capacitor;
+    });
+
+    it('5.4 TimerStore resynchronizes immediately on visibilitychange when waking from OS sleep', () => {
+      vi.useFakeTimers();
+      try {
+        useTimerStore.getState().destroy();
+        useTimerStore.getState().init();
+        useTimerStore.getState().resetCycle();
+        useTimerStore.getState().start();
+
+        const startRemaining = useTimerStore.getState().remainingMs;
+        // Advance wall clock by 90s while interval didn't run (simulate frozen background WebView)
+        vi.setSystemTime(Date.now() + 90_000);
+        Object.defineProperty(document, 'visibilityState', {
+          value: 'visible',
+          configurable: true,
+        });
+        document.dispatchEvent(new Event('visibilitychange'));
+
+        expect(useTimerStore.getState().remainingMs).toBeLessThanOrEqual(startRemaining - 89_000);
+      } finally {
+        useTimerStore.getState().destroy();
+        vi.useRealTimers();
+      }
     });
   });
 });
