@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, X, ArrowUpRight } from 'lucide-react';
 import { isUpdateAvailable } from '../utils/versionCompare';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export const CURRENT_APP_VERSION = '7.4.0';
 export const DEFAULT_DOWNLOAD_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk';
@@ -32,7 +33,7 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
     }
 
     let isMounted = true;
-    fetch('/version.json')
+    fetch(resolveApiUrl('/version.json'))
       .then((res) => {
         if (!res.ok) return null;
         return res.json();

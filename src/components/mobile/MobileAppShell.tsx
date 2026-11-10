@@ -12,17 +12,27 @@ import {
   Send,
   Sparkles,
   Target,
-  X
+  X,
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 import { useTimerStore } from '../../stores/useTimerStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useAiStore } from '../../stores/useAiStore';
 import { useTaskStore } from '../../stores/useTaskStore';
 import { useBackgroundStore } from '../../stores/useBackgroundStore';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { useNoteStore } from '../../stores/useNoteStore';
+import { ANIME_WALLPAPERS_LOCAL } from '../../data/wallpapers';
+import { PomoFocusLogo } from '../PomoFocusLogo';
+import { BackgroundCanvas } from '../BackgroundCanvas';
+import { AmbientOverlay } from '../AmbientOverlay';
 import { MobileFocusView } from './views/MobileFocusView';
 import { MobileSettingsView } from './views/MobileSettingsView';
 import { AiCreditsTopupModal } from '../AiCreditsTopupModal';
 import { GlobalAudioHost } from '../GlobalAudioHost';
+
+const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
 
 export type MobileTab = 'focus' | 'tasks' | 'spaces' | 'ai' | 'settings';
 
@@ -57,10 +67,22 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const remainingMs = useTimerStore((s) => s.remainingMs);
 
   const storeTab = useLayoutStore((s) => s.activeMobileTab);
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
+  const user = useAuthStore((s) => s.user);
   const isTopupModalOpen = useAiStore((s) => s.isTopupModalOpen);
   const closeTopupModal = useAiStore((s) => s.closeTopupModal);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
+
+  // Hydrate persistent stores on mobile shell startup & auth change
+  useEffect(() => {
+    useTaskStore.getState().loadTasksAndProjects().catch(() => {});
+    useNoteStore.getState().loadNotes().catch(() => {});
+    if (user?.id) {
+      useAiStore.getState().initConversation(user.id).catch(() => {});
+      useAiStore.getState().syncWithAuth(user.plan);
+    }
+  }, [user?.id, user?.plan]);
 
   // Normalize store tab (treat 'timer' as 'focus' for backward compatibility)
   const activeTab: MobileTab = useMemo(() => {
@@ -291,8 +313,12 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     <div
       data-testid="mobile-app-shell"
       style={{ transform: 'translateZ(0)' }}
-      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] select-none ${className}`}
+      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] select-none relative ${className}`}
     >
+      {/* Dynamic Background & Ambient Particle Canvas (z-0 / z-[1]) */}
+      <BackgroundCanvas />
+      <AmbientOverlay />
+
       {/* Background Audio Host for mobile chime/ambient playback */}
       <GlobalAudioHost />
 
@@ -305,12 +331,19 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       <header
         data-testid="mobile-top-header"
         role="banner"
-        className="h-14 min-h-[56px] max-h-[56px] w-full flex items-center justify-between px-4 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10 z-20 shrink-0"
+        className={`h-14 min-h-[56px] max-h-[56px] w-full flex items-center justify-between px-4 ${
+          isEcoMode ? 'bg-zinc-950/90' : 'bg-zinc-950/60 backdrop-blur-xl'
+        } border-b border-white/10 z-20 shrink-0`}
       >
-        {/* Left: Brand Logo & Zen Emerald Badge */}
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-white tracking-tight text-lg">PomoFocus</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+        {/* Left: Official PomoFocus Logo & Zen Emerald Badge */}
+        <div className="flex items-center gap-2 shrink-0">
+          <PomoFocusLogo
+            size={24}
+            withContainer={true}
+            showWordmark={true}
+            wordmarkClassName="text-base font-bold text-white tracking-tight"
+          />
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
             Liquid Zen
           </span>
         </div>
@@ -378,7 +411,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       {/* -------------------------------------------------------------------- */}
       {/* Content View Container (Flex-1)                                      */}
       {/* -------------------------------------------------------------------- */}
-      <main className="flex-1 min-h-0 w-full overflow-hidden relative">
+      <main className="flex-1 min-h-0 w-full overflow-hidden relative z-10">
         {/* Tab 1: Focus Canvas (Default) */}
         {activeTab === 'focus' && (
           <div data-testid="mobile-view-focus" className="w-full h-full">
@@ -422,7 +455,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         data-testid="mobile-bottom-nav"
         role="tablist"
         aria-label="Điều hướng chính"
-        className="h-16 shrink-0 w-full bg-zinc-950/90 backdrop-blur-xl border-t border-white/10 flex items-center justify-around px-2 z-20 select-none pb-safe"
+        className={`h-16 shrink-0 w-full ${
+          isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/75 backdrop-blur-xl'
+        } border-t border-white/10 flex items-center justify-around px-2 z-30 select-none pb-safe`}
       >
         <NavTabButton
           id="focus"
@@ -607,10 +642,10 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             return (
               <div
                 key={task.id}
-                className={`p-3 rounded-xl bg-zinc-900/60 border transition flex items-center justify-between gap-3 ${
+                className={`p-3 rounded-xl bg-zinc-900/55 backdrop-blur-md border transition flex items-center justify-between gap-3 ${
                   isLinked
                     ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(52,211,153,0.15)]'
-                    : 'border-white/5'
+                    : 'border-white/10'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -691,46 +726,86 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
 const MobileSpacesSubView: React.FC = () => {
   const presets = useBackgroundStore((s) => s.presets);
   const activePresetId = useBackgroundStore((s) => s.activePresetId);
+  const customUrl = useBackgroundStore((s) => s.customUrl);
+  const blurLevel = useBackgroundStore((s) => s.blurLevel);
+  const brightnessLevel = useBackgroundStore((s) => s.brightnessLevel);
+  const overlayOpacity = useBackgroundStore((s) => s.overlayOpacity);
   const selectPreset = useBackgroundStore((s) => s.selectPreset);
+  const setCustomBackground = useBackgroundStore((s) => s.setCustomBackground);
+  const setBlur = useBackgroundStore((s) => s.setBlur);
+  const setBrightness = useBackgroundStore((s) => s.setBrightness);
+  const setOverlayOpacity = useBackgroundStore((s) => s.setOverlayOpacity);
+  const resetBackground = useBackgroundStore((s) => s.resetBackground);
   const ambientEffect = useBackgroundStore((s) => s.ambientEffect);
   const setAmbientEffect = useBackgroundStore((s) => s.setAmbientEffect);
+  const [failedThumbIds, setFailedThumbIds] = useState<Record<string, boolean>>({});
 
   return (
     <div className="w-full h-full overflow-y-auto px-4 py-4 space-y-5 pb-28">
-      <div>
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Palette className="w-5 h-5 text-emerald-400" />
-          <span>Không gian làm việc</span>
-        </h2>
-        <p className="text-xs text-zinc-400 mt-0.5">Chọn phông nền và hiệu ứng tĩnh tâm</p>
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Palette className="w-5 h-5 text-emerald-400" />
+            <span>Không gian làm việc</span>
+          </h2>
+          <p className="text-xs text-zinc-300 mt-0.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+            Chọn phông nền và hiệu ứng tĩnh tâm
+          </p>
+        </div>
+        <button
+          type="button"
+          data-testid="mobile-spaces-reset-btn"
+          onClick={() => resetBackground()}
+          className="px-2.5 py-1.5 rounded-xl bg-zinc-900/60 backdrop-blur-md border border-white/10 text-xs text-zinc-300 hover:text-white flex items-center gap-1 active:scale-95 transition cursor-pointer shrink-0"
+          title="Khôi phục nền mặc định"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Mặc định</span>
+        </button>
       </div>
 
       {/* Presets Grid */}
       <div className="grid grid-cols-2 gap-3">
         {presets.map((preset) => {
           const isActive = activePresetId === preset.id;
+          const isGradientSwatch =
+            !preset.thumbnailUrl ||
+            preset.category === 'gradient' ||
+            preset.category === 'solid' ||
+            failedThumbIds[preset.id];
+          const fallbackStyle =
+            preset.url?.startsWith('linear-gradient') || preset.url?.startsWith('radial-gradient') || preset.url?.startsWith('#')
+              ? preset.url
+              : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
+              ? preset.fallbackUrl
+              : 'linear-gradient(135deg, #09090b 0%, #18181b 100%)';
+
           return (
             <button
               key={preset.id}
               type="button"
+              data-testid={`mobile-space-preset-${preset.id}`}
               onClick={() => selectPreset(preset.id)}
-              className={`relative rounded-2xl overflow-hidden border p-3 flex flex-col items-start text-left transition active:scale-95 cursor-pointer ${
+              className={`relative rounded-2xl overflow-hidden border p-3 flex flex-col items-start text-left transition active:scale-95 cursor-pointer backdrop-blur-md ${
                 isActive
-                  ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/20 shadow-lg shadow-emerald-500/10'
-                  : 'border-white/10 bg-zinc-900/60 hover:border-white/20'
+                  ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/35 shadow-lg shadow-emerald-500/10'
+                  : 'border-white/10 bg-zinc-900/55 hover:border-white/20'
               }`}
             >
-              <div className="w-full h-20 rounded-xl bg-zinc-800 mb-2 overflow-hidden relative">
-                {preset.thumbnailUrl ? (
+              <div
+                className="w-full h-20 rounded-xl bg-zinc-800 mb-2 overflow-hidden relative"
+                style={{ background: fallbackStyle }}
+              >
+                {!isGradientSwatch && preset.thumbnailUrl && (
                   <img
                     src={preset.thumbnailUrl}
                     alt={preset.title}
+                    referrerPolicy="no-referrer"
+                    onError={() =>
+                      setFailedThumbIds((prev) => ({ ...prev, [preset.id]: true }))
+                    }
                     className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-600">
-                    <Palette className="w-6 h-6" />
-                  </div>
                 )}
                 {isActive && (
                   <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold">
@@ -745,8 +820,53 @@ const MobileSpacesSubView: React.FC = () => {
         })}
       </div>
 
+      {/* Bundled Offline Anime & Ghibli Collection */}
+      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-zinc-100">Tranh nền Anime & Studio Ghibli</h3>
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            Dùng offline
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          {ANIME_WALLPAPERS_LOCAL.slice(0, 6).map((item) => {
+            const localUrl = `/backgrounds/anime/${item.filename}`;
+            const isActive = activePresetId === 'custom' && customUrl === localUrl;
+            return (
+              <button
+                key={item.filename}
+                type="button"
+                data-testid={`mobile-space-anime-${item.filename}`}
+                onClick={() => setCustomBackground(localUrl, 'image')}
+                className={`relative rounded-xl overflow-hidden border p-2 flex flex-col text-left transition active:scale-95 cursor-pointer ${
+                  isActive
+                    ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/30'
+                    : 'border-white/10 bg-zinc-950/40 hover:border-white/20'
+                }`}
+              >
+                <div className="w-full h-16 rounded-lg overflow-hidden bg-zinc-800 mb-1.5 relative">
+                  <img
+                    src={localUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {isActive && (
+                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[9px] font-bold">
+                      Đang chọn
+                    </div>
+                  )}
+                </div>
+                <span className="text-xs font-medium text-white truncate w-full">{item.title}</span>
+                <span className="text-[10px] text-zinc-400 truncate w-full">{item.author}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Ambient Visual Effects */}
-      <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-3">
+      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
         <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-emerald-400" />
           <span>Hiệu ứng môi trường</span>
@@ -774,6 +894,56 @@ const MobileSpacesSubView: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Fine-Tuning Sliders */}
+      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3.5">
+        <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+          <Sliders className="w-4 h-4 text-emerald-400" />
+          <span>Tinh chỉnh ánh sáng & độ mờ</span>
+        </h3>
+        <label className="block space-y-1">
+          <div className="flex justify-between text-xs text-zinc-300">
+            <span>Làm mờ nền</span>
+            <span className="font-mono text-emerald-400">{blurLevel}px</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={20}
+            value={blurLevel}
+            onChange={(e) => setBlur(Number(e.target.value))}
+            className="w-full accent-emerald-400 cursor-pointer"
+          />
+        </label>
+        <label className="block space-y-1">
+          <div className="flex justify-between text-xs text-zinc-300">
+            <span>Độ sáng hình nền</span>
+            <span className="font-mono text-emerald-400">{brightnessLevel}%</span>
+          </div>
+          <input
+            type="range"
+            min={50}
+            max={150}
+            value={brightnessLevel}
+            onChange={(e) => setBrightness(Number(e.target.value))}
+            className="w-full accent-emerald-400 cursor-pointer"
+          />
+        </label>
+        <label className="block space-y-1">
+          <div className="flex justify-between text-xs text-zinc-300">
+            <span>Lớp phủ tối</span>
+            <span className="font-mono text-emerald-400">{overlayOpacity}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={80}
+            value={overlayOpacity}
+            onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+            className="w-full accent-emerald-400 cursor-pointer"
+          />
+        </label>
+      </div>
     </div>
   );
 };
@@ -785,6 +955,7 @@ const MobileAiSubView: React.FC = () => {
   const messages = useAiStore((s) => s.messages);
   const sendMessage = useAiStore((s) => s.sendMessage);
   const isLoading = useAiStore((s) => s.isLoading);
+  const error = useAiStore((s) => s.error);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
 
@@ -795,7 +966,7 @@ const MobileAiSubView: React.FC = () => {
     if (typeof messagesEndRef.current?.scrollIntoView === 'function') {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, error]);
 
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
@@ -814,10 +985,12 @@ const MobileAiSubView: React.FC = () => {
     'Phương pháp chống trì hoãn 2 phút'
   ];
 
+  const showQuickSuggestions = messages.length <= 1;
+
   return (
-    <div className="w-full h-full flex flex-col bg-zinc-950/40">
+    <div className="w-full h-full flex flex-col bg-zinc-950/45 backdrop-blur-md">
       {/* Header bar */}
-      <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/50">
+      <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/55 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-emerald-400" />
           <span className="font-bold text-white text-sm">Trợ lý học tập AI</span>
@@ -828,39 +1001,17 @@ const MobileAiSubView: React.FC = () => {
           className="text-xs text-amber-400 font-mono flex items-center gap-1 cursor-pointer"
         >
           <span>⚡ {aiCreditsBalance}</span>
-          <span className="text-zinc-500 text-[10px]">(Nạp thêm)</span>
+          <span className="text-zinc-400 text-[10px]">(Nạp thêm)</span>
         </button>
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.length === 0 ? (
-          <div className="py-8 space-y-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
-              <Bot className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-base">Chào bạn! Tôi có thể giúp gì cho buổi học?</h3>
-              <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
-                Hỏi giải thích khái niệm, lên kế hoạch ôn thi hoặc hỗ trợ giải bài tập.
-              </p>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              {suggestions.map((s, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSend(s)}
-                  className="w-full text-left text-xs p-3 rounded-xl bg-zinc-900/80 border border-white/5 text-zinc-300 hover:border-emerald-400/40 hover:text-white transition cursor-pointer"
-                >
-                  💡 {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          messages.map((m) => (
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+        {messages.map((m) => {
+          if (m.role === 'assistant' && !m.content && isLoading) {
+            return null;
+          }
+          return (
             <div
               key={m.id}
               className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
@@ -872,10 +1023,41 @@ const MobileAiSubView: React.FC = () => {
                     : 'bg-zinc-900/90 border border-white/10 text-zinc-100 rounded-tl-sm'
                 }`}
               >
-                <div className="whitespace-pre-wrap">{m.content}</div>
+                {m.role === 'assistant' ? (
+                  <React.Suspense fallback={<div className="whitespace-pre-wrap">{m.content}</div>}>
+                    <FormattedAiMessage content={m.content} />
+                  </React.Suspense>
+                ) : (
+                  <div className="whitespace-pre-wrap">{m.content}</div>
+                )}
               </div>
             </div>
-          ))
+          );
+        })}
+
+        {showQuickSuggestions && (
+          <div className="pt-2 space-y-3">
+            <div className="text-center space-y-1">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+                <Bot className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-zinc-300 max-w-xs mx-auto">
+                Hỏi giải thích khái niệm, lên kế hoạch ôn thi hoặc hỗ trợ giải bài tập.
+              </p>
+            </div>
+            <div className="space-y-2">
+              {suggestions.map((s, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSend(s)}
+                  className="w-full text-left text-xs p-3 rounded-xl bg-zinc-900/75 border border-white/10 text-zinc-200 hover:border-emerald-400/40 hover:text-white transition cursor-pointer"
+                >
+                  💡 {s}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {isLoading && (
@@ -884,11 +1066,22 @@ const MobileAiSubView: React.FC = () => {
             <span>AI đang suy nghĩ...</span>
           </div>
         )}
+
+        {error && (
+          <div
+            data-testid="mobile-ai-error-banner"
+            role="alert"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span>{error}</span>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 border-t border-white/10 bg-zinc-950/80 pb-4">
+      <div className="p-3 border-t border-white/10 bg-zinc-950/75 backdrop-blur-xl pb-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();

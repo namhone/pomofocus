@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { useNoteStore } from './useNoteStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
 import { ProfileService } from '../services/profileService';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
 export type AiActionType = 'chat' | 'summarize' | 'quiz' | 'multimodal';
@@ -307,6 +308,25 @@ function getStoredUserId(): string | undefined {
     const authStore = (window as any).useAuthStore;
     if (authStore?.getState?.()?.user?.id) {
       return authStore.getState().user.id;
+    }
+  } catch {}
+  return undefined;
+}
+
+function getStoredUserEmail(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const raw = localStorage.getItem('pomodoro_study_auth_session');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.email) return parsed.email;
+      if (parsed.user?.email) return parsed.user.email;
+    }
+  } catch {}
+  try {
+    const authStore = (window as any).useAuthStore;
+    if (authStore?.getState?.()?.user?.email) {
+      return authStore.getState().user.email;
     }
   } catch {}
   return undefined;
@@ -839,92 +859,109 @@ export const useAiStore = create<AiState>()(
 
           let replyText = '';
           let isTruncated = false;
+          let apiErrorMessage: string | null = null;
+          const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
 
-          // 3. Gọi Endpoint /api/ai/companion với stream: true
-          try {
-            const res = await fetch('/api/ai/companion', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                prompt,
-                actionType: effectiveAction,
-                contextNotes,
-                currentCredits: get().aiCreditsBalance,
-                userId: getStoredUserId(),
-                stream: true,
-                history: recentHistory,
-                attachment: attachment
-                  ? {
-                      fileName: attachment.fileName,
-                      mimeType: attachment.mimeType,
-                      base64Data: attachment.base64Data
+          // 3. Gọi Endpoint /api/ai/companion (tự động trỏ domain Vercel khi chạy Capacitor APK)
+          if (!isOffline) {
+            const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 30000) : null;
+            try {
+              const res = await fetch(resolveApiUrl('/api/ai/companion'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller?.signal,
+                body: JSON.stringify({
+                  prompt,
+                  actionType: effectiveAction,
+                  contextNotes,
+                  currentCredits: get().aiCreditsBalance,
+                  userId: getStoredUserId(),
+                  userEmail: getStoredUserEmail(),
+                  stream: true,
+                  history: recentHistory,
+                  attachment: attachment
+                    ? {
+                        fileName: attachment.fileName,
+                        mimeType: attachment.mimeType,
+                        base64Data: attachment.base64Data
+                      }
+                    : undefined
+                })
+              });
+
+              if (res.status === 402) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || 'Số dư AI Credits không đủ.');
+              }
+
+              if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                apiErrorMessage = errData.message || '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
+              } else {
+                const contentType = res.headers?.get?.('content-type') || '';
+                const isEventStream = contentType.includes('text/event-stream');
+
+                if (isEventStream && res.body && typeof (res.body as any).getReader === 'function') {
+                  set({ isStreaming: true });
+                  const reader = (res.body as any).getReader();
+                  const decoder = new TextDecoder('utf-8');
+                  let buffer = '';
+
+                  while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const chunkLines = buffer.split('\n');
+                    buffer = chunkLines.pop() || '';
+
+                    for (const chunkLine of chunkLines) {
+                      const trimmed = chunkLine.trim();
+                      if (!trimmed.startsWith('data:')) continue;
+                      const jsonStr = trimmed.replace(/^data:\s*/, '').trim();
+                      if (jsonStr === '[DONE]') continue;
+
+                      try {
+                        const parsed = JSON.parse(jsonStr);
+                        if (parsed.text) {
+                          replyText += parsed.text;
+                          set((state) => ({
+                            messages: state.messages.map((m) =>
+                              m.id === assistantMsgId ? { ...m, content: replyText } : m
+                            )
+                          }));
+                        }
+                        if (parsed.finishReason === 'MAX_TOKENS') {
+                          isTruncated = true;
+                        }
+                      } catch {}
                     }
-                  : undefined
-              })
-            });
-
-            if (res.status === 402) {
-              const errData = await res.json().catch(() => ({}));
-              throw new Error(errData.message || 'Số dư AI Credits không đủ.');
-            }
-
-            const contentType = res.headers.get('content-type') || '';
-            const isEventStream = contentType.includes('text/event-stream');
-
-            if (res.ok && isEventStream && res.body && typeof (res.body as any).getReader === 'function') {
-              set({ isStreaming: true });
-              const reader = (res.body as any).getReader();
-              const decoder = new TextDecoder('utf-8');
-              let buffer = '';
-
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                  const trimmed = line.trim();
-                  if (!trimmed.startsWith('data:')) continue;
-                  const jsonStr = trimmed.replace(/^data:\s*/, '').trim();
-                  if (jsonStr === '[DONE]') {
-                    continue;
                   }
-
-                  try {
-                    const parsed = JSON.parse(jsonStr);
-                    if (parsed.text) {
-                      replyText += parsed.text;
-                      set((state) => ({
-                        messages: state.messages.map((m) =>
-                          m.id === assistantMsgId ? { ...m, content: replyText } : m
-                        )
-                      }));
-                    }
-                    if (parsed.finishReason === 'MAX_TOKENS') {
-                      isTruncated = true;
-                    }
-                  } catch {}
+                } else if (contentType.includes('text/html')) {
+                  apiErrorMessage = '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
+                } else {
+                  const data = await res.json();
+                  replyText = data.reply || '';
+                  if (data.isTruncated || data.finishReason === 'MAX_TOKENS') {
+                    isTruncated = true;
+                  }
                 }
               }
-            } else if (res.ok) {
-              // Non-streaming JSON response
-              const data = await res.json();
-              replyText = data.reply || '';
-              if (data.isTruncated || data.finishReason === 'MAX_TOKENS') {
-                isTruncated = true;
+            } catch (fetchErr: any) {
+              if (fetchErr?.message && fetchErr.message.includes('AI Credits không đủ')) {
+                throw fetchErr;
               }
+              apiErrorMessage = '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
+              console.warn('[AI Companion] Lỗi kết nối máy chủ AI:', fetchErr);
+            } finally {
+              if (timeoutId) clearTimeout(timeoutId);
             }
-          } catch (fetchErr: any) {
-            if (fetchErr.message && fetchErr.message.includes('AI Credits không đủ')) {
-              throw fetchErr;
-            }
-            console.warn('[AI Companion] Chuyển sang phản hồi gia sư cục bộ:', fetchErr);
+          } else {
+            apiErrorMessage = '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
           }
 
-          // Fallback gia sư thông minh nếu API chưa cấu hình key hoặc offline
+          // Fallback gia sư cục bộ khi mất mạng với tác vụ cơ bản hoặc thông báo lỗi kết nối rõ ràng
           if (!replyText) {
             if (effectiveAction === 'summarize') {
               replyText = `### 📋 Tóm Tắt Trọng Tâm Bài Học\n\n${
@@ -934,22 +971,27 @@ export const useAiStore = create<AiState>()(
               }1. **Khái niệm then chốt:** Cần nắm vững định lý cốt lõi và các tiền đề suy luận cơ bản.\n2. **Công thức định lượng:** Đảm bảo công thức toán học được chuẩn hóa:\n   $$\\Delta S = \\int \\frac{dQ_{\\text{rev}}}{T}$$\n3. **Ứng dụng thực tiễn:** Áp dụng phương pháp Pomodoro 25/5 để chia nhỏ lượng kiến thức, tránh quá tải nhận thức.`;
             } else if (effectiveAction === 'quiz') {
               replyText = `### 🎯 10 Câu Hỏi Trắc Nghiệm Ôn Tập Pomodoro & Kỹ Năng Học Tập\n\n**Câu 1:** Chu kỳ Pomodoro tiêu chuẩn kéo dài bao nhiêu phút tập trung và nghỉ ngơi?\n- A. 45 phút tập trung, 15 phút nghỉ\n- B. 25 phút tập trung, 5 phút nghỉ ngắn\n- C. 60 phút tập trung, 10 phút nghỉ\n- D. 30 phút tập trung, không nghỉ\n\n*Đáp án đúng:* **B** — Chu kỳ 25/5 được thiết kế tối ưu hóa sự chú ý bền vững theo nhịp sinh học não bộ.\n\n---\n**Câu 2:** Sau bao nhiêu phiên Pomodoro liên tiếp thì nên có một khoảng nghỉ dài (15–30 phút)?\n- A. 2 phiên\n- B. 4 phiên\n- C. 6 phiên\n- D. 8 phiên\n\n*Đáp án đúng:* **B** — 4 chu kỳ (tổng cộng 100 phút tập trung) là ngưỡng giới hạn sinh lý cần thiết lập lại năng lượng nhận thức.\n\n---\n**Câu 3:** Khái niệm "Diffuse Mode" (Chế độ tư duy phân tán) của Barbara Oakley được kích hoạt khi nào?\n- A. Khi đang giải bài toán hóc búa\n- B. Trong lúc nghỉ ngơi 5 phút, đi dạo nhẹ nhàng hoặc thả lỏng\n- C. Khi đang đọc tài liệu chuyên ngành\n- D. Khi thức khuya học bài\n\n*Đáp án đúng:* **B** — Trạng thái thư giãn giúp não kích hoạt mạng lưới Default Mode Network để kết nối các khái niệm tiềm thức.\n\n---\n**Câu 4:** Khi bị xao nhãng hoặc có ý nghĩ đột xuất nảy ra trong phiên Pomodoro, hành động chuẩn mực nhất là gì?\n- A. Dừng ngay đồng hồ để làm việc đó\n- B. Ghi chú nhanh vào sổ nháp/tasks nháp rồi tiếp tục tập trung\n- C. Bỏ qua hoàn toàn và không ghi lại\n- D. Chuyển sang lướt điện thoại\n\n*Đáp án đúng:* **B** — Kỹ thuật "Parking Lot" giúp giải phóng bộ nhớ làm việc mà không làm đứt đoạn dòng chảy tập trung.\n\n---\n**Câu 5:** Định luật Parkinson trong quản lý thời gian phát biểu điều gì?\n- A. Thời gian luôn cố định cho mọi nhiệm vụ\n- B. Công việc sẽ tự động mở rộng để lấp đầy khoảng thời gian được ấn định cho nó\n- C. Càng nhiều thời gian thì chất lượng công việc càng cao\n- D. Làm việc càng nhanh thì sai sót càng nhiều\n\n*Đáp án đúng:* **B** — Áp dụng các phiên Pomodoro 25 phút giúp siết chặt khung thời gian, ngăn ngừa sự trì hoãn.\n\n---\n**Câu 6:** Nguyên lý Pareto (Quy tắc 80/20) trong ôn thi kiến nghị điều gì?\n- A. Dành 80% thời gian cho 20% kiến thức cốt lõi tạo ra 80% điểm số\n- B. Học 80 câu hỏi ngẫu nhiên trong đề cương\n- C. Đọc sách trong 80 phút rồi nghỉ 20 phút\n- D. Bỏ qua 80% tài liệu mà không cần chọn lọc\n\n*Đáp án đúng:* **A** — Xác định trọng tâm "High-Yield Topics" là chìa khóa tối ưu hóa điểm số trong thời gian hữu hạn.\n\n---\n**Câu 7:** Phương pháp lặp lại ngắt quãng (Spaced Repetition) dựa trên mô hình toán học nào của Hermann Ebbinghaus?\n- A. Đường cong tăng trưởng hàm mũ\n- B. Đường cong quên lãng: $R = e^{-\\frac{t}{S}}$\n- C. Phân phối chuẩn Gauss\n- D. Định lý giới hạn trung tâm\n\n*Đáp án đúng:* **B** — Ôn tập lặp lại tại các mốc thời gian cách đều giúp giảm độ dốc của đường cong quên lãng, chuyển kiến thức vào trí nhớ dài hạn.\n\n---\n**Câu 8:** Kỹ thuật Feynman trong học sâu bao gồm bước cốt lõi nào?\n- A. Đọc thuộc lòng từ đầu đến cuối sách giáo khoa\n- B. Giải thích khái niệm phức tạp cho một người mới (hoặc đứa trẻ 10 tuổi) bằng ngôn ngữ bình dị nhất\n- C. Sử dụng từ ngữ hàn lâm chuyên sâu nhất có thể\n- D. Làm thật nhiều bài tập mà không cần hiểu bản chất\n\n*Đáp án đúng:* **B** — Nếu bạn không thể giải thích đơn giản, nghĩa là bạn chưa thực sự hiểu rõ nguyên lý.\n\n---\n**Câu 9:** Hiện tượng "Sự kiệt quệ ý chí" (Ego Depletion) nhắc nhở chúng ta điều gì khi sắp xếp lịch Pomodoro?\n- A. Nên học việc khó nhất (Deep Work) vào đầu ngày khi năng lượng não bộ còn dồi dào\n- B. Để bài tập khó nhất vào lúc nửa đêm\n- C. Không bao giờ cần nạp năng lượng\n- D. Ý chí là vô hạn và không suy giảm\n\n*Đáp án đúng:* **A** — Ý chí và khả năng tự kiểm soát tiêuahoa năng lượng glucose của vỏ não trước trán, vì vậy nên ưu tiên tác vụ nặng nhất vào buổi sáng.\n\n---\n**Câu 10:** Trong Pomodoro, nếu bạn hoàn thành mục tiêu khi đồng hồ mới chạy được 15 phút, bạn nên làm gì?\n- A. Tắt ngay đồng hồ và kết thúc phiên\n- B. Sử dụng 10 phút còn lại để rà soát (Overlearning), kiểm tra lại kết quả và tinh gọn ghi chú\n- C. Bật mạng xã hội chơi cho hết giờ\n- D. Bắt đầu ngay một môn học hoàn toàn mới mà không nghỉ\n\n*Đáp án đúng:* **B** — Quy tắc "Overlearning" giúp củng cố kiến thức và tránh làm gián đoạn nhịp sinh học của phiên làm việc.`;
+            } else if (isGreetingIntent(prompt)) {
+              replyText =
+                'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
+            } else if (solveBasicMath(prompt)) {
+              replyText = solveBasicMath(prompt)!;
+            } else if (prompt.toLowerCase().includes('pythagoras')) {
+              replyText = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $a^2 + b^2 = c^2$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
             } else {
-              if (isGreetingIntent(prompt)) {
-                replyText =
-                  'Chào bạn! Mình là PomoFocus AI Study Companion 🎓. Hôm nay bạn đang muốn tập trung ôn môn học nào (Toán, Văn, Anh, Khoa học...), hay cần mình tóm tắt bài giảng nào không nè?';
-              } else if (solveBasicMath(prompt)) {
-                replyText = solveBasicMath(prompt)!;
-              } else if (prompt.toLowerCase().includes('pythagoras')) {
-                replyText = `### 💡 Hướng Dẫn Định Lý Pythagoras (Toán Lớp 7)\n\nChào bạn! Về định lý **Pythagoras**:\n\n1. **Phát biểu bản chất:**\n   Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng bình phương của hai cạnh góc vuông.\n\n2. **Công thức định lượng:**\n   $a^2 + b^2 = c^2$\n   *(Trong đó $c$ là độ dài cạnh huyền, $a$ và $b$ là hai cạnh góc vuông)*.\n\n3. **Ví dụ trực quan:**\n   Nếu hai cạnh góc vuông là $3$ và $4$, thì cạnh huyền $c$ tính bằng:\n   $c = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$\n\nBạn có bài toán tam giác cụ thể nào cần áp dụng không?`;
-              } else {
-                replyText = 'Chào bạn! Mình là PomoFocus AI. Vui lòng kết nối Internet hoặc cấu hình GEMINI_API_KEY hợp lệ để trò chuyện cùng AI thông minh nhé!';
-              }
+              replyText = apiErrorMessage || '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
+              set({ error: replyText.replace(/^⚠️\s*/, '') });
             }
           }
 
           // 4. Tuyệt đối KHÔNG trừ điểm khi gặp sự cố, chỉ trừ khi thành công 100%
-          const isErrorResponse = replyText.startsWith('⚠️') || replyText.includes('thất bại') || replyText.includes('gián đoạn');
+          const isErrorResponse =
+            Boolean(apiErrorMessage && replyText === apiErrorMessage) ||
+            replyText.startsWith('⚠️') ||
+            replyText.includes('thất bại') ||
+            replyText.includes('gián đoạn') ||
+            replyText.includes('Không thể kết nối') ||
+            replyText.includes('Vui lòng kết nối Internet');
           const finalCost = isErrorResponse ? 0 : cost;
 
           if (finalCost > 0) {

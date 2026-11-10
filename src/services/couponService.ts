@@ -12,6 +12,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { ProfileService } from './profileService';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
 import { supabase } from '../lib/supabase';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export type CouponType = 'lifetime' | 'free_lifetime' | 'discount_percent' | 'free_days' | 'credits';
 
@@ -56,8 +57,8 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
 function safeFetchApi(url: string, init?: RequestInit): Promise<Response> {
   const fullUrl =
     typeof window !== 'undefined' && window.location?.origin
-      ? `${window.location.origin}${url}`
-      : `https://pomofocus-workspace.vercel.app${url}`;
+      ? resolveApiUrl(url)
+      : resolveApiUrl(url);
   return fetch(fullUrl, init);
 }
 
@@ -340,7 +341,7 @@ export const couponService = {
     // 2. Thử truy vấn qua serverless endpoint /api/coupons
     if (typeof window !== 'undefined') {
       try {
-        const apiRes = await fetch(`/api/coupons?code=${encodeURIComponent(clean)}`);
+        const apiRes = await fetch(resolveApiUrl(`/api/coupons?code=${encodeURIComponent(clean)}`));
         if (apiRes.ok) {
           const json = await apiRes.json();
           if (json.success && json.coupon) {

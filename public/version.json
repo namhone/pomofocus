@@ -4,8 +4,8 @@
   "minVersion": "7.0.0",
   "releaseDate": "2026-11-10",
   "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk",
-  "apkSizeMb": 8.18,
-  "checksumSha256": "50e2535eb3aba2741642f14bfe631cc3724f6d946d6e2648b8b27cdc3dddfd0a",
+  "apkSizeMb": 8.42,
+  "checksumSha256": "e7d86e5cbb4682597e4e2391acc935f26cf41bf0a1cb035fb59400eb70319a2f",
   "releaseNotes": "PomoFocus v7.4 Ultimate: 120Hz native animations, zero-scroll chaining, standalone Android APK ecosystem.",
   "changelog": [
     "Hệ sinh thái Web Hub + Standalone APK",

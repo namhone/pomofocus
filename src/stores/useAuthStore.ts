@@ -517,7 +517,18 @@ export const useAuthStore = create<AuthState>((set, get) => {
           aiCreditsBalance: guestCredits,
           aiPlan: 'free',
           activeConversationId: null,
-          currentSessionId: null
+          currentSessionId: null,
+          sessions: [],
+          error: null,
+          messages: [
+            {
+              id: 'welcome-' + Date.now(),
+              role: 'assistant',
+              content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
+              timestamp: Date.now(),
+              creditsUsed: 0
+            }
+          ]
         });
       } catch {}
     },

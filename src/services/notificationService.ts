@@ -29,7 +29,7 @@ export class NotificationService {
 
     try {
       const notification = new Notification(title, {
-        icon: '/vite.svg',
+        icon: '/logo.svg',
         silent: false,
         ...options
       });

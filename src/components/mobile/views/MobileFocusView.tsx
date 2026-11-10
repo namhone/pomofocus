@@ -308,7 +308,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
 
       {/* 2. CENTER SECTION: Monumental Numerals & Breathing Aura */}
       <div className="flex-1 flex flex-col items-center justify-center relative my-4 w-full">
-        <div className="relative flex flex-col items-center justify-center">
+        <div className="relative flex flex-col items-center justify-center drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
           {/* Breathing Aura: jade/teal radial breathing aura around timer during status === 'running' */}
           {status === 'running' && (
             <div
@@ -323,13 +323,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           <div
             data-testid="mobile-monumental-timer"
             aria-live="polite"
+            style={{ textShadow: '0 4px 20px rgba(0,0,0,0.88)' }}
             className="font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)] select-none text-center"
           >
             {timeDisplay}
           </div>
 
           {/* Status Label */}
-          <div className="text-xs uppercase font-medium tracking-widest text-zinc-400 mt-2">
+          <div className="text-xs uppercase font-medium tracking-widest text-zinc-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)] mt-2">
             {status === 'running'
               ? phase === 'pomodoro'
                 ? 'Đang tập trung'

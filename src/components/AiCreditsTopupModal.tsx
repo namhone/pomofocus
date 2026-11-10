@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Zap, CheckCircle2, Copy, ShieldCheck, QrCode, Loader2, Sparkles } from 'lucide-react';
 import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
+import { resolveApiUrl } from '../utils/apiConfig';
 import { useAuthStore } from '../stores/useAuthStore';
 import { supabase } from '../lib/supabase';
 
@@ -139,7 +140,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
 
     const abortCtrl = new AbortController();
 
-    fetch('/api/payment/create-order', {
+    fetch(resolveApiUrl('/api/payment/create-order'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -176,6 +176,10 @@ export const BackgroundCanvas: React.FC = () => {
           data-testid="background-image-element"
           onLoad={() => setLoading(false)}
           onError={(e) => {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+              setError(true, 'Ngoại tuyến, tự động chuyển sang nền tĩnh dự phòng');
+              return;
+            }
             if (
               e.currentTarget.src !==
               'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80'

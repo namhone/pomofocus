@@ -17,18 +17,24 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'vite.svg'],
+      includeAssets: ['logo.svg', 'favicon.svg'],
       manifest: {
-        name: 'Immersive Pomodoro Workspace',
-        short_name: 'Pomodoro',
-        description: 'Immersive Virtual Pomodoro Workspace inspired by LifeAt',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        name: 'PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung',
+        short_name: 'PomoFocus',
+        description: 'Ứng dụng Pomodoro, phòng học nhóm WebRTC, âm thanh ambient và quản lý học tập tối ưu.',
+        theme_color: '#09090b',
+        background_color: '#09090b',
         display: 'standalone',
         icons: [
           {
-            src: 'vite.svg',
-            sizes: '32x32',
+            src: '/logo.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/favicon.svg',
+            sizes: 'any',
             type: 'image/svg+xml'
           }
         ]

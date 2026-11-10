@@ -47,19 +47,19 @@ export const AmbientOverlay: React.FC = () => {
     window.addEventListener('resize', handleResize);
 
     // Kiểm tra prefers-reduced-motion
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
+    const mediaQuery = typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    if (mediaQuery?.matches) {
       isPaused = true;
     }
 
     const handleMotionChange = (e: MediaQueryListEvent) => {
       isPaused = e.matches;
     };
-    mediaQuery.addEventListener?.('change', handleMotionChange);
+    mediaQuery?.addEventListener?.('change', handleMotionChange);
 
     // Tạm dừng khi tab ẩn để tiết kiệm pin / CPU
     const handleVisibilityChange = () => {
-      isPaused = document.hidden || mediaQuery.matches;
+      isPaused = document.hidden || Boolean(mediaQuery?.matches);
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -204,11 +204,11 @@ export const AmbientOverlay: React.FC = () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      mediaQuery.removeEventListener?.('change', handleMotionChange);
+      mediaQuery?.removeEventListener?.('change', handleMotionChange);
     };
-  }, [ambientEffect]);
+  }, [ambientEffect, isEcoMode]);
 
-  if (ambientEffect === 'none') {
+  if (ambientEffect === 'none' || isEcoMode) {
     return null;
   }
 

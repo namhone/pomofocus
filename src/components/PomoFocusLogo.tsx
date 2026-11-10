@@ -17,6 +17,7 @@ export const PomoFocusLogo: React.FC<PomoFocusLogoProps> = ({
   className = '',
   withContainer = true
 }) => {
+  const gradId = `pomoBgGrad-${React.useId().replace(/:/g, '')}`;
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
       {/* Icon SVG biểu tượng đồng hồ chữ P */}
@@ -31,12 +32,12 @@ export const PomoFocusLogo: React.FC<PomoFocusLogoProps> = ({
         {withContainer && (
           <>
             <defs>
-              <linearGradient id="pomoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#161618" />
                 <stop offset="100%" stopColor="#0A0A0C" />
               </linearGradient>
             </defs>
-            <rect x="8" y="8" width="984" height="984" rx="232" ry="232" fill="url(#pomoBgGrad)" />
+            <rect x="8" y="8" width="984" height="984" rx="232" ry="232" fill={`url(#${gradId})`} />
           </>
         )}
 

@@ -33,6 +33,24 @@ interface TaskStoreState {
   setSelectedProjectId: (projectId: string | null) => void;
 }
 
+function reconcileLinkedTask(loadedTasks: Task[], allowClearIfMissing: boolean): string | null {
+  const timerState = useTimerStore.getState();
+  const linkedId = timerState.linkedTaskId;
+  if (!linkedId) return null;
+  const matched = loadedTasks.find((t) => t.id === linkedId && t.status !== 'archived');
+  if (matched) {
+    if (timerState.linkedTaskTitle !== matched.title) {
+      timerState.setLinkedTask(matched.id, matched.title);
+    }
+    return matched.id;
+  }
+  if (allowClearIfMissing) {
+    timerState.setLinkedTask(null, null);
+    return null;
+  }
+  return linkedId;
+}
+
 function generateUUID(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -59,16 +77,21 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       const userId = useAuthStore.getState().user?.id;
       if (userId) {
         TaskCloudService.syncFromCloud(userId).then(({ tasks, projects }) => {
+          const syncedTasks = tasks.filter((t) => t.status !== 'archived').sort((a, b) => a.orderIndex - b.orderIndex);
+          const reconciledActiveId = get().activeTaskId || reconcileLinkedTask(syncedTasks, true);
           set({
-            tasks: tasks.filter((t) => t.status !== 'archived').sort((a, b) => a.orderIndex - b.orderIndex),
-            projects: projects.sort((a, b) => b.createdAt - a.createdAt)
+            tasks: syncedTasks,
+            projects: projects.sort((a, b) => b.createdAt - a.createdAt),
+            activeTaskId: reconciledActiveId
           });
         }).catch((err) => console.warn('Lỗi đồng bộ Tasks từ Cloud:', err));
       }
 
+      const sortedLocalTasks = activeTasks.sort((a, b) => a.orderIndex - b.orderIndex);
       set({
-        tasks: activeTasks.sort((a, b) => a.orderIndex - b.orderIndex),
+        tasks: sortedLocalTasks,
         projects: allProjects.sort((a, b) => b.createdAt - a.createdAt),
+        activeTaskId: get().activeTaskId || reconcileLinkedTask(sortedLocalTasks, false),
         isLoading: false
       });
     } catch (err) {

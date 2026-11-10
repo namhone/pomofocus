@@ -1,6 +1,7 @@
 import { authService, UserProfile } from './authService';
 import { PRICING_PLANS } from '../config/pricing';
 import { computeHmacSha256 } from '../utils/crypto';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export type OrderStatus = 'pending' | 'under_review' | 'verified_paid' | 'failed' | 'expired';
 
@@ -129,7 +130,7 @@ export const momoService = {
   }> {
     const planKey = params.cycle === 'yearly' ? '1_year' : params.cycle === 'lifetime' ? 'lifetime' : '1_month';
     try {
-      const res = await fetch('/api/momo/create-payment', {
+      const res = await fetch(resolveApiUrl('/api/momo/create-payment'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -167,7 +168,7 @@ export const momoService = {
 
   async checkPaymentStatus(orderId: string, userId?: string): Promise<{ isPaid: boolean; isPro: boolean; proExpiresAt?: string | null }> {
     try {
-      const res = await fetch(`/api/momo/check-status?orderId=${encodeURIComponent(orderId)}&userId=${encodeURIComponent(userId || '')}`);
+      const res = await fetch(resolveApiUrl(`/api/momo/check-status?orderId=${encodeURIComponent(orderId)}&userId=${encodeURIComponent(userId || '')}`));
       if (res.ok) {
         return await res.json();
       }
@@ -190,7 +191,7 @@ export const momoService = {
     amount: number;
   }): Promise<boolean> {
     try {
-      await fetch('/api/momo/simulate-payment', {
+      await fetch(resolveApiUrl('/api/momo/simulate-payment'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params)
