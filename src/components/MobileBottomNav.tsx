@@ -399,7 +399,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-tasks"
-          aria-label="Danh sách nhiệm vụ"
+          aria-label="Danh sách công việc"
           aria-current={activeMobileTab === 'tasks' || activeMobileTab === 'notes' ? 'page' : undefined}
           aria-pressed={widgets.tasks?.isOpen ?? false}
           onClick={() => handleNavClick('tasks')}
@@ -427,7 +427,7 @@ export const MobileBottomNav: React.FC = () => {
               }`}
             />
           </div>
-          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Nhiệm vụ</span>
+          <span className="mt-1 text-[11px] font-medium tracking-tight whitespace-nowrap">Công việc</span>
         </button>
 
         {/* 3. Nút Không gian (20%) */}

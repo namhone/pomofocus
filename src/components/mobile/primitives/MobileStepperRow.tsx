@@ -3,6 +3,7 @@ import { Minus, Plus } from 'lucide-react';
 
 export interface MobileStepperRowProps {
   label: string;
+  subtitle?: string;
   value: number;
   min?: number;
   max?: number;
@@ -28,6 +29,7 @@ export interface MobileStepperRowProps {
  */
 export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
   label,
+  subtitle,
   value,
   min = 1,
   max = 120,
@@ -122,19 +124,24 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
         disabled ? 'opacity-50' : 'hover:border-white/10'
       }`}
     >
-      {/* Left side: Category Icon pill, label, current value with 120Hz rolling digit morph */}
-      <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
+      {/* Left side: Category Icon pill, label/subtitle, stacked value + unit with 120Hz rolling digit morph */}
+      <div className="flex items-center gap-2 min-w-0 flex-1 mr-1">
         {icon && (
-          <div className="w-8 h-8 rounded-xl bg-zinc-800/80 border border-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="w-7 h-7 rounded-xl bg-zinc-800/80 border border-white/10 flex items-center justify-center text-emerald-400 shrink-0">
             {icon}
           </div>
         )}
-        <div className="flex items-baseline gap-2 min-w-0 truncate">
-          <span className="text-sm font-medium text-zinc-200 truncate">{label}</span>
-          <span className="inline-flex items-center text-base font-bold font-mono text-white tabular-nums shrink-0 overflow-hidden h-6 leading-none">
+        <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <span className="text-[13px] font-medium text-zinc-200 truncate leading-tight">{label}</span>
+            {subtitle ? (
+              <span className="text-[10px] tracking-[-0.01em] text-zinc-400 truncate leading-tight mt-0.5">{subtitle}</span>
+            ) : null}
+          </div>
+          <span className="inline-flex flex-col items-center justify-center shrink-0 overflow-hidden min-w-[24px] leading-none">
             <span
               key={value}
-              className={`tabular-nums ${
+              className={`text-[15px] font-bold font-mono text-white tabular-nums leading-none ${
                 animDirection === 'up'
                   ? 'animate-rolling-up'
                   : animDirection === 'down'
@@ -144,14 +151,14 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
             >
               {value}
             </span>
-            {unit ? <span className="text-xs font-normal text-zinc-400 ml-1">{unit}</span> : null}
+            {unit ? <span className="text-[9.5px] font-normal text-zinc-400 leading-none mt-0.5">{unit}</span> : null}
           </span>
         </div>
       </div>
 
       {/* Right side: Flex-locked pill container with 48x48dp touch targets */}
       <div
-        className="bg-zinc-800/80 border border-white/10 rounded-2xl flex items-center p-1 gap-1 shrink-0 flex-nowrap"
+        className="bg-zinc-800/80 border border-white/10 rounded-2xl flex items-center p-0.5 gap-0.5 shrink-0 flex-nowrap"
       >
         {/* Decrement Button (−) */}
         <button

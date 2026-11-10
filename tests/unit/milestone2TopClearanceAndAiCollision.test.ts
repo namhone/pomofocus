@@ -81,7 +81,7 @@ describe('Milestone 2: Top Clearance (y=8px), Compact Home Nav, and AI Collision
         'utf-8'
       );
       expect(settingsCode).toContain('data-testid="settings-home-btn"');
-      expect(settingsCode).toContain('Về Trang Chủ PomoFocus');
+      expect(settingsCode).toContain('Về trang chủ PomoFocus');
     });
 
     it('resetLayout đưa isHeaderExpanded về false', () => {

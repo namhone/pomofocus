@@ -157,7 +157,7 @@ export const SettingsView: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <Settings size={24} className="text-white shrink-0" />
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Cài Đặt Hệ Thống & Trải Nghiệm
+              Cài đặt hệ thống & trải nghiệm
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400">
@@ -236,7 +236,7 @@ export const SettingsView: React.FC = () => {
 
           <div className="pt-2 flex items-center justify-between border-t border-zinc-800/80 text-xs">
             <div>
-              <div className="font-semibold text-white">Tự Động Chuyển Hiệp</div>
+              <div className="font-semibold text-white">Tự động chuyển hiệp mới</div>
               <div className="text-[11px] text-zinc-400">
                 Tự động bắt đầu đếm ngược khi hết giờ tập trung hoặc nghỉ ngơi
               </div>
@@ -372,7 +372,7 @@ export const SettingsView: React.FC = () => {
 
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
               <div>
-                <div className="font-semibold text-white">Đặt Lại Bố Cục Cửa Sổ</div>
+                <div className="font-semibold text-white">Khôi phục giao diện ban đầu</div>
                 <div className="text-[11px] text-zinc-400">
                   Trả lại vị trí và kích thước mặc định cho tất cả các widget
                 </div>

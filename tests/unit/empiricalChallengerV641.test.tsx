@@ -86,14 +86,14 @@ describe('Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-
         });
 
         // 3. Native Tooltips and WCAG aria-labels check
-        expect(resetBtn.getAttribute('title')).toBe('Đặt lại đồng hồ hiệp này');
-        expect(resetBtn.getAttribute('aria-label')).toBe('Đặt lại đồng hồ hiệp này');
+        expect(resetBtn.getAttribute('title')).toBe('Đặt lại hiệp này');
+        expect(resetBtn.getAttribute('aria-label')).toBe('Đặt lại hiệp này');
 
-        expect(cycleBtn.getAttribute('title')).toBe('Đặt lại chu kỳ về Hiệp 1/4');
-        expect(cycleBtn.getAttribute('aria-label')).toBe('Đặt lại chu kỳ về Hiệp 1/4');
+        expect(cycleBtn.getAttribute('title')).toBe('Bắt đầu lại chu kỳ (Hiệp 1/4)');
+        expect(cycleBtn.getAttribute('aria-label')).toBe('Bắt đầu lại chu kỳ (Hiệp 1/4)');
 
-        expect(skipBtn.getAttribute('title')).toBe('Bỏ qua hiệp hiện tại');
-        expect(skipBtn.getAttribute('aria-label')).toBe('Bỏ qua hiệp hiện tại');
+        expect(skipBtn.getAttribute('title')).toBe('Bỏ qua hiệp này');
+        expect(skipBtn.getAttribute('aria-label')).toBe('Bỏ qua hiệp này');
 
         // 4. Central Start button retains liquid glass and whitespace-nowrap
         expect(startBtn.className).toContain('liquid-glass-btn');
@@ -197,13 +197,13 @@ describe('Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-
       expect(btnCls).toContain('justify-center');
 
       // Check Tooltip and Accessibility
-      expect(clearBtn.getAttribute('title')).toBe('Dọn sạch các việc đã hoàn thành');
-      expect(clearBtn.getAttribute('aria-label')).toBe('Dọn sạch các việc đã hoàn thành');
+      expect(clearBtn.getAttribute('title')).toBe('Xóa các việc đã hoàn thành');
+      expect(clearBtn.getAttribute('aria-label')).toBe('Xóa các việc đã hoàn thành');
 
       // Accessible screen-reader text inside button
       const srSpan = clearBtn.querySelector('span.sr-only');
       expect(srSpan).not.toBeNull();
-      expect(srSpan?.textContent).toBe('Dọn việc đã xong');
+      expect(srSpan?.textContent).toBe('Xóa việc đã hoàn thành');
 
       // Parent container must be shrink-0 flex-nowrap
       expect(clearBtn.parentElement?.className).toContain('shrink-0');

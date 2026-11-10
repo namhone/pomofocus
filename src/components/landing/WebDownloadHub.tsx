@@ -11,7 +11,6 @@ import {
   Check,
   BatteryCharging,
   Layers,
-  ArrowRight,
   ExternalLink
 } from 'lucide-react';
 import { PlatformHeader } from '../PlatformHeader';
@@ -121,57 +120,57 @@ export const WebDownloadHub: React.FC = () => {
   const featureCards = [
     {
       title: 'Anchor Timestamp Engine',
-      subtitle: 'Đếm Giờ Bất Tử Không Trôi',
-      desc: 'Cơ chế tính toán dựa trên mốc thời gian thực tuyệt đối, miễn nhiễm 100% với việc hệ thống đóng băng tác vụ chạy nền.',
+      subtitle: 'Đếm giờ chính xác khi tắt màn hình',
+      desc: 'Tính toán dựa trên mốc thời gian thực tuyệt đối, không bị trôi giờ ngay cả khi hệ thống tạm dừng tác vụ chạy nền.',
       icon: Zap,
       gradient: 'from-emerald-500/20 to-teal-500/10',
       border: 'border-emerald-500/30',
-      badge: 'Bảo Vệ Nền',
+      badge: 'Chạy nền ổn định',
     },
     {
       title: 'Screen Wake Lock API',
-      subtitle: 'Giữ Sáng Màn Hình OLED',
-      desc: 'Duy trì màn hình tập trung luôn mở nhẹ nhàng khi làm việc sâu mà không gây hao tốn năng lượng pin.',
+      subtitle: 'Giữ sáng màn hình OLED',
+      desc: 'Duy trì màn hình tập trung luôn mở dịu nhẹ khi làm việc sâu mà không gây hao tốn năng lượng pin.',
       icon: BatteryCharging,
       gradient: 'from-amber-500/20 to-orange-500/10',
       border: 'border-amber-500/30',
-      badge: 'OLED Thân Thiện',
+      badge: 'Thân thiện OLED',
     },
     {
       title: 'Haptics & Spring Physics',
-      subtitle: 'Xúc Giác 120Hz Đỉnh Cao',
-      desc: 'Rung nhẹ 10ms mô phỏng cảm giác núm xoay vật lý khi chỉnh phút; chuyển động lò xo vi sinh mượt mà ở mọi góc cạnh.',
+      subtitle: 'Phản hồi rung 120Hz tinh tế',
+      desc: 'Rung nhẹ 10ms mô phỏng cảm giác núm xoay vật lý khi chỉnh phút; chuyển động lò xo mượt mà ở từng thao tác.',
       icon: Smartphone,
       gradient: 'from-sky-500/20 to-blue-500/10',
       border: 'border-sky-500/30',
-      badge: '120Hz Native',
+      badge: '120Hz tự nhiên',
     },
     {
       title: 'Zero-Scroll-Chaining',
-      subtitle: 'Khóa Chết Cuộn Kép 100dvh',
-      desc: 'Khung hiển thị cố định hoàn toàn không bị trôi nóc hay giật lag khi vuốt trên các thiết bị màn hình cảm ứng cao cấp.',
+      subtitle: 'Cố định khung hình 100dvh',
+      desc: 'Khung hiển thị cố định hoàn toàn không bị trôi nóc hay giật khung hình khi vuốt trên màn hình cảm ứng.',
       icon: Layers,
       gradient: 'from-purple-500/20 to-indigo-500/10',
       border: 'border-purple-500/30',
-      badge: 'Cố Định 100dvh',
+      badge: 'Cố định 100dvh',
     },
     {
       title: 'Offline First & Security',
-      subtitle: 'Độc Lập Tuyệt Đối & Riêng Tư',
-      desc: 'Ứng dụng chạy trực tiếp toàn bộ tính năng cốt lõi không cần kết nối mạng; dữ liệu mã hóa an toàn trên máy.',
+      subtitle: 'Hoạt động offline & riêng tư',
+      desc: 'Ứng dụng chạy trực tiếp toàn bộ tính năng cốt lõi không cần kết nối mạng; dữ liệu được lưu an toàn trên máy.',
       icon: ShieldCheck,
       gradient: 'from-rose-500/20 to-pink-500/10',
       border: 'border-rose-500/30',
-      badge: 'Bảo Mật Cao',
+      badge: 'Bảo mật cao',
     },
     {
       title: 'Rolling Digit Morphing',
-      subtitle: 'Biến Hình Chữ Số 120ms',
-      desc: 'Mặt đồng hồ và thanh chỉnh stepper trượt mượt mà theo trục tung với các chuyển động vi mô tinh xảo.',
+      subtitle: 'Chuyển số mượt mà 120ms',
+      desc: 'Mặt đồng hồ và thanh chỉnh stepper trượt mượt mà theo trục tung với các chuyển động vi mô tinh tế.',
       icon: Sparkles,
       gradient: 'from-teal-500/20 to-emerald-500/10',
       border: 'border-teal-500/30',
-      badge: 'Micro-Motion',
+      badge: 'Chuyển động vi mô',
     },
   ];
 
@@ -199,22 +198,19 @@ export const WebDownloadHub: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-fade-in">
             <PomoFocusLogo size={18} withContainer={false} />
-            <span>pomofocus • Hệ Sinh Thái Standalone Android APK</span>
+            <span>pomofocus · Ứng dụng Android APK độc lập</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-            Kính Thiền Nguyên Bản.{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              PomoFocus v7.4
+            Tập trung sâu.{' '}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent block sm:inline">
+              Trôi chảy từng khoảnh khắc.
             </span>
-            <br />
-            Mượt Mà 120Hz.
           </h1>
 
           <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Ứng dụng Pomodoro độc lập 100% cho điện thoại Android (Xiaomi, Samsung, Pixel).
-            Triệt tiêu phân tâm, đếm giờ bất tử chạy ngầm và trải nghiệm xúc giác tuyệt đỉnh.
+            Ứng dụng Pomodoro độc lập dành riêng cho Android. Đếm giờ chính xác ngay cả khi tắt màn hình, chuyển động mượt mà 120Hz và hoàn toàn không bị làm phiền.
           </p>
         </div>
 
@@ -229,7 +225,7 @@ export const WebDownloadHub: React.FC = () => {
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-tight text-white">pomofocus</span>
                     <span className="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">
-                      Bản Phát Hành Chính Thức
+                      Bản phát hành chính thức
                     </span>
                   </div>
                 </div>
@@ -240,10 +236,10 @@ export const WebDownloadHub: React.FC = () => {
 
               <div className="mb-7">
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                  Tải Ứng Dụng PomoFocus Android
+                  Tải ứng dụng PomoFocus Android
                 </h2>
                 <p className="text-sm text-zinc-300 leading-relaxed">
-                  Cài đặt trực tiếp file APK sạch, chuẩn nguyên bản. Đồng bộ hóa Realtime đám mây
+                  Cài đặt trực tiếp file APK sạch, nguyên bản. Đồng bộ dữ liệu tức thì qua đám mây
                   với tài khoản PomoFocus Web của bạn.
                 </p>
               </div>
@@ -257,11 +253,11 @@ export const WebDownloadHub: React.FC = () => {
                   className="w-full h-16 min-h-[56px] px-9 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_12px_32px_rgba(16,185,129,0.45)] animate-pulse hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(16,185,129,0.65)] active:scale-95 cursor-pointer"
                 >
                   <Download className="w-5 h-5 text-zinc-950 stroke-[2.5]" />
-                  <span>Tải Ngay APK Android (v7.4)</span>
+                  <span>Tải PomoFocus APK (v7.4)</span>
                 </a>
 
                 <div className="text-center text-[11px] text-zinc-400 font-medium">
-                  Dung lượng: ~8.0 MB • Android 9.0+ • Miễn phí 100%
+                  Dung lượng: ~8.0 MB · Android 9.0+ · Miễn phí hoàn toàn
                 </div>
 
                 {/* Intelligent Device Detection Hint */}
@@ -290,18 +286,18 @@ export const WebDownloadHub: React.FC = () => {
               <div className="grid grid-cols-3 gap-3 mt-7 pt-6 border-t border-white/5 text-center">
                 <div className="flex flex-col items-center">
                   <ShieldCheck className="w-5 h-5 text-emerald-400 mb-1" />
-                  <span className="text-xs font-semibold text-zinc-200">100% Sạch</span>
+                  <span className="text-xs font-semibold text-zinc-200">100% sạch</span>
                   <span className="text-[11px] text-zinc-400">Không quảng cáo</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Zap className="w-5 h-5 text-teal-400 mb-1" />
-                  <span className="text-xs font-semibold text-zinc-200">120Hz Native</span>
-                  <span className="text-[11px] text-zinc-400">Mượt mà tối đa</span>
+                  <span className="text-xs font-semibold text-zinc-200">Mượt mà 120Hz</span>
+                  <span className="text-[11px] text-zinc-400">Chuyển động tự nhiên</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <BatteryCharging className="w-5 h-5 text-sky-400 mb-1" />
-                  <span className="text-xs font-semibold text-zinc-200">Siêu Tiết Kiệm</span>
-                  <span className="text-[11px] text-zinc-400">Tối ưu pin OLED</span>
+                  <span className="text-xs font-semibold text-zinc-200">Tiết kiệm pin</span>
+                  <span className="text-[11px] text-zinc-400">Tối ưu màn hình OLED</span>
                 </div>
               </div>
             </div>
@@ -316,10 +312,10 @@ export const WebDownloadHub: React.FC = () => {
               <div className="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                 <div className="flex items-center gap-2 mb-1.5 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
                   <QrCode className="w-4 h-4" />
-                  <span>Quét Mã Tải Bằng Camera</span>
+                  <span>Quét mã tải bằng camera</span>
                 </div>
                 <p className="text-xs text-zinc-300 mb-4 leading-relaxed">
-                  Mở camera trên điện thoại Android và hướng vào mã QR chuẩn ISO để trình duyệt tự động tải{' '}
+                  Mở camera trên điện thoại Android và hướng vào mã QR để trình duyệt tự động tải{' '}
                   <span className="font-mono text-emerald-300">PomoFocus-v7.4.apk</span>.
                 </p>
 
@@ -332,7 +328,7 @@ export const WebDownloadHub: React.FC = () => {
                   {copied ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-400 font-semibold">Đã sao chép link APK!</span>
+                      <span className="text-emerald-400 font-semibold">Đã sao chép liên kết APK!</span>
                     </>
                   ) : (
                     <>
@@ -352,16 +348,15 @@ export const WebDownloadHub: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xs font-medium text-zinc-400">Muốn dùng ngay trên trình duyệt?</div>
-                  <div className="text-sm font-semibold text-white">Mở Không Gian Làm Việc Web</div>
+                  <div className="text-sm font-semibold text-white">Trải nghiệm không gian làm việc Web</div>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => router.navigate('/app')}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition active:scale-95 cursor-pointer shrink-0"
               >
-                <span>Vào Ngay</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Mở bản web →</span>
               </button>
             </div>
           </div>
@@ -460,11 +455,11 @@ export const WebDownloadHub: React.FC = () => {
                   {/* Mockup Action Button & 5-Tab Bottom Bar */}
                   <div className="space-y-3 z-10 pb-1">
                     <div className="w-full h-11 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-zinc-950 font-bold text-xs flex items-center justify-center shadow-[0_8px_20px_rgba(16,185,129,0.35)]">
-                      Bắt đầu phiên học
+                      Bắt đầu
                     </div>
                     <div className="flex justify-around items-center pt-2 border-t border-white/5 text-[9px] text-zinc-400">
                       <span className="text-emerald-400 font-bold">● Tập trung</span>
-                      <span>Nhiệm vụ</span>
+                      <span>Công việc</span>
                       <span>Không gian</span>
                       <span>Trợ lý AI</span>
                       <span>Cài đặt</span>
@@ -485,10 +480,10 @@ export const WebDownloadHub: React.FC = () => {
         <div className="mt-16 sm:mt-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
             <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400 mb-3">
-              Trái Tim Hiệu Năng V7.4
+              Công nghệ cốt lõi v7.4
             </h3>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-              Được Tối Ưu Từng Vi Giây Cho Điện Thoại Của Bạn
+              Tối ưu từng khoảnh khắc trên điện thoại của bạn
             </h2>
           </div>
 

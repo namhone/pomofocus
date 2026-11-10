@@ -76,14 +76,14 @@ describe('Challenger 2 — Empirical Contract Invariant & Adversarial Oracle', (
   });
 
   describe('Contract Invariant: settings-home-btn', () => {
-    it('empirically verifies settings-home-btn exists, has title "Về Trang Chủ PomoFocus" and navigates to "/"', () => {
+    it('empirically verifies settings-home-btn exists, has title "Về trang chủ PomoFocus" and navigates to "/"', () => {
       render(<SettingsWidget />);
 
       const homeBtn = screen.getByTestId('settings-home-btn');
       expect(homeBtn).toBeDefined();
-      expect(homeBtn.getAttribute('title')).toBe('Về Trang Chủ PomoFocus');
-      expect(homeBtn.getAttribute('aria-label')).toBe('Về Trang Chủ PomoFocus');
-      expect(homeBtn.textContent).toContain('Về Trang Chủ PomoFocus');
+      expect(homeBtn.getAttribute('title')).toBe('Về trang chủ PomoFocus');
+      expect(homeBtn.getAttribute('aria-label')).toBe('Về trang chủ PomoFocus');
+      expect(homeBtn.textContent).toContain('Về trang chủ PomoFocus');
 
       // Click triggers router navigation
       fireEvent.click(homeBtn);
@@ -154,7 +154,7 @@ describe('Challenger 2 — Empirical Contract Invariant & Adversarial Oracle', (
   });
 
   describe('Contract Invariant: settings-checkbox-auto-transition', () => {
-    it('empirically verifies settings-checkbox-auto-transition exists, has shortened label "Tự động chuyển hiệp" and toggles store', () => {
+    it('empirically verifies settings-checkbox-auto-transition exists, has concise label "Tự động chuyển hiệp mới" and toggles store', () => {
       render(<SettingsWidget />);
 
       const checkbox = screen.getByTestId('settings-checkbox-auto-transition') as HTMLInputElement;
@@ -162,7 +162,7 @@ describe('Challenger 2 — Empirical Contract Invariant & Adversarial Oracle', (
       expect(checkbox.checked).toBe(false);
 
       // Label check
-      expect(screen.getByText('Tự động chuyển hiệp')).toBeDefined();
+      expect(screen.getByText('Tự động chuyển hiệp mới')).toBeDefined();
       expect(screen.queryByText('Tự động chuyển tiếp giữa các hiệp')).toBeNull();
 
       // Click checkbox toggles state

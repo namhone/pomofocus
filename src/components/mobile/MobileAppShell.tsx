@@ -397,7 +397,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         />
         <NavTabButton
           id="tasks"
-          label="Nhiệm vụ"
+          label="Công việc"
           icon={CheckSquare}
           isActive={activeTab === 'tasks'}
           onClick={() => handleSelectTab('tasks')}
@@ -513,7 +513,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <CheckSquare className="w-5 h-5 text-emerald-400" />
-          <span>Danh Sách Nhiệm Vụ</span>
+          <span>Danh sách công việc</span>
         </h2>
         <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
           {tasks.filter((t) => t.status === 'completed').length}/{tasks.length}
@@ -526,14 +526,14 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
           type="text"
           value={inputTitle}
           onChange={(e) => setInputTitle(e.target.value)}
-          placeholder="Thêm nhiệm vụ mới..."
+          placeholder="Thêm công việc mới cần làm..."
           className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-white/10 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-400 transition"
         />
         <button
           type="submit"
           disabled={!inputTitle.trim()}
           className="w-10 h-10 rounded-xl bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center hover:bg-emerald-400 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
-          aria-label="Thêm nhiệm vụ"
+          aria-label="Thêm công việc"
         >
           <Plus className="w-5 h-5" />
         </button>
@@ -664,7 +664,7 @@ const MobileSpacesSubView: React.FC = () => {
       <div>
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <Palette className="w-5 h-5 text-emerald-400" />
-          <span>Không Gian Làm Việc</span>
+          <span>Không gian làm việc</span>
         </h2>
         <p className="text-xs text-zinc-400 mt-0.5">Chọn phông nền và hiệu ứng tĩnh tâm</p>
       </div>
@@ -713,7 +713,7 @@ const MobileSpacesSubView: React.FC = () => {
       <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-3">
         <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>Hiệu Ứng Môi Trường (Ambient)</span>
+          <span>Hiệu ứng môi trường</span>
         </h3>
         <div className="grid grid-cols-3 gap-2">
           {[
@@ -784,7 +784,7 @@ const MobileAiSubView: React.FC = () => {
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/50">
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-emerald-400" />
-          <span className="font-bold text-white text-sm">Trợ Lý Học Tập AI</span>
+          <span className="font-bold text-white text-sm">Trợ lý học tập AI</span>
         </div>
         <button
           type="button"

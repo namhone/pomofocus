@@ -130,17 +130,17 @@ export const SettingsWidget: React.FC = () => {
             onClick={() => router.navigate('/login')}
             className="px-4 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-medium active:scale-95 transition-all cursor-pointer"
           >
-            Đăng Nhập
+            Đăng nhập
           </button>
         </div>
       )}
 
-      {/* Khối ưu tiên 1: Thời lượng Pomodoro & Hiệp (Đưa lên đầu bảng Cài Đặt theo UX Final Polish) */}
+      {/* Khối ưu tiên 1: Thời lượng Pomodoro & số hiệp */}
       <div className="space-y-2.5 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-200">
             <Clock size={13} className="text-rose-400" />
-            <span>Thời lượng Pomodoro & Hiệp</span>
+            <span>Thời lượng Pomodoro & số hiệp</span>
           </div>
           {saveFeedback ? (
             <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 animate-fade-in">
@@ -314,7 +314,7 @@ export const SettingsWidget: React.FC = () => {
               </div>
             </div>
             <span className="text-xs font-medium text-zinc-300 group-hover:text-white transition-colors select-none cursor-pointer">
-              Tự động chuyển hiệp
+              Tự động chuyển hiệp mới
             </span>
           </label>
         </div>
@@ -337,7 +337,7 @@ export const SettingsWidget: React.FC = () => {
         >
           <span className="flex items-center gap-2 text-xs font-medium">
             <Move size={14} className={isLayoutEditMode ? 'text-emerald-400' : 'text-neutral-400'} />
-            Chế độ Chỉnh sửa bố cục
+            Chế độ chỉnh sửa bố cục
           </span>
           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
             isLayoutEditMode ? 'bg-emerald-400/25 text-emerald-200' : 'bg-white/10 text-neutral-400'
@@ -589,9 +589,9 @@ export const SettingsWidget: React.FC = () => {
       </div>
 
       {/* Persistence Micro-copy */}
-      <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 py-0.5">
+      <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 py-0.5 text-center">
         <Lock className="w-3 h-3 text-emerald-400/70 shrink-0" />
-        <span>Tự động lưu ngoại tuyến 100% trên thiết bị</span>
+        <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
       </div>
 
       {/* Section 6: Reset Layout */}
@@ -603,7 +603,7 @@ export const SettingsWidget: React.FC = () => {
           className="h-9 px-4 rounded-xl border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 active:scale-95 text-red-300 text-xs font-medium transition-all w-full flex items-center justify-center gap-2 cursor-pointer"
         >
           <RotateCcw size={14} />
-          <span>Khôi phục toàn bộ bố cục mặc định</span>
+          <span>Khôi phục giao diện ban đầu</span>
         </button>
       </div>
 
@@ -614,11 +614,11 @@ export const SettingsWidget: React.FC = () => {
           data-testid="settings-home-btn"
           onClick={() => router.navigate('/')}
           className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer py-1"
-          title="Về Trang Chủ PomoFocus"
-          aria-label="Về Trang Chủ PomoFocus"
+          title="Về trang chủ PomoFocus"
+          aria-label="Về trang chủ PomoFocus"
         >
           <Home className="w-3.5 h-3.5 text-teal-400" />
-          <span>Về Trang Chủ PomoFocus</span>
+          <span>Về trang chủ PomoFocus</span>
         </button>
       </div>
 

@@ -637,7 +637,7 @@ describe('Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite', () =
       it.skipIf(!isM2WebHubReady)('6.1 renders high-conversion showcase layout with Zen Glassmorphism', () => {
         if (!WebDownloadHub) return;
         render(<WebDownloadHub />);
-        expect(screen.getByText(/PomoFocus v7.4/i)).toBeDefined();
+        expect(screen.getByText(/Tập trung sâu/i)).toBeDefined();
       });
 
       it.skipIf(!isM2WebHubReady)('6.2 displays phone mockup preview highlighting 120Hz native experience', () => {
@@ -791,9 +791,9 @@ describe('Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite', () =
         expect(glowClass).toContain('rgba(16,185,129');
       });
 
-      it('9.3 button text clearly indicates version v7.4 and platform Android', () => {
-        const buttonLabel = 'Tải Ngay APK Android (v7.4)';
-        expect(buttonLabel).toContain('APK Android');
+      it('9.3 button text clearly indicates version v7.4 and PomoFocus APK', () => {
+        const buttonLabel = 'Tải PomoFocus APK (v7.4)';
+        expect(buttonLabel).toContain('PomoFocus APK');
         expect(buttonLabel).toContain('v7.4');
       });
 

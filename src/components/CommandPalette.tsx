@@ -189,28 +189,28 @@ export const CommandPalette: React.FC = () => {
     {
       id: 'timer_toggle',
       title: status === 'running' ? 'Tạm dừng đồng hồ Pomodoro' : 'Bắt đầu đồng hồ Pomodoro',
-      category: 'Đồng Hồ',
+      category: 'Đồng hồ',
       icon: <Clock size={15} className="text-rose-400" />,
       action: () => (status === 'running' ? pause() : start())
     },
     {
       id: 'timer_reset',
-      title: 'Đặt lại đồng hồ',
-      category: 'Đồng Hồ',
+      title: 'Đặt lại hiệp này',
+      category: 'Đồng hồ',
       icon: <RotateCcw size={15} className="text-amber-400" />,
       action: () => reset()
     },
     {
       id: 'timer_skip',
-      title: 'Bỏ qua hiệp hiện tại',
-      category: 'Đồng Hồ',
+      title: 'Bỏ qua hiệp này',
+      category: 'Đồng hồ',
       icon: <Clock size={15} className="text-indigo-400" />,
       action: () => skip()
     },
     {
       id: 'timer_mini_pill',
       title: 'Chuyển đổi Mini Timer Pill (Thu nhỏ / Mở rộng)',
-      category: 'Đồng Hồ',
+      category: 'Đồng hồ',
       icon: <Minimize2 size={15} className="text-emerald-400" />,
       action: () => toggleMiniPill('timer')
     },
@@ -219,42 +219,42 @@ export const CommandPalette: React.FC = () => {
     {
       id: 'toggle_timer',
       title: `${widgets.timer?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Đồng Hồ`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <Clock size={15} className="text-rose-400" />,
       action: () => toggleWidget('timer')
     },
     {
       id: 'toggle_tasks',
       title: `${widgets.tasks?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Công Việc`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <CheckSquare size={15} className="text-emerald-400" />,
       action: () => toggleWidget('tasks')
     },
     {
       id: 'toggle_notes',
       title: `${widgets.notes?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Ghi Chú`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <FileText size={15} className="text-amber-400" />,
       action: () => toggleWidget('notes')
     },
     {
       id: 'toggle_calendar',
       title: `${widgets.calendar?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Lịch Biểu Time-blocking`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <Calendar size={15} className="text-indigo-400" />,
       action: () => toggleWidget('calendar')
     },
     {
       id: 'toggle_spaces',
       title: `${widgets.spaces?.isOpen ? 'Ẩn' : 'Hiện'} Thư Viện Không Gian`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <Palette size={15} className="text-cyan-400" />,
       action: () => toggleWidget('spaces')
     },
     {
       id: 'toggle_sounds',
       title: `${widgets.sounds?.isOpen ? 'Ẩn' : 'Hiện'} Âm Thanh Nền & Tiếng Mưa`,
-      category: 'Cửa Sổ',
+      category: 'Cửa sổ',
       icon: <Volume2 size={15} className="text-purple-400" />,
       action: () => toggleWidget('sounds')
     },
@@ -263,28 +263,28 @@ export const CommandPalette: React.FC = () => {
     {
       id: 'zen_mode',
       title: 'Bật / Thoát Chế Độ Tập Trung Toàn Màn Hình',
-      category: 'Chế Độ',
+      category: 'Chế độ',
       icon: <Maximize2 size={15} className="text-emerald-400" />,
       action: () => toggleZenMode()
     },
     {
       id: 'preset_deep_focus',
       title: 'Bố cục: Tập trung sâu (Chỉ hiển thị Timer trung tâm)',
-      category: 'Bố Cục',
+      category: 'Bố cục',
       icon: <Layout size={15} className="text-rose-400" />,
       action: () => setLayoutPreset('deep_focus')
     },
     {
       id: 'preset_planning',
       title: 'Bố cục: Planning (3 cột Công việc & Lịch)',
-      category: 'Bố Cục',
+      category: 'Bố cục',
       icon: <Layout size={15} className="text-indigo-400" />,
       action: () => setLayoutPreset('planning')
     },
     {
       id: 'preset_default',
       title: 'Bố cục mặc định & Đặt lại vị trí các cửa sổ',
-      category: 'Bố Cục',
+      category: 'Bố cục',
       icon: <RotateCcw size={15} className="text-amber-400" />,
       action: () => resetLayout()
     },
@@ -293,7 +293,7 @@ export const CommandPalette: React.FC = () => {
     ...(['matcha', 'terracotta', 'latte', 'nordic'] as ThemeAccent[]).map((color) => ({
       id: `theme_${color}`,
       title: `Đổi màu chủ đạo: ${color.toUpperCase()}`,
-      category: 'Giao Diện',
+      category: 'Giao diện',
       icon: <Sparkles size={15} className="text-amber-400" />,
       action: () => setThemeAccent(color)
     })),

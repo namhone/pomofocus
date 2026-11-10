@@ -417,7 +417,7 @@ export const DashboardView: React.FC = () => {
                   <tr className="border-b border-zinc-800 text-zinc-400 text-[11px]">
                     <th className="pb-2.5 font-medium">Thời Gian</th>
                     <th className="pb-2.5 font-medium">Loại</th>
-                    <th className="pb-2.5 font-medium">Thời Lượng</th>
+                    <th className="pb-2.5 font-medium">Thời lượng</th>
                     <th className="pb-2.5 font-medium">Nhiệm Vụ Liên Kết</th>
                   </tr>
                 </thead>

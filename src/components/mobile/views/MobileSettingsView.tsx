@@ -6,7 +6,8 @@ import {
   Volume2,
   RotateCcw,
   Bell,
-  VolumeX
+  VolumeX,
+  Lock
 } from 'lucide-react';
 import { MobileStepperRow } from '../primitives/MobileStepperRow';
 import { MobileLiquidSwitch } from '../primitives/MobileLiquidSwitch';
@@ -229,13 +230,14 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       {/* 2. TIMER CYCLE STEPRERS (3 INDEPENDENT ROWS) */}
       <div className="space-y-2">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
-          Thời gian chu trình
+          Thời lượng Pomodoro & số hiệp
         </div>
 
         {/* Focus Stepper (1-120 min) */}
         <MobileStepperRow
           testId="mobile-settings-stepper-focus"
-          label="Thời gian Tập trung"
+          label="Thời gian tập trung"
+          subtitle="Số phút cho mỗi phiên học sâu"
           value={timerSettings.pomodoroMinutes || 25}
           min={1}
           max={120}
@@ -249,6 +251,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         <MobileStepperRow
           testId="mobile-settings-stepper-short"
           label="Nghỉ ngắn"
+          subtitle="Thư giãn nhẹ giữa các hiệp"
           value={timerSettings.shortBreakMinutes || 5}
           min={1}
           max={60}
@@ -262,6 +265,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         <MobileStepperRow
           testId="mobile-settings-stepper-long"
           label="Nghỉ dài"
+          subtitle="Hồi phục năng lượng sau 4 hiệp"
           value={timerSettings.longBreakMinutes || 15}
           min={1}
           max={60}
@@ -281,15 +285,15 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         <div className="flex items-center justify-between p-4 bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-white/5 shadow-md">
           <div className="flex-1 mr-3">
             <div className="text-sm font-medium text-zinc-200">
-              Tự động chuyển hiệp
+              Tự động chuyển hiệp mới
             </div>
             <div className="text-xs text-zinc-400 mt-0.5">
-              Tự động bắt đầu giờ nghỉ hoặc hiệp tập trung mới khi hết giờ
+              Tự động chạy hiệp tiếp theo khi hết giờ
             </div>
           </div>
           <MobileLiquidSwitch
             testId="mobile-settings-switch-auto-transition"
-            ariaLabel="Bật hoặc tắt tự động chuyển hiệp"
+            ariaLabel="Bật hoặc tắt tự động chuyển hiệp mới"
             checked={Boolean(timerSettings.autoTransition)}
             onChange={handleToggleAutoTransition}
           />
@@ -299,7 +303,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       {/* 4. SOUND & VOLUME CONTROLS */}
       <div className="space-y-2">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
-          Âm thanh & Chuông báo
+          Âm thanh & chuông báo
         </div>
 
         <div className="p-4 bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-white/5 space-y-4 shadow-md">
@@ -375,7 +379,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       {/* 5. ECO MODE & SYSTEM PREFERENCES */}
       <div className="space-y-2">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
-          Hiệu năng & Hệ thống
+          Hiệu năng & hệ thống
         </div>
 
         {/* Eco Mode Toggle */}
@@ -385,7 +389,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
               <span>🍃 Chế độ Eco</span>
             </div>
             <div className="text-xs text-zinc-400 mt-0.5">
-              Giảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên thiết bị di động
+              Giảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên điện thoại
             </div>
           </div>
           <MobileLiquidSwitch
@@ -396,22 +400,28 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           />
         </div>
 
+        {/* Offline persistence micro-copy */}
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400 pt-1 pb-0.5 text-center">
+          <Lock className="w-3 h-3 text-emerald-400/80 shrink-0" aria-hidden="true" />
+          <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
+        </div>
+
         {/* Reset Layout to Default */}
         <button
           type="button"
           data-testid="mobile-settings-reset-layout-btn"
           onClick={() => resetLayout()}
-          className="w-full h-12 rounded-2xl bg-zinc-900/60 border border-white/5 text-zinc-300 hover:text-white hover:bg-zinc-800/60 active:scale-[0.99] flex items-center justify-center gap-2 text-sm font-medium transition-all touch-manipulation cursor-pointer shadow-md"
+          className="w-full h-12 rounded-2xl bg-red-500/10 border border-red-500/25 text-red-300 hover:text-red-200 hover:bg-red-500/20 active:scale-[0.99] flex items-center justify-center gap-2 text-sm font-medium transition-all touch-manipulation cursor-pointer shadow-md"
         >
-          <RotateCcw className="w-4 h-4 text-zinc-400" aria-hidden="true" />
-          <span>Khôi phục mặc định</span>
+          <RotateCcw className="w-4 h-4 text-red-400" aria-hidden="true" />
+          <span>Khôi phục giao diện ban đầu</span>
         </button>
       </div>
 
       {/* 6. SYSTEM FOOTER */}
       <div className="text-center pt-2 pb-6 text-xs text-zinc-400 space-y-0.5">
-        <div className="font-medium text-zinc-400">PomoFocus v7.0 Liquid Zen</div>
-        <div className="text-[11px] text-zinc-400">Native Android Architecture</div>
+        <div className="font-medium text-zinc-400">PomoFocus v7.4 Liquid Zen</div>
+        <div className="text-[11px] text-zinc-400">Trải nghiệm tối giản cho Android</div>
       </div>
     </div>
   );

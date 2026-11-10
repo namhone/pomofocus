@@ -173,9 +173,9 @@ describe('Tier 5: Adversarial Coverage Hardening — Pomofocus v6.0 Ultimate', (
       expect(fs.readFileSync(audioPath, 'utf-8')).not.toContain('Muốn xem video YouTube');
     });
 
-    it('TasksWidget placeholder phản hồi chính xác hướng dẫn phím tắt Enter', () => {
+    it('TasksWidget placeholder dùng câu chữ tự nhiên chuẩn Việt hóa', () => {
       const tasksPath = path.resolve(__dirname, '../../src/components/TasksWidget.tsx');
-      expect(fs.readFileSync(tasksPath, 'utf-8')).toContain('placeholder="Thêm nhiệm vụ mới... (Enter)"');
+      expect(fs.readFileSync(tasksPath, 'utf-8')).toContain('placeholder="Thêm công việc mới cần làm..."');
     });
   });
 });

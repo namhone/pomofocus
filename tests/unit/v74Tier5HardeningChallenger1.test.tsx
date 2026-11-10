@@ -552,7 +552,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
       );
 
       expect(screen.getByTestId('download-hub-container')).toBeDefined();
-      expect(screen.getByText(/PomoFocus v7.4/i)).toBeDefined();
+      expect(screen.getByText(/Tập trung sâu\./i)).toBeDefined();
 
       // State Singularity: max 1 header banner in document
       const headers = screen.queryAllByRole('banner');
@@ -603,7 +603,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(PUBLIC_APK_URL);
-      expect(screen.getByText('Đã sao chép link APK!')).toBeDefined();
+      expect(screen.getByText('Đã sao chép liên kết APK!')).toBeDefined();
     });
 
     it('5.5 renders all 6 core feature showcase cards', () => {

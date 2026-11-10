@@ -113,7 +113,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       render(<WebDownloadHub />);
 
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
-      expect(downloadBtn.textContent).toContain('Tải Ngay APK Android (v7.4)');
+      expect(downloadBtn.textContent).toContain('Tải PomoFocus APK (v7.4)');
     });
 
     it('1.5 rapid sequential clicks on download button maintain href and download integrity', () => {
@@ -160,7 +160,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
 
       // Bottom nav mockup
       expect(mockup.textContent).toContain('Tập trung');
-      expect(mockup.textContent).toContain('Nhiệm vụ');
+      expect(mockup.textContent).toContain('Công việc');
       expect(mockup.textContent).toContain('Cài đặt');
     });
 
@@ -210,7 +210,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(PUBLIC_APK_URL);
-      expect(copyBtn.textContent).toContain('Đã sao chép link APK!');
+      expect(copyBtn.textContent).toContain('Đã sao chép liên kết APK!');
 
       // Fast forward 2000ms
       act(() => {
@@ -483,12 +483,12 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       render(<WebDownloadHub />);
 
       const expectedBadges = [
-        'Bảo Vệ Nền',
-        'OLED Thân Thiện',
-        '120Hz Native',
-        'Cố Định 100dvh',
-        'Bảo Mật Cao',
-        'Micro-Motion',
+        'Chạy nền ổn định',
+        'Thân thiện OLED',
+        '120Hz tự nhiên',
+        'Cố định 100dvh',
+        'Bảo mật cao',
+        'Chuyển động vi mô',
       ];
 
       expectedBadges.forEach((badge) => {
@@ -506,7 +506,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
     it('4.4 quick web access button navigates towards /app', () => {
       render(<WebDownloadHub />);
 
-      const quickAccessBtn = screen.getByText('Vào Ngay');
+      const quickAccessBtn = screen.getByText('Mở bản web →');
       expect(quickAccessBtn).toBeDefined();
 
       fireEvent.click(quickAccessBtn);

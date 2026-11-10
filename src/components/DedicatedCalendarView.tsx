@@ -31,7 +31,7 @@ export const DedicatedCalendarView: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedHour, setSelectedHour] = useState<number>(9);
   const [selectedDateStr, setSelectedDateStr] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    getVietnamTodayDateKey()
   );
   const [newTitle, setNewTitle] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string>('');
@@ -155,7 +155,7 @@ export const DedicatedCalendarView: React.FC = () => {
   };
 
   const weekDays = getWeekDays(currentDate);
-  const hours = Array.from({ length: 16 }, (_, i) => i + 7); // 7:00 to 22:00
+  const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6:00 to 23:00
 
   return (
     <div className="min-h-screen w-full bg-[#0b0e14] text-neutral-100 flex flex-col select-none">
@@ -230,7 +230,7 @@ export const DedicatedCalendarView: React.FC = () => {
               data-testid="btn-add-schedule"
               onClick={() => {
                 setSelectedDateStr(formatDateYMD(new Date()));
-                setSelectedHour(new Date().getHours());
+                setSelectedHour(Math.min(23, Math.max(6, new Date().getHours())));
                 setIsAddModalOpen(true);
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs transition shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"

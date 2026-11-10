@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Play,
   Pause,
@@ -43,6 +43,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   const pause = useTimerStore((s) => s.pause);
   const resume = useTimerStore((s) => s.resume);
   const reset = useTimerStore((s) => s.reset);
+  const resetCycle = useTimerStore((s) => s.resetCycle);
   const skip = useTimerStore((s) => s.skip);
   const setPhase = useTimerStore((s) => s.setPhase);
 
@@ -50,6 +51,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   const linkTaskToTimer = useTaskStore((s) => s.linkTaskToTimer);
 
   const [isTaskPickerOpen, setIsTaskPickerOpen] = useState(false);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextClickRef = useRef(false);
 
   // Format MM:SS for monumental numerals
   const timeDisplay = useMemo(() => {
@@ -103,9 +106,34 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   };
 
   const handleReset = () => {
+    if (skipNextClickRef.current) {
+      skipNextClickRef.current = false;
+      return;
+    }
     reset();
     if (useTimerStore.getState().status !== 'idle') {
       useTimerStore.setState({ status: 'idle' });
+    }
+  };
+
+  const handleResetPointerDown = () => {
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    skipNextClickRef.current = false;
+    holdTimerRef.current = setTimeout(() => {
+      skipNextClickRef.current = true;
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate([12, 30, 12]);
+        } catch {}
+      }
+      resetCycle();
+    }, 1500);
+  };
+
+  const cancelResetHold = () => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
     }
   };
 
@@ -214,12 +242,12 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                 setIsTaskPickerOpen((prev) => !prev);
               }
             }}
-            aria-label="Chọn nhiệm vụ liên kết với đồng hồ"
+            aria-label="Chọn công việc liên kết với đồng hồ"
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/70 backdrop-blur-md border border-white/10 text-xs text-zinc-300 hover:border-emerald-500/30 hover:text-white transition-all cursor-pointer max-w-[280px] shadow-sm touch-manipulation"
           >
             <Target className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
             <span className="truncate">
-              {linkedTaskTitle || 'Chưa chọn nhiệm vụ'}
+              {linkedTaskTitle || 'Chưa chọn công việc'}
             </span>
           </button>
 
@@ -230,7 +258,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-72 max-h-56 overflow-y-auto bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 space-y-1"
             >
               <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                <span>Chọn nhiệm vụ</span>
+                <span>Chọn công việc</span>
                 <button
                   type="button"
                   onClick={() => setIsTaskPickerOpen(false)}
@@ -247,14 +275,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                   onClick={() => handleSelectTask(null)}
                   className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 flex items-center justify-between transition-colors"
                 >
-                  <span>Hủy liên kết nhiệm vụ</span>
+                  <span>Hủy liên kết công việc</span>
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
 
               {activeTodoTasks.length === 0 ? (
                 <div className="px-3 py-3 text-center text-xs text-zinc-400">
-                  Chưa có nhiệm vụ đang chờ. Hãy thêm nhiệm vụ trong tab Nhiệm vụ!
+                  Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
                 </div>
               ) : (
                 activeTodoTasks.map((t) => (
@@ -361,7 +389,12 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           type="button"
           data-testid="mobile-timer-reset"
           onClick={handleReset}
-          aria-label="Đặt lại chu trình"
+          onPointerDown={handleResetPointerDown}
+          onPointerUp={cancelResetHold}
+          onPointerLeave={cancelResetHold}
+          onPointerCancel={cancelResetHold}
+          title="Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)"
+          aria-label="Đặt lại hiệp này"
           className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
         >
           <RotateCcw className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
@@ -387,7 +420,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           type="button"
           data-testid="mobile-timer-skip"
           onClick={handleSkip}
-          aria-label="Bỏ qua hiệp"
+          title="Bỏ qua hiệp này"
+          aria-label="Bỏ qua hiệp này"
           className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
         >
           <SkipForward className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />

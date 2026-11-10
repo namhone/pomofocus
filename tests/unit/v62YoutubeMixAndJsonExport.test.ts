@@ -106,7 +106,7 @@ describe('PomoFocus v6.2 Ultimate: YouTube Remote Mix, Zero-Error JSON Export, S
       const settingsPath = path.resolve('src/components/SettingsWidget.tsx');
       const code = fs.readFileSync(settingsPath, 'utf8');
 
-      const pomoIndex = code.indexOf('Thời lượng Pomodoro & Hiệp');
+      const pomoIndex = code.indexOf('Thời lượng Pomodoro & số hiệp');
       const homeBtnIndex = code.indexOf('data-testid="settings-home-btn"');
 
       expect(pomoIndex).toBeGreaterThan(-1);

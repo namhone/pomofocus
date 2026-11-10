@@ -121,7 +121,7 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
                 </span>
               </div>
               <h4 className="text-sm font-semibold text-zinc-100">
-                Bản nâng cấp mới đã sẵn sàng
+                Đã có phiên bản mới
               </h4>
             </div>
           </div>
@@ -158,7 +158,7 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
             className="flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-zinc-950 font-semibold text-xs transition duration-200 shadow-[0_0_16px_rgba(16,185,129,0.35)] active:scale-95"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>Tải Bản Cập Nhật</span>
+            <span>Tải bản cập nhật</span>
             <ArrowUpRight className="h-3.5 w-3.5 opacity-70" />
           </a>
           <button

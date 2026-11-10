@@ -101,24 +101,24 @@ describe('Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish'
       expect(code).toContain('data-testid="settings-login-btn"');
     });
 
-    it('shortens checkbox label to "Tự động chuyển hiệp" while preserving emerald-teal glass glow', () => {
-      expect(code).toContain('Tự động chuyển hiệp');
+    it('shortens checkbox label to "Tự động chuyển hiệp mới" while preserving emerald-teal glass glow', () => {
+      expect(code).toContain('Tự động chuyển hiệp mới');
       expect(code).not.toContain('Tự động chuyển tiếp giữa các hiệp');
       expect(code).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
       expect(code).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
     });
 
     it('replaces bulky 3-line storage card with thin micro-copy', () => {
-      expect(code).toContain('Tự động lưu ngoại tuyến 100% trên thiết bị');
+      expect(code).toContain('Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)');
       expect(code).not.toContain('Tự động lưu toàn bộ cài đặt (thời gian, giao diện, nhạc & bố cục) vào Local Storage & IndexedDB. Hoạt động ngoại tuyến 100%.');
     });
 
     it('replaces bulky Home card with subtle centered bottom link', () => {
       expect(code).toContain('data-testid="settings-home-btn"');
-      expect(code).toContain('title="Về Trang Chủ PomoFocus"');
-      expect(code).toContain('<span>Về Trang Chủ PomoFocus</span>');
+      expect(code).toContain('title="Về trang chủ PomoFocus"');
+      expect(code).toContain('<span>Về trang chủ PomoFocus</span>');
       // Ensure it appears after Pomodoro section
-      const pomoIdx = code.indexOf('Thời lượng Pomodoro & Hiệp');
+      const pomoIdx = code.indexOf('Thời lượng Pomodoro & số hiệp');
       const homeIdx = code.indexOf('data-testid="settings-home-btn"');
       expect(pomoIdx).toBeGreaterThan(-1);
       expect(homeIdx).toBeGreaterThan(pomoIdx);

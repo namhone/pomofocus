@@ -267,7 +267,7 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
       const { rerender } = render(<MobileFocusView />);
 
       const chip = screen.getByTestId('mobile-linked-task-chip');
-      expect(chip.textContent).toContain('Chưa chọn nhiệm vụ');
+      expect(chip.textContent).toContain('Chưa chọn công việc');
 
       // Link a task
       act(() => {

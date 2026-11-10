@@ -344,8 +344,8 @@ export const PlatformHeader: React.FC = () => {
             data-testid="capsule-home-btn"
             onClick={() => handleNavigate('/')}
             className="p-1 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white transition cursor-pointer shrink-0 active:scale-95"
-            title="Về Trang Chủ (Home)"
-            aria-label="Về Trang Chủ"
+            title="Về trang chủ"
+            aria-label="Về trang chủ"
           >
             <Home size={14} className="shrink-0" />
           </button>
@@ -411,7 +411,7 @@ export const PlatformHeader: React.FC = () => {
             type="button"
             onClick={() => handleNavigate('/')}
             className="flex items-center gap-1.5 sm:gap-2 text-white hover:opacity-90 transition cursor-pointer"
-            title="Về Trang Chủ PomoFocus"
+            title="Về trang chủ PomoFocus"
           >
             <PomoFocusLogo size={isWorkspace ? 18 : 24} showWordmark={true} wordmarkClassName="inline-block text-xs font-bold text-white tracking-tight" />
           </button>
@@ -542,7 +542,7 @@ export const PlatformHeader: React.FC = () => {
               className="hidden sm:flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
             >
               <Layout size={13} className="shrink-0" />
-              <span className="hidden xs:inline">Vào Học</span>
+              <span className="inline">{currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk' ? 'Mở bản web →' : 'Mở bản web'}</span>
             </button>
           )}
 
@@ -1183,7 +1183,7 @@ export const PlatformHeader: React.FC = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-semibold text-white group-hover:text-cyan-300 transition">
-                    Cài Đặt Giao Diện
+                    Cài đặt giao diện
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
                     Tùy chỉnh đồng hồ, âm thanh lofi, kính mờ &amp; widget
@@ -1206,7 +1206,7 @@ export const PlatformHeader: React.FC = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-semibold text-white group-hover:text-indigo-300 transition">
-                    Về Trang Chủ
+                    Về trang chủ
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
                     Tìm hiểu tính năng, phương pháp Pomodoro &amp; cộng đồng

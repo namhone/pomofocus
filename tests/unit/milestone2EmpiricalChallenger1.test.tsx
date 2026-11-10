@@ -455,7 +455,7 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub &
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(PUBLIC_APK_URL);
-      expect(screen.getByText('Đã sao chép link APK!')).not.toBeNull();
+      expect(screen.getByText('Đã sao chép liên kết APK!')).not.toBeNull();
     });
 
     it('4.4 LiquidUpdateBanner renders at z-40 and dismisses properly', async () => {

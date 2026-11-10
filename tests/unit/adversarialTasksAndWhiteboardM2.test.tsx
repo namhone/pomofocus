@@ -285,7 +285,7 @@ describe('Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Per
       // Nút phải xuất hiện
       const clearBtn = await screen.findByTestId('clear-completed-btn');
       expect(clearBtn).toBeDefined();
-      expect(clearBtn.textContent).toContain('Dọn việc đã xong');
+      expect(clearBtn.textContent).toContain('Xóa việc đã hoàn thành');
 
       // Click nút dọn dẹp
       fireEvent.click(clearBtn);

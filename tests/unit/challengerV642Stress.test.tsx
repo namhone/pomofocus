@@ -502,10 +502,10 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
       expect(checkbox.checked).toBe(false);
     });
 
-    it('renders strict concise label "Tự động chuyển hiệp" and emerald glow styles', () => {
+    it('renders strict concise label "Tự động chuyển hiệp mới" and emerald glow styles', () => {
       render(<SettingsWidget />);
 
-      expect(screen.getByText('Tự động chuyển hiệp')).not.toBeNull();
+      expect(screen.getByText('Tự động chuyển hiệp mới')).not.toBeNull();
       expect(screen.queryByText('Tự động chuyển tiếp giữa các hiệp')).toBeNull();
 
       const code = fs.readFileSync(settingsWidgetPath, 'utf8');
@@ -529,7 +529,7 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
 
       const homeBtn = screen.getByTestId('settings-home-btn');
       expect(homeBtn).not.toBeNull();
-      expect(homeBtn.textContent).toContain('Về Trang Chủ PomoFocus');
+      expect(homeBtn.textContent).toContain('Về trang chủ PomoFocus');
 
       // Verify no bulky home card exists
       expect(screen.queryByText('Không gian làm việc & học tập sâu')).toBeNull();
@@ -538,7 +538,7 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
     it('replaces 3-line green storage banner with concise microcopy', () => {
       render(<SettingsWidget />);
 
-      expect(screen.getByText('Tự động lưu ngoại tuyến 100% trên thiết bị')).not.toBeNull();
+      expect(screen.getByText('Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)')).not.toBeNull();
       expect(screen.queryByText(/Toàn bộ dữ liệu được lưu ngoại tuyến trên thiết bị/i)).toBeNull();
     });
 

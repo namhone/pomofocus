@@ -5,6 +5,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { RouterProvider } from '../../src/services/router';
 import { WebDownloadHub, PUBLIC_APK_URL } from '../../src/components/landing/WebDownloadHub';
+import { MobileSettingsView } from '../../src/components/mobile/views/MobileSettingsView';
+import { MobileFocusView } from '../../src/components/mobile/views/MobileFocusView';
+import { LiquidUpdateBanner } from '../../src/components/LiquidUpdateBanner';
 import { generateQrMatrix, generateValidQrCodeSvg } from '../../src/utils/qrCode';
 import capacitorConfig from '../../capacitor.config';
 
@@ -320,6 +323,53 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(mwSrc).toContain("'/download'");
       expect(mwSrc).toContain("'/downloads'");
       expect(mwSrc).toContain("'/apk'");
+    });
+  });
+
+  describe('4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish', () => {
+    it('4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →"', () => {
+      render(
+        <RouterProvider>
+          <WebDownloadHub />
+        </RouterProvider>
+      );
+
+      expect(screen.getByText(/Tập trung sâu\./i)).toBeDefined();
+      expect(screen.getByText(/Trôi chảy từng khoảnh khắc\./i)).toBeDefined();
+      expect(screen.getByText(/Đếm giờ chính xác ngay cả khi tắt màn hình/i)).toBeDefined();
+      expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
+      expect(screen.getByTestId('central-apk-download-btn').textContent).toContain('Tải PomoFocus APK (v7.4)');
+      expect(screen.getByText('Dung lượng: ~8.0 MB · Android 9.0+ · Miễn phí hoàn toàn')).toBeDefined();
+      expect(screen.getAllByText('Mở bản web →').length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('4.2 MobileSettingsView renders Sentence Case labels, concise subtitles, offline copy, and red reset button', () => {
+      render(<MobileSettingsView />);
+
+      expect(screen.getByText('Thời gian tập trung')).toBeDefined();
+      expect(screen.getByText('Số phút cho mỗi phiên học sâu')).toBeDefined();
+      expect(screen.getByText('Thư giãn nhẹ giữa các hiệp')).toBeDefined();
+      expect(screen.getByText('Hồi phục năng lượng sau 4 hiệp')).toBeDefined();
+      expect(screen.getByText('Tự động chuyển hiệp mới')).toBeDefined();
+      expect(screen.getByText('Tự động chạy hiệp tiếp theo khi hết giờ')).toBeDefined();
+      expect(screen.getByText('Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)')).toBeDefined();
+
+      const resetBtn = screen.getByTestId('mobile-settings-reset-layout-btn');
+      expect(resetBtn.textContent).toContain('Khôi phục giao diện ban đầu');
+      expect(resetBtn.className).toContain('text-red-300');
+    });
+
+    it('4.3 MobileFocusView exposes natural tooltips and LiquidUpdateBanner uses refined update heading', () => {
+      render(<MobileFocusView />);
+
+      const resetBtn = screen.getByTestId('mobile-timer-reset');
+      const skipBtn = screen.getByTestId('mobile-timer-skip');
+      expect(resetBtn.getAttribute('title')).toBe('Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)');
+      expect(skipBtn.getAttribute('title')).toBe('Bỏ qua hiệp này');
+
+      render(<LiquidUpdateBanner currentVersion="7.4.0" latestVersion="7.5.0" />);
+      expect(screen.getByText('Đã có phiên bản mới')).toBeDefined();
+      expect(screen.getByText('Tải bản cập nhật')).toBeDefined();
     });
   });
 });

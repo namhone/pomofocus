@@ -273,8 +273,9 @@ describe('Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Stor
         </RouterProvider>
       );
 
-      const openWebAppBtn = screen.getByText('Vào Ngay');
-      expect(openWebAppBtn).toBeDefined();
+      const openWebAppBtns = screen.getAllByText('Mở bản web →');
+      expect(openWebAppBtns.length).toBeGreaterThanOrEqual(1);
+      const openWebAppBtn = openWebAppBtns[openWebAppBtns.length - 1];
 
       act(() => {
         fireEvent.click(openWebAppBtn);
@@ -401,7 +402,7 @@ describe('Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Stor
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(PUBLIC_APK_URL);
-      expect(screen.getByText('Đã sao chép link APK!')).toBeDefined();
+      expect(screen.getByText('Đã sao chép liên kết APK!')).toBeDefined();
     });
 
     it('2.7 LiquidUpdateBanner download anchor enforces download, target="_blank", and rel="noopener noreferrer"', () => {

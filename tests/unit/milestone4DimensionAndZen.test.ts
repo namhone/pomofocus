@@ -124,10 +124,10 @@ describe('Milestone 4: Dimension Guardrails, Zen Minimalism & Cascade Logic', ()
       expect(spacesCode).not.toContain('spaces-pro-upgrade-banner');
     });
 
-    it('sửa placeholder thêm task thành "Thêm nhiệm vụ mới... (Enter)"', () => {
+    it('sửa placeholder thêm task thành "Thêm công việc mới cần làm..."', () => {
       const tasksPath = path.resolve(__dirname, '../../src/components/TasksWidget.tsx');
       const tasksCode = fs.readFileSync(tasksPath, 'utf-8');
-      expect(tasksCode).toContain('placeholder="Thêm nhiệm vụ mới... (Enter)"');
+      expect(tasksCode).toContain('placeholder="Thêm công việc mới cần làm..."');
     });
 
     it('tuân thủ Zen micro-indicator contract: status dots emerald, amber và zinc', () => {

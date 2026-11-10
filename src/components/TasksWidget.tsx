@@ -119,11 +119,11 @@ export const TasksWidget: React.FC = () => {
               data-testid="clear-completed-btn"
               onClick={() => clearCompletedTasks()}
               className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-amber-400/30 text-zinc-400 hover:text-amber-300 flex items-center justify-center shrink-0 transition-all shadow-sm cursor-pointer"
-              title="Dọn sạch các việc đã hoàn thành"
-              aria-label="Dọn sạch các việc đã hoàn thành"
+              title="Xóa các việc đã hoàn thành"
+              aria-label="Xóa các việc đã hoàn thành"
             >
               <Sparkles size={16} className="w-4 h-4" />
-              <span className="sr-only">Dọn việc đã xong</span>
+              <span className="sr-only">Xóa việc đã hoàn thành</span>
             </button>
           )}
           <button
@@ -221,7 +221,7 @@ export const TasksWidget: React.FC = () => {
         <input
           data-testid="input-new-task"
           type="text"
-          placeholder="Thêm nhiệm vụ mới... (Enter)"
+          placeholder="Thêm công việc mới cần làm..."
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           className="w-full text-xs px-2 py-1.5 rounded-lg bg-black/25 border border-white/5 text-white placeholder-neutral-500 focus:outline-none focus:border-white/20"

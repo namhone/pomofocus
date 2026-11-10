@@ -170,14 +170,14 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       useLayoutStore.setState({ activeMobileTab: 'spaces' as any });
       render(<MobileAppShell />);
       expect(screen.getByTestId('mobile-view-spaces')).toBeDefined();
-      expect(screen.getByText('Không Gian Làm Việc')).toBeDefined();
+      expect(screen.getByText('Không gian làm việc')).toBeDefined();
     });
 
     it('2.6 AI sub-view renders AI chat interface', () => {
       useLayoutStore.setState({ activeMobileTab: 'ai' as any });
       render(<MobileAppShell />);
       expect(screen.getByTestId('mobile-view-ai')).toBeDefined();
-      expect(screen.getByText('Trợ Lý Học Tập AI')).toBeDefined();
+      expect(screen.getByText('Trợ lý học tập AI')).toBeDefined();
     });
   });
 

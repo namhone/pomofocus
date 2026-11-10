@@ -236,8 +236,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           <button
             data-testid="timer-reset-btn"
             onClick={reset}
-            title="Đặt lại đồng hồ hiệp này"
-            aria-label="Đặt lại đồng hồ hiệp này"
+            title="Đặt lại hiệp này"
+            aria-label="Đặt lại hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <RotateCcw size={20} className="w-5 h-5 -translate-y-[0.5px]" />
@@ -246,8 +246,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           <button
             data-testid="timer-reset-cycle-btn"
             onClick={resetCycle}
-            title="Đặt lại chu kỳ về Hiệp 1/4"
-            aria-label="Đặt lại chu kỳ về Hiệp 1/4"
+            title="Bắt đầu lại chu kỳ (Hiệp 1/4)"
+            aria-label="Bắt đầu lại chu kỳ (Hiệp 1/4)"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-rose-400" />
@@ -256,8 +256,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           <button
             data-testid="timer-skip-btn"
             onClick={skip}
-            title="Bỏ qua hiệp hiện tại"
-            aria-label="Bỏ qua hiệp hiện tại"
+            title="Bỏ qua hiệp này"
+            aria-label="Bỏ qua hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <SkipForward size={20} className="w-5 h-5 -translate-y-[0.5px]" />
@@ -396,7 +396,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                   </div>
                 </div>
                 <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white transition-colors">
-                  Tự động chuyển hiệp
+                  Tự động chuyển hiệp mới
                 </span>
               </label>
             </div>

@@ -573,12 +573,12 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       render(<MobileFocusView />);
 
       const chip = screen.getByTestId('mobile-linked-task-chip');
-      expect(chip.textContent).toContain('Chưa chọn nhiệm vụ');
+      expect(chip.textContent).toContain('Chưa chọn công việc');
 
       // Open task picker dropdown
       fireEvent.click(chip);
       expect(screen.getByTestId('mobile-task-picker-dropdown')).toBeDefined();
-      expect(screen.getByText(/Chưa có nhiệm vụ đang chờ/i)).toBeDefined();
+      expect(screen.getByText(/Chưa có công việc đang chờ/i)).toBeDefined();
 
       // 2. Populate tasks in store and select task
       act(() => {
@@ -604,9 +604,9 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       expect(screen.queryByTestId('mobile-task-picker-dropdown')).toBeNull();
       expect(useTaskStore.getState().activeTaskId).toBe('task-101');
 
-      // 3. Open picker again while linked -> click "Hủy liên kết nhiệm vụ"
+      // 3. Open picker again while linked -> click "Hủy liên kết công việc"
       fireEvent.click(chip);
-      const unlinkBtn = screen.getByText('Hủy liên kết nhiệm vụ');
+      const unlinkBtn = screen.getByText('Hủy liên kết công việc');
       fireEvent.click(unlinkBtn);
 
       expect(useTaskStore.getState().activeTaskId).toBeNull();
@@ -850,7 +850,7 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       expect(screen.getByTestId('mobile-view-tasks')).toBeDefined();
 
       // Quick add task
-      const input = screen.getByPlaceholderText('Thêm nhiệm vụ mới...');
+      const input = screen.getByPlaceholderText('Thêm công việc mới cần làm...');
       const form = input.closest('form')!;
 
       await act(async () => {
