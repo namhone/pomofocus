@@ -291,7 +291,7 @@ describe('Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Stor
   // SUITE 2: STANDALONE APK DISK INTEGRITY & ATTRIBUTES
   // =========================================================================
   describe('Suite 2: Standalone APK Disk Integrity & Attributes', () => {
-    const apkRelativePath = path.join(process.cwd(), 'public', 'downloads', 'PomoFocus-v7.4.apk');
+    const apkRelativePath = path.join(process.cwd(), 'public', 'downloads', 'PomoFocus-v8.0.apk');
     const versionJsonRelativePath = path.join(process.cwd(), 'public', 'version.json');
     const vercelJsonRelativePath = path.join(process.cwd(), 'vercel.json');
 
@@ -371,7 +371,7 @@ describe('Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Stor
 
       // Check URL and download attribute
       expect(downloadAnchor.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadAnchor.getAttribute('download')).toBe('PomoFocus-v7.4.apk');
+      expect(downloadAnchor.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
 
       // Check that the class includes min-height of 56px and emerald styling
       const className = downloadAnchor.className;

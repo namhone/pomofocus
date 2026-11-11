@@ -177,7 +177,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
       expect(downloadBtn).toBeDefined();
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v7.4.apk');
+      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
 
       const classList = downloadBtn.getAttribute('class') || '';
       expect(classList).toContain('h-16');
@@ -265,7 +265,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const raw = fs.readFileSync(versionJsonPath, 'utf8');
       const manifest = JSON.parse(raw);
 
-      expect(manifest.version).toBe('7.4.0');
+      expect(manifest.version).toBe('8.0.0');
       expect(manifest.downloadUrl).toBe(PUBLIC_APK_URL);
       expect(manifest.minSupportedVersion).toBe('7.0.0');
       expect(manifest.minVersion).toBe('7.0.0');
@@ -279,9 +279,9 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const title2 = getStaticRouteTitle('/downloads');
       const title3 = getStaticRouteTitle('/apk');
 
-      expect(title1).toBe('Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung');
-      expect(title2).toBe('Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung');
-      expect(title3).toBe('Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung');
+      expect(title1).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
+      expect(title2).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
+      expect(title3).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
     });
 
     it('package.json contains ZERO third-party QR or update bloat dependencies', () => {

@@ -416,7 +416,7 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub &
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
       expect(downloadBtn).not.toBeNull();
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v7.4.apk');
+      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
       expect(downloadBtn.className).toContain('animate-pulse');
       expect(downloadBtn.className).toContain('min-h-[56px]');
     });

@@ -3,8 +3,8 @@ import { Sparkles, Download, X, ArrowUpRight } from 'lucide-react';
 import { isUpdateAvailable } from '../utils/versionCompare';
 import { resolveApiUrl } from '../utils/apiConfig';
 
-export const CURRENT_APP_VERSION = '7.4.0';
-export const DEFAULT_DOWNLOAD_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk';
+export const CURRENT_APP_VERSION = '8.0.0';
+export const DEFAULT_DOWNLOAD_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk';
 
 export interface LiquidUpdateBannerProps {
   currentVersion?: string;

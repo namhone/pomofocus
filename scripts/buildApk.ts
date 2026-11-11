@@ -15,7 +15,9 @@ export const ANDROID_DIR = path.join(PROJECT_ROOT, 'android');
 export const LOCAL_PROPERTIES_PATH = path.join(ANDROID_DIR, 'local.properties');
 export const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 export const DOWNLOADS_DIR = path.join(PUBLIC_DIR, 'downloads');
-export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, 'PomoFocus-v7.4.apk');
+export const APP_VERSION = '8.0.0';
+export const APK_FILENAME = 'PomoFocus-v8.0.apk';
+export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, APK_FILENAME);
 export const VERSION_JSON_PATH = path.join(PUBLIC_DIR, 'version.json');
 export const GRADLE_OUTPUT_APK = path.join(ANDROID_DIR, 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
 
@@ -86,7 +88,7 @@ export function copyAndHashApk() {
     fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
   }
 
-  // Copy output to public/downloads/PomoFocus-v7.4.apk
+  // Copy output to public/downloads/PomoFocus-v8.0.apk
   fs.copyFileSync(GRADLE_OUTPUT_APK, TARGET_APK_PATH);
   console.log(`[buildApk] Copied APK to: ${TARGET_APK_PATH}`);
 
@@ -109,23 +111,20 @@ export function copyAndHashApk() {
     }
   }
 
-  versionData.version = versionData.version || '7.4.0';
+  versionData.version = APP_VERSION;
   versionData.minSupportedVersion = versionData.minSupportedVersion || '7.0.0';
   versionData.minVersion = versionData.minVersion || '7.0.0';
   versionData.releaseDate = new Date().toISOString().split('T')[0];
-  versionData.downloadUrl = versionData.downloadUrl || 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk';
+  versionData.downloadUrl = `https://pomofocus-workspace.vercel.app/downloads/${APK_FILENAME}`;
   versionData.apkSizeMb = sizeMb;
   versionData.checksumSha256 = sha256;
-  if (!versionData.releaseNotes) {
-    versionData.releaseNotes = 'PomoFocus v7.4 Ultimate: 120Hz native animations, zero-scroll chaining, standalone Android APK ecosystem.';
-  }
-  if (!versionData.changelog) {
-    versionData.changelog = [
-      'Hệ sinh thái Web Hub + Standalone APK',
-      'Zero-Scroll-Chaining (Fixed 100dvh)',
-      '120Hz micro-animations và Rolling Digit Stepper'
-    ];
-  }
+  versionData.releaseNotes =
+    'PomoFocus v8.0 Ultimate: All-in-One Focus Hub, 1-Tap Quick Task Bar, Strict Mode 5s Grace, Daily Flow 24h & Soundscape Mixer.';
+  versionData.changelog = [
+    'All-in-One Focus Hub: 1-Tap Quick Task Bar hoàn thành việc ngay màn chính',
+    'Chế độ Kỷ luật (Strict Mode) với 5 giây ân hạn thông minh chuẩn Forest',
+    'Daily Flow Strip: Dòng chảy tập trung 24 giờ & Mixer âm thanh 25 kênh',
+  ];
 
   fs.writeFileSync(VERSION_JSON_PATH, JSON.stringify(versionData, null, 2) + '\n', 'utf-8');
   console.log('[buildApk] Updated public/version.json successfully.');
@@ -134,7 +133,7 @@ export function copyAndHashApk() {
 }
 
 export async function run() {
-  console.log('=== PomoFocus v7.4: Android APK Build Pipeline ===');
+  console.log('=== PomoFocus v8.0: Android APK Build Pipeline ===');
   setupEnvironment();
   ensureCapacitorAndroid();
   buildWebAssets();
@@ -146,7 +145,7 @@ export async function run() {
   const distDownloadsDir = path.join(distDir, 'downloads');
   if (fs.existsSync(distDir)) {
     fs.mkdirSync(distDownloadsDir, { recursive: true });
-    fs.copyFileSync(TARGET_APK_PATH, path.join(distDownloadsDir, 'PomoFocus-v7.4.apk'));
+    fs.copyFileSync(TARGET_APK_PATH, path.join(distDownloadsDir, APK_FILENAME));
     if (fs.existsSync(VERSION_JSON_PATH)) {
       fs.copyFileSync(VERSION_JSON_PATH, path.join(distDir, 'version.json'));
     }

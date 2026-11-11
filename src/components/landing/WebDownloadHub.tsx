@@ -20,8 +20,8 @@ import { useDeviceDetection } from '../../hooks/useDeviceDetection';
 import { generateValidQrCodeSvg, copyToClipboard } from '../../utils/qrCode';
 import { useRouter } from '../../services/router';
 
-export const PUBLIC_APK_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk';
-export const CURRENT_APK_VERSION = 'v7.4';
+export const PUBLIC_APK_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk';
+export const CURRENT_APK_VERSION = 'v8.0';
 
 interface TiltState {
   rotateX: number;
@@ -249,11 +249,11 @@ export const WebDownloadHub: React.FC = () => {
                 <a
                   data-testid="central-apk-download-btn"
                   href={PUBLIC_APK_URL}
-                  download="PomoFocus-v7.4.apk"
+                  download="PomoFocus-v8.0.apk"
                   className="w-full h-16 min-h-[56px] px-9 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_12px_32px_rgba(16,185,129,0.45)] animate-pulse hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(16,185,129,0.65)] active:scale-95 cursor-pointer"
                 >
                   <Download className="w-5 h-5 text-zinc-950 stroke-[2.5]" />
-                  <span>Tải PomoFocus APK (v7.4)</span>
+                  <span>Tải PomoFocus APK (v8.0)</span>
                 </a>
 
                 <div className="text-center text-[11px] text-zinc-400 font-medium">
@@ -324,7 +324,7 @@ export const WebDownloadHub: React.FC = () => {
                 </div>
                 <p className="text-xs text-zinc-300 mb-4 leading-relaxed">
                   Mở camera trên điện thoại Android và hướng vào mã QR để trình duyệt tự động tải{' '}
-                  <span className="font-mono text-emerald-300">PomoFocus-v7.4.apk</span>.
+                  <span className="font-mono text-emerald-300">PomoFocus-v8.0.apk</span>.
                 </p>
 
                 <button
@@ -488,7 +488,7 @@ export const WebDownloadHub: React.FC = () => {
         <div className="mt-16 sm:mt-24">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
             <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400 mb-3">
-              Công nghệ cốt lõi v7.4
+              Công nghệ cốt lõi v8.0
             </h3>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
               Tối ưu từng khoảnh khắc trên điện thoại của bạn

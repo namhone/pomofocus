@@ -71,9 +71,9 @@ export const ROUTE_STATIC_TITLES: Record<string, string> = {
   '/terms': 'Điều Khoản Dịch Vụ | PomoFocus',
   '/privacy': 'Chính Sách Bảo Mật | PomoFocus',
   '/about': 'Giới Thiệu | PomoFocus',
-  '/download': 'Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung',
-  '/downloads': 'Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung',
-  '/apk': 'Tải PomoFocus v7.4 APK Android | Không Gian Tập Trung',
+  '/download': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
+  '/downloads': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
+  '/apk': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
   '/': 'PomoFocus — Không Gian Học Tập Tập Trung',
   '/landing': 'PomoFocus — Không Gian Học Tập Tập Trung'
 };

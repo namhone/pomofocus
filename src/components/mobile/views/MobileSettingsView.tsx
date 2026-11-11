@@ -420,7 +420,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
       {/* 6. SYSTEM FOOTER */}
       <div className="text-center pt-2 pb-6 text-xs text-zinc-400 space-y-0.5">
-        <div className="font-medium text-zinc-400">PomoFocus v7.4 Liquid Zen</div>
+        <div className="font-medium text-zinc-400">PomoFocus v8.0 Liquid Zen</div>
         <div className="text-[11px] text-zinc-400">Trải nghiệm tối giản cho Android</div>
       </div>
     </div>

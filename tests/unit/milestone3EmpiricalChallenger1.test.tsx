@@ -66,7 +66,7 @@ function parseZipCentralDirectory(buffer: Buffer): {
 
 describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 3: Capacitor Android & Standalone APK', () => {
   const rootDir = path.resolve(__dirname, '../..');
-  const apkPath = path.join(rootDir, 'public/downloads/PomoFocus-v7.4.apk');
+  const apkPath = path.join(rootDir, 'public/downloads/PomoFocus-v8.0.apk');
   const versionJsonPath = path.join(rootDir, 'public/version.json');
   const localPropertiesPath = path.join(rootDir, 'android/local.properties');
   const appBuildGradlePath = path.join(rootDir, 'android/app/build.gradle');
@@ -225,11 +225,11 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 3: Capacitor Android 
     it('3.3 validates version.json schema and required distribution properties', () => {
       const versionJson = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
 
-      expect(versionJson.version).toBe('7.4.0');
+      expect(versionJson.version).toBe('8.0.0');
       expect(versionJson.minSupportedVersion).toBe('7.0.0');
       expect(versionJson.minVersion).toBe('7.0.0');
       expect(versionJson.downloadUrl).toBe(
-        'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk'
+        'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk'
       );
       expect(typeof versionJson.releaseDate).toBe('string');
       expect(/^\d{4}-\d{2}-\d{2}$/.test(versionJson.releaseDate)).toBe(true);

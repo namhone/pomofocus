@@ -75,7 +75,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       // Verify anchor semantics
       expect(downloadBtn.tagName.toLowerCase()).toBe('a');
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v7.4.apk');
+      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
     });
 
     it('1.2 verifies emerald breathing glow and 56px height styling invariants', () => {
@@ -113,7 +113,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       render(<WebDownloadHub />);
 
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
-      expect(downloadBtn.textContent).toContain('Tải PomoFocus APK (v7.4)');
+      expect(downloadBtn.textContent).toContain('Tải PomoFocus APK (v8.0)');
     });
 
     it('1.5 rapid sequential clicks on download button maintain href and download integrity', () => {
@@ -131,7 +131,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       downloadBtn.removeEventListener('click', clickHandler);
 
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v7.4.apk');
+      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
     });
   });
 

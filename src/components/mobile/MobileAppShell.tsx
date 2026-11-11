@@ -14,16 +14,22 @@ import {
   Target,
   X,
   AlertCircle,
-  RotateCcw
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Headphones,
+  Layers
 } from 'lucide-react';
 import { useTimerStore } from '../../stores/useTimerStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useAiStore } from '../../stores/useAiStore';
 import { useTaskStore } from '../../stores/useTaskStore';
 import { useBackgroundStore } from '../../stores/useBackgroundStore';
+import { useAudioStore } from '../../stores/useAudioStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNoteStore } from '../../stores/useNoteStore';
 import { ANIME_WALLPAPERS_LOCAL } from '../../data/wallpapers';
+import { ALL_AMBIENT_TRACKS, AMBIENT_TABS } from '../../data/ambientTracks';
 import { PomoFocusLogo } from '../PomoFocusLogo';
 import { BackgroundCanvas } from '../BackgroundCanvas';
 import { AmbientOverlay } from '../AmbientOverlay';
@@ -415,7 +421,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         {/* Tab 1: Focus Canvas (Default) */}
         {activeTab === 'focus' && (
           <div data-testid="mobile-view-focus" className="w-full h-full">
-            <MobileFocusView onSelectTask={() => handleSelectTab('tasks')} />
+            <MobileFocusView onManageTasks={() => handleSelectTab('tasks')} />
           </div>
         )}
 
@@ -721,7 +727,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
 };
 
 // -----------------------------------------------------------------------------
-// Sub-View: Native Mobile Spaces & Presets
+// Sub-View: Native Mobile Spaces, Presets & Soundscape Mixer (V8.0)
 // -----------------------------------------------------------------------------
 const MobileSpacesSubView: React.FC = () => {
   const presets = useBackgroundStore((s) => s.presets);
@@ -738,212 +744,430 @@ const MobileSpacesSubView: React.FC = () => {
   const resetBackground = useBackgroundStore((s) => s.resetBackground);
   const ambientEffect = useBackgroundStore((s) => s.ambientEffect);
   const setAmbientEffect = useBackgroundStore((s) => s.setAmbientEffect);
+
+  const audioTracks = useAudioStore((s) => s.tracks) ?? ALL_AMBIENT_TRACKS;
+  const masterVolume = useAudioStore((s) => s.settings?.masterVolume ?? 0.8);
+  const isMasterMuted = useAudioStore((s) => s.settings?.isMuted ?? false);
+  const toggleTrack = useAudioStore((s) => s.toggleTrack);
+  const setTrackVolume = useAudioStore((s) => s.setTrackVolume);
+  const setMasterVolume = useAudioStore((s) => s.setMasterVolume);
+  const stopAllTracks = useAudioStore((s) => s.stopAllTracks);
+
+  const [spacesSubTab, setSpacesSubTab] = useState<'bg' | 'audio'>('bg');
+  const [audioCategory, setAudioCategory] = useState<'all' | 'nature' | 'life' | 'binaural' | 'noise'>('all');
   const [failedThumbIds, setFailedThumbIds] = useState<Record<string, boolean>>({});
+
+  const activeTracksCount = useMemo(
+    () => audioTracks.filter((t) => t.isPlaying).length,
+    [audioTracks]
+  );
+
+  const visibleTracks = useMemo(() => {
+    if (audioCategory === 'all') return audioTracks;
+    return audioTracks.filter((t) => t.category === audioCategory);
+  }, [audioTracks, audioCategory]);
+
+  const orderedAudioTabs = useMemo(() => {
+    const allTab = AMBIENT_TABS.find((t) => t.id === 'all');
+    const otherTabs = AMBIENT_TABS.filter((t) => t.id !== 'all');
+    return allTab ? [allTab, ...otherTabs] : AMBIENT_TABS;
+  }, []);
 
   return (
     <div className="w-full h-full overflow-y-auto px-4 py-4 space-y-5 pb-28">
       <div className="flex items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Palette className="w-5 h-5 text-emerald-400" />
+            {spacesSubTab === 'bg' ? (
+              <Palette className="w-5 h-5 text-emerald-400" />
+            ) : (
+              <Headphones className="w-5 h-5 text-emerald-400" />
+            )}
             <span>Không gian làm việc</span>
           </h2>
           <p className="text-xs text-zinc-300 mt-0.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
-            Chọn phông nền và hiệu ứng tĩnh tâm
+            {spacesSubTab === 'bg'
+              ? 'Chọn phông nền và hiệu ứng tĩnh tâm'
+              : 'Trộn âm thanh thiên nhiên, sóng não & tiếng ồn khoa học'}
           </p>
         </div>
+
+        {spacesSubTab === 'bg' ? (
+          <button
+            type="button"
+            data-testid="mobile-spaces-reset-btn"
+            onClick={() => resetBackground()}
+            className="px-2.5 py-1.5 rounded-xl bg-zinc-900/60 backdrop-blur-md border border-white/10 text-xs text-zinc-300 hover:text-white flex items-center gap-1 active:scale-95 transition cursor-pointer shrink-0"
+            title="Khôi phục nền mặc định"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Mặc định</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-testid="mobile-mixer-stop-all-btn"
+            onClick={() => stopAllTracks()}
+            disabled={activeTracksCount === 0}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs flex items-center gap-1 transition shrink-0 ${
+              activeTracksCount > 0
+                ? 'bg-rose-500/15 border-rose-400/30 text-rose-300 hover:text-white active:scale-95 cursor-pointer'
+                : 'bg-zinc-900/50 border-white/10 text-zinc-500 cursor-not-allowed'
+            }`}
+            title="Tắt toàn bộ âm thanh đang phát"
+          >
+            <VolumeX className="w-3.5 h-3.5" />
+            <span>Tắt tất cả</span>
+          </button>
+        )}
+      </div>
+
+      {/* Sub-Tabs Switcher: [ Nền & Hiệu ứng ] | [ Mixer Âm thanh ] */}
+      <div
+        role="tablist"
+        aria-label="Phân mục Không gian"
+        className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-zinc-900/75 backdrop-blur-md border border-white/10 shadow-md"
+      >
         <button
           type="button"
-          data-testid="mobile-spaces-reset-btn"
-          onClick={() => resetBackground()}
-          className="px-2.5 py-1.5 rounded-xl bg-zinc-900/60 backdrop-blur-md border border-white/10 text-xs text-zinc-300 hover:text-white flex items-center gap-1 active:scale-95 transition cursor-pointer shrink-0"
-          title="Khôi phục nền mặc định"
+          role="tab"
+          aria-selected={spacesSubTab === 'bg'}
+          data-testid="mobile-spaces-subtab-bg"
+          onClick={() => setSpacesSubTab('bg')}
+          className={`h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer touch-manipulation ${
+            spacesSubTab === 'bg'
+              ? 'bg-emerald-500 text-zinc-950 shadow-sm'
+              : 'text-zinc-300 hover:text-white hover:bg-white/5'
+          }`}
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Mặc định</span>
+          <Layers className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>Nền & Hiệu ứng</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={spacesSubTab === 'audio'}
+          data-testid="mobile-spaces-subtab-audio"
+          onClick={() => setSpacesSubTab('audio')}
+          className={`h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer touch-manipulation ${
+            spacesSubTab === 'audio'
+              ? 'bg-emerald-500 text-zinc-950 shadow-sm'
+              : 'text-zinc-300 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Volume2 className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>Mixer Âm thanh</span>
+          {activeTracksCount > 0 && (
+            <span
+              data-testid="mobile-mixer-active-badge"
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold font-mono ${
+                spacesSubTab === 'audio'
+                  ? 'bg-zinc-950 text-emerald-400'
+                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+              }`}
+            >
+              {activeTracksCount}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* Presets Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {presets.map((preset) => {
-          const isActive = activePresetId === preset.id;
-          const isGradientSwatch =
-            !preset.thumbnailUrl ||
-            preset.category === 'gradient' ||
-            preset.category === 'solid' ||
-            failedThumbIds[preset.id];
-          const fallbackStyle =
-            preset.url?.startsWith('linear-gradient') || preset.url?.startsWith('radial-gradient') || preset.url?.startsWith('#')
-              ? preset.url
-              : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
-              ? preset.fallbackUrl
-              : 'linear-gradient(135deg, #09090b 0%, #18181b 100%)';
+      {spacesSubTab === 'bg' ? (
+        <>
+          {/* Presets Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {presets.map((preset) => {
+              const isActive = activePresetId === preset.id;
+              const isGradientSwatch =
+                !preset.thumbnailUrl ||
+                preset.category === 'gradient' ||
+                preset.category === 'solid' ||
+                failedThumbIds[preset.id];
+              const fallbackStyle =
+                preset.url?.startsWith('linear-gradient') || preset.url?.startsWith('radial-gradient') || preset.url?.startsWith('#')
+                  ? preset.url
+                  : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
+                  ? preset.fallbackUrl
+                  : 'linear-gradient(135deg, #09090b 0%, #18181b 100%)';
 
-          return (
-            <button
-              key={preset.id}
-              type="button"
-              data-testid={`mobile-space-preset-${preset.id}`}
-              onClick={() => selectPreset(preset.id)}
-              className={`relative rounded-2xl overflow-hidden border p-3 flex flex-col items-start text-left transition active:scale-95 cursor-pointer backdrop-blur-md ${
-                isActive
-                  ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/35 shadow-lg shadow-emerald-500/10'
-                  : 'border-white/10 bg-zinc-900/55 hover:border-white/20'
-              }`}
-            >
-              <div
-                className="w-full h-20 rounded-xl bg-zinc-800 mb-2 overflow-hidden relative"
-                style={{ background: fallbackStyle }}
-              >
-                {!isGradientSwatch && preset.thumbnailUrl && (
-                  <img
-                    src={preset.thumbnailUrl}
-                    alt={preset.title}
-                    referrerPolicy="no-referrer"
-                    onError={() =>
-                      setFailedThumbIds((prev) => ({ ...prev, [preset.id]: true }))
-                    }
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                {isActive && (
-                  <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold">
-                    Đang chọn
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  data-testid={`mobile-space-preset-${preset.id}`}
+                  onClick={() => selectPreset(preset.id)}
+                  className={`relative rounded-2xl overflow-hidden border p-3 flex flex-col items-start text-left transition active:scale-95 cursor-pointer backdrop-blur-md ${
+                    isActive
+                      ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/35 shadow-lg shadow-emerald-500/10'
+                      : 'border-white/10 bg-zinc-900/55 hover:border-white/20'
+                  }`}
+                >
+                  <div
+                    className="w-full h-20 rounded-xl bg-zinc-800 mb-2 overflow-hidden relative"
+                    style={{ background: fallbackStyle }}
+                  >
+                    {!isGradientSwatch && preset.thumbnailUrl && (
+                      <img
+                        src={preset.thumbnailUrl}
+                        alt={preset.title}
+                        referrerPolicy="no-referrer"
+                        onError={() =>
+                          setFailedThumbIds((prev) => ({ ...prev, [preset.id]: true }))
+                        }
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    {isActive && (
+                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold">
+                        Đang chọn
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <span className="text-sm font-semibold text-white truncate w-full">{preset.title}</span>
-              <span className="text-[11px] text-zinc-400 capitalize">{preset.category}</span>
-            </button>
-          );
-        })}
-      </div>
+                  <span className="text-sm font-semibold text-white truncate w-full">{preset.title}</span>
+                  <span className="text-[11px] text-zinc-400 capitalize">{preset.category}</span>
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Bundled Offline Anime & Ghibli Collection */}
-      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-zinc-100">Tranh nền Anime & Studio Ghibli</h3>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            Dùng offline
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          {ANIME_WALLPAPERS_LOCAL.slice(0, 6).map((item) => {
-            const localUrl = `/backgrounds/anime/${item.filename}`;
-            const isActive = activePresetId === 'custom' && customUrl === localUrl;
-            return (
+          {/* Bundled Offline Anime & Ghibli Collection */}
+          <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-zinc-100">Tranh nền Anime & Studio Ghibli</h3>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                Dùng offline
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {ANIME_WALLPAPERS_LOCAL.slice(0, 6).map((item) => {
+                const localUrl = `/backgrounds/anime/${item.filename}`;
+                const isActive = activePresetId === 'custom' && customUrl === localUrl;
+                return (
+                  <button
+                    key={item.filename}
+                    type="button"
+                    data-testid={`mobile-space-anime-${item.filename}`}
+                    onClick={() => setCustomBackground(localUrl, 'image')}
+                    className={`relative rounded-xl overflow-hidden border p-2 flex flex-col text-left transition active:scale-95 cursor-pointer ${
+                      isActive
+                        ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/30'
+                        : 'border-white/10 bg-zinc-950/40 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="w-full h-16 rounded-lg overflow-hidden bg-zinc-800 mb-1.5 relative">
+                      <img
+                        src={localUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {isActive && (
+                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[9px] font-bold">
+                          Đang chọn
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium text-white truncate w-full">{item.title}</span>
+                    <span className="text-[10px] text-zinc-400 truncate w-full">{item.author}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Ambient Visual Effects */}
+          <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
+            <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>Hiệu ứng môi trường</span>
+            </h3>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'none', label: 'Tắt' },
+                { id: 'rain', label: 'Mưa rơi' },
+                { id: 'snow', label: 'Tuyết bay' },
+                { id: 'sakura', label: 'Hoa anh đào' },
+                { id: 'fireflies', label: 'Đom đóm' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setAmbientEffect(item.id as any)}
+                  className={`py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer ${
+                    ambientEffect === item.id
+                      ? 'bg-emerald-500 text-zinc-950 font-bold'
+                      : 'bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Fine-Tuning Sliders */}
+          <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3.5">
+            <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-emerald-400" />
+              <span>Tinh chỉnh ánh sáng & độ mờ</span>
+            </h3>
+            <label className="block space-y-1">
+              <div className="flex justify-between text-xs text-zinc-300">
+                <span>Làm mờ nền</span>
+                <span className="font-mono text-emerald-400">{blurLevel}px</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={20}
+                value={blurLevel}
+                onChange={(e) => setBlur(Number(e.target.value))}
+                className="w-full accent-emerald-400 cursor-pointer"
+              />
+            </label>
+            <label className="block space-y-1">
+              <div className="flex justify-between text-xs text-zinc-300">
+                <span>Độ sáng hình nền</span>
+                <span className="font-mono text-emerald-400">{brightnessLevel}%</span>
+              </div>
+              <input
+                type="range"
+                min={50}
+                max={150}
+                value={brightnessLevel}
+                onChange={(e) => setBrightness(Number(e.target.value))}
+                className="w-full accent-emerald-400 cursor-pointer"
+              />
+            </label>
+            <label className="block space-y-1">
+              <div className="flex justify-between text-xs text-zinc-300">
+                <span>Lớp phủ tối</span>
+                <span className="font-mono text-emerald-400">{overlayOpacity}%</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={80}
+                value={overlayOpacity}
+                onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+                className="w-full accent-emerald-400 cursor-pointer"
+              />
+            </label>
+          </div>
+        </>
+      ) : (
+        <div data-testid="mobile-audio-mixer-panel" className="space-y-4">
+          {/* Master Volume Card */}
+          <div className="p-3.5 rounded-2xl bg-zinc-900/65 backdrop-blur-md border border-white/10 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
+                <Volume2 className="w-4 h-4 text-emerald-400" />
+                <span>Âm lượng tổng (Master)</span>
+              </span>
+              <span className="font-mono text-emerald-400">
+                {isMasterMuted ? 'Tắt' : `${Math.round(masterVolume * 100)}%`}
+              </span>
+            </div>
+            <input
+              type="range"
+              data-testid="mobile-mixer-master-volume"
+              min={0}
+              max={100}
+              value={Math.round(masterVolume * 100)}
+              onChange={(e) => setMasterVolume(Number(e.target.value) / 100)}
+              aria-label="Âm lượng tổng"
+              className="w-full accent-emerald-400 cursor-pointer"
+            />
+          </div>
+
+          {/* Audio Category Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+            {orderedAudioTabs.map((tab) => (
               <button
-                key={item.filename}
+                key={tab.id}
                 type="button"
-                data-testid={`mobile-space-anime-${item.filename}`}
-                onClick={() => setCustomBackground(localUrl, 'image')}
-                className={`relative rounded-xl overflow-hidden border p-2 flex flex-col text-left transition active:scale-95 cursor-pointer ${
-                  isActive
-                    ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/30'
-                    : 'border-white/10 bg-zinc-950/40 hover:border-white/20'
+                data-testid={`mobile-mixer-cat-${tab.id}`}
+                onClick={() => setAudioCategory(tab.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer shrink-0 ${
+                  audioCategory === tab.id
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-semibold'
+                    : 'bg-zinc-900/60 text-zinc-400 border border-white/10 hover:text-zinc-200'
                 }`}
               >
-                <div className="w-full h-16 rounded-lg overflow-hidden bg-zinc-800 mb-1.5 relative">
-                  <img
-                    src={localUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {isActive && (
-                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[9px] font-bold">
-                      Đang chọn
-                    </div>
-                  )}
-                </div>
-                <span className="text-xs font-medium text-white truncate w-full">{item.title}</span>
-                <span className="text-[10px] text-zinc-400 truncate w-full">{item.author}</span>
+                {tab.label} ({tab.count})
               </button>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* Ambient Visual Effects */}
-      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
-        <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>Hiệu ứng môi trường</span>
-        </h3>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { id: 'none', label: 'Tắt' },
-            { id: 'rain', label: 'Mưa rơi' },
-            { id: 'snow', label: 'Tuyết bay' },
-            { id: 'sakura', label: 'Hoa anh đào' },
-            { id: 'fireflies', label: 'Đom đóm' }
-          ].map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setAmbientEffect(item.id as any)}
-              className={`py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer ${
-                ambientEffect === item.id
-                  ? 'bg-emerald-500 text-zinc-950 font-bold'
-                  : 'bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
+          {/* Track Mixer Cards */}
+          <div className="space-y-2.5">
+            {visibleTracks.map((track) => (
+              <div
+                key={track.id}
+                data-testid={`mobile-mixer-track-${track.id}`}
+                className={`p-3 rounded-2xl border backdrop-blur-md transition-all ${
+                  track.isPlaying
+                    ? 'bg-emerald-950/35 border-emerald-400/45 shadow-md shadow-emerald-500/10'
+                    : 'bg-zinc-900/60 border-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <button
+                    type="button"
+                    data-testid={`mobile-mixer-toggle-${track.id}`}
+                    onClick={() => toggleTrack(track.id)}
+                    aria-pressed={track.isPlaying}
+                    className="flex items-center gap-2.5 text-left flex-1 min-w-0 cursor-pointer touch-manipulation"
+                  >
+                    <span
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        track.isPlaying
+                          ? 'bg-emerald-500 text-zinc-950'
+                          : 'bg-white/5 text-zinc-300'
+                      }`}
+                    >
+                      {track.isPlaying ? (
+                        <Volume2 className="w-4 h-4" aria-hidden="true" />
+                      ) : (
+                        <Headphones className="w-4 h-4" aria-hidden="true" />
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-white truncate">{track.name}</span>
+                        {track.badge && (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
+                            {track.badge}
+                          </span>
+                        )}
+                      </div>
+                      {track.description && (
+                        <p className="text-[10px] text-zinc-400 truncate">{track.description}</p>
+                      )}
+                    </div>
+                  </button>
 
-      {/* Fine-Tuning Sliders */}
-      <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3.5">
-        <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-emerald-400" />
-          <span>Tinh chỉnh ánh sáng & độ mờ</span>
-        </h3>
-        <label className="block space-y-1">
-          <div className="flex justify-between text-xs text-zinc-300">
-            <span>Làm mờ nền</span>
-            <span className="font-mono text-emerald-400">{blurLevel}px</span>
+                  <span className="text-[11px] font-mono text-emerald-300 shrink-0 w-9 text-right">
+                    {Math.round(track.volume * 100)}%
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  data-testid={`mobile-mixer-volume-${track.id}`}
+                  min={0}
+                  max={100}
+                  value={Math.round(track.volume * 100)}
+                  onChange={(e) => setTrackVolume(track.id, Number(e.target.value) / 100)}
+                  aria-label={`Âm lượng ${track.name}`}
+                  className="w-full accent-emerald-400 cursor-pointer"
+                />
+              </div>
+            ))}
           </div>
-          <input
-            type="range"
-            min={0}
-            max={20}
-            value={blurLevel}
-            onChange={(e) => setBlur(Number(e.target.value))}
-            className="w-full accent-emerald-400 cursor-pointer"
-          />
-        </label>
-        <label className="block space-y-1">
-          <div className="flex justify-between text-xs text-zinc-300">
-            <span>Độ sáng hình nền</span>
-            <span className="font-mono text-emerald-400">{brightnessLevel}%</span>
-          </div>
-          <input
-            type="range"
-            min={50}
-            max={150}
-            value={brightnessLevel}
-            onChange={(e) => setBrightness(Number(e.target.value))}
-            className="w-full accent-emerald-400 cursor-pointer"
-          />
-        </label>
-        <label className="block space-y-1">
-          <div className="flex justify-between text-xs text-zinc-300">
-            <span>Lớp phủ tối</span>
-            <span className="font-mono text-emerald-400">{overlayOpacity}%</span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={80}
-            value={overlayOpacity}
-            onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-            className="w-full accent-emerald-400 cursor-pointer"
-          />
-        </label>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
