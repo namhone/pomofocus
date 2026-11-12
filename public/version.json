@@ -1,15 +1,16 @@
 {
-  "version": "8.0.0",
+  "version": "8.1.0",
   "minSupportedVersion": "7.0.0",
   "minVersion": "7.0.0",
-  "releaseDate": "2026-11-11",
-  "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk",
-  "apkSizeMb": 8.35,
-  "checksumSha256": "1e9f95a55fd02249ae6112dddcb663f4fdcc5e59b578b827c4f81a9a9eb3c166",
-  "releaseNotes": "PomoFocus v8.0 Ultimate: All-in-One Focus Hub, 1-Tap Quick Task Bar, Strict Mode 5s Grace, Daily Flow 24h & Soundscape Mixer.",
+  "releaseDate": "2026-11-12",
+  "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk",
+  "apkSizeMb": 8.36,
+  "checksumSha256": "50568aefad8383de613d6fbb6b8b60cefe28bf3db0056ca66d437e4a5b67c3f0",
+  "releaseNotes": "PomoFocus v8.1 Ultimate: Meet Web Rooms, Shared Whiteboard, Dexie v2 Offline Queue, Pocket Lock & Hold to Start.",
   "changelog": [
-    "All-in-One Focus Hub: 1-Tap Quick Task Bar hoàn thành việc ngay màn chính",
-    "Chế độ Kỷ luật (Strict Mode) với 5 giây ân hạn thông minh chuẩn Forest",
-    "Daily Flow Strip: Dòng chảy tập trung 24 giờ & Mixer âm thanh 25 kênh"
-  ]
+    "Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực",
+    "Bảng trắng nhóm (Shared Whiteboard) lưu vết nét vẽ bền vững",
+    "Khóa chạm bỏ túi (Pocket Lock) và cử chỉ giữ 800ms để bắt đầu học sâu"
+  ],
+  "versionCode": 81
 }

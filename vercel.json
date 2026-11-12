@@ -5,7 +5,12 @@
   "redirects": [
     {
       "source": "/downloads/PomoFocus-v7.4.apk",
-      "destination": "/downloads/PomoFocus-v8.0.apk",
+      "destination": "/downloads/PomoFocus-v8.1.apk",
+      "permanent": false
+    },
+    {
+      "source": "/downloads/PomoFocus-v8.0.apk",
+      "destination": "/downloads/PomoFocus-v8.1.apk",
       "permanent": false
     }
   ],
@@ -89,7 +94,7 @@
       "source": "/downloads/(.*\\.apk)",
       "headers": [
         { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
-        { "key": "Content-Disposition", "value": "attachment; filename=\"PomoFocus-v7.4.apk\"" },
+        { "key": "Content-Disposition", "value": "attachment; filename=\"PomoFocus-v8.1.apk\"" },
         { "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }
       ]
     }

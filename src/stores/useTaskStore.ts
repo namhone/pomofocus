@@ -27,6 +27,7 @@ interface TaskStoreState {
   deleteTask: (id: string, hardDelete?: boolean) => Promise<void>;
   clearCompletedTasks: () => Promise<void>;
   linkTaskToTimer: (id: string | null) => void;
+  reorderTask: (taskId: string, direction: 'UP' | 'DOWN') => Promise<void>;
   createProject: (name: string, colorHex?: string) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
   setStatusFilter: (filter: 'all' | 'todo' | 'completed') => void;
@@ -270,6 +271,68 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       set({ activeTaskId: id });
       useTimerStore.getState().setLinkedTask(task.id, task.title);
     }
+  },
+
+  reorderTask: async (taskId: string, direction: 'UP' | 'DOWN') => {
+    const currentTasks = [...get().tasks];
+    if (currentTasks.length <= 1) return;
+
+    const currentIndex = currentTasks.findIndex((t) => t.id === taskId);
+    if (currentIndex === -1) return;
+
+    const targetIndex = direction === 'UP' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= currentTasks.length) return;
+
+    const currentTask = currentTasks[currentIndex];
+    const targetTask = currentTasks[targetIndex];
+
+    const currentOrder = currentTask.orderIndex ?? currentTask.order ?? currentIndex;
+    const targetOrder = targetTask.orderIndex ?? targetTask.order ?? targetIndex;
+
+    let newCurrentOrder = targetOrder;
+    let newTargetOrder = currentOrder;
+    if (newCurrentOrder === newTargetOrder) {
+      if (direction === 'UP') {
+        newCurrentOrder = targetOrder - 1;
+      } else {
+        newCurrentOrder = targetOrder + 1;
+      }
+    }
+
+    const updatedCurrent = {
+      ...currentTask,
+      orderIndex: newCurrentOrder,
+      order: newCurrentOrder,
+      updatedAt: Date.now()
+    };
+    const updatedTarget = {
+      ...targetTask,
+      orderIndex: newTargetOrder,
+      order: newTargetOrder,
+      updatedAt: Date.now()
+    };
+
+    currentTasks[currentIndex] = updatedTarget;
+    currentTasks[targetIndex] = updatedCurrent;
+
+    await db.tasks.update(currentTask.id, {
+      orderIndex: newCurrentOrder,
+      order: newCurrentOrder,
+      updatedAt: Date.now()
+    });
+    await db.tasks.update(targetTask.id, {
+      orderIndex: newTargetOrder,
+      order: newTargetOrder,
+      updatedAt: Date.now()
+    });
+
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) {
+      TaskCloudService.upsertTask(updatedCurrent, userId).catch(() => {});
+      TaskCloudService.upsertTask(updatedTarget, userId).catch(() => {});
+    }
+
+    set({ tasks: currentTasks });
   },
 
   createProject: async (name: string, colorHex = '#6366f1') => {

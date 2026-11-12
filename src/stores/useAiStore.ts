@@ -4,6 +4,7 @@ import { useNoteStore } from './useNoteStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
 import { ProfileService } from '../services/profileService';
 import { resolveApiUrl } from '../utils/apiConfig';
+import { db } from '../db';
 
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
 export type AiActionType = 'chat' | 'summarize' | 'quiz' | 'multimodal';
@@ -291,7 +292,9 @@ export interface AiState {
   sendMessage: (prompt: string, actionType?: AiActionType, attachment?: AiAttachmentInfo) => Promise<string>;
   continueGenerating: () => Promise<void>;
   syncWithAuth: (plan?: string) => void;
+  loadMessagesFromDb: (conversationId?: string) => Promise<void>;
 }
+
 
 
 function getStoredUserId(): string | undefined {
@@ -591,6 +594,37 @@ export const useAiStore = create<AiState>()(
           error: null
         });
 
+        // 1. Tải tin nhắn từ IndexedDB cục bộ (db.ai_messages)
+        try {
+          const localAiMsgs = await db.ai_messages
+            .where('conversationId')
+            .equals(sessionId)
+            .sortBy('createdAt');
+          if (localAiMsgs && localAiMsgs.length > 0) {
+            const mappedLocal: AiMessage[] = localAiMsgs.map((m) => ({
+              id: m.id,
+              role: m.role === 'system' ? 'assistant' : m.role,
+              content: m.content,
+              timestamp: m.createdAt,
+              actionType: m.actionType as AiActionType,
+              creditsUsed: m.creditsUsed,
+              attachmentUrl: m.attachmentUrl,
+              attachmentName: m.attachmentName,
+              isTruncated: m.isTruncated
+            }));
+            set((state) => ({
+              messages: mappedLocal,
+              sessions: (state.sessions || []).map((s) =>
+                s.id === sessionId ? { ...s, messages: mappedLocal } : s
+              ),
+              isLoading: false
+            }));
+          }
+        } catch (dbErr) {
+          console.warn('[useAiStore] Lỗi đọc db.ai_messages:', dbErr);
+        }
+
+        // 2. Tải tin nhắn từ Cloud và đồng bộ vào IndexedDB nếu có
         try {
           const cloudMsgs = await AiChatService.loadConversationMessages(sessionId);
           if (cloudMsgs && cloudMsgs.length > 0) {
@@ -612,6 +646,24 @@ export const useAiStore = create<AiState>()(
               ),
               isLoading: false
             }));
+
+            // Lưu bền vững vào db.ai_messages
+            try {
+              await db.ai_messages.bulkPut(
+                cloudMsgs.map((m) => ({
+                  id: m.id,
+                  conversationId: sessionId,
+                  role: m.role,
+                  content: m.content,
+                  createdAt: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+                  actionType: m.action_type,
+                  creditsUsed: m.credits_used,
+                  attachmentUrl: m.attachment_url,
+                  attachmentName: m.attachment_name,
+                  isTruncated: m.is_truncated
+                }))
+              );
+            } catch {}
             return;
           }
         } catch {}
@@ -624,6 +676,9 @@ export const useAiStore = create<AiState>()(
         const nextSessions = (sessions || []).filter((s) => s.id !== sessionId);
 
         AiChatService.deleteConversation(sessionId).catch(() => {});
+        try {
+          await db.ai_messages.where('conversationId').equals(sessionId).delete();
+        } catch {}
 
         if (currentSessionId === sessionId) {
           const fallbackSession = nextSessions[0];
@@ -672,6 +727,28 @@ export const useAiStore = create<AiState>()(
           const convId = await AiChatService.getOrCreateActiveConversation(uid);
           set({ activeConversationId: convId, currentSessionId: convId });
 
+          // 2.1. Đọc tin nhắn cục bộ từ db.ai_messages trước
+          try {
+            const localAiMsgs = await db.ai_messages
+              .where('conversationId')
+              .equals(convId)
+              .sortBy('createdAt');
+            if (localAiMsgs && localAiMsgs.length > 0) {
+              const mappedLocal: AiMessage[] = localAiMsgs.map((m) => ({
+                id: m.id,
+                role: m.role === 'system' ? 'assistant' : m.role,
+                content: m.content,
+                timestamp: m.createdAt,
+                actionType: m.actionType as AiActionType,
+                creditsUsed: m.creditsUsed,
+                attachmentUrl: m.attachmentUrl,
+                attachmentName: m.attachmentName,
+                isTruncated: m.isTruncated
+              }));
+              set({ messages: mappedLocal });
+            }
+          } catch {}
+
           // 3. Tải tin nhắn của active conversation từ Cloud
           const cloudMsgs = await AiChatService.loadConversationMessages(convId);
           if (cloudMsgs && cloudMsgs.length > 0) {
@@ -687,6 +764,23 @@ export const useAiStore = create<AiState>()(
               isTruncated: m.is_truncated
             }));
             set({ messages: mapped });
+
+            try {
+              await db.ai_messages.bulkPut(
+                cloudMsgs.map((m) => ({
+                  id: m.id,
+                  conversationId: convId,
+                  role: m.role,
+                  content: m.content,
+                  createdAt: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+                  actionType: m.action_type,
+                  creditsUsed: m.credits_used,
+                  attachmentUrl: m.attachment_url,
+                  attachmentName: m.attachment_name,
+                  isTruncated: m.is_truncated
+                }))
+              );
+            } catch {}
           }
 
           // 4. Đồng bộ số dư tia chớp từ Supabase Cloud
@@ -695,6 +789,7 @@ export const useAiStore = create<AiState>()(
           console.warn('[useAiStore] initConversation fallback:', e);
         }
       },
+
 
       refreshCreditsFromCloud: async (userId?: string) => {
         const uid = userId || getStoredUserId();
@@ -834,6 +929,21 @@ export const useAiStore = create<AiState>()(
           isStreaming: false,
           error: null
         });
+
+        // Lưu tin nhắn của User vào db.ai_messages
+        try {
+          db.ai_messages.put({
+            id: userMsgId,
+            conversationId: activeId,
+            role: 'user',
+            content: prompt,
+            createdAt: userMsg.timestamp,
+            actionType: effectiveAction,
+            attachmentUrl: attachment?.publicUrl,
+            attachmentName: attachment?.fileName
+          }).catch(() => {});
+        } catch {}
+
 
         try {
           // Lấy ghi chú hiện tại nếu là tác vụ tóm tắt
@@ -1025,6 +1135,20 @@ export const useAiStore = create<AiState>()(
             };
           });
 
+          // 5. Lưu tin nhắn Assistant vào db.ai_messages
+          try {
+            db.ai_messages.put({
+              id: assistantMsgId,
+              conversationId: activeId,
+              role: 'assistant',
+              content: replyText,
+              createdAt: Date.now(),
+              actionType: effectiveAction,
+              creditsUsed: finalCost,
+              isTruncated
+            }).catch(() => {});
+          } catch {}
+
           // 6. Lưu trữ bất đồng bộ lên Supabase Cloud
           const convId = get().activeConversationId;
           const currentUid = getStoredUserId();
@@ -1074,6 +1198,9 @@ export const useAiStore = create<AiState>()(
               error: err.message || 'Đã xảy ra lỗi khi tạo phản hồi AI.'
             };
           });
+          try {
+            db.ai_messages.delete(assistantMsgId).catch(() => {});
+          } catch {}
           throw err;
         }
       },
@@ -1094,6 +1221,33 @@ export const useAiStore = create<AiState>()(
           'Vui lòng tiếp tục viết tiếp phần còn lại từ đoạn trước một cách liền mạch, giữ nguyên văn phong và công thức.',
           'chat'
         );
+      },
+
+      loadMessagesFromDb: async (conversationId?: string) => {
+        const convId = conversationId || get().activeConversationId || get().currentSessionId;
+        if (!convId) return;
+        try {
+          const localAiMsgs = await db.ai_messages
+            .where('conversationId')
+            .equals(convId)
+            .sortBy('createdAt');
+          if (localAiMsgs && localAiMsgs.length > 0) {
+            const mapped: AiMessage[] = localAiMsgs.map((m) => ({
+              id: m.id,
+              role: m.role === 'system' ? 'assistant' : m.role,
+              content: m.content,
+              timestamp: m.createdAt,
+              actionType: m.actionType as AiActionType,
+              creditsUsed: m.creditsUsed,
+              attachmentUrl: m.attachmentUrl,
+              attachmentName: m.attachmentName,
+              isTruncated: m.isTruncated
+            }));
+            set({ messages: mapped });
+          }
+        } catch (err) {
+          console.warn('[useAiStore] loadMessagesFromDb error:', err);
+        }
       }
     }),
     {
@@ -1105,7 +1259,7 @@ export const useAiStore = create<AiState>()(
         lastMonthlyReset: state.lastMonthlyReset,
         currentSessionId: state.currentSessionId,
         activeConversationId: state.activeConversationId,
-        messages: state.messages.slice(-50),
+        messages: state.messages, // V8.1: Lifted 50-message quota limit (persisted in db.ai_messages & store)
         sessions: (state.sessions || []).slice(0, 20)
       }),
       onRehydrateStorage: () => (state) => {
@@ -1115,6 +1269,31 @@ export const useAiStore = create<AiState>()(
           // Khách vãng lai: luôn luôn đồng bộ với pomofocus_guest_ai_credits_v5
           state.aiCreditsBalance = getInitialGuestCredits();
           state.aiPlan = 'free';
+        }
+        // Tự động khôi phục tin nhắn đầy đủ từ db.ai_messages nếu có
+        const convId = state.activeConversationId || state.currentSessionId;
+        if (convId) {
+          db.ai_messages
+            .where('conversationId')
+            .equals(convId)
+            .sortBy('createdAt')
+            .then((localAiMsgs) => {
+              if (localAiMsgs && localAiMsgs.length > 0) {
+                const mapped: AiMessage[] = localAiMsgs.map((m) => ({
+                  id: m.id,
+                  role: m.role === 'system' ? 'assistant' : m.role,
+                  content: m.content,
+                  timestamp: m.createdAt,
+                  actionType: m.actionType as AiActionType,
+                  creditsUsed: m.creditsUsed,
+                  attachmentUrl: m.attachmentUrl,
+                  attachmentName: m.attachmentName,
+                  isTruncated: m.isTruncated
+                }));
+                useAiStore.setState({ messages: mapped });
+              }
+            })
+            .catch(() => {});
         }
       }
     }

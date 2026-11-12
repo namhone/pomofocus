@@ -13,6 +13,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'pixel-7',
+      use: {
+        ...devices['Pixel 7'],
+        channel: 'chrome',
+      },
+    },
+    {
       name: 'chrome',
       use: {
         ...devices['Desktop Chrome'],

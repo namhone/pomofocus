@@ -9,7 +9,7 @@ describe('Milestone 3 Empirical Challenger 2: Capacitor Android & Standalone APK
   const packageJsonPath = path.join(projectRoot, 'package.json');
   const buildApkScriptPath = path.join(projectRoot, 'scripts/buildApk.ts');
   const versionJsonPath = path.join(projectRoot, 'public/version.json');
-  const apkPath = path.join(projectRoot, 'public/downloads/PomoFocus-v8.0.apk');
+  const apkPath = path.join(projectRoot, 'public/downloads/PomoFocus-v8.1.apk');
   const androidLocalPropertiesPath = path.join(projectRoot, 'android/local.properties');
   const androidAppBuildGradlePath = path.join(projectRoot, 'android/app/build.gradle');
 
@@ -125,7 +125,7 @@ describe('Milestone 3 Empirical Challenger 2: Capacitor Android & Standalone APK
 
       expect(mod.JAVA_HOME).toContain('jdk-17');
       expect(mod.ANDROID_HOME).toContain('Android');
-      expect(mod.TARGET_APK_PATH).toContain('PomoFocus-v8.0.apk');
+      expect(mod.TARGET_APK_PATH).toContain('PomoFocus-v8.1.apk');
       expect(mod.VERSION_JSON_PATH).toContain('version.json');
       expect(mod.GRADLE_OUTPUT_APK).toContain('app-debug.apk');
     });
@@ -282,11 +282,11 @@ describe('Milestone 3 Empirical Challenger 2: Capacitor Android & Standalone APK
     it('4.6 public/version.json conforms to all distribution manifest invariants', () => {
       const manifest = JSON.parse(fs.readFileSync(versionJsonPath, 'utf-8'));
 
-      expect(manifest.version).toBe('8.0.0');
+      expect(manifest.version).toBe('8.1.0');
       expect(manifest.minSupportedVersion).toBe('7.0.0');
       expect(manifest.minVersion).toBe('7.0.0');
-      expect(manifest.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk');
-      expect(manifest.releaseNotes).toContain('PomoFocus v8.0 Ultimate');
+      expect(manifest.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
+      expect(manifest.releaseNotes).toContain('PomoFocus v8.1');
       expect(Array.isArray(manifest.changelog)).toBe(true);
       expect(manifest.changelog.length).toBeGreaterThanOrEqual(3);
     });

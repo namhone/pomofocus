@@ -343,6 +343,42 @@ export class WebRTCConnectionManager {
       this.makingOfferMap.set(peerId, false);
     }
   }
+  /**
+   * Tự động kiểm tra và phục hồi các kết nối peer bị đứt đoạn (Background / Network Change)
+   */
+  public checkAndRecoverStalePeers() {
+    this.peerConnections.forEach((pc, peerId) => {
+      const isFailedOrDisconnected =
+        pc.connectionState === 'disconnected' ||
+        pc.connectionState === 'failed' ||
+        pc.iceConnectionState === 'disconnected' ||
+        pc.iceConnectionState === 'failed';
+
+      if (isFailedOrDisconnected) {
+        console.log(`[WebRTC Self-Healing] Phục hồi peer ${peerId} (state: ${pc.connectionState}/${pc.iceConnectionState})`);
+        this.restartIceForPeer(peerId);
+      }
+    });
+  }
+
+  /**
+   * Tái tạo lại PeerConnection hoàn toàn sạch mới nếu ICE Restart bị kẹt
+   */
+  public recreatePeerConnection(peerId: string) {
+    console.log(`[WebRTC] Tái tạo PeerConnection sạch mới cho ${peerId}`);
+    const oldPc = this.peerConnections.get(peerId);
+    if (oldPc) {
+      try {
+        oldPc.close();
+      } catch {}
+      this.peerConnections.delete(peerId);
+    }
+    const newPc = this.createPeerConnection(peerId);
+    this.peerConnections.set(peerId, newPc);
+    if (this.myUserId > peerId) {
+      this.callPeer(peerId);
+    }
+  }
 
   /**
    * Đồng bộ toàn diện danh sách thành viên trong phòng (Mesh Topology Sync)
@@ -484,8 +520,8 @@ export class WebRTCConnectionManager {
           const timer = setTimeout(() => {
             this.disconnectTimers.delete(peerId);
             if (pc.connectionState === 'failed' || pc.iceConnectionState === 'failed') {
-              console.warn(`[P2P] Peer ${peerId} kết nối failed sau 10s -> Dọn dẹp kết nối`);
-              this.closeConnection(peerId);
+              console.warn(`[P2P] Peer ${peerId} kết nối failed sau 10s -> Tự động tái tạo kết nối sạch mới`);
+              this.recreatePeerConnection(peerId);
             }
           }, 10000);
           this.disconnectTimers.set(peerId, timer);

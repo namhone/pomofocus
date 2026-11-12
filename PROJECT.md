@@ -1,103 +1,64 @@
-# Project: PomoFocus v7.4 Ultimate — Ecosystem "Landing Web + Standalone Android APK"
+# Project: PomoFocus V8.1 All-in-One Focus Hub, Meet Web & Standalone APK
 
 ## Architecture
-- **Ecosystem Duality**:
-  1. **Web Hub Landing Page (`/download`)**: Zen Glassmorphism showcase designed for high-conversion onboarding, featuring 1-touch APK download button, phone mockup preview, and dynamic QR code generation.
-  2. **Standalone Android APK Engine (`/app`)**: 120Hz native performance on mobile viewports with Anchor Timestamp Engine, Screen Wake Lock API, haptic feedback, spring physics, and zero-scroll-chaining.
-- **Micro-Animations & Physics (120Hz)**:
-  - **Zero-Scroll-Chaining**: `html, body { position: fixed; inset: 0; width: 100%; height: 100dvh; overflow: hidden !important; overscroll-behavior: none !important; }` with `#root { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; position: relative; }`.
-  - **Rolling Digit Morph**: Vertical Y-axis number transition in 120ms with `navigator.vibrate(10)` safe guard in `MobileStepperRow.tsx`.
-  - **Active Bottom Navigation Indicator & Spring Bounce**: Shared active indicator pill and `scale: [0.85, 1.15, 1.0]` spring bounce on tab change in `MobileAppShell.tsx` and `MobileBottomNav.tsx`.
-  - **Mode Switcher Physics**: Squash & stretch spring physics pill indicator for Focus / Short Break / Long Break in `MobileFocusView.tsx`.
-  - **Task Checkbox Animation**: SVG tick `strokeDashoffset` (20 to 0 in 180ms) + jade glow burst in `MobileAppShell.tsx` and `TasksWidget.tsx`.
-- **Distribution & Auto-Update Engine**:
-  - Direct public distribution via `https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v7.4.apk`.
-  - Smart User-Agent detection (`src/hooks/useDeviceDetection.ts`) presenting Android 1-touch emerald glow button vs Desktop QR code mockup.
-  - Zero-dependency SVG QR Matrix Generator (`src/utils/qrCode.ts`) ensuring zero new npm dependencies.
-  - In-App Auto-Update & Version Check (`public/version.json`, `src/utils/versionCompare.ts`, `src/components/LiquidUpdateBanner.tsx` at z-40).
-- **Android Native Capacitor Engine**:
-  - Capacitor integration with `@capacitor/core`, `@capacitor/android`, `@capacitor/haptics`, `@capacitor/status-bar`, and `@capacitor/cli`.
-  - `capacitor.config.ts` targeting `webDir: 'dist'`, `appId: 'com.pomofocus.workspace'`, and `appName: 'PomoFocus'`.
-  - Automated APK packaging script (`scripts/buildApk.ts`) setting `JAVA_HOME`, syncing web assets, executing `assembleDebug`, and placing `public/downloads/PomoFocus-v7.4.apk`.
+- **Data Layer (Local-First Hybrid)**: Dexie.js v2 `PomoDatabase` with 8 tables (`tasks`, `focus_sessions`, `ai_messages`, `sync_queue`, `projects`, `notes`, `custom_backgrounds`, `planner_blocks`), backward compatible with `PomodoroDatabase`. Offline mutation queue with Supabase sync. Server-authoritative wallet/credits (`user_wallets`).
+- **Mobile UI & Focus Hub**: MobileAppShell with `MobileAuthBottomSheet` (Google OAuth 1-tap, Magic Link, Bento Grid Profile), `MobileFocusView` (Quick Task Bar 1-tap with sliding picker drawer, Pocket Lock `🔒` with 1.5s hold, Hold to Start 800ms with escalating haptics, Pure Zen Black `#09090b` 1-tap, Task priority reordering, 24h Daily Flow Strip, 7-day Weekly Insights, AudioContext keep-alive & phase haptics).
+- **Meet Rooms Web (/rooms)**: Supabase Realtime Broadcast `room:${roomId}` for Group Synced Pomodoro (`room-timer-sync`), Shared Whiteboard with dual in-memory and IndexedDB stroke persistence across tab switching and reloads.
+- **Packaging, Testbed & Production Deployment**: `vite.config.ts` LAN host `0.0.0.0:5173`, Playwright Pixel 7 E2E testbed generating `mobile_test_report.png`, standalone `PomoFocus-v8.1.apk` packaging via Gradle, version bump to `8.1.0` with SHA-256 checksum, and dual Vercel deployment (`pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`).
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Zero-Scroll-Chaining | Fixed 100dvh body with scroll-isolated root container in `src/index.css` | M1 | ORIGINAL_REQUEST §1.4 |
-| 2 | Rolling Digit Morph & Haptics | Vertical 120ms digit slide with 10ms haptic feedback in `MobileStepperRow.tsx` | M1 | ORIGINAL_REQUEST §1.3 |
-| 3 | Bottom Nav Spring Micro-Animations | 5-tab active pill indicator and `scale: 0.85 -> 1.15 -> 1.0` spring bounce | M1 | ORIGINAL_REQUEST §1.3 |
-| 4 | Mode Switcher Spring Physics | Squash & stretch active pill transition for Focus/Short/Long Break | M1 | ORIGINAL_REQUEST §1.3 |
-| 5 | Task Checkbox SVG Tick & Jade Glow | Animated SVG `strokeDashoffset` and jade glow burst on task completion | M1 | ORIGINAL_REQUEST §1.3 |
-| 6 | Web Download Hub Landing Page | Showcase page at `src/components/landing/WebDownloadHub.tsx` | M2 | ORIGINAL_REQUEST §1.1, §2 |
-| 7 | Dedicated Download Routing | Routes `/download`, `/downloads`, `/apk` in `src/App.tsx` and static titles | M2 | Survey 2 & ORIGINAL_REQUEST |
-| 8 | Smart User-Agent Detection | Hook `useDeviceDetection.ts` differentiating Android vs Desktop/Laptop | M2 | ORIGINAL_REQUEST §1.1 |
-| 9 | Central 1-Touch APK Button | Android prominent download button with breathing emerald glow | M2 | ORIGINAL_REQUEST §1.1 |
-| 10 | Zero-Dependency SVG QR Code | Dynamic high-res QR vector generator in `src/utils/qrCode.ts` + 1-click copy link | M2 | ORIGINAL_REQUEST §1.1 |
-| 11 | In-App Auto-Update & Version Banner | `public/version.json`, `versionCompare.ts`, and `LiquidUpdateBanner.tsx` at z-40 | M2 | ORIGINAL_REQUEST §1.2 |
-| 12 | Capacitor Android Setup & Config | `capacitor.config.ts`, `android/local.properties`, and Capacitor integration | M3 | ORIGINAL_REQUEST §2 |
-| 13 | Standalone APK Build Automation | `scripts/buildApk.ts`, `assembleDebug`, and `public/downloads/PomoFocus-v7.4.apk` | M3 | ORIGINAL_REQUEST §1.1, §2 |
-| 14 | Dual Track E2E Test Suite | Comprehensive opaque-box test suites (Tiers 1-4) in `TEST_READY.md` | E2E Track | ORIGINAL_REQUEST §2 |
-| 15 | Adversarial Hardening & Forensic Audit | Tier 5 adversarial tests, 0 type errors (`tsc --noEmit`), forensic integrity verification | M4 | ORIGINAL_REQUEST §2 |
+| 1 | Vite LAN Testbed | `server: { host: '0.0.0.0', port: 5173 }` in `vite.config.ts` | M4 | Survey E3 / Directive 1.1 |
+| 2 | Playwright Pixel 7 E2E | Mobile test profile `devices['Pixel 7']` with `hasTouch: true`, `deviceScaleFactor: 2.75` producing `mobile_test_report.png` | M4 | Survey E3 / Directive 1.1 |
+| 3 | Dexie.js v2 Schema | `PomoDatabase` with `tasks`, `focus_sessions`, `ai_messages`, `sync_queue` + 4 existing tables, 100% backward compatible | M1 | Survey E1 / Directive 2 |
+| 4 | AI Message Persistence | Durable `db.ai_messages` persistence, eliminating 50-message cap and guest chat loss | M1 | Survey E1 / Directive 1.4, 2 |
+| 5 | Sync Mutation Queue | Offline mutation queue `db.sync_queue` and bidirectional sync worker for cloud sync | M1 | Survey E1 / Directive 1.2, 2 |
+| 6 | Liquid Bottom Sheet Auth | `MobileAuthBottomSheet.tsx` with Google 1-tap, Magic Link, and post-login Bento Grid Profile | M2 | Survey E2 / Directive 1.2, 3 |
+| 7 | Auth Triggers | Header avatar button and settings card click triggers for `MobileAuthBottomSheet` | M2 | Survey E2 / Directive 3 |
+| 8 | Pocket Lock 🔒 | Full-screen touch interceptor (`z-[70]`), tap to lock, hold 1.5s to unlock | M2 | Survey E2 / Directive 1.4, 4 |
+| 9 | Hold to Start 800ms | Primary timer action button with 800ms hold & escalating haptics + accessible 1-tap | M2 | Survey E2 / Directive 4 |
+| 10 | Quick Task Bar 1-Tap | Circular checkmark '○', jade burst animation, sliding task selection drawer without leaving screen | M2 | Survey E2 / Directive 4 |
+| 11 | Pure Zen Black 1-Tap | 1-tap button at top of Spaces tab resetting to OLED pure black `#09090b` | M2 | Survey E2 / Directive 1.4 |
+| 12 | AudioContext Keep-Alive | Continuous audio keep-alive and haptic pulse on phase transitions | M2 | Survey E2 / Directive 1.4 |
+| 13 | Task Priority Reordering | Up/Down reorder controls in Mobile Tasks view adjusting `orderIndex` and IndexedDB | M2 | Survey E2 / Directive 1.4 |
+| 14 | Weekly Insights 7-Day | 7-day focus distribution visualization connected to `db.focus_sessions` | M2 | Survey E2 / Directive 1.4, 4 |
+| 15 | Group Synced Pomodoro | Supabase Realtime broadcast `room-timer-sync` on `room:${roomId}` synchronizing timer state across peers | M3 | Survey E3 / Directive 1.3, 5 |
+| 16 | Persistent Shared Whiteboard | Strokes saved in state and IndexedDB so switching between camera grid and whiteboard preserves drawing | M3 | Survey E3 / Directive 1.3, 5 |
+| 17 | Standalone APK v8.1 Build | Compile `PomoFocus-v8.1.apk` via `scripts/buildApk.ts`, compute SHA-256 and update download pointers | M4 | Survey E3 / Directive 6 |
+| 18 | Version Synchronization 8.1.0 | Bump version to 8.1.0 across `version.json`, `android/app/build.gradle`, UI banners, download hubs, and 8 pinned test files | M4 | Survey E3 / Directive 6 |
+| 19 | Dual Vercel Deployment | Deploy release simultaneously to `pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app` | M4 | Survey E3 / Directive 6 |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Zero-Scroll-Chaining & 120Hz Micro-Animations | Features 1, 2, 3, 4, 5 (`index.css`, `MobileStepperRow`, `MobileBottomNav`, `MobileAppShell`, `MobileFocusView`, `TasksWidget`) | none | DONE |
-| M2 | Web Download Hub & Distribution Ecosystem | Features 6, 7, 8, 9, 10, 11 (`WebDownloadHub.tsx`, routing, `useDeviceDetection`, `qrCode.ts`, `version.json`, `LiquidUpdateBanner`) | none | DONE |
-| M3 | Capacitor Android Setup & Standalone APK Build | Features 12, 13 (`capacitor.config.ts`, `android/local.properties`, `scripts/buildApk.ts`, `public/downloads/PomoFocus-v7.4.apk`) | M1, M2 | DONE |
-| M4 | Dual Track E2E Testing, Adversarial Hardening & Audit | Features 14, 15 (E2E Test validation, Tier 5 hardening, 100% tests pass, Forensic Audit CLEAN) | M1, M2, M3 | DONE |
-
-## Interface Contracts
-### Micro-Animations & CSS Contract
-- `src/index.css`:
-  - `html, body { position: fixed; inset: 0; width: 100%; height: 100dvh; overflow: hidden !important; overscroll-behavior: none !important; }`
-  - `#root { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; position: relative; }`
-- `src/components/mobile/primitives/MobileStepperRow.tsx`:
-  - `interface MobileStepperRowProps`: unchanged external signature (`label`, `value`, `min`, `max`, `step`, `unit`, `onChange`, `testId`).
-  - Rolling digit morph inside `overflow-hidden` container along Y-axis in 120ms.
-  - Haptic feedback: `if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(10)` protected by try/catch.
-- `src/components/mobile/MobileAppShell.tsx` & `MobileBottomNav.tsx`:
-  - Spring bounce on active tab selection `scale: 0.85 -> 1.15 -> 1.0` in 260ms.
-  - Active indicator pill with smooth transition `cubic-bezier(0.16, 1, 0.3, 1)`.
-- `src/components/mobile/views/MobileFocusView.tsx`:
-  - Active pill background between `pomodoro`, `short_break`, `long_break` with squash & stretch spring curve.
-- `src/components/TasksWidget.tsx` & `MobileAppShell.tsx`:
-  - Checkbox SVG checkmark with `strokeDashoffset: 20 -> 0` in 180ms and `jade-burst` animation.
-
-### Web Download Hub Contract
-- `src/components/landing/WebDownloadHub.tsx`:
-  - Standalone high-conversion showcase page. Reuses `<PlatformHeader />` and `<SharedFooter />` (State Singularity).
-  - Responsive layout: Android device shows prominent emerald glowing APK button; Desktop shows 3D mockup + SVG QR Code.
-- `src/hooks/useDeviceDetection.ts`:
-  - `export function useDeviceDetection(): { isAndroid: boolean; isIOS: boolean; isMobile: boolean; isDesktop: boolean; isNativeCapacitor: boolean; }`
-- `src/utils/qrCode.ts`:
-  - `export function generateQrCodeSvg(text: string, options?: { size?: number; margin?: number; color?: string; }): string`
-  - Zero external dependencies.
-- `src/components/LiquidUpdateBanner.tsx`:
-  - Inset liquid banner at `z-40` (above `MobileBottomNav` `z-30`, below modals `z-50`).
-  - Reads `CURRENT_APP_VERSION = '7.4.0'` and fetches `/version.json`.
-
-### Android Build Contract
-- `capacitor.config.ts`:
-  - `import type { CapacitorConfig } from '@capacitor/cli';`
-  - `appId: 'com.pomofocus.workspace'`, `appName: 'PomoFocus'`, `webDir: 'dist'`.
-- `scripts/buildApk.ts`:
-  - Programmatically configures environment (`JAVA_HOME`, `ANDROID_HOME`), runs build and Gradle `assembleDebug`, and places APK at `public/downloads/PomoFocus-v7.4.apk`.
-  - Generates `public/version.json`.
+| M1 | Dexie.js v2 Storage & Sync Queue | `src/db/index.ts`, `src/types/`, `src/stores/useAiStore.ts`, `src/services/syncQueueService.ts`, backward compatibility with all 1,519 unit tests | none | DONE |
+| M2 | Mobile Focus Hub & Liquid Auth | `src/components/mobile/auth/MobileAuthBottomSheet.tsx`, `MobileFocusView.tsx`, `MobileAppShell.tsx`, Pocket Lock, Hold to Start, Pure Zen Black, Reordering, Audio Keep-alive | M1 | DONE |
+| M3 | Meet Rooms Realtime Sync & Whiteboard | `src/components/StudyRoomView.tsx`, `room-timer-sync` broadcast, IndexedDB stroke persistence | M1 | DONE |
+| M4 | Standalone APK, Playwright & Deployment | `vite.config.ts`, `playwright.config.ts`, `scripts/buildApk.ts`, version 8.1.0 sync, `PomoFocus-v8.1.apk`, Pixel 7 visual report, dual Vercel deploy | M1, M2, M3 | DONE |
+| M-E2E | Dual Track: E2E Test Suite | Opaque-box E2E test suite (Tiers 1-4) covering all features in inventory | parallel | DONE |
+| M5 | Victory Claim & Final Audit | Master delivery synthesis, Sentinel Victory claim, final independent audit | M1-M4 | IN_PROGRESS |
 
 ## Code Layout
-- `src/index.css`
-- `src/components/mobile/primitives/MobileStepperRow.tsx`
-- `src/components/mobile/MobileAppShell.tsx`
-- `src/components/MobileBottomNav.tsx`
-- `src/components/mobile/views/MobileFocusView.tsx`
-- `src/components/TasksWidget.tsx`
-- `src/components/landing/WebDownloadHub.tsx`
-- `src/hooks/useDeviceDetection.ts`
-- `src/utils/qrCode.ts`
-- `src/utils/versionCompare.ts`
-- `src/components/LiquidUpdateBanner.tsx`
-- `capacitor.config.ts`
-- `scripts/buildApk.ts`
-- `public/version.json`
-- `public/downloads/PomoFocus-v7.4.apk`
+- `src/db/index.ts`: Dexie v2 database, tables, schema versioning, and transaction helpers.
+- `src/types/tasks.ts`, `src/types/timer.ts`: Data types and entity models.
+- `src/stores/`: Zustand stores (`useAiStore`, `useTaskStore`, `useTimerStore`, `useAuthStore`).
+- `src/services/`: Services (`syncQueueService`, `authService`, `googleAuthService`).
+- `src/components/mobile/`: Mobile UI components (`MobileAppShell.tsx`, `views/MobileFocusView.tsx`, `views/MobileSettingsView.tsx`, `auth/MobileAuthBottomSheet.tsx`).
+- `src/components/StudyRoomView.tsx`: Meet room WebRTC, Supabase Realtime channel, and whiteboard coordination.
+- `scripts/buildApk.ts`: Automated Capacitor Android APK packaging pipeline.
+- `playwright.config.ts`, `tests/e2e/`: E2E test specifications.
+- `public/version.json`, `public/downloads/`: Version manifest and distribution binaries.
+
+## Interface Contracts
+### Dexie Database (M1) ↔ Mobile & Meet (M2, M3)
+- `db.tasks`: Table<LocalTask, string> (compatible with Task)
+- `db.focus_sessions`: Table<LocalFocusSession, string> (compatible with FocusSessionRecord)
+- `db.ai_messages`: Table<LocalAiMessage, string>
+- `db.sync_queue`: Table<SyncMutation, string>
+- `recordFocusSessionAtomic(record)`: ACID transaction returning Promise<boolean>
+
+### Meet Realtime Sync (M3)
+- Channel: `room:${roomId}`
+- Event: `'room-timer-sync'`
+- Payload: `{ action: 'START' | 'PAUSE' | 'RESET' | 'PHASE_CHANGE', remainingSeconds: number, isRunning: boolean, phase: string, senderId: string, timestamp: number }`

@@ -42,6 +42,41 @@ let lastSyncTimestamp = 0;
 let hasBoundUnload = false;
 let visibilitySyncHandler: (() => void) | null = null;
 
+let keepAliveGain: GainNode | null = null;
+let keepAliveOsc: OscillatorNode | null = null;
+
+async function startAudioKeepAlive(): Promise<void> {
+  try {
+    const { AudioContextManager } = await import('../services/audioContextManager');
+    const mgr = AudioContextManager.getInstance();
+    await mgr.ensureResumed().catch(() => {});
+    const ctx = mgr.getContext();
+    if (ctx && !keepAliveGain) {
+      keepAliveGain = ctx.createGain();
+      keepAliveGain.gain.setValueAtTime(0.00001, ctx.currentTime);
+      keepAliveOsc = ctx.createOscillator();
+      keepAliveOsc.frequency.setValueAtTime(40, ctx.currentTime);
+      keepAliveOsc.connect(keepAliveGain);
+      keepAliveGain.connect(ctx.destination);
+      keepAliveOsc.start();
+    }
+  } catch {}
+}
+
+function stopAudioKeepAlive(): void {
+  try {
+    if (keepAliveOsc) {
+      keepAliveOsc.stop();
+      keepAliveOsc.disconnect();
+      keepAliveOsc = null;
+    }
+    if (keepAliveGain) {
+      keepAliveGain.disconnect();
+      keepAliveGain = null;
+    }
+  } catch {}
+}
+
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
@@ -296,6 +331,19 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
             NotificationService.notify(`🎉 ${phaseName}${taskInfo} đã hoàn thành!`, {
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
             });
+            // V8.1: Haptic notification before chime
+            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+              try {
+                navigator.vibrate([200, 100, 200, 100, 300]);
+              } catch {}
+            }
+
+            // V8.1: Ensure AudioContext is resumed before chime
+            try {
+              const { AudioContextManager } = await import('../services/audioContextManager');
+              await AudioContextManager.getInstance().ensureResumed();
+            } catch {}
+
             // Chuông báo kết thúc hiệp (chỉ duy nhất tab ghi nhận thành công mới phát chuông)
             try {
               const { useAudioStore } = await import('./useAudioStore');
@@ -406,6 +454,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         engineInstance.setPhase(get().phase, get().currentRound);
       }
       engineInstance.start();
+      startAudioKeepAlive();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -429,6 +478,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   pause: () => {
     if (engineInstance) {
       engineInstance.pause();
+      stopAudioKeepAlive();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -450,6 +500,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   resume: () => {
     if (engineInstance) {
       engineInstance.resume();
+      startAudioKeepAlive();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -474,6 +525,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         engineInstance.setPhase(get().phase, get().currentRound);
       }
       engineInstance.reset();
+      stopAudioKeepAlive();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -495,6 +547,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   resetCycle: () => {
     if (engineInstance) {
       engineInstance.resetCycle();
+      stopAudioKeepAlive();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -636,6 +689,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (coordinatorInstance) {
       coordinatorInstance.destroy();
       coordinatorInstance = null;
+      stopAudioKeepAlive();
     }
   }
 }));

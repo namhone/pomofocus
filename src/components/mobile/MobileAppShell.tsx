@@ -18,7 +18,9 @@ import {
   Volume2,
   VolumeX,
   Headphones,
-  Layers
+  Layers,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { useTimerStore } from '../../stores/useTimerStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
@@ -35,8 +37,10 @@ import { BackgroundCanvas } from '../BackgroundCanvas';
 import { AmbientOverlay } from '../AmbientOverlay';
 import { MobileFocusView } from './views/MobileFocusView';
 import { MobileSettingsView } from './views/MobileSettingsView';
+import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
 import { AiCreditsTopupModal } from '../AiCreditsTopupModal';
 import { GlobalAudioHost } from '../GlobalAudioHost';
+import { getUserInitial } from '../../services/authService';
 
 const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
 
@@ -79,6 +83,8 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const closeTopupModal = useAiStore((s) => s.closeTopupModal);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
+
+  const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
 
   // Hydrate persistent stores on mobile shell startup & auth change
   useEffect(() => {
@@ -331,6 +337,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       {/* Topup Modal */}
       <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
 
+      {/* Liquid Bottom Sheet Auth */}
+      <MobileAuthBottomSheet isOpen={isAuthSheetOpen} onClose={() => setIsAuthSheetOpen(false)} />
+
       {/* -------------------------------------------------------------------- */}
       {/* Top Header (56px / h-14)                                             */}
       {/* -------------------------------------------------------------------- */}
@@ -364,8 +373,24 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
           />
         </div>
 
-        {/* Right: PiP trigger & Credits Capsule */}
+        {/* Right: Avatar Button, PiP trigger & Credits Capsule */}
         <div className="flex items-center gap-2">
+          {/* Avatar button */}
+          <button
+            type="button"
+            data-testid="mobile-header-avatar-btn"
+            onClick={() => setIsAuthSheetOpen(true)}
+            className="w-8 h-8 rounded-full bg-zinc-900/90 border border-white/10 hover:border-emerald-400/50 flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-emerald-400 shadow-sm"
+            title="Tài khoản & Đồng bộ đám mây"
+            aria-label="Tài khoản và Đồng bộ đám mây"
+          >
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.displayName || 'Avatar'} className="w-full h-full object-cover" />
+            ) : (
+              <span>{getUserInitial(user)}</span>
+            )}
+          </button>
+
           <button
             type="button"
             data-testid="mobile-pip-btn"
@@ -449,7 +474,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         {/* Tab 5: Settings View */}
         {activeTab === 'settings' && (
           <div data-testid="mobile-view-settings" className="w-full h-full">
-            <MobileSettingsView />
+            <MobileSettingsView onOpenAuth={() => setIsAuthSheetOpen(true)} />
           </div>
         )}
       </main>
@@ -691,6 +716,30 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
+                  {/* Task Priority Reordering Controls (Up / Down) */}
+                  <div className="flex items-center bg-zinc-800/80 rounded-lg p-0.5 border border-white/5">
+                    <button
+                      type="button"
+                      data-testid={`mobile-task-move-up-${task.id}`}
+                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
+                      className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
+                      title="Chuyển lên trên"
+                      aria-label="Chuyển lên trên"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      data-testid={`mobile-task-move-down-${task.id}`}
+                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
+                      className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
+                      title="Chuyển xuống dưới"
+                      aria-label="Chuyển xuống dưới"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -875,6 +924,28 @@ const MobileSpacesSubView: React.FC = () => {
 
       {spacesSubTab === 'bg' ? (
         <>
+          {/* 1-Tap Pure Zen Black Reset Button (OLED #09090b) */}
+          <div className="w-full">
+            <button
+              type="button"
+              data-testid="mobile-spaces-pure-zen-black-btn"
+              onClick={() => useBackgroundStore.getState().setPureZenBlack()}
+              className={`w-full h-12 rounded-2xl border px-4 flex items-center justify-between text-xs font-bold transition active:scale-[0.98] cursor-pointer shadow-md backdrop-blur-md ${
+                activePresetId === 'pure-black'
+                  ? 'bg-zinc-900 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/20 shadow-emerald-500/10'
+                  : 'bg-zinc-950/80 border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="w-3.5 h-3.5 rounded-full bg-[#09090b] border border-white/20 shrink-0 shadow-sm" />
+                <span>Tắt nền (Pure Zen Black)</span>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+                OLED #09090b
+              </span>
+            </button>
+          </div>
+
           {/* Presets Grid */}
           <div className="grid grid-cols-2 gap-3">
             {presets.map((preset) => {
@@ -1235,6 +1306,39 @@ const MobileAiSubView: React.FC = () => {
           if (m.role === 'assistant' && !m.content && isLoading) {
             return null;
           }
+
+          const isErrorMsg = m.role === 'assistant' && (m.content.startsWith('⚠️') || m.content.includes('Không thể kết nối'));
+          if (isErrorMsg) {
+            return (
+              <div key={m.id} className="flex flex-col items-start w-full max-w-[92%]">
+                <div
+                  data-testid="mobile-ai-error-banner"
+                  role="alert"
+                  className="w-full rounded-2xl p-3.5 text-xs bg-rose-500/15 border border-rose-500/30 text-rose-200 space-y-2.5 shadow-sm"
+                >
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                    <span className="leading-relaxed">{m.content.replace(/^⚠️\s*/, '')}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const userMsgs = messages.filter((msg) => msg.role === 'user');
+                      const lastUserMsg = userMsgs[userMsgs.length - 1];
+                      if (lastUserMsg) {
+                        handleSend(lastUserMsg.content);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/35 border border-rose-400/40 text-rose-100 font-semibold text-[11px] transition active:scale-95 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-rose-300" />
+                    <span>Thử lại câu hỏi</span>
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
           return (
             <div
               key={m.id}
@@ -1291,7 +1395,8 @@ const MobileAiSubView: React.FC = () => {
           </div>
         )}
 
-        {error && (
+        {/* Only show system-level error banner if not already presented as an inline chat message */}
+        {error && !messages.some((m) => m.role === 'assistant' && (m.content.includes(error) || m.content.includes('Không thể kết nối') || m.content.startsWith('⚠️'))) && (
           <div
             data-testid="mobile-ai-error-banner"
             role="alert"

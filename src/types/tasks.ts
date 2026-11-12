@@ -17,12 +17,15 @@ export interface Tag {
 
 export interface Task {
   id: string;               // UUID v4
+  userId?: string;          // V8.1 Local-First user ownership
   title: string;
   description?: string;
   projectId?: string | null;
   tagIds: string[];
   priority: TaskPriority;
   status: TaskStatus;
+  completed?: boolean;      // V8.1 convenience boolean
+  order?: number;           // V8.1 priority sort order
   estimatedPomodoros: number; // Dự kiến số hiệp (VD: 4)
   completedPomodoros: number; // Số hiệp đã hoàn thành thực tế (VD: 0)
   deadline?: number | null;   // Timestamp hạn chót
@@ -31,4 +34,11 @@ export interface Task {
   createdAt: number;
   updatedAt: number;
   completedAt?: number | null;
+  synced?: boolean;          // V8.1 cloud sync status
 }
+
+export interface LocalTask extends Task {
+  // Fully mutually compatible with Task
+}
+
+

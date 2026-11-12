@@ -18,10 +18,11 @@ import { useAuthStore } from '../../../stores/useAuthStore';
 import { useAiStore } from '../../../stores/useAiStore';
 import { ALARM_CHIMES } from '../../../data/alarmSounds';
 import { ChimeSoundType } from '../../../types/audio';
-import { hasVipAccess, isOwnerEmail } from '../../../services/authService';
+import { hasVipAccess, isOwnerEmail, getUserInitial } from '../../../services/authService';
 
 export interface MobileSettingsViewProps {
   className?: string;
+  onOpenAuth?: () => void;
 }
 
 /**
@@ -38,6 +39,7 @@ export interface MobileSettingsViewProps {
  */
 export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   className = '',
+  onOpenAuth,
 }) => {
   // Timer Store
   const timerSettings = useTimerStore((s) => s.settings);
@@ -87,8 +89,8 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   }, [user]);
 
   const userInitial = useMemo(() => {
-    return (userDisplayName[0] || 'K').toUpperCase();
-  }, [userDisplayName]);
+    return getUserInitial(user);
+  }, [user]);
 
   // Stepper handlers
   const handleFocusChange = (val: number) => {
@@ -209,6 +211,20 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 active:scale-95 transition-all touch-manipulation cursor-pointer"
           >
             Nạp thêm
+          </button>
+        </div>
+
+        {/* Account & Cloud Sync Trigger */}
+        <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+          <span className="text-xs text-zinc-400">Đồng bộ đám mây & xác thực</span>
+          <button
+            type="button"
+            data-testid="mobile-settings-login-btn"
+            onClick={() => onOpenAuth?.()}
+            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer"
+          >
+            <span>{user?.id ? 'Hồ sơ & Đăng xuất' : 'Đăng nhập / Đăng ký'}</span>
+            <span>→</span>
           </button>
         </div>
 

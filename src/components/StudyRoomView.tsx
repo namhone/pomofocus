@@ -19,6 +19,8 @@ import {
 } from '../services/studyRoomService';
 import { WhiteboardView } from './WhiteboardView';
 import { WhiteboardStroke } from '../types/whiteboard';
+import { RoomTimerSyncPayload, RoomTimerPhase } from '../types/timer';
+export type { RoomTimerSyncPayload, RoomTimerPhase };
 import { AiCompanionWidget } from './AiCompanionWidget';
 import { useAiStore } from '../stores/useAiStore';
 import {
@@ -78,6 +80,53 @@ interface FloatingReaction {
 
 // Cache nét vẽ Whiteboard theo roomId phòng học
 export const roomCanvasStrokesMap = new Map<string, any[]>();
+const EMPTY_WHITEBOARD_STROKES: WhiteboardStroke[] = [];
+
+export const getStoredWhiteboardStrokes = (roomId: string): WhiteboardStroke[] => {
+  if (!roomId) return EMPTY_WHITEBOARD_STROKES;
+  const cached = roomCanvasStrokesMap.get(roomId);
+  if (cached && cached.length > 0) return cached;
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = localStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          roomCanvasStrokesMap.set(roomId, parsed);
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return EMPTY_WHITEBOARD_STROKES;
+};
+
+export const persistWhiteboardStrokes = (roomId: string, strokes: WhiteboardStroke[]): void => {
+  if (!roomId) return;
+  roomCanvasStrokesMap.set(roomId, strokes);
+  if (typeof window !== 'undefined') {
+    try {
+      if (strokes.length > 0) {
+        localStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
+      } else {
+        localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+      }
+    } catch {}
+  }
+};
+
+export const getRoomPhaseDuration = (phase: RoomTimerPhase): number => {
+  switch (phase) {
+    case 'work':
+      return 25 * 60;
+    case 'shortBreak':
+      return 5 * 60;
+    case 'longBreak':
+      return 15 * 60;
+    default:
+      return 25 * 60;
+  }
+};
 
 interface RemotePeerTileProps {
   peer: { id: string; name: string; isMicOn?: boolean; role?: string; userId?: string };
@@ -186,9 +235,17 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
   );
 });
 
-export const StudyRoomView: React.FC = () => {
+export interface StudyRoomViewProps {
+  roomId?: string;
+  initialJoined?: boolean;
+}
+
+export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
+  roomId: propRoomId,
+  initialJoined = false
+}) => {
   const router = useRouter();
-  const rawRoomId = router.currentRoute.params?.roomId;
+  const rawRoomId = propRoomId || router.currentRoute.params?.roomId;
 
   useEffect(() => {
     if (!rawRoomId || rawRoomId === 'rooms' || rawRoomId === 'room' || rawRoomId === 'room-alpha-1') {
@@ -226,7 +283,7 @@ export const StudyRoomView: React.FC = () => {
   );
 
   // AV pre-join state
-  const [hasJoined, setHasJoined] = useState(false);
+  const [hasJoined, setHasJoined] = useState(initialJoined);
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [micEnabled, setMicEnabled] = useState(true);
   const [participantName, setParticipantName] = useState(
@@ -258,8 +315,15 @@ export const StudyRoomView: React.FC = () => {
   const [floatingReactions, setFloatingReactions] = useState<FloatingReaction[]>([]);
 
   // Synchronized Room Timer
+  const [roomPhase, setRoomPhase] = useState<RoomTimerPhase>('work');
   const [roomRemainingSeconds, setRoomRemainingSeconds] = useState(25 * 60);
   const [isRoomRunning, setIsRoomRunning] = useState(false);
+  const isRoomRunningRef = useRef(isRoomRunning);
+  isRoomRunningRef.current = isRoomRunning;
+  const roomRemainingSecondsRef = useRef(roomRemainingSeconds);
+  roomRemainingSecondsRef.current = roomRemainingSeconds;
+  const roomPhaseRef = useRef(roomPhase);
+  roomPhaseRef.current = roomPhase;
 
   // Whiteboard View Switcher & Fullscreen Mode
   const [activeTab, setActiveTab] = useState<'grid' | 'whiteboard'>('grid');
@@ -268,13 +332,26 @@ export const StudyRoomView: React.FC = () => {
 
   // Lưu bền vững nét vẽ Whiteboard khi chuyển giữa Lưới Video và Bảng Vẽ Chung
   const [canvasStrokes, setCanvasStrokes] = useState<WhiteboardStroke[]>(() => {
-    return roomCanvasStrokesMap.get(roomId) || [];
+    return getStoredWhiteboardStrokes(roomId);
   });
 
   const handleStrokesChange = useCallback((updatedStrokes: WhiteboardStroke[]) => {
-    setCanvasStrokes(updatedStrokes);
+    setCanvasStrokes((prev) => {
+      if (prev === updatedStrokes) return prev;
+      if (prev.length === 0 && updatedStrokes.length === 0) return prev;
+      return updatedStrokes;
+    });
+    persistWhiteboardStrokes(roomId, updatedStrokes);
+  }, [roomId]);
+
+  useEffect(() => {
     if (roomId) {
-      roomCanvasStrokesMap.set(roomId, updatedStrokes);
+      const stored = getStoredWhiteboardStrokes(roomId);
+      setCanvasStrokes((prev) => {
+        if (prev === stored) return prev;
+        if (prev.length === 0 && stored.length === 0) return prev;
+        return stored;
+      });
     }
   }, [roomId]);
   const [wbCameraCoords, setWbCameraCoords] = useState<{ x: number; y: number } | null>(null);
@@ -548,6 +625,70 @@ export const StudyRoomView: React.FC = () => {
   const rtcManagerRef = useRef<WebRTCConnectionManager | null>(null);
   const channelRef = useRef<any>(null);
   const lastHeartbeatMapRef = useRef<Map<string, number>>(new Map());
+
+  // Group Synced Pomodoro Broadcast & Actions
+  const broadcastRoomTimer = useCallback((payload: RoomTimerSyncPayload) => {
+    try {
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'room-timer-sync',
+          payload
+        });
+      }
+      if (studyRoomService.broadcastChannel) {
+        studyRoomService.broadcastChannel.postMessage({
+          roomId,
+          event: 'room-timer-sync',
+          payload
+        });
+      }
+    } catch (err) {
+      console.warn('Broadcast room timer sync failed:', err);
+    }
+  }, [roomId]);
+
+  const handleToggleRoomTimer = useCallback(() => {
+    const nextRunning = !isRoomRunning;
+    setIsRoomRunning(nextRunning);
+    broadcastRoomTimer({
+      action: nextRunning ? 'START' : 'PAUSE',
+      remainingSeconds: roomRemainingSeconds,
+      isRunning: nextRunning,
+      phase: roomPhase,
+      senderId: user?.id || participantId,
+      timestamp: Date.now()
+    });
+  }, [isRoomRunning, roomRemainingSeconds, roomPhase, user?.id, participantId, broadcastRoomTimer]);
+
+  const handleResetRoomTimer = useCallback(() => {
+    const resetSeconds = getRoomPhaseDuration(roomPhase);
+    setIsRoomRunning(false);
+    setRoomRemainingSeconds(resetSeconds);
+    broadcastRoomTimer({
+      action: 'RESET',
+      remainingSeconds: resetSeconds,
+      isRunning: false,
+      phase: roomPhase,
+      senderId: user?.id || participantId,
+      timestamp: Date.now()
+    });
+  }, [roomPhase, user?.id, participantId, broadcastRoomTimer]);
+
+  const handlePhaseChange = useCallback((newPhase: RoomTimerPhase) => {
+    const newSeconds = getRoomPhaseDuration(newPhase);
+    setRoomPhase(newPhase);
+    setIsRoomRunning(false);
+    setRoomRemainingSeconds(newSeconds);
+    broadcastRoomTimer({
+      action: 'PHASE_CHANGE',
+      remainingSeconds: newSeconds,
+      isRunning: false,
+      phase: newPhase,
+      senderId: user?.id || participantId,
+      timestamp: Date.now()
+    });
+  }, [user?.id, participantId, broadcastRoomTimer]);
 
   // Voice Activity Detection (VAD) via AudioContext & AnalyserNode
   useEffect(() => {
@@ -885,25 +1026,9 @@ export const StudyRoomView: React.FC = () => {
 
     const isSelf = (p: { id?: string; userId?: string; role?: string; name?: string }) => {
       if (!p) return true;
-      // 1. Trùng session participantId cục bộ
-      if (p.id === participantId) return true;
-
-      // 2. Trùng userId tài khoản đăng nhập hiện tại (chỉ áp dụng khi user thật đã đăng nhập, không dùng cho guest)
-      if (user?.id && user.id !== 'guest') {
-        if (p.userId === user.id) return true;
-        if (p.id === user.id) return true;
-        if (p.id?.startsWith(`${user.id}_`)) return true;
-      }
-
-      // 3. Trùng vai trò Host của chính bản thân khi là Host
-      if (userRole === 'host') {
-        if (p.role === 'host') return true;
-        if (room?.hostUserId && room.hostUserId !== 'system_study_pod' && (p.userId === room.hostUserId || p.id === room.hostUserId || p.id?.startsWith(`${room.hostUserId}_`))) {
-          return true;
-        }
-      }
-
-      return false;
+      // Chỉ coi là Self khi trùng chính xác participantId của phiên/thiết bị này
+      // (Cho phép cùng 1 tài khoản đăng nhập trên Laptop và Điện thoại đồng thời mà không bị ẩn hay đá nhau)
+      return p.id === participantId;
     };
 
     // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId hoặc session prefix)
@@ -1313,6 +1438,20 @@ export const StudyRoomView: React.FC = () => {
 
       if (data.event === 'heart-rain') {
         triggerHeartRainRef.current(data.payload?.senderName || 'Nóc Nhà');
+      } else if (data.event === 'room-timer-sync' && data.payload) {
+        const syncData: RoomTimerSyncPayload = data.payload;
+        const currentUserId = user?.id || participantId;
+        if (syncData.senderId && syncData.senderId !== currentUserId && syncData.senderId !== participantId) {
+          if (typeof syncData.remainingSeconds === 'number') {
+            setRoomRemainingSeconds(syncData.remainingSeconds);
+          }
+          if (typeof syncData.isRunning === 'boolean') {
+            setIsRoomRunning(syncData.isRunning);
+          }
+          if (syncData.phase && (syncData.phase === 'work' || syncData.phase === 'shortBreak' || syncData.phase === 'longBreak')) {
+            setRoomPhase(syncData.phase);
+          }
+        }
       } else if (data.event === 'chat-message' && data.payload?.text) {
         appendMessageSafe(data.payload);
         if (!isChatOpenRef.current) {
@@ -1357,6 +1496,109 @@ export const StudyRoomView: React.FC = () => {
     };
   }, [roomId, router]);
 
+  // =========================================================================
+  // SILENT DISCONNECTION & BACKGROUND HEARTBEAT RESILIENCE (V8.1)
+  // Bắt sự kiện visibilitychange & online để tự động khôi phục kênh Realtime & WebRTC
+  // và khởi tạo Web Worker heartbeat để không bị browser throttle khi chạy nền
+  // =========================================================================
+  const handleBackgroundRecovery = useCallback(async () => {
+    if (!hasJoined || !roomId || !channelRef.current) return;
+    console.log('[Meet Background Recovery] Kiểm tra trạng thái kênh Realtime:', channelRef.current.state);
+
+    if (channelRef.current.state !== 'joined') {
+      try {
+        console.log('[Meet Background Recovery] Kênh bị ngắt khi chạy nền -> Re-subscribing...');
+        await channelRef.current.subscribe();
+        await channelRef.current.track({
+          userId: user?.id || 'guest',
+          clientSessionId,
+          displayName: participantName,
+          role: userRole,
+          isMicOn: micEnabled,
+          isVideoOn: cameraEnabled,
+          joinedAt: Date.now()
+        });
+      } catch (err) {
+        console.warn('[Meet Background Recovery] Lỗi re-subscribe:', err);
+      }
+    } else {
+      try {
+        await channelRef.current.track({
+          userId: user?.id || 'guest',
+          clientSessionId,
+          displayName: participantName,
+          role: userRole,
+          isMicOn: micEnabled,
+          isVideoOn: cameraEnabled,
+          joinedAt: Date.now()
+        });
+      } catch {}
+    }
+
+    try {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room-timer-sync-request',
+        payload: { fromPeerId: participantId, timestamp: Date.now() }
+      });
+    } catch {}
+
+    if (rtcManagerRef.current) {
+      rtcManagerRef.current.checkAndRecoverStalePeers();
+    }
+  }, [hasJoined, roomId, user?.id, clientSessionId, participantName, userRole, micEnabled, cameraEnabled, participantId]);
+
+  useEffect(() => {
+    if (!hasJoined) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleBackgroundRecovery();
+      }
+    };
+
+    const handleOnline = () => {
+      console.log('[Meet Network] Thiết bị đã online trở lại, khôi phục phòng học...');
+      handleBackgroundRecovery();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+
+    let worker: Worker | null = null;
+    try {
+      if (typeof window !== 'undefined' && typeof Blob !== 'undefined' && typeof Worker !== 'undefined') {
+        const workerBlob = new Blob([
+          'let timer = null; self.onmessage = function(e) { if (e.data === "start") { if (timer) clearInterval(timer); timer = setInterval(function() { self.postMessage("tick"); }, 15000); } else if (e.data === "stop") { if (timer) clearInterval(timer); timer = null; } };'
+        ], { type: 'application/javascript' });
+        worker = new Worker(URL.createObjectURL(workerBlob));
+        worker.onmessage = () => {
+          if (channelRef.current && channelRef.current.state === 'joined') {
+            try {
+              channelRef.current.send({
+                type: 'broadcast',
+                event: 'p2p-keepalive',
+                payload: { fromPeerId: participantId, timestamp: Date.now() }
+              });
+            } catch {}
+          }
+        };
+        worker.postMessage('start');
+      }
+    } catch (err) {
+      console.debug('[Meet] Web Worker heartbeat fallback:', err);
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      if (worker) {
+        worker.postMessage('stop');
+        worker.terminate();
+      }
+    };
+  }, [hasJoined, handleBackgroundRecovery, participantId]);
+
   // Khởi tạo WebRTC Connection Manager & Supabase Realtime Channel sau khi đã tham gia phòng
   useEffect(() => {
     if (!hasJoined || !roomId || !participantId) return;
@@ -1380,15 +1622,10 @@ export const StudyRoomView: React.FC = () => {
           return next;
         });
         setPresenceUsers((prev) => {
-          let found = false;
+          if (!prev[peerId]) return prev;
           const next = { ...prev };
-          Object.keys(next).forEach((k) => {
-            if (k === peerId || next[k]?.id === peerId || (next[k] as any)?.userId === peerId) {
-              delete next[k];
-              found = true;
-            }
-          });
-          return found ? next : prev;
+          delete next[peerId];
+          return next;
         });
         setRoom((prevRoom) => {
           if (!prevRoom?.participants || !prevRoom.participants[peerId]) return prevRoom;
@@ -1697,6 +1934,38 @@ export const StudyRoomView: React.FC = () => {
       handleAdminActionReceived(data);
     });
 
+    // Lắng nghe yêu cầu đồng bộ lại đồng hồ phòng học khi có bạn học quay lại từ background
+    channel.on('broadcast', { event: 'room-timer-sync-request' }, () => {
+      if (userRole === 'host' || isRoomRunningRef.current) {
+        broadcastRoomTimer({
+          action: 'SYNC',
+          senderId: participantId,
+          remainingSeconds: roomRemainingSecondsRef.current,
+          isRunning: isRoomRunningRef.current,
+          phase: roomPhaseRef.current,
+          timestamp: Date.now()
+        });
+      }
+    });
+
+    // Lắng nghe sự kiện đồng bộ Pomodoro thời gian thực từ Host / bạn học
+    channel.on('broadcast', { event: 'room-timer-sync' }, (payload: any) => {
+      const data: RoomTimerSyncPayload = payload?.payload || payload;
+      if (!data) return;
+      const currentUserId = user?.id || participantId;
+      if (data.senderId && data.senderId !== currentUserId && data.senderId !== participantId) {
+        if (typeof data.remainingSeconds === 'number') {
+          setRoomRemainingSeconds(data.remainingSeconds);
+        }
+        if (typeof data.isRunning === 'boolean') {
+          setIsRoomRunning(data.isRunning);
+        }
+        if (data.phase && (data.phase === 'work' || data.phase === 'shortBreak' || data.phase === 'longBreak')) {
+          setRoomPhase(data.phase);
+        }
+      }
+    });
+
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         try {
@@ -1737,7 +2006,9 @@ export const StudyRoomView: React.FC = () => {
     }
 
     return () => {
-      manager.destroy();
+      if (manager && typeof manager.destroy === 'function') {
+        manager.destroy();
+      }
       rtcManagerRef.current = null;
       channelRef.current = null;
       supabase.removeChannel(`room:${roomId}`);
@@ -1922,22 +2193,29 @@ export const StudyRoomView: React.FC = () => {
 
   // Load device list
   useEffect(() => {
-    if (navigator.mediaDevices?.enumerateDevices) {
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then((devices) => {
-          const audioInputs = devices.filter((d) => d.kind === 'audioinput');
-          const videoInputs = devices.filter((d) => d.kind === 'videoinput');
-          setAudioDevices(audioInputs);
-          setVideoDevices(videoInputs);
-          if (audioInputs[0] && !selectedAudioDevice) {
-            setSelectedAudioDevice(audioInputs[0].deviceId);
-          }
-          if (videoInputs[0] && !selectedVideoDevice) {
-            setSelectedVideoDevice(videoInputs[0].deviceId);
-          }
-        })
-        .catch(() => {});
+    if (navigator.mediaDevices && typeof navigator.mediaDevices.enumerateDevices === 'function') {
+      try {
+        const promise = navigator.mediaDevices.enumerateDevices();
+        if (promise && typeof promise.then === 'function') {
+          promise
+            .then((devices) => {
+              if (!Array.isArray(devices)) return;
+              const audioInputs = devices.filter((d) => d.kind === 'audioinput');
+              const videoInputs = devices.filter((d) => d.kind === 'videoinput');
+              setAudioDevices(audioInputs);
+              setVideoDevices(videoInputs);
+              if (audioInputs[0] && !selectedAudioDevice) {
+                setSelectedAudioDevice(audioInputs[0].deviceId);
+              }
+              if (videoInputs[0] && !selectedVideoDevice) {
+                setSelectedVideoDevice(videoInputs[0].deviceId);
+              }
+            })
+            .catch(() => {});
+        }
+      } catch {
+        // Defensive for test/node environments
+      }
     }
   }, [selectedAudioDevice, selectedVideoDevice]);
 
@@ -2912,6 +3190,7 @@ export const StudyRoomView: React.FC = () => {
               <div className="flex items-center p-0.5 rounded-lg bg-white/5 border border-white/10 text-xs">
                 <button
                   type="button"
+                  data-testid="btn-switch-grid"
                   onClick={() => {
                     if (isWhiteboardFullscreen) {
                       if (document.fullscreenElement) {
@@ -2962,10 +3241,17 @@ export const StudyRoomView: React.FC = () => {
                   />
                   <span>{formatTimer(roomRemainingSeconds)}</span>
                 </div>
+                <div
+                  data-testid="room-timer-mini-sync-badge"
+                  className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                  title="Đồng bộ nhóm ⏱️"
+                >
+                  <span>Đồng bộ nhóm ⏱️</span>
+                </div>
                 <button
                   type="button"
                   data-testid="btn-room-mini-timer-toggle"
-                  onClick={() => setIsRoomRunning(!isRoomRunning)}
+                  onClick={handleToggleRoomTimer}
                   className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer ${
                     isRoomRunning
                       ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
@@ -2978,12 +3264,10 @@ export const StudyRoomView: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsRoomRunning(false);
-                    setRoomRemainingSeconds(25 * 60);
-                  }}
+                  data-testid="btn-room-mini-timer-reset"
+                  onClick={handleResetRoomTimer}
                   className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-                  title="Đặt lại 25 phút"
+                  title="Đặt lại đồng hồ phòng"
                 >
                   <RotateCcw size={11} />
                 </button>
@@ -3114,6 +3398,7 @@ export const StudyRoomView: React.FC = () => {
               </button>
               <button
                 type="button"
+                data-testid="btn-switch-whiteboard-mobile"
                 onClick={() => setActiveTab('whiteboard')}
                 className={`p-1.5 rounded-md transition cursor-pointer ${
                   activeTab === 'whiteboard' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
@@ -3181,29 +3466,74 @@ export const StudyRoomView: React.FC = () => {
           {activeTab === 'grid' && (
             <>
               {/* Synchronized Shared Pomodoro Timer Banner */}
-              <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex items-center justify-between shadow-xl gap-2">
+              <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-xl gap-3">
                 <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0">
                     <Sparkles size={18} />
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
                       <span className="text-xs font-semibold text-neutral-300">Đồng hồ nhóm Pomodoro</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
-                        HỌC TẬP
-                      </span>
+                      <div
+                        data-testid="room-timer-sync-badge"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 select-none"
+                        title="Đồng bộ nhóm thời gian thực qua Supabase"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                        <span>Đồng bộ nhóm ⏱️</span>
+                      </div>
                     </div>
-                    <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
-                      {formatTimer(roomRemainingSeconds)}
+                    <div className="flex items-center gap-3">
+                      <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
+                        {formatTimer(roomRemainingSeconds)}
+                      </div>
+                      <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
+                        <button
+                          type="button"
+                          data-testid="room-timer-phase-work"
+                          onClick={() => handlePhaseChange('work')}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
+                            roomPhase === 'work'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          Học tập
+                        </button>
+                        <button
+                          type="button"
+                          data-testid="room-timer-phase-shortBreak"
+                          onClick={() => handlePhaseChange('shortBreak')}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
+                            roomPhase === 'shortBreak'
+                              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                              : 'text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          Nghỉ ngắn
+                        </button>
+                        <button
+                          type="button"
+                          data-testid="room-timer-phase-longBreak"
+                          onClick={() => handlePhaseChange('longBreak')}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
+                            roomPhase === 'longBreak'
+                              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                              : 'text-neutral-400 hover:text-white'
+                          }`}
+                        >
+                          Nghỉ dài
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-center">
                   <button
                     type="button"
                     data-testid="btn-room-timer-toggle"
-                    onClick={() => setIsRoomRunning(!isRoomRunning)}
+                    onClick={handleToggleRoomTimer}
                     className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
                       isRoomRunning
                         ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30'
@@ -3216,10 +3546,8 @@ export const StudyRoomView: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsRoomRunning(false);
-                      setRoomRemainingSeconds(25 * 60);
-                    }}
+                    data-testid="btn-room-timer-reset"
+                    onClick={handleResetRoomTimer}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
                     title="Đặt lại đồng hồ phòng"
                   >

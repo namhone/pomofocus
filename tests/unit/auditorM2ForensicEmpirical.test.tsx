@@ -177,7 +177,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
       expect(downloadBtn).toBeDefined();
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
+      expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.1.apk');
 
       const classList = downloadBtn.getAttribute('class') || '';
       expect(classList).toContain('h-16');
@@ -265,7 +265,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const raw = fs.readFileSync(versionJsonPath, 'utf8');
       const manifest = JSON.parse(raw);
 
-      expect(manifest.version).toBe('8.0.0');
+      expect(manifest.version).toBe('8.1.0');
       expect(manifest.downloadUrl).toBe(PUBLIC_APK_URL);
       expect(manifest.minSupportedVersion).toBe('7.0.0');
       expect(manifest.minVersion).toBe('7.0.0');

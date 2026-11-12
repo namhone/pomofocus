@@ -129,7 +129,19 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   const [isStylePickerOpen, setIsStylePickerOpen] = useState(false);
 
   // Stroke History
-  const [strokes, setStrokes] = useState<WhiteboardStroke[]>(() => initialStrokes || []);
+  const [strokes, setStrokes] = useState<WhiteboardStroke[]>(() => {
+    if (initialStrokes && initialStrokes.length > 0) return initialStrokes;
+    if (typeof window !== 'undefined' && roomId) {
+      try {
+        const stored = localStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return [];
+  });
   const [redoStack, setRedoStack] = useState<WhiteboardStroke[]>([]);
   // Lưu strokes riêng theo từng trang tài liệu (PDF)
   const pageStrokesMapRef = useRef<Record<string, WhiteboardStroke[]>>({});
@@ -689,6 +701,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       setStrokes([]);
       setRedoStack([]);
       pageStrokesMapRef.current = {};
+      if (typeof window !== 'undefined' && roomId) {
+        try {
+          localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        } catch {}
+      }
     };
 
     // 3. Nhận sự kiện Undo từ peer
@@ -807,15 +824,34 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     redrawCanvas();
   }, [redrawCanvas]);
 
-  // Đồng bộ nét vẽ ngược lên Parent Store/State
-  useEffect(() => {
-    onStrokesChange?.(strokes);
-  }, [strokes, onStrokesChange]);
+  const prevStrokesRef = useRef<WhiteboardStroke[]>(strokes);
 
+  // Đồng bộ nét vẽ ngược lên Parent Store/State và Durable Storage (localStorage)
+  useEffect(() => {
+    if (prevStrokesRef.current !== strokes) {
+      prevStrokesRef.current = strokes;
+      onStrokesChange?.(strokes);
+    }
+    if (typeof window !== 'undefined' && roomId) {
+      try {
+        if (strokes.length > 0) {
+          localStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
+        } else {
+          localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        }
+      } catch {}
+    }
+  }, [strokes, onStrokesChange, roomId]);
+
+  const prevInitialStrokesRef = useRef(initialStrokes);
   // Cập nhật khi initialStrokes thay đổi từ ngoài
   useEffect(() => {
-    if (initialStrokes && initialStrokes !== strokes && strokes.length === 0 && initialStrokes.length > 0) {
-      setStrokes(initialStrokes);
+    if (prevInitialStrokesRef.current !== initialStrokes) {
+      prevInitialStrokesRef.current = initialStrokes;
+      if (initialStrokes !== undefined) {
+        prevStrokesRef.current = initialStrokes;
+        setStrokes(initialStrokes);
+      }
     }
   }, [initialStrokes]);
 
@@ -1096,11 +1132,11 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     const { normX, normY } = getVirtualCoords(e.clientX, e.clientY);
     const normalized: NormalizedPoint = { x: normX, y: normY };
 
-    // 2. Broadcast Live Cursor
+    // 2. Broadcast Live Cursor: Chỉ gửi khi KHÔNG đang vẽ dở (khi đang vẽ thì draw stream đã mang tọa độ bút)
     const now = Date.now();
-    if (now - lastCursorBroadcastRef.current > 40) {
+    if (!isPointerDownRef.current && now - lastCursorBroadcastRef.current > 60) {
       lastCursorBroadcastRef.current = now;
-      broadcastCursor(normalized, isPointerDownRef.current);
+      broadcastCursor(normalized, false);
     }
 
     // 3. Drawing Move
@@ -1112,8 +1148,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       currentPointsRef.current = [currentPointsRef.current[0], normalized];
     }
 
-    // Broadcast in-flight stream (<50ms)
-    if (now - lastStreamBroadcastRef.current > 40 && channel) {
+    // Broadcast in-flight stream (điều tiết an toàn 50ms chống tràn rate limit)
+    if (now - lastStreamBroadcastRef.current > 50 && channel) {
       lastStreamBroadcastRef.current = now;
       channel.send({
         type: 'broadcast',
@@ -1247,6 +1283,12 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     setRedoStack([]);
     pageStrokesMapRef.current = {};
     setShowClearConfirm(false);
+
+    if (typeof window !== 'undefined' && roomId) {
+      try {
+        localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+      } catch {}
+    }
 
     if (channel) {
       channel.send({

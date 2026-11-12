@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { supabase } from '../lib/supabase';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
 import type { GoogleUserPayload } from './googleAuthService';
 
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
@@ -39,6 +40,19 @@ export const isValidAvatarUrl = (url: unknown): url is string => {
     trimmed.startsWith('data:image/') ||
     trimmed.startsWith('/')
   );
+};
+
+/**
+ * LẤY KÝ TỰ ĐẠI DIỆN HIỂN THỊ (USER INITIAL) THỐNG NHẤT TOÀN ỨNG DỤNG
+ * - Khi chưa đăng nhập (user null hoặc guest): Luôn trả về 'K' (Khách học tập / Guest)
+ * - Khi đã đăng nhập: Lấy chữ cái đầu của displayName hoặc email
+ */
+export const getUserInitial = (user?: any): string => {
+  if (!user || user.id === 'guest' || user.isGuest) return 'K';
+  const name = (user.displayName || user.name || user.email?.split('@')[0] || '').trim();
+  if (!name) return 'K';
+  const clean = name.replace(/[^\p{L}\p{N}]/gu, '');
+  return (clean[0] || name[0] || 'K').toUpperCase();
 };
 
 /**
@@ -856,6 +870,54 @@ export const authService = {
     });
 
     return true;
+  },
+
+  async sendMagicLink(email: string): Promise<{ success: boolean; message: string }> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized || !normalized.includes('@')) {
+      throw new Error('Vui lòng nhập địa chỉ email hợp lệ.');
+    }
+
+    const baseUrl = (SUPABASE_URL || 'https://pgsgmmtpunuttspqcgof.supabase.co').replace(/\/+$/, '');
+    const redirectTo = typeof window !== 'undefined' && window.location?.origin
+      ? `${window.location.origin}/app`
+      : 'https://pomofocus-workspace.vercel.app/app';
+
+    try {
+      const res = await fetch(`${baseUrl}/auth/v1/otp`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: normalized,
+          create_user: true,
+          options: {
+            email_redirect_to: redirectTo
+          }
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return {
+          success: false,
+          message: data.msg || data.error_description || data.message || 'Không thể gửi Magic Link. Vui lòng thử lại sau.'
+        };
+      }
+
+      return {
+        success: true,
+        message: `Đã gửi liên kết đăng nhập Magic Link tới ${normalized}. Vui lòng kiểm tra hộp thư.`
+      };
+    } catch (err: any) {
+      console.warn('[authService.sendMagicLink] Error:', err);
+      return {
+        success: false,
+        message: err?.message || 'Lỗi mạng khi gửi Magic Link. Vui lòng thử lại.'
+      };
+    }
   },
 
   async sendPasswordResetOtp(email: string): Promise<{ success: boolean; message: string; otp?: string }> {

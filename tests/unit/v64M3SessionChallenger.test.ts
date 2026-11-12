@@ -248,10 +248,10 @@ describe('Adversarial Test Suite M3.1: AI Session Challenger (useAiStore)', () =
       expect(partialized.lastMonthlyReset).toBe(8888);
 
       // Verify slicing limits
-      expect(partialized.messages.length).toBe(50);
-      // slice(-50) should preserve the last 50 messages
-      expect(partialized.messages[0].id).toBe('bulk-msg-20');
-      expect(partialized.messages[49].id).toBe('bulk-msg-69');
+      // V8.1: Lifted 50-message quota limit (persisted in db.ai_messages & store)
+      expect(partialized.messages.length).toBe(70);
+      expect(partialized.messages[0].id).toBe('bulk-msg-0');
+      expect(partialized.messages[69].id).toBe('bulk-msg-69');
 
       expect(partialized.sessions.length).toBe(20);
       // slice(0, 20) should preserve the first 20 sessions

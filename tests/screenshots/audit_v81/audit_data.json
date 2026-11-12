@@ -1,0 +1,700 @@
+{
+  "01_tab_focus_default": {
+    "avatarBtn": {
+      "name": "Header Avatar Button",
+      "selector": "[data-testid=\"mobile-header-avatar-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 258.3125,
+        "y": 11.5,
+        "width": 32,
+        "height": 32
+      },
+      "text": "K"
+    },
+    "creditsPill": {
+      "name": "Energy Credits Pill",
+      "selector": "[data-testid=\"mobile-header-credits-pill\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 338.3125,
+        "y": 14.5,
+        "width": 57.6875,
+        "height": 26
+      },
+      "text": "⚡\n50"
+    },
+    "phasePomo": {
+      "name": "Phase Pomodoro Pill",
+      "selector": "[data-testid=\"mobile-phase-pomodoro\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 82.359375,
+        "y": 73,
+        "width": 83.4375,
+        "height": 30
+      },
+      "text": "Tập trung"
+    },
+    "phaseShort": {
+      "name": "Phase Short Break Pill",
+      "selector": "[data-testid=\"mobile-phase-short_break\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 165.796875,
+        "y": 73,
+        "width": 87.359375,
+        "height": 30
+      },
+      "text": "Nghỉ ngắn"
+    },
+    "phaseLong": {
+      "name": "Phase Long Break Pill",
+      "selector": "[data-testid=\"mobile-phase-long_break\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 253.15625,
+        "y": 73,
+        "width": 76.484375,
+        "height": 30
+      },
+      "text": "Nghỉ dài"
+    },
+    "quickTaskBar": {
+      "name": "Quick Task Bar",
+      "selector": "[data-testid=\"mobile-linked-task-chip\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 55,
+        "y": 119,
+        "width": 201.65625,
+        "height": 38
+      },
+      "text": "Chưa chọn công việc"
+    },
+    "monumentalTimer": {
+      "name": "Big Timer Display",
+      "selector": "[data-testid=\"mobile-monumental-timer\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 136.34375,
+        "y": 215.25,
+        "width": 139.3125,
+        "height": 60
+      },
+      "text": "25:00"
+    },
+    "playBtn": {
+      "name": "Main Action (Play/Pause) Button",
+      "selector": "[data-testid=\"mobile-timer-main-action\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 174,
+        "y": 353.25,
+        "width": 64,
+        "height": 64
+      },
+      "text": ""
+    },
+    "resetBtn": {
+      "name": "Timer Reset Button",
+      "selector": "[data-testid=\"mobile-timer-reset\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 102,
+        "y": 361.25,
+        "width": 48,
+        "height": 48
+      },
+      "text": ""
+    },
+    "pocketLockBtn": {
+      "name": "Pocket Lock Toggle Button",
+      "selector": "[data-testid=\"mobile-pocket-lock-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 356,
+        "y": 118,
+        "width": 40,
+        "height": 40
+      },
+      "text": ""
+    },
+    "strictModeToggle": {
+      "name": "Strict Mode Toggle",
+      "selector": "[data-testid=\"mobile-strict-mode-toggle\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 273.65625,
+        "y": 118,
+        "width": 74.34375,
+        "height": 40
+      },
+      "text": "Kỷ luật"
+    },
+    "dailyFlowStrip": {
+      "name": "24h Daily Flow Strip",
+      "selector": "[data-testid=\"mobile-daily-flow-strip\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 478.5,
+        "width": 380,
+        "height": 70
+      },
+      "text": "Dòng chảy hôm nay\nHôm nay: 0g 0ph • 0 🍅 hoàn thành\n00h\n06h\n12h\n18h\n23h"
+    },
+    "weeklyInsights": {
+      "name": "7-Day Weekly Insights",
+      "selector": "[data-testid=\"mobile-weekly-insights\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 556.5,
+        "width": 380,
+        "height": 106.5
+      },
+      "text": "Xu hướng 7 ngày\n0 giờ • 0 🍅 tuần này\nT6\nT7\nCN\nT2\nT3\nT4\nT5"
+    },
+    "bottomNav": {
+      "name": "Material 3 Bottom Navigation",
+      "selector": "[data-testid=\"mobile-bottom-nav\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 775,
+        "width": 412,
+        "height": 64
+      },
+      "text": "Tập trung\nCông việc\nKhông gian\nTrợ lý AI\nCài đặt"
+    }
+  },
+  "02_focus_task_dropdown": {
+    "taskPickerDropdown": {
+      "name": "Task Picker Dropdown",
+      "selector": "[data-testid=\"mobile-task-picker-dropdown\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 166,
+        "width": 260,
+        "height": 141
+      },
+      "text": "CHỌN CÔNG VIỆC\nChưa có công việc đang chờ. Hãy thêm trong tab Công việc!\nQuản lý & thêm công việc →"
+    },
+    "manageTasksBtn": {
+      "name": "Manage Tasks Button",
+      "selector": "[data-testid=\"mobile-picker-manage-tasks-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 25,
+        "y": 269,
+        "width": 242,
+        "height": 29
+      },
+      "text": "Quản lý & thêm công việc →"
+    }
+  },
+  "03_focus_hold_and_running": {
+    "timerAfterStart": "24:58",
+    "actionButtonState": {
+      "name": "Main Action Button (Running State)",
+      "selector": "[data-testid=\"mobile-timer-main-action\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 174,
+        "y": 353.25,
+        "width": 64,
+        "height": 64
+      },
+      "text": ""
+    },
+    "sessionProgress": {
+      "name": "Session Progress Bar",
+      "selector": "[data-testid=\"mobile-session-progress-bar\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 110,
+        "y": 311.25,
+        "width": 192,
+        "height": 4
+      },
+      "text": ""
+    }
+  },
+  "04_focus_pocket_lock": {
+    "overlay": {
+      "name": "Pocket Lock Fullscreen Overlay (z-[70])",
+      "selector": "[data-testid=\"mobile-pocket-lock-overlay\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 412,
+        "height": 839
+      },
+      "text": "Chế độ Khóa Bỏ Túi (Pocket Lock) đang bật\nMàn hình đã khóa\n\nToàn bộ thao tác chạm đã bị khóa an toàn để tránh kích hoạt nhầm khi để trong túi.\n\nẤN GIỮ 1.5S ĐỂ MỞ KHÓA\nThả tay trước 1.5s sẽ hủy thao tác mở khóa"
+    },
+    "unlockPad": {
+      "name": "Pocket Unlock Hold Pad",
+      "selector": "[data-testid=\"mobile-pocket-unlock-pad\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 46,
+        "y": 722.5,
+        "width": 320,
+        "height": 56
+      },
+      "text": "ẤN GIỮ 1.5S ĐỂ MỞ KHÓA"
+    },
+    "unlockProgress": {
+      "name": "Unlock Hold Progress Bar",
+      "selector": "[data-testid=\"mobile-pocket-unlock-progress\"]",
+      "exists": true,
+      "isVisible": false,
+      "box": {
+        "x": 47,
+        "y": 723.5,
+        "width": 0,
+        "height": 54
+      },
+      "text": ""
+    }
+  },
+  "05_auth_bottom_sheet": {
+    "authSheet": {
+      "name": "Bottom Sheet Auth Panel (z-[60])",
+      "selector": "[data-testid=\"mobile-auth-bottom-sheet\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 410.5,
+        "width": 412,
+        "height": 428.5
+      },
+      "text": "Đăng nhập & Đồng bộ\nĐăng nhập PomoFocus\n\nĐồng bộ đa thiết bị tức thì, bảo toàn ghi chú và điểm năng lượng AI.\n\nTiếp tục với Google\nHOẶC MAGIC LINK\nGửi liên kết đăng nhập Magic Link\n\nKhông cần nhớ mật khẩu. Chúng tôi sẽ gửi một đường dẫn đăng nhập 1 chạm an toàn tới email của bạn."
+    },
+    "googleBtn": {
+      "name": "Google 1-Tap OAuth Button",
+      "selector": "[data-testid=\"mobile-auth-google-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 20,
+        "y": 574.5,
+        "width": 372,
+        "height": 48
+      },
+      "text": "Tiếp tục với Google"
+    },
+    "emailInput": {
+      "name": "Magic Link Email Input",
+      "selector": "[data-testid=\"mobile-auth-email-input\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 20,
+        "y": 671,
+        "width": 372,
+        "height": 44
+      },
+      "text": ""
+    },
+    "magicLinkBtn": {
+      "name": "Send Magic Link Button",
+      "selector": "[data-testid=\"mobile-auth-magiclink-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 20,
+        "y": 725,
+        "width": 372,
+        "height": 44
+      },
+      "text": "Gửi liên kết đăng nhập Magic Link"
+    },
+    "bentoGrid": {
+      "name": "4-Card Bento Grid Profile",
+      "selector": "[data-testid=\"mobile-auth-bento-grid\"]",
+      "exists": false
+    },
+    "metricHours": {
+      "name": "Bento Metric: Study Hours",
+      "selector": "[data-testid=\"bento-metric-studyHours\"]",
+      "exists": false
+    },
+    "metricStreak": {
+      "name": "Bento Metric: Streak Days",
+      "selector": "[data-testid=\"bento-metric-streak\"]",
+      "exists": false
+    },
+    "metricPomos": {
+      "name": "Bento Metric: Completed Pomos",
+      "selector": "[data-testid=\"bento-metric-completedPomos\"]",
+      "exists": false
+    },
+    "metricWallet": {
+      "name": "Bento Metric: Wallet Credits",
+      "selector": "[data-testid=\"bento-metric-walletCredits\"]",
+      "exists": false
+    }
+  },
+  "06_tab_tasks_list": {
+    "tasksView": {
+      "name": "Tasks Tab View Container",
+      "selector": "[data-testid=\"mobile-view-tasks\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 56,
+        "width": 412,
+        "height": 719
+      },
+      "text": "Danh sách công việc\n1/2\nTất cả\nChưa xong\nĐã xong\nĐọc sách Deep Work 25 trang\nGắn\nLuyện đề thi thử Toán Cao Cấp\nGắn"
+    },
+    "taskInput": {
+      "name": "Quick Add Task Input",
+      "selector": "input[placeholder*=\"Thêm công việc\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 116,
+        "width": 332,
+        "height": 42
+      },
+      "text": ""
+    },
+    "addTaskBtn": {
+      "name": "Add Task Submit Button",
+      "selector": "button[aria-label=\"Thêm công việc\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 356,
+        "y": 117,
+        "width": 40,
+        "height": 40
+      },
+      "text": ""
+    },
+    "taskItems": {
+      "name": "Task List Items",
+      "selector": "[data-testid=\"mobile-view-tasks\"] .space-y-2",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 216,
+        "width": 380,
+        "height": 116
+      },
+      "text": "Đọc sách Deep Work 25 trang\nGắn\nLuyện đề thi thử Toán Cao Cấp\nGắn"
+    }
+  },
+  "07_tab_spaces_bg": {
+    "subtabBg": {
+      "name": "Sub-tab: Nền & Hiệu ứng",
+      "selector": "[data-testid=\"mobile-spaces-subtab-bg\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 21,
+        "y": 143,
+        "width": 182,
+        "height": 36
+      },
+      "text": "Nền & Hiệu ứng"
+    },
+    "subtabAudio": {
+      "name": "Sub-tab: Mixer Âm thanh",
+      "selector": "[data-testid=\"mobile-spaces-subtab-audio\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 209,
+        "y": 143,
+        "width": 182,
+        "height": 36
+      },
+      "text": "Mixer Âm thanh"
+    },
+    "pureZenBlackBtn": {
+      "name": "Pure Zen Black OLED #09090b 1-Tap Button",
+      "selector": "[data-testid=\"mobile-spaces-pure-zen-black-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 204,
+        "width": 380,
+        "height": 48
+      },
+      "text": "Tắt nền (Pure Zen Black)\nOLED #09090b"
+    },
+    "presetsGrid": {
+      "name": "Background Presets Grid",
+      "selector": ".grid.grid-cols-2",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 138,
+        "width": 380,
+        "height": 46
+      },
+      "text": "Nền & Hiệu ứng\nMixer Âm thanh"
+    }
+  },
+  "08_tab_spaces_mixer": {
+    "mixerPanel": {
+      "name": "Audio Mixer Panel Container",
+      "selector": "[data-testid=\"mobile-audio-mixer-panel\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 220,
+        "width": 380,
+        "height": 2730
+      },
+      "text": "Âm lượng tổng (Master)\n80%\nTất Cả (25)\nTự Nhiên (7)\nCuộc Sống (10)\nSóng Não (4)\nTiếng Ồn Khoa Học (4)\nMưa Rào\n\nTiếng mưa rơi đều đặn xoa dịu tâm trí\n\n50%\nSóng Biển\n\nSóng biển dạt dào êm ả vỗ về từng đợt\n\n50%\nSuối Nước\n\nDòng suối êm ả róc rách qua ghềnh đá\n\n45%\nRừng & Tiếng Chim\n\nTiếng chim hót rộn ràng giữa tán rừng nguyên sinh\n\n45%\nLửa Trại\n\nĐốm lửa bập bùng lách tách ấm áp trong đêm\n\n45%\nGió Rừng Mùa Hè\n\nGió luồn qua kẽ lá hè mát mẻ, thanh lọc tinh thần\n\n40%\nĐêm Hè Tiếng Dế\n\nÂm vang tiếng dế đêm hè tĩnh lặng và thanh bình\n\n40%\nQuán Cà Phê\n\nKhông gian ấm cúng, êm đềm của quán quen\n\n40%\nBàn Phím Cơ\n\nTiếng gõ phím cơ nhịp nhàng tăng năng suất tập trung\n\n35%\nQuạt Máy\n\nQuạt máy quay đều đặn mang lại luồng gió tập trung\n\n40%\nĐồng Hồ Tích Tắc\n\nTiếng tích tắc nhịp nhàng giữ nhịp làm việc sâu\n\n35%\nTàu Hỏa Lăn Bánh\n\nNhịp ray tàu chuyển bánh trên cung đường dài\n\n40%\nMưa Trên Cửa Kính\n\nHạt mưa táp vào khung kính tạo cảm giác an yên\n\n45%\nSấm Sét Xa Dịu\n\nTiếng sấm vọng xa xôi hòa cùng nhịp mưa\n\n35%\nLật Trang Sách Thư Viện\n\nTiếng lật từng trang giấy thơm mùi tri thức\n\n35%\nChuông Gió Phong Linh\n\nGiai điệu chuông gió thánh thót xoa dịu âu lo\n\n35%\nGió Thoảng Ven Biển\n\nGió mát lành hòa cùng âm thanh tự nhiên bờ biển\n\n40%\nSóng Alpha (10Hz)\n10Hz\n\nTập trung sâu & Giảm căng thẳng não bộ\n\n35%\nSóng Beta (18Hz)\n18Hz\n\nTư duy phân tích, logic và tỉnh táo\n\n35%\nSóng Theta (6Hz)\n6Hz\n\nKích thích sáng tạo & Trạng thái thiền định\n\n35%\nSóng Delta (2Hz)\n2Hz\n\nThư giãn cơ thể, phục hồi năng lượng\n\n35%\nSóng Gamma (40Hz)\n40Hz\n\nÂm thanh mô phỏng nhịp hai tai hỗ trợ tập trung cao độ\n\n30%\nWhite Noise\nĐều mọi dải tần\n\nĐều mọi dải tần, che tạp âm phòng học hiệu quả\n\n40%\nPink Noise\n-3dB/octave\n\nGiảm -3dB/octave, âm sắc cân bằng sinh học hỗ trợ ghi nhớ bài học lâu hơn\n\n45%\nBrown Noise\n-6dB Trầm ấm\n\nTrầm ấm như thác nước sâu, chuẩn vàng giúp người học ADHD triệt tiêu xao nhãng\n\n45%\nBlue Noise\n+3dB Dải cao\n\nDải tần cao dịu, hỗ trợ chống buồn ngủ trong ca học khuya\n\n35%"
+    },
+    "masterVolumeCard": {
+      "name": "Master Volume Control Card",
+      "selector": "[data-testid=\"mobile-mixer-master-volume\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 31,
+        "y": 259,
+        "width": 350,
+        "height": 16
+      },
+      "text": ""
+    },
+    "activeBadge": {
+      "name": "Active Tracks Badge Count",
+      "selector": "[data-testid=\"mobile-mixer-active-badge\"]",
+      "exists": false
+    }
+  },
+  "09_tab_ai_chat": {
+    "aiView": {
+      "name": "AI Chat View Container",
+      "selector": "[data-testid=\"mobile-view-ai\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 56,
+        "width": 412,
+        "height": 719
+      },
+      "text": "Trợ lý học tập AI\n⚡ 50\n(Nạp thêm)\n\nChào bạn. Tôi có thể giúp gì cho buổi học hôm nay?\n\nLập kế hoạch học tập 25 phút giúp tôi\nKhông thể kết nối máy chủ AI, vui lòng kiểm tra mạng.\nThử lại câu hỏi"
+    },
+    "aiInput": {
+      "name": "AI Chat Query Input Bar",
+      "selector": "input[placeholder*=\"Hỏi AI\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 12,
+        "y": 717,
+        "width": 340,
+        "height": 42
+      },
+      "text": ""
+    },
+    "sendBtn": {
+      "name": "Send Query Button",
+      "selector": "form:has(input[placeholder*=\"Hỏi AI\"]) button[type=\"submit\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 360,
+        "y": 718,
+        "width": 40,
+        "height": 40
+      },
+      "text": ""
+    }
+  },
+  "10_tab_settings": {
+    "settingsView": {
+      "name": "Settings View Container",
+      "selector": "[data-testid=\"mobile-settings-view\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 0,
+        "y": 56,
+        "width": 412,
+        "height": 719
+      },
+      "text": "K\nKhách học tập\nTài khoản khách cục bộ\nMiễn phí\nSố dư AI:\n⚡ 50\nNạp thêm\nĐồng bộ đám mây & xác thực\nĐăng nhập / Đăng ký\n→\nNâng cấp để mở khóa 1000+ hình nền & AI cao cấp\nNâng cấp\nTHỜI LƯỢNG POMODORO & SỐ HIỆP\nThời gian tập trung\nSố phút cho mỗi phiên học sâu\n26\nphút\n−\n+\nNghỉ ngắn\nThư giãn nhẹ giữa các hiệp\n5\nphút\n−\n+\nNghỉ dài\nHồi phục năng lượng sau 4 hiệp\n15\nphút\n−\n+\nTỰ ĐỘNG HÓA\nTự động chuyển hiệp mới\nTự động chạy hiệp tiếp theo khi hết giờ\nÂM THANH & CHUÔNG BÁO\nÂm lượng chính\n80%\nChuông báo kết thúc hiệp\nNghe thử\nChuông Tây Tạng (Tibetan Bowl)\nChuông Pha Lê (Crystal Chime)\nHồi Chuông Digital (Radar Beep)\nChuông Đồng (Brass Bell)\nTwinkle\nPlaytime\nSci-Fi\nSlow Rise\nTiếng Chim\nHIỆU NĂNG & HỆ THỐNG\n🍃 Chế độ Eco\nGiảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên điện thoại\nDữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)\nKhôi phục giao diện ban đầu\nPomoFocus v8.0 Liquid Zen\nTrải nghiệm tối giản cho Android"
+    },
+    "userStatusCard": {
+      "name": "User Status & Auth Card",
+      "selector": "[data-testid=\"mobile-user-status-card\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 56,
+        "width": 380,
+        "height": 197
+      },
+      "text": "K\nKhách học tập\nTài khoản khách cục bộ\nMiễn phí\nSố dư AI:\n⚡ 50\nNạp thêm\nĐồng bộ đám mây & xác thực\nĐăng nhập / Đăng ký\n→\nNâng cấp để mở khóa 1000+ hình nền & AI cao cấp\nNâng cấp"
+    },
+    "stepperFocus": {
+      "name": "Focus Duration Stepper Row",
+      "selector": "[data-testid=\"mobile-settings-stepper-focus\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 297.5,
+        "width": 380,
+        "height": 56
+      },
+      "text": "Thời gian tập trung\nSố phút cho mỗi phiên học sâu\n26\nphút\n−\n+"
+    },
+    "stepperShort": {
+      "name": "Short Break Stepper Row",
+      "selector": "[data-testid=\"mobile-settings-stepper-short\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 361.5,
+        "width": 380,
+        "height": 56
+      },
+      "text": "Nghỉ ngắn\nThư giãn nhẹ giữa các hiệp\n5\nphút\n−\n+"
+    },
+    "stepperLong": {
+      "name": "Long Break Stepper Row",
+      "selector": "[data-testid=\"mobile-settings-stepper-long\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 425.5,
+        "width": 380,
+        "height": 56
+      },
+      "text": "Nghỉ dài\nHồi phục năng lượng sau 4 hiệp\n15\nphút\n−\n+"
+    },
+    "volumeSlider": {
+      "name": "Alarm Volume Slider",
+      "selector": "[data-testid=\"mobile-settings-volume-slider\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 33,
+        "y": 689.5,
+        "width": 346,
+        "height": 8
+      },
+      "text": ""
+    },
+    "chimeSelect": {
+      "name": "Alarm Chime Sound Select",
+      "selector": "[data-testid=\"mobile-settings-chime-select\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 33,
+        "y": 763,
+        "width": 346,
+        "height": 43
+      },
+      "text": "Chuông Tây Tạng (Tibetan Bowl)\nChuông Pha Lê (Crystal Chime)\nHồi Chuông Digital (Radar Beep)\nChuông Đồng (Brass Bell)\nTwinkle\nPlaytime\nSci-Fi\nSlow Rise\nTiếng Chim"
+    },
+    "resetLayoutBtn": {
+      "name": "Reset Layout Button",
+      "selector": "[data-testid=\"mobile-settings-reset-layout-btn\"]",
+      "exists": true,
+      "isVisible": true,
+      "box": {
+        "x": 16,
+        "y": 994,
+        "width": 380,
+        "height": 48
+      },
+      "text": "Khôi phục giao diện ban đầu"
+    }
+  },
+  "11_web_download_3d": {
+    "container": {
+      "exists": true,
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 2150
+      }
+    },
+    "centralApkBtn": {
+      "exists": true,
+      "box": {
+        "x": 141,
+        "y": 599.375,
+        "width": 365.5,
+        "height": 56
+      },
+      "text": "Tải PomoFocus APK (v8.1)"
+    },
+    "phone3DStage": {
+      "exists": true,
+      "box": {
+        "x": 840,
+        "y": 350,
+        "width": 488,
+        "height": 666.765625
+      }
+    },
+    "dynamicQrCode": {
+      "exists": true,
+      "box": {
+        "x": 543.75,
+        "y": 550,
+        "width": 214,
+        "height": 214
+      }
+    },
+    "playProtectHint": {
+      "exists": true,
+      "box": {
+        "x": 141,
+        "y": 695.875,
+        "width": 365.5,
+        "height": 35.75
+      },
+      "text": "Nếu máy hiện cảnh báo nguồn ngoài, chọn 'Vẫn cài đặt' để trải nghiệm bản thử nghiệm nội bộ."
+    }
+  }
+}

@@ -568,7 +568,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
 
       const apkBtn = screen.getByTestId('central-apk-download-btn');
       expect(apkBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
-      expect(apkBtn.getAttribute('download')).toBe('PomoFocus-v8.0.apk');
+      expect(apkBtn.getAttribute('download')).toBe('PomoFocus-v8.1.apk');
     });
 
     it('5.3 displays device detection hint dynamically', () => {
@@ -639,7 +639,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
       expect(buildApkModule.JAVA_HOME).toContain('jdk-17');
       expect(buildApkModule.ANDROID_HOME).toContain('Android\\Sdk');
       expect(buildApkModule.PROJECT_ROOT).toBeDefined();
-      expect(buildApkModule.TARGET_APK_PATH).toContain('PomoFocus-v8.0.apk');
+      expect(buildApkModule.TARGET_APK_PATH).toContain('PomoFocus-v8.1.apk');
       expect(buildApkModule.VERSION_JSON_PATH).toContain('version.json');
       expect(buildApkModule.GRADLE_OUTPUT_APK).toContain('app-debug.apk');
     });
@@ -663,9 +663,9 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
       const raw = fs.readFileSync(versionJsonPath, 'utf-8');
       const data = JSON.parse(raw);
 
-      expect(data.version).toBe('8.0.0');
+      expect(data.version).toBe('8.1.0');
       expect(data.minSupportedVersion).toBe('7.0.0');
-      expect(data.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk');
+      expect(data.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
       expect(typeof data.apkSizeMb).toBe('number');
       expect(typeof data.checksumSha256).toBe('string');
       expect(data.checksumSha256.length).toBe(64); // SHA-256 hex string length

@@ -8,7 +8,7 @@ import capacitorConfig from '../../capacitor.config';
 import * as buildApkModule from '../../scripts/buildApk';
 
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
-const APK_PATH = path.join(PROJECT_ROOT, 'public', 'downloads', 'PomoFocus-v8.0.apk');
+const APK_PATH = path.join(PROJECT_ROOT, 'public', 'downloads', 'PomoFocus-v8.1.apk');
 const VERSION_JSON_PATH = path.join(PROJECT_ROOT, 'public', 'version.json');
 const CAPACITOR_CONFIG_PATH = path.join(PROJECT_ROOT, 'capacitor.config.ts');
 const BUILD_APK_SCRIPT_PATH = path.join(PROJECT_ROOT, 'scripts', 'buildApk.ts');
@@ -176,10 +176,10 @@ describe('Auditor Independent Forensic Suite: Milestone 3 (Capacitor Android & S
     it('verifies public/version.json schema, semver, and canonical download URL', () => {
       const versionContent = JSON.parse(fs.readFileSync(VERSION_JSON_PATH, 'utf-8'));
 
-      expect(versionContent.version).toBe('8.0.0');
+      expect(versionContent.version).toBe('8.1.0');
       expect(versionContent.minVersion).toBe('7.0.0');
       expect(versionContent.minSupportedVersion).toBe('7.0.0');
-      expect(versionContent.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.0.apk');
+      expect(versionContent.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
       expect(Array.isArray(versionContent.changelog)).toBe(true);
       expect(versionContent.changelog.length).toBeGreaterThanOrEqual(1);
     });

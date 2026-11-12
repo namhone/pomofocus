@@ -11,7 +11,21 @@ export const FALLBACK_GRADIENTS = {
   oceanWaves: 'linear-gradient(135deg, #082f49 0%, #0c4a6e 50%, #0284c7 100%)'
 };
 
+export const PURE_ZEN_BLACK_HEX = '#09090b';
+
 export const BACKGROUND_PRESETS: BackgroundPreset[] = [
+  {
+    id: 'pure-black',
+    title: 'Tắt nền (Pure Zen Black)',
+    category: 'solid',
+    url: '#09090b',
+    fallbackUrl: '#09090b',
+    thumbnailUrl: '',
+    author: 'PomoFocus Zen Engine',
+    license: 'Built-in',
+    description: 'Nền đen OLED thuần khiết tối đa hóa thời lượng pin và sự tập trung tuyệt đối.',
+    tags: ['pure-black', 'zen', 'oled', 'battery', 'minimal']
+  },
   {
     id: 'deep-space',
     title: 'Không Gian Sâu',

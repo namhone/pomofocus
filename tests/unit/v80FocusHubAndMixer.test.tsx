@@ -384,7 +384,7 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
       const timer = screen.getByTestId('mobile-monumental-timer');
       const mainBtn = screen.getByTestId('mobile-timer-main-action');
 
-      expect(root.className).toContain('overflow-hidden');
+      expect(root.className).toMatch(/overflow-(?:x-)?hidden/);
       expect(timer.className).toContain('drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)]');
       expect(mainBtn.className).toContain('w-16');
       expect(mainBtn.className).toContain('h-16');

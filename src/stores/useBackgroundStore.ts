@@ -3,6 +3,7 @@ import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
 import { BackgroundPreset, BackgroundStorageData, AmbientEffectType } from '../types/background';
 
 export const BACKGROUND_STORAGE_KEY = 'pomodoro_workspace_background_v1';
+export const pure_zen_black = 'pure_zen_black';
 
 export const DEFAULT_BACKGROUND_STATE = {
   activePresetId: 'deep-space',
@@ -85,8 +86,11 @@ export interface BackgroundStoreState {
   errorMessage: string | null;
   useStaticFallback: boolean;
 
+  pure_zen_black?: boolean;
+
   // Actions
   selectPreset: (id: string) => void;
+  setPureZenBlack: () => void;
   setCustomBackground: (url: string, type: 'image' | 'video') => void;
   setBlur: (level: number) => void;
   setBrightness: (level: number) => void;
@@ -116,6 +120,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
   errorMessage: null,
   useStaticFallback: false,
 
+  pure_zen_black: initial.activePresetId === 'pure-black',
+
   selectPreset: (id: string) => {
     const preset = get().presets.find((p) => p.id === id);
     const validId = preset ? preset.id : 'deep-space';
@@ -126,7 +132,8 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       customType: null,
       hasError: false,
       errorMessage: null,
-      useStaticFallback: false
+      useStaticFallback: false,
+      pure_zen_black: validId === 'pure-black'
     };
 
     set(nextState);
@@ -138,6 +145,30 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
       customUrl: null,
       customType: null,
       ambientEffect: get().ambientEffect
+    });
+  },
+
+  setPureZenBlack: () => {
+    const nextState = {
+      activePresetId: 'pure-black',
+      customUrl: null,
+      customType: null,
+      ambientEffect: 'none' as AmbientEffectType,
+      hasError: false,
+      errorMessage: null,
+      useStaticFallback: false,
+      pure_zen_black: true
+    };
+
+    set(nextState);
+    persistBackground({
+      activePresetId: 'pure-black',
+      blurLevel: 0,
+      brightnessLevel: 100,
+      overlayOpacity: 0,
+      customUrl: null,
+      customType: null,
+      ambientEffect: 'none'
     });
   },
 

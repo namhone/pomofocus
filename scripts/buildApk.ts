@@ -15,8 +15,8 @@ export const ANDROID_DIR = path.join(PROJECT_ROOT, 'android');
 export const LOCAL_PROPERTIES_PATH = path.join(ANDROID_DIR, 'local.properties');
 export const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 export const DOWNLOADS_DIR = path.join(PUBLIC_DIR, 'downloads');
-export const APP_VERSION = '8.0.0';
-export const APK_FILENAME = 'PomoFocus-v8.0.apk';
+export const APP_VERSION = '8.1.0';
+export const APK_FILENAME = 'PomoFocus-v8.1.apk';
 export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, APK_FILENAME);
 export const VERSION_JSON_PATH = path.join(PUBLIC_DIR, 'version.json');
 export const GRADLE_OUTPUT_APK = path.join(ANDROID_DIR, 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
@@ -112,6 +112,7 @@ export function copyAndHashApk() {
   }
 
   versionData.version = APP_VERSION;
+  versionData.versionCode = 81;
   versionData.minSupportedVersion = versionData.minSupportedVersion || '7.0.0';
   versionData.minVersion = versionData.minVersion || '7.0.0';
   versionData.releaseDate = new Date().toISOString().split('T')[0];
@@ -119,11 +120,11 @@ export function copyAndHashApk() {
   versionData.apkSizeMb = sizeMb;
   versionData.checksumSha256 = sha256;
   versionData.releaseNotes =
-    'PomoFocus v8.0 Ultimate: All-in-One Focus Hub, 1-Tap Quick Task Bar, Strict Mode 5s Grace, Daily Flow 24h & Soundscape Mixer.';
+    'PomoFocus v8.1 Ultimate: Meet Web Rooms, Shared Whiteboard, Dexie v2 Offline Queue, Pocket Lock & Hold to Start.';
   versionData.changelog = [
-    'All-in-One Focus Hub: 1-Tap Quick Task Bar hoàn thành việc ngay màn chính',
-    'Chế độ Kỷ luật (Strict Mode) với 5 giây ân hạn thông minh chuẩn Forest',
-    'Daily Flow Strip: Dòng chảy tập trung 24 giờ & Mixer âm thanh 25 kênh',
+    'Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực',
+    'Bảng trắng nhóm (Shared Whiteboard) lưu vết nét vẽ bền vững',
+    'Khóa chạm bỏ túi (Pocket Lock) và cử chỉ giữ 800ms để bắt đầu học sâu',
   ];
 
   fs.writeFileSync(VERSION_JSON_PATH, JSON.stringify(versionData, null, 2) + '\n', 'utf-8');

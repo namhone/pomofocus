@@ -10,15 +10,31 @@ export interface TimerSettings {
   notificationEnabled: boolean;
 }
 
+export type LocalFocusSessionPhase =
+  | 'work'
+  | 'shortBreak'
+  | 'longBreak'
+  | 'pomodoro'
+  | 'short_break'
+  | 'long_break';
+
 export interface FocusSessionRecord {
   id: string; // UUID v4 - Idempotency Key
+  userId?: string;     // V8.1 Local-First user ownership
   taskId?: string | null;
   taskTitle?: string | null;
-  phase: TimerPhase;
+  phase: LocalFocusSessionPhase;
   durationMinutes: number;
   completedAt: number; // Timestamp ms
   dateString: string;  // YYYY-MM-DD
+  synced?: boolean;   // V8.1 cloud sync status
 }
+
+export interface LocalFocusSession extends FocusSessionRecord {
+  // Fully mutually compatible with FocusSessionRecord
+}
+
+
 
 export interface PersistedTimerRuntime {
   sessionId: string;
@@ -32,3 +48,15 @@ export interface PersistedTimerRuntime {
   linkedTaskId?: string | null;
   linkedTaskTitle?: string | null;
 }
+
+export type RoomTimerPhase = 'work' | 'shortBreak' | 'longBreak';
+
+export interface RoomTimerSyncPayload {
+  action: 'START' | 'PAUSE' | 'RESET' | 'PHASE_CHANGE' | 'SYNC';
+  remainingSeconds: number;
+  isRunning: boolean;
+  phase: RoomTimerPhase;
+  senderId: string;
+  timestamp: number;
+}
+
