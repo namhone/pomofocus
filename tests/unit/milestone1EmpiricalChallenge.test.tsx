@@ -274,6 +274,12 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
         await act(async () => {
           fireEvent.click(btn);
         });
+        const confirmBtn = screen.queryByTestId('confirm-phase-change-btn');
+        if (confirmBtn) {
+          await act(async () => {
+            fireEvent.click(confirmBtn);
+          });
+        }
 
         // Store phase must be updated
         const currentPhase = useTimerStore.getState().phase;

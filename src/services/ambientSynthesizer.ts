@@ -119,9 +119,22 @@ export class AmbientSynthesizer {
   /**
    * Dừng tất cả các track đang phát
    */
-  public stopAll(): void {
-    const trackIds = Array.from(this.activeTracks.keys());
-    trackIds.forEach((id) => this.stopTrack(id));
+    public stopAll(): void {
+    for (const [, active] of this.activeTracks.entries()) {
+      try {
+        const ctx = this.audioMgr.getContext();
+        if (ctx && ctx.state !== 'closed') {
+          active.gainNode.gain.cancelScheduledValues(ctx.currentTime);
+          active.gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        }
+        active.stopNodes.forEach((node) => {
+          try { node.stop(); } catch {}
+          try { node.disconnect(); } catch {}
+        });
+        active.gainNode.disconnect();
+      } catch {}
+    }
+    this.activeTracks.clear();
   }
 
   public isTrackPlaying(id: AmbientTrackId): boolean {

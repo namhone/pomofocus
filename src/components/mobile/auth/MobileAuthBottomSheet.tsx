@@ -463,7 +463,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
             <div className="flex items-center gap-3 my-2">
               <div className="h-px flex-1 bg-white/10" />
               <span className="text-[11px] uppercase tracking-wider text-zinc-500 font-medium">
-                Hoặc Magic Link
+                hoặc dùng email
               </span>
               <div className="h-px flex-1 bg-white/10" />
             </div>
@@ -477,7 +477,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   data-testid="mobile-auth-email-input"
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="nhap.email@cua.ban..."
+                  placeholder="Nhập email của bạn"
                   autoComplete="email"
                   className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-emerald-400 transition"
                 />
@@ -498,7 +498,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 ) : (
                   <>
                     <Mail className="w-4 h-4" />
-                    <span>Gửi liên kết đăng nhập Magic Link</span>
+                    <span>Nhận mã đăng nhập qua email</span>
                   </>
                 )}
               </button>

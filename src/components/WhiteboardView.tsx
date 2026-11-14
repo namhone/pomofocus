@@ -1902,6 +1902,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          style={{ touchAction: 'none' }}
           className="w-full h-full block touch-none"
         />
 
@@ -1993,7 +1994,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
             <p className="text-xs text-zinc-300 font-medium">
               Kéo thả file PDF, Word (.docx) hoặc Ảnh đề thi vào đây
             </p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">
+            <p className="text-[10px] text-zinc-500 mt-0.5 hidden sm:block">
               Lăn chuột để phóng to/thu nhỏ, giữ Space kéo bảng bay vô tận
             </p>
           </div>

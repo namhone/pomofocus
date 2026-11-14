@@ -96,10 +96,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   const handleFocusChange = (val: number) => {
     const clamped = Math.max(1, Math.min(120, val));
     updateTimerSettings({ pomodoroMinutes: clamped });
-    if (useTimerStore.getState().settings.pomodoroMinutes !== clamped) {
+    const timerState = useTimerStore.getState();
+    if (timerState.status === 'idle' && timerState.phase === 'pomodoro') {
       useTimerStore.setState({
+        remainingMs: clamped * 60 * 1000,
         settings: {
-          ...useTimerStore.getState().settings,
+          ...timerState.settings,
           pomodoroMinutes: clamped,
         },
       });
@@ -109,10 +111,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   const handleShortBreakChange = (val: number) => {
     const clamped = Math.max(1, Math.min(60, val));
     updateTimerSettings({ shortBreakMinutes: clamped });
-    if (useTimerStore.getState().settings.shortBreakMinutes !== clamped) {
+    const timerState = useTimerStore.getState();
+    if (timerState.status === 'idle' && timerState.phase === 'short_break') {
       useTimerStore.setState({
+        remainingMs: clamped * 60 * 1000,
         settings: {
-          ...useTimerStore.getState().settings,
+          ...timerState.settings,
           shortBreakMinutes: clamped,
         },
       });
@@ -122,10 +126,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   const handleLongBreakChange = (val: number) => {
     const clamped = Math.max(1, Math.min(60, val));
     updateTimerSettings({ longBreakMinutes: clamped });
-    if (useTimerStore.getState().settings.longBreakMinutes !== clamped) {
+    const timerState = useTimerStore.getState();
+    if (timerState.status === 'idle' && timerState.phase === 'long_break') {
       useTimerStore.setState({
+        remainingMs: clamped * 60 * 1000,
         settings: {
-          ...useTimerStore.getState().settings,
+          ...timerState.settings,
           longBreakMinutes: clamped,
         },
       });

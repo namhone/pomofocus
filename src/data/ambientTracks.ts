@@ -308,9 +308,9 @@ export interface AmbientTabDefinition {
 }
 
 export const AMBIENT_TABS: AmbientTabDefinition[] = [
-  { id: 'nature', label: 'Tự Nhiên', count: 7 },
-  { id: 'life', label: 'Cuộc Sống', count: 10 },
-  { id: 'binaural', label: 'Sóng Não', count: 4 },
-  { id: 'noise', label: 'Tiếng Ồn Khoa Học', count: 4 },
-  { id: 'all', label: 'Tất Cả', count: 25 }
+  { id: 'nature', label: 'Tự nhiên', count: 7 },
+  { id: 'life', label: 'Cuộc sống', count: 10 },
+  { id: 'binaural', label: 'Sóng não', count: 4 },
+  { id: 'noise', label: 'Tiếng ồn', count: 4 },
+  { id: 'all', label: 'Tất cả', count: 25 }
 ];

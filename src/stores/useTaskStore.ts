@@ -195,6 +195,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
 
     if (hardDelete) {
       await db.tasks.delete(id);
+        const { useTimerStore } = await import('./useTimerStore');
+        if (useTimerStore.getState().linkedTaskId === id) {
+          useTimerStore.getState().setLinkedTask(null, null);
+        }
     } else {
       // Soft delete: chuyển sang trạng thái archived
       await db.tasks.update(id, { status: 'archived', updatedAt: Date.now() });

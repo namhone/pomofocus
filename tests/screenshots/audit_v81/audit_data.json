@@ -6,10 +6,10 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 258.3125,
-        "y": 11.5,
-        "width": 32,
-        "height": 32
+        "x": 370,
+        "y": 9.5,
+        "width": 28,
+        "height": 28
       },
       "text": "K"
     },
@@ -19,9 +19,9 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 338.3125,
-        "y": 14.5,
-        "width": 57.6875,
+        "x": 274.3125,
+        "y": 10.5,
+        "width": 55.6875,
         "height": 26
       },
       "text": "⚡\n50"
@@ -33,7 +33,7 @@
       "isVisible": true,
       "box": {
         "x": 82.359375,
-        "y": 73,
+        "y": 65,
         "width": 83.4375,
         "height": 30
       },
@@ -46,7 +46,7 @@
       "isVisible": true,
       "box": {
         "x": 165.796875,
-        "y": 73,
+        "y": 65,
         "width": 87.359375,
         "height": 30
       },
@@ -59,7 +59,7 @@
       "isVisible": true,
       "box": {
         "x": 253.15625,
-        "y": 73,
+        "y": 65,
         "width": 76.484375,
         "height": 30
       },
@@ -72,11 +72,11 @@
       "isVisible": true,
       "box": {
         "x": 55,
-        "y": 119,
+        "y": 111,
         "width": 201.65625,
         "height": 38
       },
-      "text": "Chưa chọn công việc"
+      "text": "Chọn mục tiêu phiên này...\n(Chưa chọn công việc)"
     },
     "monumentalTimer": {
       "name": "Big Timer Display",
@@ -85,7 +85,7 @@
       "isVisible": true,
       "box": {
         "x": 136.34375,
-        "y": 215.25,
+        "y": 283,
         "width": 139.3125,
         "height": 60
       },
@@ -97,10 +97,10 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 174,
-        "y": 353.25,
-        "width": 64,
-        "height": 64
+        "x": 178,
+        "y": 426,
+        "width": 56,
+        "height": 56
       },
       "text": ""
     },
@@ -110,8 +110,8 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 102,
-        "y": 361.25,
+        "x": 106,
+        "y": 430,
         "width": 48,
         "height": 48
       },
@@ -124,7 +124,7 @@
       "isVisible": true,
       "box": {
         "x": 356,
-        "y": 118,
+        "y": 110,
         "width": 40,
         "height": 40
       },
@@ -137,7 +137,7 @@
       "isVisible": true,
       "box": {
         "x": 273.65625,
-        "y": 118,
+        "y": 110,
         "width": 74.34375,
         "height": 40
       },
@@ -150,24 +150,19 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 478.5,
+        "y": 619,
         "width": 380,
-        "height": 70
+        "height": 44
       },
-      "text": "Dòng chảy hôm nay\nHôm nay: 0g 0ph • 0 🍅 hoàn thành\n00h\n06h\n12h\n18h\n23h"
+      "text": "Dòng chảy hôm nay\nHôm nay: 0g 0ph • 0 🍅 hoàn thành"
     },
     "weeklyInsights": {
       "name": "7-Day Weekly Insights",
       "selector": "[data-testid=\"mobile-weekly-insights\"]",
       "exists": true,
-      "isVisible": true,
-      "box": {
-        "x": 16,
-        "y": 556.5,
-        "width": 380,
-        "height": 106.5
-      },
-      "text": "Xu hướng 7 ngày\n0 giờ • 0 🍅 tuần này\nT6\nT7\nCN\nT2\nT3\nT4\nT5"
+      "isVisible": false,
+      "box": null,
+      "text": "0 giờ"
     },
     "bottomNav": {
       "name": "Material 3 Bottom Navigation",
@@ -191,7 +186,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 166,
+        "y": 158,
         "width": 260,
         "height": 141
       },
@@ -204,7 +199,7 @@
       "isVisible": true,
       "box": {
         "x": 25,
-        "y": 269,
+        "y": 261,
         "width": 242,
         "height": 29
       },
@@ -219,10 +214,10 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 174,
-        "y": 353.25,
-        "width": 64,
-        "height": 64
+        "x": 178,
+        "y": 426,
+        "width": 56,
+        "height": 56
       },
       "text": ""
     },
@@ -233,7 +228,7 @@
       "isVisible": true,
       "box": {
         "x": 110,
-        "y": 311.25,
+        "y": 379,
         "width": 192,
         "height": 4
       },
@@ -252,7 +247,7 @@
         "width": 412,
         "height": 839
       },
-      "text": "Chế độ Khóa Bỏ Túi (Pocket Lock) đang bật\nMàn hình đã khóa\n\nToàn bộ thao tác chạm đã bị khóa an toàn để tránh kích hoạt nhầm khi để trong túi.\n\nẤN GIỮ 1.5S ĐỂ MỞ KHÓA\nThả tay trước 1.5s sẽ hủy thao tác mở khóa"
+      "text": "Đã bật khóa chống chạm nhầm\nMàn hình đã khóa\n\nToàn bộ thao tác chạm đã bị khóa an toàn để tránh kích hoạt nhầm khi để trong túi.\n\nNhấn giữ để mở khóa\nGiữ 1.5 giây để mở lại màn hình"
     },
     "unlockPad": {
       "name": "Pocket Unlock Hold Pad",
@@ -261,11 +256,11 @@
       "isVisible": true,
       "box": {
         "x": 46,
-        "y": 722.5,
+        "y": 764.5,
         "width": 320,
-        "height": 56
+        "height": 18
       },
-      "text": "ẤN GIỮ 1.5S ĐỂ MỞ KHÓA"
+      "text": "Nhấn giữ để mở khóa"
     },
     "unlockProgress": {
       "name": "Unlock Hold Progress Bar",
@@ -274,9 +269,9 @@
       "isVisible": false,
       "box": {
         "x": 47,
-        "y": 723.5,
+        "y": 765.5,
         "width": 0,
-        "height": 54
+        "height": 16
       },
       "text": ""
     }
@@ -293,7 +288,7 @@
         "width": 412,
         "height": 428.5
       },
-      "text": "Đăng nhập & Đồng bộ\nĐăng nhập PomoFocus\n\nĐồng bộ đa thiết bị tức thì, bảo toàn ghi chú và điểm năng lượng AI.\n\nTiếp tục với Google\nHOẶC MAGIC LINK\nGửi liên kết đăng nhập Magic Link\n\nKhông cần nhớ mật khẩu. Chúng tôi sẽ gửi một đường dẫn đăng nhập 1 chạm an toàn tới email của bạn."
+      "text": "Đăng nhập & Đồng bộ\nĐăng nhập PomoFocus\n\nĐồng bộ đa thiết bị tức thì, bảo toàn ghi chú và điểm năng lượng AI.\n\nTiếp tục với Google\nHOẶC DÙNG EMAIL\nNhận mã đăng nhập qua email\n\nKhông cần nhớ mật khẩu. Chúng tôi sẽ gửi một đường dẫn đăng nhập 1 chạm an toàn tới email của bạn."
     },
     "googleBtn": {
       "name": "Google 1-Tap OAuth Button",
@@ -332,7 +327,7 @@
         "width": 372,
         "height": 44
       },
-      "text": "Gửi liên kết đăng nhập Magic Link"
+      "text": "Nhận mã đăng nhập qua email"
     },
     "bentoGrid": {
       "name": "4-Card Bento Grid Profile",
@@ -368,11 +363,11 @@
       "isVisible": true,
       "box": {
         "x": 0,
-        "y": 56,
+        "y": 48,
         "width": 412,
-        "height": 719
+        "height": 727
       },
-      "text": "Danh sách công việc\n1/2\nTất cả\nChưa xong\nĐã xong\nĐọc sách Deep Work 25 trang\nGắn\nLuyện đề thi thử Toán Cao Cấp\nGắn"
+      "text": "Danh sách công việc\nDọn việc xong\n1/2\nTất cả\nChưa xong\nĐã xong\nĐọc sách Deep Work 25 trang\n0/1 🍅\nGắn\nLuyện đề thi thử Toán Cao Cấp\n0/1 🍅\nGắn"
     },
     "taskInput": {
       "name": "Quick Add Task Input",
@@ -381,9 +376,9 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 116,
-        "width": 332,
-        "height": 42
+        "y": 101,
+        "width": 336,
+        "height": 34
       },
       "text": ""
     },
@@ -393,10 +388,10 @@
       "exists": true,
       "isVisible": true,
       "box": {
-        "x": 356,
-        "y": 117,
-        "width": 40,
-        "height": 40
+        "x": 360,
+        "y": 100,
+        "width": 36,
+        "height": 36
       },
       "text": ""
     },
@@ -407,11 +402,11 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 216,
+        "y": 190.5,
         "width": 380,
-        "height": 116
+        "height": 109
       },
-      "text": "Đọc sách Deep Work 25 trang\nGắn\nLuyện đề thi thử Toán Cao Cấp\nGắn"
+      "text": "Đọc sách Deep Work 25 trang\n0/1 🍅\nGắn\nLuyện đề thi thử Toán Cao Cấp\n0/1 🍅\nGắn"
     }
   },
   "07_tab_spaces_bg": {
@@ -422,7 +417,7 @@
       "isVisible": true,
       "box": {
         "x": 21,
-        "y": 143,
+        "y": 135,
         "width": 182,
         "height": 36
       },
@@ -435,7 +430,7 @@
       "isVisible": true,
       "box": {
         "x": 209,
-        "y": 143,
+        "y": 135,
         "width": 182,
         "height": 36
       },
@@ -448,7 +443,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 204,
+        "y": 196,
         "width": 380,
         "height": 48
       },
@@ -461,7 +456,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 138,
+        "y": 130,
         "width": 380,
         "height": 46
       },
@@ -476,11 +471,11 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 220,
+        "y": 212,
         "width": 380,
         "height": 2730
       },
-      "text": "Âm lượng tổng (Master)\n80%\nTất Cả (25)\nTự Nhiên (7)\nCuộc Sống (10)\nSóng Não (4)\nTiếng Ồn Khoa Học (4)\nMưa Rào\n\nTiếng mưa rơi đều đặn xoa dịu tâm trí\n\n50%\nSóng Biển\n\nSóng biển dạt dào êm ả vỗ về từng đợt\n\n50%\nSuối Nước\n\nDòng suối êm ả róc rách qua ghềnh đá\n\n45%\nRừng & Tiếng Chim\n\nTiếng chim hót rộn ràng giữa tán rừng nguyên sinh\n\n45%\nLửa Trại\n\nĐốm lửa bập bùng lách tách ấm áp trong đêm\n\n45%\nGió Rừng Mùa Hè\n\nGió luồn qua kẽ lá hè mát mẻ, thanh lọc tinh thần\n\n40%\nĐêm Hè Tiếng Dế\n\nÂm vang tiếng dế đêm hè tĩnh lặng và thanh bình\n\n40%\nQuán Cà Phê\n\nKhông gian ấm cúng, êm đềm của quán quen\n\n40%\nBàn Phím Cơ\n\nTiếng gõ phím cơ nhịp nhàng tăng năng suất tập trung\n\n35%\nQuạt Máy\n\nQuạt máy quay đều đặn mang lại luồng gió tập trung\n\n40%\nĐồng Hồ Tích Tắc\n\nTiếng tích tắc nhịp nhàng giữ nhịp làm việc sâu\n\n35%\nTàu Hỏa Lăn Bánh\n\nNhịp ray tàu chuyển bánh trên cung đường dài\n\n40%\nMưa Trên Cửa Kính\n\nHạt mưa táp vào khung kính tạo cảm giác an yên\n\n45%\nSấm Sét Xa Dịu\n\nTiếng sấm vọng xa xôi hòa cùng nhịp mưa\n\n35%\nLật Trang Sách Thư Viện\n\nTiếng lật từng trang giấy thơm mùi tri thức\n\n35%\nChuông Gió Phong Linh\n\nGiai điệu chuông gió thánh thót xoa dịu âu lo\n\n35%\nGió Thoảng Ven Biển\n\nGió mát lành hòa cùng âm thanh tự nhiên bờ biển\n\n40%\nSóng Alpha (10Hz)\n10Hz\n\nTập trung sâu & Giảm căng thẳng não bộ\n\n35%\nSóng Beta (18Hz)\n18Hz\n\nTư duy phân tích, logic và tỉnh táo\n\n35%\nSóng Theta (6Hz)\n6Hz\n\nKích thích sáng tạo & Trạng thái thiền định\n\n35%\nSóng Delta (2Hz)\n2Hz\n\nThư giãn cơ thể, phục hồi năng lượng\n\n35%\nSóng Gamma (40Hz)\n40Hz\n\nÂm thanh mô phỏng nhịp hai tai hỗ trợ tập trung cao độ\n\n30%\nWhite Noise\nĐều mọi dải tần\n\nĐều mọi dải tần, che tạp âm phòng học hiệu quả\n\n40%\nPink Noise\n-3dB/octave\n\nGiảm -3dB/octave, âm sắc cân bằng sinh học hỗ trợ ghi nhớ bài học lâu hơn\n\n45%\nBrown Noise\n-6dB Trầm ấm\n\nTrầm ấm như thác nước sâu, chuẩn vàng giúp người học ADHD triệt tiêu xao nhãng\n\n45%\nBlue Noise\n+3dB Dải cao\n\nDải tần cao dịu, hỗ trợ chống buồn ngủ trong ca học khuya\n\n35%"
+      "text": "Âm lượng tổng (Master)\n80%\nTất cả (25)\nTự nhiên (7)\nCuộc sống (10)\nSóng não (4)\nTiếng ồn (4)\nMưa Rào\n\nTiếng mưa rơi đều đặn xoa dịu tâm trí\n\n50%\nSóng Biển\n\nSóng biển dạt dào êm ả vỗ về từng đợt\n\n50%\nSuối Nước\n\nDòng suối êm ả róc rách qua ghềnh đá\n\n45%\nRừng & Tiếng Chim\n\nTiếng chim hót rộn ràng giữa tán rừng nguyên sinh\n\n45%\nLửa Trại\n\nĐốm lửa bập bùng lách tách ấm áp trong đêm\n\n45%\nGió Rừng Mùa Hè\n\nGió luồn qua kẽ lá hè mát mẻ, thanh lọc tinh thần\n\n40%\nĐêm Hè Tiếng Dế\n\nÂm vang tiếng dế đêm hè tĩnh lặng và thanh bình\n\n40%\nQuán Cà Phê\n\nKhông gian ấm cúng, êm đềm của quán quen\n\n40%\nBàn Phím Cơ\n\nTiếng gõ phím cơ nhịp nhàng tăng năng suất tập trung\n\n35%\nQuạt Máy\n\nQuạt máy quay đều đặn mang lại luồng gió tập trung\n\n40%\nĐồng Hồ Tích Tắc\n\nTiếng tích tắc nhịp nhàng giữ nhịp làm việc sâu\n\n35%\nTàu Hỏa Lăn Bánh\n\nNhịp ray tàu chuyển bánh trên cung đường dài\n\n40%\nMưa Trên Cửa Kính\n\nHạt mưa táp vào khung kính tạo cảm giác an yên\n\n45%\nSấm Sét Xa Dịu\n\nTiếng sấm vọng xa xôi hòa cùng nhịp mưa\n\n35%\nLật Trang Sách Thư Viện\n\nTiếng lật từng trang giấy thơm mùi tri thức\n\n35%\nChuông Gió Phong Linh\n\nGiai điệu chuông gió thánh thót xoa dịu âu lo\n\n35%\nGió Thoảng Ven Biển\n\nGió mát lành hòa cùng âm thanh tự nhiên bờ biển\n\n40%\nSóng Alpha (10Hz)\n10Hz\n\nTập trung sâu & Giảm căng thẳng não bộ\n\n35%\nSóng Beta (18Hz)\n18Hz\n\nTư duy phân tích, logic và tỉnh táo\n\n35%\nSóng Theta (6Hz)\n6Hz\n\nKích thích sáng tạo & Trạng thái thiền định\n\n35%\nSóng Delta (2Hz)\n2Hz\n\nThư giãn cơ thể, phục hồi năng lượng\n\n35%\nSóng Gamma (40Hz)\n40Hz\n\nÂm thanh mô phỏng nhịp hai tai hỗ trợ tập trung cao độ\n\n30%\nWhite Noise\nĐều mọi dải tần\n\nĐều mọi dải tần, che tạp âm phòng học hiệu quả\n\n40%\nPink Noise\n-3dB/octave\n\nGiảm -3dB/octave, âm sắc cân bằng sinh học hỗ trợ ghi nhớ bài học lâu hơn\n\n45%\nBrown Noise\n-6dB Trầm ấm\n\nTrầm ấm như thác nước sâu, chuẩn vàng giúp người học ADHD triệt tiêu xao nhãng\n\n45%\nBlue Noise\n+3dB Dải cao\n\nDải tần cao dịu, hỗ trợ chống buồn ngủ trong ca học khuya\n\n35%"
     },
     "masterVolumeCard": {
       "name": "Master Volume Control Card",
@@ -489,7 +484,7 @@
       "isVisible": true,
       "box": {
         "x": 31,
-        "y": 259,
+        "y": 251,
         "width": 350,
         "height": 16
       },
@@ -509,37 +504,21 @@
       "isVisible": true,
       "box": {
         "x": 0,
-        "y": 56,
+        "y": 48,
         "width": 412,
-        "height": 719
+        "height": 727
       },
-      "text": "Trợ lý học tập AI\n⚡ 50\n(Nạp thêm)\n\nChào bạn. Tôi có thể giúp gì cho buổi học hôm nay?\n\nLập kế hoạch học tập 25 phút giúp tôi\nKhông thể kết nối máy chủ AI, vui lòng kiểm tra mạng.\nThử lại câu hỏi"
+      "text": "Trợ lý học tập AI\nChat mới\n\nChào bạn. Tôi có thể giúp gì cho buổi học hôm nay?\n\nHôm nay bạn đang ôn phần nào?\n\nHỏi giải thích công thức, gợi ý phân bổ thời gian hoặc hỗ trợ giải bài tập.\n\n💡 Giải thích phương pháp Pomodoro💡 Gợi ý lịch ôn thi đại học tuần này💡 Cách xử lý khi mất tập trung"
     },
     "aiInput": {
       "name": "AI Chat Query Input Bar",
       "selector": "input[placeholder*=\"Hỏi AI\"]",
-      "exists": true,
-      "isVisible": true,
-      "box": {
-        "x": 12,
-        "y": 717,
-        "width": 340,
-        "height": 42
-      },
-      "text": ""
+      "exists": false
     },
     "sendBtn": {
       "name": "Send Query Button",
       "selector": "form:has(input[placeholder*=\"Hỏi AI\"]) button[type=\"submit\"]",
-      "exists": true,
-      "isVisible": true,
-      "box": {
-        "x": 360,
-        "y": 718,
-        "width": 40,
-        "height": 40
-      },
-      "text": ""
+      "exists": false
     }
   },
   "10_tab_settings": {
@@ -550,9 +529,9 @@
       "isVisible": true,
       "box": {
         "x": 0,
-        "y": 56,
+        "y": 48,
         "width": 412,
-        "height": 719
+        "height": 727
       },
       "text": "K\nKhách học tập\nTài khoản khách cục bộ\nMiễn phí\nSố dư AI:\n⚡ 50\nNạp thêm\nĐồng bộ đám mây & xác thực\nĐăng nhập / Đăng ký\n→\nNâng cấp để mở khóa 1000+ hình nền & AI cao cấp\nNâng cấp\nTHỜI LƯỢNG POMODORO & SỐ HIỆP\nThời gian tập trung\nSố phút cho mỗi phiên học sâu\n26\nphút\n−\n+\nNghỉ ngắn\nThư giãn nhẹ giữa các hiệp\n5\nphút\n−\n+\nNghỉ dài\nHồi phục năng lượng sau 4 hiệp\n15\nphút\n−\n+\nTỰ ĐỘNG HÓA\nTự động chuyển hiệp mới\nTự động chạy hiệp tiếp theo khi hết giờ\nÂM THANH & CHUÔNG BÁO\nÂm lượng chính\n80%\nChuông báo kết thúc hiệp\nNghe thử\nChuông Tây Tạng (Tibetan Bowl)\nChuông Pha Lê (Crystal Chime)\nHồi Chuông Digital (Radar Beep)\nChuông Đồng (Brass Bell)\nTwinkle\nPlaytime\nSci-Fi\nSlow Rise\nTiếng Chim\nHIỆU NĂNG & HỆ THỐNG\n🍃 Chế độ Eco\nGiảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên điện thoại\nDữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)\nKhôi phục giao diện ban đầu\nPomoFocus v8.0 Liquid Zen\nTrải nghiệm tối giản cho Android"
     },
@@ -563,7 +542,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 56,
+        "y": 48,
         "width": 380,
         "height": 197
       },
@@ -576,7 +555,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 297.5,
+        "y": 289.5,
         "width": 380,
         "height": 56
       },
@@ -589,7 +568,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 361.5,
+        "y": 353.5,
         "width": 380,
         "height": 56
       },
@@ -602,7 +581,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 425.5,
+        "y": 417.5,
         "width": 380,
         "height": 56
       },
@@ -615,7 +594,7 @@
       "isVisible": true,
       "box": {
         "x": 33,
-        "y": 689.5,
+        "y": 681.5,
         "width": 346,
         "height": 8
       },
@@ -628,7 +607,7 @@
       "isVisible": true,
       "box": {
         "x": 33,
-        "y": 763,
+        "y": 755,
         "width": 346,
         "height": 43
       },
@@ -641,7 +620,7 @@
       "isVisible": true,
       "box": {
         "x": 16,
-        "y": 994,
+        "y": 986,
         "width": 380,
         "height": 48
       },
@@ -655,33 +634,33 @@
         "x": 0,
         "y": 0,
         "width": 1440,
-        "height": 2150
+        "height": 2018.765625
       }
     },
     "centralApkBtn": {
       "exists": true,
       "box": {
         "x": 141,
-        "y": 599.375,
-        "width": 365.5,
-        "height": 56
+        "y": 503.875,
+        "width": 367.4375,
+        "height": 64
       },
       "text": "Tải PomoFocus APK (v8.1)"
     },
     "phone3DStage": {
       "exists": true,
       "box": {
-        "x": 840,
-        "y": 350,
-        "width": 488,
+        "x": 835.328125,
+        "y": 278,
+        "width": 492.671875,
         "height": 666.765625
       }
     },
     "dynamicQrCode": {
       "exists": true,
       "box": {
-        "x": 543.75,
-        "y": 550,
+        "x": 546.375,
+        "y": 458.5,
         "width": 214,
         "height": 214
       }
@@ -690,8 +669,8 @@
       "exists": true,
       "box": {
         "x": 141,
-        "y": 695.875,
-        "width": 365.5,
+        "y": 608.375,
+        "width": 367.4375,
         "height": 35.75
       },
       "text": "Nếu máy hiện cảnh báo nguồn ngoài, chọn 'Vẫn cài đặt' để trải nghiệm bản thử nghiệm nội bộ."

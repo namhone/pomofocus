@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
+  Edit3,
+  CheckCheck,
   Timer,
   CheckSquare,
   Palette,
@@ -41,6 +43,7 @@ import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
 import { AiCreditsTopupModal } from '../AiCreditsTopupModal';
 import { GlobalAudioHost } from '../GlobalAudioHost';
 import { getUserInitial } from '../../services/authService';
+import { isNativeApiRuntime } from '../../utils/apiConfig';
 
 const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
 
@@ -346,41 +349,56 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       <header
         data-testid="mobile-top-header"
         role="banner"
-        className={`h-14 min-h-[56px] max-h-[56px] w-full flex items-center justify-between px-4 ${
-          isEcoMode ? 'bg-zinc-950/90' : 'bg-zinc-950/60 backdrop-blur-xl'
+        className={`h-12 min-h-[48px] max-h-[48px] sm:h-14 w-full flex items-center justify-between px-3.5 ${
+          isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/80 backdrop-blur-xl'
         } border-b border-white/10 z-20 shrink-0`}
       >
-        {/* Left: Official PomoFocus Logo & Zen Emerald Badge */}
+        {/* Left: Official PomoFocus Logo & Wordmark (Zero ads, zero redundant badges) */}
         <div className="flex items-center gap-2 shrink-0">
           <PomoFocusLogo
-            size={24}
+            size={22}
             withContainer={true}
             showWordmark={true}
-            wordmarkClassName="text-base font-bold text-white tracking-tight"
+            wordmarkClassName="text-sm font-bold text-white tracking-tight"
           />
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
-            Liquid Zen
-          </span>
+          <span className="sr-only">Liquid Zen</span>
         </div>
 
-        {/* Center: 3-State Timer Indicator Dot */}
-        <div className="flex items-center justify-center">
-          <div
-            data-testid="mobile-header-timer-status-dot"
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${statusDotClasses}`}
-            title={`Trạng thái đồng hồ: ${timerStatus}`}
-            aria-label={`Trạng thái đồng hồ: ${timerStatus}`}
-          />
-        </div>
+        {/* Right: Credits Capsule, Conditional PiP trigger & Avatar Button */}
+        <div data-testid="mobile-header-timer-status-dot" className={`hidden w-2 h-2 rounded-full transition-all duration-300 ${statusDotClasses}`} aria-hidden="true" />
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            data-testid="mobile-header-credits-pill"
+            onClick={() => openTopupModal()}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-900/90 border border-white/10 hover:border-white/20 text-xs font-mono font-medium text-zinc-200 transition active:scale-95 cursor-pointer shadow-sm"
+            title="Số dư điểm AI"
+            aria-label={`Số dư AI: ${aiCreditsBalance} điểm`}
+          >
+            <span className="text-amber-400">⚡</span>
+            <span className="font-bold text-white tabular-nums">{aiCreditsBalance}</span>
+          </button>
 
-        {/* Right: Avatar Button, PiP trigger & Credits Capsule */}
-        <div className="flex items-center gap-2">
-          {/* Avatar button */}
+          {/* PiP button: Only display when Document PiP is supported and NOT running inside Android APK */}
+          <button
+            type="button"
+            data-testid="mobile-pip-btn"
+            onClick={handleTriggerPip}
+            className={`w-7 h-7 rounded-full bg-zinc-900/80 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer ${
+              (typeof window !== 'undefined' && !('documentPictureInPicture' in window)) || isNativeApiRuntime() ? 'hidden' : ''
+            }`}
+            title="Đồng hồ nổi (Picture-in-Picture)"
+            aria-label="Đồng hồ nổi"
+          >
+            <PictureInPicture2 className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Avatar button (Always 'K' for guest) */}
           <button
             type="button"
             data-testid="mobile-header-avatar-btn"
             onClick={() => setIsAuthSheetOpen(true)}
-            className="w-8 h-8 rounded-full bg-zinc-900/90 border border-white/10 hover:border-emerald-400/50 flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-emerald-400 shadow-sm"
+            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/25 flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-zinc-200 shadow-sm"
             title="Tài khoản & Đồng bộ đám mây"
             aria-label="Tài khoản và Đồng bộ đám mây"
           >
@@ -389,29 +407,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             ) : (
               <span>{getUserInitial(user)}</span>
             )}
-          </button>
-
-          <button
-            type="button"
-            data-testid="mobile-pip-btn"
-            onClick={handleTriggerPip}
-            className="w-8 h-8 rounded-full bg-zinc-900/80 border border-white/10 hover:border-emerald-400/40 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
-            title="Đồng hồ nổi (Picture-in-Picture)"
-            aria-label="Đồng hồ nổi"
-          >
-            <PictureInPicture2 className="w-4 h-4" />
-          </button>
-
-          <button
-            type="button"
-            data-testid="mobile-header-credits-pill"
-            onClick={() => openTopupModal()}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900/80 border border-white/10 hover:border-emerald-400/40 text-xs font-mono font-medium text-zinc-200 transition active:scale-95 cursor-pointer shadow-sm"
-            title="Số dư điểm AI"
-            aria-label={`Số dư AI: ${aiCreditsBalance} điểm`}
-          >
-            <span className="text-amber-400">⚡</span>
-            <span className="font-bold text-white tabular-nums">{aiCreditsBalance}</span>
           </button>
         </div>
       </header>
@@ -575,12 +570,12 @@ const NavTabButton: React.FC<NavTabButtonProps> = ({
   );
 };
 
-// -----------------------------------------------------------------------------
-// Sub-View: Native Mobile Tasks
+// Sub-View: Native Mobile Spaces, Presets & Soundscape Mixer (V8.0)
 // -----------------------------------------------------------------------------
 const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus }) => {
   const tasks = useTaskStore((s) => s.tasks);
   const createTask = useTaskStore((s) => s.createTask);
+  const updateTask = useTaskStore((s) => s.updateTask);
   const toggleTaskComplete = useTaskStore((s) => s.toggleTaskComplete);
   const deleteTask = useTaskStore((s) => s.deleteTask);
   const linkTaskToTimer = useTaskStore((s) => s.linkTaskToTimer);
@@ -588,6 +583,10 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
 
   const [inputTitle, setInputTitle] = useState('');
   const [filter, setFilter] = useState<'all' | 'todo' | 'completed'>('all');
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editEstimatedPomos, setEditEstimatedPomos] = useState<number>(1);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
@@ -598,28 +597,80 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
     });
   }, [tasks, filter]);
 
+  const completedCount = useMemo(() => {
+    return tasks.filter((t) => t.status === 'completed').length;
+  }, [tasks]);
+
   const handleAddTask = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!inputTitle.trim()) return;
     try {
       await createTask({ title: inputTitle.trim() });
       setInputTitle('');
+      if (filter === 'completed') {
+        setFilter('all');
+      }
     } catch (err) {
       console.warn('Lỗi thêm nhiệm vụ:', err);
     }
   };
 
+  const handleClearCompleted = async () => {
+    const completedTasks = tasks.filter((t) => t.status === 'completed');
+    for (const t of completedTasks) {
+      try {
+        await deleteTask(t.id);
+      } catch {}
+    }
+  };
+
+  const handleStartEdit = (task: any) => {
+    setEditingTaskId(task.id);
+    setEditTitle(task.title);
+    setEditEstimatedPomos(task.estimatedPomodoros || 1);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingTaskId || !editTitle.trim()) {
+      setEditingTaskId(null);
+      return;
+    }
+    try {
+      await updateTask(editingTaskId, {
+        title: editTitle.trim(),
+        estimatedPomodoros: Math.max(1, Math.min(20, editEstimatedPomos))
+      });
+    } catch (err) {
+      console.warn('Lỗi sửa nhiệm vụ:', err);
+    }
+    setEditingTaskId(null);
+  };
+
   return (
-    <div className="w-full h-full overflow-y-auto px-4 py-4 space-y-4 pb-28">
+    <div className="w-full h-full overflow-y-auto px-4 py-3.5 space-y-3.5 pb-28">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <CheckSquare className="w-5 h-5 text-emerald-400" />
+        <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <CheckSquare className="w-4 h-4 text-emerald-400" />
           <span>Danh sách công việc</span>
         </h2>
-        <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
-          {tasks.filter((t) => t.status === 'completed').length}/{tasks.length}
-        </span>
+        <div className="flex items-center gap-2">
+          {completedCount > 0 && (
+            <button
+              type="button"
+              data-testid="mobile-tasks-clear-completed-btn"
+              onClick={handleClearCompleted}
+              className="text-[11px] text-zinc-400 hover:text-rose-400 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-900 border border-white/5 active:scale-95 transition cursor-pointer"
+              title="Dọn sạch việc đã hoàn thành"
+            >
+              <CheckCheck className="w-3.5 h-3.5" />
+              <span>Dọn việc xong</span>
+            </button>
+          )}
+          <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-400 border border-white/5">
+            {completedCount}/{tasks.length}
+          </span>
+        </div>
       </div>
 
       {/* Quick Add Bar */}
@@ -629,29 +680,29 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
           value={inputTitle}
           onChange={(e) => setInputTitle(e.target.value)}
           placeholder="Thêm công việc mới cần làm..."
-          className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-white/10 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-400 transition"
+          className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-emerald-400/60 transition"
         />
         <button
           type="submit"
           disabled={!inputTitle.trim()}
-          className="w-10 h-10 rounded-xl bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center hover:bg-emerald-400 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
+          className="w-9 h-9 rounded-xl bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center hover:bg-emerald-400 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0"
           aria-label="Thêm công việc"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
         </button>
       </form>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {(['all', 'todo', 'completed'] as const).map((mode) => (
           <button
             key={mode}
             type="button"
             onClick={() => setFilter(mode)}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
               filter === mode
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                : 'bg-zinc-900/60 text-zinc-400 border border-white/5'
+                ? 'bg-zinc-800 text-white border border-white/20'
+                : 'bg-zinc-900/50 text-zinc-400 border border-transparent hover:text-zinc-300'
             }`}
           >
             {mode === 'all' ? 'Tất cả' : mode === 'todo' ? 'Chưa xong' : 'Đã xong'}
@@ -659,113 +710,190 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
         ))}
       </div>
 
-      {/* Task List */}
+      {/* Task Edit Modal */}
+      {editingTaskId && (
+        <div className="p-3 rounded-xl bg-zinc-900 border border-emerald-500/30 space-y-2.5">
+          <div className="text-xs font-semibold text-zinc-200">Sửa công việc</div>
+          <input
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-white/10 text-xs text-white outline-none focus:border-emerald-400"
+          />
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-zinc-400">Số Pomodoro dự kiến:</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setEditEstimatedPomos((p) => Math.max(1, p - 1))}
+                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center"
+              >
+                -
+              </button>
+              <span className="font-mono text-emerald-400 font-bold">{editEstimatedPomos} 🍅</span>
+              <button
+                type="button"
+                onClick={() => setEditEstimatedPomos((p) => Math.min(20, p + 1))}
+                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setEditingTaskId(null)}
+              className="px-2.5 py-1 rounded-lg text-xs text-zinc-400 hover:text-white"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveEdit}
+              className="px-3 py-1 rounded-lg text-xs bg-emerald-500 text-zinc-950 font-bold"
+            >
+              Lưu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Task List (Streamlined & De-crammed) */}
       <div className="space-y-2">
         {filteredTasks.length === 0 ? (
-          <div className="py-12 text-center text-zinc-500 text-sm">
-            Chưa có nhiệm vụ nào trong mục này.
+          <div className="py-10 text-center text-zinc-500 text-xs">
+            Chưa có công việc nào trong danh sách.
           </div>
         ) : (
           filteredTasks.map((task) => {
             const isCompleted = task.status === 'completed';
             const isLinked = activeTaskId === task.id;
+            const isExpanded = expandedTaskId === task.id;
 
             return (
               <div
                 key={task.id}
-                className={`p-3 rounded-xl bg-zinc-900/55 backdrop-blur-md border transition flex items-center justify-between gap-3 ${
+                className={`rounded-xl bg-zinc-900/60 border transition ${
                   isLinked
-                    ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(52,211,153,0.15)]'
-                    : 'border-white/10'
+                    ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(52,211,153,0.1)]'
+                    : 'border-white/5 hover:border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <button
-                    type="button"
-                    onClick={() => toggleTaskComplete(task.id)}
-                    className={`w-6 h-6 rounded-lg border flex items-center justify-center transition active:scale-95 cursor-pointer shrink-0 ${
-                      isCompleted
-                        ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
-                        : 'border-zinc-700 bg-zinc-800 text-transparent hover:border-zinc-500'
-                    }`}
-                    aria-label={isCompleted ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
-                  >
-                    {isCompleted ? (
-                      <svg
-                        className="w-4 h-4 text-zinc-950 animate-draw-tick"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    ) : (
-                      <Check className="w-4 h-4 stroke-[3]" />
-                    )}
-                  </button>
-                  <span
-                    className={`text-sm truncate ${
-                      isCompleted ? 'line-through text-zinc-500' : 'text-zinc-100 font-medium'
-                    }`}
-                  >
-                    {task.title}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {/* Task Priority Reordering Controls (Up / Down) */}
-                  <div className="flex items-center bg-zinc-800/80 rounded-lg p-0.5 border border-white/5">
+                {/* Main Clean Row: Checkbox + Title + Pomodoro Badge + Target Link */}
+                <div className="p-3 flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
                     <button
                       type="button"
-                      data-testid={`mobile-task-move-up-${task.id}`}
-                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
-                      className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
-                      title="Chuyển lên trên"
-                      aria-label="Chuyển lên trên"
+                      onClick={() => toggleTaskComplete(task.id)}
+                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition active:scale-95 cursor-pointer shrink-0 ${
+                        isCompleted
+                          ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
+                          : 'border-zinc-700 bg-zinc-800/80 text-transparent hover:border-zinc-500'
+                      }`}
+                      aria-label={isCompleted ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
                     >
-                      <ChevronUp className="w-3.5 h-3.5" />
+                      {isCompleted && <Check className="w-3.5 h-3.5 stroke-[3] animate-draw-tick" />}
                     </button>
-                    <button
-                      type="button"
-                      data-testid={`mobile-task-move-down-${task.id}`}
-                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
-                      className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
-                      title="Chuyển xuống dưới"
-                      aria-label="Chuyển xuống dưới"
+                    <span
+                      onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                      className={`text-xs truncate cursor-pointer select-none ${
+                        isCompleted ? 'line-through text-zinc-500' : 'text-zinc-100 font-medium'
+                      }`}
                     >
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
+                      {task.title}
+                    </span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      linkTaskToTimer(isLinked ? null : task.id);
-                      if (!isLinked) onGoToFocus();
-                    }}
-                    className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition cursor-pointer ${
-                      isLinked
-                        ? 'bg-emerald-500 text-zinc-950 font-bold'
-                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                    }`}
-                    title={isLinked ? 'Đang gắn với đồng hồ' : 'Gắn với đồng hồ Pomodoro'}
-                  >
-                    <Target className="w-3.5 h-3.5" />
-                    <span>{isLinked ? 'Đang gắn' : 'Gắn'}</span>
-                  </button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Pomodoro Progress Badge */}
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-white/5">
+                      {task.completedPomodoros || 0}/{task.estimatedPomodoros || 1} 🍅
+                    </span>
 
-                  <button
-                    type="button"
-                    onClick={() => deleteTask(task.id)}
-                    className="w-7 h-7 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition cursor-pointer"
-                    aria-label="Xóa nhiệm vụ"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    {/* Target Link Button: Disabled if completed */}
+                    <button
+                      type="button"
+                      disabled={isCompleted}
+                      onClick={() => {
+                        if (isCompleted) return;
+                        linkTaskToTimer(isLinked ? null : task.id);
+                        if (!isLinked) onGoToFocus();
+                      }}
+                      className={`px-2 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1 transition cursor-pointer ${
+                        isCompleted
+                          ? 'opacity-30 cursor-not-allowed bg-zinc-800/50 text-zinc-500'
+                          : isLinked
+                          ? 'bg-emerald-500 text-zinc-950 font-bold'
+                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                      }`}
+                      title={isCompleted ? 'Không thể gắn việc đã xong' : isLinked ? 'Đang gắn đồng hồ' : 'Gắn với đồng hồ Pomodoro'}
+                    >
+                      <Target className="w-3 h-3" />
+                      <span>{isLinked ? 'Đang gắn' : 'Gắn'}</span>
+                    </button>
+
+                    {/* Move Up/Down Priority Buttons */}
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-up-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
+                        className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
+                        title="Chuyển lên trên"
+                        aria-label="Chuyển lên trên"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-down-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
+                        className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
+                        title="Chuyển xuống dưới"
+                        aria-label="Chuyển xuống dưới"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* More actions toggle */}
+                    <button
+                      type="button"
+                      onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                      className="p-1 text-zinc-400 hover:text-white rounded transition"
+                      aria-label="Tùy chọn khác"
+                    >
+                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Secondary Actions Drawer: Edit, Delete */}
+                {isExpanded && (
+                  <div className="px-3 pb-2.5 pt-1 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(task)}
+                        className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px]"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>Sửa</span>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteTask(task.id)}
+                      className="text-zinc-500 hover:text-rose-400 px-2 py-0.5 rounded hover:bg-rose-500/10 flex items-center gap-1 text-[11px]"
+                      aria-label="Xóa nhiệm vụ"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Xóa</span>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })
@@ -775,9 +903,6 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
   );
 };
 
-// -----------------------------------------------------------------------------
-// Sub-View: Native Mobile Spaces, Presets & Soundscape Mixer (V8.0)
-// -----------------------------------------------------------------------------
 const MobileSpacesSubView: React.FC = () => {
   const presets = useBackgroundStore((s) => s.presets);
   const activePresetId = useBackgroundStore((s) => s.activePresetId);
@@ -929,7 +1054,10 @@ const MobileSpacesSubView: React.FC = () => {
             <button
               type="button"
               data-testid="mobile-spaces-pure-zen-black-btn"
-              onClick={() => useBackgroundStore.getState().setPureZenBlack()}
+              onClick={() => {
+                useBackgroundStore.getState().setPureZenBlack();
+                useBackgroundStore.setState({ customUrl: null });
+              }}
               className={`w-full h-12 rounded-2xl border px-4 flex items-center justify-between text-xs font-bold transition active:scale-[0.98] cursor-pointer shadow-md backdrop-blur-md ${
                 activePresetId === 'pure-black'
                   ? 'bg-zinc-900 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/20 shadow-emerald-500/10'
@@ -1153,7 +1281,13 @@ const MobileSpacesSubView: React.FC = () => {
           </div>
 
           {/* Audio Category Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+          <div
+            className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5"
+            style={{
+              maskImage: 'linear-gradient(to right, black 85%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)'
+            }}
+          >
             {orderedAudioTabs.map((tab) => (
               <button
                 key={tab.id}
@@ -1232,7 +1366,11 @@ const MobileSpacesSubView: React.FC = () => {
                   value={Math.round(track.volume * 100)}
                   onChange={(e) => setTrackVolume(track.id, Number(e.target.value) / 100)}
                   aria-label={`Âm lượng ${track.name}`}
-                  className="w-full accent-emerald-400 cursor-pointer"
+                  className={`w-full h-1 rounded-full cursor-pointer transition-opacity ${
+                    track.isPlaying
+                      ? 'accent-emerald-400 opacity-100'
+                      : 'accent-zinc-600 opacity-40'
+                  }`}
                 />
               </div>
             ))}
@@ -1249,10 +1387,10 @@ const MobileSpacesSubView: React.FC = () => {
 const MobileAiSubView: React.FC = () => {
   const messages = useAiStore((s) => s.messages);
   const sendMessage = useAiStore((s) => s.sendMessage);
+  const clearMessages = useAiStore((s) => (s as any).clearMessages || (() => {}));
   const isLoading = useAiStore((s) => s.isLoading);
   const error = useAiStore((s) => s.error);
-  const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
-  const openTopupModal = useAiStore((s) => s.openTopupModal);
+  const user = useAuthStore((s) => s.user);
 
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1274,30 +1412,53 @@ const MobileAiSubView: React.FC = () => {
     }
   };
 
+  const handleNewConversation = () => {
+    if (user?.id) {
+      useAiStore.getState().initConversation(user.id).catch(() => {});
+    }
+  };
+
   const suggestions = [
     'Giải thích phương pháp Pomodoro',
-    'Gợi ý lịch học tập hiệu quả hôm nay',
-    'Phương pháp chống trì hoãn 2 phút'
+    'Gợi ý lịch ôn thi đại học tuần này',
+    'Cách xử lý khi mất tập trung'
   ];
 
   const showQuickSuggestions = messages.length <= 1;
 
   return (
     <div className="w-full h-full flex flex-col bg-zinc-950/45 backdrop-blur-md">
-      {/* Header bar */}
-      <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-zinc-900/55 backdrop-blur-md shrink-0">
+      {/* Header bar (Clean, zero duplicate credits, action buttons) */}
+      <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between bg-zinc-900/60 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
-          <Bot className="w-5 h-5 text-emerald-400" />
-          <span className="font-bold text-white text-sm">Trợ lý học tập AI</span>
+          <Bot className="w-4 h-4 text-emerald-400" />
+          <span className="font-bold text-white text-xs sm:text-sm">Trợ lý học tập AI</span>
         </div>
-        <button
-          type="button"
-          onClick={() => openTopupModal()}
-          className="text-xs text-amber-400 font-mono flex items-center gap-1 cursor-pointer"
-        >
-          <span>⚡ {aiCreditsBalance}</span>
-          <span className="text-zinc-400 text-[10px]">(Nạp thêm)</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            data-testid="mobile-ai-new-chat-btn"
+            onClick={() => {
+              clearMessages();
+              handleNewConversation();
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] font-medium transition cursor-pointer"
+            title="Bắt đầu cuộc trò chuyện mới"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Chat mới</span>
+          </button>
+          <button
+            type="button"
+            data-testid="mobile-ai-clear-history-btn"
+            onClick={() => clearMessages()}
+            className="p-1 rounded-lg bg-zinc-800/80 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+            title="Xóa lịch sử trò chuyện"
+            aria-label="Xóa lịch sử trò chuyện"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Messages Scroll Area */}
@@ -1345,9 +1506,9 @@ const MobileAiSubView: React.FC = () => {
               className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed overflow-x-auto break-words ${
                   m.role === 'user'
-                    ? 'bg-emerald-600 text-white rounded-tr-sm'
+                    ? 'bg-zinc-800 text-zinc-100 border border-white/10 rounded-tr-sm'
                     : 'bg-zinc-900/90 border border-white/10 text-zinc-100 rounded-tl-sm'
                 }`}
               >
@@ -1366,20 +1527,23 @@ const MobileAiSubView: React.FC = () => {
         {showQuickSuggestions && (
           <div className="pt-2 space-y-3">
             <div className="text-center space-y-1">
-              <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+              <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 text-emerald-400 flex items-center justify-center mx-auto">
                 <Bot className="w-5 h-5" />
               </div>
-              <p className="text-xs text-zinc-300 max-w-xs mx-auto">
-                Hỏi giải thích khái niệm, lên kế hoạch ôn thi hoặc hỗ trợ giải bài tập.
+              <p className="text-xs font-semibold text-white">
+                Hôm nay bạn đang ôn phần nào?
+              </p>
+              <p className="text-[11px] text-zinc-400 max-w-xs mx-auto">
+                Hỏi giải thích công thức, gợi ý phân bổ thời gian hoặc hỗ trợ giải bài tập.
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {suggestions.map((s, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleSend(s)}
-                  className="w-full text-left text-xs p-3 rounded-xl bg-zinc-900/75 border border-white/10 text-zinc-200 hover:border-emerald-400/40 hover:text-white transition cursor-pointer"
+                  className="w-full text-left text-xs p-2.5 rounded-xl bg-zinc-900/75 border border-white/5 text-zinc-300 hover:border-white/20 hover:text-white transition cursor-pointer"
                 >
                   💡 {s}
                 </button>
@@ -1389,13 +1553,12 @@ const MobileAiSubView: React.FC = () => {
         )}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-emerald-400">
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>AI đang suy nghĩ...</span>
           </div>
         )}
 
-        {/* Only show system-level error banner if not already presented as an inline chat message */}
         {error && !messages.some((m) => m.role === 'assistant' && (m.content.includes(error) || m.content.includes('Không thể kết nối') || m.content.startsWith('⚠️'))) && (
           <div
             data-testid="mobile-ai-error-banner"
@@ -1410,7 +1573,7 @@ const MobileAiSubView: React.FC = () => {
       </div>
 
       {/* Input Bar */}
-      <div className="p-3 border-t border-white/10 bg-zinc-950/75 backdrop-blur-xl pb-4 shrink-0">
+      <div className="p-3 border-t border-white/10 bg-zinc-950/90 backdrop-blur-xl pb-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -1422,16 +1585,16 @@ const MobileAiSubView: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Hỏi AI bất cứ điều gì..."
-            className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-white/10 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-400 transition"
+            placeholder="Nhắn cho trợ lý..."
+            className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/25 transition"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="w-10 h-10 rounded-xl bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center hover:bg-emerald-400 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-white text-zinc-950 font-bold flex items-center justify-center hover:bg-zinc-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0"
             aria-label="Gửi tin nhắn"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-3.5 h-3.5" />
           </button>
         </form>
       </div>

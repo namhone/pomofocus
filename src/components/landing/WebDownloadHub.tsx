@@ -27,8 +27,8 @@ import { useRouter } from '../../services/router';
 
 export const PUBLIC_APK_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk';
 export const CURRENT_APK_VERSION = 'v8.1';
-export const APK_SIZE_MB = 8.36;
-export const APK_SIZE_LABEL = '~8.4 MB (8.36 MB)';
+export const APK_SIZE_MB = 8.0;
+export const APK_SIZE_LABEL = '~8.0 MB';
 
 interface TiltState {
   rotateX: number;
@@ -200,9 +200,9 @@ export const WebDownloadHub: React.FC = () => {
       <PlatformHeader />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-6">
         {/* Compact Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+        <div className="text-center max-w-3xl mx-auto mb-3 sm:mb-4">
           <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-fade-in">
             <PomoFocusLogo size={16} withContainer={false} />
             <span>pomofocus · Ứng dụng Android APK độc lập v8.1 Liquid Zen</span>
@@ -222,7 +222,7 @@ export const WebDownloadHub: React.FC = () => {
         </div>
 
         {/* Central Responsive Showcase Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start mb-6">
           {/* Left Column: Direct Action & Download Highlights */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-4">
             <div className="rounded-3xl bg-zinc-900/60 backdrop-blur-2xl border border-white/10 border-t-white/20 p-5 sm:p-7 shadow-2xl relative overflow-hidden space-y-5">
@@ -259,14 +259,14 @@ export const WebDownloadHub: React.FC = () => {
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
                     download="PomoFocus-v8.1.apk"
-                    className="w-full h-14 min-h-[52px] px-6 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_28px_rgba(16,185,129,0.4)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    className="w-full h-14 sm:h-16 min-h-[56px] px-6 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_32px_rgba(16,185,129,0.45)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
                   >
                     <Download className="w-5 h-5 text-zinc-950 stroke-[2.5]" />
                     <span>Tải PomoFocus APK (v8.1)</span>
                   </a>
 
                   <div className="text-center md:text-left text-[11px] text-zinc-400 font-medium">
-                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · Miễn phí
+                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · Miễn phí hoàn toàn
                   </div>
 
                   {/* Play Protect micro-hint */}
@@ -282,7 +282,7 @@ export const WebDownloadHub: React.FC = () => {
                     {isAndroid ? (
                       <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
                         <CheckCircle2 className="w-4 h-4" />
-                        Phát hiện bạn đang dùng Android · Chạm nút trên để cài ngay
+                        Phát hiện bạn đang dùng Android · Chạm nút trên để tải và cài đặt ngay
                       </span>
                     ) : isDesktop ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400">
@@ -319,12 +319,12 @@ export const WebDownloadHub: React.FC = () => {
                     {copied ? (
                       <>
                         <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-400 font-semibold">Đã chép link!</span>
+                        <span className="text-emerald-400 font-semibold">Đã sao chép liên kết APK!</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3 h-3 text-zinc-400" />
-                        <span>Sao chép link APK</span>
+                        <span>Sao chép liên kết tải APK</span>
                       </>
                     )}
                   </button>
@@ -431,9 +431,8 @@ export const WebDownloadHub: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <PomoFocusLogo size={16} />
                       <span className="text-xs font-bold tracking-tight text-white">PomoFocus</span>
-                      <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 text-[8px] font-bold border border-emerald-400/30">
-                        LIQUID ZEN
-                      </span>
+                      <span className="sr-only">Anchor 120Hz</span>
+                      
                     </div>
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-zinc-900 border border-white/10 text-[9px] font-mono text-amber-300">
                       <span>⚡</span>
@@ -459,7 +458,7 @@ export const WebDownloadHub: React.FC = () => {
                     <div className="flex-1 h-6 rounded-full bg-zinc-900/90 border border-white/10 px-2 flex items-center justify-between text-[8px] text-zinc-300">
                       <span className="flex items-center gap-1 truncate">
                         <Target className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
-                        <span className="truncate">Chưa chọn công việc</span>
+                        <span className="truncate">Chọn mục tiêu phiên này...</span>
                       </span>
                     </div>
                     <div className="h-6 px-1.5 rounded-full bg-zinc-900/90 border border-white/10 flex items-center gap-0.5 text-[8px] text-zinc-400">
@@ -495,8 +494,11 @@ export const WebDownloadHub: React.FC = () => {
                       <div className="w-7 h-7 rounded-full bg-zinc-800/80 border border-white/10 flex items-center justify-center text-zinc-300">
                         <RotateCcw className="w-3 h-3" />
                       </div>
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center text-zinc-950 font-bold shadow-lg shadow-emerald-500/30">
-                        <Play className="w-4 h-4 fill-current ml-0.5" />
+                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-zinc-950 font-bold shadow-md">
+                        <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-zinc-800/80 border border-white/10 flex items-center justify-center text-zinc-400">
+                        <span className="text-[10px]">⏭</span>
                       </div>
                     </div>
                   </div>

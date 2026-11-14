@@ -176,14 +176,14 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
     };
   }, [isOpen, finalPrice, selectedCredits, user?.id]);
 
-  // Polling kiểm tra trạng thái đơn hàng (mỗi 4 giây)
+  // Polling & Instant Resume check (Bug #2)
   useEffect(() => {
     if (!isOpen || !orderCode || paymentCompleted) {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
       return;
     }
 
-    pollIntervalRef.current = setInterval(async () => {
+    const checkOrderStatus = async () => {
       try {
         const { data, error } = await supabase
           .from('payment_orders')
@@ -199,14 +199,71 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         }
       } catch {}
-    }, 4000);
+    };
+
+    pollIntervalRef.current = setInterval(checkOrderStatus, 4000);
+
+    // Kích hoạt kiểm tra tức thì khi quay lại app từ app Ngân hàng (visibilitychange / pageshow / focus)
+    const handleResume = () => {
+      if (document.visibilityState === 'visible') {
+        checkOrderStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleResume);
+    window.addEventListener('pageshow', handleResume);
+    window.addEventListener('focus', handleResume);
 
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      document.removeEventListener('visibilitychange', handleResume);
+      window.removeEventListener('pageshow', handleResume);
+      window.removeEventListener('focus', handleResume);
     };
   }, [isOpen, orderCode, paymentCompleted, user?.id, refreshCreditsFromCloud]);
 
   if (!isOpen) return null;
+
+  // Bug #3: Chặn khách chưa đăng nhập nạp tiền để tránh mất trắng credits khi đổi máy/xóa cache
+  if (!user?.id) {
+    return (
+      <div
+        data-testid="ai-credits-topup-modal"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      >
+        <div className="relative z-[101] w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 text-center text-white space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold">Đăng nhập để Nạp Năng Lượng ⚡</h3>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            Vui lòng đăng nhập tài khoản trước khi nạp để đảm bảo số dư ⚡ được lưu trữ vĩnh viễn trên đám mây và đồng bộ đa thiết bị an toàn.
+          </p>
+          <div className="pt-2 flex flex-col gap-2">
+            <button
+              type="button"
+              data-testid="btn-login-to-topup"
+              onClick={() => {
+                onClose();
+                const authBtn = document.querySelector('[data-testid="mobile-header-avatar-btn"]');
+                if (authBtn) (authBtn as HTMLElement).click();
+              }}
+              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs tracking-wide transition shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
+            >
+              Đăng Nhập Ngay
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium text-xs transition cursor-pointer"
+            >
+              Để Sau
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const displayMemo = orderCode || `PF${selectedCredits}Z`;
   const effectiveQrUrl =

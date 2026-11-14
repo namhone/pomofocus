@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, X, ArrowUpRight } from 'lucide-react';
 import { isUpdateAvailable } from '../utils/versionCompare';
-import { resolveApiUrl } from '../utils/apiConfig';
+import { resolveApiUrl, isNativeApiRuntime } from '../utils/apiConfig';
 
 export const CURRENT_APP_VERSION = '8.1.0';
 export const DEFAULT_DOWNLOAD_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk';
@@ -155,6 +155,12 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
             href={downloadUrl}
             download={`PomoFocus-v${targetVersion}.apk`}
             target="_blank"
+            onClick={(e) => {
+              if (isNativeApiRuntime()) {
+                e.preventDefault();
+                window.open(downloadUrl, '_system');
+              }
+            }}
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-zinc-950 font-semibold text-xs transition duration-200 shadow-[0_0_16px_rgba(16,185,129,0.35)] active:scale-95"
           >

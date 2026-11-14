@@ -8,6 +8,27 @@ import { ChimeSoundType } from '../types/audio';
 export class ChimeSynthesizer {
   private static instance: ChimeSynthesizer | null = null;
   private audioMgr: AudioContextManager;
+  private currentChimeGain: GainNode | null = null;
+  private currentTimeout: any = null;
+
+  public stopCurrentChime(): void {
+    if (this.currentTimeout) {
+      clearTimeout(this.currentTimeout);
+      this.currentTimeout = null;
+    }
+    if (this.currentChimeGain) {
+      try {
+        const ctx = this.audioMgr.getContext();
+        if (ctx) {
+          this.currentChimeGain.gain.cancelScheduledValues(ctx.currentTime);
+          this.currentChimeGain.gain.setValueAtTime(0, ctx.currentTime);
+        }
+        this.currentChimeGain.disconnect();
+      } catch {}
+      this.currentChimeGain = null;
+    }
+  }
+
 
   private constructor() {
     this.audioMgr = AudioContextManager.getInstance();
@@ -26,6 +47,7 @@ export class ChimeSynthesizer {
    * @param volume Âm lượng chuông (0..1), mặc định 0.8
    */
   public async playChime(type: ChimeSoundType, volume = 0.8): Promise<void> {
+    this.stopCurrentChime();
     await this.audioMgr.ensureResumed();
     const ctx = this.audioMgr.getContext();
     const masterGain = this.audioMgr.getMasterGain();
@@ -36,6 +58,7 @@ export class ChimeSynthesizer {
     const safeVol = Math.max(0, Math.min(1, volume));
     chimeGain.gain.setValueAtTime(safeVol, ctx.currentTime);
     chimeGain.connect(masterGain);
+    this.currentChimeGain = chimeGain;
 
     const now = ctx.currentTime + 0.02; // Bắt đầu sau 20ms tránh click/pop
 

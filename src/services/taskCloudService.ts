@@ -164,4 +164,49 @@ export class TaskCloudService {
       console.warn('[TaskCloudService] Xóa project trên Cloud thất bại:', err);
     }
   }
+
+  /**
+   * Hợp nhất toàn bộ dữ liệu tạo trong phiên Khách (Guest) lên tài khoản chính khi đăng nhập Google / Email
+   */
+  static async mergeGuestDataOnLogin(newUserId: string): Promise<void> {
+    if (!newUserId || newUserId === 'guest') return;
+
+    try {
+      // 1. Quét và cập nhật các công việc cục bộ chưa có user_id hoặc thuộc về 'guest'
+      const allTasks = await db.tasks.toArray();
+      for (const t of allTasks) {
+        if (!t.userId || t.userId === 'guest') {
+          t.userId = newUserId;
+          await db.tasks.put(t);
+          this.upsertTask(t, newUserId).catch(() => {});
+        }
+      }
+
+      // 2. Quét và cập nhật các ghi chú cục bộ
+      const allNotes = await db.notes.toArray();
+      for (const n of allNotes) {
+        if (!(n as any).userId || (n as any).userId === 'guest') {
+          (n as any).userId = newUserId;
+          await db.notes.put(n);
+        }
+      }
+
+      // 3. Quét và cập nhật các phiên tập trung cục bộ
+      const allSessions = await db.focus_sessions.toArray();
+      for (const s of allSessions) {
+        if (!s.userId || s.userId === 'guest') {
+          s.userId = newUserId;
+          await db.focus_sessions.put(s);
+        }
+      }
+
+      // 4. Đẩy toàn bộ hàng đợi đột biến offline
+      const { SyncQueueService } = await import('./syncQueueService');
+      const queueService = new SyncQueueService();
+      await queueService.flushQueue(newUserId);
+    } catch (err) {
+      console.warn('[TaskCloudService] Lỗi hợp nhất dữ liệu Khách khi đăng nhập:', err);
+    }
+  }
+
 }

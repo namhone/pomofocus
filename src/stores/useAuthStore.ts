@@ -1,3 +1,4 @@
+import { TaskCloudService } from '../services/taskCloudService';
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import {
@@ -140,6 +141,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
         });
         get().loadUserFromCloud(user.id);
         get().syncEntitlementsFromCloud();
+        TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
+        TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
         return true;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && (err as any).requires2Fa) {

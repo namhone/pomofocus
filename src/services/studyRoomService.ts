@@ -9,6 +9,7 @@ import { UserProfile, isOwnerEmail, isLadyBoss, isVipFriend } from './authServic
 import { momoService } from './momoService';
 import { getVietnamTodayDateKey } from '../utils/timezone';
 import { sanitizeSlug, RoomSettings, isMasterAdmin } from './roomService';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export interface RoomParticipant {
   id: string;
@@ -198,6 +199,54 @@ export const studyRoomService = {
   /**
    * Lưu thông tin phòng
    */
+  /**
+   * Đồng bộ dữ liệu phòng lên Cloud qua API /api/rooms
+   */
+  async syncRoomToCloud(room: StudyRoom): Promise<void> {
+    try {
+      const url = resolveApiUrl('/api/rooms');
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(room)
+      });
+    } catch (err) {
+      console.warn('[studyRoomService] syncRoomToCloud warn:', err);
+    }
+  },
+
+  /**
+   * Truy vấn thông tin phòng bất đồng bộ từ Cloud nếu thiết bị chưa lưu phòng trong localStorage
+   */
+  async fetchRoomAsync(roomId: string): Promise<StudyRoom | null> {
+    if (!roomId) return null;
+    const cleanId = roomId.trim().toLowerCase();
+
+    // 1. Kiểm tra bộ nhớ cục bộ
+    const localRoom = this.getRoom(cleanId);
+    if (localRoom && localRoom.hostUserId !== 'usr_peer_host') {
+      return localRoom;
+    }
+
+    // 2. Tra cứu Cloud API
+    try {
+      const url = resolveApiUrl('/api/rooms?id=' + encodeURIComponent(cleanId));
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.success && data.room) {
+          const cloudRoom = data.room as StudyRoom;
+          this.saveRoom(cloudRoom);
+          return cloudRoom;
+        }
+      }
+    } catch (err) {
+      console.warn('[studyRoomService] fetchRoomAsync warn:', err);
+    }
+
+    return localRoom;
+  },
+
   saveRoom(room: StudyRoom): void {
     if (typeof window === 'undefined' || !window.localStorage) return;
     try {
@@ -665,6 +714,7 @@ export const studyRoomService = {
     };
 
     this.saveRoom(room);
+    this.syncRoomToCloud(room).catch(() => {});
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     // Đường dẫn mời phòng chuẩn Google Meet: /rooms/xxxx-xxxx-xxxx
     const inviteLink = `${origin}/rooms/${roomId}`;

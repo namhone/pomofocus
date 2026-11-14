@@ -37,7 +37,7 @@ export default async function handler(req: any, res: any) {
       (typeof payload.content === 'string' ? payload.amount : 0) ||
       0
     );
-    const content = String(payload.content || payload.description || payload.reference || '');
+    const content = String(payload.orderCode || payload.content || payload.description || payload.reference || '');
 
     // 2. Quét mã đơn hàng Base36 7 ký tự (Ví dụ: 'PF9K2A8')
     const base36Match = content.match(/PF[2-9A-Z]{5}/i);

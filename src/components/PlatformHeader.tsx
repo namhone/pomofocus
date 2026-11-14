@@ -416,6 +416,7 @@ export const PlatformHeader: React.FC = () => {
             <PomoFocusLogo size={isWorkspace ? 18 : 24} showWordmark={true} wordmarkClassName="inline-block text-xs font-bold text-white tracking-tight" />
           </button>
 
+          {isAuthenticated && (isProAccount || isLifetimeAccount || isOwner) && (
           <button
             type="button"
             onClick={() => handleNavigate('/billing')}
@@ -423,15 +424,14 @@ export const PlatformHeader: React.FC = () => {
             className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetimeAccount
                 ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-sm'
-                : isProAccount
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
+                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
             <span className="hidden sm:inline">{effectiveBadge}</span>
-            <span className="sm:hidden">{isLifetimeAccount ? 'PRO ★' : isProAccount ? 'PRO' : 'FREE'}</span>
+            <span className="sm:hidden">{isLifetimeAccount ? 'PRO ★' : 'PRO'}</span>
           </button>
+        )}
         </div>
 
         {/* Desktop Navigation Links (>= lg) */}

@@ -18,6 +18,7 @@ interface TimerStoreState {
   linkedTaskTitle: string | null;
   dailyProgress: number;
   todayFocusMinutes: number;
+  checkMidnightRollover: () => boolean;
   celebrationToast: string | null;
 
   // Actions
@@ -371,6 +372,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       set({
         phase: engineInstance.getPhase(),
         status: engineInstance.getStatus(),
+        ...(engineInstance.getStatus() === 'idle' ? { remainingMs: engineInstance.getRemainingMs() } : {}),
         currentRound: engineInstance.getCurrentRound(),
         remainingMs: engineInstance.getRemainingMs(),
         settings: engineInstance.getSettings(),
@@ -629,6 +631,35 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'skip', payload });
       }
     }
+  },
+
+    checkMidnightRollover: () => {
+    try {
+      const todayStr = getVietnamTodayDateKey();
+      const lastKey = typeof window !== 'undefined' ? localStorage.getItem('pomodoro_last_vietnam_date') : null;
+      if (lastKey && lastKey !== todayStr) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('pomodoro_last_vietnam_date', todayStr);
+        }
+        set({ dailyProgress: 0, todayFocusMinutes: 0 });
+        db.focus_sessions
+          .where('dateString')
+          .equals(todayStr)
+          .toArray()
+          .then((sessions) => {
+            const pomodoros = sessions.filter((s) => s.phase === 'pomodoro');
+            const count = pomodoros.length;
+            const minutes = pomodoros.reduce((sum, s) => sum + (s.durationMinutes || 25), 0);
+            set({ dailyProgress: count, todayFocusMinutes: minutes });
+          })
+          .catch(() => {});
+        return true;
+      }
+      if (!lastKey && typeof window !== 'undefined') {
+        localStorage.setItem('pomodoro_last_vietnam_date', todayStr);
+      }
+    } catch {}
+    return false;
   },
 
   updateSettings: (newSettings: Partial<TimerSettings>) => {

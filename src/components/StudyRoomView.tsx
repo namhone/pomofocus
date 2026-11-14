@@ -176,7 +176,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
       ) : (
         <div className="flex flex-col items-center gap-2 text-zinc-400 select-none">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-xl font-bold text-zinc-200 shadow-md">
-            {(peer.name || 'U').charAt(0).toUpperCase()}
+            {(peer.name || 'K').charAt(0).toUpperCase()}
           </div>
           <div className="text-center px-3">
             <div className="text-xs font-semibold text-white truncate max-w-[150px]">
@@ -1034,30 +1034,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     // Tìm xem thành viên này đã tồn tại trong danh sách chưa (đối chiếu theo userId hoặc session prefix)
     const findExistingKey = (candidate: { id: string; userId?: string; name?: string }) => {
       for (const [k, v] of map.entries()) {
+        // Trùng ID thiết bị chính xác
         if (candidate.id === v.id || candidate.id === k) return k;
-        if (
-          candidate.userId &&
-          candidate.userId !== 'guest' &&
-          v.userId &&
-          v.userId !== 'guest' &&
-          candidate.userId === v.userId
-        ) {
-          return k;
-        }
-        if (
-          candidate.userId &&
-          candidate.userId !== 'guest' &&
-          (v.id === candidate.userId || v.id.startsWith(`${candidate.userId}_`))
-        ) {
-          return k;
-        }
-        if (
-          v.userId &&
-          v.userId !== 'guest' &&
-          (candidate.id === v.userId || candidate.id.startsWith(`${v.userId}_`))
-        ) {
-          return k;
-        }
       }
       return null;
     };
@@ -1074,10 +1052,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       const matchKey = findExistingKey(peer);
       const targetKey = matchKey || peer.userId || peer.id;
       const existing = map.get(targetKey);
+      let displayName = peer.name || existing?.name || `Bạn học #${peer.id.slice(0, 5)}`;
+      // Nếu phát hiện cùng 1 tài khoản đăng nhập trên thiết bị thứ 2
+      const isSameUserOtherDevice = Array.from(map.values()).some(
+        (existingPeer) => existingPeer.id !== peer.id && existingPeer.userId && existingPeer.userId === peer.userId
+      );
+      if (isSameUserOtherDevice && !displayName.includes('(Máy 2)')) {
+        displayName = `${displayName} (Máy 2)`;
+      }
       map.set(targetKey, {
         id: peer.id || existing?.id || targetKey,
         userId: peer.userId || existing?.userId,
-        name: peer.name || existing?.name || `Bạn học #${peer.id.slice(0, 5)}`,
+        name: displayName,
         role: peer.role || existing?.role || 'member',
         isMicOn: peer.isMicOn !== undefined ? peer.isMicOn : existing?.isMicOn,
         isVideoOn: peer.isVideoOn !== undefined ? peer.isVideoOn : existing?.isVideoOn,
@@ -1157,6 +1143,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     }
     if (count === 2) {
       return 'grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto w-full';
+    }
+    if (count === 3) {
+      return 'grid grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto w-full';
     }
     if (count <= 4) {
       return 'grid grid-cols-1 sm:grid-cols-2 max-w-6xl mx-auto w-full';
@@ -3556,18 +3545,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 </div>
               </div>
 
-              {/* Connection note */}
-              <div className="mb-3 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] sm:text-[11px] flex items-center justify-between">
-                <span className="truncate flex items-center gap-1.5">
-                  <Info size={13} className="text-indigo-400 shrink-0" />
-                  <span>
-                    <strong>Mã phòng:</strong> #{roomId} • WebRTC Live Audio/Video.
-                  </span>
-                </span>
-                <span className="text-[10px] text-indigo-400/80 shrink-0 ml-2">
-                  {room?.allowFreeGuests ? 'Mở cho khách Free' : 'PRO Only'}
-                </span>
-              </div>
+              {/* Connection note removed to eliminate vertical clutter (Bug #20) */}
             </>
           )}
 
@@ -3829,7 +3807,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           ) : (
                             <div className="flex items-center gap-1 text-neutral-400">
                               <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
-                                {(peer.name || 'U').charAt(0).toUpperCase()}
+                                {(peer.name || 'K').charAt(0).toUpperCase()}
                               </div>
                             </div>
                           )}
@@ -3992,7 +3970,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 }
           }
         >
-        <div className="flex items-center justify-between sm:justify-around gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-neutral-900/90 border border-white/10 backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_16px_40px_rgba(0,0,0,0.5)] w-full max-w-lg md:w-auto">
+        <div className="flex items-center justify-between sm:justify-around gap-1 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-zinc-950/95 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
           {/* Micro */}
           <button
             type="button"
@@ -4779,7 +4757,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-base shadow">
-                  {(selectedMemberForAdmin.name || 'U').charAt(0).toUpperCase()}
+                  {(selectedMemberForAdmin.name || 'K').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">{selectedMemberForAdmin.name}</h4>

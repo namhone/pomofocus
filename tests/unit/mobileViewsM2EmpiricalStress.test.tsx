@@ -142,6 +142,12 @@ describe('Empirical Adversarial Stress Suite — Milestone 2 Mobile Views', () =
       act(() => {
         fireEvent.click(shortTab);
       });
+      const confirmBtn = screen.queryByTestId('confirm-phase-change-btn');
+      if (confirmBtn) {
+        act(() => {
+          fireEvent.click(confirmBtn);
+        });
+      }
 
       expect(useTimerStore.getState().phase).toBe('short_break');
       expect(useTimerStore.getState().remainingMs).toBe(5 * 60 * 1000);
@@ -162,6 +168,12 @@ describe('Empirical Adversarial Stress Suite — Milestone 2 Mobile Views', () =
       act(() => {
         fireEvent.click(longTab);
       });
+      const confirmBtn = screen.queryByTestId('confirm-phase-change-btn');
+      if (confirmBtn) {
+        act(() => {
+          fireEvent.click(confirmBtn);
+        });
+      }
 
       expect(useTimerStore.getState().phase).toBe('long_break');
       expect(useTimerStore.getState().remainingMs).toBe(15 * 60 * 1000);
