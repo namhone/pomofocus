@@ -410,7 +410,7 @@ export const WebDownloadHub: React.FC = () => {
                     ? 'transform 120ms cubic-bezier(0.22, 1, 0.36, 1)'
                     : 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
-                className="relative w-[275px] sm:w-[295px] aspect-[9/19] rounded-[44px] bg-zinc-900/95 p-3 border-[3px] border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),_0_0_40px_rgba(52,211,153,0.18)] overflow-hidden will-change-transform"
+                className="relative w-[250px] sm:w-[270px] lg:w-[280px] aspect-[9/19] rounded-[44px] bg-zinc-900/95 p-3 border-[3px] border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),_0_0_40px_rgba(52,211,153,0.18)] overflow-hidden will-change-transform"
               >
                 {/* Dynamic Specular Sheen Light Reflection Layer */}
                 <div
@@ -554,8 +554,8 @@ export const WebDownloadHub: React.FC = () => {
         </div>
 
         {/* Deep Tech Feature Showcase Cards */}
-        <div className="mt-16 sm:mt-24">
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <div className="mt-8 sm:mt-12">
+          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
             <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400 mb-3">
               Công nghệ cốt lõi v8.1
             </h3>

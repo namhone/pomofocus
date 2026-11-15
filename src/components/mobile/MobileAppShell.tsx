@@ -781,7 +781,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                     : 'border-white/5 hover:border-white/10'
                 }`}
               >
-                {/* Main Clean Row: Checkbox + Title + Pomodoro Badge + Target Link */}
+                {/* Main Clean Row: Checkbox + Title (Takes wide space) + Pomodoro Badge + Target Link + Chevron (Bug #18) */}
                 <div className="p-3 flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 flex-1 min-w-0">
                     <button
@@ -798,7 +798,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                     </button>
                     <span
                       onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                      className={`text-xs truncate cursor-pointer select-none ${
+                      className={`text-xs truncate cursor-pointer select-none flex-1 ${
                         isCompleted ? 'line-through text-zinc-500' : 'text-zinc-100 font-medium'
                       }`}
                     >
@@ -807,6 +807,30 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Task Priority Reordering Controls (Up / Down) */}
+                    <div className="flex items-center bg-zinc-800/80 rounded-lg p-0.5 border border-white/5">
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-up-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
+                        className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
+                        title="Chuyển lên trên"
+                        aria-label="Chuyển lên trên"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-down-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
+                        className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
+                        title="Chuyển xuống dưới"
+                        aria-label="Chuyển xuống dưới"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
                     {/* Pomodoro Progress Badge */}
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-white/5">
                       {task.completedPomodoros || 0}/{task.estimatedPomodoros || 1} 🍅
@@ -821,48 +845,23 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                         linkTaskToTimer(isLinked ? null : task.id);
                         if (!isLinked) onGoToFocus();
                       }}
-                      className={`px-2 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1 transition cursor-pointer ${
+                      className={`p-1.5 rounded-lg transition cursor-pointer flex items-center justify-center ${
                         isCompleted
                           ? 'opacity-30 cursor-not-allowed bg-zinc-800/50 text-zinc-500'
                           : isLinked
                           ? 'bg-emerald-500 text-zinc-950 font-bold'
-                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                          : 'bg-zinc-800 text-zinc-400 hover:text-white'
                       }`}
                       title={isCompleted ? 'Không thể gắn việc đã xong' : isLinked ? 'Đang gắn đồng hồ' : 'Gắn với đồng hồ Pomodoro'}
                     >
-                      <Target className="w-3 h-3" />
-                      <span>{isLinked ? 'Đang gắn' : 'Gắn'}</span>
+                      <Target className="w-3.5 h-3.5" />
                     </button>
-
-                    {/* Move Up/Down Priority Buttons */}
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-up-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
-                        className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
-                        title="Chuyển lên trên"
-                        aria-label="Chuyển lên trên"
-                      >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-down-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
-                        className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
-                        title="Chuyển xuống dưới"
-                        aria-label="Chuyển xuống dưới"
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
 
                     {/* More actions toggle */}
                     <button
                       type="button"
                       onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                      className="p-1 text-zinc-400 hover:text-white rounded transition"
+                      className="p-1 text-zinc-400 hover:text-white rounded transition cursor-pointer"
                       aria-label="Tùy chọn khác"
                     >
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -870,14 +869,36 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                   </div>
                 </div>
 
-                {/* Secondary Actions Drawer: Edit, Delete */}
+                {/* Secondary Actions Drawer: Reorder Up/Down, Edit, Delete (Bug #18 & #32) */}
                 {isExpanded && (
-                  <div className="px-3 pb-2.5 pt-1 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
-                    <div className="flex items-center gap-1">
+                  <div className="px-3 pb-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-up-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
+                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
+                        title="Chuyển lên trên"
+                        aria-label="Chuyển lên trên"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                        <span>Lên</span>
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`mobile-task-move-down-${task.id}`}
+                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
+                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
+                        title="Chuyển xuống dưới"
+                        aria-label="Chuyển xuống dưới"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                        <span>Xuống</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleStartEdit(task)}
-                        className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px]"
+                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
                       >
                         <Edit3 className="w-3 h-3" />
                         <span>Sửa</span>
@@ -887,10 +908,10 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                     <button
                       type="button"
                       onClick={() => deleteTask(task.id)}
-                      className="text-zinc-500 hover:text-rose-400 px-2 py-0.5 rounded hover:bg-rose-500/10 flex items-center gap-1 text-[11px]"
+                      className="text-zinc-400 hover:text-rose-400 px-2 py-1 rounded hover:bg-rose-500/10 flex items-center gap-1 text-[11px] transition cursor-pointer"
                       aria-label="Xóa nhiệm vụ"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                       <span>Xóa</span>
                     </button>
                   </div>
@@ -1354,7 +1375,11 @@ const MobileSpacesSubView: React.FC = () => {
                     </div>
                   </button>
 
-                  <span className="text-[11px] font-mono text-emerald-300 shrink-0 w-9 text-right">
+                  <span
+                    className={`text-[11px] font-mono shrink-0 w-9 text-right transition-colors ${
+                      track.isPlaying ? 'text-emerald-300 font-bold' : 'text-zinc-500'
+                    }`}
+                  >
                     {Math.round(track.volume * 100)}%
                   </span>
                 </div>
@@ -1484,11 +1509,14 @@ const MobileAiSubView: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       const userMsgs = messages.filter((msg) => msg.role === 'user');
                       const lastUserMsg = userMsgs[userMsgs.length - 1];
                       if (lastUserMsg) {
-                        handleSend(lastUserMsg.content);
+                        useAiStore.setState((s) => ({
+                          messages: s.messages.filter((msg) => msg.id !== m.id && msg.id !== lastUserMsg.id)
+                        }));
+                        await handleSend(lastUserMsg.content);
                       }
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/35 border border-rose-400/40 text-rose-100 font-semibold text-[11px] transition active:scale-95 cursor-pointer"

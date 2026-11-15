@@ -156,7 +156,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
         </div>
       </div>
 
-      {/* Right side: Flex-locked pill container with 48x48dp touch targets */}
+      {/* Right side: Flex-locked pill container with 48x48dp Fitts's Law touch target buttons */}
       <div
         className="bg-zinc-800/80 border border-white/10 rounded-2xl flex items-center p-0.5 gap-0.5 shrink-0 flex-nowrap"
       >
@@ -167,9 +167,9 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
           onClick={handleDecrement}
           disabled={disabled || isMinReached}
           aria-label={`Giảm ${label}`}
-          className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation"
+          className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation cursor-pointer"
         >
-          <Minus className="w-5 h-5 stroke-[2.5]" aria-hidden="true" />
+          <Minus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
           <span className="sr-only">−</span>
         </button>
 
@@ -180,9 +180,9 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
           onClick={handleIncrement}
           disabled={disabled || isMaxReached}
           aria-label={`Tăng ${label}`}
-          className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation"
+          className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation cursor-pointer"
         >
-          <Plus className="w-5 h-5 stroke-[2.5]" aria-hidden="true" />
+          <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
           <span className="sr-only">+</span>
         </button>
       </div>

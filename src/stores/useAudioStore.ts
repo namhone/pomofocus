@@ -221,13 +221,31 @@ export interface AudioState {
   removeCustomMusicFromList: (id: string) => void;
 }
 
+let currentChimeAudio: HTMLAudioElement | null = null;
+
 async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<void> {
+  // Dừng ngay lập tức âm thanh chuông đang phát dở (chống chồng tiếng khi bấm nghe thử liên tiếp)
+  if (currentChimeAudio) {
+    try {
+      currentChimeAudio.pause();
+      currentChimeAudio.currentTime = 0;
+    } catch {}
+    currentChimeAudio = null;
+  }
+  ChimeSynthesizer.getInstance().stopCurrentChime();
+
   const chimeConfig = ALARM_CHIMES.find((c) => c.id === type);
   const safeVol = Math.max(0, Math.min(1, volume * 1.25)); // Chuẩn hóa 0dB True Peak
   if (chimeConfig?.url && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
     try {
       const audio = new Audio(chimeConfig.url);
+      currentChimeAudio = audio;
       audio.volume = safeVol;
+      audio.onended = () => {
+        if (currentChimeAudio === audio) {
+          currentChimeAudio = null;
+        }
+      };
       const playPromise = audio.play();
       if (playPromise !== undefined && typeof playPromise.catch === 'function') {
         await playPromise.catch((e) => {
@@ -622,10 +640,19 @@ export const useAudioStore = create<AudioState>((set, get) => {
         try {
           audio.pause();
           audio.currentTime = 0;
+          audio.src = '';
         } catch {}
       });
       activeAudioElements.clear();
       ambientSynth.stopAll();
+      ChimeSynthesizer.getInstance().stopCurrentChime();
+      if (currentChimeAudio) {
+        try {
+          currentChimeAudio.pause();
+          currentChimeAudio.currentTime = 0;
+        } catch {}
+        currentChimeAudio = null;
+      }
 
       set((state) => ({
         tracks: state.tracks.map((t) => ({ ...t, isPlaying: false })),

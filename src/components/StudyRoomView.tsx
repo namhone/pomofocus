@@ -596,7 +596,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
   const [isReactionsMenuOpen, setIsReactionsMenuOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ id?: string; clientMessageId?: string; sender: string; senderId?: string; text: string; time: string }>>([
-    { id: 'welcome', clientMessageId: 'welcome', sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '10:00' }
+    { id: 'welcome', clientMessageId: 'welcome', sender: 'Hệ thống', text: `Chào mừng bạn vào phòng học #${roomId}!`, time: '' }
   ]);
   const [inputMsg, setInputMsg] = useState('');
 

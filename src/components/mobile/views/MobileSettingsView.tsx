@@ -4,7 +4,6 @@ import {
   Coffee,
   Moon,
   Volume2,
-  RotateCcw,
   Bell,
   VolumeX,
   Lock
@@ -158,7 +157,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       data-testid="mobile-settings-view"
       className={`w-full h-full overflow-y-auto pb-28 px-4 space-y-5 select-none bg-transparent ${className}`}
     >
-      {/* 1. USER ACCOUNT & STATUS CARD */}
+      {/* 1. USER ACCOUNT & STATUS CARD (Streamlined 2-Row Clean Design - Bug #34) */}
       <div
         data-testid="mobile-user-status-card"
         className="w-full p-4 rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-white/5 space-y-3 shadow-lg"
@@ -201,7 +200,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           </div>
         </div>
 
-        {/* AI Credits Balance & Quick Topup */}
+        {/* AI Credits Balance & Cloud Sync Row */}
         <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
           <div
             data-testid="mobile-user-credits-badge"
@@ -211,38 +210,37 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             <span className="text-sm font-bold text-emerald-400 tabular-nums font-mono">
               ⚡ {creditsBalance}
             </span>
+            <button
+              type="button"
+              onClick={() => openTopupModal()}
+              className="ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 hover:bg-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+            >
+              Nạp thêm
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => openTopupModal()}
-            className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 active:scale-95 transition-all touch-manipulation cursor-pointer"
-          >
-            Nạp thêm
-          </button>
-        </div>
 
-        {/* Account & Cloud Sync Trigger */}
-        <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-          <span className="text-xs text-zinc-400">Đồng bộ đám mây & xác thực</span>
           <button
             type="button"
             data-testid="mobile-settings-login-btn"
             onClick={() => onOpenAuth?.()}
             className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer"
           >
-            <span>{user?.id ? 'Hồ sơ & Đăng xuất' : 'Đăng nhập / Đăng ký'}</span>
+            <span>{user?.id ? 'Hồ sơ' : 'Đăng nhập'}</span>
             <span>→</span>
           </button>
         </div>
 
-        {/* Upgrade Prompt: Strictly 0 upgrade banners for VIP / Founder users */}
-        {!isVip && (
-          <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
-            <span>Nâng cấp để mở khóa 1000+ hình nền & AI cao cấp</span>
+        {/* Upgrade Banner for Free / Guest Users (Strictly 0 banner for Founder / VIP) */}
+        {!isVip && !isOwner && (
+          <div className="pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
+            <span className="text-zinc-400">Nâng cấp để mở khóa tính năng PRO</span>
             <button
               type="button"
-              onClick={() => openTopupModal()}
-              className="text-emerald-400 font-semibold hover:underline shrink-0 ml-2"
+              onClick={() => {
+                openTopupModal();
+                onOpenAuth?.();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium active:scale-95 transition cursor-pointer"
             >
               Nâng cấp
             </button>
@@ -429,16 +427,17 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
         </div>
 
-        {/* Reset Layout to Default */}
-        <button
-          type="button"
-          data-testid="mobile-settings-reset-layout-btn"
-          onClick={() => resetLayout()}
-          className="w-full h-12 rounded-2xl bg-red-500/10 border border-red-500/25 text-red-300 hover:text-red-200 hover:bg-red-500/20 active:scale-[0.99] flex items-center justify-center gap-2 text-sm font-medium transition-all touch-manipulation cursor-pointer shadow-md"
-        >
-          <RotateCcw className="w-4 h-4 text-red-400" aria-hidden="true" />
-          <span>Khôi phục giao diện ban đầu</span>
-        </button>
+        {/* Reset Layout to Default Button */}
+        <div className="pt-2">
+          <button
+            type="button"
+            data-testid="mobile-settings-reset-layout-btn"
+            onClick={() => resetLayout()}
+            className="w-full py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-medium transition active:scale-95 cursor-pointer"
+          >
+            Khôi phục giao diện ban đầu
+          </button>
+        </div>
       </div>
 
       {/* 6. SYSTEM FOOTER */}

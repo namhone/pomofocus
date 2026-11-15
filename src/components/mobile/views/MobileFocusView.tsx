@@ -749,138 +749,138 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           </button>
         </div>
 
-        {/* Action Row: Quick Task Bar + Strict Mode + Pocket Lock 🔒 */}
-        <div className="w-full max-w-sm flex items-center justify-center gap-2 relative">
-          {/* Quick Task Bar Capsule */}
-          <div className="relative flex-1 min-w-0">
-            <div className="w-full h-10 px-2 bg-zinc-900/65 border border-white/10 rounded-full flex items-center justify-between gap-1.5 shadow-sm backdrop-blur-md hover:border-emerald-500/30 transition-colors">
-              {/* Left Quick Complete Circle */}
-              {linkedTaskId && linkedTask ? (
-                <button
-                  type="button"
-                  data-testid="mobile-quick-task-complete-btn"
-                  onClick={handleQuickCompleteTask}
-                  aria-label={isLinkedTaskCompleted ? 'Đánh dấu chưa hoàn thành' : 'Hoàn thành nhanh công việc'}
-                  title={isLinkedTaskCompleted ? 'Đánh dấu chưa xong' : 'Xong ngay (1 chạm)'}
-                  className={`w-6 h-6 min-w-[24px] rounded-full border flex items-center justify-center shrink-0 transition-all cursor-pointer touch-manipulation ${
-                    isLinkedTaskCompleted || isJadeBursting
-                      ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
-                      : 'border-zinc-400/70 hover:border-emerald-400 text-transparent hover:text-emerald-400/60 bg-white/5'
-                  }`}
-                >
-                  <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
-                </button>
-              ) : (
-                <span className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                  <Target className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
-                </span>
-              )}
-
-              {/* Center Task Selector Trigger */}
+        {/* Action Row: Full-width Quick Task Bar Capsule (Bug #17) */}
+        <div className="w-full max-w-sm relative">
+          <div className="w-full h-10 px-2.5 bg-zinc-900/65 border border-white/10 rounded-full flex items-center justify-between gap-2 shadow-sm backdrop-blur-md hover:border-emerald-500/30 transition-colors">
+            {/* Left Quick Complete Circle */}
+            {linkedTaskId && linkedTask ? (
               <button
                 type="button"
-                data-testid="mobile-linked-task-chip"
-                onClick={() => {
-                  if (onSelectTask) {
-                    onSelectTask();
-                  } else {
-                    setIsTaskPickerOpen((prev) => !prev);
-                  }
-                }}
-                aria-label="Chọn công việc liên kết với đồng hồ"
-                className="flex-1 min-w-0 h-full inline-flex items-center justify-between gap-1.5 text-xs text-zinc-200 hover:text-white transition-colors cursor-pointer touch-manipulation px-1"
+                data-testid="mobile-quick-task-complete-btn"
+                onClick={handleQuickCompleteTask}
+                aria-label={isLinkedTaskCompleted ? 'Đánh dấu chưa hoàn thành' : 'Hoàn thành nhanh công việc'}
+                title={isLinkedTaskCompleted ? 'Đánh dấu chưa xong' : 'Xong ngay (1 chạm)'}
+                className={`w-6 h-6 min-w-[24px] rounded-full border flex items-center justify-center shrink-0 transition-all cursor-pointer touch-manipulation ${
+                  isLinkedTaskCompleted || isJadeBursting
+                    ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
+                    : 'border-zinc-400/70 hover:border-emerald-400 text-transparent hover:text-emerald-400/60 bg-white/5'
+                }`}
               >
-                <span className={`truncate font-medium ${isLinkedTaskCompleted ? 'line-through text-zinc-400' : ''}`}>
-                  {linkedTaskTitle || 'Chọn mục tiêu phiên này...'}
-                  {!linkedTaskTitle && <span className="sr-only"> (Chưa chọn công việc)</span>}
-                </span>
-                <span className="inline-flex items-center gap-1 shrink-0">
-                  {linkedTask && (
-                    <span className="text-[11px] font-mono text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded-full">
-                      {linkedTask.completedPomodoros}/{linkedTask.estimatedPomodoros} 🍅
-                    </span>
-                  )}
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
-                      isTaskPickerOpen ? 'rotate-180' : ''
-                    }`}
-                    aria-hidden="true"
-                  />
-                </span>
+                <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
               </button>
-            </div>
-
-            {/* Quick Task Picker Sliding Drawer / Dropdown */}
-            {isTaskPickerOpen && (
-              <div
-                data-testid="mobile-task-picker-dropdown"
-                className="absolute top-full mt-2 left-0 right-0 min-w-[260px] max-h-56 overflow-y-auto bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 space-y-1 animate-slide-up-fast"
-              >
-                <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                  <span>Chọn công việc</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsTaskPickerOpen(false)}
-                    className="p-1 hover:text-white text-zinc-400 rounded-md cursor-pointer"
-                    aria-label="Đóng bảng chọn"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {linkedTaskId && (
-                  <button
-                    type="button"
-                    onClick={() => handleSelectTask(null)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 flex items-center justify-between transition-colors cursor-pointer"
-                  >
-                    <span>Hủy liên kết công việc</span>
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-
-                {activeTodoTasks.length === 0 ? (
-                  <div className="px-3 py-3 text-center text-xs text-zinc-400">
-                    Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
-                  </div>
-                ) : (
-                  activeTodoTasks.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => handleSelectTask(t.id)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                        t.id === linkedTaskId
-                          ? 'bg-emerald-500/20 text-emerald-300 font-medium'
-                          : 'text-zinc-200 hover:bg-zinc-800/80'
-                      }`}
-                    >
-                      <span className="truncate flex-1">{t.title}</span>
-                      <span className="text-[10px] font-mono text-zinc-400 shrink-0">
-                        {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
-                      </span>
-                      {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                    </button>
-                  ))
-                )}
-
-                {onManageTasks && (
-                  <button
-                    type="button"
-                    data-testid="mobile-picker-manage-tasks-btn"
-                    onClick={() => {
-                      setIsTaskPickerOpen(false);
-                      onManageTasks();
-                    }}
-                    className="w-full mt-1 pt-1.5 border-t border-white/10 text-center px-2.5 py-1.5 rounded-xl text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                  >
-                    Quản lý & thêm công việc →
-                  </button>
-                )}
-              </div>
+            ) : (
+              <span className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                <Target className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+              </span>
             )}
+
+            {/* Center Task Selector Trigger */}
+            <button
+              type="button"
+              data-testid="mobile-linked-task-chip"
+              onClick={() => {
+                if (onSelectTask) {
+                  onSelectTask();
+                } else {
+                  setIsTaskPickerOpen((prev) => !prev);
+                }
+              }}
+              aria-label="Chọn công việc liên kết với đồng hồ"
+              className="flex-1 min-w-0 h-full inline-flex items-center justify-between gap-1.5 text-xs text-zinc-200 hover:text-white transition-colors cursor-pointer touch-manipulation px-1"
+            >
+              <span className={`truncate font-medium ${isLinkedTaskCompleted ? 'line-through text-zinc-400' : ''}`}>
+                {linkedTaskTitle || 'Chọn mục tiêu phiên này...'}
+                {!linkedTaskTitle && <span className="sr-only"> (Chưa chọn công việc)</span>}
+              </span>
+              <span className="inline-flex items-center gap-1 shrink-0">
+                {linkedTask && (
+                  <span className="text-[11px] font-mono text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded-full">
+                    {linkedTask.completedPomodoros}/{linkedTask.estimatedPomodoros} 🍅
+                  </span>
+                )}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
+                    isTaskPickerOpen ? 'rotate-180' : ''
+                  }`}
+                  aria-hidden="true"
+                />
+              </span>
+            </button>
           </div>
 
+          {/* Quick Task Picker Sliding Drawer / Dropdown */}
+          {isTaskPickerOpen && (
+            <div
+              data-testid="mobile-task-picker-dropdown"
+              className="absolute top-full mt-2 left-0 right-0 min-w-[260px] max-h-56 overflow-y-auto bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 space-y-1 animate-slide-up-fast"
+            >
+              <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                <span>Chọn công việc</span>
+                <button
+                  type="button"
+                  onClick={() => setIsTaskPickerOpen(false)}
+                  className="p-1 hover:text-white text-zinc-400 rounded-md cursor-pointer"
+                  aria-label="Đóng bảng chọn"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {linkedTaskId && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectTask(null)}
+                  className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 flex items-center justify-between transition-colors cursor-pointer"
+                >
+                  <span>Hủy liên kết công việc</span>
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {activeTodoTasks.length === 0 ? (
+                <div className="px-3 py-3 text-center text-xs text-zinc-400">
+                  Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
+                </div>
+              ) : (
+                activeTodoTasks.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => handleSelectTask(t.id)}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                      t.id === linkedTaskId
+                        ? 'bg-emerald-500/20 text-emerald-300 font-medium'
+                        : 'text-zinc-200 hover:bg-zinc-800/80'
+                    }`}
+                  >
+                    <span className="truncate flex-1">{t.title}</span>
+                    <span className="text-[10px] font-mono text-zinc-400 shrink-0">
+                      {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
+                    </span>
+                    {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                  </button>
+                ))
+              )}
+
+              {onManageTasks && (
+                <button
+                  type="button"
+                  data-testid="mobile-picker-manage-tasks-btn"
+                  onClick={() => {
+                    setIsTaskPickerOpen(false);
+                    onManageTasks();
+                  }}
+                  className="w-full mt-1 pt-1.5 border-t border-white/10 text-center px-2.5 py-1.5 rounded-xl text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                >
+                  Quản lý & thêm công việc →
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Sub-row: Strict Mode & Pocket Lock 🔒 (Bug #17: de-crammed from task bar) */}
+        <div className="w-full max-w-sm flex items-center justify-between px-1">
           {/* Strict Mode (Kỷ luật) Toggle */}
           <button
             type="button"
@@ -888,7 +888,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-pressed={isStrictMode}
             onClick={handleToggleStrictMode}
             title="Chế độ Kỷ luật: Rời app quá 5 giây sẽ hủy hiệp hiện tại"
-            className={`h-10 px-2.5 rounded-full border backdrop-blur-md flex items-center gap-1 text-[11px] font-semibold shrink-0 transition-all cursor-pointer active:scale-95 touch-manipulation ${
+            className={`h-8 px-3 rounded-full border backdrop-blur-md flex items-center gap-1.5 text-[11px] font-semibold transition-all cursor-pointer active:scale-95 touch-manipulation ${
               isStrictMode
                 ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
                 : 'border-white/10 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200'
@@ -909,9 +909,10 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={handleEngagePocketLock}
             title="Khóa màn hình bỏ túi (Pocket Lock)"
             aria-label="Khóa màn hình bỏ túi"
-            className="w-10 h-10 rounded-full border border-white/10 bg-zinc-900/65 hover:border-emerald-400/40 text-zinc-300 hover:text-white flex items-center justify-center shrink-0 transition active:scale-95 cursor-pointer backdrop-blur-md"
+            className="h-8 px-3 rounded-full border border-white/10 bg-zinc-900/65 hover:border-emerald-400/40 text-zinc-300 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer backdrop-blur-md"
           >
-            <Lock className="w-4 h-4 text-emerald-400" />
+            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Khóa 🔒</span>
           </button>
         </div>
 
@@ -998,7 +999,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           {/* Completed Cycle Dots */}
           <div className="flex items-center gap-2 mt-2">
             <span className="text-[10px] font-mono font-medium text-zinc-400">
-              Hiệp ${currentRound}/${totalRounds}
+              Hiệp {currentRound}/{totalRounds}
             </span>
             <div
               data-testid="mobile-cycle-dots"
