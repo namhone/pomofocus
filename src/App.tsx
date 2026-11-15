@@ -44,6 +44,59 @@ import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
 import { runStorageSchemaMigration } from './utils/safeStorage';
 
+// Polyfill supabase.auth.setSession for native deep link authentication
+if (typeof window !== 'undefined' && supabase?.auth) {
+  if (!(supabase.auth as any).setSession) {
+    (supabase.auth as any).setSession = async ({ access_token, refresh_token }: { access_token: string; refresh_token?: string }) => {
+      let user: any = null;
+      try {
+        const parts = access_token.split('.');
+        if (parts.length >= 2) {
+          const base64Url = parts[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
+          const email = (decoded.email || '').toLowerCase();
+          const displayName =
+            decoded.name ||
+            decoded.user_metadata?.full_name ||
+            decoded.user_metadata?.name ||
+            (email ? email.split('@')[0] : 'Người dùng Google');
+          const avatarUrl =
+            decoded.picture ||
+            decoded.avatar_url ||
+            decoded.user_metadata?.avatar_url ||
+            '';
+          user = {
+            id: decoded.sub || `g_${Date.now()}`,
+            email,
+            user_metadata: {
+              full_name: displayName,
+              name: displayName,
+              avatar_url: avatarUrl,
+              picture: avatarUrl,
+              email_verified: Boolean(decoded.email_verified),
+              ...decoded.user_metadata,
+            },
+            app_metadata: decoded.app_metadata || { provider: 'google' },
+            role: decoded.role || 'authenticated',
+          };
+        }
+      } catch (e) {
+        console.warn('[Supabase Auth] Error decoding JWT in setSession:', e);
+      }
+
+      const session = {
+        user,
+        access_token,
+        refresh_token: refresh_token || '',
+      };
+
+      (supabase.auth as any).saveSession(session);
+      return { data: { session, user }, error: null };
+    };
+  }
+}
+
 // Lazy-load secondary / heavy floating widgets & overlays to keep entry bundle < 100kB gzip
 const TasksWidget = lazy(() =>
   import('./components/TasksWidget').then((m) => ({ default: m.TasksWidget }))
@@ -245,6 +298,181 @@ export const App: React.FC = () => {
     }
   }, [currentPath, isNativeCapacitor, router]);
 
+  // V8.1 (Feature 9 & 10): Deep Link Listener (Google OAuth callback pomofocus://oauth/callback & App Links /rooms)
+  useEffect(() => {
+    const handleDeepLinkUrl = async (rawUrl: string) => {
+      if (!rawUrl) return;
+
+      // 1. Google OAuth callback: pomofocus://oauth/callback#... or pomofocus://oauth/callback?...
+      if (rawUrl.startsWith('pomofocus://oauth/callback') || rawUrl.includes('oauth/callback')) {
+        try {
+          // Close Chrome Custom Tabs / In-app Browser if open
+          const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+          if (browserPlugin?.close) {
+            await browserPlugin.close().catch(() => {});
+          }
+
+          let hashOrSearch = '';
+          if (rawUrl.includes('#')) {
+            hashOrSearch = rawUrl.substring(rawUrl.indexOf('#') + 1);
+          } else if (rawUrl.includes('?')) {
+            hashOrSearch = rawUrl.substring(rawUrl.indexOf('?') + 1);
+          }
+
+          const params = new URLSearchParams(hashOrSearch);
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token') || '';
+
+          if (accessToken) {
+            let user: any = null;
+            try {
+              const idToken = params.get('id_token') || accessToken;
+              const parts = idToken.split('.');
+              if (parts.length >= 2) {
+                const base64Url = parts[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
+                const email = (decoded.email || '').toLowerCase();
+                const displayName =
+                  decoded.name ||
+                  decoded.user_metadata?.full_name ||
+                  decoded.user_metadata?.name ||
+                  (email ? email.split('@')[0] : 'Người dùng Google');
+                const avatarUrl =
+                  decoded.picture ||
+                  decoded.avatar_url ||
+                  decoded.user_metadata?.avatar_url ||
+                  '';
+                user = {
+                  id: decoded.sub || `g_${Date.now()}`,
+                  email,
+                  user_metadata: {
+                    full_name: displayName,
+                    name: displayName,
+                    avatar_url: avatarUrl,
+                    picture: avatarUrl,
+                    email_verified: Boolean(decoded.email_verified),
+                    ...decoded.user_metadata,
+                  },
+                  app_metadata: decoded.app_metadata || { provider: 'google' },
+                  role: decoded.role || 'authenticated',
+                };
+              }
+            } catch (e) {
+              console.warn('[DeepLink] Error decoding JWT token:', e);
+            }
+
+            if (typeof (supabase.auth as any).setSession === 'function') {
+              await (supabase.auth as any).setSession({ access_token: accessToken, refresh_token: refreshToken });
+            } else {
+              const session = { user, access_token: accessToken, refresh_token: refreshToken };
+              (supabase.auth as any).saveSession(session);
+            }
+
+            if (user) {
+              useAuthStore.getState().syncUserFromSupabase(user);
+            }
+            router.navigate('/app');
+          }
+        } catch (err) {
+          console.error('[DeepLink] OAuth callback error:', err);
+        }
+        return;
+      }
+
+      // 2. App Link for /rooms/:roomId or /rooms
+      if (rawUrl.includes('/rooms')) {
+        try {
+          const parsedUrl = new URL(
+            rawUrl.startsWith('pomofocus://') ? rawUrl.replace('pomofocus://', 'https://app/') : rawUrl
+          );
+          const roomPath = parsedUrl.pathname.startsWith('/rooms') ? parsedUrl.pathname : `/rooms${parsedUrl.pathname}`;
+          router.navigate(roomPath + parsedUrl.search);
+        } catch (e) {
+          console.warn('[DeepLink] Error routing room link:', e);
+        }
+      }
+    };
+
+    // 1. Capacitor native appUrlOpen listener
+    let listenerHandle: any = null;
+    const appPlugin = (window as any).Capacitor?.Plugins?.App;
+    if (appPlugin?.addListener) {
+      appPlugin.addListener('appUrlOpen', (data: { url: string }) => {
+        handleDeepLinkUrl(data.url);
+      }).then((handle: any) => {
+        listenerHandle = handle;
+      }).catch(() => {});
+    }
+
+    // 2. Custom window event listener (web / test runner)
+    const handleCustomAppUrlOpen = (event: any) => {
+      const url = event.detail?.url || event.url;
+      if (url) handleDeepLinkUrl(url);
+    };
+    window.addEventListener('appUrlOpen', handleCustomAppUrlOpen);
+
+    // 3. Hash listener for oauth tokens
+    const handleHashChange = () => {
+      if (window.location.hash.includes('access_token=') || window.location.hash.includes('id_token=')) {
+        handleDeepLinkUrl(window.location.href);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      if (listenerHandle?.remove) {
+        listenerHandle.remove();
+      }
+      window.removeEventListener('appUrlOpen', handleCustomAppUrlOpen);
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, [router]);
+
+  // V8.1 (Feature 10): Global Link Click Interceptor
+  // Intercepts external http(s) links in native mode to open via browser rather than navigating WebView
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement)?.closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href) return;
+
+      if (href.startsWith('http://') || href.startsWith('https://')) {
+        const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+        const isInternal = currentOrigin && href.startsWith(currentOrigin);
+
+        // App Link for /rooms should navigate within React Router
+        if (href.includes('/rooms/') || href.endsWith('/rooms')) {
+          try {
+            const parsed = new URL(href, currentOrigin || 'https://localhost');
+            e.preventDefault();
+            router.navigate(parsed.pathname + parsed.search);
+            return;
+          } catch {}
+        }
+
+        // External links in native Capacitor mode: open in system browser / Custom Tabs
+        if (isNativeCapacitor && !isInternal) {
+          e.preventDefault();
+          const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+          if (browserPlugin?.open) {
+            browserPlugin.open({ url: href, windowName: '_blank' }).catch(() => {
+              window.open(href, '_system');
+            });
+          } else {
+            window.open(href, '_system');
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick, { capture: true });
+    return () => {
+      document.removeEventListener('click', handleGlobalClick, { capture: true });
+    };
+  }, [isNativeCapacitor, router]);
+
   const renderRoutedView = () => {
     if (currentPath === '/login') {
       return <AuthView initialMode="login" />;
@@ -307,7 +535,8 @@ export const App: React.FC = () => {
     if (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk') {
       return <WebDownloadHub />;
     }
-    if (currentPath !== '/app') {
+    const normalized = (currentPath.length > 1 && currentPath.endsWith('/')) ? currentPath.slice(0, -1) : currentPath;
+    if (normalized !== '/app') {
       return <NotFoundView />;
     }
 
@@ -427,9 +656,11 @@ export const App: React.FC = () => {
       <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
       <LiquidUpdateBanner />
       <CookieConsentBanner />
-      <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-mono text-xs">Đang tải không gian...</div>}>
-        {renderRoutedView()}
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-mono text-xs">Đang tải không gian...</div>}>
+          {renderRoutedView()}
+        </Suspense>
+      </ErrorBoundary>
     </>
   );
 };

@@ -1,3 +1,5 @@
+import { isNativeApiRuntime, PRODUCTION_API_ORIGIN } from './apiConfig';
+
 /**
  * Media Utilities for YouTube Embeds & Direct Audio Streams
  */
@@ -24,23 +26,44 @@ export function extractYouTubeVideoId(url: string): string | null {
   return match && match[1] ? match[1] : null;
 }
 
+/**
+ * Feature 19: Return safe origin for YouTube IFrame player embed.
+ * In Android Capacitor WebView, origin evaluates to https://localhost or file://,
+ * which causes YouTube Error 150/101 ("video cannot be played on embedded players").
+ * Substituting canonical production origin satisfies YouTube embed security policy.
+ */
+export function getSafeYouTubeOrigin(): string {
+  if (typeof window === 'undefined') {
+    return PRODUCTION_API_ORIGIN;
+  }
+  if (
+    isNativeApiRuntime() ||
+    window.location.protocol.startsWith('capacitor') ||
+    window.location.protocol.startsWith('file') ||
+    (window.location.protocol === 'https:' && window.location.hostname === 'localhost' && !window.location.port)
+  ) {
+    return PRODUCTION_API_ORIGIN;
+  }
+  return window.location.origin;
+}
+
 export function isYouTubeMix(url: string): boolean {
   const listId = extractYouTubePlaylistId(url);
   return Boolean(listId && listId.startsWith('RD'));
 }
 
 export function buildYouTubeMixEmbedUrl(videoId: string, origin?: string): string {
-  const hostOrigin = origin || (typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app');
+  const hostOrigin = origin || getSafeYouTubeOrigin();
   return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&list=RD${videoId}&origin=${hostOrigin}`;
 }
 
-export function extractYouTubeEmbedUrl(url: string, autoMix: boolean = false): string | null {
+export function extractYouTubeEmbedUrl(url: string, autoMix: boolean = false, customOrigin?: string): string | null {
   if (!url) return null;
   const trimmed = url.trim();
   try {
     const listId = extractYouTubePlaylistId(trimmed);
     const videoId = extractYouTubeVideoId(trimmed);
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
+    const origin = customOrigin || getSafeYouTubeOrigin();
 
     if (listId) {
       // YouTube Mix (RD...) requires starting videoId in embed URL to avoid "Playlist does not exist" error

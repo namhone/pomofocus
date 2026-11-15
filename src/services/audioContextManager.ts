@@ -2,6 +2,7 @@ export class AudioContextManager {
   private static instance: AudioContextManager | null = null;
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private ambientBusGain: GainNode | null = null;
   private compressor: DynamicsCompressorNode | null = null;
   private isUserInteracted = false;
   private boundInteractionListeners = false;
@@ -60,6 +61,12 @@ export class AudioContextManager {
       const initialGain = this.isMuted ? 0 : this.currentVolume;
       this.masterGain.gain.setValueAtTime(initialGain, this.ctx.currentTime);
 
+      // Dedicated Ambient Bus Gain Node - kết nối vào Master Gain
+      // Cho phép ducking riêng biệt nhạc nền mà không làm giảm âm lượng chuông báo
+      this.ambientBusGain = this.ctx.createGain();
+      this.ambientBusGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+      this.ambientBusGain.connect(this.masterGain);
+
       // Dynamics Compressor Node (-6dB threshold giúp nén dải động)
       this.compressor = this.ctx.createDynamicsCompressor();
       this.compressor.threshold.setValueAtTime(-6, this.ctx.currentTime);
@@ -81,6 +88,11 @@ export class AudioContextManager {
     return this.masterGain;
   }
 
+  public getAmbientBusGain(): GainNode | null {
+    this.getContext();
+    return this.ambientBusGain;
+  }
+
   public setMasterVolume(volume: number, isMuted: boolean): void {
     this.currentVolume = Math.max(0, Math.min(1, volume));
     this.isMuted = isMuted;
@@ -97,7 +109,7 @@ export class AudioContextManager {
     const ctx = this.getContext();
     if (!ctx) return false;
 
-    if (ctx.state === 'suspended') {
+    if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
       try {
         await ctx.resume();
         this.isUserInteracted = true;
@@ -112,6 +124,19 @@ export class AudioContextManager {
     return ctx.state === 'running';
   }
 
+  /**
+   * Tạm dừng AudioContext (giải phóng DAC âm thanh, ngắt tiêu thụ pin và CPU)
+   */
+  public async suspend(): Promise<void> {
+    if (this.ctx && this.ctx.state === 'running' && typeof this.ctx.suspend === 'function') {
+      try {
+        await this.ctx.suspend();
+      } catch (err) {
+        console.debug('[AudioContextManager] suspend error:', err);
+      }
+    }
+  }
+
   public isRunning(): boolean {
     return this.ctx ? this.ctx.state === 'running' : false;
   }
@@ -122,9 +147,12 @@ export class AudioContextManager {
 
   public close(): void {
     if (this.ctx && this.ctx.state !== 'closed') {
-      this.ctx.close().catch(() => {});
+      if (typeof this.ctx.close === 'function') {
+        this.ctx.close().catch(() => {});
+      }
       this.ctx = null;
       this.masterGain = null;
+      this.ambientBusGain = null;
       this.compressor = null;
       this.isUserInteracted = false;
     }

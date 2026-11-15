@@ -181,7 +181,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                         placeholder="Nội dung khung giờ..."
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddBlock(hour)}
+                        onKeyDown={(e) => {
+                          if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
+                          if (e.key === 'Enter') handleAddBlock(hour);
+                        }}
                         className="flex-1 text-xs px-2 py-0.5 rounded bg-black/40 border border-white/15 text-white focus:outline-none"
                       />
                       {tasks.length > 0 && (

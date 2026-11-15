@@ -37,8 +37,8 @@ export class AmbientSynthesizer {
   public async playTrack(id: AmbientTrackId, volume = 0.5): Promise<void> {
     await this.audioMgr.ensureResumed();
     const ctx = this.audioMgr.getContext();
-    const masterGain = this.audioMgr.getMasterGain();
-    if (!ctx || !masterGain) return;
+    const ambientBus = this.audioMgr.getAmbientBusGain() || this.audioMgr.getMasterGain();
+    if (!ctx || !ambientBus) return;
 
     // Nếu track đang chạy, dừng track cũ trước khi tạo mới
     this.stopTrack(id);
@@ -47,7 +47,7 @@ export class AmbientSynthesizer {
     const safeVol = Math.max(0, Math.min(1, volume));
     trackGain.gain.setValueAtTime(0.0001, ctx.currentTime);
     trackGain.gain.linearRampToValueAtTime(safeVol, ctx.currentTime + 0.05); // Smooth fade-in
-    trackGain.connect(masterGain);
+    trackGain.connect(ambientBus);
 
     const stopNodes: Array<{ stop: () => void; disconnect: () => void }> = [];
 
@@ -101,6 +101,9 @@ export class AmbientSynthesizer {
     }, 60);
 
     this.activeTracks.delete(id);
+    if (this.activeTracks.size === 0) {
+      this.audioMgr.suspend().catch(() => {});
+    }
   }
 
   /**
@@ -117,9 +120,9 @@ export class AmbientSynthesizer {
   }
 
   /**
-   * Dừng tất cả các track đang phát
+   * Dừng tất cả các track đang phát và tạm dừng AudioContext để giải phóng phần cứng
    */
-    public stopAll(): void {
+  public stopAll(): void {
     for (const [, active] of this.activeTracks.entries()) {
       try {
         const ctx = this.audioMgr.getContext();
@@ -135,6 +138,7 @@ export class AmbientSynthesizer {
       } catch {}
     }
     this.activeTracks.clear();
+    this.audioMgr.suspend().catch(() => {});
   }
 
   public isTrackPlaying(id: AmbientTrackId): boolean {

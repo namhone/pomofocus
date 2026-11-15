@@ -1,6 +1,8 @@
 /// <reference lib="webworker" />
-import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
+import { cleanupOutdatedCaches, precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
+import { registerRoute, NavigationRoute } from 'workbox-routing';
+import { NetworkOnly } from 'workbox-strategies';
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -28,3 +30,23 @@ self.addEventListener('activate', (event) => {
 
 // Tự động inject danh sách precache manifest khi build
 precacheAndRoute(self.__WB_MANIFEST || []);
+
+/**
+ * Feature 20: PWA navigateFallbackDenylist & Network-Only bypass.
+ * Ensures /downloads/ (APK binaries), /version.json, and backend /api/ requests
+ * are never intercepted, swallowed, or cached as SPA index.html by the Service Worker.
+ */
+registerRoute(
+  ({ url }) =>
+    url.pathname.startsWith('/downloads/') ||
+    url.pathname === '/version.json' ||
+    url.pathname.startsWith('/api/'),
+  new NetworkOnly()
+);
+
+const defaultHandler = createHandlerBoundToURL('/index.html');
+const navigationRoute = new NavigationRoute(defaultHandler, {
+  denylist: [/^\/downloads\/.*/, /^\/version\.json$/, /^\/api\/.*/]
+});
+registerRoute(navigationRoute);
+

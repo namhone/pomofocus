@@ -398,7 +398,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   if (onOpenUpgradeModal) onOpenUpgradeModal();
                   else openTopupModal();
                 }}
-                className="w-full h-12 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 text-zinc-950 font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition cursor-pointer"
+                className="w-full min-h-[48px] py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 text-zinc-950 font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 fill-current" />
                 <span>Nâng cấp PRO VIP</span>
@@ -411,7 +411,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
               type="button"
               data-testid="mobile-auth-logout-btn"
               onClick={handleLogout}
-              className="w-full h-11 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold active:scale-95 transition cursor-pointer"
+              className="w-full min-h-[44px] py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center gap-2 text-xs font-semibold active:scale-95 transition cursor-pointer"
             >
               <LogOut className="w-4 h-4 text-rose-400" />
               <span>Đăng xuất tài khoản</span>
@@ -435,7 +435,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
               data-testid="mobile-auth-google-btn"
               onClick={handleGoogleLogin}
               disabled={isGoogleLoading}
-              className="w-full h-12 rounded-2xl bg-white text-zinc-900 font-semibold flex items-center justify-center gap-3 shadow-lg active:scale-95 hover:bg-zinc-100 disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer"
+              className="w-full min-h-[48px] py-2.5 rounded-2xl bg-white text-zinc-900 font-semibold flex items-center justify-center gap-3 shadow-lg active:scale-95 hover:bg-zinc-100 disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer"
             >
               {isGoogleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-zinc-700" />
@@ -491,7 +491,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 data-testid="mobile-auth-magiclink-btn"
                 onClick={handleSendMagicLink}
                 disabled={isLoadingMagicLink || !emailInput.trim()}
-                className="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
+                className="w-full min-h-[44px] py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
               >
                 {isLoadingMagicLink ? (
                   <>

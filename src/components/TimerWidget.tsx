@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, RefreshCw, SkipForward, Bell, Target, Sparkles } from 'lucide-react';
 import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
+import { haptics } from '../utils/haptics';
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -42,6 +43,23 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
   useEffect(() => {
     init();
   }, [init]);
+
+  const prevRemainingRef = useRef(remainingMs);
+  const prevPhaseRef = useRef(phase);
+
+  useEffect(() => {
+    if (prevPhaseRef.current !== phase) {
+      prevPhaseRef.current = phase;
+      haptics.phaseChange();
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (prevRemainingRef.current > 0 && remainingMs === 0 && status === 'idle') {
+      haptics.timerComplete();
+    }
+    prevRemainingRef.current = remainingMs;
+  }, [remainingMs, status]);
 
   const getPhaseStyles = (p: TimerPhase) => {
     switch (p) {
@@ -124,7 +142,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                 key={p}
                 data-testid={`tab-${p}`}
                 disabled={status !== 'idle'}
-                onClick={() => setPhase(p)}
+                onClick={() => {
+                  haptics.phaseChange();
+                  setPhase(p);
+                }}
                 className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 ${
                   isActive ? style.activeTab : 'text-neutral-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
@@ -197,7 +218,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'idle' && (
             <button
               data-testid="timer-start-btn"
-              onClick={start}
+              onClick={() => {
+                haptics.timerToggle();
+                start();
+              }}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
               className="liquid-glass-btn h-11 px-6 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
@@ -210,7 +234,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'running' && (
             <button
               data-testid="timer-pause-btn"
-              onClick={pause}
+              onClick={() => {
+                haptics.timerToggle();
+                pause();
+              }}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
               className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-amber-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
@@ -223,7 +250,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'paused' && (
             <button
               data-testid="timer-resume-btn"
-              onClick={resume}
+              onClick={() => {
+                haptics.timerToggle();
+                resume();
+              }}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
               className="liquid-glass-btn liquid-glass-btn-emerald h-11 px-6 rounded-2xl border border-emerald-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
@@ -235,7 +265,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-reset-btn"
-            onClick={reset}
+            onClick={() => {
+              haptics.impact('light');
+              reset();
+            }}
             title="Đặt lại hiệp này"
             aria-label="Đặt lại hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -245,7 +278,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-reset-cycle-btn"
-            onClick={resetCycle}
+            onClick={() => {
+              haptics.impact('medium');
+              resetCycle();
+            }}
             title="Bắt đầu lại chu kỳ (Hiệp 1/4)"
             aria-label="Bắt đầu lại chu kỳ (Hiệp 1/4)"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -255,7 +291,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-skip-btn"
-            onClick={skip}
+            onClick={() => {
+              haptics.impact('light');
+              skip();
+            }}
             title="Bỏ qua hiệp này"
             aria-label="Bỏ qua hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -315,6 +354,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                   id="input-pomodoro-min"
                   data-testid="input-pomodoro-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="next"
                   min="1"
                   max="120"
                   aria-label="Thời gian tập trung (phút)"
@@ -332,6 +373,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                   id="input-short-min"
                   data-testid="input-short-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="next"
                   min="1"
                   max="60"
                   aria-label="Thời gian nghỉ ngắn (phút)"
@@ -349,6 +392,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                   id="input-long-min"
                   data-testid="input-long-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="done"
                   min="1"
                   max="60"
                   aria-label="Thời gian nghỉ dài (phút)"

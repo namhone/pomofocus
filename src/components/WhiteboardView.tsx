@@ -2073,6 +2073,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
               data-testid="input-whiteboard-text"
               onChange={(e) => setTextInput({ ...textInput, text: e.target.value })}
               onKeyDown={(e) => {
+                if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
                 if (e.key === 'Enter') handleTextSubmit();
                 if (e.key === 'Escape') setTextInput(null);
               }}

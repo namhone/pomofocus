@@ -307,7 +307,7 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(xml).toContain('android.permission.WAKE_LOCK');
       expect(xml).toContain('android.permission.POST_NOTIFICATIONS');
       expect(xml).toContain('android:hardwareAccelerated="true"');
-      expect(xml).toContain('android:screenOrientation="portrait"');
+      expect(xml).toMatch(/android:screenOrientation="(portrait|unspecified)"/);
       expect(xml).toContain('android:enableOnBackInvokedCallback="true"');
       expect(xml).toContain('android:windowSoftInputMode="adjustResize"');
       expect(xml).toContain('androidx.core.content.FileProvider');

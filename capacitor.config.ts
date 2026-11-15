@@ -12,6 +12,10 @@ const config: CapacitorConfig = {
     backgroundColor: '#09090b',
   },
   plugins: {
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true,
+    },
     SplashScreen: {
       launchShowDuration: 800,
       backgroundColor: '#09090b',

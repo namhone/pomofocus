@@ -21,7 +21,8 @@ import {
   extractYouTubeEmbedUrl,
   extractYouTubePlaylistId,
   extractYouTubeVideoId,
-  isYouTubeMix
+  isYouTubeMix,
+  getSafeYouTubeOrigin
 } from '../utils/media';
 
 export interface FavoritePlaylist {
@@ -144,7 +145,7 @@ export const MediaWidget: React.FC = () => {
   const matchedFavorite = favorites.find((f) => f.url === activeUrl);
 
   const opts: YouTubeProps['opts'] = useMemo(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
+    const origin = getSafeYouTubeOrigin();
     return {
       width: '100%',
       height: '100%',

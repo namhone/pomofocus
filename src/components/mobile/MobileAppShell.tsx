@@ -28,6 +28,7 @@ import { useTimerStore } from '../../stores/useTimerStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useAiStore } from '../../stores/useAiStore';
 import { useTaskStore } from '../../stores/useTaskStore';
+import { haptics } from '../../utils/haptics';
 import { useBackgroundStore } from '../../stores/useBackgroundStore';
 import { useAudioStore } from '../../stores/useAudioStore';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -114,10 +115,8 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     const current = (useLayoutStore.getState().activeMobileTab as unknown) as string;
     const isCurrentFocus = current === 'focus' || current === 'timer';
 
-    if (tab !== current && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      try {
-        navigator.vibrate(10);
-      } catch {}
+    if (tab !== current) {
+      haptics.selectionChanged();
     }
 
     if (tab !== 'focus' && isCurrentFocus) {
@@ -328,7 +327,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     <div
       data-testid="mobile-app-shell"
       style={{ transform: 'translateZ(0)' }}
-      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] select-none relative ${className}`}
+      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] pt-safe pb-safe select-none relative ${className}`}
     >
       {/* Dynamic Background & Ambient Particle Canvas (z-0 / z-[1]) */}
       <BackgroundCanvas />
@@ -349,7 +348,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       <header
         data-testid="mobile-top-header"
         role="banner"
-        className={`h-12 min-h-[48px] max-h-[48px] sm:h-14 w-full flex items-center justify-between px-3.5 ${
+        className={`min-h-[48px] h-auto py-1 sm:h-14 w-full flex items-center justify-between px-3.5 ${
           isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/80 backdrop-blur-xl'
         } border-b border-white/10 z-20 shrink-0`}
       >
@@ -482,7 +481,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         data-testid="mobile-bottom-nav"
         role="tablist"
         aria-label="Điều hướng chính"
-        className={`h-16 shrink-0 w-full ${
+        className={`min-h-[64px] h-auto shrink-0 w-full ${
           isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/75 backdrop-blur-xl'
         } border-t border-white/10 flex items-center justify-around px-2 z-30 select-none pb-safe`}
       >
@@ -566,7 +565,7 @@ const NavTabButton: React.FC<NavTabButtonProps> = ({
       >
         <Icon className={`w-5 h-5 stroke-[2] ${isActive ? 'animate-spring-bounce' : ''}`} />
       </div>
-      <span className="text-[10px] leading-tight tracking-tight">{label}</span>
+      <span className="text-[10px] leading-tight tracking-tight text-center break-words">{label}</span>
     </button>
   );
 };
@@ -1080,7 +1079,7 @@ const MobileSpacesSubView: React.FC = () => {
                 useBackgroundStore.getState().setPureZenBlack();
                 useBackgroundStore.setState({ customUrl: null });
               }}
-              className={`w-full h-12 rounded-2xl border px-4 flex items-center justify-between text-xs font-bold transition active:scale-[0.98] cursor-pointer shadow-md backdrop-blur-md ${
+              className={`w-full min-h-[48px] py-2.5 rounded-2xl border px-4 flex items-center justify-between text-xs font-bold transition active:scale-[0.98] cursor-pointer shadow-md backdrop-blur-md gap-2 ${
                 activePresetId === 'pure-black'
                   ? 'bg-zinc-900 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/20 shadow-emerald-500/10'
                   : 'bg-zinc-950/80 border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
@@ -1286,9 +1285,21 @@ const MobileSpacesSubView: React.FC = () => {
                 <Volume2 className="w-4 h-4 text-emerald-400" />
                 <span>Âm lượng tổng (Master)</span>
               </span>
-              <span className="font-mono text-emerald-400">
-                {isMasterMuted ? 'Tắt' : `${Math.round(masterVolume * 100)}%`}
-              </span>
+              <div className="flex items-center gap-2">
+                {activeTracksCount > 0 && (
+                  <button
+                    type="button"
+                    data-testid="mobile-mixer-stop-all"
+                    onClick={() => stopAllTracks()}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition cursor-pointer"
+                  >
+                    Tắt tất cả ({activeTracksCount})
+                  </button>
+                )}
+                <span className="font-mono text-emerald-400">
+                  {isMasterMuted ? 'Tắt' : `${Math.round(masterVolume * 100)}%`}
+                </span>
+              </div>
             </div>
             <input
               type="range"
@@ -1614,6 +1625,12 @@ const MobileAiSubView: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) {
+                e.preventDefault();
+              }
+            }}
+            enterKeyHint="send"
             placeholder="Nhắn cho trợ lý..."
             className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/25 transition"
           />

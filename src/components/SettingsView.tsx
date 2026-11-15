@@ -185,6 +185,8 @@ export const SettingsView: React.FC = () => {
               <label className="block text-zinc-400 mb-1.5">Tập trung (Phút)</label>
               <input
                 type="number"
+                inputMode="numeric"
+                enterKeyHint="next"
                 data-testid="input-setting-pomodoro"
                 min={1}
                 max={120}
@@ -198,6 +200,8 @@ export const SettingsView: React.FC = () => {
               <label className="block text-zinc-400 mb-1.5">Nghỉ ngắn (Phút)</label>
               <input
                 type="number"
+                inputMode="numeric"
+                enterKeyHint="next"
                 data-testid="input-setting-short-break"
                 min={1}
                 max={60}
@@ -211,6 +215,8 @@ export const SettingsView: React.FC = () => {
               <label className="block text-zinc-400 mb-1.5">Nghỉ dài (Phút)</label>
               <input
                 type="number"
+                inputMode="numeric"
+                enterKeyHint="next"
                 data-testid="input-setting-long-break"
                 min={1}
                 max={90}
@@ -224,6 +230,8 @@ export const SettingsView: React.FC = () => {
               <label className="block text-zinc-400 mb-1.5">Hiệp trước nghỉ dài</label>
               <input
                 type="number"
+                inputMode="numeric"
+                enterKeyHint="done"
                 data-testid="input-setting-rounds"
                 min={1}
                 max={12}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
   Clock,
   Coffee,
@@ -151,6 +151,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       playChime(selectedChime).catch(() => {});
     }
   };
+
+  useEffect(() => {
+    return () => {
+      useAudioStore.getState().stopChime();
+    };
+  }, []);
 
   return (
     <div

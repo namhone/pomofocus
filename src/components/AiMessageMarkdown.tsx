@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { copyToClipboard } from '../utils/clipboard';
 
 /**
  * Code block with uppercase language badge and isolated clipboard copy button.
@@ -17,9 +18,11 @@ export const AiCodeBlock: React.FC<{ language?: string; codeString: string }> = 
   const handleCopyCode = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(codeString);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const ok = await copyToClipboard(codeString);
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     } catch (err) {
       console.warn('Lỗi chép code:', err);
     }
@@ -78,6 +81,17 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
           h3: ({ children }) => <h3 className="text-xs font-bold text-cyan-300 mt-2 mb-1">{children}</h3>,
           h4: ({ children }) => <h4 className="text-xs font-semibold text-cyan-200 mt-1.5 mb-1">{children}</h4>,
           hr: () => <hr className="border-zinc-800 my-2" />,
+          a: ({ href, children, ...props }: any) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 underline hover:text-cyan-300 font-medium break-all"
+              {...props}
+            >
+              {children}
+            </a>
+          ),
           code: ({ className, children, ...props }: any) => {
             const isBlock = Boolean(className) || String(children).includes('\n');
             const match = /language-(\w+)/.exec(className || '');

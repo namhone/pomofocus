@@ -317,6 +317,7 @@ export const CommandPalette: React.FC = () => {
     : commands;
 
   const handleKeyDownList = (e: React.KeyboardEvent) => {
+    if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);

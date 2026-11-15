@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Volume2,
   VolumeX,
@@ -27,11 +27,25 @@ export const AudioWidget: React.FC = () => {
     toggleTrack,
     setTrackVolume,
     stopAllTracks,
+    stopChime,
     resumeAudioContext,
     resetToDefaults
   } = useAudioStore();
 
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      stopChime();
+    };
+  }, [stopChime]);
+
+  useEffect(() => {
+    if (activeTab !== 'chime') {
+      stopChime();
+      setIsPlayingPreview(false);
+    }
+  }, [activeTab, stopChime]);
 
   const handlePreview = async () => {
     setIsPlayingPreview(true);

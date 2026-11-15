@@ -3,6 +3,7 @@ import { Trash2, Sparkles, Timer, Target, Play, Pencil } from 'lucide-react';
 import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { TaskPriority } from '../types/tasks';
+import { haptics } from '../utils/haptics';
 
 export const TasksWidget: React.FC = () => {
   const {
@@ -262,6 +263,8 @@ export const TasksWidget: React.FC = () => {
               <input
                 data-testid="input-estimated-pomodoros"
                 type="number"
+                inputMode="numeric"
+                enterKeyHint="done"
                 min="1"
                 max="20"
                 aria-label="Số Pomodoro dự kiến"
@@ -316,7 +319,14 @@ export const TasksWidget: React.FC = () => {
                       data-testid={`toggle-task-${task.id}`}
                       type="checkbox"
                       checked={isCompleted}
-                      onChange={() => toggleTaskComplete(task.id)}
+                      onChange={() => {
+                        if (!isCompleted) {
+                          haptics.taskComplete();
+                        } else {
+                          haptics.impact('light');
+                        }
+                        toggleTaskComplete(task.id);
+                      }}
                       className="sr-only"
                     />
                     <div
@@ -342,6 +352,7 @@ export const TasksWidget: React.FC = () => {
                         onChange={(e) => setEditingTaskTitle(e.target.value)}
                         onBlur={() => handleSaveTaskTitle(task.id)}
                         onKeyDown={(e) => {
+                          if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
                           if (e.key === 'Enter') {
                             e.preventDefault();
                             handleSaveTaskTitle(task.id);

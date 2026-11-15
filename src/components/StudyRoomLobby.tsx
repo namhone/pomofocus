@@ -11,6 +11,7 @@ import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services
 import { supabase } from '../lib/supabase';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
+import { copyToClipboard } from '../utils/clipboard';
 import {
   Users,
   Video,
@@ -280,7 +281,7 @@ export const StudyRoomLobby: React.FC = () => {
 
   const handleCopyCode = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(id);
+    copyToClipboard(id);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -425,6 +426,8 @@ export const StudyRoomLobby: React.FC = () => {
                         <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mật khẩu PIN</label>
                         <input
                           type="text"
+                          inputMode="numeric"
+                          enterKeyHint="next"
                           value={createPasscode}
                           onChange={(e) => setCreatePasscode(e.target.value)}
                           placeholder="Để trống nếu mở"
@@ -545,6 +548,7 @@ export const StudyRoomLobby: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    enterKeyHint="go"
                     value={inputCode}
                     onChange={(e) => {
                       setInputCode(e.target.value);

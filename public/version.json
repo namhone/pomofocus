@@ -4,8 +4,8 @@
   "minVersion": "7.0.0",
   "releaseDate": "2026-11-15",
   "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk",
-  "apkSizeMb": 8.69,
-  "checksumSha256": "22adf20c2b344fdbe73a1b0d9ea9b465d04752c3b3aa6fb0fcc8a2e56d05ce2b",
+  "apkSizeMb": 8.7,
+  "checksumSha256": "466f8f73bafc2cac7fd2d63177a13ffae250ea6a4243385a19b8ddbff053d853",
   "releaseNotes": "PomoFocus v8.1 Ultimate: Meet Web Rooms, Shared Whiteboard, Dexie v2 Offline Queue, Pocket Lock & Hold to Start.",
   "changelog": [
     "Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực",

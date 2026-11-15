@@ -22,6 +22,7 @@ import { useNoteStore } from '../stores/useNoteStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
 import { AiCodeBlock, FormattedAiMessage } from './AiMessageMarkdown';
+import { copyToClipboard } from '../utils/clipboard';
 export { AiCodeBlock, FormattedAiMessage };
 export const AiCompanionWidget: React.FC = () => {
   const { user } = useAuthStore();
@@ -104,7 +105,7 @@ export const AiCompanionWidget: React.FC = () => {
   
   const handleCopy = async (id: string, text: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      await copyToClipboard(text);
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
@@ -212,6 +213,7 @@ export const AiCompanionWidget: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend('chat');
@@ -720,6 +722,7 @@ export const AiCompanionWidget: React.FC = () => {
             ref={inputRef}
             rows={1}
             data-testid="ai-prompt-input"
+            enterKeyHint="send"
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
             onKeyDown={handleKeyDown}

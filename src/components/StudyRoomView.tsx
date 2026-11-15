@@ -24,9 +24,11 @@ import { RoomTimerSyncPayload, RoomTimerPhase } from '../types/timer';
 export type { RoomTimerSyncPayload, RoomTimerPhase };
 import { generateUUID } from '../utils/uuid';
 import { getServerTime } from '../utils/clockSync';
+import { copyToClipboard } from '../utils/clipboard';
 import { AiCompanionWidget } from './AiCompanionWidget';
 import { UserAvatar } from './common/UserAvatar';
 import { useAiStore } from '../stores/useAiStore';
+import { useAudioStore } from '../stores/useAudioStore';
 import {
   Video,
   VideoOff,
@@ -1256,13 +1258,13 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       return 'grid grid-cols-1 max-w-3xl mx-auto w-full';
     }
     if (count === 2) {
-      return 'grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto w-full';
+      return 'grid grid-cols-1 landscape:grid-cols-2 md:grid-cols-2 max-w-5xl mx-auto w-full';
     }
     if (count === 3) {
-      return 'grid grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto w-full';
+      return 'grid grid-cols-1 landscape:grid-cols-3 md:grid-cols-3 max-w-6xl mx-auto w-full';
     }
     if (count <= 4) {
-      return 'grid grid-cols-1 sm:grid-cols-2 max-w-6xl mx-auto w-full';
+      return 'grid grid-cols-1 landscape:grid-cols-2 sm:grid-cols-2 max-w-6xl mx-auto w-full';
     }
     if (count <= 6) {
       return 'grid grid-cols-2 md:grid-cols-3 max-w-7xl mx-auto w-full';
@@ -1714,6 +1716,20 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       }
     };
   }, [hasJoined, handleBackgroundRecovery, participantId]);
+
+  // V8.1 (Feature 16): Tự động ducking mixer / custom music khi trong phòng học có luồng đàm thoại thoại (VOICE_COMMUNICATION)
+  useEffect(() => {
+    if (!hasJoined) return;
+    const isVoiceActive =
+      micEnabled ||
+      Object.values(remoteStreams).some(
+        (s) => s && typeof s.getAudioTracks === 'function' && s.getAudioTracks().some((t) => t.enabled)
+      );
+    useAudioStore.getState().duckForVoice(isVoiceActive);
+    return () => {
+      useAudioStore.getState().duckForVoice(false);
+    };
+  }, [hasJoined, micEnabled, remoteStreams]);
 
   // Khởi tạo WebRTC Connection Manager & Supabase Realtime Channel sau khi đã tham gia phòng
   useEffect(() => {
@@ -2549,7 +2565,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
   // Sao chép Mã phòng (Room ID)
   const handleCopyRoomId = () => {
-    navigator.clipboard.writeText(roomId);
+    copyToClipboard(roomId);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2500);
   };
@@ -2558,7 +2574,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   const handleCopyInviteLink = () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const url = `${origin}/rooms/${roomId}`;
-    navigator.clipboard.writeText(url);
+    copyToClipboard(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };
@@ -3707,7 +3723,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
           {/* Screen Share Stage (if active) */}
           {isScreenSharing && (
-            <div className="mb-4 relative rounded-2xl bg-black border border-emerald-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] flex flex-col items-center justify-center">
+            <div className="mb-4 relative rounded-2xl bg-black border border-emerald-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] landscape:max-h-[75vh] flex flex-col items-center justify-center">
               <video
                 ref={screenVideoRef}
                 autoPlay
@@ -4113,6 +4129,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 type="text"
                 value={inputMsg}
                 onChange={(e) => setInputMsg(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) {
+                    e.preventDefault();
+                  }
+                }}
+                enterKeyHint="send"
                 placeholder="Nhắn tin trong phòng..."
                 className="flex-1 rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition"
               />
@@ -4136,18 +4158,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           className={
             activeTab === 'whiteboard'
               ? 'fixed bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-auto w-auto max-w-[calc(100vw-24px)] flex items-center justify-center'
-              : 'fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border'
+              : 'fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 landscape:py-0.5 pl-safe pr-safe md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border'
           }
           style={
             activeTab === 'whiteboard'
               ? undefined
               : {
                   boxSizing: 'border-box',
-                  paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+                  paddingBottom: 'calc(8px + max(env(safe-area-inset-bottom, 0px), var(--sab-native, 0px)))',
                 }
           }
         >
-        <div className="flex items-center justify-between gap-0.5 sm:gap-1.5 p-1 sm:p-2 rounded-2xl bg-zinc-950/95 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto relative">
+        <div className="flex items-center justify-between gap-0.5 sm:gap-1.5 p-1 sm:p-2 landscape:p-1 rounded-2xl bg-zinc-950/95 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto relative">
           {/* Micro */}
           <button
             type="button"

@@ -88,7 +88,7 @@ export function copyAndHashApk() {
     fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
   }
 
-  // Copy output to public/downloads/PomoFocus-v8.0.apk
+  // Copy output to public/downloads/PomoFocus-v8.1.apk
   fs.copyFileSync(GRADLE_OUTPUT_APK, TARGET_APK_PATH);
   console.log(`[buildApk] Copied APK to: ${TARGET_APK_PATH}`);
 
@@ -133,8 +133,46 @@ export function copyAndHashApk() {
   return { sizeMb, sha256, targetPath: TARGET_APK_PATH };
 }
 
+/**
+ * Feature 22: ADB device detection and automatic APK deployment.
+ * Detects connected physical Android devices or emulators via `adb devices`
+ * and performs `adb install -r` without failing headless CI or dev runs.
+ */
+export function tryAdbInstall(apkPath: string): { attempted: boolean; installed: boolean; message: string } {
+  try {
+    const isWindows = process.platform === 'win32';
+    const adbPath = path.join(ANDROID_HOME, 'platform-tools', isWindows ? 'adb.exe' : 'adb');
+    const adbBin = fs.existsSync(adbPath) ? `"${adbPath}"` : 'adb';
+
+    console.log('[buildApk] Checking connected Android devices via adb...');
+    let devicesOutput = '';
+    try {
+      devicesOutput = execSync(`${adbBin} devices`, { encoding: 'utf-8', env: process.env });
+    } catch {
+      console.log('[buildApk] adb command failed or not installed in PATH/ANDROID_HOME.');
+      return { attempted: false, installed: false, message: 'adb execution failed' };
+    }
+
+    const lines = devicesOutput.trim().split('\n').slice(1).map((l) => l.trim()).filter((l) => l.length > 0);
+    const connectedDevices = lines.filter((l) => l.includes('device') && !l.includes('offline') && !l.includes('unauthorized'));
+
+    if (connectedDevices.length === 0) {
+      console.log('[buildApk] No active Android devices/emulators connected. Skipping adb install.');
+      return { attempted: true, installed: false, message: 'No connected devices' };
+    }
+
+    console.log(`[buildApk] Found ${connectedDevices.length} connected device(s). Running adb install -r "${apkPath}"...`);
+    execSync(`${adbBin} install -r "${apkPath}"`, { stdio: 'inherit', env: process.env });
+    console.log('[buildApk] Successfully installed APK to connected device(s) via adb.');
+    return { attempted: true, installed: true, message: `Installed on ${connectedDevices.length} device(s)` };
+  } catch (err: any) {
+    console.warn('[buildApk] adb install failed or device disconnected:', err?.message || err);
+    return { attempted: true, installed: false, message: String(err?.message || err) };
+  }
+}
+
 export async function run() {
-  console.log('=== PomoFocus v8.0: Android APK Build Pipeline ===');
+  console.log('=== PomoFocus v8.1: Android APK Build Pipeline ===');
   setupEnvironment();
   ensureCapacitorAndroid();
   buildWebAssets();
@@ -152,6 +190,10 @@ export async function run() {
     }
     console.log('[buildApk] Synchronized final APK and version.json into dist/ for web distribution.');
   }
+
+  // Attempt adb install if active Android device/emulator is attached
+  tryAdbInstall(TARGET_APK_PATH);
+
   console.log('=== Build Succeeded! ===');
   console.log(result);
   return result;

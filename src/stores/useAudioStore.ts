@@ -19,6 +19,8 @@ export const getActiveAudioElements = (): Map<string, HTMLAudioElement> => activ
 const originalDuckedVolumes = new Map<string, number>();
 let duckingTimer: any = null;
 let restoreInterval: any = null;
+let isVoiceDucked = false;
+const voiceDuckedOriginalVolumes = new Map<string, number>();
 
 const SETTINGS_KEY = 'pomodoro_audio_settings_v1';
 const TRACKS_CONFIG_KEY = 'pomodoro_audio_tracks_v1';
@@ -204,8 +206,10 @@ export interface AudioState {
   setChimeVolume: (vol: number) => void;
   applyAudioDucking: () => void;
   restoreAudioDucking: () => void;
+  duckForVoice: (active: boolean) => void;
   previewChime: (chime?: ChimeSoundType) => Promise<void>;
   playChime: (chime?: ChimeSoundType) => Promise<void>;
+  stopChime: () => void;
   toggleTrack: (id: AmbientTrackId) => Promise<void>;
   setTrackVolume: (id: AmbientTrackId, vol: number) => void;
   stopAllTracks: () => void;
@@ -223,8 +227,7 @@ export interface AudioState {
 
 let currentChimeAudio: HTMLAudioElement | null = null;
 
-async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<void> {
-  // Dừng ngay lập tức âm thanh chuông đang phát dở (chống chồng tiếng khi bấm nghe thử liên tiếp)
+export function stopChimeSound(): void {
   if (currentChimeAudio) {
     try {
       currentChimeAudio.pause();
@@ -233,6 +236,11 @@ async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<
     currentChimeAudio = null;
   }
   ChimeSynthesizer.getInstance().stopCurrentChime();
+}
+
+async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<void> {
+  // Dừng ngay lập tức âm thanh chuông đang phát dở (chống chồng tiếng khi bấm nghe thử liên tiếp)
+  stopChimeSound();
 
   const chimeConfig = ALARM_CHIMES.find((c) => c.id === type);
   const safeVol = Math.max(0, Math.min(1, volume * 1.25)); // Chuẩn hóa 0dB True Peak
@@ -462,13 +470,16 @@ export const useAudioStore = create<AudioState>((set, get) => {
         audio.volume = originalDuckedVolumes.get(id)! * 0.15;
       });
 
-      // 2. Hạ âm lượng Web Audio synth
-      const masterGain = AudioContextManager.getInstance().getMasterGain();
-      if (masterGain) {
+      // 2. Hạ âm lượng Web Audio synth qua Ambient Bus (chime và masterGain không bị ảnh hưởng)
+      const audioMgr = AudioContextManager.getInstance();
+      const ambientBus = audioMgr.getAmbientBusGain() || audioMgr.getMasterGain();
+      if (ambientBus) {
         try {
-          const ctx = AudioContextManager.getInstance().getContext();
+          const ctx = audioMgr.getContext();
           if (ctx) {
-            masterGain.gain.setValueAtTime(0.15, ctx.currentTime);
+            ambientBus.gain.cancelScheduledValues(ctx.currentTime);
+            ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
+            ambientBus.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.12);
           }
         } catch {}
       }
@@ -509,12 +520,13 @@ export const useAudioStore = create<AudioState>((set, get) => {
           }
         });
 
-        const masterGain = AudioContextManager.getInstance().getMasterGain();
-        if (masterGain) {
+        const audioMgr = AudioContextManager.getInstance();
+        const ambientBus = audioMgr.getAmbientBusGain() || audioMgr.getMasterGain();
+        if (ambientBus) {
           try {
-            const ctx = AudioContextManager.getInstance().getContext();
+            const ctx = audioMgr.getContext();
             if (ctx) {
-              masterGain.gain.setValueAtTime(factor, ctx.currentTime);
+              ambientBus.gain.setValueAtTime(factor, ctx.currentTime);
             }
           } catch {}
         }
@@ -535,10 +547,80 @@ export const useAudioStore = create<AudioState>((set, get) => {
       }, intervalMs);
     },
 
+    duckForVoice: (active: boolean) => {
+      const audioMgr = AudioContextManager.getInstance();
+      const ambientBus = audioMgr.getAmbientBusGain() || audioMgr.getMasterGain();
+      const ctx = audioMgr.getContext();
+
+      if (active) {
+        if (isVoiceDucked) return;
+        isVoiceDucked = true;
+
+        activeAudioElements.forEach((audio, id) => {
+          if (!voiceDuckedOriginalVolumes.has(id)) {
+            voiceDuckedOriginalVolumes.set(id, audio.volume);
+          }
+          audio.volume = voiceDuckedOriginalVolumes.get(id)! * 0.2;
+        });
+
+        if (ambientBus && ctx) {
+          try {
+            ambientBus.gain.cancelScheduledValues(ctx.currentTime);
+            ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
+            ambientBus.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.15);
+          } catch {}
+        }
+
+        try {
+          const yt = (window as any).__pomoYoutubePlayer;
+          if (yt && typeof yt.getVolume === 'function' && typeof yt.setVolume === 'function') {
+            if ((window as any).__pomoYtVoiceVol === undefined) {
+              (window as any).__pomoYtVoiceVol = yt.getVolume();
+            }
+            yt.setVolume(Math.round((window as any).__pomoYtVoiceVol * 0.2));
+          }
+        } catch {}
+      } else {
+        if (!isVoiceDucked) return;
+        isVoiceDucked = false;
+
+        activeAudioElements.forEach((audio, id) => {
+          const orig = voiceDuckedOriginalVolumes.get(id);
+          if (orig !== undefined) {
+            audio.volume = orig;
+          }
+        });
+        voiceDuckedOriginalVolumes.clear();
+
+        if (ambientBus && ctx) {
+          try {
+            ambientBus.gain.cancelScheduledValues(ctx.currentTime);
+            ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
+            ambientBus.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.2);
+          } catch {}
+        }
+
+        try {
+          const yt = (window as any).__pomoYoutubePlayer;
+          const origYt = (window as any).__pomoYtVoiceVol;
+          if (yt && origYt !== undefined && typeof yt.setVolume === 'function') {
+            yt.setVolume(origYt);
+          }
+          delete (window as any).__pomoYtVoiceVol;
+        } catch {}
+      }
+    },
+
+    stopChime: () => {
+      stopChimeSound();
+    },
+
     previewChime: async (chime?: ChimeSoundType) => {
       const targetChime = chime || get().settings.selectedChime;
       const vol = get().settings.chimeVolume;
       get().applyAudioDucking();
+      // Chờ pre-duck ramp 120ms để nhạc nền hạ xuống êm ái trước khi phát chuông
+      await new Promise((r) => setTimeout(r, 120));
       await playAlarmChimeSound(targetChime, vol);
     },
 
@@ -547,6 +629,8 @@ export const useAudioStore = create<AudioState>((set, get) => {
       if (settings.isMuted) return;
       const targetChime = chime || settings.selectedChime;
       get().applyAudioDucking();
+      // Chờ pre-duck ramp 120ms để nhạc nền hạ xuống êm ái trước khi phát chuông
+      await new Promise((r) => setTimeout(r, 120));
       await playAlarmChimeSound(targetChime, settings.chimeVolume);
     },
 
@@ -645,14 +729,7 @@ export const useAudioStore = create<AudioState>((set, get) => {
       });
       activeAudioElements.clear();
       ambientSynth.stopAll();
-      ChimeSynthesizer.getInstance().stopCurrentChime();
-      if (currentChimeAudio) {
-        try {
-          currentChimeAudio.pause();
-          currentChimeAudio.currentTime = 0;
-        } catch {}
-        currentChimeAudio = null;
-      }
+      stopChimeSound();
 
       set((state) => ({
         tracks: state.tracks.map((t) => ({ ...t, isPlaying: false })),
@@ -689,6 +766,54 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
   };
 });
+
+// Tự động ngắt âm thanh khi rút tai nghe hoặc ngắt kết nối Bluetooth để bảo vệ thính giác và tránh phát loa ngoài nơi công cộng
+if (
+  typeof navigator !== 'undefined' &&
+  navigator.mediaDevices &&
+  typeof navigator.mediaDevices.addEventListener === 'function'
+) {
+  let knownOutputIds: string[] = [];
+
+  const updateKnownOutputs = async () => {
+    try {
+      if (typeof navigator.mediaDevices.enumerateDevices === 'function') {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        knownOutputIds = devices.filter((d) => d.kind === 'audiooutput').map((d) => d.deviceId);
+      }
+    } catch {}
+  };
+
+  updateKnownOutputs();
+
+  navigator.mediaDevices.addEventListener('devicechange', async () => {
+    try {
+      if (typeof navigator.mediaDevices.enumerateDevices === 'function') {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const currentOutputs = devices.filter((d) => d.kind === 'audiooutput').map((d) => d.deviceId);
+
+        // Phát hiện mất thiết bị đầu ra (Bluetooth ngắt hoặc rút giắc tai nghe)
+        const hasLostDevice =
+          knownOutputIds.length > 0 &&
+          (currentOutputs.length < knownOutputIds.length ||
+            knownOutputIds.some((id) => id && !currentOutputs.includes(id)));
+
+        knownOutputIds = currentOutputs;
+
+        if (hasLostDevice) {
+          console.log('[useAudioStore] Audio output device disconnected (Bluetooth / Jack unplugged) -> Auto-stopping playback');
+          const store = useAudioStore.getState();
+          store.stopAllTracks();
+          if (store.customMusicPlaying) {
+            store.setCustomMusicPlaying(false);
+          }
+        }
+      }
+    } catch (e) {
+      console.debug('[useAudioStore] devicechange handler error:', e);
+    }
+  });
+}
 
 if (typeof window !== 'undefined') {
   (window as unknown as { useAudioStore: typeof useAudioStore }).useAudioStore = useAudioStore;

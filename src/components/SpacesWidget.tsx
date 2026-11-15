@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Palette,
   Check,
@@ -31,6 +31,77 @@ import { BACKGROUND_PRESETS } from '../data/backgroundPresets';
 import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
 import { AudioWidget } from './AudioWidget';
 import { db, CustomBackgroundRecord } from '../db';
+
+/**
+ * Feature 18: Client-side canvas resize and compression to WebP (max 1080p, quality 0.85).
+ * Downscales images over 1920x1080 to prevent Android WebView Out-Of-Memory (OOM) crashes.
+ */
+export async function compressImageToWebP(
+  file: File | Blob,
+  maxWidth = 1920,
+  maxHeight = 1080,
+  quality = 0.85
+): Promise<Blob> {
+  if (!file.type.startsWith('image/')) {
+    return file;
+  }
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : '';
+
+    const cleanupTempUrl = () => {
+      if (objectUrl && typeof URL.revokeObjectURL === 'function') {
+        try {
+          URL.revokeObjectURL(objectUrl);
+        } catch {}
+      }
+    };
+
+    img.onload = () => {
+      cleanupTempUrl();
+
+      let { width, height } = img;
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.max(1, Math.round(width * ratio));
+        height = Math.max(1, Math.round(height * ratio));
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          resolve(blob || file);
+        },
+        'image/webp',
+        quality
+      );
+    };
+
+    img.onerror = () => {
+      cleanupTempUrl();
+      resolve(file);
+    };
+
+    if (objectUrl) {
+      img.src = objectUrl;
+    } else {
+      resolve(file);
+    }
+  });
+}
 
 export const SpacesWidget: React.FC = () => {
   const router = useRouter();
@@ -135,6 +206,32 @@ export const SpacesWidget: React.FC = () => {
     setPage(1);
   };
 
+  // Reference tracking active custom blob URL for memory leak cleanup
+  const prevBlobUrlRef = useRef<string | null>(null);
+
+  const cleanupPrevBlobUrl = () => {
+    if (
+      prevBlobUrlRef.current &&
+      prevBlobUrlRef.current.startsWith('blob:') &&
+      typeof URL.revokeObjectURL === 'function'
+    ) {
+      try {
+        URL.revokeObjectURL(prevBlobUrlRef.current);
+      } catch {}
+      prevBlobUrlRef.current = null;
+    }
+  };
+
+  const handleSelectPreset = (presetId: string) => {
+    cleanupPrevBlobUrl();
+    selectPreset(presetId);
+  };
+
+  const handleResetBackground = () => {
+    cleanupPrevBlobUrl();
+    resetBackground();
+  };
+
   // Áp dụng custom URL
   const validateAndApplyUrl = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,31 +252,52 @@ export const SpacesWidget: React.FC = () => {
       }
     }
 
+    cleanupPrevBlobUrl();
     setCustomBackground(trimmed, customInputType);
     setCustomInputUrl('');
   };
 
-  // Upload tệp tin cục bộ
+  // Upload tệp tin cục bộ với nén WebP (max 1080p) & thu hồi ObjectURL cũ
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const mediaType = file.type.startsWith('video') ? 'video' : 'image';
     const id = `upload_${Date.now()}`;
+
+    let processedBlob: Blob = file;
+    let finalMimeType = file.type;
+    let finalName = file.name;
+
+    if (mediaType === 'image') {
+      try {
+        const compressed = await compressImageToWebP(file, 1920, 1080, 0.85);
+        if (compressed) {
+          processedBlob = compressed;
+          finalMimeType = compressed.type || 'image/webp';
+          finalName = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+        }
+      } catch (err) {
+        console.warn('Lỗi nén ảnh WebP, dùng file gốc:', err);
+      }
+    }
+
     const record: CustomBackgroundRecord = {
       id,
-      name: file.name,
-      blob: file,
+      name: finalName,
+      blob: processedBlob,
       mediaType,
-      mimeType: file.type,
-      sizeBytes: file.size,
+      mimeType: finalMimeType,
+      sizeBytes: processedBlob.size,
       createdAt: Date.now()
     };
 
     await db.custom_backgrounds.put(record);
     setSavedUploads((prev) => [record, ...prev]);
 
-    const objectUrl = URL.createObjectURL(file);
+    cleanupPrevBlobUrl();
+    const objectUrl = typeof URL.createObjectURL === 'function' ? URL.createObjectURL(processedBlob) : '';
+    prevBlobUrlRef.current = objectUrl;
     setCustomBackground(objectUrl, mediaType);
   };
 
@@ -255,7 +373,7 @@ export const SpacesWidget: React.FC = () => {
             <button
               type="button"
               data-testid="btn-reset-bg"
-              onClick={resetBackground}
+              onClick={handleResetBackground}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
               title="Khôi phục nền mặc định"
             >
@@ -328,7 +446,7 @@ export const SpacesWidget: React.FC = () => {
                     key={zen.id}
                     type="button"
                     data-testid={`zen-color-${zen.id}`}
-                    onClick={() => selectPreset(zen.id)}
+                    onClick={() => handleSelectPreset(zen.id)}
                     className={`h-9 rounded-lg border flex items-center justify-center gap-1.5 px-2 transition-all cursor-pointer ${
                       isSelected
                         ? 'ring-2 ring-cyan-400 border-white/40 scale-[1.02]'
@@ -423,7 +541,7 @@ export const SpacesWidget: React.FC = () => {
                       key={preset.id}
                       type="button"
                       data-testid={`preset-card-${preset.id}`}
-                      onClick={() => selectPreset(preset.id)}
+                      onClick={() => handleSelectPreset(preset.id)}
                       className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
                         isSelected
                           ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
@@ -489,6 +607,7 @@ export const SpacesWidget: React.FC = () => {
                         if (isLocked) {
                           router.navigate('/billing');
                         } else {
+                          cleanupPrevBlobUrl();
                           setCustomBackground(item.fullUrl, 'image');
                         }
                       }}

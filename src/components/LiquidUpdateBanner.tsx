@@ -156,9 +156,26 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
             href={downloadUrl}
             download={`PomoFocus-v${targetVersion}.apk`}
             target="_blank"
-            onClick={(e) => {
+            onClick={async (e) => {
               if (isNativeApiRuntime()) {
                 e.preventDefault();
+                // 1. Try Capacitor Browser plugin if loaded
+                const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+                if (browserPlugin?.open) {
+                  try {
+                    await browserPlugin.open({ url: downloadUrl, windowName: '_system' });
+                    return;
+                  } catch {}
+                }
+                // 2. Try native Android Intent bridge (PomoNativeBridge / PomoNativeBack)
+                const nativeBridge = (window as any).PomoNativeBridge || (window as any).PomoNativeBack;
+                if (nativeBridge?.openExternalUrl) {
+                  try {
+                    nativeBridge.openExternalUrl(downloadUrl);
+                    return;
+                  } catch {}
+                }
+                // 3. Fallback to system window open
                 window.open(downloadUrl, '_system');
               }
             }}

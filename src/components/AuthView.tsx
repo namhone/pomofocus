@@ -3,6 +3,23 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
 import { googleAuthService, GOOGLE_OAUTH_GUIDANCE_MESSAGE } from '../services/googleAuthService';
 import { PomoFocusLogo } from './PomoFocusLogo';
+import { Capacitor } from '@capacitor/core';
+import { supabase } from '../lib/supabase';
+import { SUPABASE_URL } from '../config/env';
+
+// Patch signInWithOAuth to honor skipBrowserRedirect in mobile native environment
+if (typeof window !== 'undefined' && supabase?.auth) {
+  const originalSignInWithOAuth = supabase.auth.signInWithOAuth;
+  (supabase.auth as any).signInWithOAuth = async (args: any) => {
+    if (args?.options?.skipBrowserRedirect) {
+      const baseUrl = (SUPABASE_URL || 'https://pgsgmmtpunuttspqcgof.supabase.co').replace(/\/+$/, '');
+      const redirectUri = args?.options?.redirectTo || 'pomofocus://oauth/callback';
+      const oauthUrl = `${baseUrl}/auth/v1/authorize?provider=${encodeURIComponent(args.provider)}&redirect_to=${encodeURIComponent(redirectUri)}`;
+      return { data: { provider: args.provider, url: oauthUrl }, error: null };
+    }
+    return originalSignInWithOAuth(args);
+  };
+}
 import {
   Lock,
   Mail,
@@ -208,9 +225,43 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     setIsGoogleLoadingLocal(true);
 
     try {
+      // 0. Trên Android Native APK (Capacitor): Tránh mã lỗi 403 disallowed_useragent trên WebView
+      // Bằng cách gọi signInWithOAuth với skipBrowserRedirect và mở URL qua Browser / window.open
+      const isNative = Boolean(
+        Capacitor.isNativePlatform?.() ||
+        (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.())
+      );
+
+      if (isNative) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'pomofocus://oauth/callback',
+            skipBrowserRedirect: true,
+          } as any,
+        });
+
+        if (error) {
+          setIsGoogleLoadingLocal(false);
+          setOauthGuidanceError(error.message || 'Không thể khởi tạo phiên đăng nhập Google');
+          return;
+        }
+
+        if (data?.url) {
+          const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+          if (browserPlugin?.open) {
+            await browserPlugin.open({ url: data.url, windowName: '_blank' });
+          } else {
+            window.open(data.url, '_blank');
+          }
+        }
+        setIsGoogleLoadingLocal(false);
+        return;
+      }
+
       const isMobile = googleAuthService.isMobileDevice();
 
-      // 1. Trên Mobile: Trình duyệt di động mặc định chặn popup ngầm -> BẮT BUỘC dùng Full-page Redirect
+      // 1. Trên Mobile Web: Trình duyệt di động mặc định chặn popup ngầm -> BẮT BUỘC dùng Full-page Redirect
       if (isMobile) {
         const googleOAuthUrl = googleAuthService.getGoogleOAuthRedirectUrl();
         window.location.href = googleOAuthUrl;

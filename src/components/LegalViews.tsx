@@ -187,6 +187,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <ul className="list-disc pl-5 space-y-1 text-zinc-400">
                 <li><strong className="text-zinc-200">CAMERA & RECORD_AUDIO:</strong> Chỉ kích hoạt khi bạn chủ động mở webcam hoặc microphone trong phòng học nhóm WebRTC. Ứng dụng tuyệt đối không kích hoạt ngầm khi không có sự tương tác của bạn.</li>
                 <li><strong className="text-zinc-200">POST_NOTIFICATIONS:</strong> Phát thông báo đẩy để nhắc nhở khi hết hiệp tập trung hoặc hết giờ nghỉ giải lao.</li>
+                <li><strong className="text-zinc-200">SCHEDULE_EXACT_ALARM:</strong> Đặt lịch thông báo và chuông báo chính xác tuyệt đối khi kết thúc phiên Pomodoro, đảm bảo chuông reo đúng từng giây ngay cả khi máy ở chế độ Doze hoặc tiết kiệm pin.</li>
                 <li><strong className="text-zinc-200">WAKE_LOCK:</strong> Giữ cho màn hình luôn sáng trong suốt chu kỳ Pomodoro để bạn dễ dàng theo dõi thời gian.</li>
                 <li><strong className="text-zinc-200">VIBRATE:</strong> Rung phản hồi xúc giác nhẹ khi bấm nút và khi kết thúc hiệp đếm ngược.</li>
               </ul>

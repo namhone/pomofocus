@@ -17,9 +17,15 @@ export interface RouterContextType {
 
 const RouterContext = createContext<RouterContextType | null>(null);
 
+export function normalizePath(pathname: string): string {
+  if (!pathname || pathname === '/') return '/';
+  const clean = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  return clean || '/';
+}
+
 function parsePath(pathname: string): { normalized: string; params: Record<string, string> } {
   // Chuẩn hóa đường dẫn: bỏ trailing slash nếu không phải '/'
-  const clean = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  const clean = normalizePath(pathname);
 
   // Khớp pattern /rooms/:roomId
   const roomMatch = clean.match(/^\/rooms\/([^/]+)/);
@@ -39,7 +45,7 @@ function parsePath(pathname: string): { normalized: string; params: Record<strin
 export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentPath, setCurrentPath] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return window.location.pathname || '/';
+      return normalizePath(window.location.pathname || '/');
     }
     return '/';
   });
@@ -53,7 +59,7 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname || '/');
+      setCurrentPath(normalizePath(window.location.pathname || '/'));
       setSearch(window.location.search || '');
     };
 
@@ -65,15 +71,16 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (typeof window === 'undefined') return;
 
     const [newPath, newSearch = ''] = to.split('?');
+    const normalized = normalizePath(newPath || '/');
     const formattedSearch = newSearch ? `?${newSearch}` : '';
 
     if (options?.replace) {
-      window.history.replaceState({}, '', `${newPath}${formattedSearch}`);
+      window.history.replaceState({}, '', `${normalized}${formattedSearch}`);
     } else {
-      window.history.pushState({}, '', `${newPath}${formattedSearch}`);
+      window.history.pushState({}, '', `${normalized}${formattedSearch}`);
     }
 
-    setCurrentPath(newPath || '/');
+    setCurrentPath(normalized);
     setSearch(formattedSearch);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -99,15 +106,17 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export function useRouter(): RouterContextType {
   const context = useContext(RouterContext);
   if (!context) {
+    const rawPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+    const normPath = normalizePath(rawPath);
     const fallbackMatch: RouteMatch = {
-      pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
-      path: typeof window !== 'undefined' ? window.location.pathname : '/',
+      pathname: normPath,
+      path: normPath,
       params: {},
       search: typeof window !== 'undefined' ? window.location.search : '',
       searchParams: new URLSearchParams()
     };
     return {
-      currentPath: typeof window !== 'undefined' ? window.location.pathname : '/',
+      currentPath: normPath,
       routeMatch: fallbackMatch,
       currentRoute: fallbackMatch,
       navigate: (to: string) => {

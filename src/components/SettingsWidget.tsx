@@ -173,6 +173,8 @@ export const SettingsWidget: React.FC = () => {
                   id="settings-pomo-min"
                   data-testid="settings-input-pomodoro-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="next"
                   min="1"
                   max="120"
                   value={timerSettings.pomodoroMinutes}
@@ -214,6 +216,8 @@ export const SettingsWidget: React.FC = () => {
                   id="settings-short-min"
                   data-testid="settings-input-short-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="next"
                   min="1"
                   max="60"
                   value={timerSettings.shortBreakMinutes}
@@ -255,6 +259,8 @@ export const SettingsWidget: React.FC = () => {
                   id="settings-long-min"
                   data-testid="settings-input-long-min"
                   type="number"
+                  inputMode="numeric"
+                  enterKeyHint="done"
                   min="1"
                   max="60"
                   value={timerSettings.longBreakMinutes}

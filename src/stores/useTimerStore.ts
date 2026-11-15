@@ -5,6 +5,9 @@ import { getVietnamTodayDateKey } from '../utils/timezone';
 import { TabCoordinator, TimerSyncPayload } from '../services/tabCoordinator';
 import { TimerEngine, loadStoredSettings, persistSettings } from '../services/timerEngine';
 import { FocusSessionRecord, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
+import { wakeLockManager } from '../utils/wakeLock';
+import { syncMediaSession, setupMediaSessionActionHandlers } from '../utils/mediaSession';
+export { wakeLockManager } from '../utils/wakeLock';
 
 interface TimerStoreState {
   phase: TimerPhase;
@@ -276,6 +279,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         onTick: (remainingMs, phase, status) => {
           set({ remainingMs, phase, status });
           updateDocumentTitle(remainingMs, phase, status, get().linkedTaskTitle);
+          syncMediaSession(phase, status, get().currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
           // V8.1 (Feature 22): Kiểm tra Midnight Rollover mỗi 60 giây trong lúc timer hoạt động
           const now = Date.now();
@@ -286,6 +290,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         },
         onPhaseChange: (phase, currentRound) => {
           set({ phase, currentRound });
+          syncMediaSession(phase, get().status, currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
         },
         onComplete: async (record: FocusSessionRecord, nextPhase: TimerPhase) => {
           // V8.1 (Feature 21): Chống double recording giữa nhiều tab / concurrent triggers
@@ -347,16 +352,48 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
               }
             }
 
+            // V8.1: Hủy Exact Alarm đã đặt vì hiệp đã kết thúc thành công
+            NotificationService.cancelExactAlarm();
+
             const phaseName = record.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao';
             const taskInfo = record.taskTitle ? ` cho việc "${record.taskTitle}"` : '';
             NotificationService.notify(`🎉 ${phaseName}${taskInfo} đã hoàn thành!`, {
               body: `Tiếp theo: ${nextPhase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}.`
             });
-            // V8.1: Haptic notification before chime
-            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+
+            // V8.1 (Feature 17): Kiểm tra nếu âm lượng đang tắt / bằng 0 -> cảnh báo trực quan + haptic fallback
+            let isZeroVolume = false;
+            try {
+              const { useAudioStore } = await import('./useAudioStore');
+              const audioSettings = useAudioStore.getState().settings;
+              isZeroVolume = audioSettings.isMuted || audioSettings.masterVolume === 0 || audioSettings.chimeVolume === 0;
+            } catch {}
+
+            if (isZeroVolume) {
+              const zeroVolMsg = `🎉 ${phaseName}${taskInfo} đã hoàn thành! (⚠️ Âm lượng chuông đang tắt - Vui lòng kiểm tra)`;
+              set({ celebrationToast: zeroVolMsg });
+              setTimeout(() => {
+                if (get().celebrationToast === zeroVolMsg) {
+                  set({ celebrationToast: null });
+                }
+              }, 6000);
+
               try {
-                navigator.vibrate([200, 100, 200, 100, 300]);
+                const { haptics } = await import('../utils/haptics');
+                await haptics.notification('warning');
+                await haptics.impact('heavy');
               } catch {}
+            } else {
+              try {
+                const { haptics } = await import('../utils/haptics');
+                await haptics.notification('success');
+              } catch {
+                if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+                  try {
+                    navigator.vibrate([200, 100, 200, 100, 300]);
+                  } catch {}
+                }
+              }
             }
 
             // V8.1: Ensure AudioContext is resumed before chime
@@ -374,6 +411,8 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
             } catch (err) {
               console.warn('Không thể nạp module âm thanh để phát chuông:', err);
             }
+
+            syncMediaSession(nextPhase, 'idle', get().currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
           }
 
           // Tab Leader đồng bộ trạng thái hiệp kế tiếp tới các tab khác
@@ -425,19 +464,28 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       } catch {}
     }
 
-    // Đồng bộ tức thì Anchor Timestamp Engine khi mở khóa màn hình / quay lại app từ background (MIUI/Android)
+    // Đồng bộ tức thì Anchor Timestamp Engine & Screen Wake Lock khi mở khóa màn hình / quay lại app từ background (MIUI/Android)
     if (!visibilitySyncHandler && typeof document !== 'undefined') {
       visibilitySyncHandler = () => {
         if (document.visibilityState === 'visible' && engineInstance) {
           get().checkMidnightRollover();
           if (engineInstance.getStatus() === 'running') {
             engineInstance.tick();
+            wakeLockManager.request();
           }
         }
       };
       document.addEventListener('visibilitychange', visibilitySyncHandler);
       window.addEventListener('pageshow', visibilitySyncHandler);
     }
+
+    // 4. Đăng ký MediaSession OS Action Handlers (Khóa màn hình / Tai nghe)
+    setupMediaSessionActionHandlers({
+      onPlay: () => get().resume(),
+      onPause: () => get().pause(),
+      onSkip: () => get().skip(),
+      onReset: () => get().reset()
+    });
 
     // Gắn dọn dẹp khi đóng hoặc rời tab chuẩn Best Practices (beforeunload, pagehide)
     if (!hasBoundUnload) {
@@ -478,6 +526,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       }
       engineInstance.start();
       startAudioKeepAlive();
+      wakeLockManager.request();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -492,6 +541,14 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, payload.linkedTaskTitle);
 
+      NotificationService.scheduleExactAlarm({
+        title: `🎉 ${payload.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao'} đã hoàn thành!`,
+        body: `Tiếp theo: ${payload.phase === 'pomodoro' ? 'Nghỉ ngơi' : 'Tập trung'}.`,
+        triggerAt: Date.now() + payload.remainingMs,
+        allowWhileIdle: true
+      });
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, payload.linkedTaskTitle);
+
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'start', payload });
       }
@@ -502,6 +559,8 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.pause();
       stopAudioKeepAlive();
+      wakeLockManager.release();
+      NotificationService.cancelExactAlarm();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -513,6 +572,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: payload.remainingMs
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'pause', payload });
@@ -524,6 +584,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.resume();
       startAudioKeepAlive();
+      wakeLockManager.request();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -535,6 +596,14 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: payload.remainingMs
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+
+      NotificationService.scheduleExactAlarm({
+        title: `🎉 ${payload.phase === 'pomodoro' ? 'Hiệp tập trung' : 'Giờ giải lao'} đã hoàn thành!`,
+        body: `Tiếp theo: ${payload.phase === 'pomodoro' ? 'Nghỉ ngơi' : 'Tập trung'}.`,
+        triggerAt: Date.now() + payload.remainingMs,
+        allowWhileIdle: true
+      });
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'resume', payload });
@@ -549,6 +618,8 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       }
       engineInstance.reset();
       stopAudioKeepAlive();
+      wakeLockManager.release();
+      NotificationService.cancelExactAlarm();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -560,6 +631,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: payload.remainingMs
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset', payload });
@@ -571,6 +643,8 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (engineInstance) {
       engineInstance.resetCycle();
       stopAudioKeepAlive();
+      wakeLockManager.release();
+      NotificationService.cancelExactAlarm();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -582,6 +656,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: payload.remainingMs
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'reset_cycle', payload });
@@ -636,6 +711,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
   skip: () => {
     if (engineInstance) {
       engineInstance.skip();
+      NotificationService.cancelExactAlarm();
       const payload: TimerSyncPayload = engineInstance.getSnapshot();
       payload.fromLeader = get().isLeader;
       lastSyncTimestamp = payload.timestamp;
@@ -647,6 +723,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         remainingMs: payload.remainingMs
       });
       updateDocumentTitle(payload.remainingMs, payload.phase, payload.status, get().linkedTaskTitle);
+      syncMediaSession(payload.phase, payload.status, payload.currentRound, get().settings.roundsBeforeLongBreak, get().linkedTaskTitle);
 
       if (coordinatorInstance) {
         coordinatorInstance.broadcast({ type: 'TRIGGER_ACTION', action: 'skip', payload });

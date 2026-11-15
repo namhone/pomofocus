@@ -4,12 +4,27 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+    --sat-native: 0px;
+    --sab-native: 0px;
+    --sal-native: 0px;
+    --sar-native: 0px;
+    --safe-top: max(env(safe-area-inset-top, 0px), var(--sat-native, 0px));
+    --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--sab-native, 0px));
+    --safe-left: max(env(safe-area-inset-left, 0px), var(--sal-native, 0px));
+    --safe-right: max(env(safe-area-inset-right, 0px), var(--sar-native, 0px));
+  }
+
   * {
     -webkit-tap-highlight-color: transparent;
   }
 
   /* Zero-Scroll-Chaining Invariant (PomoFocus v7.4 Native Android & Web Hub) */
   html, body {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     position: fixed;
     inset: 0;
     width: 100%;
@@ -328,3 +343,20 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Android 15 Edge-to-Edge & W3C Safe Area Utility Classes */
+@layer utilities {
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), var(--sat-native, 0px));
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--sab-native, 0px));
+  }
+  .pl-safe {
+    padding-left: max(env(safe-area-inset-left, 0px), var(--sal-native, 0px));
+  }
+  .pr-safe {
+    padding-right: max(env(safe-area-inset-right, 0px), var(--sar-native, 0px));
+  }
+}
+

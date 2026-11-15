@@ -674,7 +674,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerUp={handleCancelUnlockHold}
               onPointerLeave={handleCancelUnlockHold}
               onPointerCancel={handleCancelUnlockHold}
-              className="relative w-full h-13 rounded-2xl bg-zinc-900 border border-white/15 overflow-hidden flex items-center justify-center text-xs font-semibold text-zinc-200 active:scale-[0.98] transition cursor-pointer select-none"
+              className="relative w-full min-h-[52px] py-2 rounded-2xl bg-zinc-900 border border-white/15 overflow-hidden flex items-center justify-center text-xs font-semibold text-zinc-200 active:scale-[0.98] transition cursor-pointer select-none"
             >
               {/* Animated Progress Bar */}
               <div
@@ -701,7 +701,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         <div
           role="tablist"
           aria-label="Chế độ tập trung"
-          className="inline-flex items-center p-1 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 shadow-lg relative"
+          className="inline-flex flex-wrap items-center justify-center p-1 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 shadow-lg relative max-w-full gap-1"
         >
           <button
             type="button"
