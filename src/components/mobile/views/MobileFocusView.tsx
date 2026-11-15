@@ -1069,7 +1069,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerLeave={handleActionPointerCancel}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              className="w-14 sm:w-16 h-14 sm:h-16 min-w-[56px] sm:min-w-[64px] min-h-[56px] sm:min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
               {status === 'running' ? (
                 <Pause className="w-7 h-7 fill-current stroke-current" aria-hidden="true" />

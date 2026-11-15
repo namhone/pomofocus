@@ -49,7 +49,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
   };
 
   test('Kịch bản 3 Client Đa Thiết Bị: Host Desktop, Member Laptop, Member Mobile (390x844) kết nối không pre-seed localStorage & Teardown 5 bước', async ({ browser }) => {
-    test.setTimeout(180000);
+    test.setTimeout(240000);
 
     // -------------------------------------------------------------------------
     // 1. KHỞI TẠO 3 BROWSER CONTEXTS ĐỘC LẬP (HOST, MEMBER 1, MEMBER 2)

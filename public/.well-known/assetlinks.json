@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.pomofocus.workspace",
+      "sha256_cert_fingerprints": [
+        "23:9F:25:FE:7F:C7:55:E3:F9:A2:05:A6:A4:F8:E9:C2:D0:A5:C9:EA:6E:87:E6:D8:C4:7A:A0:8F:39:86:B2:0F"
+      ]
+    }
+  }
+]
