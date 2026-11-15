@@ -1,11 +1,22 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   studyRoomService,
   generateUniqueRoomId,
-  PUBLIC_FREE_PODS
+  PUBLIC_FREE_PODS,
+  resolveCanonicalRoom,
+  teardownRoomSession,
+  isTimerActionAuthorized,
+  verifyTimerSyncAuthority,
+  markHostDisconnected,
+  markHostReconnected,
+  isHostGracePeriodActive,
+  getHostGraceRemainingSeconds,
+  getTabSessionId,
+  clearTabSessionId
 } from '../../src/services/studyRoomService';
 import { UserProfile, OWNER_EMAIL } from '../../src/services/authService';
 import { momoService } from '../../src/services/momoService';
+import { safeStorage } from '../../src/utils/safeStorage';
 
 describe('Study Room Service & Free Guest Access Policy Tests', () => {
   beforeEach(() => {
@@ -544,6 +555,392 @@ describe('Study Room Service & Free Guest Access Policy Tests', () => {
       const updatedRoomAfterPurge = studyRoomService.getRoom('pod-free-01')!;
       expect(updatedRoomAfterPurge.participants['client_active']).toBeDefined();
       expect(updatedRoomAfterPurge.participants['client_zombie']).toBeUndefined();
+    });
+  });
+
+  describe('7. Milestone 1: Room Lifecycle, Canonical roomId, Ghost Room Elimination & Host Authority', () => {
+    const mockHostUser: UserProfile = {
+      id: 'usr_host_m1',
+      email: 'host_m1@pomodoro.app',
+      displayName: 'Host M1',
+      plan: 'pro_lifetime',
+      createdAt: Date.now()
+    };
+
+    const mockGuestUser: UserProfile = {
+      id: 'usr_guest_m1',
+      email: 'guest_m1@pomodoro.app',
+      displayName: 'Guest M1',
+      plan: 'free',
+      createdAt: Date.now()
+    };
+
+    describe('A. Elimination of Auto-Synthesis Trap & Canonical roomId', () => {
+      it('getRoom() trả về null cho mã phòng không tồn tại và KHÔNG tự động sinh usr_peer_host', () => {
+        const unknownId = 'room-unknown-link-1234';
+        const result = studyRoomService.getRoom(unknownId);
+        expect(result).toBeNull();
+
+        // Xác nhận phòng không bị lưu ngầm vào localStorage
+        const allRooms = studyRoomService.getAllRooms();
+        expect(allRooms[unknownId]).toBeUndefined();
+      });
+
+      it('resolveCanonicalRoom() trả về null cho phòng không tồn tại', async () => {
+        const result = await resolveCanonicalRoom('room-non-existent-xyz');
+        expect(result).toBeNull();
+      });
+
+      it('resolveCanonicalRoom() phân giải thành công Public Study Pod', async () => {
+        const pod = await resolveCanonicalRoom('pod-free-02');
+        expect(pod).not.toBeNull();
+        expect(pod?.roomId).toBe('pod-free-02');
+        expect(pod?.title).toBe('Phòng 02');
+      });
+
+      it('resolveCanonicalRoom() phân giải phòng hợp lệ từ Cloud khi localStorage trống (kịch bản đa thiết bị)', async () => {
+        // Device 1: Host khởi tạo phòng
+        const createRes = studyRoomService.createRoom({
+          hostUser: mockHostUser,
+          title: 'Phòng Luyện Thi IELTS 8.0'
+        });
+        expect(createRes.success).toBe(true);
+        const createdRoom = createRes.room;
+        const roomId = createdRoom.roomId;
+
+        // Mô phỏng Device 2 (hoặc ẩn danh): localStorage hoàn toàn trống, chưa hề lưu thông tin phòng
+        localStorage.clear();
+        expect(studyRoomService.getAllRooms()[roomId]).toBeUndefined();
+
+        // Device 2 phân giải phòng thông qua Serverless API /api/rooms (Cloud sync)
+        const originalFetch = global.fetch;
+        const mockApiResponse = {
+          success: true,
+          room: {
+            roomId: createdRoom.roomId,
+            slug: createdRoom.slug,
+            owner_id: createdRoom.owner_id,
+            title: createdRoom.title,
+            hostUserId: createdRoom.hostUserId,
+            hostEmail: createdRoom.hostEmail,
+            createdAt: createdRoom.createdAt,
+            status: 'active',
+            allowFreeGuests: true,
+            maxParticipants: createdRoom.maxParticipants || 10,
+            settings: createdRoom.settings
+          }
+        };
+
+        global.fetch = vi.fn().mockImplementation(async (url: string) => {
+          if (String(url).includes('/api/rooms')) {
+            return {
+              ok: true,
+              status: 200,
+              json: async () => mockApiResponse
+            } as any;
+          }
+          return {
+            ok: false,
+            status: 404,
+            json: async () => ({ success: false })
+          } as any;
+        });
+
+        try {
+          const resolved = await resolveCanonicalRoom(roomId);
+          expect(resolved).not.toBeNull();
+          expect(resolved?.roomId).toBe(roomId);
+          expect(resolved?.hostUserId).toBe(mockHostUser.id);
+          expect(resolved?.title).toBe('Phòng Luyện Thi IELTS 8.0');
+
+          // Kiểm tra sau khi phân giải thành công từ Cloud, phòng được nạp vào cache Device 2
+          expect(studyRoomService.getAllRooms()[roomId]).toBeDefined();
+        } finally {
+          global.fetch = originalFetch;
+        }
+      });
+
+      it('resolveCanonicalRoom() trả về null cho phòng không tồn tại khi localStorage hoàn toàn trống', async () => {
+        localStorage.clear();
+        const originalFetch = global.fetch;
+        global.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          status: 404,
+          json: async () => ({ success: false, error: 'ROOM_NOT_FOUND' })
+        } as any);
+
+        try {
+          const result = await resolveCanonicalRoom('room-completely-unknown-device2');
+          expect(result).toBeNull();
+        } finally {
+          global.fetch = originalFetch;
+        }
+      });
+
+      it('resolveCanonicalRoom() phân giải thành công từ Supabase Cloud trực tiếp khi API phòng offline', async () => {
+        const uuidRoomId = 'a1b2c3d4-e5f6-4a1b-8c2d-3e4f5a6b7c8d';
+        localStorage.clear();
+
+        const originalFetch = global.fetch;
+        global.fetch = vi.fn().mockImplementation(async (url: string) => {
+          if (String(url).includes('/api/rooms')) {
+            // API serverless offline / 503
+            return {
+              ok: false,
+              status: 503,
+              json: async () => ({ success: false })
+            } as any;
+          }
+          if (String(url).includes('/rest/v1/study_rooms')) {
+            // Supabase Cloud REST API trả về bản ghi chỉ với các cột hợp lệ
+            return {
+              ok: true,
+              status: 200,
+              json: async () => [{
+                id: uuidRoomId,
+                host_user_id: mockHostUser.id,
+                title: 'Phòng Toán Cao Cấp Cloud',
+                status: 'active',
+                capacity_limit: 15,
+                created_at: new Date().toISOString(),
+                closed_at: null
+              }]
+            } as any;
+          }
+          return {
+            ok: false,
+            status: 404,
+            json: async () => ({})
+          } as any;
+        });
+
+        try {
+          const resolved = await resolveCanonicalRoom(uuidRoomId);
+          expect(resolved).not.toBeNull();
+          expect(resolved?.roomId).toBe(uuidRoomId);
+          expect(resolved?.hostUserId).toBe(mockHostUser.id);
+          expect(resolved?.title).toBe('Phòng Toán Cao Cấp Cloud');
+          expect(resolved?.maxParticipants).toBe(15);
+        } finally {
+          global.fetch = originalFetch;
+        }
+      });
+
+      it('isHostGracePeriodActive xử lý an toàn hiện tượng chệch đồng hồ (Clock Skew) âm nhẹ', () => {
+        const roomId = 'room-clock-skew-test';
+        const disconnectedAt = 1000000;
+        markHostDisconnected(roomId, disconnectedAt);
+
+        // Trường hợp đồng hồ client bị lùi 100ms do NTP sync (elapsed = -100ms)
+        const slightlyEarlier = disconnectedAt - 100;
+        expect(isHostGracePeriodActive(roomId, slightlyEarlier)).toBe(true);
+
+        // Trường hợp lùi quá mức (> 5000ms) thì không hợp lệ
+        const wayEarlier = disconnectedAt - 6000;
+        expect(isHostGracePeriodActive(roomId, wayEarlier)).toBe(false);
+
+        markHostReconnected(roomId);
+        expect(isHostGracePeriodActive(roomId)).toBe(false);
+      });
+    });
+
+    describe('B. Ghost Room Eradication, Realtime Lifecycle Action & Whiteboard Purge', () => {
+      it('closeRoom phát sự kiện Realtime room-lifecycle-action với action ROOM_CLOSED', () => {
+        const createRes = studyRoomService.createRoom({ hostUser: mockHostUser });
+        const roomId = createRes.room.roomId;
+
+        const sentEvents: any[] = [];
+        const mockChannel = {
+          send: vi.fn((data: any) => {
+            sentEvents.push(data);
+            return Promise.resolve();
+          })
+        };
+
+        const closeRes = studyRoomService.closeRoom(roomId, mockHostUser, mockChannel as any);
+        expect(closeRes.success).toBe(true);
+
+        // Kiểm tra đã phát broadcast Realtime lên channel
+        expect(mockChannel.send).toHaveBeenCalledTimes(1);
+        expect(sentEvents[0]).toEqual({
+          type: 'broadcast',
+          event: 'room-lifecycle-action',
+          payload: {
+            action: 'ROOM_CLOSED',
+            roomId,
+            hostUserId: mockHostUser.id
+          }
+        });
+
+        // Kiểm tra trạng thái đã đóng
+        const closedRoom = studyRoomService.getRoom(roomId);
+        expect(closedRoom?.status).toBe('closed');
+      });
+
+      it('deleteRoom dọn sạch nét vẽ Whiteboard, tin nhắn, phiên tab và phát Realtime ROOM_DELETED', () => {
+        const createRes = studyRoomService.createRoom({ hostUser: mockHostUser });
+        const roomId = createRes.room.roomId;
+
+        // Giả lập lưu trữ nét vẽ và tin nhắn phòng
+        safeStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify([{ x: 10, y: 20 }]));
+        safeStorage.setItem(`pomofocus_room_messages_${roomId}`, JSON.stringify([{ text: 'Hello' }]));
+        getTabSessionId(roomId); // sinh session tab
+
+        const sentEvents: any[] = [];
+        const mockChannel = {
+          send: vi.fn((data: any) => {
+            sentEvents.push(data);
+            return Promise.resolve();
+          })
+        };
+
+        const deleteRes = studyRoomService.deleteRoom(roomId, mockHostUser, mockChannel as any);
+        expect(deleteRes.success).toBe(true);
+
+        // Kiểm tra nét vẽ Whiteboard và tin nhắn đã được dọn sạch hoàn toàn
+        expect(safeStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`)).toBeNull();
+        expect(safeStorage.getItem(`pomofocus_room_messages_${roomId}`)).toBeNull();
+
+        // Kiểm tra phát Realtime ROOM_DELETED
+        expect(mockChannel.send).toHaveBeenCalledTimes(1);
+        expect(sentEvents[0].payload.action).toBe('ROOM_DELETED');
+
+        // Phòng đã bị xóa khỏi localStorage
+        expect(studyRoomService.getRoom(roomId)).toBeNull();
+      });
+
+      it('teardownRoomSession tắt toàn bộ media tracks, hủy rtcManager và untrack channel', async () => {
+        const mockTrack1 = { stop: vi.fn() };
+        const mockTrack2 = { stop: vi.fn() };
+        const mockStream = {
+          getTracks: vi.fn(() => [mockTrack1, mockTrack2])
+        } as unknown as MediaStream;
+
+        const mockScreenTrack = { stop: vi.fn() };
+        const mockScreenStream = {
+          getTracks: vi.fn(() => [mockScreenTrack])
+        } as unknown as MediaStream;
+
+        const mockRtc = {
+          destroy: vi.fn()
+        };
+
+        const mockChannel = {
+          untrack: vi.fn(() => Promise.resolve())
+        };
+
+        await teardownRoomSession({
+          stream: mockStream,
+          screenStream: mockScreenStream,
+          rtcManager: mockRtc,
+          channel: mockChannel
+        });
+
+        expect(mockTrack1.stop).toHaveBeenCalledTimes(1);
+        expect(mockTrack2.stop).toHaveBeenCalledTimes(1);
+        expect(mockScreenTrack.stop).toHaveBeenCalledTimes(1);
+        expect(mockRtc.destroy).toHaveBeenCalledTimes(1);
+        expect(mockChannel.untrack).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('C. Host Authority on Group Timer', () => {
+      const testRoom = {
+        roomId: 'room-timer-test',
+        hostUserId: 'usr_host_123',
+        hostEmail: 'host123@pomodoro.app',
+        title: 'Timer Room',
+        status: 'active' as const,
+        createdAt: Date.now(),
+        allowFreeGuests: true,
+        activeInviteToken: null,
+        inviteTokens: {},
+        participants: {},
+        guestPermissions: { canChat: true, canMic: true, canCam: true, canShareScreen: false }
+      };
+
+      it('chấp nhận quyền điều khiển timer từ chính Chủ phòng (Host)', () => {
+        const authorized = isTimerActionAuthorized(testRoom, {
+          id: 'usr_host_123',
+          userId: 'usr_host_123',
+          email: 'host123@pomodoro.app'
+        });
+        expect(authorized).toBe(true);
+      });
+
+      it('chấp nhận quyền điều khiển timer từ Master Admin (Nam Hồ & Huyền Trân)', () => {
+        const authNam = isTimerActionAuthorized(testRoom, {
+          id: 'usr_any_id',
+          email: 'namho03052k9@gmail.com'
+        });
+        expect(authNam).toBe(true);
+
+        const authTran = isTimerActionAuthorized(testRoom, {
+          id: 'usr_other_id',
+          email: 'huyentrantt09@gmail.com'
+        });
+        expect(authTran).toBe(true);
+      });
+
+      it('từ chối quyền điều khiển timer từ thành viên thường (Guest/Member)', () => {
+        const authorized = isTimerActionAuthorized(testRoom, {
+          id: 'usr_impostor',
+          userId: 'usr_impostor',
+          email: 'impostor@example.com'
+        });
+        expect(authorized).toBe(false);
+      });
+    });
+
+    describe('D. 60-Second Host Disconnect Grace Period', () => {
+      const roomId = 'room-grace-test';
+
+      it('quản lý thời gian ân hạn 60 giây khi Chủ phòng mất kết nối đột ngột', () => {
+        const baseTime = 1000000;
+
+        // Ban đầu chưa mất kết nối
+        expect(isHostGracePeriodActive(roomId, baseTime)).toBe(false);
+        expect(getHostGraceRemainingSeconds(roomId, baseTime)).toBe(0);
+
+        // Host mất kết nối tại baseTime
+        markHostDisconnected(roomId, baseTime);
+
+        // Sau 10 giây (vẫn trong 60s)
+        expect(isHostGracePeriodActive(roomId, baseTime + 10000)).toBe(true);
+        expect(getHostGraceRemainingSeconds(roomId, baseTime + 10000)).toBe(50);
+
+        // Sau 59 giây (vẫn trong 60s)
+        expect(isHostGracePeriodActive(roomId, baseTime + 59000)).toBe(true);
+        expect(getHostGraceRemainingSeconds(roomId, baseTime + 59000)).toBe(1);
+
+        // Sau 61 giây (hết ân hạn)
+        expect(isHostGracePeriodActive(roomId, baseTime + 61000)).toBe(false);
+        expect(getHostGraceRemainingSeconds(roomId, baseTime + 61000)).toBe(0);
+
+        // Host kết nối lại -> Xóa ân hạn
+        markHostReconnected(roomId);
+        expect(isHostGracePeriodActive(roomId, baseTime + 10000)).toBe(false);
+      });
+    });
+
+    describe('E. Session Tab Storage (sessionStorage persistence)', () => {
+      it('lưu trữ và tái sử dụng clientSessionId trên cùng một tab (F5 reload test)', () => {
+        const testRoomId = 'room-tab-session-1';
+        clearTabSessionId(testRoomId);
+
+        const session1 = getTabSessionId(testRoomId);
+        expect(session1).toBeDefined();
+        expect(session1.startsWith('tab_')).toBe(true);
+
+        // Gọi lại lần 2 (mô phỏng F5 hoặc render lại)
+        const session2 = getTabSessionId(testRoomId);
+        expect(session2).toBe(session1);
+
+        // Xóa phiên
+        clearTabSessionId(testRoomId);
+        const session3 = getTabSessionId(testRoomId);
+        expect(session3).not.toBe(session1);
+      });
     });
   });
 });

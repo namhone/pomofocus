@@ -39,6 +39,30 @@ export interface StudyRoomData {
 
 // Global In-Memory Cache (Persists across hot serverless lambdas and local dev)
 const globalRoomCache = new Map<string, StudyRoomData>();
+const MAX_CACHE_ENTRIES = 500;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function setCacheRoom(room: StudyRoomData): void {
+  if (globalRoomCache.size >= MAX_CACHE_ENTRIES) {
+    let evictKey: string | null = null;
+    for (const [k, r] of globalRoomCache.entries()) {
+      if (r.status === 'closed') {
+        evictKey = k;
+        break;
+      }
+    }
+    if (!evictKey) {
+      evictKey = globalRoomCache.keys().next().value || null;
+    }
+    if (evictKey) {
+      globalRoomCache.delete(evictKey);
+    }
+  }
+  globalRoomCache.set(room.roomId.toLowerCase(), room);
+  if (room.slug) {
+    globalRoomCache.set(room.slug.toLowerCase(), room);
+  }
+}
 
 export default async function handler(req: any, res: any) {
   // CORS Headers
@@ -77,10 +101,11 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ success: true, room });
     }
 
-    // 1.2. Tra cứu Supabase Cloud study_rooms
-    if (supabaseUrl && supabaseKey) {
+    // 1.2. Tra cứu Supabase Cloud study_rooms (chỉ query id khi rawId là UUID hợp lệ vì Cloud DB không có cột slug)
+    const isUuid = UUID_REGEX.test(rawId);
+    if (supabaseUrl && supabaseKey && isUuid) {
       try {
-        const fetchUrl = `${supabaseUrl}/rest/v1/study_rooms?or=(id.eq.${encodeURIComponent(rawId)},slug.eq.${encodeURIComponent(rawId)})&status=eq.active&select=*&limit=1`;
+        const fetchUrl = `${supabaseUrl}/rest/v1/study_rooms?id=eq.${encodeURIComponent(rawId)}&select=id,host_user_id,title,status,capacity_limit,created_at,closed_at&limit=1`;
         const sbRes = await fetch(fetchUrl, {
           headers: {
             apikey: supabaseKey,
@@ -92,9 +117,9 @@ export default async function handler(req: any, res: any) {
           if (Array.isArray(rows) && rows.length > 0) {
             const row = rows[0];
             const cloudRoom: StudyRoomData = {
-              roomId: row.slug || row.id,
-              slug: row.slug || row.id,
-              owner_id: row.owner_id || row.host_user_id,
+              roomId: row.id,
+              slug: row.id,
+              owner_id: row.host_user_id,
               title: row.title,
               hostUserId: row.host_user_id,
               hostEmail: '',
@@ -103,11 +128,14 @@ export default async function handler(req: any, res: any) {
               allowFreeGuests: true,
               maxParticipants: row.capacity_limit || 10,
               isFreeRoom: false,
-              settings: row.settings || { allow_mic: true, allow_screen_share: true, is_locked: false }
+              settings: { allow_mic: true, allow_screen_share: true, is_locked: false }
             };
-            globalRoomCache.set(cloudRoom.roomId.toLowerCase(), cloudRoom);
+            setCacheRoom(cloudRoom);
             return res.status(200).json({ success: true, room: cloudRoom });
           }
+        } else {
+          const errText = await sbRes.text().catch(() => '');
+          console.warn('[api/rooms] Supabase GET error:', sbRes.status, errText);
         }
       } catch (err) {
         console.warn('[api/rooms] Supabase lookup error:', err);
@@ -126,12 +154,14 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ success: false, error: 'INVALID_ROOM_ID', message: 'Mã phòng phải có ít nhất 3 ký tự.' });
       }
 
+      const hostUserId = body.hostUserId || body.owner_id || '00000000-0000-0000-0000-000000000000';
+
       const roomData: StudyRoomData = {
         roomId,
         slug: body.slug || roomId,
-        owner_id: body.owner_id || body.hostUserId,
+        owner_id: body.owner_id || hostUserId,
         title: body.title?.trim() || `Phòng Học #${roomId}`,
-        hostUserId: body.hostUserId,
+        hostUserId,
         hostEmail: body.hostEmail || '',
         createdAt: body.createdAt || Date.now(),
         status: body.status || 'active',
@@ -153,15 +183,23 @@ export default async function handler(req: any, res: any) {
       };
 
       // Lưu vào cache toàn cục
-      globalRoomCache.set(roomId, roomData);
-      if (roomData.slug) {
-        globalRoomCache.set(roomData.slug.toLowerCase(), roomData);
-      }
+      setCacheRoom(roomData);
 
       // Đẩy lên Supabase study_rooms nếu cấu hình service key
       if (supabaseUrl && supabaseKey) {
         try {
-          fetch(`${supabaseUrl}/rest/v1/study_rooms`, {
+          const isUuid = UUID_REGEX.test(roomData.roomId);
+          const postPayload: Record<string, any> = {
+            title: roomData.title,
+            status: roomData.status || 'active',
+            capacity_limit: roomData.maxParticipants || 10,
+            host_user_id: hostUserId
+          };
+          if (isUuid) {
+            postPayload.id = roomData.roomId;
+          }
+
+          const sbRes = await fetch(`${supabaseUrl}/rest/v1/study_rooms`, {
             method: 'POST',
             headers: {
               apikey: supabaseKey,
@@ -169,13 +207,15 @@ export default async function handler(req: any, res: any) {
               'Content-Type': 'application/json',
               'Prefer': 'resolution=merge-duplicates'
             },
-            body: JSON.stringify({
-              title: roomData.title,
-              status: roomData.status,
-              capacity_limit: roomData.maxParticipants
-            })
-          }).catch(() => {});
-        } catch {}
+            body: JSON.stringify(postPayload)
+          });
+          if (!sbRes.ok) {
+            const errText = await sbRes.text().catch(() => '');
+            console.warn('[api/rooms] Supabase POST error:', sbRes.status, errText);
+          }
+        } catch (err) {
+          console.warn('[api/rooms] Supabase POST exception:', err);
+        }
       }
 
       return res.status(200).json({ success: true, room: roomData });
@@ -186,12 +226,45 @@ export default async function handler(req: any, res: any) {
 
   // 3. DELETE: Đóng phòng
   if (req.method === 'DELETE') {
-    const rawId = (req.query?.id || req.query?.roomId || '').trim().toLowerCase();
+    const rawId = (req.query?.id || req.query?.roomId || req.query?.slug || '').trim().toLowerCase();
     if (rawId) {
       const existing = globalRoomCache.get(rawId);
       if (existing) {
         existing.status = 'closed';
         globalRoomCache.set(rawId, existing);
+      }
+      for (const [k, r] of globalRoomCache.entries()) {
+        if (r.roomId.toLowerCase() === rawId || (r.slug && r.slug.toLowerCase() === rawId)) {
+          r.status = 'closed';
+          globalRoomCache.set(k, r);
+        }
+      }
+
+      const isUuid = UUID_REGEX.test(rawId);
+      if (supabaseUrl && supabaseKey && isUuid) {
+        try {
+          const closedAt = new Date().toISOString();
+          const patchUrl = `${supabaseUrl}/rest/v1/study_rooms?id=eq.${encodeURIComponent(rawId)}`;
+          const sbRes = await fetch(patchUrl, {
+            method: 'PATCH',
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              status: 'closed',
+              closed_at: closedAt
+            })
+          });
+          if (!sbRes.ok) {
+            const errText = await sbRes.text().catch(() => '');
+            console.warn('[api/rooms] Supabase DELETE/patch error:', sbRes.status, errText);
+          }
+        } catch (err) {
+          console.warn('[api/rooms] Supabase DELETE exception:', err);
+        }
       }
     }
     return res.status(200).json({ success: true, message: 'Đã đóng phòng.' });

@@ -85,6 +85,41 @@ export function canManageRoom(
 }
 
 /**
+ * Xác minh quyền điều khiển và phát sóng đồng bộ Đồng hồ Pomodoro nhóm
+ * Chỉ chấp nhận lệnh từ Chủ phòng (Host) hoặc Master Admin (Nam Hồ & Huyền Trân)
+ */
+export function isTimerActionAuthorized(
+  room: { hostUserId?: string; hostEmail?: string; owner_id?: string; hostOnlyTimer?: boolean } | null,
+  sender: { id?: string; userId?: string; email?: string } | null
+): boolean {
+  if (!room || !sender) return false;
+
+  // Master Admin luôn có quyền Override
+  if (sender.email && (isMasterAdmin(sender.email) || isOwnerEmail(sender.email) || isLadyBoss(sender.email))) {
+    return true;
+  }
+
+  const hostUserId = room.hostUserId || (room as any).owner_id;
+  const isHostUserId = Boolean(
+    (hostUserId && sender.id && hostUserId === sender.id) ||
+    (hostUserId && sender.userId && hostUserId === sender.userId)
+  );
+
+  const isHostEmail = Boolean(
+    room.hostEmail && sender.email && room.hostEmail.toLowerCase() === sender.email.toLowerCase()
+  );
+
+  return isHostUserId || isHostEmail;
+}
+
+export function verifyTimerSyncAuthority(
+  room: { hostUserId?: string; hostEmail?: string; owner_id?: string; hostOnlyTimer?: boolean } | null,
+  sender: { id?: string; userId?: string; email?: string } | null
+): boolean {
+  return isTimerActionAuthorized(room, sender);
+}
+
+/**
  * Chuẩn hóa Slug phòng độc quyền: chữ thường, số, dấu gạch ngang
  */
 export function sanitizeSlug(rawSlug: string): string {
@@ -141,6 +176,8 @@ export const roomService = {
   isMasterAdmin,
   getRoomRole,
   canManageRoom,
+  isTimerActionAuthorized,
+  verifyTimerSyncAuthority,
   sanitizeSlug,
   validateRoomSlug,
 

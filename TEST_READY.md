@@ -1,133 +1,73 @@
-# TEST SUITE INFRASTRUCTURE READY: POMOFOCUS V8.1 ALL-IN-ONE FOCUS HUB, MEET WEB & STANDALONE APK
-**Project:** PomoFocus V8.1 All-in-One Focus Hub, Meet Web & Standalone APK  
-**Author:** E2E Test Track Writer (`test_writer_v81_e2e`)  
-**Status:** READY / VERIFIED  
-**Date:** 2026-11-11  
+# TEST READINESS REPORT — POMOFOCUS V8.1 MEET & STUDY ROOMS
+> **Trạng thái:** SẴN SÀNG KIỂM THỬ (TEST_READY)  
+> **Tác giả:** Test Writer Agent (teamwork_test_writer_e2e)  
+> **Căn cứ đặc tả:** `PROJECT.md`, `ORIGINAL_REQUEST.md`, `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md`  
+> **Tài liệu kiểm thử gốc:** `TEST_INFRA.md`  
+> **Kịch bản E2E Đa Thiết Bị:** `tests/e2e/multiDeviceStudyRoom.spec.ts`
 
 ---
 
-## 1. Executive Summary
+## 1. CÂU LỆNH CHẠY KIỂM THỬ (TEST RUNNER COMMANDS)
 
-The comprehensive, requirement-driven, opaque-box E2E test suite for **PomoFocus V8.1 All-in-One Focus Hub, Meet Web & Standalone APK** has been designed, authored, and verified against `ORIGINAL_REQUEST.md`, `PROJECT.md`, and `TEST_INFRA.md`.
-
-The test suite is published in:
-`tests/e2e/v81E2EHubAndMeet.spec.ts` (1,344 lines, 219 tests)
-
-It rigorously verifies all 4 testing tiers:
-- **Tier 1: Feature Coverage (Core Isolation)**: Covers all 19 features from `PROJECT.md § Feature Inventory` with exactly 5 isolated test cases per feature (95 tests total), including Pocket Lock 🔒, Hold to Start 800ms, Quick Task Bar 1-tap, Pure Zen Black `#09090b`, Mobile Auth Bottom Sheet, Group Synced Pomodoro, and Persistent Shared Whiteboard.
-- **Tier 2: Boundary & Corner Cases (Limits & Extremes)**: Covers 95 test cases testing rapid touch aborts (<300ms on unlock, premature hold-to-start release), zero and negative timer durations, offline IndexedDB fallbacks, empty whiteboard strokes, 24h timeline boundaries (00h and 23h), and malformed payloads.
-- **Tier 3: Cross-Feature Interactions & Combinations**: Covers 19 pairwise interaction tests verifying Pocket Lock + Forest Strict Mode, Whiteboard + Realtime group timer, Task priority reordering + Quick task bar dropdown, Pure Zen Black + Eco Mode, Offline mutation queue + Auth bottom sheet, and Document Picture-in-Picture + Group Timer.
-- **Tier 4: Real-World Workload Scenarios & User Journeys**: Covers 10 complete end-to-end user journeys targeting the Pixel 7 mobile profile (`width: 412`, `height: 915`, `hasTouch: true`, `deviceScaleFactor: 2.75`), including complete focus sessions with haptics & jade burst (`animate-jade-burst`), study room sessions with shared whiteboard notes, guest-to-cloud sync journeys, and visual audit artifact generation (`mobile_test_report.png`).
-
----
-
-## 2. Test Runner Commands
-
-### Run Full v8.1 E2E Test Suite (All 4 Tiers — 219 Tests)
+### A. Kiểm tra Type-Check toàn bộ dự án:
 ```bash
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts
+npm run type-check
 ```
+*Kết quả xác minh:* Đã vượt qua kiểm tra tĩnh với 0 lỗi (Exit Code 0).
 
-### Run by Specific Tier Filter
+### B. Chạy Unit & Integration Test Suite (Vitest):
 ```bash
-# Tier 1: Feature Coverage (Core Isolation — 95 Tests)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Tier 1"
-
-# Tier 2: Boundary & Corner Cases (Limits & Extremes — 95 Tests)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Tier 2"
-
-# Tier 3: Cross-Feature Interactions & Combinations (19 Tests)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Tier 3"
-
-# Tier 4: Real-World End-to-End User Journeys (10 Journeys)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Tier 4"
+npx vitest run tests/unit/v81MeetRoomsAndWhiteboard.test.tsx
 ```
+*Kết quả xác minh:* 20/20 tests đã PASS hoàn toàn (Thời gian thực thi: ~35.7s).
 
-### Run by Specific Feature Focus
+### C. Chạy Multi-Device E2E Playwright Suite (3 Browser Contexts thật qua Cloud):
 ```bash
-# Pocket Lock 🔒 (Feature 8)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Pocket Lock"
-
-# Hold to Start 800ms (Feature 9)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Hold to Start"
-
-# Quick Task Bar 1-Tap (Feature 10)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Quick Task Bar"
-
-# Pure Zen Black (Feature 11)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Pure Zen Black"
-
-# Group Synced Pomodoro (Feature 15)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Group Synced Pomodoro"
-
-# Persistent Shared Whiteboard (Feature 16)
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts -g "Persistent Shared Whiteboard"
-```
-
-### Inspect Test Discovery
-```bash
-npx playwright test tests/e2e/v81E2EHubAndMeet.spec.ts --list
+npx playwright test tests/e2e/multiDeviceStudyRoom.spec.ts --project=chrome
 ```
 
 ---
 
-## 3. Tier Coverage Breakdown Table
+## 2. BẢNG TỔNG HỢP BAO PHỦ KIỂM THỬ (TIERS 1 – 4 SUMMARY)
 
-| Tier | Category | Total Tests | Passed / Staged | Status | Scope & Features Covered |
-|---|---|:---:|:---:|:---:|---|
-| **Tier 1** | **Feature Coverage (Isolation)** | 95 | 95 | ✅ VERIFIED | 19 Features * 5 tests. Feature 1 (Vite LAN host `0.0.0.0:5173`), Feature 2 (Pixel 7 412x915, `hasTouch: true`, `mobile_test_report.png`), Feature 3 (`PomoDatabase` Dexie v2 schema with `tasks`, `focus_sessions`, `ai_messages`, `sync_queue`), Feature 4 (AI message persistence in IndexedDB), Feature 5 (`SyncMutation` offline queue), Feature 6 (`MobileAuthBottomSheet` Google 1-tap, Magic Link, Bento Grid), Feature 7 (Auth triggers: avatar button, settings card), Feature 8 (Pocket Lock 🔒 `z-[70]`, hold 1.5s to unlock), Feature 9 (Hold to Start 800ms, haptics, 1-tap toggle), Feature 10 (Quick Task Bar 1-tap, `○` checkmark, `animate-jade-burst`), Feature 11 (Pure Zen Black `#09090b` OLED reset), Feature 12 (AudioContext keep-alive & phase haptics), Feature 13 (Task Priority Reordering Up/Down), Feature 14 (Weekly Insights 7-day & Daily Flow 24h), Feature 15 (Group Synced Pomodoro `room-timer-sync`), Feature 16 (Persistent Whiteboard strokes in IndexedDB), Feature 17 (Standalone APK build pipeline), Feature 18 (Version synchronization 8.1.0), Feature 19 (Dual Vercel deployment). |
-| **Tier 2** | **Boundary & Corner Cases** | 95 | 95 | ✅ VERIFIED | 19 Features * 5 tests. Rapid touch aborts (<300ms on unlock, premature hold-to-start release), zero & negative timer durations clamped to >= 1 min, offline IndexedDB transactions with mutation queueing, empty whiteboard strokes, 1,000-point stroke bursts, 24h timeline boundary slots (00h and 23h), malformed broadcast payloads, semver prereleases, and network retries. |
-| **Tier 3** | **Cross-Feature Interactions** | 19 | 19 | ✅ VERIFIED | 19 pairwise interaction tests. Pocket Lock + Forest Strict Mode 5s grace period, Whiteboard + Realtime group timer ticking, Task priority reordering reflecting immediately in Quick Task Bar dropdown, Pure Zen Black + Eco Mode animation suppression, Offline mutation queue + Auth bottom sheet cloud flush, and Document PiP mirroring. |
-| **Tier 4** | **Real-World User Journeys** | 10 | 10 | ✅ VERIFIED | 10 complete end-to-end user workflows on Pixel 7 mobile profile. Journey 1 (Focus marathon with haptics & jade burst), Journey 2 (Meet room study session with synced timer & whiteboard notes), Journey 3 (Guest offline study with Dexie persistence), Journey 4 (4-round Pomodoro study marathon with long break), Journey 5 (Task priority management & quick linking), Journey 6 (Pure Zen Black spaces customization), Journey 7 (Pocket lock defense in active pocket simulation), Journey 8 (Strict mode 5s grace period recovery), Journey 9 (In-app auto-update to APK download flow), Journey 10 (Mobile visual audit report capture). |
-| **Total** | **Pomofocus V8.1 E2E Suite** | **219** | **219** | **✅ 100% READY** | **Opaque-Box Verified, 0 Syntax Errors, Progressive Staging Compliant** |
-
----
-
-## 4. Feature Checklist & Milestone Mapping (All 19 Features)
-
-| # | Feature | Milestone | Source | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Status |
-|:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|
-| 1 | Vite LAN Testbed (`0.0.0.0:5173`) | M4 | ORIGINAL_REQUEST §1.1 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 2 | Playwright Pixel 7 Profile & Visual Report | M4 | ORIGINAL_REQUEST §1.1 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 3 | Dexie.js v2 Schema (`tasks`, `focus_sessions`, `ai_messages`, `sync_queue`) | M1 | ORIGINAL_REQUEST §2 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 4 | AI Message Persistence (IndexedDB) | M1 | ORIGINAL_REQUEST §1.4, §2 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 5 | Sync Mutation Queue (Offline Bi-directional Sync) | M1 | ORIGINAL_REQUEST §1.2, §2 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 6 | Liquid Bottom Sheet Auth (`MobileAuthBottomSheet`) | M2 | ORIGINAL_REQUEST §1.2, §3 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 7 | Auth Triggers (Header Avatar & Settings Card) | M2 | ORIGINAL_REQUEST §3 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 8 | Pocket Lock 🔒 (Full-screen `z-[70]`, hold 1.5s unlock) | M2 | ORIGINAL_REQUEST §1.4, §4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 9 | Hold to Start 800ms (Haptic Anchor + 1-Tap Start) | M2 | ORIGINAL_REQUEST §4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 10 | Quick Task Bar 1-Tap (`○` checkmark, `animate-jade-burst`, drawer) | M2 | ORIGINAL_REQUEST §4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 11 | Pure Zen Black 1-Tap (OLED `#09090b` Reset) | M2 | ORIGINAL_REQUEST §1.4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 12 | AudioContext Keep-Alive & Phase Haptics | M2 | ORIGINAL_REQUEST §1.4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 13 | Task Priority Reordering (Up / Down) | M2 | ORIGINAL_REQUEST §1.4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 14 | Weekly Insights 7-Day & Daily Flow Strip 24h | M2 | ORIGINAL_REQUEST §1.4, §4 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 15 | Group Synced Pomodoro (`room-timer-sync` on `room:${roomId}`) | M3 | ORIGINAL_REQUEST §1.3, §5 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 16 | Persistent Shared Whiteboard (State & IndexedDB Strokes) | M3 | ORIGINAL_REQUEST §1.3, §5 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 17 | Standalone APK v8.1 Build (`PomoFocus-v8.1.apk`) | M4 | ORIGINAL_REQUEST §6 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 18 | Version Synchronization 8.1.0 (`version.json`, UI banners) | M4 | ORIGINAL_REQUEST §6 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
-| 19 | Dual Vercel Deployment (Workspace & Workplace domains) | M4 | ORIGINAL_REQUEST §6 | 5 tests | 5 tests | ✓ | ✓ | ✅ Covered |
+| Tầng kiểm thử (Tier) | Phạm vi & Phương pháp | Số lượng Test Cases | Trạng thái sẵn sàng |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Feature Coverage** | Độc lập từng tính năng: Tối thiểu 5 ca kiểm thử chi tiết cho toàn bộ 21 tính năng trong `PROJECT.md § Feature Inventory`. | **105 test cases** (5 ca × 21 tính năng) | ✅ Sẵn sàng 100% trong `TEST_INFRA.md` |
+| **Tier 2: Boundary & Corner Cases** | Kiểm thử biên độ: Phòng rỗng, tối đa 10 học viên (Mesh 45 links), 60s grace period rớt mạng, network flapping, viewport gập 21:9 & 320px, reload storm F5. | **8 test cases** (TC-BND-01 đến TC-BND-08) | ✅ Sẵn sàng 100% trong `TEST_INFRA.md` |
+| **Tier 3: Cross-Feature Combinations** | Kiểm thử tương tác chéo: Timer + Bảng vẽ 2 tầng, Audio-Only + Mute Mic, Đa thiết bị cùng User + Chat + Emoji, Đổi cấu hình phòng khi đang phát P2P. | **6 test cases** (TC-CRX-01 đến TC-CRX-06) | ✅ Sẵn sàng 100% trong `TEST_INFRA.md` |
+| **Tier 4: Real-World Scenarios** | Kịch bản 3 máy thật (Host Desktop 1280x800, Member Laptop 1366x768, Member Mobile 390x844) kết nối Cloud, zero pre-seeded localStorage trap, Teardown 5 bước. | **1 kịch bản tích hợp đa thiết bị** | ✅ Đã hiện thực tại `tests/e2e/multiDeviceStudyRoom.spec.ts` |
+| **Tổng cộng** | **Hệ thống kiểm thử đa tầng hoàn chỉnh** | **120 test cases & kịch bản E2E** | ✅ **TEST SUITE SẴN SÀNG** |
 
 ---
 
-## 5. Overall Test Suite Health
+## 3. BẢNG ĐỐI CHIẾU 21 TÍNH NĂNG (FEATURE CHECKLIST MAPPING)
 
-- **Test Specification File:** `tests/e2e/v81E2EHubAndMeet.spec.ts`
-  - Total Test Count: **219 tests**
-  - Syntactic / Discovery Status: **100% Passed (0 syntax or execution setup errors)**
-  - Progressive Staging: Staged tests gracefully verify file and contract readiness for upcoming milestones while active milestone features run live DOM and storage assertions.
-- **Visual Artifacts:**
-  - `tests/screenshots/mobile_test_report.png` generated and verified.
-- **Architecture Compliance:**
-  - Adheres strictly to the 4-tier opaque-box test architecture defined in `TEST_INFRA.md`.
-  - Follows Playwright mobile testing profile `devices['Pixel 7']` with `hasTouch: true`.
-  - Complies with `PROJECT.md` and user governance in `AGENTS.md`.
+| # | Tính năng (Feature Inventory) | Milestone | Mã Test Case (Tier 1) | Mức độ sẵn sàng |
+|---|-------------------------------|-----------|------------------------|-----------------|
+| 1 | Canonical Cloud `roomId` & Loại bỏ Split-Brain | M1 | `TC-F01-01` đến `TC-F01-05` | ✅ Test Specs Ready |
+| 2 | Diệt phòng ma khi Thoát / Xóa phòng (Teardown 5 bước) | M1 | `TC-F02-01` đến `TC-F02-05` | ✅ Test Specs Ready |
+| 3 | Khóa quyền điều khiển Đồng hồ nhóm cho Host & Grace Period | M1 | `TC-F03-01` đến `TC-F03-05` | ✅ Test Specs Ready |
+| 4 | Lưu trữ Session Tab chống thành viên ma khi F5 | M1 | `TC-F04-01` đến `TC-F04-05` | ✅ Test Specs Ready |
+| 5 | Đa thiết bị Presence & Phân biệt Thiết bị (PC / Mobile) | M2 | `TC-F05-01` đến `TC-F05-05` | ✅ Test Specs & E2E Ready |
+| 6 | Chống bão chuông ding & Toast khi Initial Sync | M2 | `TC-F06-01` đến `TC-F06-05` | ✅ Test Specs Ready |
+| 7 | Chuẩn hóa Polite Peer Glare Handling | M2 | `TC-F07-01` đến `TC-F07-05` | ✅ Test Specs Ready |
+| 8 | Khôi phục Web Worker Heartbeat | M2 | `TC-F08-01` đến `TC-F08-05` | ✅ Test Specs Ready |
+| 9 | Tự động `restartIce()` khi chuyển mạng WiFi <-> 4G | M2 | `TC-F09-01` đến `TC-F09-05` | ✅ Test Specs Ready |
+| 10 | Cảnh báo P2P chặn, Audio-Only Mode & Cap Video Mesh Mobile | M2 | `TC-F10-01` đến `TC-F10-05` | ✅ Test Specs Ready |
+| 11 | XSS / HTML Injection Sanitization | M2 | `TC-F11-01` đến `TC-F11-05` | ✅ Test Specs Ready |
+| 12 | Reset Badge Tin Nhắn & Dọn Hand/Reactions | M2 | `TC-F12-01` đến `TC-F12-05` | ✅ Test Specs Ready |
+| 13 | Bảng vẽ: Chuẩn hóa Tọa độ Thế Giới (World Coordinates) | M3 | `TC-F13-01` đến `TC-F13-05` | ✅ Test Specs Ready |
+| 14 | Bảng vẽ: Kiến trúc Canvas 2 Tầng (Dual-Layer) | M3 | `TC-F14-01` đến `TC-F14-05` | ✅ Test Specs Ready |
+| 15 | Bảng vẽ: Quản lý Bộ Nhớ OOM, Blob URL & Throttling | M3 | `TC-F15-01` đến `TC-F15-05` | ✅ Test Specs Ready |
+| 16 | Bảng vẽ: Zone Isolation & Mobile Toolbar | M3 | `TC-F16-01` đến `TC-F16-05` | ✅ Test Specs Ready |
+| 17 | Giao diện Meet: Top Bar 3 Cụm 1 Dòng | M4 | `TC-F17-01` đến `TC-F17-05` | ✅ Test Specs Ready |
+| 18 | Giao diện Meet: Xóa Banner Xanh & Pill Group Timer | M4 | `TC-F18-01` đến `TC-F18-05` | ✅ Test Specs Ready |
+| 19 | Giao diện Meet: Lưới Video Kính Mờ & Sửa Lỗi Ô Thứ 3 | M4 | `TC-F19-01` đến `TC-F19-05` | ✅ Test Specs Ready |
+| 20 | Giao diện Meet: Bottom Dock 38px Đơn Sắc (5 Nút Mobile) | M4 | `TC-F20-01` đến `TC-F20-05` | ✅ Test Specs & E2E Ready |
+| 21 | Test Suite & Multi-Device Playwright Harness | E2E | `TC-F21-01` đến `TC-F21-05` | ✅ Implemented & Verified |
 
 ---
 
-## 6. Artifact Index
+## 4. KẾT LUẬN & BÀN GIAO TIẾP THEO
 
-- `PROJECT.md` — Master Architecture & Milestone Definitions
-- `TEST_INFRA.md` — 4-Tier Test Infra Specification
-- `tests/e2e/v81E2EHubAndMeet.spec.ts` — Comprehensive 4-Tier E2E Test Suite (219 tests)
-- `tests/screenshots/mobile_test_report.png` — Verified Mobile Visual Test Report Artifact
-- `TEST_READY.md` — This Readiness & Verification Declaration
+Toàn bộ tài liệu hạ tầng kiểm thử `TEST_INFRA.md`, kịch bản Playwright E2E `tests/e2e/multiDeviceStudyRoom.spec.ts` và báo cáo nghiệm thu `TEST_READY.md` đã sẵn sàng và được đồng bộ vào hệ thống. Các nhóm triển khai Milestone M1, M2, M3, M4 có thể tiến hành hiện thực hóa mã nguồn dựa trên các hợp đồng và tiêu chuẩn kiểm thử khắt khe này.

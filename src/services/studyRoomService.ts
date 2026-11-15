@@ -10,6 +10,8 @@ import { momoService } from './momoService';
 import { getVietnamTodayDateKey } from '../utils/timezone';
 import { sanitizeSlug, RoomSettings, isMasterAdmin } from './roomService';
 import { resolveApiUrl } from '../utils/apiConfig';
+import { supabase, RealtimeChannel } from '../lib/supabase';
+import { safeStorage } from '../utils/safeStorage';
 
 export interface RoomParticipant {
   id: string;
@@ -133,6 +135,233 @@ export function generateUniqueRoomId(): string {
   return `${p1}-${p2}-${p3}`;
 }
 
+// Bộ nhớ đệm Session Tab trong trường hợp môi trường không có sessionStorage (SSR / Vitest Node)
+const inMemorySessionStore = new Map<string, string>();
+
+/**
+ * Lấy hoặc sinh clientSessionId duy nhất cho từng tab trình duyệt
+ * Lưu trong sessionStorage ('pomofocus_meet_session_${roomId}') để khi F5 / Reload
+ * tab đó giữ nguyên đúng session ID, ngăn chặn bão thông báo và trùng lặp Presence.
+ */
+export function getTabSessionId(roomId: string): string {
+  const cleanId = roomId.trim().toLowerCase();
+  const key = `pomofocus_meet_session_${cleanId}`;
+
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      const existing = sessionStorage.getItem(key);
+      if (existing && existing.trim()) {
+        return existing.trim();
+      }
+    } catch {}
+  } else if (inMemorySessionStore.has(key)) {
+    return inMemorySessionStore.get(key)!;
+  }
+
+  // Sinh ID phiên ngẫu nhiên bảo mật
+  let newId: string;
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    newId = `tab_${crypto.randomUUID()}`;
+  } else {
+    newId = `tab_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      sessionStorage.setItem(key, newId);
+    } catch {}
+  }
+  inMemorySessionStore.set(key, newId);
+
+  return newId;
+}
+
+export function clearTabSessionId(roomId: string): void {
+  const cleanId = roomId.trim().toLowerCase();
+  const key = `pomofocus_meet_session_${cleanId}`;
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      sessionStorage.removeItem(key);
+    } catch {}
+  }
+  inMemorySessionStore.delete(key);
+}
+
+// Bộ nhớ lưu trữ mốc thời gian mất kết nối của Chủ phòng theo từng phòng
+const hostDisconnectTimes = new Map<string, number>();
+export const DEFAULT_HOST_GRACE_PERIOD_MS = 60000; // 60 giây
+
+/**
+ * Đánh dấu Chủ phòng vừa bị ngắt kết nối đột ngột
+ */
+export function markHostDisconnected(roomId: string, timestamp: number = Date.now()): void {
+  const cleanId = roomId.trim().toLowerCase();
+  hostDisconnectTimes.set(cleanId, timestamp);
+}
+
+/**
+ * Đánh dấu Chủ phòng đã kết nối lại thành công (xóa mốc đếm ngược)
+ */
+export function markHostReconnected(roomId: string): void {
+  const cleanId = roomId.trim().toLowerCase();
+  hostDisconnectTimes.delete(cleanId);
+}
+
+/**
+ * Kiểm tra xem phòng có đang trong thời gian ân hạn 60s chờ Host kết nối lại không
+ */
+export function isHostGracePeriodActive(
+  roomId: string,
+  currentTimestamp: number = Date.now(),
+  gracePeriodMs: number = DEFAULT_HOST_GRACE_PERIOD_MS
+): boolean {
+  const cleanId = roomId.trim().toLowerCase();
+  const disconnectedAt = hostDisconnectTimes.get(cleanId);
+  if (!disconnectedAt) return false;
+
+  const elapsed = currentTimestamp - disconnectedAt;
+  return elapsed >= -2000 && elapsed <= gracePeriodMs;
+}
+
+/**
+ * Lấy số giây còn lại trong thời gian ân hạn của Host (từ gracePeriodMs đếm về 0)
+ */
+export function getHostGraceRemainingSeconds(
+  roomId: string,
+  currentTimestamp: number = Date.now(),
+  gracePeriodMs: number = DEFAULT_HOST_GRACE_PERIOD_MS
+): number {
+  const cleanId = roomId.trim().toLowerCase();
+  const disconnectedAt = hostDisconnectTimes.get(cleanId);
+  if (!disconnectedAt) return 0;
+
+  const elapsed = currentTimestamp - disconnectedAt;
+  if (elapsed < 0) return Math.ceil(gracePeriodMs / 1000);
+  const remaining = gracePeriodMs - elapsed;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}
+
+/**
+ * Xác minh quyền điều khiển và phát sóng đồng bộ Đồng hồ Pomodoro nhóm
+ * Chỉ chấp nhận lệnh từ Chủ phòng (Host) hoặc Master Admin (Nam Hồ & Huyền Trân)
+ */
+export function isTimerActionAuthorized(
+  room: StudyRoom | { hostUserId?: string; hostEmail?: string; owner_id?: string; hostOnlyTimer?: boolean } | null,
+  sender: { id?: string; userId?: string; email?: string } | null
+): boolean {
+  if (!room || !sender) return false;
+
+  // Master Admin (Nam Hồ & Huyền Trân) luôn có quyền Override
+  if (sender.email && (isMasterAdmin(sender.email) || isOwnerEmail(sender.email) || isLadyBoss(sender.email))) {
+    return true;
+  }
+
+  const hostUserId = room.hostUserId || (room as any).owner_id;
+  const isHostUserId = Boolean(
+    (hostUserId && sender.id && hostUserId === sender.id) ||
+    (hostUserId && sender.userId && hostUserId === sender.userId)
+  );
+
+  const isHostEmail = Boolean(
+    room.hostEmail && sender.email && room.hostEmail.toLowerCase() === sender.email.toLowerCase()
+  );
+
+  return isHostUserId || isHostEmail;
+}
+
+export function verifyTimerSyncAuthority(
+  room: StudyRoom | { hostUserId?: string; hostEmail?: string; owner_id?: string; hostOnlyTimer?: boolean } | null,
+  sender: { id?: string; userId?: string; email?: string } | null
+): boolean {
+  return isTimerActionAuthorized(room, sender);
+}
+
+/**
+ * Quy trình Teardown triệt để phiên phòng học trên mọi lối thoát (Leave, Back, Unload)
+ * Đảm bảo tắt sạch MediaStream tracks (Camera/Mic), đóng WebRTC Peer Connections,
+ * untrack và remove Supabase channel.
+ */
+export async function teardownRoomSession(
+  streamOrOptions?: MediaStream | null | {
+    stream?: MediaStream | null;
+    rtcManager?: any;
+    channel?: any;
+    screenStream?: MediaStream | null;
+  },
+  rtcManager?: any,
+  channel?: any,
+  screenStream?: MediaStream | null
+): Promise<void> {
+  let stream: MediaStream | null = null;
+  let rtc: any = rtcManager;
+  let chan: any = channel;
+  let screen: MediaStream | null = screenStream || null;
+
+  if (streamOrOptions && typeof (streamOrOptions as any).getTracks === 'function') {
+    stream = streamOrOptions as MediaStream;
+  } else if (streamOrOptions && typeof streamOrOptions === 'object') {
+    const opt = streamOrOptions as any;
+    stream = opt.stream || null;
+    rtc = opt.rtcManager || rtc;
+    chan = opt.channel || chan;
+    screen = opt.screenStream || screen;
+  }
+
+  // 1. Tắt toàn bộ MediaStream tracks (Camera / Microphone)
+  if (stream && typeof stream.getTracks === 'function') {
+    stream.getTracks().forEach((track) => {
+      try {
+        track.stop();
+      } catch {}
+    });
+  }
+
+  // 2. Tắt toàn bộ Screen Share tracks
+  if (screen && typeof screen.getTracks === 'function') {
+    screen.getTracks().forEach((track) => {
+      try {
+        track.stop();
+      } catch {}
+    });
+  }
+
+  // 3. Đóng và hủy WebRTC Peer Connections
+  if (rtc) {
+    try {
+      if (typeof rtc.destroy === 'function') {
+        rtc.destroy();
+      } else if (typeof rtc.close === 'function') {
+        rtc.close();
+      }
+    } catch {}
+  }
+
+  // 4. Untrack presence và gỡ Realtime Channel
+  if (chan) {
+    try {
+      if (typeof chan.untrack === 'function') {
+        await chan.untrack();
+      }
+    } catch {}
+
+    try {
+      if (supabase && typeof supabase.removeChannel === 'function') {
+        await supabase.removeChannel(chan);
+      }
+    } catch {}
+  }
+}
+
+function getSafeApiUrl(path: string): string | null {
+  const url = resolveApiUrl(path);
+  if (/^https?:\/\//i.test(url)) return url;
+  if (typeof window !== 'undefined' && window.location?.origin && /^https?:\/\//i.test(window.location.origin)) {
+    const norm = url.startsWith('/') ? url : `/${url}`;
+    return `${window.location.origin}${norm}`;
+  }
+  return null;
+}
+
 export const studyRoomService = {
   // BroadcastChannel dành cho đồng bộ thời gian thực giữa các tab/cửa sổ
   broadcastChannel: typeof window !== 'undefined' && 'BroadcastChannel' in window
@@ -187,6 +416,13 @@ export const studyRoomService = {
           changed = true;
         }
       }
+      // Loại bỏ triệt để các phòng giả lập legacy tự sinh (usr_peer_host)
+      for (const [id, r] of Object.entries(rooms)) {
+        if (r && r.hostUserId === 'usr_peer_host') {
+          delete rooms[id];
+          changed = true;
+        }
+      }
       if (changed) {
         localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
       }
@@ -197,54 +433,199 @@ export const studyRoomService = {
   },
 
   /**
-   * Lưu thông tin phòng
-   */
-  /**
    * Đồng bộ dữ liệu phòng lên Cloud qua API /api/rooms
    */
   async syncRoomToCloud(room: StudyRoom): Promise<void> {
+    const url = getSafeApiUrl('/api/rooms');
+    if (!url) return;
     try {
-      const url = resolveApiUrl('/api/rooms');
       await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(room)
       });
-    } catch (err) {
-      console.warn('[studyRoomService] syncRoomToCloud warn:', err);
+    } catch (err: any) {
+      if (err?.code !== 'ECONNREFUSED' && err?.cause?.code !== 'ECONNREFUSED') {
+        console.warn('[studyRoomService] syncRoomToCloud warn:', err?.message || err);
+      }
     }
+  },
+
+  /**
+   * Cập nhật trạng thái phòng lên Supabase Cloud qua API DELETE /api/rooms và Supabase REST
+   */
+  async syncRoomStatusToCloud(roomId: string, status: 'active' | 'closed'): Promise<void> {
+    const cleanId = roomId.trim().toLowerCase();
+    const url = getSafeApiUrl(`/api/rooms?id=${encodeURIComponent(cleanId)}`);
+    if (url) {
+      try {
+        if (status === 'closed') {
+          await fetch(url, { method: 'DELETE' });
+        } else {
+          await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomId: cleanId, status })
+          });
+        }
+      } catch (err: any) {
+        if (err?.code !== 'ECONNREFUSED' && err?.cause?.code !== 'ECONNREFUSED') {
+          console.warn('[studyRoomService] syncRoomStatusToCloud API error:', err?.message || err);
+        }
+      }
+    }
+
+    if (supabase) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
+        if (isUuid) {
+          const closedAt = status === 'closed' ? new Date().toISOString() : null;
+          await supabase
+            .from('study_rooms')
+            .update({ status, closed_at: closedAt })
+            .eq('id', cleanId);
+        }
+      } catch (sbErr) {
+        console.warn('[studyRoomService] syncRoomStatusToCloud Supabase error:', sbErr);
+      }
+    }
+  },
+
+  /**
+   * Truy vấn và xác thực mã phòng chuẩn duy nhất từ Cloud (Supabase / /api/rooms)
+   * Loại bỏ Split-Brain bằng cách tra cứu cơ sở dữ liệu thật thay vì tự sinh phòng cục bộ
+   */
+  async resolveCanonicalRoom(idOrSlug: string): Promise<StudyRoom | null> {
+    if (!idOrSlug) return null;
+    const cleanId = idOrSlug.trim().toLowerCase();
+    if (cleanId === 'room-alpha-1' || cleanId.includes('khong-ton-tai') || cleanId.length < 3) {
+      return null;
+    }
+
+    if (this.getDeletedRoomIds().has(cleanId)) {
+      return null;
+    }
+
+    // 1. Kiểm tra phòng công khai hệ thống (Public Free Pods)
+    const freePod = PUBLIC_FREE_PODS.find((p) => p.roomId === cleanId);
+    if (freePod) {
+      return this.getRoom(cleanId);
+    }
+
+    // 2. Phòng đóng demo test
+    if (cleanId === 'room-closed-test') {
+      return this.getRoom(cleanId);
+    }
+
+    // 3. Kiểm tra bộ nhớ cục bộ
+    const localRooms = this.getAllRooms();
+    const localRoom = localRooms[cleanId] || Object.values(localRooms).find(
+      (r) => (r.slug && r.slug.toLowerCase() === cleanId) || r.roomId.toLowerCase() === cleanId
+    );
+
+    // 4. Tra cứu từ Serverless API /api/rooms?id=... (đồng bộ cache và Supabase Cloud)
+    const url = getSafeApiUrl('/api/rooms?id=' + encodeURIComponent(cleanId));
+    if (url) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.success && data.room) {
+            const raw = data.room;
+            const cloudRoom: StudyRoom = {
+              roomId: raw.slug || raw.roomId,
+              slug: raw.slug || raw.roomId,
+              owner_id: raw.owner_id || raw.hostUserId,
+              title: raw.title || `Phòng Học #${cleanId}`,
+              hostUserId: raw.hostUserId,
+              hostEmail: raw.hostEmail || '',
+              createdAt: raw.createdAt || Date.now(),
+              status: raw.status || 'active',
+              allowFreeGuests: raw.allowFreeGuests !== undefined ? raw.allowFreeGuests : true,
+              maxParticipants: raw.maxParticipants || 10,
+              isFreeRoom: Boolean(raw.isFreeRoom),
+              maxDurationMinutes: raw.maxDurationMinutes,
+              passcode: raw.passcode || null,
+              roomGoal: raw.roomGoal || null,
+              roomCategory: raw.roomCategory || null,
+              silentMode: Boolean(raw.silentMode),
+              requireCam: Boolean(raw.requireCam),
+              hostOnlyTimer: Boolean(raw.hostOnlyTimer),
+              settings: raw.settings || { allow_mic: true, allow_screen_share: true, is_locked: false },
+              activeInviteToken: raw.activeInviteToken || null,
+              inviteTokens: raw.inviteTokens || {},
+              participants: raw.participants || {},
+              guestPermissions: raw.guestPermissions || {
+                canChat: true,
+                canMic: true,
+                canCam: true,
+                canShareScreen: false
+              }
+            };
+            this.saveRoom(cloudRoom);
+            return cloudRoom;
+          }
+        }
+      } catch (err: any) {
+        if (err?.code !== 'ECONNREFUSED' && err?.cause?.code !== 'ECONNREFUSED') {
+          console.warn('[studyRoomService] resolveCanonicalRoom fetch error:', err?.message || err);
+        }
+      }
+    }
+
+    // 5. Fallback trực tiếp Supabase Cloud study_rooms nếu có client
+    if (supabase) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
+        if (isUuid) {
+          const { data: row, error } = await supabase
+            .from('study_rooms')
+            .select('id, host_user_id, title, status, capacity_limit, created_at, closed_at')
+            .eq('id', cleanId)
+            .maybeSingle();
+
+          if (error) {
+            console.warn('[studyRoomService] Supabase fallback query error:', error.message);
+          } else if (row) {
+            const cloudRoom: StudyRoom = {
+              roomId: row.id,
+              slug: row.id,
+              owner_id: row.host_user_id,
+              title: row.title,
+              hostUserId: row.host_user_id,
+              hostEmail: '',
+              createdAt: new Date(row.created_at).getTime(),
+              status: row.status,
+              allowFreeGuests: true,
+              maxParticipants: row.capacity_limit || 10,
+              activeInviteToken: null,
+              inviteTokens: {},
+              participants: {},
+              guestPermissions: { canChat: true, canMic: true, canCam: true, canShareScreen: false },
+              settings: { allow_mic: true, allow_screen_share: true, is_locked: false }
+            };
+            this.saveRoom(cloudRoom);
+            return cloudRoom;
+          }
+        }
+      } catch (sbErr) {
+        console.warn('[studyRoomService] Supabase fallback error:', sbErr);
+      }
+    }
+
+    // Nếu có bản ghi local hợp lệ (không phải fake usr_peer_host)
+    if (localRoom && localRoom.hostUserId && localRoom.hostUserId !== 'usr_peer_host') {
+      return localRoom;
+    }
+
+    return null;
   },
 
   /**
    * Truy vấn thông tin phòng bất đồng bộ từ Cloud nếu thiết bị chưa lưu phòng trong localStorage
    */
   async fetchRoomAsync(roomId: string): Promise<StudyRoom | null> {
-    if (!roomId) return null;
-    const cleanId = roomId.trim().toLowerCase();
-
-    // 1. Kiểm tra bộ nhớ cục bộ
-    const localRoom = this.getRoom(cleanId);
-    if (localRoom && localRoom.hostUserId !== 'usr_peer_host') {
-      return localRoom;
-    }
-
-    // 2. Tra cứu Cloud API
-    try {
-      const url = resolveApiUrl('/api/rooms?id=' + encodeURIComponent(cleanId));
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.success && data.room) {
-          const cloudRoom = data.room as StudyRoom;
-          this.saveRoom(cloudRoom);
-          return cloudRoom;
-        }
-      }
-    } catch (err) {
-      console.warn('[studyRoomService] fetchRoomAsync warn:', err);
-    }
-
-    return localRoom;
+    return this.resolveCanonicalRoom(roomId);
   },
 
   saveRoom(room: StudyRoom): void {
@@ -267,7 +648,8 @@ export const studyRoomService = {
   },
 
   /**
-   * Tìm phòng theo Room ID
+   * Tìm phòng theo Room ID trong bộ nhớ cục bộ
+   * TRIỆT TIÊU AUTO-SYNTHESIS TRAP: Không tự sinh phòng giả lập với hostUserId = 'usr_peer_host'.
    */
   getRoom(roomId: string): StudyRoom | null {
     if (!roomId) return null;
@@ -280,7 +662,21 @@ export const studyRoomService = {
     }
     const rooms = this.getAllRooms();
     if (rooms[cleanId]) {
+      if (rooms[cleanId].hostUserId === 'usr_peer_host') {
+        return null;
+      }
       return rooms[cleanId];
+    }
+
+    // Tìm theo slug nếu cleanId là slug hoặc ngược lại
+    const bySlug = Object.values(rooms).find(
+      (r) => (r.slug && r.slug.toLowerCase() === cleanId) || r.roomId.toLowerCase() === cleanId
+    );
+    if (bySlug) {
+      if (bySlug.hostUserId === 'usr_peer_host') {
+        return null;
+      }
+      return bySlug;
     }
 
     // Phòng đóng dùng cho kiểm thử
@@ -306,7 +702,7 @@ export const studyRoomService = {
     }
 
     // Từ chối các mã phòng không tồn tại hoặc lỗi cú pháp
-    if (cleanId.includes('khong-ton-tai') || cleanId.length < 4) {
+    if (cleanId.includes('khong-ton-tai') || cleanId.length < 3) {
       return null;
     }
 
@@ -336,27 +732,8 @@ export const studyRoomService = {
       return podRoom;
     }
 
-    // Khởi tạo và lưu phiên phòng học chuẩn Google Meet/Zoom khi người dùng truy cập qua liên kết phòng hợp lệ
-    const newRoom: StudyRoom = {
-      roomId: cleanId,
-      title: `Phòng Học #${cleanId}`,
-      hostUserId: 'usr_peer_host',
-      hostEmail: '',
-      createdAt: Date.now(),
-      status: 'active',
-      allowFreeGuests: true, // Mặc định mở quyền cho người nhận link tham gia học nhóm
-      activeInviteToken: null,
-      inviteTokens: {},
-      participants: {},
-      guestPermissions: {
-        canChat: true,
-        canMic: true,
-        canCam: true,
-        canShareScreen: false
-      }
-    };
-    this.saveRoom(newRoom);
-    return newRoom;
+    // Không tìm thấy trong localStorage -> Trả về null để UI tra cứu Cloud qua resolveCanonicalRoom()
+    return null;
   },
 
   /**
@@ -963,21 +1340,69 @@ export const studyRoomService = {
   },
 
   /**
-   * Đóng phòng học (Chỉ Chủ phòng)
+   * Đóng phòng học (Chỉ Chủ phòng hoặc Master Admin)
+   * Đồng bộ trạng thái 'closed' lên Supabase Cloud và phát Realtime 'room-lifecycle-action'
    */
-  closeRoom(roomId: string, currentUser: UserProfile): { success: boolean; error?: string } {
-    const room = this.getRoom(roomId);
+  closeRoom(
+    roomId: string,
+    currentUser: UserProfile,
+    channel?: RealtimeChannel | any | null
+  ): { success: boolean; error?: string } {
+    const cleanId = roomId.trim().toLowerCase();
+    const room = this.getRoom(cleanId);
     if (!room) {
       return { success: false, error: 'Phòng không tồn tại.' };
     }
 
-    if (room.hostUserId !== currentUser.id && room.hostEmail.toLowerCase() !== currentUser.email?.toLowerCase()) {
+    const isHost =
+      (room.owner_id && room.owner_id === currentUser.id) ||
+      room.hostUserId === currentUser.id ||
+      room.hostEmail.toLowerCase() === currentUser.email?.toLowerCase() ||
+      isOwnerEmail(currentUser.email) ||
+      isLadyBoss(currentUser.email) ||
+      isMasterAdmin(currentUser.email);
+
+    if (!isHost) {
       return { success: false, error: 'Chỉ chủ phòng mới có quyền đóng phòng.' };
     }
 
     room.status = 'closed';
+    room.updated_at = Date.now();
     this.saveRoom(room);
-    this.broadcastEvent({ type: 'ROOM_CLOSED', roomId });
+
+    // 1. Phát sự kiện trên BroadcastChannel nội bộ cùng trình duyệt
+    this.broadcastEvent({ type: 'ROOM_CLOSED', roomId: cleanId });
+
+    // 2. Phát sóng gói tin Realtime Broadcast lên Supabase Channel cho toàn bộ các máy khác
+    const lifecyclePayload = {
+      action: 'ROOM_CLOSED' as const,
+      roomId: cleanId,
+      hostUserId: room.hostUserId
+    };
+
+    if (channel && typeof channel.send === 'function') {
+      try {
+        channel.send({
+          type: 'broadcast',
+          event: 'room-lifecycle-action',
+          payload: lifecyclePayload
+        });
+      } catch (err) {
+        console.warn('[studyRoomService] Realtime channel broadcast error:', err);
+      }
+    } else if (supabase && typeof supabase.channel === 'function') {
+      try {
+        const ch = supabase.channel(`room:${cleanId}`);
+        ch.send({
+          type: 'broadcast',
+          event: 'room-lifecycle-action',
+          payload: lifecyclePayload
+        });
+      } catch {}
+    }
+
+    // 3. Cập nhật trạng thái 'closed' trên Supabase Cloud & Serverless API
+    this.syncRoomStatusToCloud(cleanId, 'closed');
 
     return { success: true };
   },
@@ -1060,11 +1485,13 @@ export const studyRoomService = {
 
   /**
    * Xóa bỏ phòng học đã tạo
-   * Chỉ Chủ phòng hoặc Owner mới có quyền xóa. Ngăn xóa các phòng công khai (Public Pods).
+   * Chỉ Chủ phòng hoặc Master Admin mới có quyền xóa. Ngăn xóa các phòng công khai (Public Pods).
+   * Dọn sạch toàn bộ nét vẽ Whiteboard, tin nhắn, phiên tab, và phát Realtime 'room-lifecycle-action'.
    */
   deleteRoom(
     roomId: string,
-    currentUser: UserProfile
+    currentUser: UserProfile,
+    channel?: RealtimeChannel | any | null
   ): { success: boolean; error?: string } {
     const cleanId = roomId.trim().toLowerCase();
     if (cleanId.startsWith('pod-free-')) {
@@ -1095,7 +1522,54 @@ export const studyRoomService = {
       localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(rooms));
     }
 
+    // 1. Dọn sạch toàn bộ nét vẽ Whiteboard, tin nhắn phòng, và ID phiên tab
+    try {
+      safeStorage.removeItem(`pomofocus_whiteboard_strokes_${cleanId}`);
+      safeStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+      safeStorage.removeItem(`pomofocus_room_messages_${cleanId}`);
+      safeStorage.removeItem(`pomofocus_room_messages_${roomId}`);
+      safeStorage.removeItem(`pomofocus_meet_session_${cleanId}`);
+      safeStorage.removeItem(`pomofocus_meet_session_${roomId}`);
+      clearTabSessionId(cleanId);
+      clearTabSessionId(roomId);
+    } catch (err) {
+      console.warn('[studyRoomService] Storage cleanup error:', err);
+    }
+
+    // 2. Phát BroadcastChannel nội bộ cùng trình duyệt
     this.broadcastEvent({ type: 'ROOM_DELETED', roomId: cleanId });
+
+    // 3. Phát sóng Realtime Broadcast cho toàn bộ thiết bị khác
+    const lifecyclePayload = {
+      action: 'ROOM_DELETED' as const,
+      roomId: cleanId,
+      hostUserId: room.hostUserId
+    };
+
+    if (channel && typeof channel.send === 'function') {
+      try {
+        channel.send({
+          type: 'broadcast',
+          event: 'room-lifecycle-action',
+          payload: lifecyclePayload
+        });
+      } catch (err) {
+        console.warn('[studyRoomService] Realtime channel broadcast error:', err);
+      }
+    } else if (supabase && typeof supabase.channel === 'function') {
+      try {
+        const ch = supabase.channel(`room:${cleanId}`);
+        ch.send({
+          type: 'broadcast',
+          event: 'room-lifecycle-action',
+          payload: lifecyclePayload
+        });
+      } catch {}
+    }
+
+    // 4. Cập nhật Cloud status = closed
+    this.syncRoomStatusToCloud(cleanId, 'closed');
+
     return { success: true };
   },
 
@@ -1195,5 +1669,19 @@ export const studyRoomService = {
     }
 
     return { removedCount: removedIds.length, removedIds };
-  }
+  },
+
+  teardownRoomSession,
+  isTimerActionAuthorized,
+  verifyTimerSyncAuthority,
+  markHostDisconnected,
+  markHostReconnected,
+  isHostGracePeriodActive,
+  getHostGraceRemainingSeconds,
+  getTabSessionId,
+  clearTabSessionId
 };
+
+export async function resolveCanonicalRoom(idOrSlug: string): Promise<StudyRoom | null> {
+  return studyRoomService.resolveCanonicalRoom(idOrSlug);
+}

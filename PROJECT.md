@@ -1,64 +1,103 @@
-# Project: PomoFocus V8.1 All-in-One Focus Hub, Meet Web & Standalone APK
+# Project: Đại Phẫu Phòng Học Meet (/rooms) — Đợt 2/4
 
 ## Architecture
-- **Data Layer (Local-First Hybrid)**: Dexie.js v2 `PomoDatabase` with 8 tables (`tasks`, `focus_sessions`, `ai_messages`, `sync_queue`, `projects`, `notes`, `custom_backgrounds`, `planner_blocks`), backward compatible with `PomodoroDatabase`. Offline mutation queue with Supabase sync. Server-authoritative wallet/credits (`user_wallets`).
-- **Mobile UI & Focus Hub**: MobileAppShell with `MobileAuthBottomSheet` (Google OAuth 1-tap, Magic Link, Bento Grid Profile), `MobileFocusView` (Quick Task Bar 1-tap with sliding picker drawer, Pocket Lock `🔒` with 1.5s hold, Hold to Start 800ms with escalating haptics, Pure Zen Black `#09090b` 1-tap, Task priority reordering, 24h Daily Flow Strip, 7-day Weekly Insights, AudioContext keep-alive & phase haptics).
-- **Meet Rooms Web (/rooms)**: Supabase Realtime Broadcast `room:${roomId}` for Group Synced Pomodoro (`room-timer-sync`), Shared Whiteboard with dual in-memory and IndexedDB stroke persistence across tab switching and reloads.
-- **Packaging, Testbed & Production Deployment**: `vite.config.ts` LAN host `0.0.0.0:5173`, Playwright Pixel 7 E2E testbed generating `mobile_test_report.png`, standalone `PomoFocus-v8.1.apk` packaging via Gradle, version bump to `8.1.0` with SHA-256 checksum, and dual Vercel deployment (`pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`).
+Hệ thống phòng học Meet (`/rooms`) được đại phẫu toàn diện theo mô hình Full-Mesh P2P WebRTC kết hợp Supabase Realtime Cloud (Postgres Realtime Broadcast & Presence). Toàn bộ kiến trúc tuân thủ 5 nguyên tắc bất biến từ `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md` (Z-Index Layer Hierarchy `z-10` đến `z-60`, State Singularity, Founder Whitelist, Dynamic Layout Flow `pt-3`/`pt-14` & `pb-28`).
+
+```
+                    Supabase Cloud
+          (study_rooms table + Realtime Broadcast & Presence)
+                         ▲       ▲
+           Signaling/    │       │   Signaling/
+           Lifecycle     │       │   Lifecycle
+                         ▼       ▼
+              ┌───────────────────────────┐
+              │ Host Client (Desktop 16:9)│
+              └─────────────┬─────────────┘
+                            │
+               P2P WebRTC   │   P2P WebRTC
+               Data/Media   │   Data/Media
+               (Mesh <= 4)  │
+                            ▼
+              ┌───────────────────────────┐
+              │ Member Client 1 (Mobile)  │
+              └─────────────┬─────────────┘
+                            │
+               P2P WebRTC   │
+               Data/Media   │
+                            ▼
+              ┌───────────────────────────┐
+              │ Member Client 2 (Desktop) │
+              └───────────────────────────┘
+```
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Vite LAN Testbed | `server: { host: '0.0.0.0', port: 5173 }` in `vite.config.ts` | M4 | Survey E3 / Directive 1.1 |
-| 2 | Playwright Pixel 7 E2E | Mobile test profile `devices['Pixel 7']` with `hasTouch: true`, `deviceScaleFactor: 2.75` producing `mobile_test_report.png` | M4 | Survey E3 / Directive 1.1 |
-| 3 | Dexie.js v2 Schema | `PomoDatabase` with `tasks`, `focus_sessions`, `ai_messages`, `sync_queue` + 4 existing tables, 100% backward compatible | M1 | Survey E1 / Directive 2 |
-| 4 | AI Message Persistence | Durable `db.ai_messages` persistence, eliminating 50-message cap and guest chat loss | M1 | Survey E1 / Directive 1.4, 2 |
-| 5 | Sync Mutation Queue | Offline mutation queue `db.sync_queue` and bidirectional sync worker for cloud sync | M1 | Survey E1 / Directive 1.2, 2 |
-| 6 | Liquid Bottom Sheet Auth | `MobileAuthBottomSheet.tsx` with Google 1-tap, Magic Link, and post-login Bento Grid Profile | M2 | Survey E2 / Directive 1.2, 3 |
-| 7 | Auth Triggers | Header avatar button and settings card click triggers for `MobileAuthBottomSheet` | M2 | Survey E2 / Directive 3 |
-| 8 | Pocket Lock 🔒 | Full-screen touch interceptor (`z-[70]`), tap to lock, hold 1.5s to unlock | M2 | Survey E2 / Directive 1.4, 4 |
-| 9 | Hold to Start 800ms | Primary timer action button with 800ms hold & escalating haptics + accessible 1-tap | M2 | Survey E2 / Directive 4 |
-| 10 | Quick Task Bar 1-Tap | Circular checkmark '○', jade burst animation, sliding task selection drawer without leaving screen | M2 | Survey E2 / Directive 4 |
-| 11 | Pure Zen Black 1-Tap | 1-tap button at top of Spaces tab resetting to OLED pure black `#09090b` | M2 | Survey E2 / Directive 1.4 |
-| 12 | AudioContext Keep-Alive | Continuous audio keep-alive and haptic pulse on phase transitions | M2 | Survey E2 / Directive 1.4 |
-| 13 | Task Priority Reordering | Up/Down reorder controls in Mobile Tasks view adjusting `orderIndex` and IndexedDB | M2 | Survey E2 / Directive 1.4 |
-| 14 | Weekly Insights 7-Day | 7-day focus distribution visualization connected to `db.focus_sessions` | M2 | Survey E2 / Directive 1.4, 4 |
-| 15 | Group Synced Pomodoro | Supabase Realtime broadcast `room-timer-sync` on `room:${roomId}` synchronizing timer state across peers | M3 | Survey E3 / Directive 1.3, 5 |
-| 16 | Persistent Shared Whiteboard | Strokes saved in state and IndexedDB so switching between camera grid and whiteboard preserves drawing | M3 | Survey E3 / Directive 1.3, 5 |
-| 17 | Standalone APK v8.1 Build | Compile `PomoFocus-v8.1.apk` via `scripts/buildApk.ts`, compute SHA-256 and update download pointers | M4 | Survey E3 / Directive 6 |
-| 18 | Version Synchronization 8.1.0 | Bump version to 8.1.0 across `version.json`, `android/app/build.gradle`, UI banners, download hubs, and 8 pinned test files | M4 | Survey E3 / Directive 6 |
-| 19 | Dual Vercel Deployment | Deploy release simultaneously to `pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app` | M4 | Survey E3 / Directive 6 |
+| 1 | Canonical Cloud `roomId` & Loại bỏ Split-Brain | Tra cứu Supabase Cloud theo UUID, loại bỏ auto-synthesis trap `usr_peer_host`, sửa `api/rooms.ts` chèn `host_user_id` | M1 | Survey E1 |
+| 2 | Diệt phòng ma khi Thoát / Xóa phòng | Cập nhật `status = closed` trên Supabase, phát sóng Realtime `room-lifecycle-action`, teardown 5 bước (stop MediaStreamTracks, untrack, removeChannel, close WebRTC, dọn nét vẽ/chat) | M1 | Survey E1 |
+| 3 | Khóa quyền điều khiển Đồng hồ nhóm cho Host & Grace Period | Xác thực sender là host/admin cho `room-timer-sync`, ân hạn 60s khi host gián đoạn mạng | M1 | Survey E1 |
+| 4 | Lưu trữ Session Tab chống thành viên ma khi F5 | Lưu `clientSessionId` trong `sessionStorage` theo `roomId`, hook `beforeunload`/`pagehide` dọn dẹp | M1 | Survey E2 |
+| 5 | Đa thiết bị Presence & Phân biệt Thiết bị (PC / Mobile) | Dùng compound key `${userId}::${clientSessionId}`, gắn nhãn `Máy tính` / `Điện thoại`, không bị nuốt thiết bị | M2 | Survey E2 |
+| 6 | Chống bão chuông ding & Toast khi Initial Sync | Cửa sổ 2.5s câm ding/toast khi nạp danh sách thành viên hiện hữu | M2 | Survey E2 |
+| 7 | Chuẩn hóa Polite Peer Glare Handling | Impolite Initiator cho peer có ID lớn hơn, xóa lệnh gọi nghịch đảo trong UI | M2 | Survey E2 |
+| 8 | Khôi phục Web Worker Heartbeat | Bổ sung `state: 'joined'` vào `RealtimeChannel`, duy trì `p2p-keepalive` liên tục | M2 | Survey E2 |
+| 9 | Tự động `restartIce()` khi chuyển mạng WiFi <-> 4G | Gọi `restartAllPeers()` khi có sự kiện `online`, hợp nhất bộ đếm thời gian rớt mạng | M2 | Survey E2 |
+| 10 | Cảnh báo P2P chặn, Audio-Only Mode & Cap Video Mesh Mobile | Cảnh báo khi P2P failed, chế độ chỉ âm thanh tiết kiệm 4G, giới hạn render 3 video trên Mobile | M2 | Survey E2 |
+| 11 | XSS / HTML Injection Sanitization | Sanitize HTML cho tiêu đề phòng, mục tiêu, tên thành viên và tin nhắn chat | M2 | Survey E2 |
+| 12 | Reset Badge Tin Nhắn & Dọn Hand/Reactions | Chỉ hiện badge khi có unread chat thực sự, reset khi đổi phòng, dọn emoji/giơ tay khi rời phòng | M2 | Survey E2 |
+| 13 | Bảng vẽ: Chuẩn hóa Tọa độ Thế Giới (World Coordinates) | Hệ tọa độ danh định 16:9 (`1920x1080`), scale đồng dạng isotropic giữa Desktop và Mobile dọc | M3 | Survey E3 |
+| 14 | Bảng vẽ: Kiến trúc Canvas 2 Tầng (Dual-Layer) | Tách Tầng 1 (Committed strokes + tài liệu) và Tầng 2 (Active draft & stream 60fps) | M3 | Survey E3 |
+| 15 | Bảng vẽ: Quản lý Bộ Nhớ OOM, Blob URL & Throttling | Gọi `URL.revokeObjectURL()`, giới hạn file <=25MB / <=50 trang PDF, downscale ảnh >2048px, throttle 50ms/60ms, `touch-action: none` | M3 | Survey E3 |
+| 16 | Bảng vẽ: Zone Isolation & Mobile Toolbar | Thu dải camera thành viên nang `[ 📹 3 ]`, đủ Undo/Redo/Zoom trên Mobile, nút "Tài liệu" không cắt chữ, hướng dẫn Mobile phù hợp | M3 | Survey E3 |
+| 17 | Giao diện Meet: Top Bar 3 Cụm 1 Dòng | `[ ← Tên phòng ]` \| `[ Video \| Bảng vẽ ]` \| `[ 👥 3 · Mời · ⋯ ]`, gom quản trị vào `⋯`, xóa BETA/MASTER ADMIN, ẩn PiP trên APK | M4 | Survey E3 |
+| 18 | Giao diện Meet: Xóa Banner Xanh & Pill Group Timer | Xóa banner xanh 140px, hiển thị đồng hồ nhóm dạng pill gọn đồng nhất trên cả Desktop và Mobile | M4 | Survey E3 |
+| 19 | Giao diện Meet: Lưới Video Kính Mờ & Sửa Lỗi Ô Thứ 3 | Sửa ô video thứ 3 bị đen/mất tên, hộp đen tắt cam thay bằng kính mờ có Avatar căn giữa, chia lưới cân đối | M4 | Survey E3 |
+| 20 | Giao diện Meet: Bottom Dock 38px Đơn Sắc (5 Nút Mobile) | Nút dock 38px đơn sắc, xóa nút trùng AI/Settings, Mobile giữ đúng 5 nút, ẩn nút chia sẻ màn hình trên Android WebView | M4 | Survey E3 |
+| 21 | Test Suite & Multi-Device Playwright Harness | Xây dựng bộ test E2E 3 thiết bị thật qua Cloud và unit test bao phủ toàn diện | E2E | Directive |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Dexie.js v2 Storage & Sync Queue | `src/db/index.ts`, `src/types/`, `src/stores/useAiStore.ts`, `src/services/syncQueueService.ts`, backward compatibility with all 1,519 unit tests | none | DONE |
-| M2 | Mobile Focus Hub & Liquid Auth | `src/components/mobile/auth/MobileAuthBottomSheet.tsx`, `MobileFocusView.tsx`, `MobileAppShell.tsx`, Pocket Lock, Hold to Start, Pure Zen Black, Reordering, Audio Keep-alive | M1 | DONE |
-| M3 | Meet Rooms Realtime Sync & Whiteboard | `src/components/StudyRoomView.tsx`, `room-timer-sync` broadcast, IndexedDB stroke persistence | M1 | DONE |
-| M4 | Standalone APK, Playwright & Deployment | `vite.config.ts`, `playwright.config.ts`, `scripts/buildApk.ts`, version 8.1.0 sync, `PomoFocus-v8.1.apk`, Pixel 7 visual report, dual Vercel deploy | M1, M2, M3 | DONE |
-| M-E2E | Dual Track: E2E Test Suite | Opaque-box E2E test suite (Tiers 1-4) covering all features in inventory | parallel | DONE |
-| M5 | Victory Claim & Final Audit | Master delivery synthesis, Sentinel Victory claim, final independent audit | M1-M4 | IN_PROGRESS |
-
-## Code Layout
-- `src/db/index.ts`: Dexie v2 database, tables, schema versioning, and transaction helpers.
-- `src/types/tasks.ts`, `src/types/timer.ts`: Data types and entity models.
-- `src/stores/`: Zustand stores (`useAiStore`, `useTaskStore`, `useTimerStore`, `useAuthStore`).
-- `src/services/`: Services (`syncQueueService`, `authService`, `googleAuthService`).
-- `src/components/mobile/`: Mobile UI components (`MobileAppShell.tsx`, `views/MobileFocusView.tsx`, `views/MobileSettingsView.tsx`, `auth/MobileAuthBottomSheet.tsx`).
-- `src/components/StudyRoomView.tsx`: Meet room WebRTC, Supabase Realtime channel, and whiteboard coordination.
-- `scripts/buildApk.ts`: Automated Capacitor Android APK packaging pipeline.
-- `playwright.config.ts`, `tests/e2e/`: E2E test specifications.
-- `public/version.json`, `public/downloads/`: Version manifest and distribution binaries.
+| E2E | E2E Testing Track | Harness, runner, Multi-Device 3-client test scenarios, TEST_INFRA.md, TEST_READY.md | none | IN_PROGRESS |
+| 1 | M1: Room Lifecycle & Host Governance | Canonical roomId Cloud, diệt split-brain & phòng ma, teardown 5 bước, host-only timer | none | PLANNED |
+| 2 | M2: WebRTC & Multi-Device Resiliency | Compound presence key, Web Worker heartbeat, ICE restart, audio-only, XSS sanitize | M1 | PLANNED |
+| 3 | M3: Whiteboard Engine Overhaul | Tọa độ thế giới ảo 16:9, canvas 2 tầng, revokeObjectURL, zone isolation viên nang camera, mobile toolbar | M1 | PLANNED |
+| 4 | M4: Clean Meet UI (TopBar, Dock, Video Grid) | Top bar 3 cụm, dock 38px (5 nút mobile), group timer pill, lưới video kính mờ avatar | M2, M3 | PLANNED |
+| 5 | M5: Final E2E Pass & Adversarial Hardening | Vượt qua 100% E2E tests (Tiers 1-4) và kiểm thử đối kháng Tier 5 | M1, M2, M3, M4, E2E | PLANNED |
 
 ## Interface Contracts
-### Dexie Database (M1) ↔ Mobile & Meet (M2, M3)
-- `db.tasks`: Table<LocalTask, string> (compatible with Task)
-- `db.focus_sessions`: Table<LocalFocusSession, string> (compatible with FocusSessionRecord)
-- `db.ai_messages`: Table<LocalAiMessage, string>
-- `db.sync_queue`: Table<SyncMutation, string>
-- `recordFocusSessionAtomic(record)`: ACID transaction returning Promise<boolean>
+### studyRoomService ↔ Supabase Cloud (`public.study_rooms`)
+- `resolveCanonicalRoom(idOrSlug: string): Promise<StudyRoom | null>`:
+  - Tra cứu trực tiếp Supabase Cloud theo `id` hoặc `slug`.
+  - Trả về phòng thật, nếu `status === 'closed'` báo lỗi kết thúc, nếu không tìm thấy trả về `null`.
+- `closeRoom(roomId: string, currentUser: any): Promise<void>`:
+  - Cập nhật `status = 'closed'` trên Cloud, phát sóng `ROOM_CLOSED` qua Supabase Realtime channel.
+- `deleteRoom(roomId: string, currentUser: any): Promise<void>`:
+  - Cập nhật `status = 'closed'` và xóa bản ghi, phát sóng `ROOM_DELETED`.
 
-### Meet Realtime Sync (M3)
-- Channel: `room:${roomId}`
-- Event: `'room-timer-sync'`
-- Payload: `{ action: 'START' | 'PAUSE' | 'RESET' | 'PHASE_CHANGE', remainingSeconds: number, isRunning: boolean, phase: string, senderId: string, timestamp: number }`
+### WebRTCConnectionManager ↔ StudyRoomView
+- `presencePayload`:
+  - `key`: `${userId}::${clientSessionId}`
+  - `deviceType`: `'desktop' | 'mobile'`
+  - `deviceLabel`: `'Máy tính' | 'Điện thoại'`
+- `callbacks.onConnectionStateChange`:
+  - `(peerId: string, state: RTCPeerConnectionState) => void`
+  - Báo cáo trạng thái kết nối lên UI để kích hoạt cảnh báo P2P và chế độ Audio-Only khi cần.
+- `restartAllPeers(): void`:
+  - Kích hoạt `restartIce()` đồng loạt trên tất cả các kết nối P2P đang mở khi thiết bị nhận sự kiện `online`.
+
+### WhiteboardView ↔ Realtime Channel
+- Normalized coordinates:
+  - `x`: `(virtX - originX) / (VIRTUAL_WORLD_WIDTH * worldScale)` trong khoảng $[0, 1]$.
+  - `y`: `(virtY - originY) / (VIRTUAL_WORLD_HEIGHT * worldScale)` trong khoảng $[0, 1]$.
+  - Giữ nguyên tỉ lệ hình học trên mọi màn hình.
+
+## Code Layout
+- `src/services/studyRoomService.ts` — Room lifecycle, permissions, Supabase sync (M1 owns)
+- `api/rooms.ts` — Serverless room API with valid host_user_id & Cloud schema (M1 owns)
+- `src/lib/supabase.ts` — RealtimeChannel state property (M2 owns)
+- `src/services/WebRTCConnectionManager.ts` — Full-mesh signaling, ICE restart, Polite peer (M2 owns)
+- `src/components/WhiteboardView.tsx` — Dual-layer canvas, world coordinates, OOM limits (M3 owns)
+- `src/types/whiteboard.ts` — Whiteboard coordinate types (M3 owns)
+- `src/components/StudyRoomView.tsx` — Meet layout, topbar 3 clusters, 38px dock, timer pill, video grid (M4 owns)
+- `tests/e2e/multiDeviceStudyRoom.spec.ts` — 3-client Multi-Device E2E tests (E2E Track owns)
