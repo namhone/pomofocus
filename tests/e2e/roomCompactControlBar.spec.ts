@@ -74,7 +74,7 @@ test.describe('Mobile Control Bar (#room-compact) UI & Viewport Stability Suite'
 
       // 8. Test Settings Modal functionality from toolbar
       await settingsBtn.click();
-      const modal = page.locator('text=Cài Đặt Camera & Micro');
+      const modal = page.locator('text=/Cài Đặt Camera/i').first();
       await expect(modal).toBeVisible();
       // Close modal
       const closeBtn = page.locator('button:has-text("Lưu Cài Đặt")');

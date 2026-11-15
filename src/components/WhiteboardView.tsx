@@ -53,6 +53,18 @@ import { RealtimeChannel } from '../lib/supabase';
 import { safeStorage } from '../utils/safeStorage';
 import { generateUUID } from '../utils/uuid';
 
+export const VIRTUAL_WORLD_WIDTH = 1920;
+export const VIRTUAL_WORLD_HEIGHT = 1080;
+export const MAX_WHITEBOARD_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+export const MAX_WHITEBOARD_PDF_PAGES = 50;
+
+export const getIsotropicMetrics = (width: number, height: number) => {
+  const scale = Math.min(width / VIRTUAL_WORLD_WIDTH, height / VIRTUAL_WORLD_HEIGHT);
+  const offsetX = (width - VIRTUAL_WORLD_WIDTH * scale) / 2;
+  const offsetY = (height - VIRTUAL_WORLD_HEIGHT * scale) / 2;
+  return { scale: Math.max(0.0001, scale), offsetX, offsetY };
+};
+
 const COLOR_PALETTE = [
   { name: 'Trắng', hex: '#ffffff' },
   { name: 'Xám nhạt', hex: '#a1a1aa' },
@@ -96,7 +108,24 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const draftCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const materialObjectUrlRef = useRef<string | null>(null);
+
+  const revokeMaterialUrl = useCallback(() => {
+    if (materialObjectUrlRef.current) {
+      try {
+        URL.revokeObjectURL(materialObjectUrlRef.current);
+      } catch {}
+      materialObjectUrlRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      revokeMaterialUrl();
+    };
+  }, [revokeMaterialUrl]);
 
   // Local fallback if fullscreen state not passed from parent
   const [localIsFullscreen, setLocalIsFullscreen] = useState(false);
@@ -211,10 +240,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   const lastCursorBroadcastRef = useRef<number>(0);
   const lastStreamBroadcastRef = useRef<number>(0);
 
-  // Coordinate Conversion Helper: Screen client coords -> Virtual Canvas & Normalized
+  // Coordinate Conversion Helper: Screen client coords -> Virtual Canvas & Normalized (Isotropic 16:9)
   const getVirtualCoords = useCallback(
     (clientX: number, clientY: number) => {
-      const canvas = canvasRef.current;
+      const canvas = draftCanvasRef.current || canvasRef.current;
       if (!canvas) return { virtX: 0, virtY: 0, normX: 0, normY: 0 };
       const rect = canvas.getBoundingClientRect();
       const screenX = clientX - rect.left;
@@ -223,101 +252,18 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       const virtX = (screenX - panOffset.x) / zoomScale;
       const virtY = (screenY - panOffset.y) / zoomScale;
 
-      const normX = virtX / canvas.width;
-      const normY = virtY / canvas.height;
+      const { scale, offsetX, offsetY } = getIsotropicMetrics(canvas.width, canvas.height);
+      const worldW = VIRTUAL_WORLD_WIDTH * scale;
+      const worldH = VIRTUAL_WORLD_HEIGHT * scale;
+
+      const normX = (virtX - offsetX) / worldW;
+      const normY = (virtY - offsetY) / worldH;
       return { virtX, virtY, normX, normY };
     },
     [panOffset, zoomScale]
   );
 
-  // 1. Redraw toàn bộ canvas gồm Nền + Lưới vô tận + Tài Liệu + Nét Vẽ Đè Lên
-  const redrawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-
-    // Reset transform và xóa sạch nền màn hình
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#09090b';
-    ctx.fillRect(0, 0, width, height);
-
-    // Áp dụng Camera Viewport (Pan & Zoom)
-    ctx.translate(panOffset.x, panOffset.y);
-    ctx.scale(zoomScale, zoomScale);
-
-    // B. Lưới chấm dot-grid vô tận tính theo vùng nhìn thấy ảo
-    const virtLeft = -panOffset.x / zoomScale;
-    const virtTop = -panOffset.y / zoomScale;
-    const virtRight = virtLeft + width / zoomScale;
-    const virtBottom = virtTop + height / zoomScale;
-
-    const gridSize = 24;
-    const startX = Math.floor(virtLeft / gridSize) * gridSize;
-    const startY = Math.floor(virtTop / gridSize) * gridSize;
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-    for (let x = startX; x <= virtRight; x += gridSize) {
-      for (let y = startY; y <= virtBottom; y += gridSize) {
-        ctx.beginPath();
-        ctx.arc(x, y, 1, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // C. Vẽ tài liệu học tập (nếu có: PDF page, Book Spread, hoặc Ảnh đề bài)
-    if (materialImageRef.current) {
-      const img = materialImageRef.current;
-      const hRatio = (height - 40) / img.height;
-      const wRatio = (width - 40) / img.width;
-      const ratio = Math.min(hRatio, wRatio, 1.35);
-      const drawW = img.width * ratio;
-      const drawH = img.height * ratio;
-      const drawX = (width - drawW) / 2;
-      const drawY = (height - drawH) / 2;
-
-      ctx.save();
-      // Hiệu ứng đổ bóng trang sách/tài liệu chân thực
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
-      ctx.shadowBlur = 32;
-      ctx.shadowOffsetY = 10;
-      ctx.drawImage(img, drawX, drawY, drawW, drawH);
-      ctx.restore();
-    }
-
-    // D. Render các nét vẽ đã hoàn thành (luôn nằm đè lên tài liệu)
-    strokes.forEach((stroke) => {
-      renderStroke(ctx, stroke, width, height);
-    });
-
-    // E. Render nét đang vẽ trực tiếp từ các bạn học khác (Live In-flight Stream)
-    Object.values(remoteStreamsRef.current).forEach((streamStroke) => {
-      renderStroke(ctx, streamStroke, width, height);
-    });
-
-    // F. Render nét đang vẽ của chính người dùng (Local Draft Preview)
-    if (isPointerDownRef.current && currentPointsRef.current.length > 0) {
-      const draftStroke: WhiteboardStroke = {
-        id: 'draft',
-        userId: currentUserId,
-        tool: activeTool,
-        color: currentColor,
-        size: currentSize,
-        points: currentPointsRef.current,
-        createdAt: Date.now()
-      };
-      renderStroke(ctx, draftStroke, width, height);
-    }
-  }, [strokes, panOffset, zoomScale, activeTool, currentColor, currentSize, currentUserId]);
-
-  // 1b. Giữ reference mới nhất của redrawCanvas để tránh dependency churn trong useEffect và ResizeObserver
-  const redrawCanvasRef = useRef(redrawCanvas);
-  redrawCanvasRef.current = redrawCanvas;
-
-  // Helper render 1 stroke
+  // Helper render 1 stroke (Isotropic 16:9)
   const renderStroke = (
     ctx: CanvasRenderingContext2D,
     stroke: WhiteboardStroke,
@@ -327,8 +273,15 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     const { tool, color, size, points, text } = stroke;
     if (points.length === 0) return;
 
+    const { scale: isoScale, offsetX, offsetY } = getIsotropicMetrics(width, height);
+    const worldW = VIRTUAL_WORLD_WIDTH * isoScale;
+    const worldH = VIRTUAL_WORLD_HEIGHT * isoScale;
+
     ctx.save();
-    const p0 = { x: points[0].x * width, y: points[0].y * height };
+    const p0 = {
+      x: offsetX + points[0].x * worldW,
+      y: offsetY + points[0].y * worldH
+    };
 
     // 1. Bút dạ quang (Highlighter)
     if (tool === 'highlighter') {
@@ -346,7 +299,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         ctx.beginPath();
         ctx.moveTo(p0.x, p0.y);
         for (let i = 1; i < points.length; i++) {
-          const pi = { x: points[i].x * width, y: points[i].y * height };
+          const pi = {
+            x: offsetX + points[i].x * worldW,
+            y: offsetY + points[i].y * worldH
+          };
           ctx.lineTo(pi.x, pi.y);
         }
         ctx.stroke();
@@ -358,8 +314,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     // 2. Bút xóa che chữ cũ (Whiteout)
     if (tool === 'whiteout') {
       const pLast = {
-        x: points[points.length - 1].x * width,
-        y: points[points.length - 1].y * height
+        x: offsetX + points[points.length - 1].x * worldW,
+        y: offsetY + points[points.length - 1].y * worldH
       };
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#ffffff';
@@ -388,23 +344,29 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         ctx.beginPath();
         ctx.moveTo(p0.x, p0.y);
         for (let i = 1; i < points.length; i++) {
-          const pi = { x: points[i].x * width, y: points[i].y * height };
-          const prev = { x: points[i - 1].x * width, y: points[i - 1].y * height };
+          const pi = {
+            x: offsetX + points[i].x * worldW,
+            y: offsetY + points[i].y * worldH
+          };
+          const prev = {
+            x: offsetX + points[i - 1].x * worldW,
+            y: offsetY + points[i - 1].y * worldH
+          };
           const midX = (prev.x + pi.x) / 2;
           const midY = (prev.y + pi.y) / 2;
           ctx.quadraticCurveTo(prev.x, prev.y, midX, midY);
         }
         const last = {
-          x: points[points.length - 1].x * width,
-          y: points[points.length - 1].y * height
+          x: offsetX + points[points.length - 1].x * worldW,
+          y: offsetY + points[points.length - 1].y * worldH
         };
         ctx.lineTo(last.x, last.y);
         ctx.stroke();
       }
     } else if (tool === 'line') {
       const pLast = {
-        x: points[points.length - 1].x * width,
-        y: points[points.length - 1].y * height
+        x: offsetX + points[points.length - 1].x * worldW,
+        y: offsetY + points[points.length - 1].y * worldH
       };
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
@@ -412,8 +374,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       ctx.stroke();
     } else if (tool === 'arrow') {
       const pLast = {
-        x: points[points.length - 1].x * width,
-        y: points[points.length - 1].y * height
+        x: offsetX + points[points.length - 1].x * worldW,
+        y: offsetY + points[points.length - 1].y * worldH
       };
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
@@ -436,8 +398,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       ctx.stroke();
     } else if (tool === 'rect') {
       const pLast = {
-        x: points[points.length - 1].x * width,
-        y: points[points.length - 1].y * height
+        x: offsetX + points[points.length - 1].x * worldW,
+        y: offsetY + points[points.length - 1].y * worldH
       };
       const left = Math.min(p0.x, pLast.x);
       const top = Math.min(p0.y, pLast.y);
@@ -448,8 +410,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       ctx.stroke();
     } else if (tool === 'circle') {
       const pLast = {
-        x: points[points.length - 1].x * width,
-        y: points[points.length - 1].y * height
+        x: offsetX + points[points.length - 1].x * worldW,
+        y: offsetY + points[points.length - 1].y * worldH
       };
       const centerX = (p0.x + pLast.x) / 2;
       const centerY = (p0.y + pLast.y) / 2;
@@ -465,6 +427,123 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
 
     ctx.restore();
   };
+
+  // 1a. Redraw Tầng 1 (Static Canvas: Nền, Lưới vô tận, Tài Liệu, Nét vẽ đã chốt)
+  const redrawStaticCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Reset transform và xóa sạch nền màn hình
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(0, 0, width, height);
+
+    // Áp dụng Camera Viewport (Pan & Zoom)
+    ctx.translate(panOffset.x, panOffset.y);
+    ctx.scale(zoomScale, zoomScale);
+
+    const { scale: isoScale, offsetX, offsetY } = getIsotropicMetrics(width, height);
+    const worldW = VIRTUAL_WORLD_WIDTH * isoScale;
+    const worldH = VIRTUAL_WORLD_HEIGHT * isoScale;
+
+    // B. Lưới chấm dot-grid vô tận tính theo vùng nhìn thấy ảo
+    const virtLeft = -panOffset.x / zoomScale;
+    const virtTop = -panOffset.y / zoomScale;
+    const virtRight = virtLeft + width / zoomScale;
+    const virtBottom = virtTop + height / zoomScale;
+
+    const gridSize = 24;
+    const startX = Math.floor(virtLeft / gridSize) * gridSize;
+    const startY = Math.floor(virtTop / gridSize) * gridSize;
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    for (let x = startX; x <= virtRight; x += gridSize) {
+      for (let y = startY; y <= virtBottom; y += gridSize) {
+        ctx.beginPath();
+        ctx.arc(x, y, 1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // C. Vẽ tài liệu học tập
+    if (materialImageRef.current) {
+      const img = materialImageRef.current;
+      const hRatio = (worldH - 40) / img.height;
+      const wRatio = (worldW - 40) / img.width;
+      const ratio = Math.min(hRatio, wRatio, 1.35);
+      const drawW = img.width * ratio;
+      const drawH = img.height * ratio;
+      const drawX = offsetX + (worldW - drawW) / 2;
+      const drawY = offsetY + (worldH - drawH) / 2;
+
+      ctx.save();
+      // Hiệu ứng đổ bóng trang sách/tài liệu chân thực
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+      ctx.shadowBlur = 32;
+      ctx.shadowOffsetY = 10;
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      ctx.restore();
+    }
+
+    // D. Render các nét vẽ đã hoàn thành (committed strokes)
+    strokes.forEach((stroke) => {
+      renderStroke(ctx, stroke, width, height);
+    });
+  }, [strokes, panOffset, zoomScale]);
+
+  // 1b. Redraw Tầng 2 (Draft/Dynamic Canvas: nét nháp đang vẽ, remote in-flight stream)
+  const redrawDraftCanvas = useCallback(() => {
+    const canvas = draftCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.translate(panOffset.x, panOffset.y);
+    ctx.scale(zoomScale, zoomScale);
+
+    // E. Render nét đang vẽ trực tiếp từ các bạn học khác (Live In-flight Stream)
+    Object.values(remoteStreamsRef.current).forEach((streamStroke) => {
+      renderStroke(ctx, streamStroke, width, height);
+    });
+
+    // F. Render nét đang vẽ của chính người dùng (Local Draft Preview)
+    if (isPointerDownRef.current && currentPointsRef.current.length > 0) {
+      const draftStroke: WhiteboardStroke = {
+        id: 'draft',
+        userId: currentUserId,
+        tool: activeTool,
+        color: currentColor,
+        size: currentSize,
+        points: currentPointsRef.current,
+        createdAt: Date.now()
+      };
+      renderStroke(ctx, draftStroke, width, height);
+    }
+  }, [panOffset, zoomScale, activeTool, currentColor, currentSize, currentUserId]);
+
+  const redrawCanvas = useCallback(() => {
+    redrawStaticCanvas();
+    redrawDraftCanvas();
+  }, [redrawStaticCanvas, redrawDraftCanvas]);
+
+  // Giữ references mới nhất để tránh dependency churn
+  const redrawCanvasRef = useRef(redrawCanvas);
+  redrawCanvasRef.current = redrawCanvas;
+  const redrawStaticCanvasRef = useRef(redrawStaticCanvas);
+  redrawStaticCanvasRef.current = redrawStaticCanvas;
+  const redrawDraftCanvasRef = useRef(redrawDraftCanvas);
+  redrawDraftCanvasRef.current = redrawDraftCanvas;
 
   // Helper zoom centered at point
   const handleZoom = (factor: number, clientCenter?: { x: number; y: number }) => {
@@ -617,15 +696,22 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
   // Resize canvas when container size changes
   useEffect(() => {
     const container = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!container || !canvas) return;
+    if (!container) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         if (width > 0 && height > 0) {
-          canvas.width = Math.round(width);
-          canvas.height = Math.round(height);
+          const w = Math.round(width);
+          const h = Math.round(height);
+          if (canvasRef.current) {
+            canvasRef.current.width = w;
+            canvasRef.current.height = h;
+          }
+          if (draftCanvasRef.current) {
+            draftCanvasRef.current.width = w;
+            draftCanvasRef.current.height = h;
+          }
           redrawCanvasRef.current();
         }
       }
@@ -683,7 +769,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           points: p.points,
           createdAt: Date.now()
         };
-        redrawCanvasRef.current();
+        redrawDraftCanvasRef.current();
       }
     };
 
@@ -879,8 +965,15 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
 
   // 2. Xử lý tải file tài liệu (PDF, Word, Ảnh)
   const handleFileUpload = async (file: File) => {
+    if (file.size > MAX_WHITEBOARD_FILE_SIZE) {
+      alert('Kích thước tài liệu vượt quá giới hạn cho phép (Tối đa 25MB).');
+      return;
+    }
+
     const ext = file.name.split('.').pop()?.toLowerCase();
+    revokeMaterialUrl();
     const url = URL.createObjectURL(file);
+    materialObjectUrlRef.current = url;
     setIsLoadingMaterial(true);
 
     try {
@@ -889,6 +982,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
         pdfDocRef.current = pdf;
+
+        if (pdf.numPages > MAX_WHITEBOARD_PDF_PAGES) {
+          alert('Tài liệu PDF có nhiều hơn 50 trang. Để tối ưu tốc độ và bộ nhớ, hệ thống chỉ hiển thị 50 trang đầu.');
+        }
 
         await renderPdfToOffscreen(pdf, 1, 'single');
 
@@ -1116,7 +1213,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
     broadcastCursor(normalized, true);
-    redrawCanvas();
+    redrawDraftCanvas();
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -1167,7 +1264,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       });
     }
 
-    redrawCanvas();
+    redrawDraftCanvas();
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -1205,6 +1302,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     setStrokes((prev) => [...prev, newStroke]);
     setRedoStack([]);
     currentPointsRef.current = [];
+    redrawDraftCanvas();
 
     if (channel) {
       channel.send({
@@ -1705,6 +1803,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           <button
             type="button"
             onClick={() => {
+              revokeMaterialUrl();
               setMaterial(null);
               materialImageRef.current = null;
               pdfDocRef.current = null;
@@ -1895,25 +1994,34 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         </button>
       </div>
 
-      {/* Main Interactive Canvas */}
+      {/* Main Interactive Canvas — Dual-Layer 16:9 Isotropic Architecture */}
       <div className={`flex-1 w-full h-full relative ${canvasCursor}`}>
+        {/* Layer 1: Static Canvas (Nền, Dot-grid, Tài liệu, Committed strokes) */}
         <canvas
           ref={canvasRef}
+          style={{ touchAction: 'none' }}
+          className="absolute inset-0 w-full h-full block pointer-events-none"
+        />
+
+        {/* Layer 2: Dynamic Draft Canvas (Pointer interactions, in-flight streams, local drag preview) */}
+        <canvas
+          ref={draftCanvasRef}
           data-testid="whiteboard-canvas"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           style={{ touchAction: 'none' }}
-          className="w-full h-full block touch-none"
+          className="absolute inset-0 w-full h-full block pointer-events-auto touch-none"
         />
 
         {/* Remote Live Cursors Overlay */}
         {Object.values(remoteCursors).map((cur) => {
-          const canvas = canvasRef.current;
+          const canvas = draftCanvasRef.current || canvasRef.current;
           if (!canvas) return null;
-          const screenX = cur.x * canvas.width * zoomScale + panOffset.x;
-          const screenY = cur.y * canvas.height * zoomScale + panOffset.y;
+          const { scale: isoScale, offsetX, offsetY } = getIsotropicMetrics(canvas.width, canvas.height);
+          const screenX = (offsetX + cur.x * VIRTUAL_WORLD_WIDTH * isoScale) * zoomScale + panOffset.x;
+          const screenY = (offsetY + cur.y * VIRTUAL_WORLD_HEIGHT * isoScale) * zoomScale + panOffset.y;
 
           return (
             <div

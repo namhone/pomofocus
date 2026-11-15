@@ -29,6 +29,7 @@ export interface ChannelConfig {
 
 export class RealtimeChannel {
   public topic: string;
+  public state: 'closed' | 'errored' | 'joined' | 'joining' | 'leaving' = 'closed';
   private presenceKey: string;
   private postgresChangeListeners: Array<{
     event: string;
@@ -129,6 +130,7 @@ export class RealtimeChannel {
             // Chỉ xử lý phản hồi cho lượt tham gia phòng (phx_join)
             if (msg.ref === this.joinRef && msg.payload?.status === 'ok') {
               this.isJoined = true;
+              this.state = 'joined';
               if (onSubscribed) {
                 onSubscribed('SUBSCRIBED');
               }
@@ -225,11 +227,13 @@ export class RealtimeChannel {
       };
 
       this.socket.onerror = (err) => {
+        this.state = 'errored';
         console.warn('[Supabase Realtime WS] Lỗi kết nối socket:', err);
       };
 
       this.socket.onclose = () => {
         this.isJoined = false;
+        this.state = 'closed';
         this.socket = null;
         if (this.heartbeatTimer) {
           clearInterval(this.heartbeatTimer);
@@ -363,6 +367,7 @@ export class RealtimeChannel {
 
   subscribe(callback?: (status: string) => void): this {
     this.isSubscribed = true;
+    this.state = 'joining';
     this.initWebSocket(callback);
     if (callback) {
       setTimeout(() => callback('SUBSCRIBED'), 0);
@@ -477,6 +482,7 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+    this.state = 'closed';
 
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);

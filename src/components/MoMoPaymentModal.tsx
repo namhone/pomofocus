@@ -7,6 +7,7 @@ import { couponService } from '../services/couponService';
 import { triggerConfetti } from '../utils/confetti';
 import { supabase } from '../lib/supabase';
 import { getEffectiveAvatarUrl, generateInitialsAvatarSvg } from '../services/authService';
+import { useRouter } from '../services/router';
 import {
   X,
   Copy,
@@ -42,6 +43,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   onSuccess
 }) => {
   const { user, activateProFromPayment, loginWithGoogle } = useAuthStore();
+  const router = useRouter();
   const [email, setEmail] = useState(user?.email || 'student@studyworkspace.io');
   const [order, setOrder] = useState<MoMoOrder | null>(null);
   const [copiedMemo, setCopiedMemo] = useState(false);
@@ -567,6 +569,33 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Cam kết tuân thủ Luật 122/2025/QH15 & Luật 19/2023/QH15 */}
+              <p className="text-[10px] text-zinc-500 text-center leading-relaxed pt-1">
+                Bằng việc quét mã thanh toán, bạn đồng ý với{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    router.navigate('/terms');
+                  }}
+                  className="text-zinc-300 underline hover:text-white transition cursor-pointer"
+                >
+                  Điều khoản dịch vụ
+                </button>
+                {' '}và{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    router.navigate('/privacy');
+                  }}
+                  className="text-zinc-300 underline hover:text-white transition cursor-pointer"
+                >
+                  Chính sách bảo mật
+                </button>
+                . Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống.
+              </p>
             </div>
           </div>
         ) : (

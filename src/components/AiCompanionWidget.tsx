@@ -502,11 +502,20 @@ export const AiCompanionWidget: React.FC = () => {
                         </button>
                       </div>
 
-                      {/* Nhãn mờ Đã dùng -X⚡ (Chỉ hiện khi trợ lý trừ điểm > 0) */}
-                      {msg.role === 'assistant' && typeof msg.creditsUsed === 'number' && msg.creditsUsed > 0 && (
-                        <span className="text-[10px] text-zinc-500 font-mono">
-                          Đã dùng -{msg.creditsUsed}⚡
-                        </span>
+                      {/* Minh bạch AI (Luật 134/2025/QH15 Điều 11 & NĐ 142/2026/NĐ-CP) */}
+                      {msg.role === 'assistant' && (
+                        <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
+                          <span className="inline-flex items-center gap-1 text-zinc-400">
+                            <Sparkles size={10} className="text-teal-400" />
+                            Nội dung do AI tạo
+                          </span>
+                          {typeof msg.creditsUsed === 'number' && msg.creditsUsed > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>Đã dùng -{msg.creditsUsed}⚡</span>
+                            </>
+                          )}
+                        </div>
                       )}
                     </div>
                   </>
@@ -741,13 +750,18 @@ export const AiCompanionWidget: React.FC = () => {
           </button>
         </form>
 
-        {/* Chân Trang: Thông tin năng lượng đơn sắc chuẩn Zen */}
-        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-2 px-1">
-          <span>1 ⚡ / câu hỏi</span>
-          <span className="flex items-center gap-1 text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Phản hồi tức thì
-          </span>
+        {/* Chân Trang: Thông tin năng lượng & Khuyến cáo học tập chuẩn Zen */}
+        <div className="space-y-1 mt-2 px-1">
+          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500">
+            <span>1 ⚡ / câu hỏi</span>
+            <span className="flex items-center gap-1 text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Phản hồi tức thì
+            </span>
+          </div>
+          <p className="text-[9.5px] text-zinc-500/80 text-center font-sans">
+            Phản hồi AI mang tính tham khảo học tập, vui lòng đối chiếu giáo trình chính thống.
+          </p>
         </div>
       </div>
     </div>

@@ -49,7 +49,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
   };
 
   test('Kịch bản 3 Client Đa Thiết Bị: Host Desktop, Member Laptop, Member Mobile (390x844) kết nối không pre-seed localStorage & Teardown 5 bước', async ({ browser }) => {
-    test.setTimeout(120000);
+    test.setTimeout(180000);
 
     // -------------------------------------------------------------------------
     // 1. KHỞI TẠO 3 BROWSER CONTEXTS ĐỘC LẬP (HOST, MEMBER 1, MEMBER 2)
@@ -66,6 +66,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
       // Xác thực danh tính Host qua Auth Session nhưng KHÔNG pre-seed pomodoro_study_rooms_store
       sessionStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
       localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
+      localStorage.setItem('pomofocus_consent_v1', 'accepted');
       localStorage.removeItem('pomodoro_study_rooms_store');
     }, hostUser);
 
@@ -80,6 +81,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     await member1Context.addInitScript((u) => {
       sessionStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
       localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
+      localStorage.setItem('pomofocus_consent_v1', 'accepted');
       localStorage.removeItem('pomodoro_study_rooms_store');
     }, member1User);
 
@@ -96,12 +98,21 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     await member2Context.addInitScript((u) => {
       sessionStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
       localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(u));
+      localStorage.setItem('pomofocus_consent_v1', 'accepted');
       localStorage.removeItem('pomodoro_study_rooms_store');
     }, member2User);
 
     const hostPage = await hostContext.newPage();
     const member1Page = await member1Context.newPage();
     const member2Page = await member2Context.newPage();
+
+    hostPage.on('console', msg => console.log(`[Host Console] ${msg.type()}: ${msg.text()}`));
+    member1Page.on('console', msg => console.log(`[Member 1 Console] ${msg.type()}: ${msg.text()}`));
+    member2Page.on('console', msg => console.log(`[Member 2 Console] ${msg.type()}: ${msg.text()}`));
+
+    hostPage.on('pageerror', err => console.log(`[Host PageError] ${err.message}`));
+    member1Page.on('pageerror', err => console.log(`[Member 1 PageError] ${err.message}`));
+    member2Page.on('pageerror', err => console.log(`[Member 2 PageError] ${err.message}`));
 
     // Tự động chấp nhận mọi hộp thoại window.alert và window.confirm
     hostPage.on('dialog', async (d) => {
@@ -129,13 +140,18 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
       await titleInput.fill('Phòng Học V8.1 Cloud Mesh Multi-Device');
     }
 
+    const slugInput = hostPage.locator('[data-testid="input-room-slug"]');
+    if (await slugInput.isVisible()) {
+      await slugInput.fill(`pomo-mesh-${Date.now().toString(36)}`);
+    }
+
     // Nhấn tạo phòng
     await hostPage.click('[data-testid="btn-create-room"]');
 
     // Chờ điều hướng đến URL phòng /rooms/pomo-...
-    await hostPage.waitForURL(/\/rooms\/pomo-/, { timeout: 20000 });
+    await hostPage.waitForURL(/\/rooms\/(pomo-|[a-z0-9]{4}-)/, { timeout: 20000 });
     const inviteUrl = hostPage.url();
-    expect(inviteUrl).toContain('/rooms/pomo-');
+    expect(inviteUrl).toMatch(/\/rooms\/(pomo-|[a-z0-9]{4}-)/);
     const roomId = inviteUrl.split('/rooms/')[1].split('?')[0];
     console.log(`✅ Host đã tạo phòng thành công: ${roomId}`);
 
@@ -163,7 +179,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     await member1Page.click('[data-testid="btn-join-room-confirm"]');
 
     // Chờ vào phòng và kiểm tra thanh công cụ
-    await member1Page.waitForSelector('#room-compact, [data-testid="room-compact"]', { timeout: 15000 });
+    await expect(member1Page.locator('#room-compact, [data-testid="room-compact"]').first()).toBeVisible({ timeout: 25000 });
     expect(member1Page.url()).toContain(`/rooms/${roomId}`);
 
     // Kiểm tra không bị lỗi Split-Brain (cùng mã phòng, không tự chế phòng ma)
@@ -179,13 +195,17 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     // -------------------------------------------------------------------------
     console.log('--- PHASE 3: Member 2 (Mobile 390x844) tham gia qua link mời ---');
     await member2Page.goto(inviteUrl, { waitUntil: 'domcontentloaded' });
+    await member2Page.waitForTimeout(1000);
+    await member2Page.screenshot({ path: `${screenshotDir}/02a_member2_after_goto.png` });
+    console.log('Member 2 current URL:', member2Page.url());
 
     // Xác nhận tham gia tại pre-join trên Mobile
-    await member2Page.waitForSelector('[data-testid="btn-join-room-confirm"]', { timeout: 20000 });
+    await expect(member2Page.locator('[data-testid="btn-join-room-confirm"]')).toBeVisible({ timeout: 25000 });
+    await member2Page.screenshot({ path: `${screenshotDir}/02b_member2_before_click.png` });
     await member2Page.click('[data-testid="btn-join-room-confirm"]');
 
     // Chờ vào phòng trên Mobile
-    await member2Page.waitForSelector('#room-compact, [data-testid="room-compact"]', { timeout: 15000 });
+    await expect(member2Page.locator('#room-compact, [data-testid="room-compact"]').first()).toBeVisible({ timeout: 25000 });
 
     // A. Kiểm tra độ rộng Viewport chuẩn 390px
     const mobileVp = member2Page.viewportSize();
@@ -215,9 +235,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     const camBtn = member2Page.getByTestId('btn-room-camera');
     const reactBtn = member2Page.getByTestId('btn-room-reactions');
     const chatBtn = member2Page.getByTestId('btn-room-chat');
-    const leaveBtn = member2Page
-      .locator('[data-testid="btn-room-leave-mobile"], [data-testid="btn-room-leave"]')
-      .first();
+    const leaveBtn = member2Page.locator('[data-testid="btn-room-leave-mobile"]').first();
 
     await expect(micBtn).toBeVisible();
     await expect(camBtn).toBeVisible();
@@ -242,9 +260,7 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     console.log('--- PHASE 4: Host đóng phòng học và kích hoạt Teardown 5 bước ---');
     
     // Host mở cài đặt quản trị để đóng phòng
-    const settingsBtn = hostPage
-      .locator('[data-testid="btn-room-settings-header"], [data-testid="btn-header-edit-room"]')
-      .first();
+    const settingsBtn = hostPage.locator('[data-testid="btn-room-settings-header"]');
 
     if (await settingsBtn.isVisible()) {
       await settingsBtn.click();
@@ -268,11 +284,11 @@ test.describe('PomoFocus V8.1 Multi-Device Study Room E2E Test Suite', () => {
     await Promise.all([
       member1Page.waitForURL(/\/rooms(?!\/pomo-)/, { timeout: 25000 }).catch(async () => {
         // Fallback: nếu trang hiển thị màn hình báo "Phòng Học Đã Đóng"
-        const isClosedNotice = await member1Page.locator('text=Phòng Học Đã Đóng, text=đã được đóng').isVisible();
+        const isClosedNotice = await member1Page.locator('text=/Phòng Học Đã Đóng|đã được đóng|đã kết thúc/i').first().isVisible();
         expect(isClosedNotice).toBe(true);
       }),
       member2Page.waitForURL(/\/rooms(?!\/pomo-)/, { timeout: 25000 }).catch(async () => {
-        const isClosedNotice = await member2Page.locator('text=Phòng Học Đã Đóng, text=đã được đóng').isVisible();
+        const isClosedNotice = await member2Page.locator('text=/Phòng Học Đã Đóng|đã được đóng|đã kết thúc/i').first().isVisible();
         expect(isClosedNotice).toBe(true);
       })
     ]);

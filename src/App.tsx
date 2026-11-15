@@ -24,6 +24,7 @@ import { LegalViews } from './components/LegalViews';
 import { NotFoundView } from './components/NotFoundView';
 import { WebDownloadHub } from './components/landing/WebDownloadHub';
 import { LiquidUpdateBanner } from './components/LiquidUpdateBanner';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useLayoutStore } from './stores/useLayoutStore';
 import { useFocusAutoDim } from './hooks/useFocusAutoDim';
@@ -425,6 +426,7 @@ export const App: React.FC = () => {
       <TwoFactorGateModal />
       <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
       <LiquidUpdateBanner />
+      <CookieConsentBanner />
       <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 font-mono text-xs">Đang tải không gian...</div>}>
         {renderRoutedView()}
       </Suspense>

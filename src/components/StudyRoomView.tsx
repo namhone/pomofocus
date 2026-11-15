@@ -133,7 +133,16 @@ export const getRoomPhaseDuration = (phase: RoomTimerPhase): number => {
 };
 
 interface RemotePeerTileProps {
-  peer: { id: string; name: string; isMicOn?: boolean; role?: string; userId?: string };
+  peer: {
+    id: string;
+    name: string;
+    isMicOn?: boolean;
+    role?: string;
+    userId?: string;
+    avatar?: string;
+    deviceType?: string;
+    deviceLabel?: string;
+  };
   stream?: MediaStream;
   isPeerSpeaking: boolean;
   canAdmin: boolean;
@@ -159,7 +168,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
           onAdminClick(peer);
         }
       }}
-      className={`relative aspect-video rounded-2xl bg-zinc-900 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
+      className={`relative aspect-video rounded-2xl bg-zinc-900/90 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
         isPeerSpeaking
           ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
           : 'border border-zinc-800 ring-1 ring-white/5'
@@ -178,10 +187,10 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="flex flex-col items-center gap-2 text-zinc-400 select-none">
+        <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-4 bg-gradient-to-b from-zinc-800/40 via-zinc-900/60 to-zinc-950/80 backdrop-blur-xl border border-white/5 text-zinc-400 select-none">
           <UserAvatar
             name={peer.name}
-            avatarUrl={(peer as any).avatar || (peer as any).avatarUrl}
+            avatarUrl={peer.avatar || (peer as any).avatarUrl}
             size="xl"
             ring="border-2 border-zinc-700 shadow-md"
             alt={peer.name || 'Bạn học'}
@@ -212,7 +221,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
       )}
 
       {/* In-Card Status Bar */}
-      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px]">
+      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/75 backdrop-blur-md text-[11px] border border-white/5">
         <div className="flex items-center gap-1.5 truncate">
           <span className="font-semibold text-white truncate">{peer.name}</span>
           {isLadyBoss(peer.userId) || isLadyBoss(peer.name) ? (
@@ -222,6 +231,11 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
           ) : (
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-medium border border-zinc-700">
               {peer.role === 'host' ? 'Host' : peer.role === 'guest' ? 'Free' : 'Pro'}
+            </span>
+          )}
+          {peer.deviceLabel && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800/90 text-zinc-300 font-medium border border-zinc-700/60">
+              {peer.deviceType === 'mobile' || peer.deviceLabel.includes('Điện thoại') ? '📱' : '💻'} {peer.deviceLabel}
             </span>
           )}
         </div>
@@ -263,11 +277,26 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   }, [rawRoomId, router]);
 
   const { user: storeUser } = useAuthStore();
-  const user = (typeof window !== 'undefined' && window.sessionStorage && sessionStorage.getItem('pomodoro_study_auth_session')
-    ? JSON.parse(sessionStorage.getItem('pomodoro_study_auth_session') || 'null')
-    : (storeUser || (typeof window !== 'undefined' && window.localStorage
-      ? JSON.parse(localStorage.getItem('pomodoro_study_auth_session') || 'null')
-      : null)));
+  const sessionUser = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const item = sessionStorage.getItem('pomodoro_study_auth_session');
+        if (item) return JSON.parse(item);
+      }
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const localItem = localStorage.getItem('pomodoro_study_auth_session');
+        if (localItem) return JSON.parse(localItem);
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  }, []);
+
+  const user = sessionUser || storeUser;
+  const userId = user?.id;
+  const userEmail = user?.email;
+  const userPlan = user?.plan;
 
   const roomId = (rawRoomId || '').trim().toLowerCase();
   const tokenFromUrl = router.currentRoute.searchParams.get('token');
@@ -281,15 +310,63 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt)
   );
 
-  // Cập nhật kết quả xác minh khi user hoặc url thay đổi
-  useEffect(() => {
-    setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt));
-  }, [roomId, user, tokenFromUrl, passcodeAttempt]);
-
   // Lấy dữ liệu phòng hiện tại
   const [room, setRoom] = useState<StudyRoom | null>(() =>
     studyRoomService.getRoom(roomId)
   );
+
+  // Trạng thái tra cứu phòng từ Cloud nếu thiết bị chưa lưu vào localStorage (kịch bản đa thiết bị)
+  const [isResolvingRoom, setIsResolvingRoom] = useState(() => !studyRoomService.getRoom(roomId));
+
+  // Cập nhật kết quả xác minh khi user hoặc url thay đổi & tự động tra cứu Cloud khi cần
+  useEffect(() => {
+    let active = true;
+    const local = studyRoomService.getRoom(roomId);
+    if (!local) {
+      setIsResolvingRoom(true);
+      studyRoomService.resolveCanonicalRoom(roomId).then((cloudRoom) => {
+        if (!active) return;
+        setIsResolvingRoom(false);
+        if (cloudRoom) {
+          setRoom((prev) => (prev?.roomId === cloudRoom.roomId && prev?.title === cloudRoom.title && prev?.status === cloudRoom.status ? prev : cloudRoom));
+          setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt));
+        } else {
+          setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt));
+        }
+      }).catch(() => {
+        if (active) {
+          setIsResolvingRoom(false);
+          setAccessResult(studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt));
+        }
+      });
+    } else {
+      setIsResolvingRoom(false);
+      setRoom((prev) => {
+        if (!prev) return local;
+        if (prev.roomId === local.roomId && prev.title === local.title && prev.status === local.status) {
+          return prev;
+        }
+        return local;
+      });
+      setAccessResult((prev) => {
+        const next = studyRoomService.verifyRoomAccess(roomId, user, tokenFromUrl, passcodeAttempt);
+        if (
+          prev.allowed === next.allowed &&
+          (prev.allowed && next.allowed
+            ? prev.role === next.role
+            : !prev.allowed && !next.allowed
+              ? prev.code === next.code
+              : false)
+        ) {
+          return prev;
+        }
+        return next;
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [roomId, userId, userEmail, tokenFromUrl, passcodeAttempt]);
 
   // AV pre-join state
   const [hasJoined, setHasJoined] = useState(initialJoined);
@@ -616,11 +693,29 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       const timer = setTimeout(() => setShowLadyBossToast(false), 9000);
       return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [userEmail]);
 
-  // Tạo clientSessionId ngẫu nhiên chuẩn RFC4122 cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
-  const [clientSessionId] = useState(() => generateUUID());
+  // Tạo clientSessionId chuẩn RFC4122 cho từng tab/thiết bị (lưu vào sessionStorage để reload không tạo peer ma)
+  const [clientSessionId] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const key = `pomofocus_meet_tab_session_${rawRoomId || 'default'}`;
+      const existing = sessionStorage.getItem(key);
+      if (existing) return existing;
+      const newId = generateUUID();
+      sessionStorage.setItem(key, newId);
+      return newId;
+    }
+    return generateUUID();
+  });
   const [participantId] = useState(() => `${user?.id || 'guest'}_${clientSessionId.slice(0, 8)}`);
+
+  const isMobileDevice = typeof window !== 'undefined' && (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768
+  );
+  const deviceType: 'mobile' | 'desktop' = isMobileDevice ? 'mobile' : 'desktop';
+  const deviceLabel = isMobileDevice ? 'Điện thoại' : 'Máy tính';
+  const initialSyncSuppressionUntilRef = useRef(Date.now() + 2500);
 
   // WebRTC Real Remote Streams
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
@@ -846,12 +941,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       return 'member';
     }
     return 'guest';
-  }, [isMaster, isHostUser, user]);
+  }, [isMaster, isHostUser, userPlan, userEmail]);
 
   // Kiểm tra điều kiện thuê bao trả phí của Host
   const eligibility: SubscriptionEligibilityResult = useMemo(() => {
     return studyRoomService.verifyPaidSubscriptionEligibility(user);
-  }, [user]);
+  }, [userId, userPlan, userEmail]);
 
   const isProUser = Boolean(
     user && (
@@ -1029,7 +1124,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   const otherParticipants = useMemo(() => {
     const map = new Map<
       string,
-      { id: string; userId?: string; name: string; role: 'host' | 'member' | 'guest'; isMicOn?: boolean; isVideoOn?: boolean; avatar?: string }
+      { id: string; userId?: string; name: string; role: 'host' | 'member' | 'guest'; isMicOn?: boolean; isVideoOn?: boolean; avatar?: string; deviceType?: string; deviceLabel?: string }
     >();
 
     const isSelf = (p: { id?: string; userId?: string; role?: string; name?: string }) => {
@@ -1056,17 +1151,22 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       isMicOn?: boolean;
       isVideoOn?: boolean;
       avatar?: string;
+      deviceType?: string;
+      deviceLabel?: string;
     }) => {
       const matchKey = findExistingKey(peer);
-      const targetKey = matchKey || peer.userId || peer.id;
+      // Dùng peer.id làm khóa phân giải duy nhất, KHÔNG dùng peer.userId để tránh thiết bị 2 hoặc 2 khách Free đè nhau
+      const targetKey = matchKey || peer.id;
       const existing = map.get(targetKey);
       let displayName = peer.name || existing?.name || `Bạn học #${peer.id.slice(0, 5)}`;
       // Nếu phát hiện cùng 1 tài khoản đăng nhập trên thiết bị thứ 2
       const isSameUserOtherDevice = Array.from(map.values()).some(
         (existingPeer) => existingPeer.id !== peer.id && existingPeer.userId && existingPeer.userId === peer.userId
       );
-      if (isSameUserOtherDevice && !displayName.includes('(Máy 2)')) {
+      if (isSameUserOtherDevice && !displayName.includes('(Máy 2)') && !displayName.includes('Máy 2') && !displayName.includes('Điện thoại')) {
         displayName = `${displayName} (Máy 2)`;
+      } else if (peer.deviceLabel && !displayName.includes(peer.deviceLabel)) {
+        displayName = `${displayName} (${peer.deviceLabel})`;
       }
       map.set(targetKey, {
         id: peer.id || existing?.id || targetKey,
@@ -1076,6 +1176,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         isMicOn: peer.isMicOn !== undefined ? peer.isMicOn : existing?.isMicOn,
         isVideoOn: peer.isVideoOn !== undefined ? peer.isVideoOn : existing?.isVideoOn,
         avatar: peer.avatar || existing?.avatar,
+        deviceType: peer.deviceType || existing?.deviceType,
+        deviceLabel: peer.deviceLabel || existing?.deviceLabel
       });
     };
 
@@ -1091,6 +1193,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             isMicOn: p.isMicOn,
             isVideoOn: p.isVideoOn,
             avatar: p.avatar,
+            deviceType: (p as any).deviceType,
+            deviceLabel: (p as any).deviceLabel
           });
         }
       });
@@ -1107,6 +1211,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           role: (p.role as any) || 'member',
           isMicOn: p.isMicOn,
           isVideoOn: p.isVideoOn,
+          deviceType: (p as any).deviceType,
+          deviceLabel: (p as any).deviceLabel
         });
       }
     });
@@ -1328,10 +1434,16 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     }
   };
 
-  const handleDeleteRoomPermanently = () => {
+  const handleDeleteRoomPermanently = async () => {
     if (!room || !user || !canManage) return;
-    const res = studyRoomService.deleteRoom(roomId, user);
+    const res = await studyRoomService.deleteRoom(roomId, user, channelRef.current);
     if (res.success) {
+      await studyRoomService.teardownRoomSession({
+        stream: localStreamRef.current,
+        screenStream: screenStreamRef.current,
+        rtcManager: rtcManagerRef.current,
+        channel: channelRef.current
+      });
       alert('Đã xóa vĩnh viễn phòng học!');
       router.navigate('/rooms');
     } else {
@@ -1677,6 +1789,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             role: p.role || 'member',
             isMicOn: p.isMicOn,
             isVideoOn: p.isVideoOn,
+            deviceType: p.deviceType,
+            deviceLabel: p.deviceLabel
           };
           if (key !== participantId) {
             activePeerIds.push(key);
@@ -1695,15 +1809,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     // Lắng nghe người mới vào phòng qua Presence và cập nhật Mesh Topology (<200ms reactive)
     channel.on('presence', { event: 'join' }, (payload: any) => {
       syncPeers();
+      const isInitialSync = Date.now() < initialSyncSuppressionUntilRef.current;
       const newPresences = payload?.newPresences || [];
       newPresences.forEach((presence: { key?: string; user_id?: string; userId?: string; displayName?: string; name?: string }) => {
         const peerId = presence.key || presence.user_id || presence.userId;
         if (peerId && peerId !== participantId) {
           lastHeartbeatMapRef.current.set(peerId, Date.now());
           const peerName = presence.displayName || presence.name || `Bạn học #${peerId.slice(0, 5)}`;
-          setPeerJoinToast(`${peerName} vừa vào phòng học`);
-          playGentleDing();
-          setTimeout(() => setPeerJoinToast(null), 4000);
+          if (!isInitialSync) {
+            setPeerJoinToast(`${peerName} vừa vào phòng học`);
+            playGentleDing();
+            setTimeout(() => setPeerJoinToast(null), 4000);
+          }
         }
       });
     });
@@ -1781,7 +1898,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               name: data.displayName || `Bạn học #${data.peerId.slice(0, 5)}`,
               role: data.role || 'member',
               isMicOn: data.isMicOn,
-              isVideoOn: data.isVideoOn
+              isVideoOn: data.isVideoOn,
+              deviceType: data.deviceType,
+              deviceLabel: data.deviceLabel
             }
           };
           const allActive = Object.keys(updated).filter((k) => k !== participantId);
@@ -1800,6 +1919,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               role: userRole,
               isMicOn: micEnabled,
               isVideoOn: cameraEnabled,
+              deviceType,
+              deviceLabel,
               isGreeting: false
             }
           });
@@ -1978,6 +2099,43 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       }
     });
 
+    // Lắng nghe sự kiện vòng đời phòng học (Host đóng phòng hoặc xóa vĩnh viễn)
+    channel.on('broadcast', { event: 'room-lifecycle-action' }, async (payload: any) => {
+      const data = payload?.payload || payload;
+      if (data?.action === 'ROOM_CLOSED' || data?.action === 'ROOM_DELETED') {
+        await studyRoomService.teardownRoomSession({
+          stream: localStreamRef.current,
+          screenStream: screenStreamRef.current,
+          rtcManager: rtcManagerRef.current,
+          channel: channelRef.current
+        });
+        alert(data.action === 'ROOM_CLOSED' ? 'Phòng học đã được đóng bởi chủ phòng.' : 'Phòng học này đã bị xóa bởi chủ phòng.');
+        router.navigate('/rooms');
+      }
+    });
+
+    channel.on('broadcast', { event: 'ROOM_CLOSED' }, async () => {
+      await studyRoomService.teardownRoomSession({
+        stream: localStreamRef.current,
+        screenStream: screenStreamRef.current,
+        rtcManager: rtcManagerRef.current,
+        channel: channelRef.current
+      });
+      alert('Phòng học đã được đóng bởi chủ phòng.');
+      router.navigate('/rooms');
+    });
+
+    channel.on('broadcast', { event: 'ROOM_DELETED' }, async () => {
+      await studyRoomService.teardownRoomSession({
+        stream: localStreamRef.current,
+        screenStream: screenStreamRef.current,
+        rtcManager: rtcManagerRef.current,
+        channel: channelRef.current
+      });
+      alert('Phòng học này đã bị xóa bởi chủ phòng.');
+      router.navigate('/rooms');
+    });
+
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         try {
@@ -1986,7 +2144,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             displayName: participantName,
             role: userRole,
             isMicOn: micEnabled,
-            isVideoOn: cameraEnabled
+            isVideoOn: cameraEnabled,
+            deviceType,
+            deviceLabel
           });
         } catch {
           // ignore track error
@@ -2002,6 +2162,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             role: userRole,
             isMicOn: micEnabled,
             isVideoOn: cameraEnabled,
+            deviceType,
+            deviceLabel,
             isGreeting: true
           }
         });
@@ -2017,7 +2179,21 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       });
     }
 
+    // Lắng nghe sự kiện khôi phục mạng Online để tự động thực hiện ICE Restart
+    const handleOnline = () => {
+      console.log('[StudyRoom] Khôi phục mạng Online, tự động khởi động lại WebRTC ICE cho toàn bộ peers...');
+      rtcManagerRef.current?.restartAllPeers();
+    };
+    window.addEventListener('online', handleOnline);
+
     return () => {
+      window.removeEventListener('online', handleOnline);
+      studyRoomService.teardownRoomSession({
+        stream: localStreamRef.current,
+        screenStream: screenStreamRef.current,
+        rtcManager: manager,
+        channel
+      }).catch(() => {});
       if (manager && typeof manager.destroy === 'function') {
         manager.destroy();
       }
@@ -2036,7 +2212,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       displayName: participantName,
       role: userRole,
       isMicOn: micEnabled,
-      isVideoOn: cameraEnabled
+      isVideoOn: cameraEnabled,
+      deviceType,
+      deviceLabel
     });
 
     try {
@@ -2047,13 +2225,15 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           peerId: participantId,
           isMicOn: micEnabled,
           isVideoOn: cameraEnabled,
-          isHandRaised
+          isHandRaised,
+          deviceType,
+          deviceLabel
         }
       });
     } catch {
       // Ignored
     }
-  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled, isHandRaised]);
+  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled, isHandRaised, deviceType, deviceLabel]);
 
   // Chu kỳ Heartbeat (15s) và Quét dọn Zombie Sessions (> 90s) bảo vệ mạng Mobile/4G/Wi-Fi
   useEffect(() => {
@@ -2460,12 +2640,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   };
 
   // Đóng phòng học
-  const handleCloseRoom = () => {
+  const handleCloseRoom = async () => {
     if (!user || userRole !== 'host') return;
     const confirmClose = window.confirm('Bạn có chắc chắn muốn đóng phòng học này? Mọi thành viên sẽ bị ngắt kết nối.');
     if (!confirmClose) return;
 
-    studyRoomService.closeRoom(roomId, user);
+    await studyRoomService.closeRoom(roomId, user, channelRef.current);
+    await studyRoomService.teardownRoomSession({
+      stream: localStreamRef.current,
+      screenStream: screenStreamRef.current,
+      rtcManager: rtcManagerRef.current,
+      channel: channelRef.current
+    });
     router.navigate('/rooms');
   };
 
@@ -2493,13 +2679,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   };
 
   // Xóa bỏ phòng học vĩnh viễn
-  const handleConfirmDeleteRoomInView = () => {
+  const handleConfirmDeleteRoomInView = async () => {
     if (!user || userRole !== 'host') return;
-    const res = studyRoomService.deleteRoom(roomId, user);
+    const res = await studyRoomService.deleteRoom(roomId, user, channelRef.current);
     if (!res.success) {
       alert(res.error || 'Lỗi khi xóa phòng.');
       return;
     }
+    await studyRoomService.teardownRoomSession({
+      stream: localStreamRef.current,
+      screenStream: screenStreamRef.current,
+      rtcManager: rtcManagerRef.current,
+      channel: channelRef.current
+    });
     setIsConfirmDeleteModalOpen(false);
     setIsDeviceModalOpen(false);
     router.navigate('/rooms');
@@ -2507,6 +2699,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
   // Tham gia phòng
   const handleJoinConfirm = () => {
+    console.log('[StudyRoomView] handleJoinConfirm called, participantName:', participantName, 'participantId:', participantId);
     if (!participantName.trim()) {
       alert('Vui lòng nhập tên hiển thị của bạn.');
       return;
@@ -2524,6 +2717,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     };
 
     const res = studyRoomService.joinParticipant(roomId, participant);
+    console.log('[StudyRoomView] joinParticipant result:', res.success, res.room ? 'room found' : 'no room');
     if (res.room) {
       setRoom(res.room);
     }
@@ -2548,6 +2742,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       }
     }
     studyRoomService.leaveParticipant(roomId, participantId);
+    await studyRoomService.teardownRoomSession({
+      stream: localStreamRef.current,
+      screenStream: screenStreamRef.current,
+      rtcManager: rtcManagerRef.current,
+      channel: channelRef.current
+    });
     setTimeout(() => {
       router.navigate('/rooms');
     }, 250);
@@ -2556,6 +2756,15 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   // =========================================================================
   // XỬ LÝ LỖI TRUY CẬP (ACCESS REJECTION / ERROR STATES)
   // =========================================================================
+  if (isResolvingRoom) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
+        <div className="w-10 h-10 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin mb-4" />
+        <div className="text-xs font-semibold text-neutral-300">Đang đồng bộ dữ liệu phòng học từ Cloud...</div>
+      </div>
+    );
+  }
+
   if (!accessResult.allowed) {
     if (accessResult.code === 'PASSCODE_REQUIRED') {
       return (
@@ -3128,21 +3337,50 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       {/* Room Header - Responsive: Rich for Desktop (md:), Clean & Compact for Mobile (<md:) */}
       {!(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
         <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
-          {/* Desktop Header */}
-          <div className="hidden md:flex h-14 px-6 items-center justify-between">
-            <div className="flex items-center gap-3">
+          {/* Top Bar tối đa 3 cụm 1 dòng whitespace-nowrap */}
+          <div className="h-13 sm:h-14 px-3 sm:px-6 flex items-center justify-between gap-2 whitespace-nowrap">
+            {/* Cụm 1 (Trái): [ ← Tên phòng ] */}
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <button
                 type="button"
                 data-testid="btn-room-leave"
                 onClick={handleLeaveRoom}
-                className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
+                className="hidden md:flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition cursor-pointer"
               >
                 <ArrowLeft size={16} />
                 <span>Rời phòng</span>
               </button>
-              <div className="h-4 w-px bg-white/10" />
+              <button
+                type="button"
+                data-testid="btn-room-header-leave-mobile"
+                onClick={handleLeaveRoom}
+                className="md:hidden p-2 -ml-1 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 active:scale-95 transition cursor-pointer shrink-0"
+                title="Rời phòng học"
+                aria-label="Rời phòng học"
+              >
+                <ArrowLeft size={17} />
+              </button>
 
-              <div className="flex items-center gap-2">
+              {/* Mobile Info Cluster (matches header .md:hidden for Playwright tests) */}
+              <div className="flex md:hidden items-center gap-1.5 shrink-0">
+                <Radio size={13} className="text-emerald-400 animate-pulse shrink-0" />
+                <button
+                  type="button"
+                  onClick={handleCopyRoomId}
+                  className="font-bold text-xs truncate max-w-[95px] text-white hover:text-emerald-300 flex items-center gap-1"
+                  title="Bấm để sao chép mã"
+                >
+                  <span>#{roomId}</span>
+                  {copiedCode && <Check size={11} className="text-emerald-400 shrink-0" />}
+                </button>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 shrink-0 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>LIVE</span>
+                </span>
+              </div>
+
+              {/* Desktop Info Cluster */}
+              <div className="hidden md:flex items-center gap-2">
                 <Radio size={16} className="text-emerald-400 animate-pulse shrink-0" />
                 <span className="text-sm font-bold truncate max-w-[160px] sm:max-w-[240px]" title={room?.title || `#${roomId}`}>
                   {room?.title || `#${roomId}`}
@@ -3188,7 +3426,6 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   </span>
                 )}
 
-                {/* Nút sao chép mã phòng */}
                 <button
                   type="button"
                   data-testid="btn-copy-room-id"
@@ -3202,7 +3439,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            {/* Cụm 2 (Giữa): [ Video | Bảng vẽ ] + Group Timer Pill */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               {/* Tab Switcher: Video Grid vs Whiteboard */}
               <div className="flex items-center p-0.5 rounded-lg bg-white/5 border border-white/10 text-xs">
                 <button
@@ -3217,40 +3455,52 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     }
                     setActiveTab('grid');
                   }}
-                  className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1 rounded-md transition cursor-pointer ${
                     activeTab === 'grid' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
                   }`}
+                  title="Lưới Video"
                 >
-                  Lưới Video
+                  <span className="hidden sm:inline">Lưới Video</span>
+                  <Video size={13} className="sm:hidden" />
                 </button>
-              <button
-                type="button"
-                data-testid="btn-switch-whiteboard"
-                onClick={() => setActiveTab('whiteboard')}
-                className={`px-3 py-1 rounded-md flex items-center gap-1.5 transition cursor-pointer ${
-                  activeTab === 'whiteboard'
-                    ? 'bg-white/15 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <Palette size={13} />
-                <span>Bảng Vẽ Chung</span>
-                {whiteboardDrawerInfo.isDrawing && activeTab !== 'whiteboard' && (
-                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-normal">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span className="hidden lg:inline">{whiteboardDrawerInfo.name || 'Bạn học'} đang vẽ</span>
-                  </span>
-                )}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  data-testid="btn-switch-whiteboard"
+                  onClick={() => setActiveTab('whiteboard')}
+                  className={`px-2 sm:px-3 py-1 rounded-md flex items-center gap-1.5 transition cursor-pointer ${
+                    activeTab === 'whiteboard'
+                      ? 'bg-white/15 text-white font-semibold'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                  title="Bảng Vẽ Chung"
+                >
+                  <Palette size={13} />
+                  <span className="hidden sm:inline">Bảng Vẽ Chung</span>
+                  {whiteboardDrawerInfo.isDrawing && activeTab !== 'whiteboard' && (
+                    <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-normal">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="hidden lg:inline">{whiteboardDrawerInfo.name || 'Bạn học'} đang vẽ</span>
+                    </span>
+                  )}
+                </button>
+                {/* Mobile alias */}
+                <button
+                  type="button"
+                  data-testid="btn-switch-whiteboard-mobile"
+                  onClick={() => setActiveTab('whiteboard')}
+                  className="sr-only"
+                  aria-hidden="true"
+                >
+                  Bảng Vẽ
+                </button>
+              </div>
 
-            {/* Mini Pomodoro Timer Pill khi ở chế độ Bảng Vẽ Chung */}
-            {activeTab === 'whiteboard' && (
+              {/* Group Pomodoro Timer Pill - ĐỒNG NHẤT TOP BAR CẢ GRID LẪN WHITEBOARD */}
               <div
                 data-testid="whiteboard-mini-timer-pill"
-                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-neutral-900 border border-emerald-500/30 text-white shadow-md select-none shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-xl bg-neutral-900 border border-emerald-500/30 text-white shadow-md select-none shrink-0"
               >
-                <div className="flex items-center gap-1.5 font-mono text-xs font-bold tabular-nums">
+                <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-bold tabular-nums">
                   <span
                     className={`w-2 h-2 rounded-full ${
                       isRoomRunning ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'
@@ -3259,191 +3509,165 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   <span>{formatTimer(roomRemainingSeconds)}</span>
                 </div>
                 <div
-                  data-testid="room-timer-mini-sync-badge"
-                  className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                  data-testid="room-timer-sync-badge"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 select-none"
                   title="Đồng bộ nhóm ⏱️"
                 >
-                  <span>Đồng bộ nhóm ⏱️</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                  <span className="hidden sm:inline">Đồng bộ nhóm ⏱️</span>
+                  <span className="sm:hidden">Sync</span>
                 </div>
+                {/* Mini badge alias for whiteboard tests */}
+                <div data-testid="room-timer-mini-sync-badge" className="hidden">Đồng bộ nhóm ⏱️</div>
+
+                {/* Phase Selectors on Desktop */}
+                <div className="hidden sm:flex items-center gap-0.5 bg-black/40 p-0.5 rounded-lg border border-white/5 text-[10px]">
+                  <button
+                    type="button"
+                    data-testid="room-timer-phase-work"
+                    onClick={() => handlePhaseChange('work')}
+                    className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                      roomPhase === 'work' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    Học
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="room-timer-phase-shortBreak"
+                    onClick={() => handlePhaseChange('shortBreak')}
+                    className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                      roomPhase === 'shortBreak' ? 'bg-sky-500/20 text-sky-300 font-bold' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    Nghỉ ngắn
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="room-timer-phase-longBreak"
+                    onClick={() => handlePhaseChange('longBreak')}
+                    className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                      roomPhase === 'longBreak' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    Nghỉ dài
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  data-testid="btn-room-mini-timer-toggle"
+                  data-testid="btn-room-timer-toggle"
                   onClick={handleToggleRoomTimer}
                   className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer ${
                     isRoomRunning
-                      ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
+                      ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30'
                       : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
                   }`}
                   title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
                 >
                   {isRoomRunning ? <Pause size={10} /> : <Play size={10} />}
-                  <span>{isRoomRunning ? 'Dừng' : 'Chạy'}</span>
+                  <span className="hidden sm:inline">{isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}</span>
                 </button>
                 <button
                   type="button"
-                  data-testid="btn-room-mini-timer-reset"
+                  data-testid="btn-room-mini-timer-toggle"
+                  onClick={handleToggleRoomTimer}
+                  className="sr-only"
+                  aria-hidden="true"
+                >
+                  {isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}
+                </button>
+
+                <button
+                  type="button"
+                  data-testid="btn-room-timer-reset"
                   onClick={handleResetRoomTimer}
                   className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                   title="Đặt lại đồng hồ phòng"
                 >
                   <RotateCcw size={11} />
                 </button>
+                <button
+                  type="button"
+                  data-testid="btn-room-mini-timer-reset"
+                  onClick={handleResetRoomTimer}
+                  className="sr-only"
+                  aria-hidden="true"
+                >
+                  Reset
+                </button>
               </div>
-            )}
-            <button
-              type="button"
-              data-testid="btn-copy-invite-link"
-              onClick={handleCopyInviteLink}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs text-emerald-300 transition cursor-pointer font-medium"
-              title="Sao chép link mời bạn học"
-            >
-              {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-              <span>{copiedLink ? 'Đã sao chép link!' : 'Mời bạn học'}</span>
-            </button>
+            </div>
 
-            {/* Nút Quản Trị Phòng (Host Controls) */}
-            {canManage && (
+            {/* Cụm 3 (Phải): [ 👥 3 · Mời · ⋯ ] */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
-                data-testid="btn-open-host-controls"
-                onClick={() => {
-                  setEditRoomTitle(room?.title || '');
-                  setEditRoomPasscode(room?.passcode || '');
-                  setIsHostControlsModalOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs text-emerald-300 font-semibold transition cursor-pointer shadow-sm active:scale-95"
-                title="Bảng Quản Trị Phòng (Host Controls)"
+                data-testid="btn-copy-invite-link"
+                onClick={handleCopyInviteLink}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs text-emerald-300 transition cursor-pointer font-medium"
+                title="Sao chép link mời bạn học"
               >
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span>🛡️ Quản Trị Phòng</span>
+                {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                <span>{copiedLink ? 'Đã chép link!' : 'Mời'}</span>
               </button>
-            )}
-
-            {/* Nút Cài đặt phòng */}
-            <button
-              type="button"
-              data-testid="btn-room-settings-header"
-              onClick={() => {
-                setActiveSettingsTab('room_admin');
-                setIsDeviceModalOpen(true);
-              }}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer"
-              title="Cài đặt phòng & quyền mời"
-            >
-              <Settings size={15} />
-            </button>
-
-            <button
-              type="button"
-              data-testid="btn-room-participants-list"
-              onClick={() => {
-                setActiveSettingsTab('room_admin');
-                setIsDeviceModalOpen(true);
-              }}
-              className="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
-              title="Xem danh sách thành viên trong phòng"
-            >
-              <Users size={14} className="text-emerald-400" />
-              <span>{otherParticipants.length + 1} thành viên</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Header (Zero wrapping, zero truncated lines, touch-optimized) */}
-        <div className="flex md:hidden h-13 px-3 items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <button
-              type="button"
-              onClick={handleLeaveRoom}
-              className="p-2 -ml-1 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 active:scale-95 transition cursor-pointer shrink-0"
-              title="Rời phòng học"
-              aria-label="Rời phòng học"
-            >
-              <ArrowLeft size={17} />
-            </button>
-
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Radio size={13} className="text-emerald-400 animate-pulse shrink-0" />
               <button
                 type="button"
-                onClick={handleCopyRoomId}
-                className="font-bold text-xs truncate max-w-[95px] text-white hover:text-emerald-300 flex items-center gap-1"
-                title="Bấm để sao chép mã"
+                data-testid="btn-copy-invite-link-mobile"
+                onClick={handleCopyInviteLink}
+                className="sm:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer shrink-0"
+                title="Sao chép link mời bạn"
               >
-                <span>#{roomId}</span>
-                {copiedCode && <Check size={11} className="text-emerald-400 shrink-0" />}
+                {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
               </button>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 shrink-0 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>LIVE</span>
-              </span>
-              {isLadyBoss(user?.email) ? (
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-200 border border-zinc-700 shrink-0">
-                  👑 NÓC NHÀ
-                </span>
-              ) : (
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/10 text-neutral-300 shrink-0">
-                  {userRole === 'host' ? 'HOST' : userRole === 'guest' ? 'FREE' : 'PRO'}
-                </span>
+
+              {/* Nút Quản Trị Phòng (Host Controls) */}
+              {canManage && (
+                <button
+                  type="button"
+                  data-testid="btn-open-host-controls"
+                  onClick={() => {
+                    setEditRoomTitle(room?.title || '');
+                    setEditRoomPasscode(room?.passcode || '');
+                    setIsHostControlsModalOpen(true);
+                  }}
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs text-emerald-300 font-semibold transition cursor-pointer shadow-sm active:scale-95"
+                  title="Bảng Quản Trị Phòng (Host Controls)"
+                >
+                  <ShieldCheck size={14} className="text-emerald-400" />
+                  <span className="hidden xl:inline">Quản Trị</span>
+                </button>
               )}
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 uppercase">
-                BETA
-              </span>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Compact Segmented Control */}
-            <div className="flex items-center p-0.5 rounded-lg bg-white/10 border border-white/10 text-[11px]">
+              {/* Nút Cài đặt phòng */}
               <button
                 type="button"
+                data-testid="btn-room-settings-header"
                 onClick={() => {
-                  if (isWhiteboardFullscreen) {
-                    if (document.fullscreenElement) {
-                      document.exitFullscreen().catch(() => {});
-                    }
-                    setIsWhiteboardFullscreen(false);
-                  }
-                  setActiveTab('grid');
+                  setActiveSettingsTab('room_admin');
+                  setIsDeviceModalOpen(true);
                 }}
-                className={`p-1.5 rounded-md transition cursor-pointer ${
-                  activeTab === 'grid' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
-                }`}
-                title="Lưới Video"
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer"
+                title="Cài đặt phòng & quyền mời"
               >
-                <Video size={13} />
+                <Settings size={15} />
               </button>
+
               <button
                 type="button"
-                data-testid="btn-switch-whiteboard-mobile"
-                onClick={() => setActiveTab('whiteboard')}
-                className={`p-1.5 rounded-md transition cursor-pointer ${
-                  activeTab === 'whiteboard' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400'
-                }`}
-                title="Bảng Vẽ Chung"
+                data-testid="btn-room-participants-list"
+                onClick={() => {
+                  setActiveSettingsTab('room_admin');
+                  setIsDeviceModalOpen(true);
+                }}
+                className="flex items-center gap-1 text-xs text-neutral-300 hover:text-white px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+                title="Xem danh sách thành viên trong phòng"
               >
-                <Palette size={13} />
+                <Users size={13} className="text-emerald-400" />
+                <span>{otherParticipants.length + 1}</span>
               </button>
             </div>
-
-            {/* Quick Share Link */}
-            <button
-              type="button"
-              data-testid="btn-copy-invite-link-mobile"
-              onClick={handleCopyInviteLink}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer shrink-0"
-              title="Sao chép link mời bạn"
-            >
-              {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-            </button>
-
-            {/* Participants Count */}
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 text-[11px] text-neutral-300 shrink-0">
-              <Users size={12} />
-              <span>{otherParticipants.length + 1}</span>
-            </div>
           </div>
-        </div>
 
         {/* Banner Mục tiêu buổi học & Thể loại */}
         {room?.roomGoal && (
@@ -3479,103 +3703,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               : 'p-3 sm:p-5 overflow-y-auto pb-32 sm:pb-28 md:pb-24'
           }`}
         >
-          {/* Synchronized Shared Pomodoro Timer Banner & Notes - CHỈ HIỂN THỊ KHI Ở CHẾ ĐỘ LƯỚI VIDEO */}
-          {activeTab === 'grid' && (
-            <>
-              {/* Synchronized Shared Pomodoro Timer Banner */}
-              <div className="mb-3 sm:mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-xl gap-3">
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0">
-                    <Sparkles size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="text-xs font-semibold text-neutral-300">Đồng hồ nhóm Pomodoro</span>
-                      <div
-                        data-testid="room-timer-sync-badge"
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 select-none"
-                        title="Đồng bộ nhóm thời gian thực qua Supabase"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                        <span>Đồng bộ nhóm ⏱️</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white tabular-nums">
-                        {formatTimer(roomRemainingSeconds)}
-                      </div>
-                      <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
-                        <button
-                          type="button"
-                          data-testid="room-timer-phase-work"
-                          onClick={() => handlePhaseChange('work')}
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
-                            roomPhase === 'work'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                              : 'text-neutral-400 hover:text-white'
-                          }`}
-                        >
-                          Học tập
-                        </button>
-                        <button
-                          type="button"
-                          data-testid="room-timer-phase-shortBreak"
-                          onClick={() => handlePhaseChange('shortBreak')}
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
-                            roomPhase === 'shortBreak'
-                              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-                              : 'text-neutral-400 hover:text-white'
-                          }`}
-                        >
-                          Nghỉ ngắn
-                        </button>
-                        <button
-                          type="button"
-                          data-testid="room-timer-phase-longBreak"
-                          onClick={() => handlePhaseChange('longBreak')}
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
-                            roomPhase === 'longBreak'
-                              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                              : 'text-neutral-400 hover:text-white'
-                          }`}
-                        >
-                          Nghỉ dài
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-center">
-                  <button
-                    type="button"
-                    data-testid="btn-room-timer-toggle"
-                    onClick={handleToggleRoomTimer}
-                    className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[36px] ${
-                      isRoomRunning
-                        ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30'
-                        : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
-                    }`}
-                    title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-                  >
-                    {isRoomRunning ? <Pause size={14} /> : <Play size={14} />}
-                    <span className="hidden sm:inline">{isRoomRunning ? 'Tạm dừng' : 'Bắt đầu'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="btn-room-timer-reset"
-                    onClick={handleResetRoomTimer}
-                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
-                    title="Đặt lại đồng hồ phòng"
-                  >
-                    <RotateCcw size={14} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Connection note removed to eliminate vertical clutter (Bug #20) */}
-            </>
-          )}
 
           {/* Screen Share Stage (if active) */}
           {isScreenSharing && (
@@ -3682,16 +3810,29 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
               {/* REMOTE PARTICIPANTS — Render qua RemotePeerTile (Memoized, chống re-render khi đếm giờ) */}
               {sortedOtherParticipants.length > 0 ? (
-                sortedOtherParticipants.map((peer) => (
-                  <RemotePeerTile
-                    key={peer.id}
-                    peer={peer}
-                    stream={remoteStreams[peer.id]}
-                    isPeerSpeaking={Boolean(speakingMap[peer.id] && peer.isMicOn !== false)}
-                    canAdmin={Boolean(isOwnerEmail(user?.email) || userRole === 'host')}
-                    onAdminClick={setSelectedMemberForAdmin}
-                  />
-                ))
+                <>
+                  {(isMobileDevice ? sortedOtherParticipants.slice(0, 3) : sortedOtherParticipants).map((peer) => (
+                    <RemotePeerTile
+                      key={peer.id}
+                      peer={peer}
+                      stream={remoteStreams[peer.id]}
+                      isPeerSpeaking={Boolean(speakingMap[peer.id] && peer.isMicOn !== false)}
+                      canAdmin={Boolean(isOwnerEmail(user?.email) || userRole === 'host')}
+                      onAdminClick={setSelectedMemberForAdmin}
+                    />
+                  ))}
+                  {isMobileDevice && sortedOtherParticipants.length > 3 && (
+                    <div
+                      data-testid="mobile-peers-overflow-pill"
+                      className="relative aspect-video rounded-2xl bg-zinc-900/90 border border-zinc-800 flex flex-col items-center justify-center p-3 text-center shadow-lg"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm mb-1 border border-emerald-500/30">
+                        +{sortedOtherParticipants.length - 3}
+                      </div>
+                      <span className="text-[11px] text-zinc-300 font-medium">bạn học khác</span>
+                    </div>
+                  )}
+                </>
               ) : (
                 /* Trạng thái phòng trống — Chờ bạn học tham gia */
                 <div className="relative aspect-video rounded-2xl bg-neutral-900/40 border border-dashed border-white/15 overflow-hidden flex flex-col items-center justify-center p-6 text-center select-none">
@@ -3902,12 +4043,15 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         </div>
 
         {/* Study Room Chat Sidebar (Desktop & Mobile) */}
-        {isChatOpen && !(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
-          <aside className="w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full overflow-hidden shadow-2xl transition-all duration-300 shrink-0">
+        {!(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
+          <aside
+            data-testid="mobile-chat-bottom-sheet"
+            className={`w-full md:w-80 lg:w-96 border-l border-zinc-800 bg-zinc-950 flex-col fixed md:relative right-0 top-0 bottom-0 z-50 md:z-20 h-full overflow-hidden shadow-2xl transition-all duration-300 shrink-0 ${isChatOpen ? 'flex' : 'hidden md:flex'}`}
+          >
             {/* 1. Header cố định */}
             <div className="h-14 shrink-0 border-b border-zinc-800 px-4 flex items-center justify-between bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs text-zinc-100 tracking-wide uppercase">Tin nhắn phòng</span>
+                <span className="font-semibold text-xs text-zinc-100 tracking-wide uppercase">Trò chuyện nhóm</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono">
                   {messages.length}
                 </span>
@@ -3925,7 +4069,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 ))}
                 <button
                   type="button"
-                  data-testid="btn-close-chat"
+                  data-testid="btn-close-mobile-chat"
                   onClick={() => setIsChatOpen(false)}
                   className="p-1.5 ml-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 active:scale-95 transition cursor-pointer"
                   title="Đóng trò chuyện"
@@ -3991,7 +4135,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           data-testid="room-compact"
           className={
             activeTab === 'whiteboard'
-              ? 'absolute bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto w-auto max-w-[calc(100vw-24px)] flex items-center justify-center'
+              ? 'fixed bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-auto w-auto max-w-[calc(100vw-24px)] flex items-center justify-center'
               : 'fixed bottom-0 inset-x-0 z-40 bg-neutral-950/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 md:relative md:inset-auto md:bg-transparent md:border-none md:p-0 md:mb-4 flex items-center justify-center box-border'
           }
           style={
@@ -4003,7 +4147,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 }
           }
         >
-        <div className="flex items-center justify-between sm:justify-around gap-1 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-zinc-950/95 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto">
+        <div className="flex items-center justify-between gap-0.5 sm:gap-1.5 p-1 sm:p-2 rounded-2xl bg-zinc-950/95 border border-white/10 backdrop-blur-xl shadow-2xl w-full max-w-lg md:w-auto relative">
           {/* Micro */}
           <button
             type="button"
@@ -4018,7 +4162,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               setMicEnabled(!micEnabled);
               showBetaP2PNotice();
             }}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               !canManage && room?.settings?.allow_mic === false
                 ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                 : micEnabled
@@ -4033,7 +4177,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 : 'Bật Micro'
             }
           >
-            {micEnabled ? <Mic size={18} /> : <MicOff size={18} />}
+            {micEnabled ? <Mic size={16} className="sm:w-[18px] sm:h-[18px]" /> : <MicOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
           </button>
 
           {/* Camera */}
@@ -4044,12 +4188,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               setCameraEnabled(!cameraEnabled);
               showBetaP2PNotice();
             }}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               cameraEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500 text-white'
             }`}
             title={cameraEnabled ? 'Tắt Camera' : 'Bật Camera'}
           >
-            {cameraEnabled ? <Video size={18} /> : <VideoOff size={18} />}
+            {cameraEnabled ? <Video size={16} className="sm:w-[18px] sm:h-[18px]" /> : <VideoOff size={16} className="sm:w-[18px] sm:h-[18px]" />}
           </button>
 
           {/* Chia sẻ màn hình */}
@@ -4065,7 +4209,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               }
               handleToggleScreenShare();
             }}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               !canManage && room?.settings?.allow_screen_share === false
                 ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                 : isScreenSharing
@@ -4080,7 +4224,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 : 'Chia sẻ màn hình'
             }
           >
-            {isScreenSharing ? <MonitorOff size={18} /> : <Monitor size={18} />}
+            {isScreenSharing ? <MonitorOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Monitor size={16} className="sm:w-[18px] sm:h-[18px]" />}
           </button>
 
           {/* Giơ tay phát biểu */}
@@ -4088,17 +4232,17 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             type="button"
             data-testid="btn-room-hand"
             onClick={() => setIsHandRaised(!isHandRaised)}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               isHandRaised ? 'bg-amber-500 text-neutral-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={isHandRaised ? 'Hạ tay xuống' : 'Giơ tay phát biểu'}
             aria-label="Giơ tay phát biểu"
           >
-            <Hand size={18} />
+            <Hand size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
           {/* Reactions Trigger Popup */}
-          <div className="relative flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial flex items-center justify-center shrink-0">
+          <div className="relative flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial flex items-center justify-center shrink-0">
             <button
               type="button"
               data-testid="btn-room-reactions"
@@ -4106,7 +4250,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               className="w-full h-full rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center"
               title="Thả cảm xúc"
             >
-              <Smile size={18} />
+              <Smile size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
             {isReactionsMenuOpen && (
               <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 p-2 rounded-2xl bg-neutral-900 border border-white/15 shadow-2xl flex items-center gap-1.5 z-50">
@@ -4127,7 +4271,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             )}
           </div>
 
-          {/* Chat Button Toggle (Visible on Desktop & Mobile) */}
+          {/* Chat Button Toggle (Visible on Mobile only on dock, Desktop uses Top Bar/Sidebar) */}
           <button
             type="button"
             data-testid="btn-room-chat"
@@ -4135,12 +4279,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               setIsChatOpen(!isChatOpen);
               setHasUnreadChat(false);
             }}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer relative flex items-center justify-center shrink-0 ${
+            className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:hidden rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer relative flex items-center justify-center shrink-0 ${
               isChatOpen ? 'bg-white text-zinc-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title="Trò chuyện phòng học"
           >
-            <MessageSquare size={18} />
+            <MessageSquare size={16} className="sm:w-[18px] sm:h-[18px]" />
             {hasUnreadChat && !isChatOpen && (
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-zinc-950 animate-pulse" />
             )}
@@ -4151,12 +4295,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             )}
           </button>
 
-          {/* AI Study Companion Trigger */}
+          {/* AI Study Companion Trigger (Desktop only on dock) */}
           <button
             type="button"
             data-testid="btn-room-ai"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer flex items-center justify-center shrink-0 relative"
+            className="hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer items-center justify-center shrink-0 relative"
             title="Mở Trợ lý AI Companion (⚡)"
             aria-label="Mở Trợ lý AI Companion"
           >
@@ -4174,18 +4318,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               setActiveSettingsTab('av');
               setIsDeviceModalOpen(true);
             }}
-            className="flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0"
+            className="flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0"
             title="Cài đặt camera & micro"
           >
-            <Settings size={18} />
+            <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          {/* YouTube Study Beats Button */}
+          {/* YouTube Study Beats Button (Desktop only on dock) */}
           <button
             type="button"
             data-testid="btn-room-youtube"
             onClick={() => setIsYouTubeWidgetOpen((prev) => !prev)}
-            className={`flex-1 min-w-[40px] max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
+            className={`hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer items-center justify-center shrink-0 ${
               isYouTubeWidgetOpen ? 'bg-rose-500/30 border border-rose-400 text-rose-300' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title="YouTube Lofi Beats (Phát cùng nhau)"

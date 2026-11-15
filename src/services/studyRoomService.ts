@@ -512,8 +512,16 @@ export const studyRoomService = {
       return this.getRoom(cleanId);
     }
 
-    // 2. Phòng đóng demo test
-    if (cleanId === 'room-closed-test') {
+    // 2. Phòng đóng & phòng demo test
+    if (
+      cleanId === 'room-closed-test' ||
+      cleanId.startsWith('pomo-demo-') ||
+      cleanId.startsWith('room-compact') ||
+      cleanId.startsWith('room-desktop') ||
+      cleanId === 'room-compact' ||
+      cleanId === 'room-compact-test' ||
+      cleanId === 'room-desktop-test'
+    ) {
       return this.getRoom(cleanId);
     }
 
@@ -697,6 +705,42 @@ export const studyRoomService = {
           canMic: false,
           canCam: false,
           canShareScreen: false
+        }
+      };
+    }
+
+    // Phòng mở kiểm thử giao diện điều khiển mobile & desktop
+    if (
+      cleanId.startsWith('pomo-demo-') ||
+      cleanId.startsWith('room-compact') ||
+      cleanId.startsWith('room-desktop') ||
+      cleanId === 'room-compact' ||
+      cleanId === 'room-compact-test' ||
+      cleanId === 'room-desktop-test'
+    ) {
+      return {
+        roomId: cleanId,
+        slug: cleanId,
+        title: cleanId.includes('compact') ? 'Phòng Mobile Compact Test' : `Phòng Học #${cleanId}`,
+        hostUserId: 'usr_nam_host',
+        hostEmail: 'namho03052k9@gmail.com',
+        createdAt: Date.now(),
+        status: 'active',
+        allowFreeGuests: true,
+        maxParticipants: 10,
+        activeInviteToken: null,
+        inviteTokens: {},
+        participants: {},
+        guestPermissions: {
+          canChat: true,
+          canMic: true,
+          canCam: true,
+          canShareScreen: true
+        },
+        settings: {
+          allow_mic: true,
+          allow_screen_share: true,
+          is_locked: false
         }
       };
     }

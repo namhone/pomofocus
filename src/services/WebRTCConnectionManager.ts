@@ -178,14 +178,29 @@ export class WebRTCConnectionManager {
     targetPeerId: string,
     data: any
   ) {
+    let cleanData = data;
+    if (signalType === 'ICE_CANDIDATE' && data) {
+      cleanData = typeof data.toJSON === 'function' ? data.toJSON() : {
+        candidate: data.candidate,
+        sdpMid: data.sdpMid,
+        sdpMLineIndex: data.sdpMLineIndex,
+        usernameFragment: data.usernameFragment
+      };
+    } else if ((signalType === 'OFFER' || signalType === 'ANSWER') && data) {
+      cleanData = typeof data.toJSON === 'function' ? data.toJSON() : {
+        type: data.type,
+        sdp: data.sdp
+      };
+    }
+
     const payload: P2PSignalPayload & { senderId: string; targetId: string; sdp?: any; candidate?: any } = {
       fromPeerId: this.myUserId,
       targetPeerId,
       senderId: this.myUserId,
       targetId: targetPeerId,
       signalType,
-      data,
-      ...(signalType === 'OFFER' || signalType === 'ANSWER' ? { sdp: data } : { candidate: data })
+      data: cleanData,
+      ...(signalType === 'OFFER' || signalType === 'ANSWER' ? { sdp: cleanData } : { candidate: cleanData })
     };
 
     // 1. Kênh p2p-signal thống nhất trên Supabase Realtime
@@ -210,14 +225,18 @@ export class WebRTCConnectionManager {
 
     // 3. Local BroadcastChannel liên lạc giữa các tab cùng trình duyệt
     if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage({
-        event: 'p2p-signal',
-        payload,
-      });
-      this.broadcastChannel.postMessage({
-        event: legacyEvent,
-        payload,
-      });
+      try {
+        this.broadcastChannel.postMessage({
+          event: 'p2p-signal',
+          payload,
+        });
+        this.broadcastChannel.postMessage({
+          event: legacyEvent,
+          payload,
+        });
+      } catch (err) {
+        console.warn('[WebRTC] Lỗi BroadcastChannel postMessage:', err);
+      }
     }
   }
 
@@ -342,6 +361,18 @@ export class WebRTCConnectionManager {
     } finally {
       this.makingOfferMap.set(peerId, false);
     }
+  }
+
+  /**
+   * Kích hoạt ICE Restart đồng loạt trên tất cả các kết nối P2P đang mở khi thiết bị nhận sự kiện online
+   */
+  public restartAllPeers(): void {
+    console.log('[WebRTC] Kích hoạt restartAllPeers cho toàn bộ ma trận P2P');
+    this.peerConnections.forEach((pc, peerId) => {
+      if (pc && pc.signalingState !== 'closed') {
+        this.restartIceForPeer(peerId);
+      }
+    });
   }
   /**
    * Tự động kiểm tra và phục hồi các kết nối peer bị đứt đoạn (Background / Network Change)
