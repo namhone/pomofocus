@@ -1026,6 +1026,26 @@ export const supabase = {
             filters.push({ col: column, op: 'eq', val: value });
             return queryBuilder;
           },
+          neq: (column: string, value: any) => {
+            filters.push({ col: column, op: 'neq', val: value });
+            return queryBuilder;
+          },
+          lt: (column: string, value: any) => {
+            filters.push({ col: column, op: 'lt', val: value });
+            return queryBuilder;
+          },
+          lte: (column: string, value: any) => {
+            filters.push({ col: column, op: 'lte', val: value });
+            return queryBuilder;
+          },
+          gt: (column: string, value: any) => {
+            filters.push({ col: column, op: 'gt', val: value });
+            return queryBuilder;
+          },
+          gte: (column: string, value: any) => {
+            filters.push({ col: column, op: 'gte', val: value });
+            return queryBuilder;
+          },
           order: (column: string, options?: { ascending?: boolean }) => {
             orderClause = { col: column, ascending: options?.ascending !== false };
             return queryBuilder;

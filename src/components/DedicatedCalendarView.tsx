@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db, PlannerBlockRecord } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
+import { generateUUID } from '../utils/uuid';
 import { Task } from '../types/tasks';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
@@ -120,7 +121,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
     try {
       const newBlock: PlannerBlockRecord = {
-        id: `blk_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: generateUUID(),
         dateString: selectedDateStr,
         startHour: selectedHour,
         title: newTitle.trim(),

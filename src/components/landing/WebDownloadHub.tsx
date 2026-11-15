@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   Download,
   Smartphone,
@@ -116,11 +116,26 @@ export const WebDownloadHub: React.FC = () => {
     setTilt(INITIAL_TILT);
   };
 
+  const copyTimeoutRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   const handleCopy = async () => {
     const success = await copyToClipboard(PUBLIC_APK_URL);
     if (success) {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => {
+        try {
+          if (typeof window !== 'undefined') {
+            setCopied(false);
+          }
+        } catch {}
+      }, 2000);
     }
   };
 

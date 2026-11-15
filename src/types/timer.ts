@@ -58,5 +58,6 @@ export interface RoomTimerSyncPayload {
   phase: RoomTimerPhase;
   senderId: string;
   timestamp: number;
+  serverSentAt?: number;
 }
 

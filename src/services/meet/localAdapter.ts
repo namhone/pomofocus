@@ -2,6 +2,7 @@ import type { IMeetRepository, StudyRoom, RoomMessage, InviteTokenResult, JoinRo
 import { studyRoomService } from '../studyRoomService';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/lib/supabase';
+import { generateUUID } from '../../utils/uuid';
 
 /**
  * LOCAL MEET ADAPTER
@@ -87,7 +88,7 @@ export class LocalMeetAdapter implements IMeetRepository {
   async sendMessage(roomId: string, clientMessageId: string, content: string): Promise<RoomMessage> {
     const user = this.getEffectiveUser();
     const msg: RoomMessage = {
-      id: 'local_msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+      id: generateUUID(),
       roomId,
       senderUserId: user.id,
       clientMessageId,

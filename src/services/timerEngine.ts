@@ -1,6 +1,7 @@
 import { FocusSessionRecord, PersistedTimerRuntime, TimerPhase, TimerSettings, TimerStatus } from '../types/timer';
 import { getVietnamTodayDateKey } from '../utils/timezone';
 import { TimerSyncPayload } from './tabCoordinator';
+import { generateUUID } from '../utils/uuid';
 
 export const DEFAULT_SETTINGS: TimerSettings = {
   pomodoroMinutes: 25,
@@ -381,10 +382,7 @@ export class TimerEngine {
   }
 
   private generateId(): string {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID();
-    }
-    return 'sess_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+    return generateUUID();
   }
 
   public persist(): void {

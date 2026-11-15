@@ -41,6 +41,7 @@ import { getStaticRouteTitle, updateDocumentTitle } from './stores/useTimerStore
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
+import { runStorageSchemaMigration } from './utils/safeStorage';
 
 // Lazy-load secondary / heavy floating widgets & overlays to keep entry bundle < 100kB gzip
 const TasksWidget = lazy(() =>
@@ -95,6 +96,34 @@ export const App: React.FC = () => {
   const initTimer = useTimerStore((state) => state.init);
   const destroyTimer = useTimerStore((state) => state.destroy);
   const timerLifecycleGeneration = useRef(0);
+
+  // V8.1: Run storage schema migration on app startup to purge obsolete keys and heavy data
+  useEffect(() => {
+    runStorageSchemaMigration();
+  }, []);
+
+  // V8.1 (Feature 17): Auto-refresh AI energy balance (⚡) & PRO entitlement when returning from banking app
+  useEffect(() => {
+    const handleAppVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible' || !document.hidden) {
+        useAiStore.getState().refreshCreditsFromCloud();
+        const user = useAuthStore.getState().user;
+        if (user?.id) {
+          useAuthStore.getState().syncUserFromSupabase(user.id);
+        }
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleAppVisibilityOrFocus);
+    window.addEventListener('pageshow', handleAppVisibilityOrFocus);
+    window.addEventListener('focus', handleAppVisibilityOrFocus);
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleAppVisibilityOrFocus);
+      window.removeEventListener('pageshow', handleAppVisibilityOrFocus);
+      window.removeEventListener('focus', handleAppVisibilityOrFocus);
+    };
+  }, []);
 
   // Khởi tạo vòng đời Timer duy nhất ở cấp độ App
   useEffect(() => {

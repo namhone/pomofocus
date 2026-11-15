@@ -4,7 +4,8 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
-import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess, generateInitialsAvatarSvg, getDisplayAvatar } from '../services/authService';
+import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
+import { UserAvatar } from './common/UserAvatar';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Database,
@@ -89,7 +90,6 @@ export const PlatformHeader: React.FC = () => {
         (user?.email && isOwnerEmail(user.email)))
   );
 
-    const effectiveAvatar = user ? getDisplayAvatar(user) : undefined;
 
   const isProAccount = Boolean(
     isAuthenticated &&
@@ -301,24 +301,13 @@ export const PlatformHeader: React.FC = () => {
             title={isAuthenticated && user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm mở menu tiện ích'}
             aria-label="Tài khoản và Menu"
           >
-            {!isAuthenticated ? (
-              <div className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700/60 text-zinc-400 flex items-center justify-center shrink-0">
-                <User size={13} className="text-zinc-400" />
-              </div>
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/20 shrink-0 flex items-center justify-center">
-                <img
-                  src={effectiveAvatar || generateInitialsAvatarSvg(user?.displayName, 64)}
-                  alt={user?.displayName || 'Avatar'}
-                  className="w-full h-full object-cover bg-zinc-800"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.onerror = null;
-                    target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 64);
-                  }}
-                />
-              </div>
-            )}
+            <UserAvatar
+              user={isAuthenticated ? user : null}
+              size="xs"
+              ring={isAuthenticated ? 'ring-1 ring-white/20' : 'ring-1 ring-zinc-700/60'}
+              alt={user?.displayName || 'Avatar'}
+              testId="capsule-user-avatar"
+            />
           </button>
 
           {/* ⚡ Số Credits */}
@@ -564,18 +553,13 @@ export const PlatformHeader: React.FC = () => {
                 aria-expanded={isUserDropdownOpen}
                 aria-haspopup="menu"
               >
-                <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
-                  <img
-                    src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 48)}
-                    alt={user.displayName}
-                    className="w-full h-full object-cover bg-zinc-800"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 48);
-                    }}
-                  />
-                </div>
+                <UserAvatar
+                  user={user}
+                  size="xs"
+                  ring="ring-1 ring-zinc-700"
+                  alt={user.displayName}
+                  testId="desktop-header-profile-avatar"
+                />
                 <span className="text-xs font-medium truncate hidden md:inline-block max-w-[85px]">
                   {user.displayName}
                 </span>
@@ -595,18 +579,13 @@ export const PlatformHeader: React.FC = () => {
                 >
                   {/* Mini Header Profile Info */}
                   <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center gap-2.5 mb-1.5">
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
-                      <img
-                        src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 64)}
-                        alt={user.displayName}
-                        className="w-full h-full object-cover bg-zinc-800"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.onerror = null;
-                          target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 64);
-                        }}
-                      />
-                    </div>
+                    <UserAvatar
+                      user={user}
+                      size="sm"
+                      ring="ring-1 ring-zinc-700"
+                      alt={user.displayName}
+                      testId="dropdown-user-avatar"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-white truncate">
                         {user.displayName}
@@ -939,18 +918,13 @@ export const PlatformHeader: React.FC = () => {
           <div className="pt-2 mt-1 border-t border-zinc-800/80 space-y-1.5">
             <div className="p-2 rounded-xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-zinc-700 shrink-0 flex items-center justify-center">
-                  <img
-                    src={effectiveAvatar || generateInitialsAvatarSvg(user.displayName, 56)}
-                    alt={user.displayName}
-                    className="w-full h-full object-cover bg-zinc-800"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src = generateInitialsAvatarSvg(user?.displayName || user?.email || 'User', 56);
-                    }}
-                  />
-                </div>
+                <UserAvatar
+                  user={user}
+                  size="sm"
+                  ring="ring-1 ring-zinc-700"
+                  alt={user.displayName}
+                  testId="drawer-user-avatar"
+                />
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
                   <div className="text-[9px] text-zinc-400 font-mono truncate">{user.email}</div>

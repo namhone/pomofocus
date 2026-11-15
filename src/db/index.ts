@@ -9,6 +9,7 @@ export type { Task, LocalTask, FocusSessionRecord, LocalFocusSessionPhase, Local
 
 export interface LocalAiMessage {
   id: string;
+  userId?: string;
   conversationId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -22,10 +23,14 @@ export interface LocalAiMessage {
 
 export interface SyncMutation {
   id: string;
+  userId?: string;
   tableName: 'tasks' | 'notes' | 'focus_sessions' | 'projects';
   recordId: string;
   action: 'CREATE' | 'UPDATE' | 'DELETE';
   payload: any;
+  status?: 'pending' | 'processing' | 'failed';
+  lastError?: string;
+  nextRetryAt?: number;
   createdAt: number;
   retryCount: number;
 }
@@ -82,6 +87,39 @@ export class PomoDatabase extends Dexie {
       notes: 'id, linkedTaskId, linkedProjectId, updatedAt',
       custom_backgrounds: 'id, createdAt, mediaType',
       planner_blocks: 'id, dateString, startHour, taskId',
+    });
+
+    // Version 3 (V8.1 Milestone 2: User Isolation, Soft Deletes & Resilient Queue)
+    this.version(3).stores({
+      tasks: 'id, userId, completed, order, orderIndex, status, projectId, priority, createdAt, updatedAt, deletedAt, synced',
+      focus_sessions: 'id, userId, dateString, completedAt, phase, taskId, synced',
+      ai_messages: 'id, userId, conversationId, createdAt',
+      sync_queue: 'id, userId, tableName, recordId, action, status, createdAt, retryCount, nextRetryAt',
+      projects: 'id, userId, name, createdAt, deletedAt, synced',
+      notes: 'id, userId, linkedTaskId, linkedProjectId, updatedAt, deletedAt, synced',
+      custom_backgrounds: 'id, createdAt, mediaType',
+      planner_blocks: 'id, dateString, startHour, taskId',
+    }).upgrade(async (tx) => {
+      // Data preservation migration: ensure existing records get userId: 'guest' if undefined
+      await tx.table('tasks').toCollection().modify((task: any) => {
+        if (!task.userId) task.userId = 'guest';
+        if (task.deletedAt === undefined) task.deletedAt = null;
+      });
+      await tx.table('notes').toCollection().modify((note: any) => {
+        if (!note.userId) note.userId = 'guest';
+        if (note.deletedAt === undefined) note.deletedAt = null;
+      });
+      await tx.table('projects').toCollection().modify((proj: any) => {
+        if (!proj.userId) proj.userId = 'guest';
+        if (proj.deletedAt === undefined) proj.deletedAt = null;
+      });
+      await tx.table('ai_messages').toCollection().modify((msg: any) => {
+        if (!msg.userId) msg.userId = 'guest';
+      });
+      await tx.table('sync_queue').toCollection().modify((mut: any) => {
+        if (!mut.userId) mut.userId = 'guest';
+        if (!mut.status) mut.status = 'pending';
+      });
     });
   }
 }

@@ -42,7 +42,7 @@ import { MobileSettingsView } from './views/MobileSettingsView';
 import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
 import { AiCreditsTopupModal } from '../AiCreditsTopupModal';
 import { GlobalAudioHost } from '../GlobalAudioHost';
-import { getUserInitial } from '../../services/authService';
+import { UserAvatar } from '../common/UserAvatar';
 import { isNativeApiRuntime } from '../../utils/apiConfig';
 
 const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
@@ -402,11 +402,12 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             title="Tài khoản & Đồng bộ đám mây"
             aria-label="Tài khoản và Đồng bộ đám mây"
           >
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.displayName || 'Avatar'} className="w-full h-full object-cover" />
-            ) : (
-              <span>{getUserInitial(user)}</span>
-            )}
+            <UserAvatar
+              user={user}
+              size="sm"
+              alt={user?.displayName || 'Avatar'}
+              testId="mobile-header-avatar"
+            />
           </button>
         </div>
       </header>

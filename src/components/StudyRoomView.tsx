@@ -19,9 +19,13 @@ import {
 } from '../services/studyRoomService';
 import { WhiteboardView } from './WhiteboardView';
 import { WhiteboardStroke } from '../types/whiteboard';
+import { safeStorage } from '../utils/safeStorage';
 import { RoomTimerSyncPayload, RoomTimerPhase } from '../types/timer';
 export type { RoomTimerSyncPayload, RoomTimerPhase };
+import { generateUUID } from '../utils/uuid';
+import { getServerTime } from '../utils/clockSync';
 import { AiCompanionWidget } from './AiCompanionWidget';
+import { UserAvatar } from './common/UserAvatar';
 import { useAiStore } from '../stores/useAiStore';
 import {
   Video,
@@ -88,7 +92,7 @@ export const getStoredWhiteboardStrokes = (roomId: string): WhiteboardStroke[] =
   if (cached && cached.length > 0) return cached;
   if (typeof window !== 'undefined') {
     try {
-      const raw = localStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
+      const raw = safeStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -107,9 +111,9 @@ export const persistWhiteboardStrokes = (roomId: string, strokes: WhiteboardStro
   if (typeof window !== 'undefined') {
     try {
       if (strokes.length > 0) {
-        localStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
+        safeStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
       } else {
-        localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        safeStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
       }
     } catch {}
   }
@@ -175,9 +179,14 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
         />
       ) : (
         <div className="flex flex-col items-center gap-2 text-zinc-400 select-none">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-xl font-bold text-zinc-200 shadow-md">
-            {(peer.name || 'K').charAt(0).toUpperCase()}
-          </div>
+          <UserAvatar
+            name={peer.name}
+            avatarUrl={(peer as any).avatar || (peer as any).avatarUrl}
+            size="xl"
+            ring="border-2 border-zinc-700 shadow-md"
+            alt={peer.name || 'Bạn học'}
+            testId="peer-tile-avatar"
+          />
           <div className="text-center px-3">
             <div className="text-xs font-semibold text-white truncate max-w-[150px]">
               {peer.name || 'Bạn học'}
@@ -567,8 +576,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       return [
         ...prev,
         {
-          id: newMsg.id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-          clientMessageId: newMsg.clientMessageId || `cmsg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          id: newMsg.id || generateUUID(),
+          clientMessageId: newMsg.clientMessageId || generateUUID(),
           sender: newMsg.sender,
           senderId: newMsg.senderId,
           text: newMsg.text,
@@ -609,12 +618,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     }
   }, [user]);
 
-  // Tạo clientSessionId ngẫu nhiên (crypto.randomUUID()) cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
-  const [clientSessionId] = useState(() =>
-    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `cs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-  );
+  // Tạo clientSessionId ngẫu nhiên chuẩn RFC4122 cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
+  const [clientSessionId] = useState(() => generateUUID());
   const [participantId] = useState(() => `${user?.id || 'guest'}_${clientSessionId.slice(0, 8)}`);
 
   // WebRTC Real Remote Streams
@@ -657,7 +662,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       isRunning: nextRunning,
       phase: roomPhase,
       senderId: user?.id || participantId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      serverSentAt: getServerTime()
     });
   }, [isRoomRunning, roomRemainingSeconds, roomPhase, user?.id, participantId, broadcastRoomTimer]);
 
@@ -671,7 +677,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       isRunning: false,
       phase: roomPhase,
       senderId: user?.id || participantId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      serverSentAt: getServerTime()
     });
   }, [roomPhase, user?.id, participantId, broadcastRoomTimer]);
 
@@ -686,7 +693,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       isRunning: false,
       phase: newPhase,
       senderId: user?.id || participantId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      serverSentAt: getServerTime()
     });
   }, [user?.id, participantId, broadcastRoomTimer]);
 
@@ -1432,7 +1440,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         const currentUserId = user?.id || participantId;
         if (syncData.senderId && syncData.senderId !== currentUserId && syncData.senderId !== participantId) {
           if (typeof syncData.remainingSeconds === 'number') {
-            setRoomRemainingSeconds(syncData.remainingSeconds);
+            const now = getServerTime();
+            const rawSentAt = syncData.serverSentAt || syncData.timestamp || now;
+            const isPlausibleRecentTimestamp = rawSentAt > 1600000000000 && Math.abs(now - rawSentAt) < 86400000;
+            const elapsed = syncData.isRunning && isPlausibleRecentTimestamp
+              ? Math.max(0, Math.floor((now - rawSentAt) / 1000))
+              : 0;
+            const adjustedRemaining = Math.max(0, syncData.remainingSeconds - elapsed);
+            setRoomRemainingSeconds(adjustedRemaining);
           }
           if (typeof syncData.isRunning === 'boolean') {
             setIsRoomRunning(syncData.isRunning);
@@ -1932,7 +1947,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           remainingSeconds: roomRemainingSecondsRef.current,
           isRunning: isRoomRunningRef.current,
           phase: roomPhaseRef.current,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          serverSentAt: getServerTime()
         });
       }
     });
@@ -1944,7 +1960,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       const currentUserId = user?.id || participantId;
       if (data.senderId && data.senderId !== currentUserId && data.senderId !== participantId) {
         if (typeof data.remainingSeconds === 'number') {
-          setRoomRemainingSeconds(data.remainingSeconds);
+          const now = getServerTime();
+          const rawSentAt = data.serverSentAt || data.timestamp || now;
+          const isPlausibleRecentTimestamp = rawSentAt > 1600000000000 && Math.abs(now - rawSentAt) < 86400000;
+          const elapsed = data.isRunning && isPlausibleRecentTimestamp
+            ? Math.max(0, Math.floor((now - rawSentAt) / 1000))
+            : 0;
+          const adjustedRemaining = Math.max(0, data.remainingSeconds - elapsed);
+          setRoomRemainingSeconds(adjustedRemaining);
         }
         if (typeof data.isRunning === 'boolean') {
           setIsRoomRunning(data.isRunning);
@@ -2365,8 +2388,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     const text = inputMsg.trim();
     if (!text) return;
 
-    const msgId = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    const clientMessageId = `cmsg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const msgId = generateUUID();
+    const clientMessageId = generateUUID();
     const sender = participantName || user?.displayName || 'Bạn';
     const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
@@ -2747,9 +2770,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               />
             ) : (
               <div className="flex flex-col items-center gap-3 text-zinc-400 select-none">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-2xl font-bold text-zinc-200 shadow-xl">
-                  {(participantName || 'H').charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar
+                  user={user}
+                  name={participantName}
+                  size="xl"
+                  ring="border-2 border-zinc-700 shadow-xl"
+                  alt={participantName || 'Học viên'}
+                  testId="prejoin-preview-avatar"
+                />
                 <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
                   <VideoOff size={14} className="text-zinc-500" />
                   <span>Camera đang tắt</span>
@@ -3602,9 +3630,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-neutral-400">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-xl font-bold text-emerald-300">
-                          {participantName.charAt(0).toUpperCase()}
-                        </div>
+                        <UserAvatar
+                          user={user}
+                          name={participantName}
+                          size="xl"
+                          ring="border-2 border-emerald-400 shadow-md"
+                          alt={`${participantName} (Bạn)`}
+                          testId="local-preview-avatar"
+                        />
                         <span className="text-xs font-medium">{participantName} (Bạn)</span>
                       </div>
                     )}

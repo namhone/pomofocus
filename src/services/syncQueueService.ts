@@ -1,5 +1,6 @@
 import { db, SyncMutation } from '../db';
 import { supabase } from '../lib/supabase';
+import { generateUUID } from '../utils/uuid';
 
 export interface SyncFlushResult {
   successCount: number;
@@ -38,18 +39,18 @@ export class SyncQueueService {
     recordId: string;
     action: SyncMutation['action'];
     payload?: any;
+    userId?: string;
   }): Promise<string> {
-    const id =
-      typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `mut_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const id = generateUUID();
 
     const mutation: SyncMutation = {
       id,
+      userId: params.userId || getStoredUserId() || 'guest',
       tableName: params.tableName,
       recordId: params.recordId,
       action: params.action,
       payload: params.payload ?? {},
+      status: 'pending',
       createdAt: Date.now(),
       retryCount: 0
     };
@@ -60,16 +61,47 @@ export class SyncQueueService {
 
   /**
    * Lấy danh sách toàn bộ đột biến đang chờ xử lý theo thứ tự FIFO (cũ nhất xử lý trước)
+   * Chỉ lấy các mutation chưa đạt trạng thái 'failed' và đã đến hạn retry (nextRetryAt)
    */
-  async getPendingMutations(): Promise<SyncMutation[]> {
-    return await db.sync_queue.orderBy('createdAt').toArray();
+  async getPendingMutations(userId?: string): Promise<SyncMutation[]> {
+    const now = Date.now();
+    const all = await db.sync_queue.orderBy('createdAt').toArray();
+    return all.filter((m) => {
+      if (userId && m.userId && m.userId !== userId && m.userId !== 'guest') return false;
+      if (m.status === 'failed') return false;
+      if (m.nextRetryAt && m.nextRetryAt > now) return false;
+      return true;
+    });
   }
 
   /**
-   * Lấy tổng số đột biến đang tồn đọng trong hàng đợi
+   * Lấy danh sách các đột biến thất bại cần can thiệp thủ công
+   */
+  async getFailedMutations(): Promise<SyncMutation[]> {
+    return await db.sync_queue.filter((m) => m.status === 'failed').toArray();
+  }
+
+  /**
+   * Thử lại thủ công toàn bộ các đột biến đã bị đánh dấu thất bại ('failed')
+   */
+  async retryFailedMutations(userId?: string): Promise<SyncFlushResult> {
+    const failed = await db.sync_queue.filter((m) => m.status === 'failed').toArray();
+    for (const m of failed) {
+      await db.sync_queue.update(m.id, {
+        status: 'pending',
+        retryCount: 0,
+        nextRetryAt: undefined,
+        lastError: undefined
+      });
+    }
+    return await this.flushQueue(userId);
+  }
+
+  /**
+   * Lấy tổng số đột biến đang tồn đọng trong hàng đợi (bao gồm pending và processing)
    */
   async getPendingCount(): Promise<number> {
-    return await db.sync_queue.count();
+    return await db.sync_queue.filter((m) => m.status !== 'failed').count();
   }
 
   /**
@@ -88,6 +120,7 @@ export class SyncQueueService {
 
   /**
    * Đẩy toàn bộ đột biến tồn đọng lên Supabase Cloud khi có kết nối và đã đăng nhập
+   * Áp dụng thuật toán Exponential Backoff và bảo toàn bản ghi failed khi vượt quá 5 lần thử
    */
   async flushQueue(userId?: string): Promise<SyncFlushResult> {
     if (this.isFlushing) {
@@ -119,10 +152,11 @@ export class SyncQueueService {
     const errors: Array<{ mutationId: string; error: string }> = [];
 
     try {
-      const pending = await this.getPendingMutations();
+      const pending = await this.getPendingMutations(effectiveUserId);
 
       for (const mutation of pending) {
         try {
+          await db.sync_queue.update(mutation.id, { status: 'processing' });
           await this.processMutation(mutation, effectiveUserId);
           await db.sync_queue.delete(mutation.id);
           successCount++;
@@ -131,15 +165,35 @@ export class SyncQueueService {
           const errorMsg = String(err?.message || err);
           errors.push({ mutationId: mutation.id, error: errorMsg });
 
-          // Tăng số lần thử lại
+          // Tính toán Exponential Backoff: delayMs = Math.min(300000, 1000 * 2^(retryCount - 1) + randomJitter)
+          // Nếu mất mạng (offline/Network drop), delayMs = 0 để khi có mạng trở lại có thể flush ngay lập tức
           const newRetryCount = (mutation.retryCount || 0) + 1;
-          await db.sync_queue.update(mutation.id, { retryCount: newRetryCount });
+          const isOfflineDrop = (typeof navigator !== 'undefined' && !navigator.onLine) ||
+            errorMsg.includes('Failed to fetch') || errorMsg.includes('Network');
+          const delayMs = isOfflineDrop
+            ? 0
+            : Math.min(300000, 1000 * Math.pow(2, newRetryCount - 1) + Math.floor(Math.random() * 500) + 50);
+          const nextRetryAt = Date.now() + delayMs;
+
+          // Nếu số lần thử >= 5, chuyển sang trạng thái 'failed', TUYỆT ĐỐI KHÔNG XÓA RECORD
+          if (newRetryCount >= 5) {
+            await db.sync_queue.update(mutation.id, {
+              status: 'failed',
+              retryCount: newRetryCount,
+              lastError: errorMsg,
+              nextRetryAt
+            });
+          } else {
+            await db.sync_queue.update(mutation.id, {
+              status: 'pending',
+              retryCount: newRetryCount,
+              lastError: errorMsg,
+              nextRetryAt
+            });
+          }
 
           // Nếu lỗi mạng, dừng đợt flush để không gây nghẽn
-          if (
-            typeof navigator !== 'undefined' &&
-            !navigator.onLine
-          ) {
+          if (typeof navigator !== 'undefined' && !navigator.onLine) {
             break;
           }
         }
@@ -187,7 +241,8 @@ export class SyncQueueService {
             updated_at: payload.updatedAt
               ? new Date(payload.updatedAt).toISOString()
               : new Date().toISOString(),
-            completed_at: payload.completedAt ? new Date(payload.completedAt).toISOString() : null
+            completed_at: payload.completedAt ? new Date(payload.completedAt).toISOString() : null,
+            deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
           const { error } = await supabase.from('tasks').upsert(taskPayload, { onConflict: 'id' });
@@ -222,7 +277,8 @@ export class SyncQueueService {
               : new Date().toISOString(),
             updated_at: payload.updatedAt
               ? new Date(payload.updatedAt).toISOString()
-              : new Date().toISOString()
+              : new Date().toISOString(),
+            deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
           const { error } = await supabase.from('notes').upsert(notePayload, { onConflict: 'id' });
@@ -248,7 +304,10 @@ export class SyncQueueService {
             created_at: payload.createdAt
               ? new Date(payload.createdAt).toISOString()
               : new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: payload.updatedAt
+              ? new Date(payload.updatedAt).toISOString()
+              : new Date().toISOString(),
+            deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
           const { error } = await supabase

@@ -3,6 +3,7 @@ import { db } from '../db';
 import { Note, NoteSaveStatus } from '../types/notes';
 import { NoteCloudService } from '../services/noteCloudService';
 import { useAuthStore } from './useAuthStore';
+import { generateUUID } from '../utils/uuid';
 
 interface NoteStoreState {
   notes: Note[];
@@ -15,16 +16,9 @@ interface NoteStoreState {
   createNote: (title?: string, linkedTaskId?: string | null) => Promise<Note>;
   updateNoteContent: (id: string, contentMarkdown: string, title?: string) => void;
   saveNow: (id?: string) => Promise<void>;
-  deleteNote: (id: string) => Promise<void>;
+  deleteNote: (id: string, hardDelete?: boolean) => Promise<void>;
   setActiveNoteId: (id: string | null) => void;
   unlinkDeletedTask: (taskId: string) => Promise<void>;
-}
-
-function generateUUID(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'note_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -38,19 +32,42 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
   loadNotes: async () => {
     set({ isLoading: true });
     try {
-      const allNotes = await db.notes.toArray();
-      const sorted = allNotes.sort((a, b) => b.updatedAt - a.updatedAt);
+      const currentUserId = useAuthStore.getState().user?.id || 'guest';
+      let allNotes: Note[] = [];
+      try {
+        allNotes = await db.notes.where('userId').equals(currentUserId).toArray();
+        if (allNotes.length === 0 && currentUserId === 'guest') {
+          const legacy = await db.notes.filter((n) => !n.userId || n.userId === 'guest').toArray();
+          if (legacy.length > 0) allNotes = legacy;
+        }
+      } catch {
+        allNotes = (await db.notes.toArray()).filter((n) => (n.userId || 'guest') === currentUserId);
+      }
+
+      // 30-day GC check: purge permanently deleted items older than 30 days
+      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const expiredNoteIds = allNotes.filter((n) => n.deletedAt && n.deletedAt < thirtyDaysAgo).map((n) => n.id);
+      if (expiredNoteIds.length > 0) {
+        await db.notes.bulkDelete(expiredNoteIds).catch(() => {});
+        allNotes = allNotes.filter((n) => !expiredNoteIds.includes(n.id));
+      }
+
+      // Filter out tombstoned notes
+      const activeNotes = allNotes.filter((n) => !n.deletedAt || n.deletedAt <= 0);
+      const sorted = activeNotes.sort((a, b) => b.updatedAt - a.updatedAt);
 
       if (sorted.length === 0) {
         // Khởi tạo ghi chú mẫu ban đầu nếu cơ sở dữ liệu trống
         const defaultNote: Note = {
           id: generateUUID(),
+          userId: currentUserId,
           title: 'Ý tưởng tập trung hôm nay',
           contentMarkdown: `# Chào mừng bạn đến với Không Gian Ghi Chú! 📝\n\n- [x] Thiết lập Pomodoro Timer\n- [ ] Lập kế hoạch 3 việc quan trọng nhất hôm nay\n- [ ] Dành 25 phút tập trung không xao nhãng\n\n> *\"Tập trung là nghệ thuật biết từ chối 1000 điều tốt khác.\"*`,
           linkedTaskId: null,
           linkedProjectId: null,
           createdAt: Date.now(),
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
+          deletedAt: null
         };
         await db.notes.add(defaultNote);
         set({
@@ -61,19 +78,20 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
         });
       } else {
         const userId = useAuthStore.getState().user?.id;
-      if (userId) {
-        NoteCloudService.syncFromCloud(userId).then((cloudNotes) => {
-          if (cloudNotes.length > 0) {
-            set({
-              notes: cloudNotes.sort((a, b) => b.updatedAt - a.updatedAt),
-              activeNoteId: get().activeNoteId || cloudNotes[0].id
-            });
-          }
-        }).catch((err) => console.warn('Lỗi đồng bộ Notes từ Cloud:', err));
-      }
+        if (userId) {
+          NoteCloudService.syncFromCloud(userId).then((cloudNotes) => {
+            const activeCloudNotes = cloudNotes.filter((n) => !n.deletedAt || n.deletedAt <= 0);
+            if (activeCloudNotes.length > 0) {
+              set({
+                notes: activeCloudNotes.sort((a, b) => b.updatedAt - a.updatedAt),
+                activeNoteId: get().activeNoteId || activeCloudNotes[0].id
+              });
+            }
+          }).catch((err) => console.warn('Lỗi đồng bộ Notes từ Cloud:', err));
+        }
 
-      set({
-        notes: sorted,
+        set({
+          notes: sorted,
           activeNoteId: sorted[0].id,
           isLoading: false,
           saveStatus: 'saved'
@@ -87,22 +105,25 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
 
   createNote: async (title = 'Ghi chú mới', linkedTaskId = null) => {
     const now = Date.now();
+    const currentUserId = useAuthStore.getState().user?.id || 'guest';
     const newNote: Note = {
       id: generateUUID(),
+      userId: currentUserId,
       title: title.trim(),
       contentMarkdown: '',
       linkedTaskId,
       linkedProjectId: null,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      deletedAt: null
     };
 
     try {
       await db.notes.add(newNote);
-    const userId = useAuthStore.getState().user?.id;
-    if (userId) {
-      NoteCloudService.upsertNote(newNote, userId).catch((err) => console.warn('Lỗi lưu Note lên Cloud:', err));
-    }
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        NoteCloudService.upsertNote(newNote, userId).catch((err) => console.warn('Lỗi lưu Note lên Cloud:', err));
+      }
       set((state) => ({
         notes: [newNote, ...state.notes],
         activeNoteId: newNote.id,
@@ -170,13 +191,20 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
     }
   },
 
-  deleteNote: async (id: string) => {
+  deleteNote: async (id: string, hardDelete = false) => {
     try {
-      await db.notes.delete(id);
-    const userId = useAuthStore.getState().user?.id;
-    if (userId) {
-      NoteCloudService.deleteNote(id, userId).catch((err) => console.warn('Lỗi xóa Note trên Cloud:', err));
-    }
+      const now = Date.now();
+      if (hardDelete) {
+        await db.notes.delete(id);
+      } else {
+        await db.notes.update(id, { deletedAt: now, updatedAt: now });
+      }
+
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        NoteCloudService.deleteNote(id, userId).catch((err) => console.warn('Lỗi xóa Note trên Cloud:', err));
+      }
+
       set((state) => {
         const remaining = state.notes.filter((n) => n.id !== id);
         const nextActive = state.activeNoteId === id ? (remaining[0]?.id || null) : state.activeNoteId;

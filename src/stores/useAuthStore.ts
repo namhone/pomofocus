@@ -21,6 +21,8 @@ import type { GoogleUserPayload } from '../services/googleAuthService';
 import { useAiStore, getInitialGuestCredits } from './useAiStore';
 import { ProfileService, localProfileCache } from '../services/profileService';
 import { userSettingsService } from '../services/userSettingsService';
+import { syncQueueService } from '../services/syncQueueService';
+import { generateUUID } from '../utils/uuid';
 
 export interface AuthState {
   user: UserProfile | null;
@@ -459,6 +461,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
             if (cloudProf.settings) {
               userSettingsService.applySettings(cloudProf.settings);
+            } else {
+              userSettingsService.saveSettings(canonicalId).catch(() => {});
             }
 
             const merged: UserProfile = {
@@ -497,7 +501,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }).catch((e) => console.warn('[syncUserFromSupabase ProfileService]', e));
     },
 
-    logout: () => {
+    logout: async () => {
+      const currentUser = get().user;
+      const currentUserId = currentUser?.id || 'guest';
+      // Pre-logout sync flush nếu có kết nối mạng và còn hàng đợi
+      if (typeof window !== 'undefined' && navigator.onLine) {
+        syncQueueService.flushQueue(currentUserId).catch((err) => {
+          console.warn('[useAuthStore] Pre-logout syncQueue flush warning:', err);
+        });
+      }
+
       authService.logout();
       try {
         localProfileCache.clear();
@@ -525,7 +538,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           error: null,
           messages: [
             {
-              id: 'welcome-' + Date.now(),
+              id: generateUUID(),
               role: 'assistant',
               content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
               timestamp: Date.now(),
@@ -533,6 +546,18 @@ export const useAuthStore = create<AuthState>((set, get) => {
             }
           ]
         });
+      } catch {}
+
+      // Xóa dữ liệu bộ nhớ store cũ và nạp lại dữ liệu khách (user isolation)
+      try {
+        const { useTaskStore } = await import('./useTaskStore');
+        useTaskStore.setState({ tasks: [], projects: [], activeTaskId: null });
+        useTaskStore.getState().loadTasksAndProjects();
+      } catch {}
+      try {
+        const { useNoteStore } = await import('./useNoteStore');
+        useNoteStore.setState({ notes: [], activeNoteId: null });
+        useNoteStore.getState().loadNotes();
       } catch {}
     },
 
@@ -1004,6 +1029,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
             };
           });
 
+          if (cloudProf.settings) {
+            userSettingsService.applySettings(cloudProf.settings);
+          } else {
+            userSettingsService.saveSettings(userId).catch(() => {});
+          }
+
           // Đồng bộ số dư sang AI store
           useAiStore.setState({
             aiCreditsBalance: effectiveCredits,
@@ -1106,6 +1137,12 @@ if (typeof window !== 'undefined') {
           ...computeDerivedPlanState(finalUser)
         });
 
+        if (profile?.settings) {
+          userSettingsService.applySettings(profile.settings);
+        } else {
+          userSettingsService.saveSettings(canonicalId).catch(() => {});
+        }
+
         // Tự động tải Tasks & Notes cho Canonical User ID ngay khi phiên được xác nhận
         import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
         import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
@@ -1126,6 +1163,10 @@ if (typeof window !== 'undefined') {
           isVipFriend: false,
           planLabel: 'FREE'
         });
+
+        // Xóa sạch bộ nhớ store và nạp lại dữ liệu khách (user isolation)
+        import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+        import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
       }
     });
   } catch (err) {

@@ -4,6 +4,7 @@ import { Project, Task, TaskPriority, TaskStatus } from '../types/tasks';
 import { useTimerStore } from './useTimerStore';
 import { TaskCloudService } from '../services/taskCloudService';
 import { useAuthStore } from './useAuthStore';
+import { generateUUID } from '../utils/uuid';
 
 interface TaskStoreState {
   tasks: Task[];
@@ -52,12 +53,6 @@ function reconcileLinkedTask(loadedTasks: Task[], allowClearIfMissing: boolean):
   return linkedId;
 }
 
-function generateUUID(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'task_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
-}
 
 export const useTaskStore = create<TaskStoreState>((set, get) => ({
   tasks: [],
@@ -70,19 +65,61 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
   loadTasksAndProjects: async () => {
     set({ isLoading: true });
     try {
-      const allTasks = await db.tasks.toArray();
-      // Loại bỏ các task đã soft-deleted (archived)
-      const activeTasks = allTasks.filter((t) => t.status !== 'archived');
-      const allProjects = await db.projects.toArray();
+      const currentUserId = useAuthStore.getState().user?.id || 'guest';
+      let allTasks: Task[] = [];
+      try {
+        allTasks = await db.tasks.where('userId').equals(currentUserId).toArray();
+        if (allTasks.length === 0 && currentUserId === 'guest') {
+          const legacy = await db.tasks.filter((t) => !t.userId || t.userId === 'guest').toArray();
+          if (legacy.length > 0) allTasks = legacy;
+        }
+      } catch {
+        allTasks = (await db.tasks.toArray()).filter((t) => (t.userId || 'guest') === currentUserId);
+      }
+
+      // 30-day GC check: purge permanently deleted items older than 30 days
+      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const expiredTaskIds = allTasks.filter((t) => t.deletedAt && t.deletedAt < thirtyDaysAgo).map((t) => t.id);
+      if (expiredTaskIds.length > 0) {
+        await db.tasks.bulkDelete(expiredTaskIds).catch(() => {});
+        allTasks = allTasks.filter((t) => !expiredTaskIds.includes(t.id));
+      }
+
+      // Filter out tasks that are archived or tombstoned
+      const activeTasks = allTasks.filter((t) => t.status !== 'archived' && (!t.deletedAt || t.deletedAt <= 0));
+
+      let allProjects: Project[] = [];
+      try {
+        allProjects = await db.projects.where('userId').equals(currentUserId).toArray();
+        if (allProjects.length === 0 && currentUserId === 'guest') {
+          const legacyP = await db.projects.filter((p) => !p.userId || p.userId === 'guest').toArray();
+          if (legacyP.length > 0) allProjects = legacyP;
+        }
+      } catch {
+        allProjects = (await db.projects.toArray()).filter((p) => (p.userId || 'guest') === currentUserId);
+      }
+
+      const expiredProjIds = allProjects.filter((p) => p.deletedAt && p.deletedAt < thirtyDaysAgo).map((p) => p.id);
+      if (expiredProjIds.length > 0) {
+        await db.projects.bulkDelete(expiredProjIds).catch(() => {});
+        allProjects = allProjects.filter((p) => !expiredProjIds.includes(p.id));
+      }
+
+      const activeProjects = allProjects.filter((p) => !p.deletedAt || p.deletedAt <= 0);
 
       const userId = useAuthStore.getState().user?.id;
       if (userId) {
         TaskCloudService.syncFromCloud(userId).then(({ tasks, projects }) => {
-          const syncedTasks = tasks.filter((t) => t.status !== 'archived').sort((a, b) => a.orderIndex - b.orderIndex);
+          const syncedTasks = tasks
+            .filter((t) => t.status !== 'archived' && (!t.deletedAt || t.deletedAt <= 0))
+            .sort((a, b) => a.orderIndex - b.orderIndex);
+          const syncedProjects = projects
+            .filter((p) => !p.deletedAt || p.deletedAt <= 0)
+            .sort((a, b) => b.createdAt - a.createdAt);
           const reconciledActiveId = get().activeTaskId || reconcileLinkedTask(syncedTasks, true);
           set({
             tasks: syncedTasks,
-            projects: projects.sort((a, b) => b.createdAt - a.createdAt),
+            projects: syncedProjects,
             activeTaskId: reconciledActiveId
           });
         }).catch((err) => console.warn('Lỗi đồng bộ Tasks từ Cloud:', err));
@@ -91,7 +128,7 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       const sortedLocalTasks = activeTasks.sort((a, b) => a.orderIndex - b.orderIndex);
       set({
         tasks: sortedLocalTasks,
-        projects: allProjects.sort((a, b) => b.createdAt - a.createdAt),
+        projects: activeProjects.sort((a, b) => b.createdAt - a.createdAt),
         activeTaskId: get().activeTaskId || reconcileLinkedTask(sortedLocalTasks, false),
         isLoading: false
       });
@@ -109,8 +146,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     estimatedPomodoros = 1
   }) => {
     const now = Date.now();
+    const currentUserId = useAuthStore.getState().user?.id || 'guest';
     const newTask: Task = {
       id: generateUUID(),
+      userId: currentUserId,
       title: title.trim(),
       description: description.trim(),
       projectId,
@@ -123,7 +162,8 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       repeat: 'none',
       orderIndex: now,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      deletedAt: null
     };
 
     await db.tasks.add(newTask);
@@ -152,8 +192,10 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...updatePayload } : t))
     }));
 
-    // Nếu task đang liên kết với Timer bị sửa tên, cập nhật tên sang Timer
-    if (get().activeTaskId === id && updates.title) {
+    // V8.1 (Feature 23): Nếu task đang liên kết với Timer bị sửa tên, cập nhật tên sang Timer
+    // Kiểm tra cả activeTaskId lẫn linkedTaskId của useTimerStore để tránh lệch trạng thái
+    const currentTimerLinkedId = useTimerStore.getState().linkedTaskId;
+    if ((get().activeTaskId === id || currentTimerLinkedId === id) && updates.title) {
       useTimerStore.getState().setLinkedTask(id, updates.title);
     }
   },
@@ -185,23 +227,21 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
   },
 
   deleteTask: async (id: string, hardDelete = false) => {
-    // QUY ĐỊNH KỸ THUẬT BẮT BUỘC:
-    // Nếu task bị xóa trong lúc Timer đang chạy hoặc liên kết,
-    // lập tức ngắt liên kết an toàn khỏi Timer Store
-    if (get().activeTaskId === id) {
+    // V8.1 (Feature 23): QUY ĐỊNH KỸ THUẬT BẮT BUỘC:
+    // Nếu task bị xóa/archive trong lúc Timer đang liên kết,
+    // lập tức ngắt liên kết an toàn khỏi Timer Store (kiểm tra cả activeTaskId và linkedTaskId)
+    const currentTimerLinkedId = useTimerStore.getState().linkedTaskId;
+    if (get().activeTaskId === id || currentTimerLinkedId === id) {
       set({ activeTaskId: null });
       useTimerStore.getState().setLinkedTask(null, null);
     }
 
     if (hardDelete) {
       await db.tasks.delete(id);
-        const { useTimerStore } = await import('./useTimerStore');
-        if (useTimerStore.getState().linkedTaskId === id) {
-          useTimerStore.getState().setLinkedTask(null, null);
-        }
     } else {
-      // Soft delete: chuyển sang trạng thái archived
-      await db.tasks.update(id, { status: 'archived', updatedAt: Date.now() });
+      // Soft delete: chuyển sang trạng thái archived và gán tombstone deletedAt
+      const now = Date.now();
+      await db.tasks.update(id, { status: 'archived', deletedAt: now, updatedAt: now });
     }
 
     const userId = useAuthStore.getState().user?.id;
@@ -209,7 +249,8 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       if (hardDelete) {
         TaskCloudService.deleteTask(id, userId).catch((err) => console.warn('Lỗi xóa Task trên Cloud:', err));
       } else {
-        TaskCloudService.upsertTask({ id, status: 'archived', updatedAt: Date.now() } as any, userId).catch((err) => console.warn('Lỗi archive Task trên Cloud:', err));
+        const now = Date.now();
+        TaskCloudService.upsertTask({ id, status: 'archived', deletedAt: now, updatedAt: now } as any, userId).catch((err) => console.warn('Lỗi archive Task trên Cloud:', err));
       }
     }
 
@@ -236,15 +277,16 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     const now = Date.now();
     const userId = useAuthStore.getState().user?.id;
 
-    if (get().activeTaskId && completedIds.has(get().activeTaskId!)) {
+    const currentTimerLinkedId = useTimerStore.getState().linkedTaskId;
+    if ((get().activeTaskId && completedIds.has(get().activeTaskId!)) || (currentTimerLinkedId && completedIds.has(currentTimerLinkedId))) {
       set({ activeTaskId: null });
       useTimerStore.getState().setLinkedTask(null, null);
     }
 
     for (const task of completed) {
-      await db.tasks.update(task.id, { status: 'archived', updatedAt: now });
+      await db.tasks.update(task.id, { status: 'archived', deletedAt: now, updatedAt: now });
       if (userId) {
-        TaskCloudService.upsertTask({ ...task, status: 'archived', updatedAt: now } as any, userId).catch((err) =>
+        TaskCloudService.upsertTask({ ...task, status: 'archived', deletedAt: now, updatedAt: now } as any, userId).catch((err) =>
           console.warn('Lỗi archive Task lên Cloud:', err)
         );
       }
@@ -340,11 +382,16 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
   },
 
   createProject: async (name: string, colorHex = '#6366f1') => {
+    const currentUserId = useAuthStore.getState().user?.id || 'guest';
+    const now = Date.now();
     const newProject: Project = {
       id: generateUUID(),
+      userId: currentUserId,
       name: name.trim(),
       colorHex,
-      createdAt: Date.now()
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null
     };
 
     await db.projects.add(newProject);
@@ -358,8 +405,13 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     return newProject;
   },
 
-  deleteProject: async (id: string) => {
-    await db.projects.delete(id);
+  deleteProject: async (id: string, hardDelete = false) => {
+    const now = Date.now();
+    if (hardDelete) {
+      await db.projects.delete(id);
+    } else {
+      await db.projects.update(id, { deletedAt: now, updatedAt: now });
+    }
     const userId = useAuthStore.getState().user?.id;
     if (userId) {
       TaskCloudService.deleteProject(id, userId).catch((err) => console.warn('Lỗi xóa Project trên Cloud:', err));
@@ -368,7 +420,7 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
     // Bỏ projectId khỏi các tasks thuộc project này
     const tasksToUpdate = get().tasks.filter((t) => t.projectId === id);
     for (const t of tasksToUpdate) {
-      await db.tasks.update(t.id, { projectId: null, updatedAt: Date.now() });
+      await db.tasks.update(t.id, { projectId: null, updatedAt: now });
     }
 
     set((state) => ({

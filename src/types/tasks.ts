@@ -4,9 +4,13 @@ export type TaskRepeat = 'none' | 'daily' | 'weekly';
 
 export interface Project {
   id: string;               // UUID v4
+  userId?: string;          // V8.1 Local-First user ownership
   name: string;
   colorHex: string;
   createdAt: number;
+  updatedAt?: number;
+  deletedAt?: number | null; // V8.1 Soft delete tombstone
+  synced?: boolean;
 }
 
 export interface Tag {
@@ -34,6 +38,7 @@ export interface Task {
   createdAt: number;
   updatedAt: number;
   completedAt?: number | null;
+  deletedAt?: number | null;  // V8.1 Soft delete tombstone
   synced?: boolean;          // V8.1 cloud sync status
 }
 

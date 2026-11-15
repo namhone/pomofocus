@@ -18,6 +18,7 @@ import { useAuthStore } from '../../../stores/useAuthStore';
 import { useAiStore } from '../../../stores/useAiStore';
 import { useTimerStore } from '../../../stores/useTimerStore';
 import { authService, hasVipAccess, isOwnerEmail, getEffectiveAvatarUrl } from '../../../services/authService';
+import { UserAvatar } from '../../common/UserAvatar';
 import { googleAuthService, GoogleUserPayload } from '../../../services/googleAuthService';
 import { db } from '../../../db';
 
@@ -277,11 +278,13 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
             {/* User Hero Row */}
             <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/10 flex items-center justify-between gap-3 shadow-md">
               <div className="flex items-center gap-3 min-w-0">
-                <img
-                  data-testid="mobile-auth-user-avatar"
-                  src={avatarUrl}
+                <UserAvatar
+                  user={user}
+                  avatarUrl={avatarUrl}
+                  size="lg"
+                  ring={true}
                   alt={user.displayName || 'Avatar'}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/40 shrink-0 bg-zinc-800"
+                  testId="mobile-auth-user-avatar"
                 />
                 <div className="min-w-0">
                   <h3 className="text-sm font-bold text-white truncate">

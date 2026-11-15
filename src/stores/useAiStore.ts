@@ -4,6 +4,8 @@ import { useNoteStore } from './useNoteStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
 import { ProfileService } from '../services/profileService';
 import { resolveApiUrl } from '../utils/apiConfig';
+import { generateUUID } from '../utils/uuid';
+import { safeParseJson } from '../utils/safeFetch';
 import { db } from '../db';
 
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
@@ -271,8 +273,10 @@ export interface AiState {
   currentSessionId: string | null;
   isTopupModalOpen: boolean;
   topupModalInitialCredits?: number;
+  activeAbortController: AbortController | null;
 
   // Actions
+  abortActiveStream: () => void;
   toggleOpen: (force?: boolean) => void;
   openTopupModal: (initialCredits?: number | unknown) => void;
   closeTopupModal: () => void;
@@ -351,6 +355,7 @@ export const useAiStore = create<AiState>()(
       currentSessionId: null,
       isTopupModalOpen: false,
       topupModalInitialCredits: undefined,
+      activeAbortController: null,
       messages: [
         {
           id: 'welcome-1',
@@ -360,6 +365,16 @@ export const useAiStore = create<AiState>()(
           creditsUsed: 0
         }
       ],
+
+      abortActiveStream: () => {
+        const { activeAbortController } = get();
+        if (activeAbortController) {
+          try {
+            activeAbortController.abort();
+          } catch {}
+          set({ activeAbortController: null, isStreaming: false, isLoading: false });
+        }
+      },
 
       toggleOpen: (force) => {
         set((state) => ({ isOpen: force !== undefined ? force : !state.isOpen }));
@@ -492,6 +507,8 @@ export const useAiStore = create<AiState>()(
 
 
       createNewSession: async () => {
+        // V8.1 (Feature 24): Hủy ngay lập tức luồng stream AI cũ khi tạo phiên mới
+        get().abortActiveStream();
         const { sessions, currentSessionId, messages } = get();
         let updatedSessions = [...(sessions || [])];
         if (currentSessionId && messages.length > 0) {
@@ -514,7 +531,7 @@ export const useAiStore = create<AiState>()(
         }
 
         const uid = getStoredUserId();
-        let newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        let newConvId = generateUUID();
         let newTitle = 'Phiên học tập mới';
 
         if (uid) {
@@ -540,7 +557,7 @@ export const useAiStore = create<AiState>()(
           currentSessionId: newConvId,
           messages: [
             {
-              id: 'welcome-' + Date.now(),
+              id: generateUUID(),
               role: 'assistant',
               content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
               timestamp: Date.now(),
@@ -552,6 +569,8 @@ export const useAiStore = create<AiState>()(
       },
 
       loadSession: async (sessionId: string) => {
+        // V8.1 (Feature 24): Hủy ngay lập tức luồng stream AI cũ khi chuyển phiên hội thoại
+        get().abortActiveStream();
         const { sessions, currentSessionId, messages } = get();
         let updatedSessions = [...(sessions || [])];
         if (currentSessionId && messages.length > 0) {
@@ -583,7 +602,7 @@ export const useAiStore = create<AiState>()(
             ? found.messages
             : [
                 {
-                  id: 'welcome-' + Date.now(),
+                  id: generateUUID(),
                   role: 'assistant',
                   content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
                   timestamp: Date.now(),
@@ -594,14 +613,15 @@ export const useAiStore = create<AiState>()(
           error: null
         });
 
-        // 1. Tải tin nhắn từ IndexedDB cục bộ (db.ai_messages)
+        // 1. Tải tin nhắn từ IndexedDB cục bộ (db.ai_messages) - phân trang 50 tin nhắn mới nhất
         try {
           const localAiMsgs = await db.ai_messages
             .where('conversationId')
             .equals(sessionId)
             .sortBy('createdAt');
           if (localAiMsgs && localAiMsgs.length > 0) {
-            const mappedLocal: AiMessage[] = localAiMsgs.map((m) => ({
+            const recentLocalMsgs = localAiMsgs.slice(-50);
+            const mappedLocal: AiMessage[] = recentLocalMsgs.map((m) => ({
               id: m.id,
               role: m.role === 'system' ? 'assistant' : m.role,
               content: m.content,
@@ -693,7 +713,7 @@ export const useAiStore = create<AiState>()(
               currentSessionId: null,
               messages: [
                 {
-                  id: 'welcome-' + Date.now(),
+                  id: generateUUID(),
                   role: 'assistant',
                   content: 'Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?',
                   timestamp: Date.now()
@@ -814,7 +834,7 @@ export const useAiStore = create<AiState>()(
         set({
           messages: [
             {
-              id: `welcome-${Date.now()}`,
+              id: generateUUID(),
               role: 'assistant',
               content:
                 'Cuộc trò chuyện đã được làm mới. Hãy đặt câu hỏi, đính kèm đề cương hoặc yêu cầu bài tập để tôi hỗ trợ bạn!',
@@ -871,12 +891,12 @@ export const useAiStore = create<AiState>()(
         // 2. Thêm tin nhắn của User
         let activeId = get().activeConversationId || get().currentSessionId;
         if (!activeId) {
-          activeId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          activeId = generateUUID();
           AiChatService.setActiveConversationId(activeId);
           set({ activeConversationId: activeId, currentSessionId: activeId });
         }
 
-        const userMsgId = `msg-user-${Date.now()}`;
+        const userMsgId = generateUUID();
         const userMsg: AiMessage = {
           id: userMsgId,
           role: 'user',
@@ -887,7 +907,7 @@ export const useAiStore = create<AiState>()(
           attachmentName: attachment?.fileName
         };
 
-        const assistantMsgId = `msg-ai-${Date.now() + 1}`;
+        const assistantMsgId = generateUUID();
         const initialAssistantMsg: AiMessage = {
           id: assistantMsgId,
           role: 'assistant',
@@ -974,7 +994,11 @@ export const useAiStore = create<AiState>()(
 
           // 3. Gọi Endpoint /api/ai/companion (tự động trỏ domain Vercel khi chạy Capacitor APK)
           if (!isOffline) {
+            get().abortActiveStream();
             const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            if (controller) {
+              set({ activeAbortController: controller });
+            }
             const timeoutId = controller ? setTimeout(() => controller.abort(), 30000) : null;
             try {
               const res = await fetch(resolveApiUrl('/api/ai/companion'), {
@@ -1003,6 +1027,13 @@ export const useAiStore = create<AiState>()(
               if (res.status === 402) {
                 const errData = await res.json().catch(() => ({}));
                 throw new Error(errData.message || 'Số dư AI Credits không đủ.');
+              }
+
+              if (res.status === 429) {
+                const retryAfter = res.headers?.get?.('retry-after') || '30';
+                const errData = await res.json().catch(() => ({}));
+                const cooldown = parseInt(retryAfter, 10) || 30;
+                throw new Error(errData.message || `Hệ thống AI đang quá tải lượt yêu cầu. Vui lòng thử lại sau ${cooldown} giây (HTTP 429).`);
               }
 
               if (!res.ok) {
@@ -1051,7 +1082,7 @@ export const useAiStore = create<AiState>()(
                 } else if (contentType.includes('text/html')) {
                   apiErrorMessage = '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
                 } else {
-                  const data = await res.json();
+                  const data = await safeParseJson<any>(res, { fallback: {} });
                   replyText = data.reply || '';
                   if (data.isTruncated || data.finishReason === 'MAX_TOKENS') {
                     isTruncated = true;
@@ -1066,6 +1097,7 @@ export const useAiStore = create<AiState>()(
               console.warn('[AI Companion] Lỗi kết nối máy chủ AI:', fetchErr);
             } finally {
               if (timeoutId) clearTimeout(timeoutId);
+              set({ activeAbortController: null, isStreaming: false });
             }
           } else {
             apiErrorMessage = '⚠️ Không thể kết nối máy chủ AI, vui lòng kiểm tra mạng.';
@@ -1259,7 +1291,7 @@ export const useAiStore = create<AiState>()(
         lastMonthlyReset: state.lastMonthlyReset,
         currentSessionId: state.currentSessionId,
         activeConversationId: state.activeConversationId,
-        messages: state.messages, // V8.1: Lifted 50-message quota limit (persisted in db.ai_messages & store)
+        messages: state.messages || [],
         sessions: (state.sessions || []).slice(0, 20)
       }),
       onRehydrateStorage: () => (state) => {

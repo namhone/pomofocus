@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { supabase } from '../lib/supabase';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
+import { generateUUID } from '../utils/uuid';
 import type { GoogleUserPayload } from './googleAuthService';
 
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
@@ -60,21 +61,30 @@ export const getUserInitial = (user?: any): string => {
  * Tuyệt đối không phụ thuộc vào dịch vụ mạng bên ngoài (ui-avatars.com).
  * Sinh ra SVG trực tiếp có gradient màu sang trọng và chữ cái viết tắt sắc nét.
  */
-export const generateInitialsAvatarSvg = (name?: string, size = 128): string => {
+export const generateInitialsAvatarSvg = (
+  name?: string,
+  size = 128,
+  customInitials?: string,
+  customGradient?: [string, string]
+): string => {
   // Loại bỏ emoji, ký tự đặc biệt như (Founder 👑) để chỉ lấy chữ cái
   const cleanName = (name || '')
     .replace(/[^\p{L}\p{N}\s]/gu, '')
     .trim();
 
-  let initials = 'U';
-  if (cleanName) {
-    const parts = cleanName.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      const first = Array.from(parts[0])[0] || '';
-      const last = Array.from(parts[parts.length - 1])[0] || '';
-      initials = (first + last).toUpperCase();
-    } else if (parts.length === 1) {
-      initials = Array.from(parts[0]).slice(0, 2).join('').toUpperCase();
+  let initials = customInitials || '';
+  if (!initials && cleanName) {
+    if (cleanName.toLowerCase() === 'khach' || cleanName.toLowerCase() === 'khách') {
+      initials = 'K';
+    } else {
+      const parts = cleanName.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        const first = Array.from(parts[0])[0] || '';
+        const last = Array.from(parts[parts.length - 1])[0] || '';
+        initials = (first + last).toUpperCase();
+      } else if (parts.length === 1) {
+        initials = Array.from(parts[0]).slice(0, 2).join('').toUpperCase();
+      }
     }
   }
   if (!initials) initials = 'U';
@@ -92,7 +102,7 @@ export const generateInitialsAvatarSvg = (name?: string, size = 128): string => 
   ];
 
   const hash = initials.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  const [col1, col2] = gradients[hash % gradients.length];
+  const [col1, col2] = customGradient || (initials === 'K' ? ['#10b981', '#047857'] : gradients[hash % gradients.length]);
   const radius = Math.round(size * 0.28);
   const fontSize = Math.round(size * 0.42);
 
@@ -612,8 +622,7 @@ export const authService = {
       cloudProfile = await ProfileService.fetchProfileByEmail(normalized);
     } catch {}
 
-    const defaultIdPrefix = isOwner ? 'usr_founder_owner' : isLady ? 'usr_lady_boss' : isVip ? 'usr_vip_friend' : 'usr_g';
-    const userId = cloudProfile?.id || `${defaultIdPrefix}_${Math.random().toString(36).substring(2, 8)}_${Date.now()}`;
+    const userId = cloudProfile?.id || generateUUID();
     // BẢO VỆ AVATAR BẤT BIẾN: Nếu đã có custom avatar trong cloudProfile thì giữ nguyên 100%, KHÔNG bị Google đè lên!
     const isCloudCustom = Boolean(
       cloudProfile?.custom_avatar_url ||

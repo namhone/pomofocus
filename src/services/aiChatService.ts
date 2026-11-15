@@ -83,6 +83,7 @@ async function compressImageClient(
  */
 
 import { supabase } from '../lib/supabase';
+import { generateUUID } from '../utils/uuid';
 
 export interface AiConversation {
   id: string;
@@ -151,7 +152,7 @@ export class AiChatService {
    * Tạo cuộc trò chuyện mới trên Supabase Cloud
    */
   static async createConversation(userId: string, title: string = 'Phiên học tập mới'): Promise<AiConversation> {
-    const newConvId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newConvId = generateUUID();
     const newConv: AiConversation = {
       id: newConvId,
       user_id: userId,
@@ -217,27 +218,39 @@ export class AiChatService {
       return this.activeConversationId;
     } catch (err) {
       console.warn('[AiChatService] Không thể kết nối Supabase ai_conversations, dùng ID cục bộ:', err);
-      this.activeConversationId = `local_conv_${Date.now()}`;
+      this.activeConversationId = generateUUID();
       return this.activeConversationId;
     }
   }
 
   /**
-   * Tải danh sách tin nhắn của cuộc trò chuyện
+   * Tải danh sách tin nhắn của cuộc trò chuyện (hỗ trợ phân trang)
    */
-  static async loadConversationMessages(conversationId: string): Promise<AiMessageRecord[]> {
+  static async loadConversationMessages(
+    conversationId: string,
+    limit: number = 50,
+    beforeCreatedAt?: string
+  ): Promise<AiMessageRecord[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('ai_messages')
         .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+        .eq('conversation_id', conversationId);
+
+      if (beforeCreatedAt) {
+        query = query.lt('created_at', beforeCreatedAt);
+      }
+
+      const { data, error } = await query
+        .order('created_at', { ascending: false })
+        .limit(limit);
 
       if (error || !Array.isArray(data)) {
         return [];
       }
 
-      return data as AiMessageRecord[];
+      // Đảo ngược lại theo thứ tự thời gian tăng dần để hiển thị
+      return (data as AiMessageRecord[]).reverse();
     } catch (err) {
       console.warn('[AiChatService] Lỗi nạp tin nhắn từ Supabase:', err);
       return [];

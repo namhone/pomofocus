@@ -18,7 +18,8 @@ import { useAuthStore } from '../../../stores/useAuthStore';
 import { useAiStore } from '../../../stores/useAiStore';
 import { ALARM_CHIMES } from '../../../data/alarmSounds';
 import { ChimeSoundType } from '../../../types/audio';
-import { hasVipAccess, isOwnerEmail, getUserInitial } from '../../../services/authService';
+import { hasVipAccess, isOwnerEmail } from '../../../services/authService';
+import { UserAvatar } from '../../common/UserAvatar';
 
 export interface MobileSettingsViewProps {
   className?: string;
@@ -86,10 +87,6 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
     if (user?.displayName) return user.displayName;
     if (user?.email) return user.email.split('@')[0];
     return 'Khách học tập';
-  }, [user]);
-
-  const userInitial = useMemo(() => {
-    return getUserInitial(user);
   }, [user]);
 
   // Stepper handlers
@@ -168,9 +165,13 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md shrink-0">
-              {userInitial}
-            </div>
+            <UserAvatar
+              user={user}
+              size={40}
+              className="shadow-md shrink-0"
+              alt={userDisplayName}
+              testId="mobile-settings-user-avatar"
+            />
             <div className="min-w-0">
               <div className="text-sm font-semibold text-white truncate">
                 {userDisplayName}

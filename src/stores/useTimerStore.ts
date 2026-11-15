@@ -40,6 +40,8 @@ interface TimerStoreState {
 let engineInstance: TimerEngine | null = null;
 let coordinatorInstance: TabCoordinator | null = null;
 let lastSyncTimestamp = 0;
+let lastMidnightCheck = 0;
+const recordedSessionIds = new Set<string>();
 let hasBoundUnload = false;
 let visibilitySyncHandler: (() => void) | null = null;
 
@@ -274,12 +276,30 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
         onTick: (remainingMs, phase, status) => {
           set({ remainingMs, phase, status });
           updateDocumentTitle(remainingMs, phase, status, get().linkedTaskTitle);
+
+          // V8.1 (Feature 22): Kiểm tra Midnight Rollover mỗi 60 giây trong lúc timer hoạt động
+          const now = Date.now();
+          if (now - lastMidnightCheck >= 60000) {
+            lastMidnightCheck = now;
+            get().checkMidnightRollover();
+          }
         },
         onPhaseChange: (phase, currentRound) => {
           set({ phase, currentRound });
         },
         onComplete: async (record: FocusSessionRecord, nextPhase: TimerPhase) => {
-          // Bất kể hiệp tập trung dài 25m, 15m hay 1m, khi hoàn tất hiệp Pomodoro:
+          // V8.1 (Feature 21): Chống double recording giữa nhiều tab / concurrent triggers
+          if (record.id && recordedSessionIds.has(record.id)) {
+            return;
+          }
+          if (record.id) {
+            recordedSessionIds.add(record.id);
+            if (recordedSessionIds.size > 500) {
+              const first = recordedSessionIds.values().next().value;
+              if (first) recordedSessionIds.delete(first);
+            }
+          }
+
           if (record.phase === 'pomodoro') {
             const nextProgress = get().dailyProgress + 1;
             const duration = record.durationMinutes || get().settings.pomodoroMinutes || 25;
@@ -409,6 +429,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (!visibilitySyncHandler && typeof document !== 'undefined') {
       visibilitySyncHandler = () => {
         if (document.visibilityState === 'visible' && engineInstance) {
+          get().checkMidnightRollover();
           if (engineInstance.getStatus() === 'running') {
             engineInstance.tick();
           }

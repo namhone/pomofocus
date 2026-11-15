@@ -34,11 +34,25 @@ export class TaskCloudService {
       // Nếu Cloud có dữ liệu, cập nhật/hợp nhất vào Dexie Cache
       if (!projErr && Array.isArray(cloudProjects)) {
         for (const cp of cloudProjects) {
+          const cloudUpdatedAt = cp.updated_at ? new Date(cp.updated_at).getTime() : new Date(cp.created_at).getTime();
+          const cloudDeletedAt = cp.deleted_at ? new Date(cp.deleted_at).getTime() : null;
+          const localProj = await db.projects.get(cp.id);
+
+          // Respect updatedAt: do not overwrite newer local project blindly
+          if (localProj && (localProj.updatedAt || localProj.createdAt) > cloudUpdatedAt) {
+            this.upsertProject(localProj, userId).catch(() => {});
+            continue;
+          }
+
           const mappedProj: Project = {
             id: cp.id,
+            userId,
             name: cp.name,
             colorHex: cp.color_hex || '#10b981',
-            createdAt: new Date(cp.created_at).getTime()
+            createdAt: new Date(cp.created_at).getTime(),
+            updatedAt: cloudUpdatedAt,
+            deletedAt: cloudDeletedAt,
+            synced: true
           };
           await db.projects.put(mappedProj);
         }
@@ -46,8 +60,19 @@ export class TaskCloudService {
 
       if (!taskErr && Array.isArray(cloudTasks)) {
         for (const ct of cloudTasks) {
+          const cloudUpdatedAt = new Date(ct.updated_at).getTime();
+          const cloudDeletedAt = ct.deleted_at ? new Date(ct.deleted_at).getTime() : null;
+          const localTask = await db.tasks.get(ct.id);
+
+          // Respect updatedAt: do not overwrite newer local updates blindly with older cloud records
+          if (localTask && localTask.updatedAt > cloudUpdatedAt) {
+            this.upsertTask(localTask, userId).catch(() => {});
+            continue;
+          }
+
           const mappedTask: Task = {
             id: ct.id,
+            userId,
             title: ct.title,
             description: ct.description || '',
             projectId: ct.project_id || null,
@@ -60,8 +85,10 @@ export class TaskCloudService {
             repeat: ct.repeat || 'none',
             orderIndex: ct.order_index || 0,
             createdAt: new Date(ct.created_at).getTime(),
-            updatedAt: new Date(ct.updated_at).getTime(),
-            completedAt: ct.completed_at ? new Date(ct.completed_at).getTime() : null
+            updatedAt: cloudUpdatedAt,
+            completedAt: ct.completed_at ? new Date(ct.completed_at).getTime() : null,
+            deletedAt: cloudDeletedAt,
+            synced: true
           };
           await db.tasks.put(mappedTask);
         }
@@ -111,7 +138,8 @@ export class TaskCloudService {
         order_index: task.orderIndex,
         created_at: new Date(task.createdAt).toISOString(),
         updated_at: new Date(task.updatedAt).toISOString(),
-        completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : null
+        completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : null,
+        deleted_at: task.deletedAt ? new Date(task.deletedAt).toISOString() : null
       };
 
       await supabase.from('tasks').upsert(payload, { onConflict: 'id' });
@@ -144,7 +172,8 @@ export class TaskCloudService {
         name: project.name,
         color_hex: project.colorHex || '#10b981',
         created_at: new Date(project.createdAt).toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: project.updatedAt ? new Date(project.updatedAt).toISOString() : new Date().toISOString(),
+        deleted_at: project.deletedAt ? new Date(project.deletedAt).toISOString() : null
       };
 
       await supabase.from('projects').upsert(payload, { onConflict: 'id' });
@@ -182,16 +211,26 @@ export class TaskCloudService {
         }
       }
 
-      // 2. Quét và cập nhật các ghi chú cục bộ
+      // 2. Quét và cập nhật các dự án cục bộ
+      const allProjects = await db.projects.toArray();
+      for (const p of allProjects) {
+        if (!p.userId || p.userId === 'guest') {
+          p.userId = newUserId;
+          await db.projects.put(p);
+          this.upsertProject(p, newUserId).catch(() => {});
+        }
+      }
+
+      // 3. Quét và cập nhật các ghi chú cục bộ
       const allNotes = await db.notes.toArray();
       for (const n of allNotes) {
-        if (!(n as any).userId || (n as any).userId === 'guest') {
-          (n as any).userId = newUserId;
+        if (!n.userId || n.userId === 'guest') {
+          n.userId = newUserId;
           await db.notes.put(n);
         }
       }
 
-      // 3. Quét và cập nhật các phiên tập trung cục bộ
+      // 4. Quét và cập nhật các phiên tập trung cục bộ
       const allSessions = await db.focus_sessions.toArray();
       for (const s of allSessions) {
         if (!s.userId || s.userId === 'guest') {
@@ -200,7 +239,46 @@ export class TaskCloudService {
         }
       }
 
-      // 4. Đẩy toàn bộ hàng đợi đột biến offline
+      // 5. Quét và di chuyển tin nhắn AI phiên khách (local_conv_* hoặc guest)
+      try {
+        const allAiMsgs = await db.ai_messages.toArray();
+        const guestConvs = new Set<string>();
+
+        for (const msg of allAiMsgs) {
+          if (!msg.userId || msg.userId === 'guest' || msg.conversationId?.startsWith('local_conv_') || msg.conversationId?.startsWith('conv_')) {
+            msg.userId = newUserId;
+            await db.ai_messages.put(msg);
+            if (msg.conversationId) guestConvs.add(msg.conversationId);
+          }
+        }
+
+        // Tạo cloud conversation và upload các tin nhắn khách lên Supabase
+        for (const convId of guestConvs) {
+          const msgsForConv = allAiMsgs.filter((m) => m.conversationId === convId);
+          if (msgsForConv.length > 0) {
+            await supabase.from('ai_conversations').upsert({
+              id: convId,
+              user_id: newUserId,
+              title: msgsForConv[0]?.content?.slice(0, 36) || 'Phiên học tập đã đồng bộ',
+              created_at: new Date(msgsForConv[0]?.createdAt || Date.now()).toISOString(),
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'id' }).catch(() => {});
+
+            const cloudMsgs = msgsForConv.map((m) => ({
+              id: m.id,
+              conversation_id: convId,
+              role: m.role,
+              content: m.content,
+              created_at: new Date(m.createdAt).toISOString()
+            }));
+            await supabase.from('ai_messages').upsert(cloudMsgs, { onConflict: 'id' }).catch(() => {});
+          }
+        }
+      } catch (aiErr) {
+        console.warn('[TaskCloudService] Lỗi di chuyển tin nhắn AI khách:', aiErr);
+      }
+
+      // 6. Đẩy toàn bộ hàng đợi đột biến offline
       const { SyncQueueService } = await import('./syncQueueService');
       const queueService = new SyncQueueService();
       await queueService.flushQueue(newUserId);

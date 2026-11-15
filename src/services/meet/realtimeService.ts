@@ -1,5 +1,6 @@
 import { supabase, RealtimeChannel } from '@/lib/supabase';
 import type { RoomMessage, PresenceState, RealtimeCallbacks } from '@/types/meet';
+import { generateUUID } from '../../utils/uuid';
 
 export type { PresenceState, RealtimeCallbacks };
 
@@ -12,12 +13,8 @@ export class MeetRealtimeService {
       this.unsubscribe();
     }
 
-    // Tạo clientSessionId ngẫu nhiên cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
-    const sessionId =
-      clientSessionId ||
-      (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-        ? crypto.randomUUID()
-        : `cs_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
+    // Tạo clientSessionId ngẫu nhiên chuẩn RFC4122 cho từng tab/thiết bị để tránh 2 thiết bị cùng tài khoản đè session trên Supabase Realtime Presence
+    const sessionId = clientSessionId || generateUUID();
     const presenceKey = `${currentUserId}_${sessionId.slice(0, 8)}`;
 
     this.channel = supabase.channel(`room:${roomId}`, {

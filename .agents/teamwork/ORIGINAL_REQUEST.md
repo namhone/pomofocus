@@ -125,3 +125,43 @@ Trong `src/components/mobile/views/MobileFocusView.tsx`:
 Quoted baseline verified before this directive:
 - Current HEAD commit `816c16e` (`master` & `origin/main`): V8.0 code already in repo (`105` test files / `1519` unit tests passed), `public/downloads/PomoFocus-v8.0.apk`, `public/version.json` `8.0.0`.
 - Remember mandatory governance in `AGENTS.md` and `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md` (Playwright check + 5-step UI checklist + Founder VIP whitelist).
+
+
+## Follow-up — 2026-11-14T18:13:31Z
+
+# BỐI CẢNH DỰ ÁN & MÔI TRƯỜNG HIỆN TẠI (POMOFOCUS V8.1)
+- Working Directory: `d:\FileCuaNam\Web'\Pomodoro`
+- Tech Stack: Vite + React 18 + TypeScript + Tailwind CSS, Supabase Client & Database, Dexie.js IndexedDB (`src/services/db.ts`), Zustand stores (`src/stores/`), Capacitor Android (`android/`).
+- Trạng thái hiện tại: `npm run type-check` 0 lỗi, toàn bộ 114 Vitest files (1.670 unit tests) đang pass 100%.
+
+# ĐỢT 1/4: THANH LỌC LOCALSTORAGE, ĐỒNG BỘ DỮ LIỆU, AVATAR, LOGIC TIMER & BACKEND VIETQR
+
+## YÊU CẦU THỰC THI
+Tự đọc trực tiếp mã nguồn liên quan trong `src/`, `api/`, `scripts/`, `supabase/` trước khi sửa. Chủ động tra cứu tài liệu chuẩn Supabase/MDN nếu cần. Không sửa mò theo trí nhớ.
+
+## DANH MỤC LỖI CẦN XỬ LÝ TRIỆT ĐỂ TRONG ĐỢT 1
+1. **Thanh lọc & Phân tầng `localStorage` (`SafeStorage` & `STORAGE_SCHEMA_VERSION`)**:
+   - `localStorage` CHỈ lưu cờ cấu hình siêu nhẹ (`STORAGE_SCHEMA_VERSION`, âm lượng, eco mode, `targetEndTimeMs` khi đổi trạng thái — cấm ghi đồng bộ mỗi giây trong vòng lặp `tick()`).
+   - Chuyển toàn bộ dữ liệu lớn/mảng (Tasks, AI Messages, Focus Sessions, Whiteboard Strokes, Custom Backgrounds) sang **IndexedDB (Dexie.js)**.
+   - Phòng Meet (`study_rooms`), Ví `⚡`, Quyền VIP cấm dùng `localStorage` làm nguồn sự thật, bắt buộc đồng bộ từ Supabase Cloud.
+   - Gắn `STORAGE_SCHEMA_VERSION` tự động dọn key `pomofocus_*` lỗi thời/hỏng khi nâng cấp; bọc `SafeStorage` chống `QuotaExceededError`/chế độ ẩn danh.
+2. **Sửa tận gốc lỗi Avatar (`<UserAvatar />`)**:
+   - Tạo 1 component `<UserAvatar />` dùng chung duy nhất toàn app (Header, Cài đặt, Auth Sheet, Meet) thay vì mỗi nơi vẽ một kiểu (`U` vs `K` vs ô đen).
+   - 3 tầng ưu tiên: Ảnh upload riêng (tự nén `<= 256x256px` trên Mobile) > Ảnh Google OAuth (có `onError` fallback sạch) > Chữ cái SVG chuẩn `K` (Khách) hoặc chữ cái đầu tên, đồng bộ realtime mọi màn hình.
+3. **Khắc phục 7 lỗi Đồng bộ Dữ liệu & Hiệu năng DB**:
+   - Dùng `crypto.randomUUID()` thay `Date.now()` để không trùng khóa chính khi tạo/sync nhanh trong cùng 1 mili-giây.
+   - Xử lý lệch giờ thiết bị (`Clock Skew`) bằng chuẩn thời gian server / độ dài tương đối cho `updated_at` & Realtime.
+   - Áp dụng xóa mềm Tombstone (`deleted_at`) thay vì xóa cứng để task đã xóa trên máy A không bị hồi sinh khi máy B offline online lại.
+   - Đồng bộ cả Cài đặt cá nhân & Lịch sử Chat AI (`ai_messages`) lên Cloud khi đăng nhập; giữ mutation lỗi trong `sync_queue` ở trạng thái `failed` + Exponential Backoff (không tự xóa sau 5 lần thử).
+   - Cô lập dữ liệu theo `userId`, cảnh báo/xả hàng đợi trước khi đăng xuất để không mất dữ liệu offline và không rò rỉ dữ liệu sang tài khoản khác; gộp (merge) an toàn dữ liệu Khách lên Cloud khi đăng nhập Google lần đầu.
+   - Truy vấn `focus_sessions` theo chỉ mục ngày và phân trang `ai_messages` để không chậm dần sau nhiều tháng; kiểm tra `content-type` JSON chống crash khi gặp WiFi Captive Portal / Lie-Fi.
+4. **Cấp cứu Google Apps Script `checkVietcombankEmails`, VietQR & Coupon**:
+   - Sửa chuẩn script `checkVietcombankEmails` & tối ưu `/api/payment/webhook.ts`: thu hẹp truy vấn Gmail (`is:unread newer_than:2d -label:VcbProcessed`, batch 10–20 mail), dùng `LockService.getScriptLock()` chống chạy đè, `try-catch` từng mail, gắn nhãn sau `200 OK`, webhook trả về nhanh non-blocking.
+   - Bắt buộc đăng nhập trước khi mở nạp VietQR; tự làm mới số dư `⚡` khi quay lại app từ app Ngân hàng (`visibilitychange`/`pageshow`/`focus`); kiểm tra Coupon qua `resolveApiUrl` và ẩn/dọn UI MoMo nếu chưa mở chính thức; xử lý `429` rate-limit cooldown.
+5. **Logic Timer, Task & AI Stream**:
+   - Chỉnh Stepper khi đồng hồ `IDLE` cập nhật ngay `remainingSeconds`; đổi `Nghỉ ngắn`/`Nghỉ dài` giữa phiên áp dụng đúng cho hiệp tiếp theo; hỏi xác nhận khi đổi pha lúc đang chạy; nút Skip `⏭` không cộng ảo giờ/phiên vào thống kê; hết `Nghỉ dài` sau Hiệp 4/4 reset chu kỳ sạch sẽ về `Hiệp 1/4`.
+   - Chống ghi đúp 2 phiên học (`Double Session Recording`) khi hết giờ trùng `visibilitychange` + `setInterval`; chống nhảy giờ thiết bị (`Date.now()` vs `performance.now()`) và xử lý Midnight Rollover (`Asia/Ho_Chi_Minh`).
+   - Đổi tên/xóa task đang gắn `linkedTaskId` tự đồng bộ lên màn Tập trung; đồng bộ đa tab qua `BroadcastChannel`; khóa double-submit; `AbortController` hủy stream AI cũ khi đổi chat; miễn trừ `Strict Mode` khi đang hiện hộp thoại xin quyền hệ thống/OAuth/VietQR; tránh đếm trùng giờ giữa Đồng hồ Cá nhân & Đồng hồ Meet; dọn sạch mọi timer/subscriptions khi unmount.
+
+## NGHIỆM THU ĐỢT 1
+- Chạy `npm run type-check` (0 lỗi) và toàn bộ Vitest unit tests liên quan (100% pass) trước khi báo cáo xong Đợt 1.

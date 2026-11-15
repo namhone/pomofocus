@@ -189,7 +189,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         const awayDurationMs = Date.now() - strictLeftAtRef.current;
         strictLeftAtRef.current = null;
 
-        if (shouldMonitor && awayDurationMs > STRICT_GRACE_PERIOD_MS) {
+        // V8.1 (Feature 25): Miễn trừ vi phạm Kỷ luật khi có Dialog/Modal hệ thống mở (OAuth, Permissions, Thanh toán)
+        const isExemptModalActive = typeof document !== 'undefined' && Boolean(
+          document.querySelector(
+            '[data-strict-exempt="true"], [data-testid="momo-payment-modal"], [data-testid="ai-credits-topup-modal"], [data-testid="mobile-auth-bottom-sheet"], [data-testid="two-factor-gate-modal"]'
+          )
+        );
+
+        if (shouldMonitor && !isExemptModalActive && awayDurationMs > STRICT_GRACE_PERIOD_MS) {
           if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
             try {
               navigator.vibrate([150, 80, 150, 80, 150]);
@@ -218,7 +225,16 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
     const loadSessionsData = async () => {
       try {
         const todayKey = getVietnamTodayDateKey();
-        const allSessions = await db.focus_sessions.toArray();
+        const past7Meta = getPast7DaysMeta();
+        const past7Keys = past7Meta.map((m) => m.dateKey);
+        const past7KeysSet = new Set(past7Keys);
+
+        // Tối ưu hóa: Indexed query theo dateString thay vì quét toàn bộ bảng .toArray()
+        const recentSessions = await db.focus_sessions
+          .where('dateString')
+          .anyOf(past7Keys)
+          .toArray();
+
         if (!isMounted) return;
 
         // 1. Process Today Sessions for Daily Flow 24h
@@ -226,7 +242,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         let todayMins = 0;
         let todayPomos = 0;
 
-        for (const s of allSessions) {
+        for (const s of recentSessions) {
           if (s.dateString === todayKey && (s.phase === 'pomodoro' || (s as any).phase === 'work')) {
             todayPomos += 1;
             todayMins += Number(s.durationMinutes) || 25;
@@ -237,16 +253,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         setDbTodaySummary({ minutes: todayMins, pomos: todayPomos, loaded: true });
 
         // 2. Process 7-Day Weekly Insights
-        const past7Meta = getPast7DaysMeta();
-        const past7Keys = new Set(past7Meta.map((m) => m.dateKey));
         const dayMap = new Map<string, { minutes: number; pomos: number }>();
 
         past7Meta.forEach((m) => {
           dayMap.set(m.dateKey, { minutes: 0, pomos: 0 });
         });
 
-        for (const s of allSessions) {
-          if (s.dateString && past7Keys.has(s.dateString)) {
+        for (const s of recentSessions) {
+          if (s.dateString && past7KeysSet.has(s.dateString)) {
             const entry = dayMap.get(s.dateString);
             if (entry && (s.phase === 'pomodoro' || (s as any).phase === 'work')) {
               entry.pomos += 1;
@@ -557,7 +571,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   };
 
   const handleSetPhase = (newPhase: TimerPhase) => {
-    if (status === 'running' && newPhase !== phase) {
+    // V8.1 (Feature 19): Bảo vệ cả phiên đang chạy (running) lẫn đang tạm dừng (paused)
+    if (status !== 'idle' && newPhase !== phase) {
       setPendingPhaseChange(newPhase);
       return;
     }

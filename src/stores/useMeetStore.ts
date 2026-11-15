@@ -8,6 +8,7 @@ import type {
 } from '@/types/meet';
 import { meetRepository } from '@/services/meet/meetRepository';
 import { meetRealtimeService } from '@/services/meet/realtimeService';
+import { generateUUID } from '../utils/uuid';
 
 export interface MeetState {
   currentRoom: StudyRoom | null;
@@ -117,7 +118,7 @@ export const useMeetStore = create<MeetState>((set) => ({
   },
 
   sendMessage: async (roomId: string, content: string, clientMessageId?: string) => {
-    const msgId = clientMessageId || 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    const msgId = clientMessageId || generateUUID();
     try {
       const msg = await meetRepository.sendMessage(roomId, msgId, content);
       set((state) => ({

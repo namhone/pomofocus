@@ -22,14 +22,27 @@ export class NoteCloudService {
 
       if (!error && Array.isArray(cloudNotes)) {
         for (const cn of cloudNotes) {
+          const cloudUpdatedAt = new Date(cn.updated_at).getTime();
+          const cloudDeletedAt = cn.deleted_at ? new Date(cn.deleted_at).getTime() : null;
+          const localNote = await db.notes.get(cn.id);
+
+          // Respect updatedAt: do not overwrite newer local updates blindly with older cloud records
+          if (localNote && localNote.updatedAt > cloudUpdatedAt) {
+            this.upsertNote(localNote, userId).catch(() => {});
+            continue;
+          }
+
           const mappedNote: Note = {
             id: cn.id,
+            userId,
             title: cn.title,
             contentMarkdown: cn.content_markdown || '',
             linkedTaskId: cn.linked_task_id || null,
             linkedProjectId: cn.linked_project_id || null,
             createdAt: new Date(cn.created_at).getTime(),
-            updatedAt: new Date(cn.updated_at).getTime()
+            updatedAt: cloudUpdatedAt,
+            deletedAt: cloudDeletedAt,
+            synced: true
           };
           await db.notes.put(mappedNote);
         }
@@ -63,7 +76,8 @@ export class NoteCloudService {
         linked_task_id: note.linkedTaskId || null,
         linked_project_id: note.linkedProjectId || null,
         created_at: new Date(note.createdAt).toISOString(),
-        updated_at: new Date(note.updatedAt).toISOString()
+        updated_at: new Date(note.updatedAt).toISOString(),
+        deleted_at: note.deletedAt ? new Date(note.deletedAt).toISOString() : null
       };
 
       await supabase.from('notes').upsert(payload, { onConflict: 'id' });

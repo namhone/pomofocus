@@ -13,6 +13,7 @@ import { ProfileService } from './profileService';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
 import { supabase } from '../lib/supabase';
 import { resolveApiUrl } from '../utils/apiConfig';
+import { safeParseJson } from '../utils/safeFetch';
 
 export type CouponType = 'lifetime' | 'free_lifetime' | 'discount_percent' | 'free_days' | 'credits';
 
@@ -342,9 +343,13 @@ export const couponService = {
     if (typeof window !== 'undefined') {
       try {
         const apiRes = await fetch(resolveApiUrl(`/api/coupons?code=${encodeURIComponent(clean)}`));
+        if (apiRes.status === 429) {
+          console.warn('[CouponService] Rate limit (HTTP 429) on /api/coupons');
+          return null;
+        }
         if (apiRes.ok) {
-          const json = await apiRes.json();
-          if (json.success && json.coupon) {
+          const json = await safeParseJson<any>(apiRes);
+          if (json && json.success && json.coupon) {
             const row = json.coupon;
             const c: Coupon = {
               id: row.id,
@@ -388,7 +393,7 @@ export const couponService = {
         }
       });
       if (!res.ok) return null;
-      const data = await res.json();
+      const data = await safeParseJson<any[]>(res, { fallback: [] });
       if (!Array.isArray(data) || data.length === 0) return null;
 
       const row = data[0];
@@ -678,6 +683,16 @@ export const couponService = {
         p_user_id: currentUser.id
       });
 
+      if (error) {
+        const errAny = error as any;
+        if (errAny.status === 429 || errAny.code === '429' || error.message?.includes('429') || error.message?.toLowerCase().includes('rate limit')) {
+          return {
+            success: false,
+            message: 'Thao tác quá nhanh. Vui lòng đợi vài giây trước khi thử lại (HTTP 429).'
+          };
+        }
+      }
+
       if (!error && data && typeof data === 'object') {
         if (data.success === false) {
           return { success: false, message: data.message || 'Mã không hợp lệ.' };
@@ -784,8 +799,8 @@ export const couponService = {
     try {
       const res = await safeFetchApi('/api/coupons');
       if (res.ok) {
-        const json = await res.json();
-        if (json.success && Array.isArray(json.coupons)) {
+        const json = await safeParseJson<any>(res);
+        if (json && json.success && Array.isArray(json.coupons)) {
           return json.coupons;
         }
       }
@@ -829,8 +844,8 @@ export const couponService = {
       });
 
       if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.coupon) {
+        const json = await safeParseJson<any>(res);
+        if (json && json.success && json.coupon) {
           // Lưu vào local cache
           const list = this.getCoupons();
           list.unshift(json.coupon);

@@ -50,6 +50,8 @@ import {
 } from '../utils/materialLoader';
 import { MinimalDocEditor } from './MinimalDocEditor';
 import { RealtimeChannel } from '../lib/supabase';
+import { safeStorage } from '../utils/safeStorage';
+import { generateUUID } from '../utils/uuid';
 
 const COLOR_PALETTE = [
   { name: 'Trắng', hex: '#ffffff' },
@@ -133,7 +135,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     if (initialStrokes && initialStrokes.length > 0) return initialStrokes;
     if (typeof window !== 'undefined' && roomId) {
       try {
-        const stored = localStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        const stored = safeStorage.getItem(`pomofocus_whiteboard_strokes_${roomId}`);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -703,7 +705,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       pageStrokesMapRef.current = {};
       if (typeof window !== 'undefined' && roomId) {
         try {
-          localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+          safeStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
         } catch {}
       }
     };
@@ -835,9 +837,9 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     if (typeof window !== 'undefined' && roomId) {
       try {
         if (strokes.length > 0) {
-          localStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
+          safeStorage.setItem(`pomofocus_whiteboard_strokes_${roomId}`, JSON.stringify(strokes));
         } else {
-          localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+          safeStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
         }
       } catch {}
     }
@@ -1190,7 +1192,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     if (currentPointsRef.current.length === 0) return;
 
     const newStroke: WhiteboardStroke = {
-      id: `stroke-${currentUserId}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: generateUUID(),
       userId: currentUserId,
       userName: currentUserName,
       tool: activeTool,
@@ -1220,7 +1222,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     }
 
     const newStroke: WhiteboardStroke = {
-      id: `stroke-${currentUserId}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: generateUUID(),
       userId: currentUserId,
       userName: currentUserName,
       tool: 'text',
@@ -1286,7 +1288,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
 
     if (typeof window !== 'undefined' && roomId) {
       try {
-        localStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
+        safeStorage.removeItem(`pomofocus_whiteboard_strokes_${roomId}`);
       } catch {}
     }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, Plus, Check, Trash2, ArrowRight } from 'lucide-react';
 import { db, PlannerBlockRecord } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
+import { generateUUID } from '../utils/uuid';
 import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
 
@@ -46,7 +47,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
   const handleAddBlock = async (hour: number) => {
     const title = newTitle.trim() || (selectedTaskId ? tasks.find((t) => t.id === selectedTaskId)?.title : '') || `Tập trung lúc ${hour}:00`;
     const newBlock: PlannerBlockRecord = {
-      id: `block_${todayStr}_${hour}_${Date.now()}`,
+      id: generateUUID(),
       dateString: todayStr,
       startHour: hour,
       title,

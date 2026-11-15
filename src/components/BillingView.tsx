@@ -1149,7 +1149,7 @@ export const BillingView: React.FC = () => {
                       </span>
                     </h3>
                     <p className="text-xs text-zinc-400">
-                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR hoặc MoMo, điểm cộng dồn vĩnh viễn vào tài khoản.
+                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR (Vietcombank 24/7), điểm cộng dồn vĩnh viễn vào tài khoản.
                     </p>
                   </div>
 
