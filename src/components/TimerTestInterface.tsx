@@ -282,8 +282,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               haptics.impact('medium');
               resetCycle();
             }}
-            title="Bắt đầu lại chu kỳ (Hiệp 1/4)"
-            aria-label="Bắt đầu lại chu kỳ (Hiệp 1/4)"
+            title={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
+            aria-label={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-rose-400" />
