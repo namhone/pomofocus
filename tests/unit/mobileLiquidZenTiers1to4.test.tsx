@@ -453,7 +453,7 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
         expect(handleChange).toHaveBeenCalledWith(false);
       });
 
-      it('4. Trạng thái Active (ON) áp dụng gradient ngọc bích Liquid Zen và quầng sáng ambient glow', () => {
+      it('4. Trạng thái Active (ON) áp dụng phong cách Monochrome 90-10 tối giản', () => {
         render(
           <MobileLiquidSwitch
             checked={true}
@@ -463,10 +463,9 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
         );
 
         const sw = screen.getByTestId('test-switch-on');
-        expect(sw.className).toContain('from-emerald-500');
-        expect(sw.className).toContain('via-teal-400');
-        expect(sw.className).toContain('to-cyan-400');
-        expect(sw.className).toContain('shadow-');
+        expect(sw.className).toContain('bg-white');
+        expect(sw.className).toContain('border-white');
+        expect(sw.className).toContain('shadow-sm');
       });
 
       it('5. Trạng thái Inactive (OFF) áp dụng nền than chì zinc-800 và viền kính mờ', () => {
@@ -625,11 +624,11 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
         expect(shell.className).toContain('100dvh');
       });
 
-      it.skipIf(!isM3Ready)('2. Header cao đúng 56px với logo PomoFocus và huy hiệu Liquid Zen', () => {
+      it.skipIf(!isM3Ready)('2. Header cao đúng 48px với logo PomoFocus', () => {
         render(<MobileAppShell />);
         const header = screen.getByTestId('mobile-top-header');
-        expect(header.className).toContain('h-14');
-        expect(header.textContent).toContain('Liquid Zen');
+        expect(header.className).toContain('h-12');
+        expect(header.textContent).toContain('PomoFocus');
       });
 
       it.skipIf(!isM3Ready)('3. Hiển thị chấm trạng thái đồng hồ 3 màu (Xanh chạy, Vàng tạm dừng, Xám nghỉ)', () => {
@@ -672,11 +671,11 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
         expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
       });
 
-      it.skipIf(!isM3Ready)('3. Tab đang hoạt động mang chỉ báo phát sáng Zen emerald', () => {
+      it.skipIf(!isM3Ready)('3. Tab đang hoạt động mang chỉ báo active (aria-selected="true")', () => {
         useLayoutStore.setState({ activeMobileTab: 'focus' });
         render(<MobileAppShell />);
         const activeTab = screen.getByTestId('mobile-nav-tab-focus');
-        expect(activeTab.className).toContain('emerald');
+        expect(activeTab.getAttribute('aria-selected')).toBe('true');
       });
 
       it.skipIf(!isM3Ready)('4. Bảo đảm khoảng đệm an toàn đáy không che lấp nội dung cuộn (pb-28 / pb-safe)', () => {

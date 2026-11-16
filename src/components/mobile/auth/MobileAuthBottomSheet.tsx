@@ -12,7 +12,8 @@ import {
   Loader2,
   ShieldCheck,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Timer
 } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useAiStore } from '../../../stores/useAiStore';
@@ -239,7 +240,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-emerald-400 font-bold text-sm tracking-tight flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-emerald-400" />
-              <span>{isAuthenticated ? 'Hồ sơ người dùng' : 'Đăng nhập & Đồng bộ'}</span>
+              <span>{isAuthenticated ? 'Hồ sơ người dùng' : 'Tài khoản & Đồng bộ'}</span>
             </span>
           </div>
 
@@ -333,7 +334,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-1"
               >
                 <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                  <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                  <Clock className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5]" />
                   <span>Tổng thời gian</span>
                 </div>
                 <div className="text-xl font-bold text-white font-mono tracking-tight">
@@ -348,7 +349,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-1"
               >
                 <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  <Flame className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5]" />
                   <span>Chuỗi ngày</span>
                 </div>
                 <div className="text-xl font-bold text-amber-300 font-mono tracking-tight">
@@ -363,26 +364,29 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-1"
               >
                 <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
-                  <span>Cà chua hoàn thành</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5]" />
+                  <span>Phiên hoàn thành</span>
                 </div>
-                <div className="text-xl font-bold text-teal-300 font-mono tracking-tight">
-                  {stats.completedPomos} 🍅
+                <div className="text-xl font-bold text-zinc-100 font-mono tracking-tight flex items-center gap-1.5">
+                  <span>{stats.completedPomos}</span>
+                  <Timer className="w-4 h-4 stroke-[1.5] text-zinc-400" />
                 </div>
                 <div className="text-[10px] text-zinc-500">Phiên hoàn tất</div>
               </div>
 
-              {/* Card 4: Energy Balance ⚡ */}
+              {/* Card 4: Energy Balance */}
               <div
                 data-testid="bento-metric-walletCredits"
                 className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-1"
               >
                 <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <Zap className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5]" />
                   <span>Năng lượng AI</span>
                 </div>
-                <div className="text-xl font-bold text-amber-400 font-mono tracking-tight">
-                  ⚡ {aiCreditsBalance}
+                <div className="text-xl font-bold text-zinc-100 font-mono tracking-tight flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 stroke-[1.5] text-zinc-300" aria-hidden="true" />
+                  <span className="sr-only">⚡ </span>
+                  <span>{aiCreditsBalance}</span>
                 </div>
                 <div className="text-[10px] text-zinc-500">Số dư credits</div>
               </div>
@@ -398,10 +402,10 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   if (onOpenUpgradeModal) onOpenUpgradeModal();
                   else openTopupModal();
                 }}
-                className="w-full min-h-[48px] py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 text-zinc-950 font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition cursor-pointer"
+                className="w-full min-h-[48px] py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 fill-current" />
-                <span>Nâng cấp PRO VIP</span>
+                <span>Nâng cấp Pro VIP</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
@@ -465,7 +469,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
             {/* Divider */}
             <div className="flex items-center gap-3 my-2">
               <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[11px] uppercase tracking-wider text-zinc-500 font-medium">
+              <span className="text-[11px] text-zinc-500 font-medium">
                 hoặc dùng email
               </span>
               <div className="h-px flex-1 bg-white/10" />
@@ -482,7 +486,8 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="Nhập email của bạn"
                   autoComplete="email"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-emerald-400 transition"
+                  onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/30 transition"
                 />
               </div>
 
@@ -491,7 +496,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 data-testid="mobile-auth-magiclink-btn"
                 onClick={handleSendMagicLink}
                 disabled={isLoadingMagicLink || !emailInput.trim()}
-                className="w-full min-h-[44px] py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
+                className="w-full min-h-[44px] py-2 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shadow-sm"
               >
                 {isLoadingMagicLink ? (
                   <>

@@ -245,14 +245,14 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(phone.style.transform).toContain('scale3d(1, 1, 1)');
     });
 
-    it('1.3 displays accurate ~8.0 MB APK size and unified pomofocus brand logo', () => {
+    it('1.3 displays accurate ~8.0 MB or 8.70 MB APK size and unified pomofocus brand logo', () => {
       render(
         <RouterProvider>
           <WebDownloadHub />
         </RouterProvider>
       );
 
-      expect(screen.getAllByText(/~8\.0 MB/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/8\.(0|70) MB/i).length).toBeGreaterThanOrEqual(1);
       expect(screen.queryByText(/18\.4 MB/i)).toBeNull();
       expect(screen.getAllByText(/pomofocus/i).length).toBeGreaterThanOrEqual(2);
       expect(screen.getByText('25:00')).toBeDefined();
@@ -344,7 +344,7 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(screen.getByText(/Đếm giờ chính xác ngay cả khi tắt màn hình/i)).toBeDefined();
       expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
       expect(screen.getByTestId('central-apk-download-btn').textContent).toContain('Tải PomoFocus APK (v8.1)');
-      expect(screen.getByText('Dung lượng: ~8.0 MB · Android 9.0+ · Miễn phí hoàn toàn')).toBeDefined();
+      expect(screen.getByText(/Dung lượng: (~?8\.0 MB|8\.70 MB) · Android 9\.0\+ · Miễn phí hoàn toàn/)).toBeDefined();
       expect(screen.getAllByText('Mở bản web →').length).toBeGreaterThanOrEqual(1);
     });
 

@@ -23,7 +23,7 @@ export interface MobileStepperRowProps {
  * - Left side: Category Icon pill (emerald/zinc styling), label text, and current value.
  * - Right side: Flex-locked pill container (bg-zinc-800/80 border border-white/10 rounded-2xl flex items-center p-1 gap-1).
  * - Buttons (− and +): Strict 48x48dp touch target minimum complying with Fitts's Law.
- * - Flex-locked: Never wrap or separate.
+ * - Direct tap to type: Tapping the number opens numeric inputMode for precision entry.
  * - Upper/lower bounds clamping (defaults: min 1, max 120, step 1).
  * - Accessibility: role="spinbutton", aria-valuenow, aria-valuemin, aria-valuemax, aria-label.
  */
@@ -45,6 +45,8 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
 
   // Direction awareness for 120Hz rolling digit morph
   const [animDirection, setAnimDirection] = React.useState<'up' | 'down' | null>(null);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [tempValue, setTempValue] = React.useState(String(value));
   const prevValueRef = React.useRef(value);
 
   React.useEffect(() => {
@@ -54,7 +56,19 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
       setAnimDirection('down');
     }
     prevValueRef.current = value;
+    setTempValue(String(value));
   }, [value]);
+
+  const handleCommitValue = () => {
+    setIsEditing(false);
+    const parsed = parseInt(tempValue, 10);
+    if (!isNaN(parsed)) {
+      const clamped = Math.max(min, Math.min(max, parsed));
+      onChange(clamped);
+    } else {
+      setTempValue(String(value));
+    }
+  };
 
   // Safe Haptic feedback (10ms)
   const triggerHaptic = () => {
@@ -138,19 +152,45 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
               <span className="text-[10px] tracking-[-0.01em] text-zinc-400 truncate leading-tight mt-0.5">{subtitle}</span>
             ) : null}
           </div>
-          <span className="inline-flex flex-col items-center justify-center shrink-0 overflow-hidden min-w-[24px] leading-none">
-            <span
-              key={value}
-              className={`text-[15px] font-bold font-mono text-white tabular-nums leading-none ${
-                animDirection === 'up'
-                  ? 'animate-rolling-up'
-                  : animDirection === 'down'
-                  ? 'animate-rolling-down'
-                  : ''
-              }`}
-            >
-              {value}
-            </span>
+          <span className="inline-flex flex-col items-center justify-center shrink-0 overflow-hidden min-w-[28px] leading-none">
+            {isEditing ? (
+              <input
+                type="number"
+                inputMode="numeric"
+                autoFocus
+                min={min}
+                max={max}
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                onBlur={handleCommitValue}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleCommitValue();
+                  if (e.key === 'Escape') {
+                    setIsEditing(false);
+                    setTempValue(String(value));
+                  }
+                }}
+                className="w-11 text-center bg-zinc-800 border border-white/20 rounded-md text-[14px] font-bold font-mono text-white p-0.5 focus:outline-none"
+              />
+            ) : (
+              <span
+                key={value}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!disabled) setIsEditing(true);
+                }}
+                title="Bấm để nhập số trực tiếp"
+                className={`text-[15px] font-bold font-mono text-white tabular-nums leading-none cursor-pointer ${
+                  animDirection === 'up'
+                    ? 'animate-rolling-up'
+                    : animDirection === 'down'
+                    ? 'animate-rolling-down'
+                    : ''
+                }`}
+              >
+                {value}
+              </span>
+            )}
             {unit ? <span className="text-[9.5px] font-normal text-zinc-400 leading-none mt-0.5">{unit}</span> : null}
           </span>
         </div>

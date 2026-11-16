@@ -338,8 +338,8 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
       render(<MobileFocusView />);
       const mainBtn = screen.getByTestId('mobile-timer-main-action');
       expect(mainBtn).toBeDefined();
-      expect(mainBtn.className).toContain('w-16');
-      expect(mainBtn.className).toContain('h-16');
+      expect(mainBtn.className).toContain('w-14');
+      expect(mainBtn.className).toContain('h-14');
     });
 
     it('3.2 Accessible 1-tap (< 300ms) toggles timer from idle to running and back to paused', () => {
@@ -706,8 +706,7 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
 
       render(<MobileFocusView />);
       const summary = screen.getByTestId('mobile-daily-flow-summary');
-      expect(summary.textContent).toContain('2g 5ph');
-      expect(summary.textContent).toContain('5 🍅');
+      expect(summary.textContent).toContain('2g 5p · 5 phiên');
     });
 
     it('7.3 7-Day Weekly Insights displays 7 daily columns with today in emerald', async () => {

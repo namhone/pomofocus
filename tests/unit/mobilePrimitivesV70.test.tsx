@@ -430,16 +430,14 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 1 Primitives
 
       const switchBtn = screen.getByRole('switch');
       expect(switchBtn.getAttribute('aria-checked')).toBe('true');
-      expect(switchBtn.className).toContain('from-emerald-500');
-      expect(switchBtn.className).toContain('via-teal-400');
-      expect(switchBtn.className).toContain('to-cyan-400');
-      expect(switchBtn.className).toContain('shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+      expect(switchBtn.className).toContain('bg-white');
+      expect(switchBtn.className).toContain('border-white');
 
       // Thumb is translated to the right
       const thumb = switchBtn.querySelector('span');
       expect(thumb).not.toBeNull();
       expect(thumb!.className).toContain('translate-x-5');
-      expect(thumb!.className).toContain('bg-white');
+      expect(thumb!.className).toContain('bg-zinc-950');
     });
 
     it('displays inactive charcoal styling when checked=false', () => {

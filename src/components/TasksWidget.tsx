@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Trash2, Sparkles, Timer, Target, Play, Pencil } from 'lucide-react';
 import { useTaskStore } from '../stores/useTaskStore';
 import { useTimerStore } from '../stores/useTimerStore';
@@ -34,13 +34,24 @@ export const TasksWidget: React.FC = () => {
   const [showAddProject, setShowAddProject] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState('');
+  const [editingEstimatedPomodoros, setEditingEstimatedPomodoros] = useState<number>(1);
+  const [showConfirmClearCompleted, setShowConfirmClearCompleted] = useState(false);
+  const [lastClearedTasks, setLastClearedTasks] = useState<any[]>([]);
+  const [showUndoSnackbar, setShowUndoSnackbar] = useState(false);
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadTasksAndProjects();
   }, [loadTasksAndProjects]);
 
-  const handleAddTask = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    };
+  }, []);
+
+  const handleAddTask = async (e?: React.SyntheticEvent) => {
+    e?.preventDefault();
     if (!newTitle.trim()) return;
 
     await createTask({
@@ -51,6 +62,9 @@ export const TasksWidget: React.FC = () => {
     });
 
     setNewTitle('');
+    if (useTaskStore.getState().statusFilter === 'completed' || statusFilter === 'completed') {
+      setStatusFilter('all');
+    }
   };
 
   const handleAddProject = async (e: React.FormEvent) => {
@@ -61,21 +75,61 @@ export const TasksWidget: React.FC = () => {
     setShowAddProject(false);
   };
 
-  const startEditingTask = (id: string, currentTitle: string) => {
+  const startEditingTask = (id: string, currentTitle: string, currentEstimated: number = 1) => {
     setEditingTaskId(id);
     setEditingTaskTitle(currentTitle);
+    setEditingEstimatedPomodoros(currentEstimated);
   };
 
   const handleSaveTaskTitle = async (id: string) => {
     const trimmed = editingTaskTitle.trim();
-    if (trimmed && trimmed !== tasks.find((t) => t.id === id)?.title) {
-      await updateTask(id, { title: trimmed });
+    if (trimmed) {
+      await updateTask(id, {
+        title: trimmed,
+        estimatedPomodoros: Math.max(1, Math.min(20, editingEstimatedPomodoros))
+      });
     }
     setEditingTaskId(null);
   };
 
   const handleCancelTaskEdit = () => {
     setEditingTaskId(null);
+  };
+
+  const handleTriggerClearCompleted = async () => {
+    const completed = tasks.filter((t) => t.status === 'completed');
+    if (completed.length === 0) return;
+    setLastClearedTasks(completed);
+    setShowUndoSnackbar(true);
+
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    undoTimeoutRef.current = setTimeout(() => {
+      setShowUndoSnackbar(false);
+      setLastClearedTasks([]);
+    }, 6000);
+
+    await clearCompletedTasks();
+  };
+
+  const handleConfirmClearCompleted = async () => {
+    setShowConfirmClearCompleted(false);
+    await handleTriggerClearCompleted();
+  };
+
+  const handleUndoClearCompleted = async () => {
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    setShowUndoSnackbar(false);
+    for (const t of lastClearedTasks) {
+      try {
+        await createTask({
+          title: t.title,
+          priority: t.priority,
+          projectId: t.projectId,
+          estimatedPomodoros: t.estimatedPomodoros
+        });
+      } catch {}
+    }
+    setLastClearedTasks([]);
   };
 
   // Lọc task theo Project và Status
@@ -118,7 +172,7 @@ export const TasksWidget: React.FC = () => {
             <button
               type="button"
               data-testid="clear-completed-btn"
-              onClick={() => clearCompletedTasks()}
+              onClick={handleTriggerClearCompleted}
               className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-amber-400/30 text-zinc-400 hover:text-amber-300 flex items-center justify-center shrink-0 transition-all shadow-sm cursor-pointer"
               title="Xóa các việc đã hoàn thành"
               aria-label="Xóa các việc đã hoàn thành"
@@ -136,6 +190,51 @@ export const TasksWidget: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Confirmation Dialog for Clearing Completed Tasks */}
+      {showConfirmClearCompleted && (
+        <div
+          data-testid="confirm-clear-completed-dialog"
+          className="p-2.5 rounded-xl bg-black/60 border border-white/15 mb-2 flex items-center justify-between gap-2 shadow-lg backdrop-blur-md"
+        >
+          <span className="text-xs text-neutral-200">Xóa tất cả {completedTasksCount} việc đã xong?</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowConfirmClearCompleted(false)}
+              className="px-2.5 py-1 rounded-lg text-xs text-neutral-400 hover:text-white"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              data-testid="confirm-clear-btn"
+              onClick={handleConfirmClearCompleted}
+              className="px-3 py-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-medium text-xs"
+            >
+              Xóa
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Undo Snackbar for Clearing Completed Tasks */}
+      {showUndoSnackbar && (
+        <div
+          data-testid="tasks-undo-snackbar"
+          className="fixed bottom-4 right-4 z-50 p-2.5 px-3.5 rounded-xl bg-zinc-900 border border-white/15 shadow-2xl flex items-center gap-3 text-xs text-white backdrop-blur-md"
+        >
+          <span>Đã dọn {lastClearedTasks.length} việc hoàn thành</span>
+          <button
+            type="button"
+            data-testid="undo-clear-completed-btn"
+            onClick={handleUndoClearCompleted}
+            className="text-amber-300 hover:text-amber-200 font-semibold underline cursor-pointer"
+          >
+            Hoàn tác
+          </button>
+        </div>
+      )}
 
       {/* Form Thêm Dự Án (Popdown) */}
       {showAddProject && (
@@ -289,7 +388,8 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            className="liquid-glass-btn px-3.5 py-1 text-xs font-semibold text-white transition cursor-pointer h-7 gap-1 shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            onClick={handleAddTask}
+            className="liquid-glass-btn px-3.5 py-1 text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition cursor-pointer h-7 gap-1 shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             + Thêm
           </button>
@@ -298,7 +398,15 @@ export const TasksWidget: React.FC = () => {
 
       {/* Danh Sách Tasks (khoảng cách 8px chuẩn 8-point grid, min-h 48px) */}
       <div className="space-y-2 flex-1 overflow-y-auto min-h-0 w-full overflow-x-hidden pr-0.5">
-        {filteredTasks.length === 0 ? null : (
+        {filteredTasks.length === 0 ? (
+          <div data-testid="tasks-empty-state" className="py-8 text-center text-xs text-neutral-400">
+            {statusFilter === 'todo'
+              ? 'Không còn công việc nào cần làm. Tuyệt vời!'
+              : statusFilter === 'completed'
+              ? 'Chưa có việc nào hoàn thành hôm nay.'
+              : 'Chưa có công việc. Nhập việc cần làm ở trên để bắt đầu!'}
+          </div>
+        ) : (
           filteredTasks.map((task) => {
             const isLinked = activeTaskId === task.id;
             const isCompleted = task.status === 'completed';
@@ -345,29 +453,58 @@ export const TasksWidget: React.FC = () => {
                   </label>
                   <div className="min-w-0 flex-1">
                     {editingTaskId === task.id ? (
-                      <input
-                        data-testid={`input-edit-task-${task.id}`}
-                        type="text"
-                        value={editingTaskTitle}
-                        onChange={(e) => setEditingTaskTitle(e.target.value)}
-                        onBlur={() => handleSaveTaskTitle(task.id)}
-                        onKeyDown={(e) => {
-                          if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleSaveTaskTitle(task.id);
-                          } else if (e.key === 'Escape') {
-                            handleCancelTaskEdit();
-                          }
-                        }}
-                        autoFocus
-                        className="w-full text-xs px-2 py-0.5 rounded bg-black/60 border border-white/30 text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
-                      />
+                      <div className="space-y-1.5 w-full">
+                        <input
+                          data-testid={`input-edit-task-${task.id}`}
+                          type="text"
+                          value={editingTaskTitle}
+                          onChange={(e) => setEditingTaskTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleSaveTaskTitle(task.id);
+                            } else if (e.key === 'Escape') {
+                              handleCancelTaskEdit();
+                            }
+                          }}
+                          onBlur={() => handleSaveTaskTitle(task.id)}
+                          autoFocus
+                          className="w-full text-xs px-2 py-0.5 rounded bg-black/60 border border-white/30 text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                        />
+                        <div className="flex items-center justify-between text-[11px] text-neutral-400">
+                          <span>Số hiệp dự kiến:</span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setEditingEstimatedPomodoros((p) => Math.max(1, p - 1))}
+                              className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="font-mono text-white font-medium">{editingEstimatedPomodoros} 🍅</span>
+                            <button
+                              type="button"
+                              onClick={() => setEditingEstimatedPomodoros((p) => Math.min(20, p + 1))}
+                              className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold cursor-pointer"
+                            >
+                              +
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSaveTaskTitle(task.id)}
+                              className="ml-2 px-2 py-0.5 rounded bg-white text-zinc-950 font-semibold text-[10px] cursor-pointer"
+                            >
+                              Lưu
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex items-center gap-1 group/title min-w-0">
                         <span
                           data-testid={`task-title-${task.id}`}
-                          onDoubleClick={() => startEditingTask(task.id, task.title)}
+                          onDoubleClick={() => startEditingTask(task.id, task.title, task.estimatedPomodoros || 1)}
                           title="Nhấp đúp hoặc bấm bút chì để sửa tên"
                           className={`text-xs font-medium truncate cursor-pointer select-none ${
                             isCompleted ? 'line-through text-neutral-400' : 'text-neutral-200 hover:text-white'
@@ -378,9 +515,9 @@ export const TasksWidget: React.FC = () => {
                         <button
                           type="button"
                           data-testid={`edit-task-btn-${task.id}`}
-                          onClick={() => startEditingTask(task.id, task.title)}
+                          onClick={() => startEditingTask(task.id, task.title, task.estimatedPomodoros || 1)}
                           className="opacity-0 group-hover/title:opacity-100 hover:!opacity-100 transition-opacity p-0.5 text-neutral-400 hover:text-emerald-300 cursor-pointer shrink-0"
-                          title="Sửa tên nhiệm vụ"
+                          title="Sửa nhiệm vụ"
                         >
                           <Pencil size={11} />
                         </button>
@@ -396,7 +533,9 @@ export const TasksWidget: React.FC = () => {
                       </span>
                       <span
                         data-testid={`pomodoro-count-${task.id}`}
-                        className="text-neutral-300 flex items-center gap-1"
+                        onClick={() => startEditingTask(task.id, task.title, task.estimatedPomodoros || 1)}
+                        className="text-neutral-300 flex items-center gap-1 cursor-pointer hover:text-white"
+                        title="Bấm để sửa số hiệp"
                       >
                         <Timer size={11} className="text-rose-400 shrink-0" />
                         <span>{task.completedPomodoros}/{task.estimatedPomodoros}</span>
@@ -409,13 +548,20 @@ export const TasksWidget: React.FC = () => {
                 <div className="flex items-center gap-1 shrink-0 flex-nowrap">
                   <button
                     type="button"
+                    disabled={isCompleted}
                     data-testid={isLinked ? `unlink-task-btn-${task.id}` : `link-task-btn-${task.id}`}
-                    onClick={() => linkTaskToTimer(isLinked ? null : task.id)}
-                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[32px] flex items-center gap-1 justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 ${
-                      isLinked
-                        ? 'bg-rose-500/20 text-rose-200 border border-rose-500/35 shadow-xs'
-                        : 'bg-white/8 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/5'
+                    onClick={() => {
+                      if (isCompleted) return;
+                      linkTaskToTimer(isLinked ? null : task.id);
+                    }}
+                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] min-h-[32px] flex items-center gap-1 justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 ${
+                      isCompleted
+                        ? 'opacity-30 cursor-not-allowed bg-white/5 text-neutral-500 border border-white/5'
+                        : isLinked
+                        ? 'bg-rose-500/20 text-rose-200 border border-rose-500/35 shadow-xs cursor-pointer'
+                        : 'bg-white/8 hover:bg-white/15 text-neutral-300 hover:text-white border border-white/5 cursor-pointer'
                     }`}
+                    title={isCompleted ? 'Không thể gắn việc đã xong' : isLinked ? 'Đang gắn đồng hồ' : 'Gắn với đồng hồ Pomodoro'}
                   >
                     {isLinked ? (
                       <>

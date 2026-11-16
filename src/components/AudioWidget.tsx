@@ -69,11 +69,11 @@ export const AudioWidget: React.FC = () => {
   const [ambientCategory, setAmbientCategory] = useState<'all' | 'nature' | 'life' | 'binaural' | 'noise'>('all');
 
   const ambientTabs = [
-    { id: 'all' as const, label: 'Tất Cả', count: tracks.length },
-    { id: 'nature' as const, label: 'Tự Nhiên', count: tracks.filter((t) => t.category === 'nature').length },
-    { id: 'life' as const, label: 'Cuộc Sống', count: tracks.filter((t) => t.category === 'life').length },
-    { id: 'binaural' as const, label: 'Sóng Não', count: tracks.filter((t) => t.category === 'binaural').length },
-    { id: 'noise' as const, label: 'Tiếng Ồn', count: tracks.filter((t) => t.category === 'noise').length },
+    { id: 'all' as const, label: 'Tất cả', count: tracks.length },
+    { id: 'nature' as const, label: 'Tự nhiên', count: tracks.filter((t) => t.category === 'nature').length },
+    { id: 'life' as const, label: 'Cuộc sống', count: tracks.filter((t) => t.category === 'life').length },
+    { id: 'binaural' as const, label: 'Sóng não', count: tracks.filter((t) => t.category === 'binaural').length },
+    { id: 'noise' as const, label: 'Tiếng ồn', count: tracks.filter((t) => t.category === 'noise').length },
   ];
 
   const displayedTracks = ambientCategory === 'all'
@@ -373,21 +373,31 @@ export const AudioWidget: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Volume Slider if Playing */}
-                  {track.isPlaying && (
-                    <div className="flex items-center gap-2 w-24 shrink-0">
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.05"
-                        value={track.volume}
-                        onChange={(e) => setTrackVolume(track.id, parseFloat(e.target.value))}
-                        className="w-full accent-white bg-neutral-800 h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white"
-                        aria-label={`Âm lượng ${track.name}`}
-                      />
-                    </div>
-                  )}
+                  {/* Volume Slider & Percent */}
+                  <div className="flex items-center gap-2 w-28 shrink-0">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={track.volume}
+                      disabled={!track.isPlaying}
+                      onChange={(e) => setTrackVolume(track.id, parseFloat(e.target.value))}
+                      className={`w-full accent-white bg-neutral-800 h-1.5 rounded-lg appearance-none transition-opacity ${
+                        track.isPlaying
+                          ? 'opacity-100 cursor-pointer [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white'
+                          : 'opacity-30 cursor-not-allowed [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neutral-600'
+                      }`}
+                      aria-label={`Âm lượng ${track.name}`}
+                    />
+                    <span
+                      className={`text-[10px] font-mono shrink-0 w-7 text-right ${
+                        track.isPlaying ? 'text-zinc-300 font-medium' : 'text-zinc-600'
+                      }`}
+                    >
+                      {Math.round(track.volume * 100)}%
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

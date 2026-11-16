@@ -59,9 +59,9 @@ export const MobileLiquidSwitch: React.FC<MobileLiquidSwitchProps> = ({
       disabled={disabled}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex items-center w-12 h-7 shrink-0 rounded-full p-1 transition-all duration-300 ease-in-out touch-manipulation select-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
+      className={`relative inline-flex items-center w-12 h-7 shrink-0 rounded-full p-1 transition-all duration-300 ease-in-out touch-manipulation select-none outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
         checked
-          ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 shadow-[0_0_12px_rgba(52,211,153,0.45)] border border-emerald-400/30'
+          ? 'bg-white border border-white shadow-sm'
           : 'bg-zinc-800 border border-white/10 shadow-inner'
       } ${
         disabled
@@ -72,8 +72,8 @@ export const MobileLiquidSwitch: React.FC<MobileLiquidSwitchProps> = ({
       {/* Thumb / Knob */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none inline-block w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-          checked ? 'translate-x-5' : 'translate-x-0'
+        className={`pointer-events-none inline-block w-5 h-5 rounded-full shadow-md transform transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          checked ? 'translate-x-5 bg-zinc-950' : 'translate-x-0 bg-white'
         }`}
       />
     </button>

@@ -43,11 +43,11 @@ export const CookieConsentBanner: React.FC = () => {
       data-testid="cookie-consent-banner"
       role="region"
       aria-label="Thông báo bảo vệ dữ liệu và cookie"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 p-4 rounded-2xl bg-zinc-950/95 border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl text-zinc-100 select-none animate-in fade-in slide-in-from-bottom-3 duration-300"
+      className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-4 rounded-2xl bg-zinc-950/95 border border-white/10 shadow-2xl backdrop-blur-2xl text-zinc-100 select-none animate-in fade-in slide-in-from-bottom-2 duration-300"
     >
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0 text-white mt-0.5">
-          <Shield size={16} className="text-emerald-400" />
+          <Shield size={16} className="text-zinc-300 stroke-[1.5]" />
         </div>
 
         <div className="flex-1 space-y-1.5 min-w-0">
@@ -74,7 +74,7 @@ export const CookieConsentBanner: React.FC = () => {
               type="button"
               data-testid="consent-accept-btn"
               onClick={handleAccept}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
             >
               Đồng ý & Tiếp tục
             </button>

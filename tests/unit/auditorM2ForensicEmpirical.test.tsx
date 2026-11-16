@@ -279,9 +279,9 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const title2 = getStaticRouteTitle('/downloads');
       const title3 = getStaticRouteTitle('/apk');
 
-      expect(title1).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
-      expect(title2).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
-      expect(title3).toBe('Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung');
+      expect(title1).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
+      expect(title2).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
+      expect(title3).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
     });
 
     it('package.json contains ZERO third-party QR or update bloat dependencies', () => {

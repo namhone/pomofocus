@@ -282,8 +282,8 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               haptics.impact('medium');
               resetCycle();
             }}
-            title="Bắt đầu lại chu kỳ (Hiệp 1/4)"
-            aria-label="Bắt đầu lại chu kỳ (Hiệp 1/4)"
+            title={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
+            aria-label={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-rose-400" />
@@ -416,19 +416,19 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                     onChange={(e) => updateSettings({ autoTransition: e.target.checked })}
                     className="sr-only peer"
                   />
-                  {/* Hộp Checkmark Kính Lỏng Tùy Chỉnh */}
+                  {/* Hộp Checkmark Chuẩn Monochrome 90-10 */}
                   <div
-                    className={`w-5 h-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-200 ease-out group-hover:border-white/40 group-hover:bg-white/15 peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400 peer-checked:border-emerald-400/60 peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)] peer-checked:[&>svg]:opacity-100 peer-checked:[&>svg]:scale-100 flex items-center justify-center ${
+                    className={`w-5 h-5 rounded-lg border transition-all duration-200 ease-out flex items-center justify-center ${
                       settings.autoTransition
-                        ? 'bg-gradient-to-tr from-emerald-600 to-teal-400 border-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.45)]'
-                        : ''
+                        ? 'bg-white border-white text-zinc-950 shadow-sm'
+                        : 'border-white/20 bg-white/5 group-hover:border-white/40 group-hover:bg-white/10 text-transparent'
                     }`}
                   >
-                    {/* Dấu tick SVG sắc nét hiện mượt khi checked */}
+                    {/* Dấu tick SVG sắc nét đen tương phản cao khi checked */}
                     <svg
-                      className={`w-3 h-3 text-white transition-all duration-150 transform ${
+                      className={`w-3.5 h-3.5 stroke-[2.5] text-zinc-950 transition-all duration-150 transform ${
                         settings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                      } peer-checked:opacity-100 peer-checked:scale-100`}
+                      }`}
                       viewBox="0 0 14 10"
                       fill="none"
                       stroke="currentColor"

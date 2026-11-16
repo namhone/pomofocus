@@ -50,8 +50,12 @@ describe('Document Title Lifecycle & Side-Effect Leak Isolation Specification', 
       expect(getStaticRouteTitle('/settings')).toBe('Cài Đặt Hệ Thống | PomoFocus');
       expect(getStaticRouteTitle('/terms')).toBe('Điều Khoản Dịch Vụ | PomoFocus');
       expect(getStaticRouteTitle('/privacy')).toBe('Chính Sách Bảo Mật | PomoFocus');
+      expect(getStaticRouteTitle('/download')).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
+      expect(getStaticRouteTitle('/downloads')).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
+      expect(getStaticRouteTitle('/apk')).toBe('Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung');
       expect(getStaticRouteTitle('/')).toBe('PomoFocus — Không Gian Học Tập Tập Trung');
       expect(getStaticRouteTitle('/landing')).toBe('PomoFocus — Không Gian Học Tập Tập Trung');
+      expect(getStaticRouteTitle('/non-existent-404-page')).toBe('Không Tìm Thấy Trang (404) | PomoFocus');
     });
 
     it('tự động xử lý trailing slash hợp lệ', () => {

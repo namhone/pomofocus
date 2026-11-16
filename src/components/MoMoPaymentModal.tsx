@@ -594,7 +594,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                 >
                   Chính sách bảo mật
                 </button>
-                . Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống.
+                . Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng.
               </p>
             </div>
           </div>

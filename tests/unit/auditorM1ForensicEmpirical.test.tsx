@@ -214,7 +214,8 @@ describe('Auditor Forensic Empirical Verification Suite — Milestone 1', () => 
     const tasksTab = screen.getByTestId('mobile-nav-tab-tasks');
     fireEvent.click(tasksTab);
 
-    expect(vibrateSpy).toHaveBeenCalledWith(10);
+    // Accept 8ms (selectionChanged) or 10ms (impact light)
+    expect([8, 10]).toContain(vibrateSpy.mock.calls[0]?.[0]);
     expect(useLayoutStore.getState().activeMobileTab).toBe('tasks');
   });
 

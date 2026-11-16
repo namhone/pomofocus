@@ -753,10 +753,10 @@ export const SpacesWidget: React.FC = () => {
           className="flex-1 flex flex-col justify-between py-2 space-y-3 overflow-y-auto pr-0.5 text-xs"
         >
           <div className="space-y-3.5">
-            {/* Độ mờ hậu cảnh (Blur) */}
+            {/* Độ mờ hậu cảnh */}
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-300 font-medium">Độ mờ hậu cảnh (Blur)</span>
+                <span className="text-neutral-300 font-medium">Độ mờ hậu cảnh</span>
                 <span className="text-cyan-400 font-mono font-semibold">{blurLevel}px</span>
               </div>
               <input
@@ -771,10 +771,10 @@ export const SpacesWidget: React.FC = () => {
               <p className="text-[10px] text-neutral-500">Làm mờ ảnh nền giúp các thẻ widget nổi bật, dễ đọc hơn.</p>
             </div>
 
-            {/* Độ sáng hậu cảnh (Brightness) */}
+            {/* Độ sáng nền */}
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-300 font-medium">Độ sáng (Brightness)</span>
+                <span className="text-neutral-300 font-medium">Độ sáng nền</span>
                 <span className="text-cyan-400 font-mono font-semibold">{brightnessLevel}%</span>
               </div>
               <input
@@ -789,10 +789,10 @@ export const SpacesWidget: React.FC = () => {
               <p className="text-[10px] text-neutral-500">Tăng giảm độ chói sáng của hình nền từ 50% đến 150%.</p>
             </div>
 
-            {/* Lớp phủ tương phản (Dimmer / Overlay) */}
+            {/* Lớp phủ tối */}
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-300 font-medium">Lớp phủ tối tương phản (Dimmer)</span>
+                <span className="text-neutral-300 font-medium">Lớp phủ tối</span>
                 <span className="text-cyan-400 font-mono font-semibold">{overlayOpacity}%</span>
               </div>
               <input
@@ -807,9 +807,9 @@ export const SpacesWidget: React.FC = () => {
               <p className="text-[10px] text-neutral-500">Phủ màn đen trong suốt để tăng tối đa độ tương phản chữ.</p>
             </div>
 
-            {/* Hiệu ứng hạt Ambient (Live Canvas Particles) */}
+            {/* Hiệu ứng hạt môi trường */}
             <div className="space-y-2 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
-              <span className="block text-neutral-300 font-medium text-xs">Hiệu ứng hạt Ambient (Live Canvas)</span>
+              <span className="block text-neutral-300 font-medium text-xs">Hiệu ứng môi trường</span>
               <div className="grid grid-cols-5 gap-1.5 text-[10px]">
                 {[
                   { id: 'none', label: 'Tắt', icon: <Sparkles size={12} /> },

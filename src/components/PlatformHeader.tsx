@@ -34,9 +34,16 @@ import {
   Pin
 } from 'lucide-react';
 
-export const PlatformHeader: React.FC = () => {
+interface PlatformHeaderProps {
+  isDownloadPage?: boolean;
+}
+
+export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: isDownloadPageProp }) => {
   const router = useRouter();
   const currentPath = router.currentRoute.path;
+  const isDownloadPage =
+    isDownloadPageProp ??
+    (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk');
   const { user, isAuthenticated, logout, isPro, isLifetime } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
@@ -104,11 +111,11 @@ export const PlatformHeader: React.FC = () => {
   );
 
   const effectiveBadge = isOwner
-    ? 'Founder VIP 👑'
+    ? 'Founder VIP'
     : isLifetimeAccount
-    ? '👑 PRO TRỌN ĐỜI'
+    ? 'Pro trọn đời'
     : isProAccount
-    ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'PRO HỘI VIÊN')
+    ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'Pro hội viên')
     : 'Thành viên Free';
 
   const safeCreditsNum = !isAuthenticated
@@ -120,10 +127,10 @@ export const PlatformHeader: React.FC = () => {
     : 50;
 
   const displayCredits = !isAuthenticated
-    ? `${safeCreditsNum.toLocaleString('vi-VN')}⚡`
+    ? `${safeCreditsNum.toLocaleString('vi-VN')} Credits`
     : isVipOrOwner
-    ? '⚡ ∞'
-    : `${safeCreditsNum.toLocaleString('vi-VN')}⚡`;
+    ? 'Credits ∞'
+    : `${safeCreditsNum.toLocaleString('vi-VN')} Credits`;
 
   const capsuleCreditsLabel = !isAuthenticated
     ? safeCreditsNum.toLocaleString('vi-VN')
@@ -406,7 +413,7 @@ export const PlatformHeader: React.FC = () => {
             <PomoFocusLogo size={isWorkspace ? 18 : 24} showWordmark={true} wordmarkClassName="inline-block text-xs font-bold text-white tracking-tight" />
           </button>
 
-          {isAuthenticated && (isProAccount || isLifetimeAccount || isOwner) && (
+          {!isDownloadPage && isAuthenticated && (isProAccount || isLifetimeAccount || isOwner) && (
           <button
             type="button"
             onClick={() => handleNavigate('/billing')}
@@ -425,34 +432,36 @@ export const PlatformHeader: React.FC = () => {
         </div>
 
         {/* Desktop Navigation Links (>= lg) */}
-        <nav className="hidden lg:flex items-center gap-1.5 py-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              item.path === '/app'
-                ? currentPath === '/app'
-                : item.path.startsWith('/rooms')
-                ? currentPath.startsWith('/rooms')
-                : currentPath === item.path;
+        {!isDownloadPage && (
+          <nav className="hidden lg:flex items-center gap-1.5 py-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.path === '/app'
+                  ? currentPath === '/app'
+                  : item.path.startsWith('/rooms')
+                  ? currentPath.startsWith('/rooms')
+                  : currentPath === item.path;
 
-            return (
-              <button
-                key={item.path}
-                type="button"
-                data-testid={item.testId}
-                onClick={() => handleNavigate(item.path)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] ${
-                  isActive
-                    ? 'bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50'
-                    : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <Icon size={13} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+              return (
+                <button
+                  key={item.path}
+                  type="button"
+                  data-testid={item.testId}
+                  onClick={() => handleNavigate(item.path)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] ${
+                    isActive
+                      ? 'bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50'
+                      : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <Icon size={13} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
 
         {/* User Actions & Mobile Toggle */}
         <div className={`flex items-center gap-1.5 sm:gap-2 shrink-0 transition-all duration-200 ${
@@ -491,26 +500,28 @@ export const PlatformHeader: React.FC = () => {
           )}
 
           {/* AI Study Companion Quick HUD */}
-          <button
-            type="button"
-            data-testid="header-ai-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              useAiStore.getState().toggleOpen();
-            }}
-            className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
-            title={
-              isVipOrOwner
-                ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
-                : `Mở Trợ lý AI Companion (${safeCreditsNum.toLocaleString()}⚡)`
-            }
-          >
-            <Sparkles size={13} className="text-cyan-400 shrink-0" />
-            <span className="font-mono text-amber-300 font-bold">{displayCredits}</span>
-          </button>
+          {!isDownloadPage && (
+            <button
+              type="button"
+              data-testid="header-ai-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                useAiStore.getState().toggleOpen();
+              }}
+              className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              title={
+                isVipOrOwner
+                  ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
+                  : `Mở Trợ lý AI Companion (${safeCreditsNum.toLocaleString()}⚡)`
+              }
+            >
+              <Sparkles size={13} className="text-cyan-400 shrink-0" />
+              <span className="font-mono text-amber-300 font-bold">{displayCredits}</span>
+            </button>
+          )}
 
           {/* PWA Install Button when available */}
-          {canInstall && (
+          {!isDownloadPage && canInstall && (
             <button
               type="button"
               data-testid="pwa-install-btn"
@@ -524,7 +535,7 @@ export const PlatformHeader: React.FC = () => {
           )}
 
           {/* Quick jump to workspace button when outside /app */}
-          {!isWorkspace && (
+          {!isWorkspace && !isDownloadPage && (
             <button
               type="button"
               data-testid="header-enter-workspace-btn"
@@ -532,12 +543,12 @@ export const PlatformHeader: React.FC = () => {
               className="hidden sm:flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
             >
               <Layout size={13} className="shrink-0" />
-              <span className="inline">{currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk' ? 'Mở bản web →' : 'Mở bản web'}</span>
+              <span className="inline">Mở bản web</span>
             </button>
           )}
 
           {/* User state: Avatar Dropdown when logged in, or Login button when guest */}
-          {isAuthenticated && user ? (
+          {!isDownloadPage && (isAuthenticated && user ? (
             <div className="relative" ref={dropdownRef}>
               {/* Circular Avatar Trigger */}
               <button
@@ -596,7 +607,7 @@ export const PlatformHeader: React.FC = () => {
                       </div>
                     </div>
                     <span
-                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
+                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-semibold border shrink-0 ${
                         isLifetimeAccount
                           ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
                           : isProAccount
@@ -764,10 +775,10 @@ export const PlatformHeader: React.FC = () => {
               <User size={13} className="text-emerald-400 shrink-0" />
               <span>Đăng Nhập</span>
             </button>
-          )}
+          ))}
 
           {/* Nút Hamburger Menu ☰ trên mobile */}
-          {!isAuthenticated && (
+          {!isDownloadPage && !isAuthenticated && (
             <button
               type="button"
               id="header-mobile-menu-btn"
@@ -932,7 +943,7 @@ export const PlatformHeader: React.FC = () => {
                 </div>
               </div>
               <span
-                className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border shrink-0 ${
+                className={`px-1.5 py-0.5 rounded-full text-[8px] font-semibold border shrink-0 ${
                   isLifetimeAccount
                     ? 'bg-zinc-950 text-amber-300 border-amber-400/40'
                     : isProAccount
@@ -1069,8 +1080,9 @@ export const PlatformHeader: React.FC = () => {
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-white flex items-center gap-1.5">
                     <span>Chế độ Khách</span>
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/30">
-                      50 ⚡
+                    <span className="px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 text-[10px] font-mono border border-white/10 inline-flex items-center gap-1">
+                      <span>50</span>
+                      <Zap size={9} className="stroke-[1.5] text-zinc-300" />
                     </span>
                   </div>
                   <div className="text-[10px] text-zinc-400">Chọn thao tác hoặc nâng cấp</div>

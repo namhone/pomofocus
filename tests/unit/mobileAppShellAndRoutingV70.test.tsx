@@ -68,13 +68,12 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       expect(shell.style.transform).toBe('translateZ(0)');
     });
 
-    it('1.2 Renders 56px Top Header with PomoFocus brand and Liquid Zen badge', () => {
+    it('1.2 Renders 48px Top Header with PomoFocus brand', () => {
       render(<MobileAppShell />);
       const header = screen.getByTestId('mobile-top-header');
       expect(header).toBeDefined();
-      expect(header.className).toContain('h-14');
+      expect(header.className).toContain('h-12');
       expect(header.textContent).toContain('PomoFocus');
-      expect(header.textContent).toContain('Liquid Zen');
     });
 
     it('1.3 State Singularity: Only one banner element exists in MobileAppShell', () => {
@@ -134,12 +133,11 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       });
     });
 
-    it('2.2 Active tab has aria-selected="true" and emerald styling', () => {
+    it('2.2 Active tab has aria-selected="true"', () => {
       useLayoutStore.setState({ activeMobileTab: 'focus' as any });
       render(<MobileAppShell />);
       const focusTab = screen.getByTestId('mobile-nav-tab-focus');
       expect(focusTab.getAttribute('aria-selected')).toBe('true');
-      expect(focusTab.className).toContain('emerald');
     });
 
     it('2.3 Clicking a tab changes activeMobileTab and renders corresponding sub-view', () => {

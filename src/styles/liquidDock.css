@@ -83,31 +83,38 @@
     transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dock__item:hover {
-  --k: var(--max);
-  z-index: 18;
-}
+@media (hover: hover) and (pointer: fine) {
+  .dock__item:hover {
+    --k: var(--max);
+    z-index: 18;
+  }
 
-/* Sibling Magnification (macOS Concosine Curve: 1.42x for +/-1, 1.04x for +/-2) */
-.dock__item:hover + .dock__item,
-.dock__item:has(+ .dock__item:hover) {
-  --k: calc(1 + (var(--max) - 1) * 0.56);
-  z-index: 15;
-}
+  /* Sibling Magnification (macOS Concosine Curve: 1.42x for +/-1, 1.04x for +/-2) */
+  .dock__item:hover + .dock__item,
+  .dock__item:has(+ .dock__item:hover) {
+    --k: calc(1 + (var(--max) - 1) * 0.56);
+    z-index: 15;
+  }
 
-.dock__item:hover + .dock__divider + .dock__item,
-.dock__item:has(+ .dock__divider + .dock__item:hover) {
-  --k: calc(1 + (var(--max) - 1) * 0.56);
-  z-index: 15;
-}
+  .dock__item:hover + .dock__divider + .dock__item,
+  .dock__item:has(+ .dock__divider + .dock__item:hover) {
+    --k: calc(1 + (var(--max) - 1) * 0.56);
+    z-index: 15;
+  }
 
-.dock__item:hover + .dock__item + .dock__item,
-.dock__item:has(+ .dock__item + .dock__item:hover),
-.dock__item:hover + .dock__divider + .dock__item + .dock__item,
-.dock__item:has(+ .dock__item + .dock__divider + .dock__item:hover),
-.dock__item:hover + .dock__item + .dock__divider + .dock__item,
-.dock__item:has(+ .dock__divider + .dock__item + .dock__item:hover) {
-  --k: calc(1 + (var(--max) - 1) * 0.05);
+  .dock__item:hover + .dock__item + .dock__item,
+  .dock__item:has(+ .dock__item + .dock__item:hover),
+  .dock__item:hover + .dock__divider + .dock__item + .dock__item,
+  .dock__item:has(+ .dock__item + .dock__divider + .dock__item:hover),
+  .dock__item:hover + .dock__item + .dock__divider + .dock__item,
+  .dock__item:has(+ .dock__divider + .dock__item + .dock__item:hover) {
+    --k: calc(1 + (var(--max) - 1) * 0.05);
+  }
+
+  .dock__item:hover svg {
+    transform: scale(1.15);
+  }
+
 }
 
 .dock__item:active {
@@ -121,10 +128,6 @@
   height: 18px;
   filter: drop-shadow(0 var(--shadow-y) var(--shadow-b) rgba(0, 0, 0, calc(0.2 + (var(--k) - 1) * 0.15)));
   transition: transform 0.2s ease-out;
-}
-
-.dock__item:hover svg {
-  transform: scale(1.15);
 }
 
 /* Pearl White Activity Dot */
@@ -179,10 +182,12 @@
   z-index: 100;
 }
 
-.dock__item:hover .dock__tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0) scale(1);
+@media (hover: hover) and (pointer: fine) {
+  .dock__item:hover .dock__tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 767px) {

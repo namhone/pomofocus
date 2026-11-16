@@ -15,7 +15,11 @@ import {
   Play,
   Plus,
   History,
-  Trash2
+  Trash2,
+  Pin,
+  BookOpen,
+  FileText,
+  HelpCircle
 } from 'lucide-react';
 import { useAiStore, AiActionType, AI_CREDIT_COSTS, isOwnerAiUser } from '../stores/useAiStore';
 import { useNoteStore } from '../stores/useNoteStore';
@@ -38,6 +42,7 @@ export const AiCompanionWidget: React.FC = () => {
     messages,
     isLoading,
     isStreaming,
+    abortActiveStream,
     error,
     sendMessage,
     continueGenerating,
@@ -122,7 +127,7 @@ export const AiCompanionWidget: React.FC = () => {
         targetNote = await store.createNote('Ghi chú từ AI Companion');
       }
 
-      const separator = targetNote.contentMarkdown ? '\n\n---\n### 💡 Trợ lý AI giải đáp:\n' : '### 💡 Trợ lý AI giải đáp:\n';
+      const separator = targetNote.contentMarkdown ? '\n\n---\n### Trợ lý AI giải đáp:\n' : '### Trợ lý AI giải đáp:\n';
       const updatedContent = `${targetNote.contentMarkdown}${separator}${text}`;
 
       store.updateNoteContent(targetNote.id, updatedContent);
@@ -264,17 +269,17 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-credits-topup-btn"
             onClick={() => openTopupModal()}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-zinc-200 hover:bg-white/15 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
             title="Bấm để nạp thêm AI Credits (Chiết khấu tới 40%)"
           >
-            <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
+            <Zap size={11} className="text-zinc-300 stroke-[1.5] shrink-0" />
             <span className="font-mono text-[11px] font-semibold" data-testid="ai-hud-credits">
               <span data-testid="ai-credits-badge">
                 {isOwner
-                  ? '⚡ ∞ / Vô Hạn'
+                  ? '∞ Vô hạn'
                   : aiPlan === 'lifetime'
-                  ? `VIP ${aiCreditsBalance.toLocaleString('vi-VN')}⚡`
-                  : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}
+                  ? `VIP ${aiCreditsBalance.toLocaleString('vi-VN')}`
+                  : `${aiCreditsBalance.toLocaleString('vi-VN')}`}
               </span>
             </span>
           </button>
@@ -496,10 +501,13 @@ export const AiCompanionWidget: React.FC = () => {
                           {insertedNoteId === msg.id ? (
                             <>
                               <Check size={11} className="text-emerald-400" />
-                              <span className="text-[10px] text-emerald-400">Đã chèn vào Ghi chú</span>
+                              <span className="text-[10px] text-emerald-400">Đã chèn vào ghi chú</span>
                             </>
                           ) : (
-                            <span className="text-[10px]">📌 Chèn vào Ghi chú</span>
+                            <span className="text-[10px] flex items-center gap-1">
+                              <Pin size={10} className="stroke-[1.5]" />
+                              Chèn vào ghi chú
+                            </span>
                           )}
                         </button>
                       </div>
@@ -509,12 +517,12 @@ export const AiCompanionWidget: React.FC = () => {
                         <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
                           <span className="inline-flex items-center gap-1 text-zinc-400">
                             <Sparkles size={10} className="text-teal-400" />
-                            Nội dung do AI tạo
+                            Nội dung do AI tạo (Luật 134/2025/QH15)
                           </span>
                           {typeof msg.creditsUsed === 'number' && msg.creditsUsed > 0 && (
                             <>
                               <span>•</span>
-                              <span>Đã dùng -{msg.creditsUsed}⚡</span>
+                              <span>Đã dùng -{msg.creditsUsed} Credits</span>
                             </>
                           )}
                         </div>
@@ -536,9 +544,10 @@ export const AiCompanionWidget: React.FC = () => {
                 setInputPrompt('Giải bài tập: ');
                 inputRef.current?.focus();
               }}
-              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
             >
-              📐 Giải bài tập
+              <BookOpen size={11} className="stroke-[1.5] text-zinc-400" />
+              <span>Giải bài tập</span>
             </button>
             <button
               type="button"
@@ -546,19 +555,21 @@ export const AiCompanionWidget: React.FC = () => {
                 setInputPrompt('Tóm tắt bài học: ');
                 inputRef.current?.focus();
               }}
-              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
             >
-              📝 Tóm tắt
+              <FileText size={11} className="stroke-[1.5] text-zinc-400" />
+              <span>Tóm tắt</span>
             </button>
             <button
               type="button"
               onClick={() => {
-                setInputPrompt('Tạo 5 câu trắc nghiệm ôn thi: ');
+                setInputPrompt('Tạo 5 câu trắc nghiệm: ');
                 inputRef.current?.focus();
               }}
-              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0"
+              className="px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
             >
-              ❓ Tạo trắc nghiệm
+              <HelpCircle size={11} className="stroke-[1.5] text-zinc-400" />
+              <span>Tạo trắc nghiệm</span>
             </button>
           </div>
         )}
@@ -613,7 +624,7 @@ export const AiCompanionWidget: React.FC = () => {
                   Xác nhận thực hiện tác vụ chuyên sâu
                 </div>
                 <div className="text-[11px] text-zinc-400 mt-0.5">
-                  Tác vụ này yêu cầu <span className="font-bold text-amber-300">-{pendingConfirmation.cost}⚡ Credits</span>. Bạn có muốn tiếp tục không?
+                  Tác vụ này yêu cầu <span className="font-bold text-zinc-200">-{pendingConfirmation.cost} Credits</span>. Bạn có muốn tiếp tục không?
                 </div>
               </div>
             </div>
@@ -626,10 +637,10 @@ export const AiCompanionWidget: React.FC = () => {
                   setPendingConfirmation(null);
                   executeSendMessage(prompt, actionType);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm"
+                className="px-3 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm"
               >
-                <Zap size={12} className="fill-zinc-950" />
-                <span>⚡ Xác nhận thực hiện (-{pendingConfirmation.cost}⚡)</span>
+                <Zap size={12} className="stroke-[1.5] text-zinc-950" />
+                <span>Xác nhận thực hiện (-{pendingConfirmation.cost} Credits)</span>
               </button>
               <button
                 type="button"
@@ -657,8 +668,8 @@ export const AiCompanionWidget: React.FC = () => {
               <span className="text-[10px] text-zinc-500">
                 ({(selectedFile.size / 1024).toFixed(0)} KB)
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
-                -5⚡
+              <span className="px-1.5 py-0.2 rounded bg-white/10 text-zinc-200 text-[10px] font-bold">
+                -5 Credits
               </span>
             </div>
             <button
@@ -687,6 +698,21 @@ export const AiCompanionWidget: React.FC = () => {
           className="hidden"
           onChange={handleFileSelect}
         />
+
+        {/* Nút Dừng streaming khi AI đang trả lời */}
+        {isStreaming && (
+          <div className="flex justify-center mb-2">
+            <button
+              type="button"
+              data-testid="ai-stop-streaming-btn"
+              onClick={() => abortActiveStream()}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-rose-500/30 text-rose-300 text-xs font-medium hover:bg-rose-500/10 active:scale-95 transition cursor-pointer shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
+              <span>Dừng tạo câu trả lời</span>
+            </button>
+          </div>
+        )}
 
         {/* Form Nhập Liệu Kính Lỏng Hợp Nhất (Liquid Glass Unified Capsule) */}
         <form
@@ -745,7 +771,7 @@ export const AiCompanionWidget: React.FC = () => {
             aria-label="Gửi câu hỏi"
             className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-150 active:scale-95 shrink-0 ${
               (inputPrompt.trim() || selectedFile) && !isLoading && !isProcessingFile
-                ? 'bg-emerald-500 text-zinc-950 font-bold hover:bg-emerald-400 shadow-md shadow-emerald-500/20 cursor-pointer'
+                ? 'bg-white text-zinc-950 font-bold hover:bg-zinc-200 shadow-md cursor-pointer'
                 : 'text-zinc-600 bg-transparent cursor-not-allowed'
             }`}
           >
@@ -756,7 +782,7 @@ export const AiCompanionWidget: React.FC = () => {
         {/* Chân Trang: Thông tin năng lượng & Khuyến cáo học tập chuẩn Zen */}
         <div className="space-y-1 mt-2 px-1">
           <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500">
-            <span>1 ⚡ / câu hỏi</span>
+            <span className="flex items-center gap-1">1 <Zap size={10} className="stroke-[1.5] text-zinc-400" /> / câu hỏi</span>
             <span className="flex items-center gap-1 text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Phản hồi tức thì

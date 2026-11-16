@@ -79,14 +79,14 @@ export const SettingsWidget: React.FC = () => {
   return (
     <div
       data-testid="settings-widget"
-      className="flex h-full w-full max-h-[85vh] flex-col text-slate-100 p-1 select-none space-y-3.5 overflow-y-auto scrollbar-none"
+      className="flex h-full w-full max-h-[85vh] flex-col text-slate-100 p-1 select-none space-y-3.5 overflow-y-auto scrollbar-none pb-28 scroll-pt-6"
     >
       {/* Header Info */}
-      {/* Account Status Card (Đồng bộ chuẩn 100% với Header) */}
+      {/* Account Status Card (Đồng bộ chuẩn 100% với Header, gọn 2 dòng hairline 1px) */}
       {isAuthenticated && user ? (
-        <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-cyan-500/10 border border-amber-500/20 flex items-center justify-between gap-2.5">
+        <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/[0.06] flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-amber-500/40 shrink-0 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/10 shrink-0 flex items-center justify-center">
               <img
                 src={getDisplayAvatar(user)}
                 alt={user.displayName || 'Avatar'}
@@ -104,42 +104,42 @@ export const SettingsWidget: React.FC = () => {
                   {user.displayName || user.email.split('@')[0]}
                 </span>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 border border-amber-500/30 text-amber-300 shrink-0">
-                  {isOwner ? 'Founder VIP 👑' : (user.badge || user.plan.toUpperCase())}
+                  {isOwner ? 'Founder VIP' : (user.badge || user.plan)}
                 </span>
               </div>
-              <p className="text-[10px] text-neutral-400 truncate">
-                {user.email} • {isOwner ? '⚡ ∞' : `${aiCreditsBalance.toLocaleString('vi-VN')}⚡`}
+              <p className="text-[10px] text-zinc-400 truncate">
+                {user.email} • {isOwner ? 'Credits ∞' : `${aiCreditsBalance.toLocaleString('vi-VN')} Credits`}
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2.5">
+        <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-full bg-white/10 text-neutral-400 flex items-center justify-center font-bold text-xs shrink-0">
               <User size={14} />
             </div>
             <div className="min-w-0">
               <div className="text-xs font-semibold text-white">Chưa đăng nhập</div>
-              <p className="text-[10px] text-neutral-400">Chế độ khách • {Math.max(0, aiCreditsBalance).toLocaleString('vi-VN')}⚡</p>
+              <p className="text-[10px] text-zinc-400">Chế độ khách • {Math.max(0, aiCreditsBalance).toLocaleString('vi-VN')} Credits</p>
             </div>
           </div>
           <button
             type="button"
             data-testid="settings-login-btn"
             onClick={() => router.navigate('/login')}
-            className="px-4 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-medium active:scale-95 transition-all cursor-pointer"
+            className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-zinc-200 text-xs font-medium active:scale-95 transition-all cursor-pointer"
           >
             Đăng nhập
           </button>
         </div>
       )}
 
-      {/* Khối ưu tiên 1: Thời lượng Pomodoro & số hiệp */}
-      <div className="space-y-2.5 rounded-xl bg-black/25 p-3 border border-white/[0.08]">
+      {/* Khối ưu tiên 1: Thời lượng Pomodoro & số hiệp (Hairline 1px) */}
+      <div className="space-y-2.5 rounded-xl bg-black/25 p-3 border border-white/[0.06]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-200">
-            <Clock size={13} className="text-rose-400" />
+            <Clock size={13} className="text-zinc-300 stroke-[1.5]" />
             <span>Thời lượng Pomodoro & số hiệp</span>
           </div>
           {saveFeedback ? (
@@ -148,7 +148,7 @@ export const SettingsWidget: React.FC = () => {
               Đã lưu
             </span>
           ) : (
-            <span className="text-[9.5px] text-neutral-400">Tự động lưu tức thì</span>
+            <span className="text-[9.5px] text-zinc-400">Tự động lưu tức thì</span>
           )}
         </div>
 
@@ -157,12 +157,12 @@ export const SettingsWidget: React.FC = () => {
             <label htmlFor="settings-pomo-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Tập trung
             </label>
-            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/[0.06] rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ pomodoroMinutes: Math.max(1, timerSettings.pomodoroMinutes - 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
                 aria-label="Giảm 1 phút"
               >
@@ -180,7 +180,7 @@ export const SettingsWidget: React.FC = () => {
                   value={timerSettings.pomodoroMinutes}
                   disabled={timerStatus !== 'idle'}
                   onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
                 <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
               </div>
@@ -188,7 +188,7 @@ export const SettingsWidget: React.FC = () => {
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ pomodoroMinutes: Math.min(120, timerSettings.pomodoroMinutes + 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
                 aria-label="Tăng 1 phút"
               >
@@ -200,12 +200,12 @@ export const SettingsWidget: React.FC = () => {
             <label htmlFor="settings-short-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Nghỉ ngắn
             </label>
-            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/[0.06] rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ shortBreakMinutes: Math.max(1, timerSettings.shortBreakMinutes - 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
                 aria-label="Giảm 1 phút"
               >
@@ -223,7 +223,7 @@ export const SettingsWidget: React.FC = () => {
                   value={timerSettings.shortBreakMinutes}
                   disabled={timerStatus !== 'idle'}
                   onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
                 <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
               </div>
@@ -231,7 +231,7 @@ export const SettingsWidget: React.FC = () => {
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ shortBreakMinutes: Math.min(60, timerSettings.shortBreakMinutes + 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
                 aria-label="Tăng 1 phút"
               >
@@ -243,12 +243,12 @@ export const SettingsWidget: React.FC = () => {
             <label htmlFor="settings-long-min" className="block text-xs text-zinc-400 font-medium mb-1.5 text-center">
               Nghỉ dài
             </label>
-            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/10 rounded-2xl p-1 shadow-inner backdrop-blur-md">
+            <div className="flex items-center justify-between bg-zinc-900/60 border border-white/[0.06] rounded-2xl p-1 shadow-inner backdrop-blur-md">
               <button
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ longBreakMinutes: Math.max(1, timerSettings.longBreakMinutes - 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Giảm 1 phút"
                 aria-label="Giảm 1 phút"
               >
@@ -266,7 +266,7 @@ export const SettingsWidget: React.FC = () => {
                   value={timerSettings.longBreakMinutes}
                   disabled={timerStatus !== 'idle'}
                   onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                  className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
                 <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
               </div>
@@ -274,7 +274,7 @@ export const SettingsWidget: React.FC = () => {
                 type="button"
                 disabled={timerStatus !== 'idle'}
                 onClick={() => handleTimerChange({ longBreakMinutes: Math.min(60, timerSettings.longBreakMinutes + 1) })}
-                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-white/5 hover:bg-white/15 active:scale-90 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:opacity-40"
                 title="Tăng 1 phút"
                 aria-label="Tăng 1 phút"
               >
@@ -295,19 +295,19 @@ export const SettingsWidget: React.FC = () => {
                 onChange={(e) => handleTimerChange({ autoTransition: e.target.checked })}
                 className="sr-only peer"
               />
-              {/* Hộp Checkmark Kính Lỏng Tùy Chỉnh */}
+              {/* Hộp Checkmark Chuẩn Monochrome 90-10 */}
               <div
-                className={`w-5 h-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-200 ease-out group-hover:border-white/40 group-hover:bg-white/15 peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400 peer-checked:border-emerald-400/60 peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)] peer-checked:[&>svg]:opacity-100 peer-checked:[&>svg]:scale-100 flex items-center justify-center ${
+                className={`w-5 h-5 rounded-lg border transition-all duration-200 ease-out flex items-center justify-center ${
                   timerSettings.autoTransition
-                    ? 'bg-gradient-to-tr from-emerald-600 to-teal-400 border-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.45)]'
-                    : ''
+                    ? 'bg-white border-white text-zinc-950 shadow-sm'
+                    : 'border-white/20 bg-white/5 group-hover:border-white/40 group-hover:bg-white/10 text-transparent'
                 }`}
               >
-                {/* Dấu tick SVG sắc nét hiện mượt khi checked */}
+                {/* Dấu tick SVG sắc nét đen tương phản cao khi checked */}
                 <svg
-                  className={`w-3.5 h-3.5 text-white stroke-[2.5] transition-all duration-150 transform ${
+                  className={`w-3.5 h-3.5 stroke-[2.5] text-zinc-950 transition-all duration-150 transform ${
                     timerSettings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                  } peer-checked:opacity-100 peer-checked:scale-100`}
+                  }`}
                   viewBox="0 0 14 10"
                   fill="none"
                   stroke="currentColor"
@@ -348,7 +348,7 @@ export const SettingsWidget: React.FC = () => {
           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
             isLayoutEditMode ? 'bg-emerald-400/25 text-emerald-200' : 'bg-white/10 text-neutral-400'
           }`}>
-            {isLayoutEditMode ? 'ĐANG BẬT' : 'TẮT'}
+            {isLayoutEditMode ? 'Đang bật' : 'Tắt'}
           </span>
         </button>
       </div>
@@ -490,7 +490,7 @@ export const SettingsWidget: React.FC = () => {
           <span className={`text-[9.5px] font-semibold px-2 py-0.5 rounded-full ${
             snapEnabled ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-neutral-400'
           }`}>
-            {snapEnabled ? 'ĐANG BẬT' : 'TẮT'}
+            {snapEnabled ? 'Đang bật' : 'Tắt'}
           </span>
         </button>
       </div>
@@ -533,7 +533,7 @@ export const SettingsWidget: React.FC = () => {
             <EyeOff size={13} />
             Tự ẩn thanh công cụ khi không dùng
           </span>
-          <span className="text-[10px] font-semibold">{dockAutoHide ? 'BẬT' : 'TẮT'}</span>
+          <span className="text-[10px] font-semibold">{dockAutoHide ? 'Bật' : 'Tắt'}</span>
         </button>
 
         {/* Kích thước DockBar */}

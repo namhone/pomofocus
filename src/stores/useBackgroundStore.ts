@@ -151,6 +151,9 @@ export const useBackgroundStore = create<BackgroundStoreState>((set, get) => ({
   setPureZenBlack: () => {
     const nextState = {
       activePresetId: 'pure-black',
+      blurLevel: 0,
+      brightnessLevel: 100,
+      overlayOpacity: 0,
       customUrl: null,
       customType: null,
       ambientEffect: 'none' as AmbientEffectType,

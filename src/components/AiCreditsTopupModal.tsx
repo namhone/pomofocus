@@ -525,6 +525,11 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                 Vui lòng chuyển khoản chính xác <strong>Số tiền</strong> và <strong>Nội dung CK: {displayMemo}</strong>. Hệ thống webhook tự động xác nhận đơn hàng sau 1–3 giây khi ngân hàng thông báo.
               </p>
             </div>
+
+            {/* Cam kết hoàn tiền 7 ngày theo Luật Bảo vệ Quyền lợi Người tiêu dùng */}
+            <p className="text-center text-[10px] text-zinc-400">
+              Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng.
+            </p>
           </div>
         )}
       </div>

@@ -244,7 +244,7 @@ ${block2Code}
       }).not.toThrow();
 
       await waitFor(() => {
-        expect(warnSpy).toHaveBeenCalledWith('Lỗi chép code:', expect.any(Error));
+        expect(warnSpy).toHaveBeenCalledWith('[Clipboard] Fallback execCommand failed:', expect.any(Error));
       });
 
       // Không hiển thị "Đã chép" khi copy thất bại

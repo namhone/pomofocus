@@ -14,7 +14,8 @@ import {
   Target,
   LayoutGrid,
   Film,
-  Sparkles
+  Sparkles,
+  Zap
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
@@ -410,15 +411,15 @@ export const DockBar: React.FC = () => {
               ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
               : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
           }`}
-          title="Trợ lý Học tập AI Companion (⚡)"
+          title="Trợ lý Học tập AI Companion"
           aria-label="Mở Trợ lý AI Companion"
           aria-pressed={isAiOpen}
         >
-          <Sparkles size={16} strokeWidth={2} />
-          <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-neutral-950 font-mono shadow-xs">
-            ⚡
+          <Sparkles size={16} strokeWidth={1.5} />
+          <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-zinc-950 font-mono shadow-xs">
+            <Zap size={8} className="stroke-[2]" />
           </span>
-          <span className="dock__tooltip">Trợ lý AI Companion (⚡)</span>
+          <span className="dock__tooltip">Trợ lý AI Companion</span>
           {isAiOpen && (
             <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.7)]" />
           )}

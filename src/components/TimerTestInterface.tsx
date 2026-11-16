@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, RefreshCw, SkipForward, Bell, Target, Sparkles } from 'lucide-react';
 import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
+import { haptics } from '../utils/haptics';
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -42,6 +43,23 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
   useEffect(() => {
     init();
   }, [init]);
+
+  const prevRemainingRef = useRef(remainingMs);
+  const prevPhaseRef = useRef(phase);
+
+  useEffect(() => {
+    if (prevPhaseRef.current !== phase) {
+      prevPhaseRef.current = phase;
+      haptics.phaseChange();
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (prevRemainingRef.current > 0 && remainingMs === 0 && status === 'idle') {
+      haptics.timerComplete();
+    }
+    prevRemainingRef.current = remainingMs;
+  }, [remainingMs, status]);
 
   const getPhaseStyles = (p: TimerPhase) => {
     switch (p) {
@@ -124,7 +142,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                 key={p}
                 data-testid={`tab-${p}`}
                 disabled={status !== 'idle'}
-                onClick={() => setPhase(p)}
+                onClick={() => {
+                  haptics.phaseChange();
+                  setPhase(p);
+                }}
                 className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 ${
                   isActive ? style.activeTab : 'text-neutral-400 hover:text-white'
                 } disabled:cursor-not-allowed disabled:opacity-50`}
@@ -197,7 +218,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'idle' && (
             <button
               data-testid="timer-start-btn"
-              onClick={start}
+              onClick={() => {
+                haptics.timerToggle();
+                start();
+              }}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
               className="liquid-glass-btn h-11 px-6 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
@@ -210,7 +234,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'running' && (
             <button
               data-testid="timer-pause-btn"
-              onClick={pause}
+              onClick={() => {
+                haptics.timerToggle();
+                pause();
+              }}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
               className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-amber-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
@@ -223,7 +250,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           {status === 'paused' && (
             <button
               data-testid="timer-resume-btn"
-              onClick={resume}
+              onClick={() => {
+                haptics.timerToggle();
+                resume();
+              }}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
               className="liquid-glass-btn liquid-glass-btn-emerald h-11 px-6 rounded-2xl border border-emerald-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
@@ -235,7 +265,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-reset-btn"
-            onClick={reset}
+            onClick={() => {
+              haptics.impact('light');
+              reset();
+            }}
             title="Đặt lại hiệp này"
             aria-label="Đặt lại hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -245,7 +278,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-reset-cycle-btn"
-            onClick={resetCycle}
+            onClick={() => {
+              haptics.impact('medium');
+              resetCycle();
+            }}
             title="Bắt đầu lại chu kỳ (Hiệp 1/4)"
             aria-label="Bắt đầu lại chu kỳ (Hiệp 1/4)"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -255,7 +291,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <button
             data-testid="timer-skip-btn"
-            onClick={skip}
+            onClick={() => {
+              haptics.impact('light');
+              skip();
+            }}
             title="Bỏ qua hiệp này"
             aria-label="Bỏ qua hiệp này"
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -377,19 +416,19 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                     onChange={(e) => updateSettings({ autoTransition: e.target.checked })}
                     className="sr-only peer"
                   />
-                  {/* Hộp Checkmark Kính Lỏng Tùy Chỉnh */}
+                  {/* Hộp Checkmark Chuẩn Monochrome 90-10 */}
                   <div
-                    className={`w-5 h-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-200 ease-out group-hover:border-white/40 group-hover:bg-white/15 peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400 peer-checked:border-emerald-400/60 peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)] peer-checked:[&>svg]:opacity-100 peer-checked:[&>svg]:scale-100 flex items-center justify-center ${
+                    className={`w-5 h-5 rounded-lg border transition-all duration-200 ease-out flex items-center justify-center ${
                       settings.autoTransition
-                        ? 'bg-gradient-to-tr from-emerald-600 to-teal-400 border-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.45)]'
-                        : ''
+                        ? 'bg-white border-white text-zinc-950 shadow-sm'
+                        : 'border-white/20 bg-white/5 group-hover:border-white/40 group-hover:bg-white/10 text-transparent'
                     }`}
                   >
-                    {/* Dấu tick SVG sắc nét hiện mượt khi checked */}
+                    {/* Dấu tick SVG sắc nét đen tương phản cao khi checked */}
                     <svg
-                      className={`w-3 h-3 text-white transition-all duration-150 transform ${
+                      className={`w-3.5 h-3.5 stroke-[2.5] text-zinc-950 transition-all duration-150 transform ${
                         settings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                      } peer-checked:opacity-100 peer-checked:scale-100`}
+                      }`}
                       viewBox="0 0 14 10"
                       fill="none"
                       stroke="currentColor"

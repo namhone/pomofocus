@@ -22,8 +22,11 @@ import {
   Headphones,
   Layers,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  History,
+  Zap
 } from 'lucide-react';
+import { useDeviceDetection } from '../../hooks/useDeviceDetection';
 import { useTimerStore } from '../../stores/useTimerStore';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useAiStore } from '../../stores/useAiStore';
@@ -87,6 +90,8 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const closeTopupModal = useAiStore((s) => s.closeTopupModal);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
+  const { isNativeCapacitor } = useDeviceDetection();
+  const isSoundPlaying = useAudioStore((s) => s.tracks.some((t) => t.isPlaying) || s.customMusicPlaying);
 
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
 
@@ -343,12 +348,12 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       <MobileAuthBottomSheet isOpen={isAuthSheetOpen} onClose={() => setIsAuthSheetOpen(false)} />
 
       {/* -------------------------------------------------------------------- */}
-      {/* Top Header (56px / h-14)                                             */}
+      {/* Top Header (48px / h-12)                                             */}
       {/* -------------------------------------------------------------------- */}
       <header
         data-testid="mobile-top-header"
         role="banner"
-        className={`min-h-[48px] h-auto py-1 sm:h-14 w-full flex items-center justify-between px-3.5 ${
+        className={`h-12 min-h-[48px] max-h-[48px] w-full flex items-center justify-between px-3.5 ${
           isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/80 backdrop-blur-xl'
         } border-b border-white/10 z-20 shrink-0`}
       >
@@ -360,7 +365,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             showWordmark={true}
             wordmarkClassName="text-sm font-bold text-white tracking-tight"
           />
-          <span className="sr-only">Liquid Zen</span>
         </div>
 
         {/* Right: Credits Capsule, Conditional PiP trigger & Avatar Button */}
@@ -374,23 +378,23 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             title="Số dư điểm AI"
             aria-label={`Số dư AI: ${aiCreditsBalance} điểm`}
           >
-            <span className="text-amber-400">⚡</span>
+            <Zap className="w-3.5 h-3.5 stroke-[1.5] text-zinc-300" />
             <span className="font-bold text-white tabular-nums">{aiCreditsBalance}</span>
           </button>
 
-          {/* PiP button: Only display when Document PiP is supported and NOT running inside Android APK */}
-          <button
-            type="button"
-            data-testid="mobile-pip-btn"
-            onClick={handleTriggerPip}
-            className={`w-7 h-7 rounded-full bg-zinc-900/80 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer ${
-              (typeof window !== 'undefined' && !('documentPictureInPicture' in window)) || isNativeApiRuntime() ? 'hidden' : ''
-            }`}
-            title="Đồng hồ nổi (Picture-in-Picture)"
-            aria-label="Đồng hồ nổi"
-          >
-            <PictureInPicture2 className="w-3.5 h-3.5" />
-          </button>
+          {/* PiP button: Only display when NOT running inside Android APK */}
+          {!isNativeCapacitor && !isNativeApiRuntime() && (
+            <button
+              type="button"
+              data-testid="mobile-pip-btn"
+              onClick={handleTriggerPip}
+              className="w-7 h-7 rounded-full bg-zinc-900/80 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+              title="Đồng hồ nổi (Picture-in-Picture)"
+              aria-label="Đồng hồ nổi"
+            >
+              <PictureInPicture2 className="w-3.5 h-3.5" />
+            </button>
+          )}
 
           {/* Avatar button (Always 'K' for guest) */}
           <button
@@ -475,15 +479,15 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       </main>
 
       {/* -------------------------------------------------------------------- */}
-      {/* Material 3 Bottom Navigation Bar (64px + safe-area)                  */}
+      {/* Material 3 Bottom Navigation Bar (56px + safe-area)                  */}
       {/* -------------------------------------------------------------------- */}
       <nav
         data-testid="mobile-bottom-nav"
         role="tablist"
         aria-label="Điều hướng chính"
-        className={`min-h-[64px] h-auto shrink-0 w-full ${
-          isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/75 backdrop-blur-xl'
-        } border-t border-white/10 flex items-center justify-around px-2 z-30 select-none pb-safe`}
+        className={`h-14 min-h-[56px] max-h-[56px] shrink-0 w-full ${
+          isEcoMode ? 'bg-[#09090b]/95' : 'bg-[#09090b]/90 backdrop-blur-2xl'
+        } border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe`}
       >
         <NavTabButton
           id="focus"
@@ -505,6 +509,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
           icon={Palette}
           isActive={activeTab === 'spaces'}
           onClick={() => handleSelectTab('spaces')}
+          isSoundPlaying={isSoundPlaying}
         />
         <NavTabButton
           id="ai"
@@ -534,6 +539,7 @@ interface NavTabButtonProps {
   icon: React.ComponentType<any>;
   isActive: boolean;
   onClick: () => void;
+  isSoundPlaying?: boolean;
 }
 
 const NavTabButton: React.FC<NavTabButtonProps> = ({
@@ -541,7 +547,8 @@ const NavTabButton: React.FC<NavTabButtonProps> = ({
   label,
   icon: Icon,
   isActive,
-  onClick
+  onClick,
+  isSoundPlaying
 }) => {
   return (
     <button
@@ -550,22 +557,38 @@ const NavTabButton: React.FC<NavTabButtonProps> = ({
       data-testid={`mobile-nav-tab-${id}`}
       aria-selected={isActive}
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center justify-center py-1 gap-0.5 transition-all duration-200 cursor-pointer touch-manipulation active:scale-95 ${
-        isActive
-          ? 'text-emerald-400 font-semibold'
-          : 'text-zinc-400 hover:text-zinc-200 font-normal'
-      }`}
+      className="flex-1 flex flex-col items-center justify-center py-1 gap-0.5 cursor-pointer touch-manipulation active:scale-95 transition-colors"
     >
-      <div
-        className={`px-3 py-1 rounded-full transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isActive
-            ? 'bg-emerald-500/15 text-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.3)]'
-            : 'text-zinc-400'
+      <div className="relative flex flex-col items-center">
+        <Icon
+          className={`w-5 h-5 stroke-[1.5] transition-colors duration-150 ${
+            isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+        />
+
+        {/* Sound Playing Dot Indicator: Khi tab Không Gian đang phát nhạc/âm thanh */}
+        {id === 'spaces' && isSoundPlaying && (
+          <span
+            data-testid="spaces-sound-playing-dot"
+            className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
+            title="Đang phát âm thanh"
+          />
+        )}
+
+        {/* 3px Active Dot Indicator */}
+        <span
+          className={`w-[3px] h-[3px] rounded-full mt-1 transition-all duration-200 ${
+            isActive ? 'bg-white opacity-100 scale-100' : 'bg-transparent opacity-0 scale-50'
+          }`}
+        />
+      </div>
+      <span
+        className={`text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 ${
+          isActive ? 'text-white font-medium' : 'text-zinc-400 font-normal'
         }`}
       >
-        <Icon className={`w-5 h-5 stroke-[2] ${isActive ? 'animate-spring-bounce' : ''}`} />
-      </div>
-      <span className="text-[10px] leading-tight tracking-tight text-center break-words">{label}</span>
+        {label}
+      </span>
     </button>
   );
 };
@@ -587,6 +610,26 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
   const [editTitle, setEditTitle] = useState('');
   const [editEstimatedPomos, setEditEstimatedPomos] = useState<number>(1);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+
+  // Confirm & Undo for Clear Completed
+  const [showConfirmClearCompleted, setShowConfirmClearCompleted] = useState(false);
+  const [lastClearedCompletedTasks, setLastClearedCompletedTasks] = useState<any[]>([]);
+  const [showUndoClearSnackbar, setShowUndoClearSnackbar] = useState(false);
+  const clearUndoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Swipe-to-delete & Undo for Single Task
+  const [undoDeletedTask, setUndoDeletedTask] = useState<any | null>(null);
+  const [showUndoDeleteSnackbar, setShowUndoDeleteSnackbar] = useState(false);
+  const deleteUndoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clearUndoTimeoutRef.current) clearTimeout(clearUndoTimeoutRef.current);
+      if (deleteUndoTimeoutRef.current) clearTimeout(deleteUndoTimeoutRef.current);
+    };
+  }, []);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
@@ -615,12 +658,78 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
     }
   };
 
-  const handleClearCompleted = async () => {
+  const handleTriggerClearCompleted = () => {
+    setShowConfirmClearCompleted(true);
+  };
+
+  const handleConfirmClearCompleted = async () => {
+    setShowConfirmClearCompleted(false);
     const completedTasks = tasks.filter((t) => t.status === 'completed');
+    if (completedTasks.length === 0) return;
+    setLastClearedCompletedTasks(completedTasks);
+    setShowUndoClearSnackbar(true);
     for (const t of completedTasks) {
       try {
         await deleteTask(t.id);
       } catch {}
+    }
+    if (clearUndoTimeoutRef.current) clearTimeout(clearUndoTimeoutRef.current);
+    clearUndoTimeoutRef.current = setTimeout(() => {
+      setShowUndoClearSnackbar(false);
+      setLastClearedCompletedTasks([]);
+    }, 6000);
+  };
+
+  const handleUndoClearCompleted = async () => {
+    if (clearUndoTimeoutRef.current) clearTimeout(clearUndoTimeoutRef.current);
+    setShowUndoClearSnackbar(false);
+    for (const t of lastClearedCompletedTasks) {
+      try {
+        const restored = await createTask({
+          title: t.title,
+          priority: t.priority,
+          estimatedPomodoros: t.estimatedPomodoros
+        });
+        if (restored?.id && (t.completedPomodoros || t.status === 'completed')) {
+          await updateTask(restored.id, {
+            completedPomodoros: t.completedPomodoros || 0,
+            status: t.status || 'completed'
+          });
+        }
+      } catch {}
+    }
+    setLastClearedCompletedTasks([]);
+  };
+
+  const handleDeleteTaskWithUndo = async (task: any) => {
+    setUndoDeletedTask(task);
+    setShowUndoDeleteSnackbar(true);
+    await deleteTask(task.id);
+    if (deleteUndoTimeoutRef.current) clearTimeout(deleteUndoTimeoutRef.current);
+    deleteUndoTimeoutRef.current = setTimeout(() => {
+      setShowUndoDeleteSnackbar(false);
+      setUndoDeletedTask(null);
+    }, 5000);
+  };
+
+  const handleUndoDeleteTask = async () => {
+    if (deleteUndoTimeoutRef.current) clearTimeout(deleteUndoTimeoutRef.current);
+    setShowUndoDeleteSnackbar(false);
+    if (undoDeletedTask) {
+      try {
+        const restored = await createTask({
+          title: undoDeletedTask.title,
+          priority: undoDeletedTask.priority,
+          estimatedPomodoros: undoDeletedTask.estimatedPomodoros
+        });
+        if (restored?.id && (undoDeletedTask.completedPomodoros || undoDeletedTask.status)) {
+          await updateTask(restored.id, {
+            completedPomodoros: undoDeletedTask.completedPomodoros || 0,
+            status: undoDeletedTask.status || 'todo'
+          });
+        }
+      } catch {}
+      setUndoDeletedTask(null);
     }
   };
 
@@ -659,7 +768,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             <button
               type="button"
               data-testid="mobile-tasks-clear-completed-btn"
-              onClick={handleClearCompleted}
+              onClick={handleTriggerClearCompleted}
               className="text-[11px] text-zinc-400 hover:text-rose-400 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-900 border border-white/5 active:scale-95 transition cursor-pointer"
               title="Dọn sạch việc đã hoàn thành"
             >
@@ -673,19 +782,46 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
         </div>
       </div>
 
+      {/* Confirmation Dialog for Clearing Completed Tasks */}
+      {showConfirmClearCompleted && (
+        <div
+          data-testid="mobile-confirm-clear-completed-dialog"
+          className="p-3 rounded-xl bg-zinc-900/95 border border-white/10 flex items-center justify-between gap-2 shadow-lg"
+        >
+          <span className="text-xs text-zinc-200">Xóa tất cả {completedCount} việc đã xong?</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowConfirmClearCompleted(false)}
+              className="px-2.5 py-1 rounded-lg text-xs text-zinc-400 hover:text-white bg-zinc-800 cursor-pointer"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              data-testid="mobile-confirm-clear-btn"
+              onClick={handleConfirmClearCompleted}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500 text-white hover:bg-rose-600 cursor-pointer"
+            >
+              Xác nhận
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Quick Add Bar */}
       <form onSubmit={handleAddTask} className="flex items-center gap-2">
         <input
           type="text"
           value={inputTitle}
           onChange={(e) => setInputTitle(e.target.value)}
-          placeholder="Thêm công việc mới cần làm..."
+          placeholder="Việc cần làm..."
           className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-emerald-400/60 transition"
         />
         <button
           type="submit"
           disabled={!inputTitle.trim()}
-          className="w-9 h-9 rounded-xl bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center hover:bg-emerald-400 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0"
+          className="w-9 h-9 rounded-xl bg-white text-zinc-950 font-bold flex items-center justify-center hover:bg-zinc-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0"
           aria-label="Thêm công việc"
         >
           <Plus className="w-4 h-4" />
@@ -726,7 +862,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
               <button
                 type="button"
                 onClick={() => setEditEstimatedPomos((p) => Math.max(1, p - 1))}
-                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center"
+                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center cursor-pointer"
               >
                 -
               </button>
@@ -734,7 +870,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
               <button
                 type="button"
                 onClick={() => setEditEstimatedPomos((p) => Math.min(20, p + 1))}
-                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center"
+                className="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center cursor-pointer"
               >
                 +
               </button>
@@ -744,14 +880,14 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             <button
               type="button"
               onClick={() => setEditingTaskId(null)}
-              className="px-2.5 py-1 rounded-lg text-xs text-zinc-400 hover:text-white"
+              className="px-2.5 py-1 rounded-lg text-xs text-zinc-400 hover:text-white cursor-pointer"
             >
               Hủy
             </button>
             <button
               type="button"
               onClick={handleSaveEdit}
-              className="px-3 py-1 rounded-lg text-xs bg-emerald-500 text-zinc-950 font-bold"
+              className="px-3 py-1 rounded-lg text-xs bg-emerald-500 text-zinc-950 font-bold cursor-pointer"
             >
               Lưu
             </button>
@@ -762,8 +898,20 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
       {/* Task List (Streamlined & De-crammed) */}
       <div className="space-y-2">
         {filteredTasks.length === 0 ? (
-          <div className="py-10 text-center text-zinc-500 text-xs">
-            Chưa có công việc nào trong danh sách.
+          <div
+            data-testid="mobile-tasks-empty-state"
+            className="py-12 flex flex-col items-center justify-center text-center px-4"
+          >
+            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 mb-2.5">
+              <CheckSquare className="w-5 h-5 stroke-[1.5]" />
+            </div>
+            <p className="text-xs font-medium text-zinc-400">
+              {filter === 'completed'
+                ? 'Chưa có việc nào hoàn thành'
+                : filter === 'todo'
+                ? 'Không còn việc tồn đọng. Thêm việc mới để bắt đầu!'
+                : 'Chưa có công việc nào. Thêm việc mới phía trên.'}
+            </p>
           </div>
         ) : (
           filteredTasks.map((task) => {
@@ -774,13 +922,27 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             return (
               <div
                 key={task.id}
+                onTouchStart={(e) => {
+                  touchStartXRef.current = e.touches[0].clientX;
+                  touchStartYRef.current = e.touches[0].clientY;
+                }}
+                onTouchEnd={(e) => {
+                  if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+                  const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+                  const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
+                  if (deltaX < -80 && Math.abs(deltaY) < 50) {
+                    handleDeleteTaskWithUndo(task);
+                  }
+                  touchStartXRef.current = null;
+                  touchStartYRef.current = null;
+                }}
                 className={`rounded-xl bg-zinc-900/60 border transition ${
                   isLinked
                     ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(52,211,153,0.1)]'
                     : 'border-white/5 hover:border-white/10'
                 }`}
               >
-                {/* Main Clean Row: Checkbox + Title (Takes wide space) + Pomodoro Badge + Target Link + Chevron (Bug #18) */}
+                {/* Main Clean Row: Checkbox + Title + Pomodoro Badge + Target Link + Chevron (Only 1 chevron on unexpanded row!) */}
                 <div className="p-3 flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 flex-1 min-w-0">
                     <button
@@ -806,30 +968,6 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {/* Task Priority Reordering Controls (Up / Down) */}
-                    <div className="flex items-center bg-zinc-800/80 rounded-lg p-0.5 border border-white/5">
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-up-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
-                        className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
-                        title="Chuyển lên trên"
-                        aria-label="Chuyển lên trên"
-                      >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-down-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
-                        className="p-1 rounded text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer"
-                        title="Chuyển xuống dưới"
-                        aria-label="Chuyển xuống dưới"
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
                     {/* Pomodoro Progress Badge */}
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-white/5">
                       {task.completedPomodoros || 0}/{task.estimatedPomodoros || 1} 🍅
@@ -856,7 +994,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                       <Target className="w-3.5 h-3.5" />
                     </button>
 
-                    {/* More actions toggle */}
+                    {/* Single More Actions Chevron */}
                     <button
                       type="button"
                       onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
@@ -868,58 +1006,96 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                   </div>
                 </div>
 
-                {/* Secondary Actions Drawer: Reorder Up/Down, Edit, Delete (Bug #18 & #32) */}
-                {isExpanded && (
-                  <div className="px-3 pb-2.5 pt-1.5 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-up-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
-                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
-                        title="Chuyển lên trên"
-                        aria-label="Chuyển lên trên"
-                      >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                        <span>Lên</span>
-                      </button>
-                      <button
-                        type="button"
-                        data-testid={`mobile-task-move-down-${task.id}`}
-                        onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
-                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
-                        title="Chuyển xuống dưới"
-                        aria-label="Chuyển xuống dưới"
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                        <span>Xuống</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleStartEdit(task)}
-                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                        <span>Sửa</span>
-                      </button>
-                    </div>
-
+                {/* Secondary Actions Drawer: Reorder Up/Down, Edit, Delete (Preserves test IDs via DOM presence) */}
+                <div
+                  className={`px-3 pb-2.5 pt-1.5 border-t border-white/5 items-center justify-between text-xs text-zinc-400 ${
+                    isExpanded ? 'flex' : 'hidden'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => deleteTask(task.id)}
-                      className="text-zinc-400 hover:text-rose-400 px-2 py-1 rounded hover:bg-rose-500/10 flex items-center gap-1 text-[11px] transition cursor-pointer"
-                      aria-label="Xóa nhiệm vụ"
+                      data-testid={`mobile-task-move-up-${task.id}`}
+                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'UP')}
+                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
+                      title="Chuyển lên trên"
+                      aria-label="Chuyển lên trên"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Xóa</span>
+                      <ChevronUp className="w-3.5 h-3.5" />
+                      <span>Lên</span>
+                    </button>
+                    <button
+                      type="button"
+                      data-testid={`mobile-task-move-down-${task.id}`}
+                      onClick={() => useTaskStore.getState().reorderTask(task.id, 'DOWN')}
+                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
+                      title="Chuyển xuống dưới"
+                      aria-label="Chuyển xuống dưới"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                      <span>Xuống</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleStartEdit(task)}
+                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition cursor-pointer"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      <span>Sửa</span>
                     </button>
                   </div>
-                )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTaskWithUndo(task)}
+                    className="text-zinc-400 hover:text-rose-400 px-2 py-1 rounded hover:bg-rose-500/10 flex items-center gap-1 text-[11px] transition cursor-pointer"
+                    aria-label="Xóa nhiệm vụ"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Xóa</span>
+                  </button>
+                </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Undo clear completed snackbar */}
+      {showUndoClearSnackbar && (
+        <div
+          data-testid="mobile-tasks-undo-snackbar"
+          className="fixed bottom-24 left-4 right-4 z-40 p-3 rounded-xl bg-zinc-900 border border-white/10 shadow-2xl flex items-center justify-between"
+        >
+          <span className="text-xs text-zinc-300">Đã dọn các việc hoàn thành</span>
+          <button
+            type="button"
+            data-testid="mobile-undo-clear-completed-btn"
+            onClick={handleUndoClearCompleted}
+            className="px-3 py-1 rounded-lg bg-white text-zinc-950 text-xs font-semibold hover:bg-zinc-200 cursor-pointer"
+          >
+            Hoàn tác
+          </button>
+        </div>
+      )}
+
+      {/* Undo single task delete snackbar */}
+      {showUndoDeleteSnackbar && undoDeletedTask && (
+        <div
+          data-testid="mobile-task-undo-delete-snackbar"
+          className="fixed bottom-24 left-4 right-4 z-40 p-3 rounded-xl bg-zinc-900 border border-white/10 shadow-2xl flex items-center justify-between"
+        >
+          <span className="text-xs text-zinc-300 truncate max-w-[200px]">Đã xóa: {undoDeletedTask.title}</span>
+          <button
+            type="button"
+            data-testid="mobile-undo-delete-task-btn"
+            onClick={handleUndoDeleteTask}
+            className="px-3 py-1 rounded-lg bg-white text-zinc-950 text-xs font-semibold hover:bg-zinc-200 cursor-pointer"
+          >
+            Hoàn tác
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -1097,7 +1273,7 @@ const MobileSpacesSubView: React.FC = () => {
 
           {/* Presets Grid */}
           <div className="grid grid-cols-2 gap-3">
-            {presets.map((preset) => {
+            {presets.filter((p) => p.id !== 'pure-black').map((preset) => {
               const isActive = activePresetId === preset.id;
               const isGradientSwatch =
                 !preset.thumbnailUrl ||
@@ -1110,6 +1286,16 @@ const MobileSpacesSubView: React.FC = () => {
                   : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
                   ? preset.fallbackUrl
                   : 'linear-gradient(135deg, #09090b 0%, #18181b 100%)';
+              const categoryLabel =
+                preset.category === 'solid'
+                  ? 'Đơn sắc'
+                  : preset.category === 'gradient'
+                  ? 'Chuyển màu'
+                  : preset.category === 'image'
+                  ? 'Hình ảnh'
+                  : preset.category === 'video'
+                  ? 'Chuyển động'
+                  : preset.category;
 
               return (
                 <button
@@ -1145,7 +1331,7 @@ const MobileSpacesSubView: React.FC = () => {
                     )}
                   </div>
                   <span className="text-sm font-semibold text-white truncate w-full">{preset.title}</span>
-                  <span className="text-[11px] text-zinc-400 capitalize">{preset.category}</span>
+                  <span className="text-[11px] text-zinc-400">{categoryLabel}</span>
                 </button>
               );
             })}
@@ -1315,7 +1501,7 @@ const MobileSpacesSubView: React.FC = () => {
 
           {/* Audio Category Pills */}
           <div
-            className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5"
+            className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 pr-8"
             style={{
               maskImage: 'linear-gradient(to right, black 85%, transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)'
@@ -1386,13 +1572,32 @@ const MobileSpacesSubView: React.FC = () => {
                     </div>
                   </button>
 
-                  <span
-                    className={`text-[11px] font-mono shrink-0 w-9 text-right transition-colors ${
-                      track.isPlaying ? 'text-emerald-300 font-bold' : 'text-zinc-500'
-                    }`}
-                  >
-                    {Math.round(track.volume * 100)}%
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      data-testid={`mobile-mixer-switch-${track.id}`}
+                      onClick={() => toggleTrack(track.id)}
+                      className={`w-8 h-4.5 rounded-full transition-colors relative cursor-pointer shrink-0 ${
+                        track.isPlaying ? 'bg-white' : 'bg-zinc-800'
+                      }`}
+                      aria-label={`Bật/tắt ${track.name}`}
+                    >
+                      <span
+                        className={`block w-3.5 h-3.5 rounded-full transition-transform ${
+                          track.isPlaying
+                            ? 'bg-zinc-950 translate-x-4'
+                            : 'bg-zinc-500 translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                    <span
+                      className={`text-[11px] font-mono shrink-0 w-9 text-right transition-colors ${
+                        track.isPlaying ? 'text-emerald-300 font-bold' : 'text-zinc-600'
+                      }`}
+                    >
+                      {Math.round(track.volume * 100)}%
+                    </span>
+                  </div>
                 </div>
 
                 <input
@@ -1400,13 +1605,14 @@ const MobileSpacesSubView: React.FC = () => {
                   data-testid={`mobile-mixer-volume-${track.id}`}
                   min={0}
                   max={100}
+                  disabled={!track.isPlaying}
                   value={Math.round(track.volume * 100)}
                   onChange={(e) => setTrackVolume(track.id, Number(e.target.value) / 100)}
                   aria-label={`Âm lượng ${track.name}`}
-                  className={`w-full h-1 rounded-full cursor-pointer transition-opacity ${
+                  className={`w-full h-[3px] rounded-full transition-opacity ${
                     track.isPlaying
-                      ? 'accent-emerald-400 opacity-100'
-                      : 'accent-zinc-600 opacity-40'
+                      ? 'accent-emerald-400 opacity-100 cursor-pointer'
+                      : 'accent-zinc-700 opacity-30 cursor-not-allowed'
                   }`}
                 />
               </div>
@@ -1419,29 +1625,47 @@ const MobileSpacesSubView: React.FC = () => {
 };
 
 // -----------------------------------------------------------------------------
-// Sub-View: Native Mobile AI Companion
+// Sub-View: Native Mobile AI Companion (Monochrome 90-10 & Full History/Streaming Controls)
 // -----------------------------------------------------------------------------
 const MobileAiSubView: React.FC = () => {
   const messages = useAiStore((s) => s.messages);
   const sendMessage = useAiStore((s) => s.sendMessage);
-  const clearMessages = useAiStore((s) => (s as any).clearMessages || (() => {}));
+  const clearChat = useAiStore((s) => s.clearChat);
+  const createNewSession = useAiStore((s) => s.createNewSession);
+  const loadSession = useAiStore((s) => s.loadSession);
+  const deleteSession = useAiStore((s) => s.deleteSession);
+  const sessions = useAiStore((s) => s.sessions);
   const isLoading = useAiStore((s) => s.isLoading);
+  const isStreaming = useAiStore((s) => s.isStreaming);
+  const abortActiveStream = useAiStore((s) => s.abortActiveStream);
   const error = useAiStore((s) => s.error);
-  const user = useAuthStore((s) => s.user);
 
   const [input, setInput] = useState('');
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (typeof messagesEndRef.current?.scrollIntoView === 'function') {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: isStreaming ? 'auto' : 'smooth' });
     }
-  }, [messages, isLoading, error]);
+  }, [messages, isLoading, isStreaming, error]);
+
+  // Tự co giãn chiều cao textarea theo nội dung (tối đa 120px)
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [input]);
 
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || isLoading) return;
     setInput('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
     try {
       await sendMessage(text);
     } catch (err) {
@@ -1449,35 +1673,46 @@ const MobileAiSubView: React.FC = () => {
     }
   };
 
-  const handleNewConversation = () => {
-    if (user?.id) {
-      useAiStore.getState().initConversation(user.id).catch(() => {});
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) return;
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleClearHistory = () => {
+    if (messages.length === 0 && (!sessions || sessions.length === 0)) return;
+    if (typeof window !== 'undefined' && window.confirm('Bạn có chắc muốn làm mới cuộc trò chuyện này không?')) {
+      clearChat();
     }
   };
 
   const suggestions = [
     'Giải thích phương pháp Pomodoro',
-    'Gợi ý lịch ôn thi đại học tuần này',
+    'Kế hoạch học tập sâu 2 giờ',
     'Cách xử lý khi mất tập trung'
   ];
 
+  // Chỉ hiển thị gợi ý khi chưa có tin nhắn nào hoặc chỉ có 1 tin nhắn chào đón
   const showQuickSuggestions = messages.length <= 1;
 
   return (
-    <div className="w-full h-full flex flex-col bg-zinc-950/45 backdrop-blur-md">
+    <div className="w-full h-full flex flex-col bg-zinc-950/45 backdrop-blur-md relative overflow-hidden">
       {/* Header bar (Clean, zero duplicate credits, action buttons) */}
-      <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between bg-zinc-900/60 backdrop-blur-md shrink-0">
+      <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between bg-zinc-900/60 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-4 h-4 text-emerald-400" />
           <span className="font-bold text-white text-xs sm:text-sm">Trợ lý học tập AI</span>
         </div>
         <div className="flex items-center gap-1.5">
+          {/* Nút Chat mới */}
           <button
             type="button"
             data-testid="mobile-ai-new-chat-btn"
             onClick={() => {
-              clearMessages();
-              handleNewConversation();
+              createNewSession();
+              setShowHistoryDrawer(false);
             }}
             className="flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] font-medium transition cursor-pointer"
             title="Bắt đầu cuộc trò chuyện mới"
@@ -1485,11 +1720,30 @@ const MobileAiSubView: React.FC = () => {
             <Plus className="w-3.5 h-3.5" />
             <span>Chat mới</span>
           </button>
+
+          {/* Nút Lịch sử trò chuyện */}
+          <button
+            type="button"
+            data-testid="mobile-ai-history-btn"
+            onClick={() => setShowHistoryDrawer((p) => !p)}
+            className={`p-1 rounded-lg transition cursor-pointer ${
+              showHistoryDrawer
+                ? 'bg-zinc-700 text-white'
+                : 'bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white'
+            }`}
+            title="Lịch sử các phiên trò chuyện"
+            aria-label="Lịch sử trò chuyện"
+          >
+            <History className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Nút Làm mới / Xóa cuộc trò chuyện có confirm */}
           <button
             type="button"
             data-testid="mobile-ai-clear-history-btn"
-            onClick={() => clearMessages()}
-            className="p-1 rounded-lg bg-zinc-800/80 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+            onClick={handleClearHistory}
+            disabled={messages.length === 0}
+            className="p-1 rounded-lg bg-zinc-800/80 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
             title="Xóa lịch sử trò chuyện"
             aria-label="Xóa lịch sử trò chuyện"
           >
@@ -1498,8 +1752,71 @@ const MobileAiSubView: React.FC = () => {
         </div>
       </div>
 
+      {/* Drawer Lịch sử chat mobile (z-40 overlay) */}
+      {showHistoryDrawer && (
+        <div
+          data-testid="mobile-ai-history-drawer"
+          className="absolute inset-0 z-40 bg-zinc-950/95 backdrop-blur-xl flex flex-col p-4 animate-in fade-in duration-150"
+        >
+          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2 text-sm font-bold text-white">
+              <History className="w-4 h-4 text-emerald-400" />
+              <span>Lịch sử trò chuyện</span>
+            </div>
+            <button
+              type="button"
+              data-testid="mobile-ai-close-history-btn"
+              onClick={() => setShowHistoryDrawer(false)}
+              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto py-3 space-y-2">
+            {(!sessions || sessions.length === 0) ? (
+              <div className="text-xs text-zinc-500 text-center py-8">
+                Chưa có phiên trò chuyện nào được lưu.
+              </div>
+            ) : (
+              sessions.map((sess) => (
+                <div
+                  key={sess.id}
+                  data-testid={`mobile-ai-session-${sess.id}`}
+                  onClick={() => {
+                    loadSession(sess.id);
+                    setShowHistoryDrawer(false);
+                  }}
+                  className="p-3 rounded-xl bg-zinc-900/60 border border-white/[0.06] hover:border-white/20 flex items-center justify-between gap-2 transition cursor-pointer"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-semibold text-zinc-200 truncate">
+                      {sess.title || 'Cuộc trò chuyện'}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mt-0.5">
+                      {new Date(sess.createdAt).toLocaleDateString('vi-VN')} {new Date(sess.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSession(sess.id);
+                    }}
+                    className="p-1.5 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
+                    title="Xóa phiên này"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Messages Scroll Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3.5">
         {messages.map((m) => {
           if (m.role === 'assistant' && !m.content && isLoading) {
             return null;
@@ -1546,53 +1863,64 @@ const MobileAiSubView: React.FC = () => {
               className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed overflow-x-auto break-words ${
+                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed overflow-x-auto break-words select-text ${
                   m.role === 'user'
-                    ? 'bg-zinc-800 text-zinc-100 border border-white/10 rounded-tr-sm'
-                    : 'bg-zinc-900/90 border border-white/10 text-zinc-100 rounded-tl-sm'
+                    ? 'bg-zinc-800 text-zinc-100 border border-white/[0.06] rounded-tr-sm'
+                    : 'bg-zinc-900/90 border border-white/[0.06] text-zinc-100 rounded-tl-sm space-y-1.5'
                 }`}
               >
                 {m.role === 'assistant' ? (
-                  <React.Suspense fallback={<div className="whitespace-pre-wrap">{m.content}</div>}>
-                    <FormattedAiMessage content={m.content} />
-                  </React.Suspense>
+                  <>
+                    <React.Suspense fallback={<div className="whitespace-pre-wrap select-text">{m.content}</div>}>
+                      <FormattedAiMessage content={m.content} />
+                    </React.Suspense>
+                    {/* Minh bạch AI theo Luật 134/2025/QH15 */}
+                    <div className="pt-1.5 border-t border-white/[0.06] text-[10px] text-zinc-500 flex items-center gap-1 font-mono">
+                      <Sparkles className="w-2.5 h-2.5 text-emerald-400 shrink-0 stroke-[1.5]" />
+                      <span>Nội dung do AI tạo (Luật 134/2025/QH15)</span>
+                    </div>
+                  </>
                 ) : (
-                  <div className="whitespace-pre-wrap">{m.content}</div>
+                  <div className="whitespace-pre-wrap select-text">{m.content}</div>
                 )}
               </div>
             </div>
           );
         })}
 
+        {/* Quick Suggestion Chips (Tối giản chuẩn Zen, không lặp lời chào) */}
         {showQuickSuggestions && (
-          <div className="pt-2 space-y-3">
-            <div className="text-center space-y-1">
-              <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 text-emerald-400 flex items-center justify-center mx-auto">
-                <Bot className="w-5 h-5" />
-              </div>
-              <p className="text-xs font-semibold text-white">
-                Hôm nay bạn đang ôn phần nào?
-              </p>
-              <p className="text-[11px] text-zinc-400 max-w-xs mx-auto">
-                Hỏi giải thích công thức, gợi ý phân bổ thời gian hoặc hỗ trợ giải bài tập.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              {suggestions.map((s, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSend(s)}
-                  className="w-full text-left text-xs p-2.5 rounded-xl bg-zinc-900/75 border border-white/5 text-zinc-300 hover:border-white/20 hover:text-white transition cursor-pointer"
-                >
-                  💡 {s}
-                </button>
-              ))}
-            </div>
+          <div className="pt-2 space-y-1.5">
+            {suggestions.map((s, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSend(s)}
+                className="w-full text-left text-xs p-2.5 rounded-xl bg-zinc-900/75 border border-white/[0.06] text-zinc-300 hover:border-white/20 hover:text-white transition cursor-pointer flex items-center gap-2"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-zinc-400 shrink-0 stroke-[1.5]" />
+                <span>{s}</span>
+              </button>
+            ))}
           </div>
         )}
 
-        {isLoading && (
+        {/* Nút Dừng streaming khi AI đang trả lời */}
+        {isStreaming && (
+          <div className="flex justify-center pt-1">
+            <button
+              type="button"
+              data-testid="mobile-ai-stop-streaming-btn"
+              onClick={() => abortActiveStream()}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-rose-500/30 text-rose-300 text-xs font-medium hover:bg-rose-500/10 active:scale-95 transition cursor-pointer shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
+              <span>Dừng tạo câu trả lời</span>
+            </button>
+          </div>
+        )}
+
+        {isLoading && !isStreaming && (
           <div className="flex items-center gap-2 text-xs text-zinc-400">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>AI đang suy nghĩ...</span>
@@ -1612,32 +1940,29 @@ const MobileAiSubView: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
-      <div className="p-3 border-t border-white/10 bg-zinc-950/90 backdrop-blur-xl pb-4 shrink-0">
+      {/* Input Bar: Textarea tự co giãn nhiều dòng + Nút gửi Monochrome 90-10 */}
+      <div className="p-3 border-t border-white/[0.06] bg-zinc-950/90 backdrop-blur-xl pb-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="flex items-center gap-2"
+          className="flex items-end gap-2"
         >
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
+            rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && Boolean(e.nativeEvent?.isComposing || (e as any).isComposing)) {
-                e.preventDefault();
-              }
-            }}
+            onKeyDown={handleKeyDown}
             enterKeyHint="send"
             placeholder="Nhắn cho trợ lý..."
-            className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/25 transition"
+            className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/25 transition resize-none max-h-32 overflow-y-auto leading-relaxed"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="w-9 h-9 rounded-xl bg-white text-zinc-950 font-bold flex items-center justify-center hover:bg-zinc-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0"
+            className="w-9 h-9 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-bold flex items-center justify-center active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer shrink-0 shadow-sm"
             aria-label="Gửi tin nhắn"
           >
             <Send className="w-3.5 h-3.5" />

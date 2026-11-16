@@ -134,11 +134,20 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
     totalWeeklyPomos: 0,
   }));
 
-  // Pocket Lock State (z-[70])
+  // Pocket Lock State (z-[100])
   const [isPocketLocked, setIsPocketLocked] = useState(false);
   const [unlockHoldProgress, setUnlockHoldProgress] = useState(0);
   const unlockHoldStartRef = useRef<number | null>(null);
   const unlockHoldIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Session Log State
+  const [todaySessions, setTodaySessions] = useState<any[]>([]);
+  const [isSessionLogOpen, setIsSessionLogOpen] = useState(false);
+
+  // Hold to Reset (1.5s) Progress State
+  const [resetHoldProgress, setResetHoldProgress] = useState(0);
+  const resetHoldStartRef = useRef<number | null>(null);
+  const resetHoldIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Hold to Start (800ms) State
   const [holdToStartProgress, setHoldToStartProgress] = useState(0);
@@ -252,6 +261,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         setTodayActiveHours(hours);
         setDbTodaySummary({ minutes: todayMins, pomos: todayPomos, loaded: true });
 
+        const todayList = recentSessions
+          .filter((s) => s.dateString === todayKey)
+          .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+        setTodaySessions(todayList);
+
         // 2. Process 7-Day Weekly Insights
         const dayMap = new Map<string, { minutes: number; pomos: number }>();
 
@@ -308,6 +322,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
       if (unlockHoldIntervalRef.current) clearInterval(unlockHoldIntervalRef.current);
       if (holdToStartIntervalRef.current) clearInterval(holdToStartIntervalRef.current);
+      if (resetHoldIntervalRef.current) clearInterval(resetHoldIntervalRef.current);
     };
   }, []);
 
@@ -527,7 +542,21 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
 
   const handleResetPointerDown = () => {
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    if (resetHoldIntervalRef.current) clearInterval(resetHoldIntervalRef.current);
     skipNextClickRef.current = false;
+    resetHoldStartRef.current = Date.now();
+    setResetHoldProgress(0);
+
+    resetHoldIntervalRef.current = setInterval(() => {
+      if (!resetHoldStartRef.current) return;
+      const elapsed = Date.now() - resetHoldStartRef.current;
+      const pct = Math.min(100, Math.round((elapsed / 1500) * 100));
+      setResetHoldProgress(pct);
+      if (pct >= 100) {
+        if (resetHoldIntervalRef.current) clearInterval(resetHoldIntervalRef.current);
+      }
+    }, 25);
+
     holdTimerRef.current = setTimeout(() => {
       skipNextClickRef.current = true;
       if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
@@ -536,6 +565,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         } catch {}
       }
       resetCycle();
+      setResetHoldProgress(0);
+      if (resetHoldIntervalRef.current) {
+        clearInterval(resetHoldIntervalRef.current);
+        resetHoldIntervalRef.current = null;
+      }
     }, 1500);
   };
 
@@ -544,6 +578,24 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       clearTimeout(holdTimerRef.current);
       holdTimerRef.current = null;
     }
+    if (resetHoldIntervalRef.current) {
+      clearInterval(resetHoldIntervalRef.current);
+      resetHoldIntervalRef.current = null;
+    }
+    resetHoldStartRef.current = null;
+    setResetHoldProgress(0);
+  };
+
+  const handleClearTodaySessions = async () => {
+    const todayKey = getVietnamTodayDateKey();
+    try {
+      await db.focus_sessions.where('dateString').equals(todayKey).delete();
+    } catch (err) {
+      console.warn('Lỗi xóa nhật ký phiên:', err);
+    }
+    setTodaySessions([]);
+    setDbTodaySummary({ minutes: 0, pomos: 0, loaded: true });
+    setTodayActiveHours(new Set());
   };
 
   const handleSkip = () => {
@@ -697,11 +749,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       {/* 1. LAYER 1 (TOP BAR): Phase Selector, Strict Mode, Pocket Lock     */}
       {/* ------------------------------------------------------------------ */}
       <div className="w-full flex flex-col items-center gap-2.5 z-20 shrink-0">
-        {/* Phase Segmented Pill Selector */}
+        {/* Phase Segmented Pill Selector (Equalized 3-column grid, Monochrome 90-10) */}
         <div
           role="tablist"
           aria-label="Chế độ tập trung"
-          className="inline-flex flex-wrap items-center justify-center p-1 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 shadow-lg relative max-w-full gap-1"
+          className="grid grid-cols-3 w-full max-w-xs p-1 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 shadow-lg gap-1"
         >
           <button
             type="button"
@@ -709,9 +761,9 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-selected={phase === 'pomodoro'}
             data-testid="mobile-phase-pomodoro"
             onClick={() => handleSetPhase('pomodoro')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] touch-manipulation cursor-pointer active:scale-95 ${
+            className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'pomodoro'
-                ? 'bg-gradient-to-r from-emerald-500/20 via-teal-400/20 to-cyan-400/20 text-emerald-400 border border-emerald-400/30 shadow-sm animate-spring-bounce'
+                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -724,9 +776,9 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-selected={phase === 'short_break'}
             data-testid="mobile-phase-short_break"
             onClick={() => handleSetPhase('short_break')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] touch-manipulation cursor-pointer active:scale-95 ${
+            className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'short_break'
-                ? 'bg-gradient-to-r from-emerald-500/20 via-teal-400/20 to-cyan-400/20 text-emerald-400 border border-emerald-400/30 shadow-sm animate-spring-bounce'
+                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -739,9 +791,9 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-selected={phase === 'long_break'}
             data-testid="mobile-phase-long_break"
             onClick={() => handleSetPhase('long_break')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] touch-manipulation cursor-pointer active:scale-95 ${
+            className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'long_break'
-                ? 'bg-gradient-to-r from-emerald-500/20 via-teal-400/20 to-cyan-400/20 text-emerald-400 border border-emerald-400/30 shadow-sm animate-spring-bounce'
+                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -808,94 +860,102 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             </button>
           </div>
 
-          {/* Quick Task Picker Sliding Drawer / Dropdown */}
+          {/* Quick Task Picker Bottom Sheet (Fixed position at bottom, never covering clock numerals) */}
           {isTaskPickerOpen && (
-            <div
-              data-testid="mobile-task-picker-dropdown"
-              className="absolute top-full mt-2 left-0 right-0 min-w-[260px] max-h-56 overflow-y-auto bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 space-y-1 animate-slide-up-fast"
-            >
-              <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                <span>Chọn công việc</span>
-                <button
-                  type="button"
-                  onClick={() => setIsTaskPickerOpen(false)}
-                  className="p-1 hover:text-white text-zinc-400 rounded-md cursor-pointer"
-                  aria-label="Đóng bảng chọn"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {linkedTaskId && (
-                <button
-                  type="button"
-                  onClick={() => handleSelectTask(null)}
-                  className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <span>Hủy liên kết công việc</span>
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-
-              {activeTodoTasks.length === 0 ? (
-                <div className="px-3 py-3 text-center text-xs text-zinc-400">
-                  Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
-                </div>
-              ) : (
-                activeTodoTasks.map((t) => (
+            <div className="fixed inset-0 z-50 flex flex-col justify-end pointer-events-auto">
+              <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                onClick={() => setIsTaskPickerOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                data-testid="mobile-task-picker-dropdown"
+                className="relative z-10 w-full max-h-[60vh] overflow-y-auto bg-zinc-950/98 backdrop-blur-2xl border-t border-white/10 rounded-t-3xl p-4 shadow-2xl space-y-2 pb-8 animate-slide-up-fast"
+              >
+                <div className="w-10 h-1 bg-zinc-700/60 rounded-full mx-auto mb-1.5" />
+                <div className="flex items-center justify-between px-1 pb-2 border-b border-white/10 text-xs font-semibold text-zinc-300">
+                  <span>Chọn mục tiêu phiên này</span>
                   <button
-                    key={t.id}
                     type="button"
-                    onClick={() => handleSelectTask(t.id)}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                      t.id === linkedTaskId
-                        ? 'bg-emerald-500/20 text-emerald-300 font-medium'
-                        : 'text-zinc-200 hover:bg-zinc-800/80'
-                    }`}
+                    onClick={() => setIsTaskPickerOpen(false)}
+                    className="p-1 hover:text-white text-zinc-400 rounded-md cursor-pointer"
+                    aria-label="Đóng bảng chọn"
                   >
-                    <span className="truncate flex-1">{t.title}</span>
-                    <span className="text-[10px] font-mono text-zinc-400 shrink-0">
-                      {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
-                    </span>
-                    {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                    <X className="w-4 h-4" />
                   </button>
-                ))
-              )}
+                </div>
 
-              {onManageTasks && (
-                <button
-                  type="button"
-                  data-testid="mobile-picker-manage-tasks-btn"
-                  onClick={() => {
-                    setIsTaskPickerOpen(false);
-                    onManageTasks();
-                  }}
-                  className="w-full mt-1 pt-1.5 border-t border-white/10 text-center px-2.5 py-1.5 rounded-xl text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                >
-                  Quản lý & thêm công việc →
-                </button>
-              )}
+                {linkedTaskId && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectTask(null)}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span>Hủy liên kết công việc</span>
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                {activeTodoTasks.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-xs text-zinc-400">
+                    Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
+                  </div>
+                ) : (
+                  activeTodoTasks.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => handleSelectTask(t.id)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                        t.id === linkedTaskId
+                          ? 'bg-white/10 text-white font-medium border border-white/15'
+                          : 'text-zinc-200 hover:bg-zinc-800/80'
+                      }`}
+                    >
+                      <span className="truncate flex-1">{t.title}</span>
+                      <span className="text-[10px] font-mono text-zinc-400 shrink-0">
+                        {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
+                      </span>
+                      {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-zinc-200 shrink-0" />}
+                    </button>
+                  ))
+                )}
+
+                {onManageTasks && (
+                  <button
+                    type="button"
+                    data-testid="mobile-picker-manage-tasks-btn"
+                    onClick={() => {
+                      setIsTaskPickerOpen(false);
+                      onManageTasks();
+                    }}
+                    className="w-full mt-1 pt-2 border-t border-white/10 text-center px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    Quản lý & thêm công việc →
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
 
         {/* Sub-row: Strict Mode & Pocket Lock 🔒 (Bug #17: de-crammed from task bar) */}
         <div className="w-full max-w-sm flex items-center justify-between px-1">
-          {/* Strict Mode (Kỷ luật) Toggle */}
+          {/* Strict Mode (Kỷ luật) Toggle - Borderless / Hairline Monochrome 90-10 */}
           <button
             type="button"
             data-testid="mobile-strict-mode-toggle"
             aria-pressed={isStrictMode}
             onClick={handleToggleStrictMode}
             title="Chế độ Kỷ luật: Rời app quá 5 giây sẽ hủy hiệp hiện tại"
-            className={`h-8 px-3 rounded-full border backdrop-blur-md flex items-center gap-1.5 text-[11px] font-semibold transition-all cursor-pointer active:scale-95 touch-manipulation ${
+            className={`h-8 px-3 rounded-full border backdrop-blur-md flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation ${
               isStrictMode
-                ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                : 'border-white/10 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200'
+                ? 'border-white/20 bg-white/10 text-white'
+                : 'border-white/5 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {isStrictMode ? (
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+              <ShieldCheck className="w-3.5 h-3.5 text-zinc-200 shrink-0" aria-hidden="true" />
             ) : (
               <Shield className="w-3.5 h-3.5 text-zinc-400 shrink-0" aria-hidden="true" />
             )}
@@ -975,7 +1035,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                 : 'Sẵn sàng'}
             </span>
             {isStrictMode && phase === 'pomodoro' && status === 'running' && (
-              <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/20 border border-emerald-400/30 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
+              <span className="text-[10px] font-sans text-zinc-300 bg-white/10 border border-white/10 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
                 Kỷ luật 5s
               </span>
             )}
@@ -1028,26 +1088,56 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           </div>
         </div>
 
-        {/* Thumb-Zone Primary Controls */}
+        {/* Thumb-Zone Primary Controls (Play 56px, Reset & Skip 40px) */}
         <div className="w-full flex items-center justify-center gap-6 pt-5 pb-1 z-10">
-          {/* Secondary: Reset (↺) */}
-          <button
-            type="button"
-            data-testid="mobile-timer-reset"
-            onClick={handleReset}
-            onPointerDown={handleResetPointerDown}
-            onPointerUp={cancelResetHold}
-            onPointerLeave={cancelResetHold}
-            onPointerCancel={cancelResetHold}
-            title="Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)"
-            aria-label="Đặt lại hiệp này"
-            className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
-          >
-            <RotateCcw className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
-          </button>
+          {/* Secondary: Reset (↺) with visual 1.5s press-and-hold progress ring */}
+          <div className="relative flex items-center justify-center">
+            {resetHoldProgress > 0 && (
+              <svg
+                data-testid="reset-hold-progress-ring"
+                className="absolute -inset-1.5 w-[52px] h-[52px] -rotate-90 pointer-events-none"
+                viewBox="0 0 52 52"
+              >
+                <circle
+                  cx="26"
+                  cy="26"
+                  r="22"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.15)"
+                  strokeWidth="2.5"
+                />
+                <circle
+                  cx="26"
+                  cy="26"
+                  r="22"
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth="2.5"
+                  strokeDasharray={138.23}
+                  strokeDashoffset={138.23 - (138.23 * resetHoldProgress) / 100}
+                  strokeLinecap="round"
+                  className="transition-all duration-75"
+                />
+              </svg>
+            )}
+            <button
+              type="button"
+              data-testid="mobile-timer-reset"
+              onClick={handleReset}
+              onPointerDown={handleResetPointerDown}
+              onPointerUp={cancelResetHold}
+              onPointerLeave={cancelResetHold}
+              onPointerCancel={cancelResetHold}
+              title="Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)"
+              aria-label="Đặt lại hiệp này"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+            >
+              <RotateCcw className="w-4 h-4 stroke-[2]" aria-hidden="true" />
+            </button>
+          </div>
 
-          {/* Primary Action: Play / Pause (Hold 800ms to Start or 1-Tap Toggle) */}
-          <div className="relative">
+          {/* Primary Action: Play / Pause (56px, Hold 800ms to Start or 1-Tap Toggle) */}
+          <div className="relative flex items-center justify-center">
             {/* Visual Filling Ring for 800ms Hold */}
             {holdToStartProgress > 0 && (
               <div
@@ -1069,46 +1159,50 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerLeave={handleActionPointerCancel}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
               {status === 'running' ? (
-                <Pause className="w-7 h-7 fill-current stroke-current" aria-hidden="true" />
+                <Pause className="w-6 h-6 fill-current stroke-current" aria-hidden="true" />
               ) : (
-                <Play className="w-7 h-7 fill-current stroke-current ml-1" aria-hidden="true" />
+                <Play className="w-6 h-6 fill-current stroke-current ml-0.5" aria-hidden="true" />
               )}
             </button>
           </div>
 
-          {/* Secondary: Skip (⏭) */}
+          {/* Secondary: Skip (⏭) 40px */}
           <button
             type="button"
             data-testid="mobile-timer-skip"
             onClick={handleSkip}
             title="Bỏ qua hiệp này"
             aria-label="Bỏ qua hiệp này"
-            className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
           >
-            <SkipForward className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
+            <SkipForward className="w-4 h-4 stroke-[2]" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* 3. LAYER 3 (BOTTOM ANALYTICS): Single Slim Flow Strip (Bug #17)     */}
+      {/* 3. LAYER 3 (BOTTOM ANALYTICS): Single Slim Flow Strip & Session Log */}
       {/* ------------------------------------------------------------------ */}
       <div className="w-full max-w-sm z-10 shrink-0 space-y-1.5">
         {/* Slim Flow Strip */}
         <div
           data-testid="mobile-daily-flow-strip"
-          className="w-full rounded-2xl bg-zinc-900/60 border border-white/5 px-3.5 py-2 backdrop-blur-md flex flex-col gap-1.5 text-xs"
+          onClick={() => setIsSessionLogOpen(true)}
+          className="w-full rounded-2xl bg-zinc-900/60 border border-white/5 px-3.5 py-2 backdrop-blur-md flex flex-col gap-1.5 text-xs hover:border-white/10 transition-colors cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label="Xem nhật ký phiên hôm nay"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-zinc-400">Dòng chảy hôm nay</span>
+            <span className="text-[11px] font-sans text-zinc-400">Dòng chảy hôm nay</span>
             <span
               data-testid="mobile-daily-flow-summary"
-              className="font-mono text-zinc-200 font-medium text-[11px]"
+              className="text-xs text-zinc-400 font-sans"
             >
-              Hôm nay: {flowHours}g {flowMins}ph • {effectiveCompletedPomos} 🍅 hoàn thành
+              {flowHours}g {flowMins}p · {effectiveCompletedPomos} phiên
             </span>
           </div>
 
@@ -1146,6 +1240,79 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Session Log Drawer / Modal */}
+      {isSessionLogOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end pointer-events-auto">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsSessionLogOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            data-testid="session-log-drawer"
+            className="relative z-10 w-full max-h-[70vh] overflow-y-auto bg-zinc-950/98 backdrop-blur-2xl border-t border-white/10 rounded-t-3xl p-4 shadow-2xl space-y-3 pb-8 animate-slide-up-fast"
+          >
+            <div className="w-10 h-1 bg-zinc-700/60 rounded-full mx-auto mb-1" />
+            <div className="flex items-center justify-between px-1 pb-2 border-b border-white/10">
+              <div>
+                <h3 className="text-sm font-bold text-white">Nhật ký tập trung hôm nay</h3>
+                <p className="text-[11px] font-sans text-zinc-400">
+                  {todaySessions.length} phiên · Tổng cộng {flowHours}g {flowMins}p
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSessionLogOpen(false)}
+                className="p-1 hover:text-white text-zinc-400 rounded-md cursor-pointer"
+                aria-label="Đóng nhật ký"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {todaySessions.length === 0 ? (
+              <div className="py-8 text-center text-xs text-zinc-500">
+                Chưa có phiên tập trung nào được ghi nhận hôm nay.
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {todaySessions.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 text-xs"
+                  >
+                    <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                      <span className="font-medium text-zinc-200 truncate">
+                        {s.taskTitle || (s.phase === 'pomodoro' ? 'Phiên tập trung' : s.phase === 'short_break' ? 'Nghỉ ngắn' : 'Nghỉ dài')}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-sans">
+                        {new Date(s.completedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono text-zinc-300 shrink-0 ml-2">
+                      {s.durationMinutes}p
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {todaySessions.length > 0 && (
+              <div className="pt-2 border-t border-white/10 flex justify-end">
+                <button
+                  type="button"
+                  data-testid="clear-session-log-btn"
+                  onClick={handleClearTodaySessions}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 text-xs font-medium transition cursor-pointer"
+                >
+                  Xóa nhật ký hôm nay
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Dialog when switching phase while running (Bug #8) */}
       {pendingPhaseChange && (

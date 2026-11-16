@@ -1,103 +1,106 @@
-# Project: Đại Phẫu Phòng Học Meet (/rooms) — Đợt 2/4
+# Project: Đồng Bộ Thẩm Mỹ Monochrome 90-10, Tinh Chỉnh UI/Copy & Nghiệm Thu Toàn Diện — Đợt 4/4
 
 ## Architecture
-Hệ thống phòng học Meet (`/rooms`) được đại phẫu toàn diện theo mô hình Full-Mesh P2P WebRTC kết hợp Supabase Realtime Cloud (Postgres Realtime Broadcast & Presence). Toàn bộ kiến trúc tuân thủ 5 nguyên tắc bất biến từ `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md` (Z-Index Layer Hierarchy `z-10` đến `z-60`, State Singularity, Founder Whitelist, Dynamic Layout Flow `pt-3`/`pt-14` & `pb-28`).
+Dự án PomoFocus Workspace bước vào Đợt 4 với mục tiêu đồng bộ triệt để thẩm mỹ Monochrome 90-10 (`#09090b` OLED black, trắng/zinc, đường chia mảnh `white/[0.06]`, không đóng hộp thừa) trên Web Desktop, Mobile Web và Android APK.
+Hệ thống tuân thủ nghiêm ngặt 5 nguyên tắc bất biến từ `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md` (Z-Index Layer Hierarchy `z-10` đến `z-60`, State Singularity, Founder Whitelist, Dynamic Layout Flow `pt-3`/`pt-14` & `pb-28`) và bảo toàn 100% các điều khoản pháp lý `vn-law-check` (Luật 134/2025/QH15, NĐ 142/2026/NĐ-CP, cam kết hoàn tiền 7 ngày).
 
 ```
-                    Supabase Cloud
-          (study_rooms table + Realtime Broadcast & Presence)
-                         ▲       ▲
-           Signaling/    │       │   Signaling/
-           Lifecycle     │       │   Lifecycle
-                         ▼       ▼
-              ┌───────────────────────────┐
-              │ Host Client (Desktop 16:9)│
-              └─────────────┬─────────────┘
-                            │
-               P2P WebRTC   │   P2P WebRTC
-               Data/Media   │   Data/Media
-               (Mesh <= 4)  │
-                            ▼
-              ┌───────────────────────────┐
-              │ Member Client 1 (Mobile)  │
-              └─────────────┬─────────────┘
-                            │
-               P2P WebRTC   │
-               Data/Media   │
-                            ▼
-              ┌───────────────────────────┐
-              │ Member Client 2 (Desktop) │
-              └───────────────────────────┘
+                      ┌───────────────────────────────────────────┐
+                      │    PomoFocus App Shell (Monochrome 90-10)  │
+                      └─────────────────────┬─────────────────────┘
+                                            │
+         ┌───────────────────┬──────────────┴───────┬───────────────────┐
+         ▼                   ▼                      ▼                   ▼
+  ┌──────────────┐    ┌──────────────┐       ┌──────────────┐    ┌──────────────┐
+  │  Shell & Nav │    │ Focus, Tasks │       │ AI, Settings │    │  /download   │
+  │  (M1: z-40/50│    │ Spaces, Mixer│       │ Auth, Modals │    │ & Web Routes │
+  │   Header/Dock│    │   (M2: Core) │       │  (M3: Intel) │    │  (M4: Pub)   │
+  └──────────────┘    └──────────────┘       └──────────────┘    └──────────────┘
+         │                   │                      │                   │
+         └───────────────────┴──────────────┬───────┴───────────────────┘
+                                            ▼
+                             ┌─────────────────────────────┐
+                             │ Milestone 5: Verification,  │
+                             │ Typecheck, Vitest, APK Build│
+                             │ Vercel Deploy & Audit Gate  │
+                             └─────────────────────────────┘
 ```
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Canonical Cloud `roomId` & Loại bỏ Split-Brain | Tra cứu Supabase Cloud theo UUID, loại bỏ auto-synthesis trap `usr_peer_host`, sửa `api/rooms.ts` chèn `host_user_id` | M1 | Survey E1 |
-| 2 | Diệt phòng ma khi Thoát / Xóa phòng | Cập nhật `status = closed` trên Supabase, phát sóng Realtime `room-lifecycle-action`, teardown 5 bước (stop MediaStreamTracks, untrack, removeChannel, close WebRTC, dọn nét vẽ/chat) | M1 | Survey E1 |
-| 3 | Khóa quyền điều khiển Đồng hồ nhóm cho Host & Grace Period | Xác thực sender là host/admin cho `room-timer-sync`, ân hạn 60s khi host gián đoạn mạng | M1 | Survey E1 |
-| 4 | Lưu trữ Session Tab chống thành viên ma khi F5 | Lưu `clientSessionId` trong `sessionStorage` theo `roomId`, hook `beforeunload`/`pagehide` dọn dẹp | M1 | Survey E2 |
-| 5 | Đa thiết bị Presence & Phân biệt Thiết bị (PC / Mobile) | Dùng compound key `${userId}::${clientSessionId}`, gắn nhãn `Máy tính` / `Điện thoại`, không bị nuốt thiết bị | M2 | Survey E2 |
-| 6 | Chống bão chuông ding & Toast khi Initial Sync | Cửa sổ 2.5s câm ding/toast khi nạp danh sách thành viên hiện hữu | M2 | Survey E2 |
-| 7 | Chuẩn hóa Polite Peer Glare Handling | Impolite Initiator cho peer có ID lớn hơn, xóa lệnh gọi nghịch đảo trong UI | M2 | Survey E2 |
-| 8 | Khôi phục Web Worker Heartbeat | Bổ sung `state: 'joined'` vào `RealtimeChannel`, duy trì `p2p-keepalive` liên tục | M2 | Survey E2 |
-| 9 | Tự động `restartIce()` khi chuyển mạng WiFi <-> 4G | Gọi `restartAllPeers()` khi có sự kiện `online`, hợp nhất bộ đếm thời gian rớt mạng | M2 | Survey E2 |
-| 10 | Cảnh báo P2P chặn, Audio-Only Mode & Cap Video Mesh Mobile | Cảnh báo khi P2P failed, chế độ chỉ âm thanh tiết kiệm 4G, giới hạn render 3 video trên Mobile | M2 | Survey E2 |
-| 11 | XSS / HTML Injection Sanitization | Sanitize HTML cho tiêu đề phòng, mục tiêu, tên thành viên và tin nhắn chat | M2 | Survey E2 |
-| 12 | Reset Badge Tin Nhắn & Dọn Hand/Reactions | Chỉ hiện badge khi có unread chat thực sự, reset khi đổi phòng, dọn emoji/giơ tay khi rời phòng | M2 | Survey E2 |
-| 13 | Bảng vẽ: Chuẩn hóa Tọa độ Thế Giới (World Coordinates) | Hệ tọa độ danh định 16:9 (`1920x1080`), scale đồng dạng isotropic giữa Desktop và Mobile dọc | M3 | Survey E3 |
-| 14 | Bảng vẽ: Kiến trúc Canvas 2 Tầng (Dual-Layer) | Tách Tầng 1 (Committed strokes + tài liệu) và Tầng 2 (Active draft & stream 60fps) | M3 | Survey E3 |
-| 15 | Bảng vẽ: Quản lý Bộ Nhớ OOM, Blob URL & Throttling | Gọi `URL.revokeObjectURL()`, giới hạn file <=25MB / <=50 trang PDF, downscale ảnh >2048px, throttle 50ms/60ms, `touch-action: none` | M3 | Survey E3 |
-| 16 | Bảng vẽ: Zone Isolation & Mobile Toolbar | Thu dải camera thành viên nang `[ 📹 3 ]`, đủ Undo/Redo/Zoom trên Mobile, nút "Tài liệu" không cắt chữ, hướng dẫn Mobile phù hợp | M3 | Survey E3 |
-| 17 | Giao diện Meet: Top Bar 3 Cụm 1 Dòng | `[ ← Tên phòng ]` \| `[ Video \| Bảng vẽ ]` \| `[ 👥 3 · Mời · ⋯ ]`, gom quản trị vào `⋯`, xóa BETA/MASTER ADMIN, ẩn PiP trên APK | M4 | Survey E3 |
-| 18 | Giao diện Meet: Xóa Banner Xanh & Pill Group Timer | Xóa banner xanh 140px, hiển thị đồng hồ nhóm dạng pill gọn đồng nhất trên cả Desktop và Mobile | M4 | Survey E3 |
-| 19 | Giao diện Meet: Lưới Video Kính Mờ & Sửa Lỗi Ô Thứ 3 | Sửa ô video thứ 3 bị đen/mất tên, hộp đen tắt cam thay bằng kính mờ có Avatar căn giữa, chia lưới cân đối | M4 | Survey E3 |
-| 20 | Giao diện Meet: Bottom Dock 38px Đơn Sắc (5 Nút Mobile) | Nút dock 38px đơn sắc, xóa nút trùng AI/Settings, Mobile giữ đúng 5 nút, ẩn nút chia sẻ màn hình trên Android WebView | M4 | Survey E3 |
-| 21 | Test Suite & Multi-Device Playwright Harness | Xây dựng bộ test E2E 3 thiết bị thật qua Cloud và unit test bao phủ toàn diện | E2E | Directive |
+| 1 | Lucide 1.5px Icon Replacement | Thay thế 100% emoji màu (🍅, 💡, ⚡) bằng icon Lucide nét mảnh 1.5px đồng nhất | M1 | Survey E1 |
+| 2 | Sentence Case Typography | Chuyển toàn bộ UI text sang Sentence Case, loại bỏ hoàn toàn ALL CAPS ở label, nút, badge | M1 | Survey E1 |
+| 3 | WCAG 2.1 AA Contrast Fixes | Sửa lỗi tương phản chữ đen trên nền xanh đậm, đạt tỷ lệ tương phản chuẩn >= 4.5:1 | M1 | Survey E1 |
+| 4 | Settings Checkbox Monochrome | Loại bỏ gradient xanh lá gắt, chuẩn hóa checkbox theo Monochrome 90-10 | M1 | Survey E1 |
+| 5 | Mobile Touch Hover Optimization | Bọc @media (hover: hover) để triệt tiêu lỗi dính trạng thái hover trên cảm ứng | M1 | Survey E1 |
+| 6 | CookieConsentBanner Z-Index & Layout | Đặt Cookie Banner z-40, đáy cách 64px tránh che Bottom Nav 56px, chuẩn hóa với Toast/Auth/Lock | M1 | Survey E1 |
+| 7 | Document Title Standardization | Chuẩn hóa document.title rõ ràng theo từng trang và tab | M1 | Survey E1 |
+| 8 | Header 48px Streamlining | Gỡ badge LIQUID ZEN, xóa chấm vàng bị kẹt, giữ [Logo+PomoFocus] và [50·K], ẩn PiP trên APK | M1 | Survey E1 |
+| 9 | Bottom Nav 56px Monochrome | Bỏ quầng sáng neon, icon trắng + chấm 3px active, chấm âm thanh, đủ lối vào Meet/Notes/Stats/Billing | M1 | Survey E1 |
+| 10 | Tab Focus String Interpolation & Pill Width | Sửa lỗi 'Hiệp $1/$4' thành 'Hiệp 1/4', cân bằng độ rộng 3 nút phiên, placeholder 'Chọn mục tiêu phiên này...' | M2 | Survey E2 |
+| 11 | Tab Focus Task Selector Bottom Sheet | Đổi bộ chọn task từ dropdown đè số thành Bottom Sheet chuẩn z-40 không che đồng hồ 25:00 | M2 | Survey E2 |
+| 12 | Tab Focus Controls & Hold-to-Reset | Nút Play chính 56px, nút phụ 40px, nút Reset ↺ có vòng tròn tiến trình nhấn giữ 1.5s | M2 | Survey E2 |
+| 13 | Tab Focus Stats Bar & Kỷ luật Border | Thanh thống kê đáy sans-serif mảnh 1 dòng '0g 0p · 0 phiên', gỡ viền hộp quanh chế độ Kỷ luật | M2 | Survey E2 |
+| 14 | Tab Focus Session Log | Bổ sung giao diện xem và xóa Session Log từ IndexedDB | M2 | Survey E2 |
+| 15 | Tab Focus Pocket Lock | Dùng createPortal với toast 'Đã bật khóa chống chạm nhầm' và 'Nhấn giữ để mở khóa' | M2 | Survey E2 |
+| 16 | Tab Tasks 3 Chevron Bug Fix | Sửa lỗi hiển thị 3 dấu chevron (^, v, v), làm sạch từng dòng task | M2 | Survey E2 |
+| 17 | Tab Tasks Edit, Confirm & Swipe Delete | Cho phép sửa tiêu đề, sửa số hiệp ước tính, xác nhận/Undo khi xóa việc đã xong, vuốt xóa có Undo snackbar | M2 | Survey E2 |
+| 18 | Tab Tasks Completed Lock & Empty State | Khóa gắn task đã xong vào Focus, tự chuyển bộ lọc khỏi Đã xong khi thêm mới, tối ưu empty state và nút + | M2 | Survey E2 |
+| 19 | Tab Spaces Top Bar De-clutter & Pure Zen | Giảm các thanh top bar chồng chéo, gộp nút Tắt nền Pure Zen Black, tắt sạch Trái Đất 3D trên mọi tab | M2 | Survey E2 |
+| 20 | Tab Spaces Vietnamese Localization | Việt hóa Solid/Image/Video, thêm bộ lọc và thanh chỉnh Blur/Brightness | M2 | Survey E2 |
+| 21 | Tab Mixer Track Mute & Volume Separation | Làm xám slider & % khi track tắt, thêm công tắc từng track, Sentence case, fade mask, tách chuông và nhạc nền | M2 | Survey E2 |
+| 22 | Tab AI Greeting & Badge De-duplication | Gỡ lời chào lặp chồng, gỡ badge ⚡ 50 nạp thêm bị lặp trong tab AI | M3 | Survey E3 |
+| 23 | Tab AI Single Error Bubble & Retry | Lỗi mạng chỉ hiện 1 bong bóng kèm nút 'Thử lại', không nhân đôi tin nhắn người dùng | M3 | Survey E3 |
+| 24 | Tab AI History Drawer & Controls | Drawer lịch sử chat mobile, nút Tạo chat mới, nút Dừng streaming, xác nhận xóa chat | M3 | Survey E3 |
+| 25 | Tab AI Multiline & Legal Disclaimer | Ô nhập nhiều dòng 'Nhắn cho trợ lý...', select-text, overflow-x-auto, bảo toàn Luật 134/2025 | M3 | Survey E3 |
+| 26 | Settings Scroll-Padding & Layout Polish | Thêm pb-28 và scroll-padding-top tránh cắt dropdown/card, hairline 1px, thẻ Tài khoản 2 dòng | M3 | Survey E3 |
+| 27 | Settings Ringtone VN & 36px Stepper | Việt hóa tên chuông, nút stepper 36px kèm bấm trực tiếp vào số, gỡ nút khôi phục giao diện trên mobile | M3 | Survey E3 |
+| 28 | Auth Sheet Header & Keyboard Handling | Gỡ 'Đăng nhập' lặp, placeholder chuẩn, sửa nút email, nút Google 44px, autoscroll bàn phím, giữ input khi chạm backdrop | M3 | Survey E3 |
+| 29 | Topup & MoMo Modal Mobile Fit | AiCreditsTopupModal và MoMoPaymentModal co giãn chuẩn 390px, bảo toàn cam kết hoàn tiền 7 ngày | M3 | Survey E3 |
+| 30 | /download Header Clean-up | Gỡ bỏ hoàn toàn 'Mở bản web →', '50 ⚡', 'Đăng Nhập', 'Thành viên Free' và 8 link điều hướng nội bộ | M4 | Survey E3 |
+| 31 | /download Real APK Size & Text Clean | Cập nhật dung lượng thật 8.70 MB, gỡ chữ 'Liquid Zen' và bỏ ALL CAPS | M4 | Survey E3 |
+| 32 | /download 3D Mockup Update | Cập nhật ảnh/mockup 3D chuẩn V8.1 Monochrome (3 nút thumb, avatar K, 50·K, 0 phiên), đồng nhất màu 3 icon | M4 | Survey E3 |
+| 33 | /download Viewport Fit & Route Audit | Vừa khít 1440x900 không cuộn thừa, cập nhật OpenGraph v8.1, rà soát /, /app, /calendar, /dashboard, /billing, Tablet | M4 | Survey E3 |
+| 34 | Comprehensive Verification | Kiểm thử trực quan đa thiết bị Playwright (Desktop, Tablet, Mobile 390px), npm run type-check, Vitest full suite | M5 | Directive |
+| 35 | APK Rebuild & Vercel Deploy | Build lại APK v8.1 sạch, kiểm tra kích thước thực tế, commit & push git, deploy kiểm chứng 2 domain Vercel | M5 | Directive |
+| 36 | Forensic Integrity Audit | Kiểm toán độc lập qua teamwork_auditor xác thực 100% tính nguyên bản, không hardcode/facade/bypass | M5 | Directive |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Track | Harness, runner, Multi-Device 3-client test scenarios, TEST_INFRA.md, TEST_READY.md | none | IN_PROGRESS |
-| 1 | M1: Room Lifecycle & Host Governance | Canonical roomId Cloud, diệt split-brain & phòng ma, teardown 5 bước, host-only timer | none | PLANNED |
-| 2 | M2: WebRTC & Multi-Device Resiliency | Compound presence key, Web Worker heartbeat, ICE restart, audio-only, XSS sanitize | M1 | PLANNED |
-| 3 | M3: Whiteboard Engine Overhaul | Tọa độ thế giới ảo 16:9, canvas 2 tầng, revokeObjectURL, zone isolation viên nang camera, mobile toolbar | M1 | PLANNED |
-| 4 | M4: Clean Meet UI (TopBar, Dock, Video Grid) | Top bar 3 cụm, dock 38px (5 nút mobile), group timer pill, lưới video kính mờ avatar | M2, M3 | PLANNED |
-| 5 | M5: Final E2E Pass & Adversarial Hardening | Vượt qua 100% E2E tests (Tiers 1-4) và kiểm thử đối kháng Tier 5 | M1, M2, M3, M4, E2E | PLANNED |
+| M1 | Visual Standards, Shell, Header & Bottom Nav | Features 1-9 (Emoji replacement, Sentence case, WCAG, Checkbox, Hover, Cookie Banner, Title, Header 48px, Nav 56px) | none | DONE |
+| M2 | Focus, Tasks, Spaces & Mixer Tabs | Features 10-21 (Interpolation bug, Bottom sheet task picker, 56px controls, stats bar, session log, lock, 3 chevrons, edit/swipe tasks, Earth turn-off, Mixer polish) | M1 | DONE |
+| M3 | AI, Settings, Auth Sheet & Modals | Features 22-29 (AI greeting/error/history/multiline, Settings scroll/stepper/tones, Auth sheet autoscroll/contrast, Topup/MoMo 390px & legal) | M1, M2 | DONE |
+| M4 | /download Page & Web Routes Synchronization | Features 30-33 (/download header/mockup/size, 1440x900 viewport, Desktop/Tablet routes sync) | M1, M2, M3 | DONE |
+| M5 | Comprehensive Verification, APK Build, Deploy & Audit | Features 34-36 (Typecheck, Vitest, Visual QA, APK build, Vercel deploy, Forensic Audit) | M1, M2, M3, M4 | DONE |
 
 ## Interface Contracts
-### studyRoomService ↔ Supabase Cloud (`public.study_rooms`)
-- `resolveCanonicalRoom(idOrSlug: string): Promise<StudyRoom | null>`:
-  - Tra cứu trực tiếp Supabase Cloud theo `id` hoặc `slug`.
-  - Trả về phòng thật, nếu `status === 'closed'` báo lỗi kết thúc, nếu không tìm thấy trả về `null`.
-- `closeRoom(roomId: string, currentUser: any): Promise<void>`:
-  - Cập nhật `status = 'closed'` trên Cloud, phát sóng `ROOM_CLOSED` qua Supabase Realtime channel.
-- `deleteRoom(roomId: string, currentUser: any): Promise<void>`:
-  - Cập nhật `status = 'closed'` và xóa bản ghi, phát sóng `ROOM_DELETED`.
+### Visual & Token Invariants (M1 ↔ All Modules)
+- Colors: Background `#09090b` (OLED black), Card `#121215` / `#18181b` (`zinc-900`), Hairline borders `border-white/[0.06]`.
+- Text: Primary `text-zinc-100`, Secondary `text-zinc-400`, Tertiary `text-zinc-500`. Sentence case across all strings.
+- Icons: Lucide icons only, `strokeWidth={1.5}` or `size={16}`/`size={18}`/`size={20}`. No colored emojis in UI chrome.
+- Buttons: Dark button text must NEVER be black (`#000000`) on dark blue (`#1e3a8a`/`#1d4ed8`). Primary actions use `bg-zinc-100 text-zinc-950 hover:bg-white` or `bg-blue-600 text-white`.
 
-### WebRTCConnectionManager ↔ StudyRoomView
-- `presencePayload`:
-  - `key`: `${userId}::${clientSessionId}`
-  - `deviceType`: `'desktop' | 'mobile'`
-  - `deviceLabel`: `'Máy tính' | 'Điện thoại'`
-- `callbacks.onConnectionStateChange`:
-  - `(peerId: string, state: RTCPeerConnectionState) => void`
-  - Báo cáo trạng thái kết nối lên UI để kích hoạt cảnh báo P2P và chế độ Audio-Only khi cần.
-- `restartAllPeers(): void`:
-  - Kích hoạt `restartIce()` đồng loạt trên tất cả các kết nối P2P đang mở khi thiết bị nhận sự kiện `online`.
-
-### WhiteboardView ↔ Realtime Channel
-- Normalized coordinates:
-  - `x`: `(virtX - originX) / (VIRTUAL_WORLD_WIDTH * worldScale)` trong khoảng $[0, 1]$.
-  - `y`: `(virtY - originY) / (VIRTUAL_WORLD_HEIGHT * worldScale)` trong khoảng $[0, 1]$.
-  - Giữ nguyên tỉ lệ hình học trên mọi màn hình.
+### Z-Index Hierarchy (UI/UX Playbook §1)
+- `z-0` to `z-10`: Canvas background, workspace main view.
+- `z-20` to `z-30`: Bottom Nav dock (`h-14` / `56px`), mobile floating quick action buttons.
+- `z-40`: Bottom Sheet drawers (Task picker, AI history drawer), CookieConsentBanner (`bottom-16` / `64px`).
+- `z-50`: Top Header (`h-12` / `48px`), full modals, Auth Bottom Sheet, Toast notifications.
+- `z-[60]` / `portal`: Pocket Lock full-screen anti-touch cover.
 
 ## Code Layout
-- `src/services/studyRoomService.ts` — Room lifecycle, permissions, Supabase sync (M1 owns)
-- `api/rooms.ts` — Serverless room API with valid host_user_id & Cloud schema (M1 owns)
-- `src/lib/supabase.ts` — RealtimeChannel state property (M2 owns)
-- `src/services/WebRTCConnectionManager.ts` — Full-mesh signaling, ICE restart, Polite peer (M2 owns)
-- `src/components/WhiteboardView.tsx` — Dual-layer canvas, world coordinates, OOM limits (M3 owns)
-- `src/types/whiteboard.ts` — Whiteboard coordinate types (M3 owns)
-- `src/components/StudyRoomView.tsx` — Meet layout, topbar 3 clusters, 38px dock, timer pill, video grid (M4 owns)
-- `tests/e2e/multiDeviceStudyRoom.spec.ts` — 3-client Multi-Device E2E tests (E2E Track owns)
+- `src/components/MobileAppShell.tsx`: Core mobile shell, Top Header, Bottom Nav, Tab routing, Tasks mobile view, Spaces mobile view, AI mobile view.
+- `src/components/MobileFocusView.tsx`: Tab Focus mobile clock, phase pills, task picker, control buttons, session log, pocket lock.
+- `src/components/TimerWidget.tsx`: Desktop timer view, phase controls, cycle counters.
+- `src/components/TasksWidget.tsx`: Desktop tasks manager, filtering, task item editing.
+- `src/components/SpacesWidget.tsx`: Spaces visual background selector, Earth 3D controls, Blur/Brightness sliders.
+- `src/components/AudioMixerWidget.tsx`: Background sounds and ambient noise controls, volume ducking, track toggles.
+- `src/components/AiCompanionWidget.tsx`: AI Assistant view, chat messages, streaming, legal compliance note.
+- `src/components/SettingsWidget.tsx`: Settings panel, ringtone selection, timer durations, sound volume.
+- `src/components/AuthModal.tsx`: Authentication Bottom Sheet & dialog, Google login, magic link.
+- `src/components/CookieConsentBanner.tsx`: Legal cookie consent banner (Law 134/2025 compliant).
+- `src/components/LegalViews.tsx`: Privacy policy, terms of service, AI disclosures.
+- `src/components/AiCreditsTopupModal.tsx` & `src/components/MoMoPaymentModal.tsx`: Billing and credit recharge.
+- `src/pages/DownloadPage.tsx`: Standalone APK download landing page.
+- `src/pages/LandingPage.tsx`, `CalendarPage.tsx`, `DashboardPage.tsx`, `BillingPage.tsx`: Supporting web routes.

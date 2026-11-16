@@ -341,7 +341,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         <div className="text-center mb-6 flex flex-col items-center">
           <PomoFocusLogo size={42} showWordmark={true} showSubtitle={false} wordmarkClassName="text-xl font-bold" className="mb-2" />
           <h1 className="text-xl font-bold tracking-tight text-white">
-            {mode === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản Mới'}
+            {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản mới'}
           </h1>
         </div>
 
@@ -434,7 +434,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 type="submit"
                 data-testid="btn-submit-2fa-login"
                 disabled={isVerifying2Fa || !totpCode.trim()}
-                className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-500/20 active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-1"
+                className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-1"
               >
                 {isVerifying2Fa ? (
                   <>
@@ -444,7 +444,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 ) : (
                   <>
                     <ShieldCheck size={15} />
-                    <span>Xác Nhận & Đăng Nhập</span>
+                    <span>Xác nhận và đăng nhập</span>
                   </>
                 )}
               </button>
@@ -459,7 +459,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 }}
                 className="w-full py-2 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
               >
-                Hủy & Đổi Tài Khoản Khác
+                Hủy và đổi tài khoản khác
               </button>
             </form>
           </div>
@@ -529,7 +529,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Đăng Nhập
+                Đăng nhập
               </button>
               <button
                 type="button"
@@ -543,7 +543,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Tạo Tài Khoản Mới
+                Tạo tài khoản mới
               </button>
             </div>
 
@@ -625,13 +625,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 type="submit"
                 data-testid="btn-auth-submit"
                 disabled={isLoading || isGoogleLoading || isGoogleLoadingLocal}
-                className="mt-1.5 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs tracking-wide transition-all shadow-lg shadow-emerald-500/20 active:scale-98 disabled:opacity-50 cursor-pointer"
+                className="mt-1.5 w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {isLoading
                   ? 'Đang xử lý...'
                   : mode === 'login'
-                  ? 'Đăng Nhập'
-                  : 'Tạo Tài Khoản Mới'}
+                  ? 'Đăng nhập'
+                  : 'Tạo tài khoản mới'}
               </button>
             </form>
           </>
@@ -640,7 +640,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         {user && (
           <div className="mt-3.5 text-center">
             <span className="text-[11px] text-neutral-400">
-              Đang đăng nhập: <strong className="text-white">{user.displayName}</strong> ({user.plan.toUpperCase()})
+              Đang đăng nhập: <strong className="text-white">{user.displayName}</strong> ({user.plan})
             </span>
           </div>
         )}

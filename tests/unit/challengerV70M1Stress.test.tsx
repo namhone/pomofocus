@@ -405,7 +405,7 @@ describe('Challenger 2 — Milestone 1 Empirical Stress & Adversarial Suite', ()
         expect(thumb).not.toBeNull();
         if (i % 2 === 1) {
           expect(thumb!.className).toContain('translate-x-5');
-          expect(switchBtn.className).toContain('from-emerald-500');
+          expect(switchBtn.className).toContain('bg-white');
         } else {
           expect(thumb!.className).toContain('translate-x-0');
           expect(switchBtn.className).toContain('bg-zinc-800');

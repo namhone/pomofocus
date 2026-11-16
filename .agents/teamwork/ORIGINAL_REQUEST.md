@@ -56,3 +56,46 @@ Không phỏng vấn hỏi lại. Áp dụng triệt để `/karpathy-guidelines
 - Bộ kiểm thử hiện tại: 131/131 files unit tests pass (1900/1900 tests), 219/219 Playwright tests `v81E2EHubAndMeet.spec.ts` pass.
 - Testbed Vite LAN: đang chạy trên `http://0.0.0.0:5173`.
 - Báo cáo kiểm toán: `master_audit_v81_completion_report.md`.
+
+## Follow-up — 2026-11-15T23:38:31Z
+
+MỤC TIÊU ĐỢT 4: ĐỒNG BỘ THẨM MỸ MONOCHROME 90-10, TINH CHỈNH UI/COPY VÀ NGHIỆM THU TOÀN DIỆN
+
+Không phỏng vấn hỏi lại. Đối chiếu trực tiếp toàn bộ UI trên Web Desktop, Mobile Web và APK theo chuẩn Monochrome 90-10 (`#09090b` OLED black, trắng/zinc, đường chia mảnh `white/[0.06]`, không đóng hộp thừa). Tuyệt đối giữ nguyên nội dung pháp lý `vn-law-check` đã thêm ở `CookieConsentBanner.tsx`, `LegalViews.tsx`, `AiCompanionWidget.tsx` và `MoMoPaymentModal.tsx`, chỉ tinh chỉnh lại vị trí và sắc độ cho đồng bộ.
+
+1. Quy chuẩn Thị giác, Tương tác & Bảo toàn Pháp lý:
+   - Thay thế toàn bộ emoji màu (`🍅`, `💡`, `⚡` cam) bằng icon Lucide nét mảnh `1.5px` đồng nhất sắc độ.
+   - Chuyển toàn bộ text giao diện sang Sentence Case (tuyệt đối bỏ ALL CAPS ở label, nút, badge).
+   - Sửa triệt để lỗi tương phản WCAG chữ đen trên nền xanh đậm ở các nút chính; kiểm tra checkbox ở `SettingsWidget.tsx` (không để gradient xanh lá gắt lạc tông khỏi Monochrome 90-10); bọc `@media (hover: hover)` để triệt tiêu lỗi dính trạng thái hover trên cảm ứng mobile.
+   - Tinh chỉnh vị trí `CookieConsentBanner.tsx` trên Mobile để không che khuất Bottom Nav `56px` hoặc nút điều khiển chính; sắp xếp Z-index chuẩn giữa Cookie Banner, Toast, Pocket Lock và Auth Bottom Sheet; chuẩn hóa `document.title` cho từng trang.
+
+2. Shell, Header & Bottom Nav:
+   - Header gọn `48px`: gỡ bỏ badge `LIQUID ZEN` và chấm vàng bị kẹt, chỉ giữ `[ Logo + PomoFocus ]` bên trái và `[ 50 · K ]` bên phải; ẩn nút `PiP` khi chạy trong APK.
+   - Bottom Nav `56px`: bỏ quầng sáng xanh neon gây chói, chỉ dùng icon trắng + chấm `3px` báo tab đang chọn và chấm báo âm thanh đang phát; đảm bảo trên Mobile có lối vào rõ ràng tới Meet (`/rooms`), Notes, Lịch/Thống kê và trang Nạp Credit/Billing.
+
+3. Tab Focus, Tasks, Spaces & Mixer:
+   - Tab Focus: Sửa lỗi nội suy chuỗi `Hiệp $1/$4` thành `Hiệp 1/4`; cân bằng độ rộng 3 nút chuyển chế độ phiên; đổi placeholder thành `"Chọn mục tiêu phiên này..."`; gỡ viền hộp quanh chế độ `Kỷ luật`.
+   - Bộ chọn task trong Focus mở dạng Bottom Sheet (không bao giờ che mất đồng hồ `25:00`); nút Play chính `56px`, hai nút phụ `40px`, nút Reset `↺` có vòng tròn nhấn giữ `1.5s`; thanh thống kê đáy dùng font sans-serif một dòng mảnh `0g 0p · 0 phiên`; thêm xem/xóa Session Log; Pocket Lock dùng `createPortal` với thông báo `"Đã bật khóa chống chạm nhầm"` và `"Nhấn giữ để mở khóa"`.
+   - Tab Tasks: Sửa lỗi hiển thị 3 dấu chevron (`^`, `v`, `v`), làm sạch từng dòng task; bổ sung sửa tiêu đề, sửa số hiệp ước tính, xác nhận/Undo khi xóa toàn bộ việc đã xong, vuốt xóa có Undo Snackbar; khóa nút gắn vào Focus với task đã hoàn thành; tự chuyển bộ lọc khỏi `Đã xong` khi thêm task mới; tối ưu empty state theo ngữ cảnh, placeholder `"Việc cần làm..."` và sửa tương phản nút `+`.
+   - Tab Spaces & Mixer: Giảm số thanh top bar chồng chéo; gộp nút `Tắt nền (Pure Zen Black)` bị trùng và đảm bảo tắt sạch nền Trái Đất đồng bộ qua mọi tab; Việt hóa `Solid`/`Image`/`Video`, thêm bộ lọc và thanh chỉnh Blur/Brightness. Trong Mixer, khi track tắt phải làm xám cả thanh trượt lẫn `%`, thêm công tắc bật/tắt từng track, dùng Sentence Case cho các pill, thêm fade mask cho `Sóng não (`, thanh trượt mảnh `3px` và phân biệt rõ `"Âm lượng chuông"` với `"Âm lượng nhạc nền"`.
+
+4. Tab AI, Settings, Auth & Topup Modal:
+   - Tab AI: Gỡ lời chào lặp chồng, gỡ badge `⚡ 50 (Nạp thêm)` bị lặp; khi lỗi mạng chỉ hiện một bong bóng lỗi kèm nút `Thử lại` (không nhân đôi tin nhắn người dùng); bổ sung Drawer lịch sử chat, nút Tạo chat mới, nút Dừng streaming, xác nhận xóa (ẩn/vô hiệu hóa khi rỗng); ô nhập nhiều dòng `"Nhắn cho trợ lý..."`; bật `select-text` để copy và `overflow-x-auto` cho bảng/KaTeX; bỏ `💡` và chip `"ôn thi đại học"`; sửa tương phản nút Gửi và giữ nguyên nhãn `Nội dung do AI tạo (Luật 134/2025)` theo tông Monochrome tinh gọn.
+   - Settings, Auth & Topup: Thêm `pb-28` và `scroll-padding-top` để không bị cắt dropdown `Twinkle` hay lòi viền card phía trên; Việt hóa tên chuông; nút cộng/trừ stepper `36px` kèm bấm trực tiếp vào số để nhập tay; gỡ nút `"Khôi phục giao diện ban đầu"` trên Mobile; gom nhóm bằng hairline `1px` và gọn thẻ Tài khoản thành 2 dòng.
+   - Auth Sheet: Gỡ tiêu đề `"Đăng nhập"` bị lặp, đổi placeholder `"Nhập email của bạn"`, `"hoặc dùng email"`, sửa chữ đen trên nền xanh đậm ở nút `"Nhận mã đăng nhập qua email"`, nút Google `44px` dịu mắt hơn, tự cuộn khi mở bàn phím và giữ nguyên nội dung đang gõ nếu lỡ chạm backdrop; đảm bảo `AiCreditsTopupModal` và `MoMoPaymentModal` (kèm dòng cam kết hoàn tiền 7 ngày) hiển thị vừa vặn ở chiều ngang `390px`.
+
+5. Trang `/download` & Các Route Web khác:
+   - Header trang `/download`: Gỡ bỏ hoàn toàn `Mở bản web →`, `50 ⚡`, `Đăng Nhập`, `Thành viên Free` và 8 link điều hướng web nội bộ.
+   - Cập nhật dung lượng thật của bản APK vừa build ở Đợt 3, gỡ chữ `Liquid Zen` và các chữ ALL CAPS, cập nhật ảnh/mô hình 3D mockup sang đúng giao diện V8.1 Monochrome mới (có đủ 3 nút điều khiển và avatar `K`), đồng nhất màu sắc 3 icon tính năng, căn chỉnh vừa khít 100% trong khung `1440x900` không cần cuộn thừa, và kiểm tra lại thẻ OpenGraph.
+   - Rà soát đồng bộ luôn `/`, `/app` Desktop, `/calendar`, `/dashboard`, `/billing` và breakpoint Tablet.
+
+6. Nghiệm thu & Deploy toàn diện:
+   - Chạy kiểm tra trực quan đa thiết bị bằng Playwright (Desktop, Tablet, Mobile 390px), chạy `npm run type-check`, chạy toàn bộ Vitest suite, kiểm tra `git status` dọn sạch file tạm/rác.
+   - Build lại APK cuối cùng (`npm run build:apk`), cài thử qua `adb install -r` nếu có máy kết nối, commit & push Git, và deploy kiểm chứng trên cả hai domain Vercel (`pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`).
+
+---
+### THÔNG TIN TIỀN ĐỀ TỪ ĐỢT 3 VỪA HOÀN TẤT:
+- Bản phát hành APK hiện tại: `public/downloads/PomoFocus-v8.1.apk` (8.70 MB, SHA-256: `466f8f73bafc2cac7fd2d63177a13ffae250ea6a4243385a19b8ddbff053d853`, version `8.1.0`).
+- Cấu hình Vercel hiện tại: Đã hỗ trợ cả hai domain, cấu hình No-Cache cho APK & manifest.
+- Báo cáo Đợt 3: `audit_v81_dot3_completion_report.md`.
+- Toàn bộ 135/135 test suites pass, 0 type errors. Commit gần nhất: `53a1449`.

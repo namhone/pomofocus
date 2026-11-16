@@ -166,13 +166,18 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       deletedAt: null
     };
 
-    await db.tasks.add(newTask);
+    try {
+      await db.tasks.add(newTask);
+    } catch {
+      // In-memory fallback if IndexedDB is unavailable
+    }
     const userId = useAuthStore.getState().user?.id;
     if (userId) {
       TaskCloudService.upsertTask(newTask, userId).catch((err) => console.warn('Lỗi lưu Task lên Cloud:', err));
     }
     set((state) => ({
-      tasks: [newTask, ...state.tasks]
+      tasks: [newTask, ...state.tasks],
+      statusFilter: state.statusFilter === 'completed' ? 'all' : state.statusFilter
     }));
     return newTask;
   },

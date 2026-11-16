@@ -112,11 +112,13 @@ export const ROUTE_STATIC_TITLES: Record<string, string> = {
   '/terms': 'Điều Khoản Dịch Vụ | PomoFocus',
   '/privacy': 'Chính Sách Bảo Mật | PomoFocus',
   '/about': 'Giới Thiệu | PomoFocus',
-  '/download': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
-  '/downloads': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
-  '/apk': 'Tải PomoFocus v8.0 APK Android | Không Gian Tập Trung',
+  '/app': 'PomoFocus — Không Gian Làm Việc Tập Trung',
+  '/download': 'Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung',
+  '/downloads': 'Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung',
+  '/apk': 'Tải PomoFocus v8.1 APK Android | Không Gian Tập Trung',
   '/': 'PomoFocus — Không Gian Học Tập Tập Trung',
-  '/landing': 'PomoFocus — Không Gian Học Tập Tập Trung'
+  '/landing': 'PomoFocus — Không Gian Học Tập Tập Trung',
+  '': 'PomoFocus — Không Gian Học Tập Tập Trung'
 };
 
 export function getStaticRouteTitle(pathname: string): string {
@@ -127,7 +129,7 @@ export function getStaticRouteTitle(pathname: string): string {
   if (clean.startsWith('/rooms/') || clean.startsWith('/room/')) {
     return 'Phòng Học Trực Tuyến | PomoFocus';
   }
-  return 'PomoFocus — Không Gian Học Tập Tập Trung';
+  return 'Không Tìm Thấy Trang (404) | PomoFocus';
 }
 
 export function updateDocumentTitle(

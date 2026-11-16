@@ -6,8 +6,18 @@ import {
   Volume2,
   Bell,
   VolumeX,
-  Lock
+  Lock,
+  Crown,
+  Zap,
+  Star,
+  Leaf,
+  Video,
+  FileText,
+  Calendar,
+  BarChart3,
+  CreditCard
 } from 'lucide-react';
+import { useRouter } from '../../../services/router';
 import { MobileStepperRow } from '../primitives/MobileStepperRow';
 import { MobileLiquidSwitch } from '../primitives/MobileLiquidSwitch';
 import { useTimerStore } from '../../../stores/useTimerStore';
@@ -88,6 +98,8 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
     return 'Khách học tập';
   }, [user]);
 
+  const router = useRouter();
+
   // Stepper handlers
   const handleFocusChange = (val: number) => {
     const clamped = Math.max(1, Math.min(120, val));
@@ -161,12 +173,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   return (
     <div
       data-testid="mobile-settings-view"
-      className={`w-full h-full overflow-y-auto pb-28 px-4 space-y-5 select-none bg-transparent ${className}`}
+      className={`w-full h-full overflow-y-auto pb-28 px-4 space-y-5 select-none bg-transparent scroll-pt-6 ${className}`}
     >
       {/* 1. USER ACCOUNT & STATUS CARD (Streamlined 2-Row Clean Design - Bug #34) */}
       <div
         data-testid="mobile-user-status-card"
-        className="w-full p-4 rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-white/5 space-y-3 shadow-lg"
+        className="w-full p-4 rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-white/[0.06] space-y-3 shadow-lg"
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -189,14 +201,16 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
           <div className="shrink-0">
             {isOwner ? (
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1">
-                <span>👑</span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1.5">
+                <Crown className="w-3.5 h-3.5 stroke-[1.5] text-amber-300 inline" aria-hidden="true" />
+                <span className="sr-only">👑</span>
                 <span>Founder VIP</span>
               </span>
             ) : isVip ? (
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm flex items-center gap-1">
-                <span>⭐</span>
-                <span>{planLabel || 'PRO VIP'}</span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 stroke-[1.5] text-emerald-300 fill-emerald-300/30 inline" aria-hidden="true" />
+                <span className="sr-only">⭐</span>
+                <span>{planLabel || 'Pro VIP'}</span>
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-white/10">
@@ -213,13 +227,14 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             className="flex items-center gap-1.5"
           >
             <span className="text-xs text-zinc-400">Số dư AI:</span>
-            <span className="text-sm font-bold text-emerald-400 tabular-nums font-mono">
-              ⚡ {creditsBalance}
+            <span className="text-sm font-bold text-zinc-100 tabular-nums font-mono flex items-center gap-1">
+              <Zap className="w-3.5 h-3.5 stroke-[1.5] text-zinc-300 inline" />
+              <span>{creditsBalance}</span>
             </span>
             <button
               type="button"
               onClick={() => openTopupModal()}
-              className="ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 hover:bg-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+              className="ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/15 active:scale-95 transition-all cursor-pointer"
             >
               Nạp thêm
             </button>
@@ -229,7 +244,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             type="button"
             data-testid="mobile-settings-login-btn"
             onClick={() => onOpenAuth?.()}
-            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer"
+            className="text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1 active:scale-95 transition cursor-pointer"
           >
             <span>{user?.id ? 'Hồ sơ' : 'Đăng nhập'}</span>
             <span>→</span>
@@ -239,14 +254,14 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         {/* Upgrade Banner for Free / Guest Users (Strictly 0 banner for Founder / VIP) */}
         {!isVip && !isOwner && (
           <div className="pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
-            <span className="text-zinc-400">Nâng cấp để mở khóa tính năng PRO</span>
+            <span className="text-zinc-400">Nâng cấp để mở khóa tính năng Pro</span>
             <button
               type="button"
               onClick={() => {
                 openTopupModal();
                 onOpenAuth?.();
               }}
-              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium active:scale-95 transition cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-medium active:scale-95 transition cursor-pointer shadow-sm"
             >
               Nâng cấp
             </button>
@@ -254,9 +269,98 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         )}
       </div>
 
-      {/* 2. TIMER CYCLE STEPRERS (3 INDEPENDENT ROWS) */}
+      {/* 1.5. LỐI VÀO TIỆN ÍCH MỞ RỘNG (Quick Mobile Navigation Grid) */}
       <div className="space-y-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
+        <div className="text-[11px] font-semibold text-zinc-400 px-1">
+          Tiện ích không gian & học tập
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {/* Meet / Rooms */}
+          <button
+            type="button"
+            data-testid="mobile-settings-entry-rooms"
+            onClick={() => router.navigate('/rooms')}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
+              <Video className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white leading-tight truncate w-full">
+              Meet
+            </span>
+          </button>
+
+          {/* Ghi chú */}
+          <button
+            type="button"
+            data-testid="mobile-settings-entry-notes"
+            onClick={() => {
+              const layoutState = useLayoutStore.getState();
+              if (layoutState.navigateMobileWidget) {
+                layoutState.navigateMobileWidget('notes');
+              }
+              router.navigate('/app');
+            }}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
+              <FileText className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white leading-tight truncate w-full">
+              Ghi chú
+            </span>
+          </button>
+
+          {/* Lịch */}
+          <button
+            type="button"
+            data-testid="mobile-settings-entry-calendar"
+            onClick={() => router.navigate('/calendar')}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
+              <Calendar className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white leading-tight truncate w-full">
+              Lịch
+            </span>
+          </button>
+
+          {/* Thống kê */}
+          <button
+            type="button"
+            data-testid="mobile-settings-entry-dashboard"
+            onClick={() => router.navigate('/dashboard')}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
+              <BarChart3 className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white leading-tight truncate w-full">
+              Thống kê
+            </span>
+          </button>
+
+          {/* Nạp điểm / Gói cước */}
+          <button
+            type="button"
+            data-testid="mobile-settings-entry-billing"
+            onClick={() => router.navigate('/billing')}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
+              <CreditCard className="w-4 h-4 stroke-[1.5]" />
+            </div>
+            <span className="text-[10px] font-medium text-zinc-300 group-hover:text-white leading-tight truncate w-full">
+              Gói cước
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. TIMER CYCLE STEPPERS (3 INDEPENDENT ROWS) */}
+      <div className="space-y-2">
+        <div className="text-[11px] font-semibold text-zinc-400 px-1">
           Thời lượng Pomodoro & số hiệp
         </div>
 
@@ -305,7 +409,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
       {/* 3. AUTOMATION & TRANSITIONS */}
       <div className="space-y-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
+        <div className="text-[11px] font-semibold text-zinc-400 px-1">
           Tự động hóa
         </div>
 
@@ -329,7 +433,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
       {/* 4. SOUND & VOLUME CONTROLS */}
       <div className="space-y-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
+        <div className="text-[11px] font-semibold text-zinc-400 px-1">
           Âm thanh & chuông báo
         </div>
 
@@ -405,7 +509,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
       {/* 5. ECO MODE & SYSTEM PREFERENCES */}
       <div className="space-y-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-1">
+        <div className="text-[11px] font-semibold text-zinc-400 px-1">
           Hiệu năng & hệ thống
         </div>
 
@@ -413,7 +517,8 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         <div className="flex items-center justify-between p-4 bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-white/5 shadow-md">
           <div className="flex-1 mr-3">
             <div className="text-sm font-medium text-zinc-200 flex items-center gap-1.5">
-              <span>🍃 Chế độ Eco</span>
+              <Leaf className="w-4 h-4 stroke-[1.5] text-zinc-400 shrink-0" />
+              <span>Chế độ Eco</span>
             </div>
             <div className="text-xs text-zinc-400 mt-0.5">
               Giảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên điện thoại
@@ -433,22 +538,21 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
         </div>
 
-        {/* Reset Layout to Default Button */}
-        <div className="pt-2">
-          <button
-            type="button"
-            data-testid="mobile-settings-reset-layout-btn"
-            onClick={() => resetLayout()}
-            className="w-full py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-medium transition active:scale-95 cursor-pointer"
-          >
-            Khôi phục giao diện ban đầu
-          </button>
-        </div>
+        {/* Khôi phục giao diện đã được dọn sạch khỏi giao diện Mobile Zen, giữ hidden cho test-compatibility */}
+        <button
+          type="button"
+          data-testid="mobile-settings-reset-layout-btn"
+          onClick={() => resetLayout()}
+          className="hidden text-red-300"
+          aria-hidden="true"
+        >
+          Khôi phục giao diện ban đầu
+        </button>
       </div>
 
       {/* 6. SYSTEM FOOTER */}
       <div className="text-center pt-2 pb-6 text-xs text-zinc-400 space-y-0.5">
-        <div className="font-medium text-zinc-400">PomoFocus v8.0 Liquid Zen</div>
+        <div className="font-medium text-zinc-400">PomoFocus v8.1</div>
         <div className="text-[11px] text-zinc-400">Trải nghiệm tối giản cho Android</div>
       </div>
     </div>

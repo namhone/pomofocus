@@ -65,9 +65,16 @@ export const BackgroundCanvas: React.FC = () => {
       if (document.hidden || useStaticFallback) {
         video.pause();
       } else {
-        void video.play().catch(() => {
-          setError(true, 'Không thể phát video nền, tự động chuyển sang nền tĩnh dự phòng');
-        });
+        try {
+          const playPromise = video.play?.();
+          if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(() => {
+              setError(true, 'Không thể phát video nền, tự động chuyển sang nền tĩnh dự phòng');
+            });
+          }
+        } catch {
+          // Ignore sync play errors in environments without media playback
+        }
       }
     };
 
@@ -84,14 +91,15 @@ export const BackgroundCanvas: React.FC = () => {
     transition: 'filter 0.3s ease, transform 0.3s ease'
   };
 
-  const isSolid = preset.category === 'solid' || preset.url?.startsWith('#') || preset.id?.startsWith('zen-');
-  const isVideo = !isSolid && preset.category === 'video' && !useStaticFallback && !hasError && !isEcoMode;
+  const isPureBlack = activePresetId === 'pure-black';
+  const isSolid = isPureBlack || preset.category === 'solid' || preset.url?.startsWith('#') || preset.id?.startsWith('zen-');
+  const isVideo = !isPureBlack && !isSolid && preset.category === 'video' && !useStaticFallback && !hasError && !isEcoMode;
 
   // Xác định nguồn ảnh tĩnh:
   // 1. Nếu preset là ảnh: nạp preset.url (nếu có lỗi nạp fallbackUrl nếu là ảnh)
   // 2. Nếu preset là video: luôn cung cấp fallbackUrl làm ảnh nền móng và poster trước khi video sẵn sàng
   let imageSrc: string | null = null;
-  if (isSolid) {
+  if (isPureBlack || isSolid) {
     imageSrc = null;
   } else if (preset.category === 'image') {
     if (!hasError) {
@@ -121,7 +129,9 @@ export const BackgroundCanvas: React.FC = () => {
 
   // Luôn đảm bảo gradient/solid CSS hợp lệ (tránh gán URL ảnh vào background shorthand)
   const validGradient =
-    isSolid
+    isPureBlack
+      ? '#09090b'
+      : isSolid
       ? preset.url
       : preset.fallbackUrl?.startsWith('linear-gradient') || preset.fallbackUrl?.startsWith('radial-gradient')
       ? preset.fallbackUrl

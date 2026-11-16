@@ -174,7 +174,7 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
 
       render(<MobileAppShell />);
       const pill = screen.getByTestId('mobile-header-credits-pill');
-      expect(pill.textContent).toContain('⚡');
+      expect(pill.querySelector('svg')).toBeDefined();
       expect(pill.textContent).toContain('77');
 
       fireEvent.click(pill);

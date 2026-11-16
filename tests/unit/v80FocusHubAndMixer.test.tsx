@@ -298,7 +298,7 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
 
       await waitFor(() => {
         expect(screen.getByTestId('mobile-daily-flow-summary').textContent).toContain(
-          'Hôm nay: 1g 15ph • 3 🍅 hoàn thành'
+          '1g 15p · 3 phiên'
         );
       });
 
@@ -386,8 +386,8 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
 
       expect(root.className).toMatch(/overflow-(?:x-)?hidden/);
       expect(timer.className).toContain('drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)]');
-      expect(mainBtn.className).toContain('w-16');
-      expect(mainBtn.className).toContain('h-16');
+      expect(mainBtn.className).toContain('w-14');
+      expect(mainBtn.className).toContain('h-14');
       expect(mainBtn.className).toContain('rounded-full');
     });
 
