@@ -122,8 +122,8 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
   {
     id: 'yearly',
     name: 'Gói Năm',
-    tagline: 'Gói Khuyên Dùng 🔥',
-    badge: 'GÓI PHỔ BIẾN NHẤT',
+    tagline: 'Gói khuyên dùng',
+    badge: 'Gói phổ biến nhất',
     price: '39.000 VNĐ',
     period: '/ tháng',
     subPrice: 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm ~34%)',
@@ -144,8 +144,8 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
   {
     id: 'lifetime',
     name: 'Gói Trọn Đời',
-    tagline: 'Lifetime Founder VIP 👑',
-    badge: 'FOUNDER VIP',
+    tagline: 'Lifetime Founder VIP',
+    badge: 'Founder VIP',
     price: '799.000 VNĐ',
     period: '/ một lần duy nhất',
     subPrice: 'Sở hữu vĩnh viễn trọn đời • Không gia hạn',

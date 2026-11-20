@@ -6,6 +6,7 @@ import {
   UserProfile,
   ProfileUpdates,
   UserDataExport,
+  isAdmin,
   hasProEntitlement,
   hasVipAccess,
   isOwnerEmail,
@@ -38,6 +39,7 @@ export interface AuthState {
   syncStats: { tasks: number; notes: number; sessions: number } | null;
 
   // Plan getters
+  isAdmin: boolean;
   isPro: boolean;
   isLifetime: boolean;
   isBetaPro: boolean;
@@ -46,9 +48,11 @@ export interface AuthState {
   isVipFriend: boolean;
   hasVipAccess: boolean;
   planLabel: string;
+  effectiveBadge: string;
 
   // Real 2FA Security Gate State
   requires2Fa: boolean;
+  is2faPending?: boolean;
   pending2FaUser: UserProfile | null;
   verify2FaLogin: (code: string) => Promise<{ success: boolean; message?: string }>;
   cancel2FaLogin: () => void;
@@ -89,24 +93,59 @@ export interface AuthState {
 
 const initialSession = authService.getCurrentSession();
 
-export const computeDerivedPlanState = (user: UserProfile | null) => ({
-  isPro: hasProEntitlement(user?.plan, user?.email) || hasVipAccess(user),
-  hasVipAccess: hasVipAccess(user),
-  isLifetime: Boolean(
+export const computeDerivedPlanState = (user: UserProfile | null) => {
+  const adminAccess = Boolean(
+    user && (
+      isAdmin(user) ||
+      user.role === 'admin' ||
+      user.role === 'founder' ||
+      (user as any)?.app_metadata?.role === 'admin' ||
+      (user as any)?.app_metadata?.role === 'founder' ||
+      (user as any)?.user_metadata?.role === 'admin'
+    )
+  );
+  const isOwner = Boolean(
+    user && (
+      adminAccess ||
+      (user.email && isOwnerEmail(user.email)) ||
+      user.role === 'founder' ||
+      user.badge?.includes('Founder') ||
+      user.credits === Infinity
+    )
+  );
+  const isLifetime = Boolean(
+    isOwner ||
     user?.isLifetime ||
     user?.plan === 'lifetime' ||
-    user?.plan === 'pro_lifetime' ||
-    user?.role === 'founder' ||
-    isOwnerEmail(user?.email) ||
-    isLadyBoss(user?.email) ||
-    isVipFriend(user?.email)
-  ),
-  isBetaPro: user?.plan === 'pro_beta',
-  isOwner: isOwnerEmail(user?.email),
-  isLadyBoss: isLadyBoss(user?.email),
-  isVipFriend: isVipFriend(user?.email),
-  planLabel: getPlanLabel(user)
-});
+    user?.plan === 'pro_lifetime'
+  );
+  const isPro = Boolean(
+    isLifetime ||
+    hasProEntitlement(user?.plan, user?.email) ||
+    hasVipAccess(user)
+  );
+
+  const effectiveBadge = isOwner
+    ? 'Founder VIP'
+    : isLifetime
+    ? 'Pro trọn đời'
+    : isPro
+    ? 'Pro hội viên'
+    : 'Free';
+
+  return {
+    isAdmin: adminAccess,
+    isPro,
+    hasVipAccess: isOwner || hasVipAccess(user),
+    isLifetime,
+    isBetaPro: user?.plan === 'pro_beta',
+    isOwner,
+    isLadyBoss: Boolean(user?.email && isLadyBoss(user.email)),
+    isVipFriend: Boolean(user?.email && isVipFriend(user.email)),
+    planLabel: getPlanLabel(user),
+    effectiveBadge
+  };
+};
 
 export const useAuthStore = create<AuthState>((set, get) => {
 
@@ -123,6 +162,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     lastSyncedAt: null,
     syncStats: null,
     requires2Fa: false,
+    is2faPending: false,
     pending2FaUser: null,
     ...computeDerivedPlanState(initialSession),
 
@@ -135,6 +175,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           isAuthenticated: true,
           isLoggedIn: true,
           requires2Fa: false,
+          is2faPending: false,
           pending2FaUser: null,
           isLoading: false,
           error: null,
@@ -144,12 +185,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
         get().loadUserFromCloud(user.id);
         get().syncEntitlementsFromCloud();
         TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
-        TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
         return true;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && (err as any).requires2Fa) {
           set({
             requires2Fa: true,
+            is2faPending: true,
             pending2FaUser: (err as any).pendingUser,
             isLoading: false,
             error: null
@@ -175,6 +216,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
           lastSyncedAt: Date.now(),
           ...computeDerivedPlanState(user)
         });
+        get().loadUserFromCloud(user.id);
+        get().syncEntitlementsFromCloud();
+        TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
         return true;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Đăng ký không thành công';
@@ -213,6 +257,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           isAuthenticated: true,
           isLoggedIn: true,
           requires2Fa: false,
+          is2faPending: false,
           pending2FaUser: null,
           isGoogleLoading: false,
           error: null,
@@ -221,11 +266,13 @@ export const useAuthStore = create<AuthState>((set, get) => {
         });
         get().loadUserFromCloud(user.id);
         get().syncEntitlementsFromCloud();
+        TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
         return true;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && (err as any).requires2Fa) {
           set({
             requires2Fa: true,
+            is2faPending: true,
             pending2FaUser: (err as any).pendingUser,
             isGoogleLoading: false,
             error: null
@@ -258,12 +305,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(pending2FaUser));
       }
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        sessionStorage.setItem('pomodoro_2fa_verified_' + pending2FaUser.id, 'true');
+      }
 
       set({
         user: pending2FaUser,
         isAuthenticated: true,
         isLoggedIn: true,
         requires2Fa: false,
+        is2faPending: false,
         pending2FaUser: null,
         error: null,
         role: pending2FaUser.role,
@@ -272,15 +323,21 @@ export const useAuthStore = create<AuthState>((set, get) => {
         ...computeDerivedPlanState(pending2FaUser)
       });
 
+      // Hợp nhất dữ liệu khách và nạp lại dữ liệu
+      await TaskCloudService.mergeGuestDataOnLogin(pending2FaUser.id);
       get().loadUserFromCloud(pending2FaUser.id);
       get().syncEntitlementsFromCloud();
+      import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+      import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
 
       return { success: true };
     },
 
     cancel2FaLogin: () => {
+      supabase.auth.signOut().catch(() => {});
       set({
         requires2Fa: false,
+        is2faPending: false,
         pending2FaUser: null,
         error: null
       });
@@ -397,6 +454,39 @@ export const useAuthStore = create<AuthState>((set, get) => {
         }
       }
 
+      // 2FA Gate (BUG-27): Kiểm tra trạng thái xác thực 2 bước trước khi mở khóa phiên
+      const isAlready2FaVerified = typeof window !== 'undefined' &&
+        window.sessionStorage &&
+        (sessionStorage.getItem('pomodoro_2fa_verified_' + userId) === 'true' ||
+         sessionStorage.getItem('pomodoro_2fa_verified_' + supabaseUser.id) === 'true');
+
+      const is2FaEnabledOnUser = Boolean(
+        supabaseUser.user_metadata?.two_factor_enabled ||
+        supabaseUser.two_factor_enabled ||
+        cachedProf?.two_factor_enabled ||
+        cachedProf?.is_2fa_enabled ||
+        totpService.isTotpEnabled(userId) ||
+        totpService.isTotpEnabled(supabaseUser.id)
+      );
+
+      if (is2FaEnabledOnUser && !isAlready2FaVerified) {
+        set({
+          user: profile,
+          pending2FaUser: profile,
+          requires2Fa: true,
+          is2faPending: true,
+          isAuthenticated: false,
+          isLoggedIn: false,
+          isLoading: false,
+          isGoogleLoading: false,
+          error: null,
+          role: profile.role,
+          badge: profile.badge,
+          credits: profile.credits
+        });
+        return;
+      }
+
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('pomodoro_study_auth_session', JSON.stringify(profile));
       }
@@ -405,6 +495,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
         user: profile,
         isAuthenticated: true,
         isLoggedIn: true,
+        requires2Fa: false,
+        is2faPending: false,
+        pending2FaUser: null,
         role: profile.role,
         badge: profile.badge,
         credits: profile.credits,
@@ -430,6 +523,33 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }).then((cloudProf) => {
         if (cloudProf) {
           const canonicalId = cloudProf.id || profile.id;
+
+          const isCloud2FaEnabled = Boolean(
+            cloudProf.two_factor_enabled ||
+            cloudProf.is_2fa_enabled ||
+            cloudProf.totp_secret ||
+            totpService.isTotpEnabled(canonicalId)
+          );
+
+          if (isCloud2FaEnabled && !isAlready2FaVerified) {
+            set((state) => ({
+              ...state,
+              pending2FaUser: {
+                ...profile,
+                id: canonicalId,
+                twoFactorEnabled: true
+              },
+              requires2Fa: true,
+              is2faPending: true,
+              isAuthenticated: false,
+              isLoggedIn: false,
+              isLoading: false,
+              isGoogleLoading: false,
+              error: null
+            }));
+            return;
+          }
+
           if (typeof cloudProf.ai_credits_balance === 'number') {
             useAiStore.setState({
               aiCreditsBalance: cloudProf.ai_credits_balance,
@@ -459,11 +579,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               } catch {}
             }
 
-            if (cloudProf.settings) {
-              userSettingsService.applySettings(cloudProf.settings);
-            } else {
-              userSettingsService.saveSettings(canonicalId).catch(() => {});
-            }
+            userSettingsService.mergeSettingsOnLogin(canonicalId, cloudProf.settings, cloudProf.updated_at).catch(() => {});
 
             const merged: UserProfile = {
               ...state.user,
@@ -487,6 +603,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
               user: merged,
               isAuthenticated: true,
               isLoggedIn: true,
+              requires2Fa: false,
+              is2faPending: false,
+              pending2FaUser: null,
               role: merged.role,
               badge: merged.badge,
               credits: merged.credits,
@@ -494,9 +613,15 @@ export const useAuthStore = create<AuthState>((set, get) => {
             };
           });
 
-          // Nạp lại Tasks & Notes theo Canonical ID chuẩn xác
-          import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
-          import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
+          // Hợp nhất toàn bộ dữ liệu Khách (Guest) vào Canonical User ID TRƯỚC KHI nạp Tasks & Notes
+          TaskCloudService.mergeGuestDataOnLogin(canonicalId).then(() => {
+            import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+            import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
+          }).catch((mergeErr) => {
+            console.warn('[syncUserFromSupabase] Lỗi hợp nhất dữ liệu khách:', mergeErr);
+            import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
+            import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
+          });
         }
       }).catch((e) => console.warn('[syncUserFromSupabase ProfileService]', e));
     },
@@ -1078,14 +1203,14 @@ if (typeof window !== 'undefined') {
           console.warn('[useAuthStore] Supabase profile fetch error:', e);
         }
 
-        // 2. KHÓA BẢN QUYỀN OWNER TỐI CAO (Bất biến, không bao giờ bị rớt về Free):
-        const isOwner = ['namho03052k9@gmail.com', 'huyentrantt09@gmail.com', 'tony31082009@gmail.com'].includes(
-          session.user.email?.toLowerCase() || ''
-        );
+        // 2. KHÓA BẢN QUYỀN OWNER / ADMIN (Xác thực qua JWT claims app_metadata hoặc DB profile.role):
+        const appMetadataRole = session.user.app_metadata?.role;
+        const userMetadataRole = session.user.user_metadata?.role;
+        const isOwner = appMetadataRole === 'admin' || appMetadataRole === 'founder' || userMetadataRole === 'admin' || profile?.role === 'founder' || profile?.role === 'admin';
 
         const isLifetime = isOwner || profile?.plan === 'lifetime' || profile?.plan === 'pro_lifetime' || Boolean(profile?.is_lifetime);
         const plan = isOwner ? 'lifetime' : (profile?.plan || 'free');
-        const role = isOwner ? 'founder' : (profile?.role || 'user');
+        const role = isOwner ? (profile?.role || 'founder') : (profile?.role || 'user');
         const aiCredits = isOwner ? Infinity : (isLifetime ? 1000 : (profile?.ai_credits_balance ?? 50));
 
         // CANONICAL USER ID INVARIANT (Single Source of Truth):
@@ -1118,6 +1243,9 @@ if (typeof window !== 'undefined') {
           username: profile?.handle || undefined,
           bio: profile?.bio || undefined,
           settings: profile?.settings || undefined,
+          app_metadata: session.user.app_metadata,
+          user_metadata: session.user.user_metadata,
+          isAdmin: isOwner,
         };
 
         try {

@@ -62,7 +62,7 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
           id: generateUUID(),
           userId: currentUserId,
           title: 'Ý tưởng tập trung hôm nay',
-          contentMarkdown: `# Chào mừng bạn đến với Không Gian Ghi Chú! 📝\n\n- [x] Thiết lập Pomodoro Timer\n- [ ] Lập kế hoạch 3 việc quan trọng nhất hôm nay\n- [ ] Dành 25 phút tập trung không xao nhãng\n\n> *\"Tập trung là nghệ thuật biết từ chối 1000 điều tốt khác.\"*`,
+          contentMarkdown: `# Chào mừng bạn đến với Không gian ghi chú!\n\n- [x] Thiết lập Pomodoro Timer\n- [ ] Lập kế hoạch 3 việc quan trọng nhất hôm nay\n- [ ] Dành 25 phút tập trung không xao nhãng\n\n> *\"Tập trung là nghệ thuật biết từ chối 1000 điều tốt khác.\"*`,
           linkedTaskId: null,
           linkedProjectId: null,
           createdAt: Date.now(),

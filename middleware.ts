@@ -56,7 +56,7 @@ PomoFocus là nền tảng không gian học tập ảo tối giản (Zen-first)
 - Bảng giá & Nâng cấp: [https://pomofocus-workspace.vercel.app/billing](https://pomofocus-workspace.vercel.app/billing)
 - Phòng học nhóm: [https://pomofocus-workspace.vercel.app/rooms](https://pomofocus-workspace.vercel.app/rooms)
 - Hướng dẫn tác nhân AI: [https://pomofocus-workspace.vercel.app/llms.txt](https://pomofocus-workspace.vercel.app/llms.txt)
-- Liên hệ hỗ trợ: namho03052k9@gmail.com | Hotline: 0704 862 629
+- Liên hệ hỗ trợ: support@pomofocus.vn | Cổng phản hồi: https://pomofocus-workspace.vercel.app/contact
 `;
 
 const NOT_FOUND_MARKDOWN = `# 404 Không Tìm Thấy Trang (Resource Not Found)

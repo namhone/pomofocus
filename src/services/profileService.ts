@@ -7,13 +7,9 @@
  */
 
 import { supabase } from '../lib/supabase';
-import { isOwnerEmail, isLadyBoss, isVipFriend, isCustomAvatarUrl } from './authService';
+import { isAdmin, isCustomAvatarUrl } from './authService';
 
-export const OWNER_EMAILS = [
-  'namho03052k9@gmail.com',
-  'huyentrantt09@gmail.com',
-  'tony31082009@gmail.com'
-];
+export const OWNER_EMAILS: readonly string[] = [];
 
 export interface CloudProfile {
   id: string;
@@ -50,10 +46,12 @@ export class ProfileService {
   /**
    * Tải hồ sơ người dùng từ bảng public.profiles trên Supabase Cloud
    */
-  static async fetchProfile(userId: string): Promise<CloudProfile | null> {
+  static async fetchProfile(userId: string, forceFresh = false): Promise<CloudProfile | null> {
     if (!userId) return null;
-    const cached = localProfileCache.get(userId);
-    if (cached) return cached;
+    if (!forceFresh) {
+      const cached = localProfileCache.get(userId);
+      if (cached) return cached;
+    }
 
     try {
       let query = supabase
@@ -142,15 +140,17 @@ export class ProfileService {
     hasCustomAvatar?: boolean;
     googleId?: string;
     isGoogleLinked?: boolean;
+    role?: string;
+    plan?: string;
+    isLifetime?: boolean;
+    app_metadata?: { role?: string; [key: string]: any };
   }): Promise<CloudProfile> {
     const normalizedEmail = (user.email || '').trim().toLowerCase();
-    const isOwner = OWNER_EMAILS.includes(normalizedEmail) || isOwnerEmail(user.email);
-    const isLady = isLadyBoss(user.email);
-    const isVip = isVipFriend(user.email);
-    const isPrivileged = isOwner || isLady || isVip;
+    const isOwner = Boolean(user && (isAdmin(user as any) || user.role === 'founder' || user.role === 'admin' || user.app_metadata?.role === 'admin'));
+    const isPrivileged = isOwner || Boolean(user.isLifetime || user.plan === 'lifetime' || user.plan === 'pro_lifetime');
 
-    const defaultRole = isOwner ? 'founder' : isLady ? 'ladyboss' : 'user';
-    const defaultPlan = isPrivileged ? 'lifetime' : 'free';
+    const defaultRole = isOwner ? 'founder' : (user.role || 'user');
+    const defaultPlan = isPrivileged ? 'lifetime' : (user.plan || 'free');
     const defaultCredits = isPrivileged ? 1000 : 50;
 
     let existing = await this.fetchProfile(user.id);
@@ -452,11 +452,11 @@ export class ProfileService {
   /**
    * Trừ điểm AI Credits nguyên tử trên Supabase Cloud
    */
-  static async deductCreditsCloud(userId: string, cost: number, userEmail?: string): Promise<{ success: boolean; remainingCredits?: number }> {
+  static async deductCreditsCloud(userId: string, cost: number, _userEmail?: string): Promise<{ success: boolean; remainingCredits?: number }> {
     if (!userId || cost <= 0) return { success: true };
 
-    // ĐẶC QUYỀN VÔ HẠN AI: Không bao giờ trừ điểm đối với Chủ sở hữu (namho03052k9@gmail.com, huyentrantt09@gmail.com)
-    if (userEmail && (OWNER_EMAILS.includes(userEmail.trim().toLowerCase()) || isOwnerEmail(userEmail))) {
+    // ĐẶC QUYỀN VÔ HẠN AI: Không trừ điểm đối với tài khoản Founder/Owner
+    if (userId === 'usr_founder_owner') {
       return { success: true, remainingCredits: 999999 };
     }
 
@@ -490,7 +490,7 @@ export class ProfileService {
       // 2. Fallback cập nhật thủ công nếu RPC chưa được nạp
       const profile = await this.fetchProfile(userId);
       if (profile) {
-        if (profile.email && (OWNER_EMAILS.includes(profile.email.trim().toLowerCase()) || isOwnerEmail(profile.email))) {
+        if (profile.role === 'founder' || profile.role === 'admin') {
           return { success: true, remainingCredits: 999999 };
         }
         const remaining = Math.max(0, (profile.ai_credits_balance || 0) - cost);

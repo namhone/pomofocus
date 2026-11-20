@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, ChevronRight, X } from 'lucide-react';
 import { useRouter } from '../services/router';
 
-const CONSENT_STORAGE_KEY = 'pomofocus_consent_v1';
+export const CONSENT_STORAGE_KEY = 'pomofocus_consent_v1';
 
 export const CookieConsentBanner: React.FC = () => {
   const router = useRouter();
@@ -27,6 +27,20 @@ export const CookieConsentBanner: React.FC = () => {
     } catch {
       // Bỏ qua lỗi lưu
     }
+    setIsVisible(false);
+  };
+
+  const handleDecline = () => {
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, 'declined');
+    } catch {
+      // Bỏ qua lỗi lưu
+    }
+    setIsVisible(false);
+  };
+
+  const handleClose = () => {
+    // Đóng tạm thời banner mà KHÔNG ghi nhận là đồng ý (Điều 9 khoản 4 điểm d Luật 91/2025/QH15)
     setIsVisible(false);
   };
 
@@ -57,8 +71,9 @@ export const CookieConsentBanner: React.FC = () => {
             </h4>
             <button
               type="button"
-              onClick={handleAccept}
-              aria-label="Đóng thông báo"
+              data-testid="consent-close-btn"
+              onClick={handleClose}
+              aria-label="Đóng thông báo (không đồng ý)"
               className="text-zinc-500 hover:text-white p-0.5 transition cursor-pointer"
             >
               <X size={14} />
@@ -69,7 +84,7 @@ export const CookieConsentBanner: React.FC = () => {
             PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (IndexedDB/LocalStorage) theo kiến trúc Local-First, tuân thủ Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.
           </p>
 
-          <div className="flex items-center gap-2 pt-1.5">
+          <div className="flex flex-wrap items-center gap-2 pt-1.5">
             <button
               type="button"
               data-testid="consent-accept-btn"
@@ -77,6 +92,14 @@ export const CookieConsentBanner: React.FC = () => {
               className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
             >
               Đồng ý & Tiếp tục
+            </button>
+            <button
+              type="button"
+              data-testid="consent-decline-btn"
+              onClick={handleDecline}
+              className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+            >
+              Từ chối
             </button>
             <button
               type="button"

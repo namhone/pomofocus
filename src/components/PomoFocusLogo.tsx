@@ -76,8 +76,8 @@ export const PomoFocusLogo: React.FC<PomoFocusLogoProps> = ({
             PomoFocus
           </span>
           {showSubtitle && (
-            <span className="text-[9px] font-semibold tracking-[0.25em] text-zinc-400 uppercase mt-0.5">
-              STUDY WORKSPACE
+            <span className="text-[9px] font-medium tracking-wider text-zinc-400 mt-0.5">
+              Study Workspace
             </span>
           )}
         </div>

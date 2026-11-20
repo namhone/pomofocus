@@ -121,8 +121,8 @@ export const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 my-auto">
                 {/* Clock Card */}
                 <div className="rounded-2xl border border-white/20 bg-black/60 backdrop-blur-2xl p-5 shadow-2xl text-center w-64">
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 mb-1">
-                    HIỆP TẬP TRUNG #1
+                  <div className="text-[10px] font-semibold text-emerald-400 mb-1">
+                    Hiệp tập trung #1
                   </div>
                   <div className="text-4xl font-mono font-bold text-white tracking-tight mb-2">
                     25:00
@@ -169,8 +169,8 @@ export const LandingPage: React.FC = () => {
       {/* 4. Core Features Grid */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto border-t border-zinc-800/80">
         <div className="mb-10 sm:mb-12 text-center">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
-            KIẾN TRÚC HIỆN ĐẠI
+          <span className="text-xs font-mono text-zinc-400 block mb-2">
+            Kiến trúc hiện đại
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight text-balance">
             Thiết Kế Cho Năng Suất Cá Nhân{' '}
@@ -263,8 +263,8 @@ export const LandingPage: React.FC = () => {
       {/* 5. Hướng Dẫn 3 Bước Bắt Đầu Cho Người Mới */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto border-t border-zinc-800/80">
         <div className="text-center mb-10 sm:mb-12">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
-            ĐƠN GIẢN & TẬP TRUNG
+          <span className="text-xs font-mono text-zinc-400 block mb-2">
+            Đơn giản & tập trung
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
             <span className="inline-block whitespace-nowrap">3 Bước Bắt Đầu</span>{' '}
@@ -326,8 +326,8 @@ export const LandingPage: React.FC = () => {
       {/* 6. Bảng Giá & Đặc Quyền Demo Beta */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto border-t border-zinc-800/80">
         <div className="text-center mb-10 sm:mb-12">
-          <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
-            MINH BẠCH & ĐƠN GIẢN
+          <span className="text-xs font-mono text-zinc-400 block mb-2">
+            Minh bạch & đơn giản
           </span>
           <h2 className="text-xl sm:text-3xl font-semibold text-white tracking-tight">
             <span className="inline-block whitespace-nowrap">Gói Dịch Vụ Phù Hợp</span>{' '}
@@ -339,7 +339,7 @@ export const LandingPage: React.FC = () => {
           {/* Free Tier */}
           <div className="p-6 sm:p-8 rounded-xl border border-zinc-800 bg-zinc-900/20 flex flex-col justify-between">
             <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+              <div className="text-xs font-semibold text-zinc-400 mb-2">
                 Gói Miễn Phí
               </div>
               <div className="text-3xl font-bold text-white mb-4">
@@ -380,7 +380,7 @@ export const LandingPage: React.FC = () => {
               PRO
             </span>
             <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+              <div className="text-xs font-semibold text-zinc-400 mb-2">
                 Gói Chuyên Nghiệp
               </div>
               <div className="text-3xl font-bold text-white mb-1">
@@ -427,7 +427,7 @@ export const LandingPage: React.FC = () => {
         {/* Demo Beta 3-Year Banner */}
         <div className="mt-8 p-5 sm:p-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 text-center flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-left w-full">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-emerald-400 text-xs font-bold mb-1.5">
               <span className="text-balance">
                 Đặc Quyền Dành Cho{' '}
                 <span className="inline-block whitespace-nowrap">Người Dùng Mới</span>

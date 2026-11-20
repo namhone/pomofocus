@@ -22,6 +22,10 @@ function apiDevServerPlugin(): Plugin {
             targetFile = '/api/coupons.ts';
           } else if (pathname === '/api/payment/create-order') {
             targetFile = '/api/payment/create-order.ts';
+          } else if (pathname === '/api/payment/check-status') {
+            targetFile = '/api/payment/check-status.ts';
+          } else if (pathname === '/api/payment/sepay-webhook') {
+            targetFile = '/api/payment/sepay-webhook.ts';
           } else if (pathname === '/api/payment/webhook' || pathname === '/api/payment/vcb-webhook') {
             targetFile = '/api/payment/webhook.ts';
           } else if (pathname === '/api/ai/companion') {

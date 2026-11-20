@@ -51,10 +51,10 @@ test.describe('Official 5 Visual Proofs for User Sign-off', () => {
     await page.waitForLoadState('networkidle');
 
     // Mở Spaces Widget trên mobile
-    const spacesBtn = page.getByTestId('dock-btn-spaces');
+    const spacesBtn = page.locator('[data-testid="mobile-nav-tab-spaces"], [data-testid="dock-btn-spaces"]').first();
     await expect(spacesBtn).toBeVisible();
     await spacesBtn.click();
-    await expect(page.getByTestId('spaces-widget')).toBeVisible();
+    await expect(page.locator('[data-testid="spaces-widget"], [data-testid="mobile-view-spaces"]').first()).toBeVisible();
     await page.waitForTimeout(2000);
 
     // Chụp Bằng chứng 3: proof-3-mobile-spaces.png

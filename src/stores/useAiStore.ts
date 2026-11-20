@@ -87,7 +87,7 @@ export const AI_CREDIT_PACKS: AiCreditPack[] = [
     formattedPrice: '69.000₫',
     originalPrice: 95000,
     discountPercent: 28,
-    badge: 'Tiết kiệm 28% 🔥',
+    badge: 'Tiết kiệm 28%',
     popular: true
   },
   {
@@ -98,7 +98,7 @@ export const AI_CREDIT_PACKS: AiCreditPack[] = [
     formattedPrice: '149.000₫',
     originalPrice: 250000,
     discountPercent: 40,
-    badge: 'Tiết kiệm 40% 👑',
+    badge: 'Tiết kiệm 40%',
     popular: false
   }
 ];
@@ -815,7 +815,7 @@ export const useAiStore = create<AiState>()(
         const uid = userId || getStoredUserId();
         if (!uid) return;
         try {
-          const profile = await ProfileService.fetchProfile(uid);
+          const profile = await ProfileService.fetchProfile(uid, true);
           if (profile && typeof profile.ai_credits_balance === 'number') {
             set({
               aiCreditsBalance: profile.ai_credits_balance,

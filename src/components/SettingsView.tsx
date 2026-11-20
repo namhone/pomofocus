@@ -10,6 +10,7 @@ import { ChimeSoundType } from '../types/audio';
 import { ALARM_CHIMES } from '../data/alarmSounds';
 import { PlatformHeader } from './PlatformHeader';
 import { SharedFooter } from './SharedFooter';
+import { CONSENT_STORAGE_KEY } from './CookieConsentBanner';
 import {
   Settings,
   Clock,
@@ -23,7 +24,8 @@ import {
   User,
   CreditCard,
   Database,
-  ArrowLeft
+  ArrowLeft,
+  Leaf
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -43,7 +45,17 @@ export const SettingsView: React.FC = () => {
   const setSelectedChime = useAudioStore((s) => s.setSelectedChime);
 
   const isOwner = useAuthStore((s) => s.isOwner);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
   const user = useAuthStore((s) => s.user);
+
+  // Consent & Privacy state (BUG-75)
+  const [consentStatus, setConsentStatus] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(CONSENT_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  });
 
   // Super-Powers state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -51,6 +63,26 @@ export const SettingsView: React.FC = () => {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleRevokeConsent = () => {
+    try {
+      localStorage.removeItem(CONSENT_STORAGE_KEY);
+      if (typeof document !== 'undefined' && document.cookie) {
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+          if (name.startsWith('_ga') || name.startsWith('pomofocus_consent') || name.startsWith('_gid')) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          }
+        }
+      }
+      setConsentStatus(null);
+      showToast('Đã rút lại sự đồng ý thu thập dữ liệu. Trạng thái chấp thuận đã được đặt lại.');
+    } catch (e) {
+      console.warn('Lỗi khi rút lại sự đồng ý:', e);
+    }
   };
 
   const handlePurgeZombieSessions = () => {
@@ -351,11 +383,12 @@ export const SettingsView: React.FC = () => {
               </div>
             </div>
 
-            {/* Chế độ Eco Mode 🍃 */}
+            {/* Chế độ Eco Mode */}
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
               <div>
                 <div className="font-semibold text-white flex items-center gap-1.5">
-                  <span>🍃</span> Chế độ Siêu Nhẹ (Eco Mode)
+                  <Leaf size={14} strokeWidth={1.5} className="text-emerald-400 shrink-0" />
+                  <span>Chế độ siêu nhẹ (Eco Mode)</span>
                 </div>
                 <div className="text-[11px] text-zinc-400">
                   Tắt hoàn toàn video nền động và hiệu ứng hạt canvas, chuyển kính mờ sang màu tối phẳng để tiết kiệm 100% GPU/CPU cho máy yếu.
@@ -366,7 +399,7 @@ export const SettingsView: React.FC = () => {
                 data-testid="setting-toggle-eco-mode"
                 onClick={() => {
                   setEcoMode(!isEcoMode);
-                  showToast(isEcoMode ? 'Đã tắt Chế độ Eco' : 'Đã bật Chế độ Eco Siêu Nhẹ 🍃');
+                  showToast(isEcoMode ? 'Đã tắt Chế độ Eco' : 'Đã bật Chế độ Eco siêu nhẹ');
                 }}
                 className={`px-4 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer whitespace-nowrap self-start sm:self-auto ${
                   isEcoMode
@@ -374,7 +407,7 @@ export const SettingsView: React.FC = () => {
                     : 'border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
                 }`}
               >
-                {isEcoMode ? '🍃 Đang Bật' : 'Tắt'}
+                {isEcoMode ? 'Đang bật' : 'Tắt'}
               </button>
             </div>
 
@@ -398,8 +431,82 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 4: Owner Super-Powers & Coupon Management */}
-        {(isOwner || user?.email === 'namho03052k9@gmail.com') && (
+        {/* Section 4: Data Protection & Consent Revocation (BUG-75) */}
+        <div data-testid="section-privacy-settings" className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-zinc-800">
+            <div className="flex items-center gap-2">
+              <Shield size={16} className="text-emerald-400 shrink-0" />
+              <h2 className="text-sm font-semibold text-white">Bảo Vệ Dữ Liệu &amp; Quyền Riêng Tư (PDPL)</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-400">Trạng thái:</span>
+              {consentStatus === 'accepted' ? (
+                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  ĐÃ ĐỒNG Ý
+                </span>
+              ) : consentStatus === 'declined' ? (
+                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  ĐÃ TỪ CHỐI
+                </span>
+              ) : (
+                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">
+                  CHƯA THIẾT LẬP / ĐÃ RÚT LẠI
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-4 text-xs">
+            <p className="text-zinc-400 leading-relaxed text-[11px]">
+              Tuân thủ Điều 10 Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và Điều 5 Nghị định 356/2025/NĐ-CP: Chủ thể dữ liệu có toàn quyền rút lại sự đồng ý thu thập và xử lý dữ liệu bất kỳ lúc nào. Khi bạn rút lại sự đồng ý, toàn bộ cookie/storage chấp thuận sẽ được xóa và đặt lại trạng thái ban đầu.
+            </p>
+
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
+              <div>
+                <div className="font-semibold text-white flex items-center gap-1.5">
+                  <RotateCcw size={14} className="text-rose-400 shrink-0" />
+                  <span>Rút lại sự đồng ý thu thập dữ liệu</span>
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-0.5">
+                  Xóa trạng thái chấp thuận cookie và dừng các tiến trình thu thập dữ liệu tùy chọn
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="btn-revoke-consent"
+                onClick={handleRevokeConsent}
+                className="px-3.5 py-2 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap self-start sm:self-auto"
+              >
+                <RotateCcw size={13} />
+                <span>Rút Lại Sự Đồng Ý</span>
+              </button>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
+              <div>
+                <div className="font-semibold text-white flex items-center gap-1.5">
+                  <Database size={14} className="text-sky-400 shrink-0" />
+                  <span>Quản lý dữ liệu cục bộ (GDPR / PDPL)</span>
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-0.5">
+                  Xuất dữ liệu dự phòng chuẩn JSON hoặc xóa sạch bộ nhớ IndexedDB cục bộ trên thiết bị
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="btn-goto-privacy-data"
+                onClick={() => router.navigate('/privacy-data')}
+                className="px-3.5 py-1.5 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap self-start sm:self-auto"
+              >
+                <span>Xem Chi Tiết</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Owner Super-Powers & Coupon Management */}
+        {(isOwner || isAdmin || user?.role === 'admin' || user?.role === 'founder' || (user as any)?.app_metadata?.role === 'admin') && (
           <div data-testid="section-owner-superpowers" className="p-5 sm:p-7 rounded-2xl border border-amber-500/40 bg-amber-950/20 space-y-6 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-500/30">
               <div className="flex items-center gap-2.5">

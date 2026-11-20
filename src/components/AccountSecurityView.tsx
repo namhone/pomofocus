@@ -438,7 +438,7 @@ export const AccountSecurityView: React.FC = () => {
                 }`}
               />
               <span className="font-mono text-[11px]">
-                {is2FaActive ? 'ĐÃ KÍCH HOẠT (BẢO MẬT CAO)' : 'CHƯA KÍCH HOẠT'}
+                {is2FaActive ? 'Đã kích hoạt (bảo mật cao)' : 'Chưa kích hoạt'}
               </span>
             </span>
           </div>
@@ -574,7 +574,7 @@ export const AccountSecurityView: React.FC = () => {
               <span className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
                 <span className="font-mono text-[10px]">
-                  {isGoogleAccount ? 'TÙY CHỌN' : 'HOẠT ĐỘNG'}
+                  {isGoogleAccount ? 'Tùy chọn' : 'Đang hoạt động'}
                 </span>
               </span>
             </div>
@@ -600,7 +600,7 @@ export const AccountSecurityView: React.FC = () => {
               </h2>
               {hasGooglePasswordSet && (
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-mono self-start sm:self-auto">
-                  ✓ ĐÃ CÓ MẬT KHẨU PHỤ
+                  ✓ Đã có mật khẩu phụ
                 </span>
               )}
             </div>

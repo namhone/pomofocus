@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
-import { generateInitialsAvatarSvg, getDisplayAvatar, isValidAvatarUrl } from '../services/authService';
+import { generateInitialsAvatarSvg, isValidAvatarUrl } from '../services/authService';
 import { ProfileService } from '../services/profileService';
 import { processAndSaveCustomAvatar } from '../services/avatarUploadService';
 import { PlatformHeader } from './PlatformHeader';
@@ -33,10 +33,11 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { MONOCHROME_GEOMETRIC_AVATARS } from '../utils/monochromeAvatars';
+import { UserAvatar } from './common/UserAvatar';
 
 export const ProfileView: React.FC = () => {
   const router = useRouter();
-  const { user, isAuthenticated, isPro, isLifetime, planLabel, updateProfile } = useAuthStore();
+  const { user, isAuthenticated, isPro, isLifetime, effectiveBadge, updateProfile } = useAuthStore();
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.customAvatarUrl || user?.avatarUrl || '');
@@ -358,18 +359,14 @@ export const ProfileView: React.FC = () => {
             <div className="flex items-center gap-4 sm:gap-5 min-w-0">
               {/* Avatar with Camera Overlay */}
               <div className="relative group shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-zinc-800 border border-zinc-700 shadow-md group-hover:border-zinc-500 transition overflow-hidden flex items-center justify-center">
-                  <img
-                    src={isValidAvatarUrl(avatarUrl) ? avatarUrl : getDisplayAvatar(user)}
-                    alt={displayName || user.displayName || 'Avatar'}
-                    className="w-full h-full object-cover rounded-2xl"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src = generateInitialsAvatarSvg(displayName || user?.displayName || user?.email || 'User');
-                    }}
-                  />
-                </div>
+                <UserAvatar
+                  user={user}
+                  avatarUrl={isValidAvatarUrl(avatarUrl) ? avatarUrl : undefined}
+                  size={72}
+                  ring="ring-2 ring-zinc-700/80"
+                  alt={displayName || user.displayName || 'Avatar'}
+                  testId="profile-user-avatar"
+                />
 
                 {/* Camera quick edit button */}
                 <button
@@ -379,7 +376,7 @@ export const ProfileView: React.FC = () => {
                     setIsEditing(true);
                     fileInputRef.current?.click();
                   }}
-                  className="absolute -bottom-1 -right-1 min-w-[24px] min-h-[24px] w-6 h-6 p-1 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 shadow-lg transition cursor-pointer flex items-center justify-center"
+                  className="absolute -bottom-1 -right-1 min-w-[24px] min-h-[24px] w-6 h-6 p-1 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 shadow-lg transition cursor-pointer flex items-center justify-center"
                   aria-label="Thay đổi ảnh đại diện"
                   title="Thay đổi ảnh đại diện"
                 >
@@ -406,7 +403,7 @@ export const ProfileView: React.FC = () => {
                   )}
                   <span
                     data-testid="profile-plan-badge"
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider border shrink-0 whitespace-nowrap ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border shrink-0 whitespace-nowrap ${
                       isLifetime
                         ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
                         : isPro
@@ -414,7 +411,7 @@ export const ProfileView: React.FC = () => {
                         : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
                     }`}
                   >
-                    {planLabel}
+                    {effectiveBadge}
                   </span>
                 </div>
 
@@ -428,9 +425,9 @@ export const ProfileView: React.FC = () => {
 
                 {/* Email and Join Date */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-zinc-400">
-                  <span className="flex items-center gap-1.5 font-mono truncate">
+                  <span className="flex items-center gap-1.5 font-mono min-w-0">
                     <Mail size={12} className="shrink-0 text-zinc-400" />
-                    <span className="truncate">{user.hideEmailInRoom ? '••••••••@••••.com (Đã ẩn trong phòng)' : user.email}</span>
+                    <span className="truncate text-zinc-300 select-text">{user.email || 'Chưa cập nhật email'}</span>
                   </span>
                   <span className="flex items-center gap-1.5 text-zinc-400 whitespace-nowrap">
                     <Calendar size={12} className="shrink-0 text-zinc-400" />
@@ -488,11 +485,11 @@ export const ProfileView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Tiểu sử / Mục tiêu học tập (Bio / Focus Goal) */}
+              {/* Tiểu sử / Mục tiêu học tập */}
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1">
                   <Target size={13} className="text-emerald-400" />
-                  <span>Tiểu Sử / Mục Tiêu Buổi Học (Bio / Focus Goal)</span>
+                  <span>Mục tiêu hoặc tiểu sử</span>
                 </label>
                 <input
                   type="text"
@@ -500,22 +497,18 @@ export const ProfileView: React.FC = () => {
                   value={focusGoal}
                   onChange={(e) => setFocusGoal(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
-                  placeholder="Ví dụ: IELTS 8.0 🎯, Chạy deadline đồ án 💻, Ôn thi Đại Học..."
+                  placeholder="Ví dụ: Đạt IELTS 8.0, hoàn thành đồ án, ôn thi..."
                   maxLength={100}
                 />
               </div>
 
-              {/* Chỉnh sửa và chọn Avatar (All-in-One: Máy tính/Điện thoại & URL Mạng) */}
+              {/* Chỉnh sửa và chọn Avatar */}
               <div className="space-y-3.5 p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Sparkles size={13} className="text-amber-400" />
-                      <span>Ảnh Đại Diện Tùy Chỉnh (All-in-One Avatar)</span>
+                      <span>Ảnh đại diện tùy chỉnh</span>
                     </label>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono">
-                      Cloud Sync 1:1
-                    </span>
                   </div>
 
                   {avatarUrl && (
@@ -600,7 +593,7 @@ export const ProfileView: React.FC = () => {
                         <span>Nguồn 2: Dán URL ảnh mạng</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 leading-relaxed">
-                        Discord, Imgur, Facebook, Pinterest. Tự động vượt tường lửa CORS qua Proxy.
+                        Discord, Imgur, Facebook, Pinterest hoặc liên kết ảnh trực tiếp.
                       </div>
                     </div>
 
@@ -632,14 +625,12 @@ export const ProfileView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* NGUỒN 3: Kho 6 Avatar Tối Giản Hình Học (Monochrome Geometric Avatars) */}
+                {/* NGUỒN 3: Kho 6 Avatar Tối Giản Hình Học */}
                 <div className="space-y-2 pt-2 border-t border-zinc-850">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-zinc-300 flex items-center gap-1.5">
-                      <Sparkles size={12} className="text-amber-400" />
-                      <span>Kho 6 Avatar Hình Học Tối Giản (Monochrome Geometric)</span>
+                      <span>Kho 6 avatar hình học tối giản</span>
                     </span>
-                    <span className="text-[10px] text-zinc-400 font-mono">Retina SVG Ready</span>
                   </div>
 
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 pt-1">
@@ -675,10 +666,10 @@ export const ProfileView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quyền Riêng Tư Trong Phòng Học (Privacy Settings) */}
+              {/* Quyền Riêng Tư Trong Phòng Học */}
               <div className="pt-3 border-t border-zinc-800/80 space-y-3">
                 <span className="text-xs font-semibold text-zinc-300 block">
-                  Cài Đặt Quyền Riêng Tư (Privacy Controls)
+                  Cài đặt quyền riêng tư trong phòng học
                 </span>
 
                 <div className="space-y-2.5">
@@ -695,7 +686,7 @@ export const ProfileView: React.FC = () => {
                       data-testid="toggle-hide-email"
                       checked={hideEmailInRoom}
                       onChange={(e) => setHideEmailInRoom(e.target.checked)}
-                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-emerald-500 focus:ring-0 cursor-pointer"
+                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-white accent-white focus:ring-0 cursor-pointer"
                     />
                   </label>
 
@@ -703,7 +694,7 @@ export const ProfileView: React.FC = () => {
                     <div className="flex items-center gap-2.5">
                       <Ghost size={15} className="text-zinc-400 shrink-0" />
                       <div>
-                        <div className="text-xs font-medium text-white">Chế độ tàng hình (Incognito Presence)</div>
+                        <div className="text-xs font-medium text-white">Chế độ tàng hình</div>
                         <div className="text-[11px] text-zinc-400">Không hiển thị thông báo popup làm gián đoạn khi bạn tham gia phòng học.</div>
                       </div>
                     </div>
@@ -712,7 +703,7 @@ export const ProfileView: React.FC = () => {
                       data-testid="toggle-incognito-join"
                       checked={incognitoJoinRoom}
                       onChange={(e) => setIncognitoJoinRoom(e.target.checked)}
-                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-emerald-500 focus:ring-0 cursor-pointer"
+                      className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-white accent-white focus:ring-0 cursor-pointer"
                     />
                   </label>
                 </div>
@@ -778,7 +769,7 @@ export const ProfileView: React.FC = () => {
               <div className="text-[11px] text-zinc-400">Trạng Thái Gói</div>
               <div className="font-semibold text-white flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{planLabel}</span>
+                <span>{effectiveBadge}</span>
               </div>
             </div>
 

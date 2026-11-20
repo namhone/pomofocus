@@ -1,8 +1,33 @@
-const OWNER_EMAILS = [
-  'namho03052k9@gmail.com',
-  'huyentrantt09@gmail.com',
-  'tony31082009@gmail.com'
-];
+/**
+ * Xác thực token Bearer Supabase JWT nếu yêu cầu đòi hỏi đặc quyền Admin/Founder
+ */
+export async function verifyAdminOrOwnerToken(authHeader?: string): Promise<{ isAdmin: boolean; userId?: string }> {
+  if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer ')) {
+    return { isAdmin: false };
+  }
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return { isAdmin: false };
+
+  const sbUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
+  const sbKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!sbUrl || !sbKey) return { isAdmin: false };
+
+  try {
+    const res = await fetch(`${sbUrl}/auth/v1/user`, {
+      headers: {
+        'apikey': sbKey,
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!res.ok) return { isAdmin: false };
+    const user = await res.json();
+    const role = user?.app_metadata?.role || user?.user_metadata?.role;
+    const isOwner = role === 'admin' || role === 'founder';
+    return { isAdmin: isOwner, userId: user?.id };
+  } catch {
+    return { isAdmin: false };
+  }
+}
 
 const MAX_PROMPT_CHARS = 4000; // Max Context Guard: Chống dán tài liệu 50 trang làm tràn token/chi phí
 
@@ -218,8 +243,9 @@ export default async function handler(req: any, res: any) {
     }
 
     const effectiveAction = attachment ? 'multimodal' : actionType;
-    const isOwnerByEmail = body.userEmail && OWNER_EMAILS.includes(body.userEmail.trim().toLowerCase());
-    const isOwner = userId === 'usr_founder_owner' || isOwnerByEmail;
+    const authHeader = req.headers?.authorization || req.headers?.Authorization;
+    const adminAuth = await verifyAdminOrOwnerToken(authHeader);
+    const isOwner = adminAuth.isAdmin;
     const cost = isOwner ? 0 : (ACTION_COSTS[effectiveAction] || 1);
 
     // 2. Pre-flight Check qua Stored Procedure v5.0 (Stateless ~10ms, không lock DB)

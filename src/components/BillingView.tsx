@@ -144,6 +144,14 @@ export const BillingView: React.FC = () => {
   };
 
   const handleSelectPlanAndCheckout = (targetCycle: PlanCycle) => {
+    if (!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest) {
+      setStatusMessage({
+        type: 'info',
+        text: 'Yêu cầu đăng nhập tài khoản thật trước khi tiến hành thanh toán gói PRO.'
+      });
+      router.navigate('/login');
+      return;
+    }
     setCycle(targetCycle);
     setIsMoMoModalOpen(true);
   };
@@ -240,8 +248,8 @@ export const BillingView: React.FC = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-amber-400 font-bold whitespace-nowrap">
-                        FOUNDER LIFETIME VIP
+                      <span className="text-[11px] sm:text-xs font-mono text-amber-400 font-bold whitespace-nowrap">
+                        Founder VIP độc quyền
                       </span>
                       <span
                         data-testid="billing-pro-active-badge"
@@ -349,7 +357,7 @@ export const BillingView: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
-                        <span>Biên Lai Quyết Toán: VietQR 24/7 (Vietcombank)</span>
+                        <span>Biên Lai Quyết Toán: VietQR SePay 24/7 (VPBank)</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
                         Mã GD: VCB_LIFETIME_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫ • Kích hoạt vĩnh viễn
@@ -390,8 +398,8 @@ export const BillingView: React.FC = () => {
           <div data-testid="billing-active-subscription" className="space-y-8 animate-in fade-in duration-200">
             {/* Header trạng thái */}
             <div className="text-center space-y-2">
-              <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full inline-block">
-                GÓI ĐANG HOẠT ĐỘNG
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full inline-block">
+                Gói đang hoạt động
               </span>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Quản Lý Thuê Bao PRO Của Bạn
@@ -452,7 +460,7 @@ export const BillingView: React.FC = () => {
               <div className="p-6 sm:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 flex flex-col justify-between space-y-6 hover:border-zinc-700 transition">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono uppercase tracking-widest text-zinc-400">GIA HẠN THUÊ BAO</span>
+                    <span className="text-xs font-mono text-zinc-400">Gia hạn thuê bao</span>
                     <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
                       Cộng Dồn Ngày
                     </span>
@@ -495,13 +503,13 @@ export const BillingView: React.FC = () => {
 
               {/* Lựa chọn 2: Nâng Cấp Lên Trọn Đời */}
               <div className="p-6 sm:p-8 rounded-2xl border-2 border-amber-400/40 bg-zinc-900/80 flex flex-col justify-between space-y-6 shadow-2xl relative">
-                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-bold uppercase tracking-wider shadow">
-                  TIẾT KIỆM TỐI ĐA
+                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-bold shadow">
+                  Tiết kiệm tối đa
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono uppercase tracking-widest text-amber-400">NÂNG CẤP TRỌN ĐỜI</span>
+                    <span className="text-xs font-mono text-amber-400">Nâng cấp trọn đời</span>
                     <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
                       Khấu Trừ Ngày Cũ
                     </span>
@@ -557,8 +565,8 @@ export const BillingView: React.FC = () => {
             {/* Title & Billing Cycle */}
             <div className="text-center flex flex-col items-center space-y-3">
               <PomoFocusLogo size={36} showWordmark={true} showSubtitle={true} wordmarkClassName="text-xl font-bold tracking-tight text-white" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 block">
-                ĐẦU TƯ CHO SỰ TẬP TRUNG
+              <span className="text-[11px] font-mono text-zinc-400 block">
+                Đầu tư cho sự tập trung
               </span>
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Bảng Giá Dịch Vụ PomoFocus PRO
@@ -592,8 +600,8 @@ export const BillingView: React.FC = () => {
                   }`}
                 >
                   <span>Thanh toán theo năm</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
-                    Tiết kiệm 34% 🔥
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold">
+                    Tiết kiệm 34%
                   </span>
                 </button>
               </div>
@@ -607,7 +615,7 @@ export const BillingView: React.FC = () => {
               <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col justify-between hover:border-zinc-700 transition shadow-lg relative">
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 font-semibold block">
+                    <span className="text-xs font-mono text-zinc-400 font-semibold block">
                       Gói Free
                     </span>
                     <span className="text-[11px] text-zinc-400">Tự học cá nhân tối giản</span>
@@ -679,19 +687,19 @@ export const BillingView: React.FC = () => {
               {/* THẺ 2: GÓI PRO (TÂM ĐIỂM - CHUYỂN ĐỔI THEO TOGGLE) */}
               <div className="relative rounded-2xl border-2 border-indigo-500/70 bg-gradient-to-b from-indigo-950/40 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-indigo-500/10 ring-1 ring-indigo-500/30 scale-100 lg:scale-[1.02] z-10 transition-all">
                 {/* Nhãn nổi bật */}
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] font-extrabold uppercase tracking-wider shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] font-extrabold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
                   <Flame size={12} className="fill-white" />
-                  <span>GÓI PHỔ BIẾN NHẤT 🔥</span>
+                  <span>Gói phổ biến nhất</span>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-indigo-300 font-bold block">
+                      <span className="text-xs font-mono text-indigo-300 font-bold block">
                         Gói PRO {cycle === 'monthly' ? 'Tháng' : 'Năm'}
                       </span>
                       <span className="text-[11px] text-zinc-400">
-                        {cycle === 'monthly' ? 'Học tập cá nhân linh hoạt' : 'Gói Khuyên Dùng Tiết Kiệm 🔥'}
+                        {cycle === 'monthly' ? 'Học tập cá nhân linh hoạt' : 'Gói khuyên dùng tiết kiệm'}
                       </span>
                     </div>
                     <Flame size={18} className="text-indigo-400 shrink-0" />
@@ -813,19 +821,19 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="billing-cycle-lifetime"
                   onClick={() => setCycle('lifetime')}
-                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
+                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black text-[10px] font-black shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
                 >
                   <Crown size={12} className="fill-black" />
-                  <span>FOUNDER VIP ĐỘC QUYỀN 👑</span>
+                  <span>Founder VIP độc quyền</span>
                 </button>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold block">
+                      <span className="text-xs font-mono text-amber-400 font-bold block">
                         Gói Trọn Đời
                       </span>
-                      <span className="text-[11px] text-zinc-400">Lifetime Founder VIP 👑</span>
+                      <span className="text-[11px] text-zinc-400">Lifetime Founder VIP</span>
                     </div>
                     <Crown size={18} className="text-amber-400 shrink-0" />
                   </div>
@@ -1149,7 +1157,7 @@ export const BillingView: React.FC = () => {
                       </span>
                     </h3>
                     <p className="text-xs text-zinc-400">
-                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR (Vietcombank 24/7), điểm cộng dồn vĩnh viễn vào tài khoản.
+                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR SePay (VPBank 24/7), điểm cộng dồn vĩnh viễn vào tài khoản.
                     </p>
                   </div>
 

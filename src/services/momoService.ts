@@ -43,17 +43,17 @@ export interface MoMoWebhookPayload {
 }
 
 export const BANKING_CONFIG = {
-  bankName: 'Vietcombank',
-  bankId: 'vietcombank',
-  accountNumber: '1066633885',
-  displayAccountNumber: '1066633885',
+  bankName: 'VPBank',
+  bankId: 'VPBank',
+  accountNumber: 'AGBSPTJE34IA3A8SAAX',
+  displayAccountNumber: 'AGBSPTJE34IA3A8SAAX',
   recipientName: 'HỒ NGỌC BẢO NAM',
   accountNameNoAccent: 'HO NGOC BAO NAM'
 } as const;
 
 export const MOMO_CONFIG = {
-  phone: '0704862629',
-  displayPhone: '0704 862 629',
+  phone: '',
+  displayPhone: '',
   recipientName: 'HỒ NGỌC BẢO NAM',
   accountNameNoAccent: 'HO NGOC BAO NAM'
 } as const;
@@ -66,7 +66,7 @@ export const momoService = {
   getQrImageUrl(amount: number, memo: string): string {
     const rawCode = memo.replace(/^POMO_/, '');
     const cleanMemo = `POMO_${rawCode}`;
-    return `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
+    return `https://vietqr.app/img?acc=${BANKING_CONFIG.accountNumber}&bank=${BANKING_CONFIG.bankId}&amount=${amount}&des=${encodeURIComponent(cleanMemo)}`;
   },
 
   createOrder(email: string, cycle: 'monthly' | 'yearly' | 'lifetime', userId?: string, authProvider?: string): MoMoOrder {
@@ -86,8 +86,8 @@ export const momoService = {
     // Cú pháp chuyển khoản chuẩn: POMO_[Mã_Đơn]
     const memo = `POMO_${shortCode}`;
 
-    // Sinh mã VietQR chuyển khoản trực tiếp ngân hàng Vietcombank 1066633885
-    const qrUrl = `https://img.vietqr.io/image/vietcombank-1066633885-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANKING_CONFIG.accountNameNoAccent)}`;
+    // Sinh mã VietQR SePay VA VPBank AGBSPTJE34IA3A8SAAX
+    const qrUrl = `https://vietqr.app/img?acc=${BANKING_CONFIG.accountNumber}&bank=${BANKING_CONFIG.bankId}&amount=${amount}&des=${encodeURIComponent(memo)}`;
 
     const order: MoMoOrder = {
       orderId,
@@ -113,6 +113,7 @@ export const momoService = {
   async createOnlinePayment(params: {
     userId?: string;
     userEmail?: string;
+    orderId?: string;
     cycle: 'monthly' | 'yearly' | 'lifetime';
     couponCode?: string;
     returnUrl?: string;
@@ -136,6 +137,7 @@ export const momoService = {
         body: JSON.stringify({
           userId: params.userId,
           userEmail: params.userEmail,
+          orderId: params.orderId,
           planId: planKey,
           couponCode: params.couponCode,
           returnUrl: params.returnUrl

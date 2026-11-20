@@ -6,7 +6,9 @@ import { useTimerStore } from '../stores/useTimerStore';
 import { CollapsedWidgetCard } from './CollapsedWidgetCard';
 
 const CANONICAL_WIDGET_TITLES: Partial<Record<WidgetId, string>> = {
-  settings: 'Cài Đặt Hệ Thống'
+  settings: 'Cài đặt hệ thống',
+  spaces: 'Không gian nền',
+  sounds: 'Bảng âm thanh & chuông'
 };
 
 interface WidgetContainerProps {
@@ -372,21 +374,21 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               type="button"
               data-testid={`collapse-widget-${id}`}
               onClick={() => toggleCollapseWidget(id)}
-              className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              className="w-7 h-7 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
               title={widget.isCollapsed ? 'Mở rộng' : 'Thu nhỏ'}
               aria-label={widget.isCollapsed ? 'Mở rộng' : 'Thu nhỏ'}
             >
-              {widget.isCollapsed ? <Maximize2 size={14} strokeWidth={1.75} /> : <Minus size={14} strokeWidth={1.75} />}
+              {widget.isCollapsed ? <Maximize2 size={13} strokeWidth={1.5} /> : <Minus size={13} strokeWidth={1.5} />}
             </button>
             <button
               type="button"
               data-testid={`close-widget-${id}`}
               onClick={() => closeWidget(id)}
-              className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              className="w-7 h-7 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
               title={`Đóng ${displayTitle}`}
               aria-label={`Đóng ${displayTitle}`}
             >
-              <X size={14} strokeWidth={1.75} />
+              <X size={13} strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -397,7 +399,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             <CollapsedWidgetCard id={id} isMobile={true} />
           </div>
         ) : (
-          <div className={`${isMedia ? 'p-0 aspect-video' : isCenteredModal ? 'p-3.5 sm:p-4 overflow-y-auto scrollbar-none' : 'p-4 overflow-visible'} flex-1 min-h-0 touch-pan-y`}>{children}</div>
+          <div className={`${isMedia ? 'p-0 h-[340px] max-h-[70vh]' : isCenteredModal ? 'p-3.5 sm:p-4 overflow-y-auto scrollbar-none' : 'p-4 overflow-visible'} flex-1 min-h-0 touch-pan-y`}>{children}</div>
         )}
       </section>
     );
@@ -434,7 +436,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               }
             : {})
         }}
-        className={`rounded-full border-t border-t-white/[0.28] border-b border-b-white/[0.06] border-x border-x-white/[0.12] shadow-[0_16px_36px_-6px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.22)] flex items-center justify-between px-3.5 select-none touch-none cursor-grab active:cursor-grabbing hover:border-white/30 transition-[box-shadow,border-color] duration-150 ${
+        className={`pointer-events-auto rounded-full border-t border-t-white/[0.28] border-b border-b-white/[0.06] border-x border-x-white/[0.12] shadow-[0_16px_36px_-6px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.22)] flex items-center justify-between px-3.5 select-none touch-none cursor-grab active:cursor-grabbing hover:border-white/30 transition-[box-shadow,border-color] duration-150 ${
           isDragging ? 'ring-2 ring-white/30 shadow-2xl' : ''
         } ${className}`}
       >
@@ -462,7 +464,11 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-1.5" data-no-drag="true">
+        <div
+          className="flex items-center gap-1.5"
+          data-no-drag="true"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             data-testid="mini-timer-play-btn"
@@ -666,21 +672,21 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               e.stopPropagation();
               toggleCollapseWidget(id);
             }}
-            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             title={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
             aria-label={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
           >
-            {isCollapsed ? <Maximize2 size={14} strokeWidth={1.75} /> : <Minus size={14} strokeWidth={1.75} />}
+            {isCollapsed ? <Maximize2 size={13} strokeWidth={1.5} /> : <Minus size={13} strokeWidth={1.5} />}
           </button>
           <button
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             title={`Đóng ${displayTitle}`}
             aria-label={`Đóng ${displayTitle}`}
           >
-            <X size={14} strokeWidth={1.75} />
+            <X size={13} strokeWidth={1.5} />
           </button>
         </div>
       </div>

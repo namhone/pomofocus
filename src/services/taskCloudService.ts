@@ -227,6 +227,21 @@ export class TaskCloudService {
         if (!n.userId || n.userId === 'guest') {
           n.userId = newUserId;
           await db.notes.put(n);
+          // Đẩy ghi chú đã chuyển giao lên Supabase Cloud
+          const notePayload = {
+            id: n.id,
+            user_id: newUserId,
+            title: n.title,
+            content_markdown: n.contentMarkdown,
+            linked_task_id: n.linkedTaskId || null,
+            linked_project_id: n.linkedProjectId || null,
+            created_at: new Date(n.createdAt).toISOString(),
+            updated_at: new Date(n.updatedAt).toISOString(),
+            deleted_at: n.deletedAt ? new Date(n.deletedAt).toISOString() : null
+          };
+          supabase.from('notes').upsert(notePayload, { onConflict: 'id' }).catch((err) => {
+            console.warn('[TaskCloudService] Upsert guest note to cloud error:', err);
+          });
         }
       }
 
@@ -236,6 +251,24 @@ export class TaskCloudService {
         if (!s.userId || s.userId === 'guest') {
           s.userId = newUserId;
           await db.focus_sessions.put(s);
+          // Đẩy phiên tập trung lên Supabase Cloud
+          const sessionPayload = {
+            id: s.id,
+            user_id: newUserId,
+            task_id: s.taskId || null,
+            task_title: s.taskTitle || null,
+            mode: s.phase || 'pomodoro',
+            phase: s.phase || 'pomodoro',
+            duration_minutes: s.durationMinutes || 25,
+            actual_duration_seconds: (s.durationMinutes || 25) * 60,
+            completed: true,
+            completed_at: s.completedAt ? new Date(s.completedAt).toISOString() : new Date().toISOString(),
+            date_string: s.dateString || new Date().toISOString().split('T')[0],
+            created_at: s.completedAt ? new Date(s.completedAt).toISOString() : new Date().toISOString()
+          };
+          supabase.from('focus_sessions').upsert(sessionPayload, { onConflict: 'id' }).catch((err) => {
+            console.warn('[TaskCloudService] Upsert guest session to cloud error:', err);
+          });
         }
       }
 

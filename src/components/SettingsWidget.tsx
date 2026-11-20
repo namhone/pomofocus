@@ -25,7 +25,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useAiStore } from '../stores/useAiStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { useRouter } from '../services/router';
-import { generateInitialsAvatarSvg, getDisplayAvatar } from '../services/authService';
+import { UserAvatar } from './common/UserAvatar';
 import { DockPosition } from '../types/layout';
 
 export const SettingsWidget: React.FC = () => {
@@ -58,6 +58,7 @@ export const SettingsWidget: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isOwner = useAuthStore((s) => s.isOwner);
+  const effectiveBadge = useAuthStore((s) => s.effectiveBadge);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -86,25 +87,14 @@ export const SettingsWidget: React.FC = () => {
       {isAuthenticated && user ? (
         <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/[0.06] flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/10 shrink-0 flex items-center justify-center">
-              <img
-                src={getDisplayAvatar(user)}
-                alt={user.displayName || 'Avatar'}
-                className="w-full h-full object-cover bg-zinc-800"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  target.src = generateInitialsAvatarSvg(user.displayName || user.email || 'User', 64);
-                }}
-              />
-            </div>
+            <UserAvatar user={user} size="sm" testId="settings-user-avatar" />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[200px]">
                   {user.displayName || user.email.split('@')[0]}
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 border border-amber-500/30 text-amber-300 shrink-0">
-                  {isOwner ? 'Founder VIP' : (user.badge || user.plan)}
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-zinc-800 border border-zinc-700 text-zinc-200 shrink-0">
+                  {effectiveBadge}
                 </span>
               </div>
               <p className="text-[10px] text-zinc-400 truncate">
@@ -423,7 +413,7 @@ export const SettingsWidget: React.FC = () => {
             data-testid="glass-opacity-slider"
             value={glassSettings.opacity}
             onChange={(e) => setGlassOpacity(Number(e.target.value))}
-            className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+            className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
             aria-label="Điều chỉnh độ đục kính"
           />
 
@@ -439,7 +429,7 @@ export const SettingsWidget: React.FC = () => {
             data-testid="glass-blur-slider"
             value={glassSettings.blur}
             onChange={(e) => setGlassBlur(Number(e.target.value))}
-            className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+            className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
             aria-label="Điều chỉnh độ mờ kính"
           />
         </div>
@@ -478,17 +468,17 @@ export const SettingsWidget: React.FC = () => {
           onClick={() => toggleSnap()}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border transition-all cursor-pointer ${
             snapEnabled
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              ? 'bg-zinc-800 border-zinc-600 text-white'
               : 'bg-white/5 border-white/8 text-neutral-400 hover:text-neutral-200'
           }`}
           title="Bật/Tắt chế độ Snap vào lưới 16px và cạnh lân cận"
         >
           <div className="flex items-center gap-2 text-xs">
-            <Magnet size={13} className={snapEnabled ? 'text-emerald-400' : 'text-neutral-400'} />
+            <Magnet size={13} className={snapEnabled ? 'text-zinc-200' : 'text-neutral-400'} />
             <span>Snap lưới & cạnh 16px</span>
           </div>
           <span className={`text-[9.5px] font-semibold px-2 py-0.5 rounded-full ${
-            snapEnabled ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-neutral-400'
+            snapEnabled ? 'bg-zinc-700 text-white' : 'bg-white/10 text-neutral-400'
           }`}>
             {snapEnabled ? 'Đang bật' : 'Tắt'}
           </span>
@@ -509,7 +499,7 @@ export const SettingsWidget: React.FC = () => {
               title={`Đặt thanh công cụ bên ${position.label.toLowerCase()}`}
               className={`flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-lg border px-1 text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
                 dockPosition === position.id
-                  ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-200 font-semibold'
+                  ? 'border-zinc-600 bg-zinc-800 text-white font-semibold'
                   : 'border-white/5 bg-white/[0.03] text-neutral-400 hover:text-white'
               }`}
             >
@@ -525,7 +515,7 @@ export const SettingsWidget: React.FC = () => {
           aria-pressed={dockAutoHide}
           className={`flex min-h-9 w-full items-center justify-between rounded-lg border px-3 py-1.5 transition-colors cursor-pointer text-xs ${
             dockAutoHide
-              ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+              ? 'border-zinc-600 bg-zinc-800 text-white'
               : 'border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.08]'
           }`}
         >
@@ -552,7 +542,7 @@ export const SettingsWidget: React.FC = () => {
                 aria-pressed={(dockSize || 'normal') === size.id}
                 className={`flex min-h-8 items-center justify-center rounded-lg border px-1 text-xs transition-colors cursor-pointer ${
                   (dockSize || 'normal') === size.id
-                    ? 'border-amber-400/40 bg-amber-400/15 text-amber-200 font-semibold'
+                    ? 'border-zinc-600 bg-zinc-800 text-white font-semibold'
                     : 'border-white/5 bg-white/[0.03] text-neutral-400 hover:text-white'
                 }`}
               >
@@ -596,7 +586,7 @@ export const SettingsWidget: React.FC = () => {
 
       {/* Persistence Micro-copy */}
       <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 py-0.5 text-center">
-        <Lock className="w-3 h-3 text-emerald-400/70 shrink-0" />
+        <Lock className="w-3 h-3 text-zinc-400 shrink-0" />
         <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
       </div>
 

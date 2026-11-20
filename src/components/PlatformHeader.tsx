@@ -44,7 +44,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
   const isDownloadPage =
     isDownloadPageProp ??
     (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk');
-  const { user, isAuthenticated, logout, isPro, isLifetime } = useAuthStore();
+  const { user, isAuthenticated, logout, isPro, isLifetime, effectiveBadge: storeEffectiveBadge } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
@@ -110,13 +110,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         (user?.plan as string) === 'pro_beta')
   );
 
-  const effectiveBadge = isOwner
-    ? 'Founder VIP'
-    : isLifetimeAccount
-    ? 'Pro trọn đời'
-    : isProAccount
-    ? (user?.badge && !user.badge.includes('Free') ? user.badge : 'Pro hội viên')
-    : 'Thành viên Free';
+  const effectiveBadge = isAuthenticated ? (storeEffectiveBadge || 'Free') : 'Thành viên Free';
 
   const safeCreditsNum = !isAuthenticated
     ? (typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance)
@@ -392,14 +386,14 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           isWorkspace
             ? `fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
-              } border-b border-white/[0.08] px-4 sm:px-6 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
+              } border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
                   : '-translate-y-full opacity-0 pointer-events-none'
               } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
             : `sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
-              } px-4 sm:px-6 flex items-center justify-between select-none text-xs`
+              } px-4 xl:px-5 flex items-center justify-between select-none text-xs`
         }`}
       >
         {/* Brand & Plan Badge */}
@@ -433,7 +427,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
 
         {/* Desktop Navigation Links (>= lg) */}
         {!isDownloadPage && (
-          <nav className="hidden lg:flex items-center gap-1.5 py-1">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 py-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -449,7 +443,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   type="button"
                   data-testid={item.testId}
                   onClick={() => handleNavigate(item.path)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] ${
+                  className={`flex items-center gap-1.5 px-2 xl:px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] ${
                     isActive
                       ? 'bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50'
                       : 'text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -508,29 +502,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 e.stopPropagation();
                 useAiStore.getState().toggleOpen();
               }}
-              className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 font-semibold text-[11px] border border-cyan-500/30 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
               title={
                 isVipOrOwner
                   ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
                   : `Mở Trợ lý AI Companion (${safeCreditsNum.toLocaleString()}⚡)`
               }
             >
-              <Sparkles size={13} className="text-cyan-400 shrink-0" />
-              <span className="font-mono text-amber-300 font-bold">{displayCredits}</span>
-            </button>
-          )}
-
-          {/* PWA Install Button when available */}
-          {!isDownloadPage && canInstall && (
-            <button
-              type="button"
-              data-testid="pwa-install-btn"
-              onClick={() => triggerInstall()}
-              className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-xs border border-emerald-500/40 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
-              title="Cài đặt PomoFocus vào thiết bị (PWA)"
-            >
-              <Download size={13} className="shrink-0" />
-              <span className="hidden sm:inline">Cài App</span>
+              <Sparkles size={13} className="text-zinc-300 shrink-0 stroke-[1.5]" />
+              <span className="font-mono text-zinc-200 font-semibold">{displayCredits}</span>
             </button>
           )}
 
@@ -572,7 +552,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   alt={user.displayName}
                   testId="desktop-header-profile-avatar"
                 />
-                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[85px]">
+                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[130px] xl:max-w-[160px]">
                   {user.displayName}
                 </span>
                 <ChevronDown

@@ -7,7 +7,7 @@ import type { GoogleUserPayload } from './googleAuthService';
 export type UserPlan = 'free' | 'pro_beta' | 'pro_lifetime' | 'pro_sandbox' | 'pro';
 
 export const OWNER_EMAIL = 'namho03052k9@gmail.com';
-export const OWNER_EMAILS = [
+export const OWNER_EMAILS: readonly string[] = [
   'namho03052k9@gmail.com',
   'huyentrantt09@gmail.com',
   'tony31082009@gmail.com'
@@ -249,6 +249,10 @@ export interface UserProfile {
   twoFactorEnabled?: boolean;
   twoFactorMethod?: 'totp' | 'sms';
   totpVerifiedAt?: number;
+  // JWT Role & Claims
+  app_metadata?: { role?: string; [key: string]: any };
+  user_metadata?: { role?: string; [key: string]: any };
+  isAdmin?: boolean;
 }
 
 export interface ProfileUpdates {
@@ -295,24 +299,40 @@ export interface UserDataExport {
 
 const CLOUD_SYNC_PREFIX = 'pomodoro_cloud_sync_';
 
+/**
+ * Kiểm tra quyền quản trị Admin/Founder dựa trên Supabase JWT claims (app_metadata / user_metadata)
+ * hoặc trường role từ profile database.
+ */
+export function isAdmin(user?: UserProfile | null, session?: any): boolean {
+  if (!user && !session) return false;
+  if (user?.role === 'admin' || user?.role === 'founder') return true;
+  const appRole = (user as any)?.app_metadata?.role || session?.user?.app_metadata?.role;
+  const userRole = (user as any)?.user_metadata?.role || session?.user?.user_metadata?.role;
+  return appRole === 'admin' || userRole === 'admin' || appRole === 'founder' || userRole === 'founder';
+}
+
 export function isOwnerEmail(email?: string | null): boolean {
   if (!email) return false;
-  const normalized = email.trim().toLowerCase();
-  return normalized === OWNER_EMAIL || OWNER_EMAILS.includes(normalized);
+  return email.trim().toLowerCase() === OWNER_EMAIL.toLowerCase();
 }
 
 export function isLadyBoss(email?: string | null): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === LADY_BOSS_EMAIL;
+  return email.trim().toLowerCase() === LADY_BOSS_EMAIL.toLowerCase();
 }
 
 export function isVipFriend(email?: string | null): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === VIP_FRIEND_EMAIL;
+  return email.trim().toLowerCase() === VIP_FRIEND_EMAIL.toLowerCase();
 }
 
 export function hasProEntitlement(plan?: UserPlan | string | null, email?: string | null): boolean {
-  if (isLadyBoss(email) || isOwnerEmail(email) || isVipFriend(email)) return true;
+  if (email) {
+    const clean = email.trim().toLowerCase();
+    if (clean === OWNER_EMAIL.toLowerCase() || clean === LADY_BOSS_EMAIL.toLowerCase() || clean === VIP_FRIEND_EMAIL.toLowerCase()) {
+      return true;
+    }
+  }
   if (!plan) return false;
   return (
     plan === 'pro' ||
@@ -328,9 +348,12 @@ export function hasProEntitlement(plan?: UserPlan | string | null, email?: strin
  */
 export function hasVipAccess(user?: UserProfile | null): boolean {
   if (!user) return false;
-  if (user.email && isOwnerEmail(user.email)) return true;
+  if (isAdmin(user)) return true;
   if (user.isLifetime) return true;
-  if (user.role === 'founder') return true;
+  if (user.role === 'founder' || user.role === 'admin') return true;
+  if (user.email && (isOwnerEmail(user.email) || isLadyBoss(user.email) || isVipFriend(user.email))) {
+    return true;
+  }
   if (user.badge && (user.badge.includes('Founder') || user.badge.includes('VIP') || user.badge.includes('PRO'))) {
     return true;
   }
@@ -342,10 +365,8 @@ export function hasVipAccess(user?: UserProfile | null): boolean {
 
 export function getPlanLabel(user?: UserProfile | null): string {
   if (!user) return 'FREE';
-  if (isLadyBoss(user.email)) {
-    return '👑 NÓC NHÀ PRO';
-  }
-  if (user.isLifetime || user.plan === 'pro_lifetime' || user.plan === 'lifetime' || isOwnerEmail(user.email) || isVipFriend(user.email) || user.role === 'founder') {
+  if (user.email && isLadyBoss(user.email)) return '👑 NÓC NHÀ PRO';
+  if (isAdmin(user) || user.role === 'founder' || user.role === 'admin' || user.isLifetime || user.plan === 'pro_lifetime' || user.plan === 'lifetime') {
     return 'PRO TRỌN ĐỜI';
   }
   if (user.plan === 'pro_beta') return 'PRO BETA (3 NĂM)';

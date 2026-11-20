@@ -21,8 +21,8 @@ describe('MoMo & Vietcombank Payment & Account Linking Service Tests', () => {
     expect(order.amount).toBe(59000);
     expect(order.memo).toContain(order.orderId);
     expect(order.status).toBe('pending');
-    expect(order.qrUrl).toMatch(/(1066633885|0704862629|vietcombank)/);
-    expect(order.qrUrl).toContain('HO%20NGOC%20BAO%20NAM');
+    expect(order.qrUrl).toMatch(/(AGBSPTJE34IA3A8SAAX|VPBank)/);
+    expect(order.qrUrl).toContain('https://vietqr.app/img?');
   });
 
   it('2. Tạo đơn hàng gói Hàng năm với thông tin email và số tiền 468.000 VNĐ', () => {

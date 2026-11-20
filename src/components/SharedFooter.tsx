@@ -3,7 +3,6 @@ import { useRouter } from '../services/router';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Mail,
-  Phone,
   Check,
   Copy,
   MessageSquare,
@@ -24,22 +23,13 @@ import {
 export const SharedFooter: React.FC = () => {
   const router = useRouter();
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedPhone, setCopiedPhone] = useState(false);
 
-  const emailContact = 'namho03052k9@gmail.com';
-  const phoneContact = '0704862629';
-  const displayPhone = '0704 862 629';
+  const emailContact = 'support@pomofocus.vn';
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(emailContact);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
-  };
-
-  const handleCopyPhone = () => {
-    navigator.clipboard.writeText(phoneContact);
-    setCopiedPhone(true);
-    setTimeout(() => setCopiedPhone(false), 2000);
   };
 
   const productLinks = [
@@ -137,7 +127,7 @@ export const SharedFooter: React.FC = () => {
 
           {/* Col 2: Kênh Liên Hệ Trực Tiếp */}
           <div className="space-y-2.5 md:col-span-1">
-            <div className="font-semibold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
               <MessageSquare size={13} className="text-emerald-400 shrink-0" />
               <span className="whitespace-nowrap">Liên Hệ Trực Tiếp</span>
             </div>
@@ -166,31 +156,32 @@ export const SharedFooter: React.FC = () => {
               </button>
             </div>
 
-            {/* Phone quick item - Compact & Balanced */}
+            {/* Support portal quick item - Compact & Balanced */}
             <div className="p-1.5 sm:p-2 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between gap-2 min-h-[36px]">
-              <a
-                href={`tel:${phoneContact}`}
-                className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-300 hover:text-white"
-                title="Gọi hotline / Zalo"
-              >
-                <Phone size={12} className="text-zinc-400 shrink-0" />
-                <span>{displayPhone}</span>
-              </a>
               <button
                 type="button"
-                onClick={handleCopyPhone}
-                className="w-7 h-7 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
-                title="Sao chép số điện thoại"
-                aria-label="Sao chép vào bộ nhớ tạm"
+                onClick={() => router.navigate('/contact')}
+                className="flex items-center gap-1.5 text-[11px] text-zinc-300 hover:text-white"
+                title="Cổng hỗ trợ & gửi góp ý"
               >
-                {copiedPhone ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                <HelpCircle size={12} className="text-zinc-400 shrink-0" />
+                <span>Cổng Hỗ Trợ 24/7</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => router.navigate('/contact')}
+                className="w-7 h-7 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
+                title="Đến trang hỗ trợ"
+                aria-label="Đến trang hỗ trợ"
+              >
+                <MessageSquare size={12} className="text-emerald-400" />
               </button>
             </div>
           </div>
 
           {/* Col 3: Tính Năng Sản Phẩm (2-Column Grid on Mobile, Clean List on Desktop) */}
           <div className="space-y-2.5">
-            <div className="font-semibold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
               <Sparkles size={13} className="text-emerald-400" />
               <span>Sản Phẩm & Không Gian</span>
             </div>
@@ -211,7 +202,7 @@ export const SharedFooter: React.FC = () => {
 
           {/* Col 4: Hỗ Trợ & Pháp Lý (2-Column Grid on Mobile, Clean List on Desktop) */}
           <div className="space-y-2.5">
-            <div className="font-semibold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
               <ShieldCheck size={13} className="text-emerald-400" />
               <span>Hỗ Trợ & Điều Khoản</span>
             </div>

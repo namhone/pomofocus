@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FileText, Plus, Trash2, Check, Clock, AlertCircle } from 'lucide-react';
 import { useNoteStore } from '../stores/useNoteStore';
 import { renderSafeMarkdown } from '../utils/markdown';
+import { sanitizeHtml } from '../utils/sanitize';
 
 export const NotesWidget: React.FC = () => {
   const {
@@ -44,7 +45,7 @@ export const NotesWidget: React.FC = () => {
         return (
           <span
             data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 inline-flex items-center gap-1"
+            className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
           >
             <Check size={10} />
             <span>Đã lưu</span>
@@ -54,7 +55,7 @@ export const NotesWidget: React.FC = () => {
         return (
           <span
             data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/25 animate-pulse inline-flex items-center gap-1"
+            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/25 animate-pulse inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
           >
             <Clock size={10} />
             <span>Đang lưu...</span>
@@ -64,7 +65,7 @@ export const NotesWidget: React.FC = () => {
         return (
           <span
             data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 inline-flex items-center gap-1"
+            className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
           >
             <AlertCircle size={10} />
             <span>Lỗi lưu</span>
@@ -102,7 +103,7 @@ export const NotesWidget: React.FC = () => {
             type="button"
             data-testid="btn-new-note"
             onClick={() => createNote('Ghi chú mới')}
-            className="text-[11px] px-3 py-1 rounded-full bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+            className="text-[11px] px-3 py-1 rounded-full bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap"
           >
             <Plus size={12} strokeWidth={1.75} />
             <span>Thêm</span>
@@ -127,12 +128,12 @@ export const NotesWidget: React.FC = () => {
             />
 
             {/* Toggle Edit / Preview */}
-            <div className="flex rounded-full bg-black/30 p-1 border border-white/10 text-[11px] gap-1">
+            <div className="flex items-center rounded-full bg-black/30 p-1 border border-white/10 text-[11px] gap-1 shrink-0">
               <button
                 type="button"
                 data-testid="tab-note-edit"
                 onClick={() => setActiveTab('edit')}
-                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap ${
                   activeTab === 'edit'
                     ? 'bg-white/15 text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -144,7 +145,7 @@ export const NotesWidget: React.FC = () => {
                 type="button"
                 data-testid="tab-note-preview"
                 onClick={() => setActiveTab('preview')}
-                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${
+                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap ${
                   activeTab === 'preview'
                     ? 'bg-white/15 text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -159,7 +160,7 @@ export const NotesWidget: React.FC = () => {
               data-testid="btn-delete-note"
               onClick={() => deleteNote(activeNote.id)}
               title="Xóa ghi chú"
-              className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400"
+              className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 shrink-0"
             >
               <Trash2 size={13} strokeWidth={1.75} />
             </button>
@@ -227,9 +228,10 @@ export const NotesWidget: React.FC = () => {
               data-testid="markdown-preview-container"
               className={`flex-1 w-full h-full min-h-[140px] overflow-y-auto p-3.5 rounded-xl border text-xs transition-colors ${stickyStyles}`}
               dangerouslySetInnerHTML={{
-                __html:
+                __html: sanitizeHtml(
                   renderSafeMarkdown(activeNote.contentMarkdown) ||
                   '<p class="text-xs text-neutral-500 italic">Nội dung ghi chú trống...</p>'
+                )
               }}
             />
           )}

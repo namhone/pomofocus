@@ -16,6 +16,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/payment/vcb-webhook",
+      "destination": "/api/payment/webhook"
+    },
+    {
       "source": "/((?!api/|robots\\.txt|sitemap\\.xml|llms\\.txt|ai-catalog\\.json|manifest\\.webmanifest|.*\\.[\\w]+$).*)",
       "destination": "/index.html"
     },

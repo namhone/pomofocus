@@ -233,7 +233,13 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             </span>
             <button
               type="button"
-              onClick={() => openTopupModal()}
+              onClick={() => {
+                if (!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest) {
+                  onOpenAuth?.();
+                  return;
+                }
+                openTopupModal();
+              }}
               className="ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/15 active:scale-95 transition-all cursor-pointer"
             >
               Nạp thêm
@@ -258,8 +264,11 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             <button
               type="button"
               onClick={() => {
-                openTopupModal();
-                onOpenAuth?.();
+                if (!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest) {
+                  onOpenAuth?.();
+                  return;
+                }
+                router.navigate('/billing');
               }}
               className="px-2.5 py-1 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-medium active:scale-95 transition cursor-pointer shadow-sm"
             >

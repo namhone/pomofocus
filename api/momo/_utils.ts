@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { createHmac } from 'crypto';
 
 export interface MoMoConfig {
   partnerCode: string;
@@ -16,7 +16,7 @@ export const DEFAULT_MOMO_CONFIG: MoMoConfig = {
 };
 
 export function computeHmacSha256Node(secretKey: string, rawSignature: string): string {
-  return crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
+  return createHmac('sha256', secretKey).update(rawSignature).digest('hex');
 }
 
 export function buildCreatePaymentSignature(params: {

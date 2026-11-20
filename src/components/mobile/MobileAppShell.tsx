@@ -44,7 +44,6 @@ import { AmbientOverlay } from '../AmbientOverlay';
 import { MobileFocusView } from './views/MobileFocusView';
 import { MobileSettingsView } from './views/MobileSettingsView';
 import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
-import { AiCreditsTopupModal } from '../AiCreditsTopupModal';
 import { GlobalAudioHost } from '../GlobalAudioHost';
 import { UserAvatar } from '../common/UserAvatar';
 import { isNativeApiRuntime } from '../../utils/apiConfig';
@@ -87,7 +86,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   const user = useAuthStore((s) => s.user);
   const isTopupModalOpen = useAiStore((s) => s.isTopupModalOpen);
-  const closeTopupModal = useAiStore((s) => s.closeTopupModal);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   const { isNativeCapacitor } = useDeviceDetection();
@@ -340,9 +338,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
 
       {/* Background Audio Host for mobile chime/ambient playback */}
       <GlobalAudioHost />
-
-      {/* Topup Modal */}
-      <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
 
       {/* Liquid Bottom Sheet Auth */}
       <MobileAuthBottomSheet isOpen={isAuthSheetOpen} onClose={() => setIsAuthSheetOpen(false)} />

@@ -320,7 +320,7 @@ export const StudyRoomLobby: React.FC = () => {
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <span>Khởi Tạo Phòng Học Mới</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
-                  MÃ DUY NHẤT
+                  Mã duy nhất
                 </span>
               </h2>
               <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
@@ -534,7 +534,7 @@ export const StudyRoomLobby: React.FC = () => {
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <span>Tham Gia Phòng Có Sẵn</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
-                  MÃ HOẶC LINK
+                  Mã hoặc link
                 </span>
               </h2>
               <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
@@ -585,8 +585,8 @@ export const StudyRoomLobby: React.FC = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 <Sparkles size={16} className="text-zinc-300" />
                 <h3 className="font-bold text-sm text-white">Phòng Học Công Khai</h3>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold uppercase tracking-wider">
-                  MIỄN PHÍ • 10 NGƯỜI
+                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
+                  Miễn phí • 10 người
                 </span>
               </div>
               <p className="text-xs text-zinc-400 mt-1">
@@ -624,13 +624,13 @@ export const StudyRoomLobby: React.FC = () => {
                         {pod.title}
                       </span>
                       {isFull ? (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30 font-bold">
-                          ĐẦY
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium">
+                          Đầy
                         </span>
                       ) : (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          SẴN SÀNG
+                          Sẵn sàng
                         </span>
                       )}
                     </div>

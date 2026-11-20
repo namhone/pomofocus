@@ -22,8 +22,101 @@ import {
   Gift,
   Smartphone,
   Sparkles,
-  Building2
+  Building2,
+  Lock,
+  Loader2
 } from 'lucide-react';
+
+interface MoMoVietQrDisplayProps {
+  qrUrl: string;
+  memo: string;
+  amount: number;
+}
+
+const MoMoVietQrDisplay = React.memo<MoMoVietQrDisplayProps>(({ qrUrl, memo, amount }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const prevUrlRef = useRef<string>('');
+
+  useEffect(() => {
+    if (qrUrl && qrUrl !== prevUrlRef.current) {
+      prevUrlRef.current = qrUrl;
+      setImageLoaded(false);
+      setHasError(false);
+    }
+  }, [qrUrl]);
+
+  return (
+    <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl bg-white p-3 flex items-center justify-center shadow-xl border border-zinc-200">
+      {!imageLoaded && !hasError && (
+        <div className="absolute inset-0 bg-white/95 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-2xl z-10 space-y-1.5">
+          <Loader2 size={24} className="animate-spin text-zinc-600" />
+          <span className="text-[10px] text-zinc-500 font-medium">Đang tải mã VietQR...</span>
+        </div>
+      )}
+      {!hasError && qrUrl ? (
+        <img
+          key={memo || qrUrl}
+          src={qrUrl}
+          alt="Mã VietQR thanh toán SePay VPBank"
+          data-testid="momo-qr-image"
+          loading="eager"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            console.warn('Không tải được ảnh VietQR trực tiếp, chuyển sang QR engine dự phòng');
+            setHasError(true);
+          }}
+          className={`w-full h-full object-contain transition-opacity duration-200 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center text-center p-3 text-zinc-900 bg-zinc-50 rounded-xl">
+          <QrCode size={36} className="text-zinc-600 mb-1" />
+          <span className="text-xs font-bold text-zinc-800">VPBank (SePay VA)</span>
+          <span className="text-sm font-mono font-black text-emerald-700 tracking-wider">AGBSPTJE34IA3A8SAAX</span>
+          <span className="text-[11px] text-zinc-600 mt-1">Nội dung CK: <strong className="font-mono">{memo}</strong></span>
+          <span className="text-[10px] text-zinc-500 mt-0.5">Số tiền: {amount.toLocaleString('vi-VN')}đ</span>
+        </div>
+      )}
+    </div>
+  );
+});
+MoMoVietQrDisplay.displayName = 'MoMoVietQrDisplay';
+
+interface MoMoCountdownTimerProps {
+  initialSeconds?: number;
+  onExpire?: () => void;
+}
+
+const MoMoCountdownTimer = React.memo<MoMoCountdownTimerProps>(({ initialSeconds = 600, onExpire }) => {
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+
+  useEffect(() => {
+    setSecondsLeft(initialSeconds);
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onExpire?.();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [initialSeconds, onExpire]);
+
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  return (
+    <span className="font-bold text-amber-300">
+      {`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`}
+    </span>
+  );
+});
+MoMoCountdownTimer.displayName = 'MoMoCountdownTimer';
 
 interface MoMoPaymentModalProps {
   cycle: PlanCycle;
@@ -52,8 +145,6 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   const [copiedAmount, setCopiedAmount] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccessState, setIsSuccessState] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600); // 10 phút đếm ngược (600 giây)
-  const [imgError, setImgError] = useState(false);
   const [couponInput, setCouponInput] = useState('');
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
@@ -64,6 +155,10 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   // 1. Khởi tạo đơn hàng khi mở modal & Khóa cuộn trang web bên ngoài (Chống lỗi 2 thanh cuộn)
   useEffect(() => {
     if (isOpen) {
+      if (!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest) {
+        return;
+      }
+
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
 
@@ -87,13 +182,12 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       }
       setOrder(initialOrder);
       setIsSuccessState(false);
-      setTimeLeft(600); // 10:00
-      setImgError(false);
 
       // Gọi backend tạo mã đơn
       momoService.createOnlinePayment({
         userId: user?.id,
         userEmail: initialEmail,
+        orderId: initialOrder.orderId,
         cycle,
         returnUrl: typeof window !== 'undefined' ? window.location.href : undefined
       }).then((res) => {
@@ -123,7 +217,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, cycle]);
+  }, [isOpen, cycle, user?.id, (user as any)?.isGuest]);
 
   // 2. Kích hoạt thành công & Confetti
   const handlePaymentSuccess = (_orderId: string, proExpiresAt?: string | null) => {
@@ -145,7 +239,7 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     pollTimerRef.current = setInterval(async () => {
       try {
         const res = await momoService.checkPaymentStatus(order.orderId, user?.id);
-        if (res.isPaid || res.isPro) {
+        if (res.isPaid) {
           handlePaymentSuccess(order.orderId, res.proExpiresAt);
         }
       } catch (err) {
@@ -179,25 +273,66 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
     };
   }, [isOpen, isSuccessState, order?.orderId, user?.id]);
 
-  // 4. Đồng hồ đếm ngược 10:00 (hết hạn đơn sau 600s)
-  useEffect(() => {
-    if (!isOpen || isSuccessState || timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isOpen, isSuccessState, timeLeft]);
+  if (!isOpen) return null;
 
-  if (!isOpen || !order) return null;
+  // Chặn khách chưa đăng nhập tài khoản thật tạo đơn / quét QR (BUG-14)
+  if (!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest) {
+    return (
+      <div
+        data-testid="momo-payment-modal"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        style={{ zIndex: 100 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+      >
+        <div className="relative z-[101] w-full max-w-sm rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_24px_64px_rgba(0,0,0,0.6)] p-6 my-auto text-center space-y-4">
+          <button
+            type="button"
+            data-testid="btn-close-payment-modal"
+            onClick={onClose}
+            className="hit-slop-48 absolute top-3.5 right-3.5 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-zinc-800 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer z-10"
+          >
+            <X size={18} />
+          </button>
+          <div className="w-12 h-12 rounded-2xl bg-zinc-800/80 border border-white/10 flex items-center justify-center mx-auto text-zinc-300">
+            <Lock size={22} />
+          </div>
+          <div className="space-y-1.5">
+            <h4 className="text-base font-bold text-white">Yêu cầu đăng nhập tài khoản thật</h4>
+            <p className="text-xs text-zinc-400 max-w-xs mx-auto leading-relaxed">
+              Vui lòng đăng nhập tài khoản trước khi tiến hành thanh toán gói PRO để quyền lợi được lưu trữ và đồng bộ an toàn trên tài khoản của bạn.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col gap-2">
+            <button
+              type="button"
+              data-testid="btn-login-to-pay"
+              onClick={() => {
+                onClose();
+                router.navigate('/login');
+              }}
+              className="w-full py-3 rounded-xl bg-white text-zinc-950 text-xs font-bold hover:bg-zinc-200 transition active:scale-98 cursor-pointer shadow-lg"
+            >
+              Đăng nhập ngay
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium text-xs transition cursor-pointer"
+            >
+              Để sau
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) return null;
 
   const formatCurrency = (amt: number) => {
     return amt.toLocaleString('vi-VN') + ' VNĐ';
-  };
-
-  const formatTimer = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const handleCopy = (text: string, type: 'memo' | 'account' | 'name' | 'amount') => {
@@ -277,11 +412,15 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
   };
 
   // Cấu hình link VietQR chuẩn xác 100% Vietcombank 1066633885 - HO NGOC BAO NAM
-  const bankCode = 'vietcombank';
-  const accountNo = '1066633885';
-  const accountName = 'HO NGOC BAO NAM';
+  const bankCode = 'VPBank';
+  const accountNo = 'AGBSPTJE34IA3A8SAAX';
+
   const cleanMemo = order.memo.startsWith('POMO_') ? order.memo : `POMO_${order.memo}`;
-  const realVietQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact.png?amount=${order.amount}&addInfo=${encodeURIComponent(cleanMemo)}&accountName=${encodeURIComponent(accountName)}`;
+  const realVietQrUrl = React.useMemo(() => {
+    if (!order?.memo || !order?.amount) return '';
+    const memoToUse = order.memo.startsWith('POMO_') ? order.memo : `POMO_${order.memo}`;
+    return `https://vietqr.app/img?acc=${accountNo}&bank=${bankCode}&amount=${order.amount}&des=${encodeURIComponent(memoToUse)}`;
+  }, [order?.memo, order?.amount, accountNo, bankCode]);
 
   return (
     <div
@@ -378,32 +517,15 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
               <div className="inline-flex items-center gap-1.5 font-mono text-xs text-zinc-400 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full">
                 <Clock size={12} className="text-amber-400" />
                 <span>Mã QR hết hạn sau:</span>
-                <span className="font-bold text-amber-300">{formatTimer(timeLeft)}</span>
+                <MoMoCountdownTimer initialSeconds={600} />
               </div>
 
               {/* Khung Mã VietQR Động Thật 100% */}
-              <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl bg-white p-3 flex items-center justify-center shadow-xl border border-zinc-200">
-                {!imgError ? (
-                  <img
-                    src={realVietQrUrl}
-                    alt="Mã VietQR thanh toán Vietcombank"
-                    className="w-full h-full object-contain"
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div className="text-center p-4 text-zinc-800">
-                    <QrCode size={48} className="mx-auto mb-2 text-zinc-900" />
-                    <span className="text-xs font-medium block">Không thể tải ảnh QR</span>
-                    <button
-                      type="button"
-                      onClick={() => setImgError(false)}
-                      className="mt-2 px-2.5 py-1 rounded bg-black text-white text-[11px]"
-                    >
-                      Thử lại
-                    </button>
-                  </div>
-                )}
-              </div>
+              <MoMoVietQrDisplay
+                qrUrl={realVietQrUrl}
+                memo={cleanMemo}
+                amount={order.amount}
+              />
 
               {/* Nút bấm trên thiết bị di động */}
               <a
@@ -441,11 +563,11 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     <Building2 size={13} className="text-emerald-400" />
                     <span>Ngân hàng:</span>
                   </span>
-                  <span className="font-semibold text-white">Vietcombank (VCB)</span>
+                  <span className="font-semibold text-white">VPBank (Ngân hàng Việt Nam Thịnh Vượng)</span>
                 </div>
 
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-xs">
-                  <span className="text-zinc-400">Số tài khoản VCB:</span>
+                  <span className="text-zinc-400">Số tài khoản VA (SePay):</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold text-emerald-300 font-mono text-sm tracking-wider">{BANKING_CONFIG.accountNumber}</span>
                     <button
@@ -541,11 +663,11 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                   </div>
                   <span className="text-[11px] font-semibold text-emerald-300">
-                    Hệ thống đang tự động chờ giao dịch từ Vietcombank...
+                    Hệ thống đang tự động chờ giao dịch xác nhận 3–10 giây qua SePay...
                   </span>
                 </div>
                 <p className="text-[10px] text-zinc-400 pl-5">
-                  (Mở khóa PRO tự động sau 5 - 15 giây khi nhận được tiền, không cần bấm xác nhận)
+                  (Mở khóa PRO tự động sau 3 - 10 giây khi nhận được tiền qua SePay, không cần bấm xác nhận)
                 </p>
               </div>
 

@@ -23,6 +23,7 @@ import {
 import { PlatformHeader } from '../PlatformHeader';
 import { SharedFooter } from '../SharedFooter';
 import { PomoFocusLogo } from '../PomoFocusLogo';
+import { sanitizeSvg } from '../../utils/sanitize';
 import { useDeviceDetection } from '../../hooks/useDeviceDetection';
 import { generateValidQrCodeSvg, copyToClipboard } from '../../utils/qrCode';
 import { useRouter } from '../../services/router';
@@ -321,7 +322,7 @@ export const WebDownloadHub: React.FC = () => {
                   <div
                     data-testid="dynamic-qr-code"
                     className="p-1.5 rounded-xl bg-white border border-white/20 shadow-md shrink-0"
-                    dangerouslySetInnerHTML={{ __html: qrSvg }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrSvg) }}
                   />
                   <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400 mt-2 tracking-wider">
                     <QrCode className="w-3.5 h-3.5" />

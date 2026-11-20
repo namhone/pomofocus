@@ -15,7 +15,13 @@ import {
   Flower2,
   Zap,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Music,
+  Lock,
+  Coffee,
+  Building2,
+  Monitor,
+  Trees
 } from 'lucide-react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { useRouter } from '../services/router';
@@ -304,7 +310,7 @@ export const SpacesWidget: React.FC = () => {
   return (
     <div
       data-testid="spaces-widget"
-      className="flex h-full w-full max-w-[420px] max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700"
+      className="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700"
     >
             {/* 2 Tab chuyển đổi rõ ràng ở đầu: [ 🖼️ Hình Nền ] | [ 🎵 Âm Thanh & Chuông ] */}
       <div className="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2">
@@ -318,7 +324,7 @@ export const SpacesWidget: React.FC = () => {
               : 'text-neutral-400 hover:text-white'
           }`}
         >
-          <span>🖼️</span>
+          <ImageIcon size={13} strokeWidth={1.5} className="shrink-0" />
           <span className="whitespace-nowrap">Hình Nền</span>
         </button>
         <button
@@ -331,7 +337,7 @@ export const SpacesWidget: React.FC = () => {
               : 'text-neutral-400 hover:text-white'
           }`}
         >
-          <span>🎵</span>
+          <Music size={13} strokeWidth={1.5} className="shrink-0" />
           <span className="whitespace-nowrap">Âm Thanh & Chuông</span>
         </button>
       </div>
@@ -470,7 +476,7 @@ export const SpacesWidget: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm kiếm 1.000+ ảnh (Lofi, Anime, Tokyo, Minimalist...)"
+              placeholder="Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)"
               className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
             />
           </div>
@@ -488,26 +494,45 @@ export const SpacesWidget: React.FC = () => {
                   : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
               }`}
             >
-              <span>🌌</span>
+              <Sparkles size={12} strokeWidth={1.5} className="shrink-0" />
               <span>Tất cả</span>
             </button>
 
-            {WALLPAPER_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                data-testid={`filter-cat-${cat.id}`}
-                onClick={() => handleCategorySelect(cat.id as WallpaperCategory)}
-                className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
-                  selectedCategory === cat.id
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                    : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
-                }`}
-              >
-                <span>{cat.icon}</span>
-                <span>{cat.label}</span>
-              </button>
-            ))}
+            {WALLPAPER_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
+              const renderCategoryIcon = (id: string) => {
+                switch (id) {
+                  case 'lofi-study':
+                    return <Coffee size={12} strokeWidth={1.5} className="shrink-0" />;
+                  case 'anime-ghibli':
+                    return <Palette size={12} strokeWidth={1.5} className="shrink-0" />;
+                  case 'cyberpunk-tokyo':
+                    return <Building2 size={12} strokeWidth={1.5} className="shrink-0" />;
+                  case 'minimalist-desk':
+                    return <Monitor size={12} strokeWidth={1.5} className="shrink-0" />;
+                  case 'nature-zen':
+                    return <Trees size={12} strokeWidth={1.5} className="shrink-0" />;
+                  default:
+                    return <Sparkles size={12} strokeWidth={1.5} className="shrink-0" />;
+                }
+              };
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  data-testid={`filter-cat-${cat.id}`}
+                  onClick={() => handleCategorySelect(cat.id as WallpaperCategory)}
+                  className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
+                    selectedCategory === cat.id
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
+                      : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
+                  }`}
+                >
+                  {renderCategoryIcon(cat.id)}
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
 
             {/* Video Motion Preset Filter (data-testid cho E2E) */}
             <button
@@ -526,13 +551,15 @@ export const SpacesWidget: React.FC = () => {
           </div>
 
 
-          {/* Lưới Ảnh Thumbnail (2 cột bo góc, hover mượt) */}
+          {/* Lưới Ảnh Thumbnail (responsive 2-4 cột bo góc, hover mượt) */}
           <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">
             {/* 1. Nhóm Video Presets khi filter === 'video' hoặc 'all' (chỉ khi không tìm kiếm) */}
             {(selectedCategory === 'video' || (selectedCategory === 'all' && !searchQuery.trim())) && (
-              <div className="grid grid-cols-2 gap-2">
+              <div data-testid="presets-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 [grid-template-columns:repeat(auto-fill,minmax(140px,1fr))] gap-2">
                 {BACKGROUND_PRESETS.filter((p) =>
-                  selectedCategory === 'video' ? p.category === 'video' : true
+                  (selectedCategory === 'video'
+                    ? p.category === 'video'
+                    : p.category !== 'solid' && !p.id.startsWith('zen-') && p.id !== 'pure-black')
                 ).map((preset) => {
                   const isSelected = activePresetId === preset.id;
 
@@ -561,7 +588,7 @@ export const SpacesWidget: React.FC = () => {
                           }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
+                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
                           {preset.category === 'video' ? (
                             <>
                               <Video size={8} className="text-sky-400" /> Video
@@ -590,9 +617,9 @@ export const SpacesWidget: React.FC = () => {
               </div>
             )}
 
-            {/* 2. Nhóm 1.000+ Hình Nền Tuyển Chọn Pinterest */}
+            {/* 2. Nhóm Hình Nền Tuyển Chọn Pinterest */}
             {selectedCategory !== 'video' && (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 [grid-template-columns:repeat(auto-fill,minmax(140px,1fr))] gap-2">
                 {loadedWallpapers.map((item) => {
                   const isItemPro = item.category === 'cyberpunk-tokyo';
                   const isLocked = !isPro && isItemPro;
@@ -646,8 +673,9 @@ export const SpacesWidget: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300">
-                          {isLocked ? `🔒 ${item.title}` : item.title}
+                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300 flex items-center">
+                          {isLocked && <Lock size={11} strokeWidth={1.5} className="inline mr-1 text-zinc-400 shrink-0" />}
+                          <span className="truncate">{item.title}</span>
                         </h4>
                         <p className="text-[9px] text-neutral-500 truncate">{item.author}</p>
                       </div>
@@ -844,7 +872,7 @@ export const SpacesWidget: React.FC = () => {
               onClick={() => setActiveTab('wallpapers')}
               className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition cursor-pointer"
             >
-              Xem Kho Hình Nền (1.000+ Ảnh)
+              Xem kho hình nền
             </button>
           </div>
         </div>

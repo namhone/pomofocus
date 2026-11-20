@@ -112,8 +112,9 @@ describe('Milestone 1: Zero-FOUT & Typography Foundation (Adversarial Challenger
       expect(rootInner).toContain('<a href="/terms">Điều Khoản Dịch Vụ</a>');
 
       // Contact details
-      expect(rootInner).toContain('namho03052k9@gmail.com');
-      expect(rootInner).toContain('0704 862 629');
+      expect(rootInner).toContain('support@pomofocus.vn');
+      expect(rootInner).not.toContain('0704 862 629');
+      expect(rootInner).not.toContain('0704862629');
     });
   });
 

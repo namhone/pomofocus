@@ -41,6 +41,7 @@ import {
   WhiteboardDrawStreamPayload
 } from '../types/whiteboard';
 import { StudyMaterial } from '../types/documentMaterial';
+import { sanitizeHtml } from '../utils/sanitize';
 import {
   loadPdfJs,
   renderPdfPageToCanvas,
@@ -1147,7 +1148,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       ctx.font = '16px Inter, sans-serif';
 
       const tmp = document.createElement('div');
-      tmp.innerHTML = htmlContent;
+      tmp.innerHTML = sanitizeHtml(htmlContent);
       const lines = (tmp.innerText || '').split('\n').slice(0, 45);
 
       let y = 50;

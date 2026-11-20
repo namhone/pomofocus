@@ -279,10 +279,10 @@ describe('Tier 1: Feature Coverage (Isolation) — Pomofocus v6.0 Ultimate', () 
   // Feature 15: Media Player Dimension Guardrail & 16:9
   // -------------------------------------------------------------------------
   describe('Feature 15: Media Player Dimension Guardrail & 16:9 (M4)', () => {
-    it('giới hạn kích thước Media: Min 280x140px — Max 420x260px và khóa tỷ lệ 16:9', () => {
+    it('giới hạn kích thước Media: Min 320x320px — Max 640x560px và khóa tỷ lệ 16:9', () => {
       const mediaWidget = DEFAULT_WIDGETS.media;
       expect(mediaWidget.minWidth).toBeLessThanOrEqual(320);
-      expect(mediaWidget.minHeight).toBeLessThanOrEqual(216);
+      expect(mediaWidget.minHeight).toBeLessThanOrEqual(320);
       expect(mediaWidget.maxWidth).toBeGreaterThanOrEqual(420);
     });
   });

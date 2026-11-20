@@ -43,31 +43,31 @@ export const ANIME_WALLPAPERS_LOCAL: {
   // 1. Ghibli Scenery
   {
     filename: 'anime-01.webp',
-    title: 'Chuyến Tàu Trên Mặt Nước Vùng Đất Linh Hồn',
+    title: 'Chuyến Tàu Trên Mặt Nước',
     author: 'Studio Ghibli (Spirited Away)',
     tags: ['ghibli', 'spirited-away', 'water-train', 'sea', 'anime', 'digital-art']
   },
   {
     filename: 'anime-02.webp',
-    title: 'Đồng Cỏ Xanh Totoro & Mây Trắng Bồng Bềnh',
+    title: 'Đồng cỏ Totoro',
     author: 'Studio Ghibli (My Neighbor Totoro)',
     tags: ['ghibli', 'totoro', 'green-field', 'clouds', 'anime', 'scenery']
   },
   {
     filename: 'anime-03.webp',
-    title: 'Lâu Đài Bay Howl Giữa Thảo Nguyên Xanh',
+    title: 'Lâu đài Howl',
     author: 'Studio Ghibli (Howl Castle)',
     tags: ['ghibli', 'howl', 'castle', 'meadow', 'anime', 'fantasy']
   },
   {
     filename: 'anime-04.webp',
-    title: 'Khu Vườn Arrietty Thơ Mộng Sương Sớm',
+    title: 'Vườn Arrietty',
     author: 'Studio Ghibli (The Secret World of Arrietty)',
     tags: ['ghibli', 'arrietty', 'garden', 'green', 'peaceful', 'nature']
   },
   {
     filename: 'anime-05.webp',
-    title: 'Thị Trấn Ven Biển Gió Lộng Kiki',
+    title: 'Thị trấn Kiki',
     author: 'Studio Ghibli (Kiki Delivery Service)',
     tags: ['ghibli', 'kiki', 'sea-town', 'summer', 'anime', 'scenery']
   },
@@ -75,31 +75,31 @@ export const ANIME_WALLPAPERS_LOCAL: {
   // 2. Makoto Shinkai Scenery
   {
     filename: 'anime-06.webp',
-    title: 'Sao Băng Your Name Rực Rỡ Đêm Tinh Cầu',
+    title: 'Sao băng Your Name',
     author: 'Makoto Shinkai (Kimi no Na Wa)',
     tags: ['shinkai', 'your-name', 'meteor', 'stars', 'comet', 'anime-art']
   },
   {
     filename: 'anime-07.webp',
-    title: 'Hoàng Hôn Tím Kimi no Na Wa Bên Hồ',
+    title: 'Hoàng hôn Your Name',
     author: 'Makoto Shinkai (Kimi no Na Wa)',
     tags: ['shinkai', 'sunset', 'lake', 'purple', 'twilight', 'anime']
   },
   {
     filename: 'anime-08.webp',
-    title: 'Dải Ngân Hà & Bầu Trời Đêm Đầy Sao Shinkai',
+    title: 'Ngân hà Shinkai',
     author: 'Makoto Shinkai (Your Name)',
     tags: ['shinkai', 'galaxy', 'night-sky', 'stars', 'milky-way', 'anime']
   },
   {
     filename: 'anime-09.webp',
-    title: 'Tokyo Anime Ráng Chiều Hoàng Hôn Shinkai',
+    title: 'Tokyo hoàng hôn',
     author: 'Makoto Shinkai (Cityscape)',
     tags: ['shinkai', 'tokyo', 'sunset', 'clouds', 'city', 'anime']
   },
   {
     filename: 'anime-10.webp',
-    title: 'Đường Ray Xe Lửa Nắng Chiều Nhật Bản',
+    title: 'Đường ray Shinkai',
     author: 'Makoto Shinkai (Railway)',
     tags: ['shinkai', 'railway', 'train', 'afternoon', 'japan', 'anime']
   },
@@ -107,25 +107,25 @@ export const ANIME_WALLPAPERS_LOCAL: {
   // 3. Lofi Study Anime
   {
     filename: 'anime-11.webp',
-    title: 'Bàn Học Lofi Anime Ấm Áp Đèn Vàng',
+    title: 'Bàn học Lofi',
     author: 'Lofi Girl Digital Art',
     tags: ['lofi', 'anime-study', 'desk', 'room', 'warm', 'night', 'chill']
   },
   {
     filename: 'anime-12.webp',
-    title: 'Góc Học Đêm Bên Màn Hình Máy Tính Anime',
+    title: 'Góc học đêm',
     author: 'Aesthetic Lofi Illustration',
     tags: ['lofi', 'study-girl', 'computer', 'night', 'headphones', 'cozy']
   },
   {
     filename: 'anime-13.webp',
-    title: 'Góc Đọc Sách Bên Khung Cửa Sổ Nắng Sớm',
+    title: 'Cửa sổ nắng mai',
     author: 'Peaceful Anime Art',
     tags: ['lofi', 'reading', 'sunlight', 'morning', 'books', 'peaceful']
   },
   {
     filename: 'anime-14.webp',
-    title: 'Nữ Sinh Anime Ngắm Mây Trời Bồng Bềnh',
+    title: 'Mây trời xanh',
     author: 'Japanese Anime Illustration',
     tags: ['anime-girl', 'sky', 'clouds', 'school', 'dreamy', 'art']
   },
@@ -133,25 +133,25 @@ export const ANIME_WALLPAPERS_LOCAL: {
   // 4. Cozy Anime Night
   {
     filename: 'anime-15.webp',
-    title: 'Thành Phố Anime Về Đêm Ánh Đèn Lung Linh',
+    title: 'Phố đêm Anime',
     author: 'Tokyo Anime Night Art',
     tags: ['cozy-night', 'city-lights', 'neon', 'balcony', 'anime-city']
   },
   {
     filename: 'anime-16.webp',
-    title: 'Cơn Mưa Đêm Phố Thị Anime Tĩnh Lặng',
+    title: 'Mưa đêm phố thị',
     author: 'Rainy Anime Illustration',
     tags: ['rain', 'night', 'city', 'lights', 'reflective', 'cozy']
   },
   {
     filename: 'anime-17.webp',
-    title: 'Quán Xá Hẻm Phố Anime Đèn Lồng Đỏ',
+    title: 'Hẻm lồng đèn đỏ',
     author: 'Japan Street Anime Art',
     tags: ['ramen', 'street', 'lanterns', 'cozy', 'japan', 'night']
   },
   {
     filename: 'anime-18.webp',
-    title: 'Mặt Hồ Yên Bình Đêm Trăng Ngắm Phố Thị',
+    title: 'Mặt hồ đêm trăng',
     author: 'Shinkai Lake Art',
     tags: ['lake', 'moon', 'peaceful', 'water', 'city-glow', 'anime']
   }
@@ -188,16 +188,16 @@ const CATEGORY_SEEDS: Record<
       { id: 'photo-1513542789411-b6a5d4f31634', author: 'Jeremy Bishop' }
     ],
     titleTemplates: [
-      'Góc Học Tập Bàn Gỗ Đèn Vàng',
-      'Sổ Tay & Laptop Tập Trung Sáng',
-      'Mưa Rơi Bên Bàn Làm Việc Đêm',
-      'Kệ Sách Gỗ & Ánh Nắng Chiều',
-      'Góc Chill Nghe Nhạc Đĩa Than',
-      'Phòng Học Gác Mái Tĩnh Lặng',
-      'Bàn Gỗ Tự Nhiên & Cây Xanh Để Bàn',
-      'Đèn Bàn Cổ Điển & Bản Thảo Nháp',
-      'Đêm Đông Tập Trung Bên Tách Trà',
-      'Hoàng Hôn Khẽ Rọi Khung Cửa Sổ'
+      'Bàn gỗ đèn vàng',
+      'Sổ tay & laptop',
+      'Mưa rơi bên bàn',
+      'Kệ sách nắng chiều',
+      'Chill đĩa than',
+      'Gác mái tĩnh lặng',
+      'Bàn gỗ cây xanh',
+      'Đèn bàn cổ điển',
+      'Tập trung bên tách trà',
+      'Hoàng hôn bên cửa sổ'
     ],
     tags: ['lofi', 'study', 'desk', 'cozy', 'warm', 'laptop', 'books', 'night', 'chill', 'reading']
   },
@@ -221,16 +221,16 @@ const CATEGORY_SEEDS: Record<
       { id: 'photo-1519681393784-d120267933ba', author: 'Benjamin Davies' }
     ],
     titleTemplates: [
-      'Phố Đêm Neon Shinjuku Mưa Ướt',
-      'Góc Setup Gaming RGB Tương Lai',
-      'Đại Lộ Cao Tốc Ánh Đèn Tím',
-      'Hẻm Phố Hong Kong Mờ Ảo Tím Xanh',
-      'Ma Trận Dữ Liệu Số Kỹ Thuật Số',
-      'Khu Trò Chơi Arcade Thập Niên 80',
-      'Đô Thị Cao Tầng Cyberpunk 2077',
-      'Lưới Ánh Sáng Hologram Đa Chiều',
-      'Quán Mì Ramen Đèn Neon Tokyo',
-      'Trạm Tàu Điện Ngầm Viễn Tưởng'
+      'Phố đêm Neon mưa',
+      'Setup Gaming RGB',
+      'Cao tốc ánh đèn tím',
+      'Hẻm phố Hong Kong',
+      'Ma trận dữ liệu',
+      'Phòng game Arcade',
+      'Đô thị Cyberpunk 2077',
+      'Hologram đa chiều',
+      'Quán mì Ramen neon',
+      'Trạm tàu viễn tưởng'
     ],
     tags: ['cyberpunk', 'tokyo', 'neon', 'night', 'rain', 'future', 'rgb', 'city', 'tech', 'matrix']
   },
@@ -253,16 +253,16 @@ const CATEGORY_SEEDS: Record<
       { id: 'photo-1517842645767-c639042777db', author: 'Slava Bowman' }
     ],
     titleTemplates: [
-      'Bàn Làm Việc Setup Mac Đen Tối Giản',
-      'Đường Kính Kiến Trúc Hiện Đại Đen Trắng',
-      'Bóng Đổ Hình Học Tương Phản Đơn Sắc',
-      'Góc Công Nghệ Màn Hình Ultrawide',
-      'Bàn Phím Cơ & Ánh Đèn Bàn Minimalist',
-      'Góc Lập Trình Viên Đêm Tĩnh Mịch',
-      'Cấu Trúc Tối Giản Monolith Đen',
-      'Không Gian Studio Đen Mờ Hiện Đại',
-      'Mặt Bàn Gỗ Tối Giản Đèn Led Âm',
-      'Góc Sáng Tạo Công Nghệ Tinh Gọn'
+      'Setup Mac tối giản',
+      'Kiến trúc đen trắng',
+      'Bóng đổ tương phản',
+      'Màn hình Ultrawide',
+      'Bàn phím cơ tối giản',
+      'Góc code đêm',
+      'Cấu trúc Monolith',
+      'Studio đen mờ',
+      'Mặt bàn gỗ đèn led',
+      'Góc sáng tạo tinh gọn'
     ],
     tags: ['minimalist', 'dark', 'monochrome', 'clean', 'sleek', 'black', 'desk', 'workspace', 'focus']
   },
@@ -285,24 +285,96 @@ const CATEGORY_SEEDS: Record<
       { id: 'photo-1428592953211-077101b2021b', author: 'Roman Kraft' }
     ],
     titleTemplates: [
-      'Rừng Thông Sương Sớm Yên Bình',
-      'Hồ Nước Núi Trong Suốt Mờ Ảo',
-      'Thung Lũng Xanh Ban Mai Tĩnh Lặng',
-      'Thác Nước Róc Rách Giữa Rừng Già',
-      'Đỉnh Núi Tuyết Hùng Vĩ Mây Trắng',
-      'Bờ Biển Hoàng Hôn Sóng Vỗ Dịu Êm',
-      'Cầu Gỗ Dẫn Vào Rừng Trầm Lặng',
-      'Hồ Nước Phản Chiếu Dãy Dolomites',
-      'Giọt Nước Mưa Đọng Trên Mặt Kính',
-      'Mặt Hồ Sáng Sớm Lặng Như Gương'
+      'Rừng thông sương sớm',
+      'Hồ nước mờ ảo',
+      'Thung lũng ban mai',
+      'Thác nước rừng già',
+      'Đỉnh núi tuyết',
+      'Bờ biển sóng vỗ',
+      'Cầu gỗ vào rừng',
+      'Hồ nước Dolomites',
+      'Giọt mưa trên kính',
+      'Mặt hồ sáng sớm'
     ],
     tags: ['nature', 'zen', 'forest', 'pine', 'mountains', 'lake', 'mist', 'morning', 'peaceful', 'green']
   }
 };
 
+export const ANIME_WALLPAPERS_CURATED: WallpaperItem[] = [
+  {
+    id: 'wp-anime-suzume',
+    title: 'Cánh cửa Suzume',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=80',
+    author: 'Makoto Shinkai (Suzume)',
+    tags: ['suzume', 'shinkai', 'door', 'sky', 'anime', 'art']
+  },
+  {
+    id: 'wp-anime-edgerunners',
+    title: 'Ánh trăng Edgerunners',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80',
+    author: 'Studio Trigger (Edgerunners)',
+    tags: ['cyberpunk', 'edgerunners', 'lucy', 'moon', 'anime', 'art']
+  },
+  {
+    id: 'wp-anime-violet',
+    title: 'Bức thư Violet Evergarden',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80',
+    author: 'Kyoto Animation (Violet Evergarden)',
+    tags: ['violet-evergarden', 'letter', 'vintage', 'peaceful', 'anime', 'art']
+  },
+  {
+    id: 'wp-anime-frieren',
+    title: 'Hành trình Frieren',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+    author: 'Madhouse (Sousou no Frieren)',
+    tags: ['frieren', 'fantasy', 'magic', 'journey', 'nature', 'anime', 'art']
+  },
+  {
+    id: 'wp-anime-demonslayer',
+    title: 'Hoa tử đằng Kimetsu',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80',
+    author: 'ufotable (Demon Slayer)',
+    tags: ['demon-slayer', 'kimetsu', 'wisteria', 'night', 'blade', 'anime', 'art']
+  },
+  {
+    id: 'wp-anime-lofi-room',
+    title: 'Phòng học Lofi đêm',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1920&q=80',
+    author: 'ChilledCow / Lofi Girl',
+    tags: ['lofi', 'study', 'night', 'room', 'anime', 'chill']
+  },
+  {
+    id: 'wp-anime-tokyo-neon',
+    title: 'Tokyo Neon hoàng hôn',
+    category: 'anime-ghibli',
+    orientation: 'responsive',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=360&h=202&q=60',
+    fullUrl: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=1920&q=80',
+    author: 'Tokyo Neon Visuals',
+    tags: ['tokyo', 'neon', 'sunset', 'cyberpunk', 'anime', 'art']
+  }
+];
+
 /**
- * Sinh bộ 1.000+ hình nền chất lượng cao được tuyển chọn theo 5 gu thẩm mỹ Pinterest:
- * 200 ảnh mỗi danh mục (200 x 5 = 1.000 ảnh).
+ * Sinh bộ hình nền chất lượng cao được tuyển chọn theo các gu thẩm mỹ Pinterest & Anime:
  * Toàn bộ ảnh được chuẩn hóa responsive: Thumbnail đồng nhất 16:9, ảnh gốc tự động co giãn
  * hoàn hảo trên cả máy tính lẫn điện thoại nhờ CSS object-fit: cover & object-position: center.
  */
@@ -316,7 +388,7 @@ function buildWallpapers(): WallpaperItem[] {
 
   const result: WallpaperItem[] = [];
 
-  // 1. Sinh 800 hình nền từ 4 danh mục tuyển chọn Unsplash (200 x 4 = 800)
+  // 1. Sinh hình nền từ 4 danh mục tuyển chọn Unsplash
   categories.forEach((cat) => {
     const seed = CATEGORY_SEEDS[cat];
     const totalForCategory = 200;
@@ -347,8 +419,7 @@ function buildWallpapers(): WallpaperItem[] {
     }
   });
 
-  // 2. Danh mục Anime & Ghibli: 100% TRANH VẼ HOẠT HÌNH NGHỆ THUẬT THẬT (Digital Art / Illustration) lưu trữ nội bộ
-  // 200 hình nền phân bổ từ 18 tác phẩm đích thực (Ghibli, Makoto Shinkai, Lofi Study, Cozy Anime Night)
+  // 2. Danh mục Anime & Ghibli: Tranh vẽ hoạt hình nghệ thuật (Digital Art / Illustration) lưu trữ nội bộ
   const totalAnime = 200;
   for (let i = 0; i < totalAnime; i++) {
     const localItem = ANIME_WALLPAPERS_LOCAL[i % ANIME_WALLPAPERS_LOCAL.length];
@@ -368,6 +439,9 @@ function buildWallpapers(): WallpaperItem[] {
       tags: [...localItem.tags, `collection-${variantNum}`, 'anime', 'ghibli', 'shinkai', 'illustration']
     });
   }
+
+  // 3. Bổ sung các preset Anime, Lofi & Tokyo Neon phong phú
+  result.push(...ANIME_WALLPAPERS_CURATED);
 
   return result;
 }

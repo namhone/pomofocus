@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { sanitizeHtml } from '../utils/sanitize';
 import {
   Bold,
   Italic,
@@ -260,7 +261,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             contentEditable
             suppressContentEditableWarning
             data-testid="doc-editable-content"
-            dangerouslySetInnerHTML={{ __html: initialContentHtml }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(initialContentHtml) }}
             className="w-full max-w-2xl min-h-[500px] outline-none text-zinc-100 text-sm leading-relaxed space-y-3 prose prose-invert select-text"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'

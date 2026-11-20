@@ -6,6 +6,7 @@ import {
 interface RequestBody {
   userId?: string;
   userEmail?: string;
+  orderId?: string;
   planId?: '1_month' | '1_year' | 'lifetime';
   couponCode?: string;
   returnUrl?: string;
@@ -27,7 +28,12 @@ export default async function handler(req: any, res: any) {
 
   try {
     const body: RequestBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const { userId = 'guest_user', planId = '1_month', couponCode } = body;
+    const { userId, planId = '1_month', couponCode } = body;
+
+    // BUG-14 Remediation: Từ chối tuyệt đối khách chưa đăng nhập / guest khởi tạo đơn thanh toán
+    if (!userId || typeof userId !== 'string' || userId.trim() === '' || userId === 'guest' || userId === 'guest_user' || userId === '00000000-0000-0000-0000-000000000000') {
+      return res.status(401).json({ success: false, error: 'Yêu cầu đăng nhập tài khoản thật để tạo đơn hàng thanh toán' });
+    }
 
     // Xác định thông tin gói
     let basePrice = 59000;
@@ -61,8 +67,10 @@ export default async function handler(req: any, res: any) {
     }
 
     const shortCode = Math.floor(100000 + Math.random() * 900000);
-    const orderId = `POMO_${shortCode}`;
-    const memo = `POMO_${shortCode}`;
+    const orderId = (body.orderId && typeof body.orderId === 'string' && /^POMO_[A-Z0-9]{4,10}$/i.test(body.orderId.trim()))
+      ? body.orderId.trim().toUpperCase()
+      : `POMO_${shortCode}`;
+    const memo = orderId;
 
     // Nếu mã giảm giá 100% (Coupon miễn phí) -> Tự động kích hoạt PRO trực tiếp không cần cổng MoMo
     if (is100PercentFree || finalPrice <= 0) {
@@ -98,10 +106,10 @@ export default async function handler(req: any, res: any) {
     }
 
     // Mã VietQR chuẩn ngân hàng Vietcombank 1066633885 - HO NGOC BAO NAM (Tuyệt đối không dùng MB Bank)
-    const bankCode = 'vietcombank';
-    const accountNo = '1066633885';
+    const bankCode = 'VPBank';
+    const accountNo = 'AGBSPTJE34IA3A8SAAX';
     const accountName = 'HO NGOC BAO NAM';
-    const vcbQrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(accountName)}`;
+    const vcbQrUrl = `https://vietqr.app/img?acc=${accountNo}&bank=${bankCode}&amount=${finalPrice}&des=${encodeURIComponent(memo)}`;
 
     return res.status(200).json({
       success: true,
@@ -114,11 +122,11 @@ export default async function handler(req: any, res: any) {
       deeplink: vcbQrUrl,
       memo,
       bankInfo: {
-        bankName: 'Vietcombank',
+        bankName: 'VPBank',
         accountNumber: accountNo,
         accountName
       },
-      message: 'Khởi tạo mã VietQR Vietcombank thành công'
+      message: 'Khởi tạo mã VietQR SePay VPBank thành công'
     });
   } catch (error: any) {
     console.error('Lỗi khởi tạo thanh toán MoMo:', error);

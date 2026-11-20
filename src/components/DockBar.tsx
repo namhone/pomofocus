@@ -15,7 +15,8 @@ import {
   LayoutGrid,
   Film,
   Sparkles,
-  Zap
+  Zap,
+  Leaf
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
@@ -601,8 +602,9 @@ export const DockBar: React.FC = () => {
             </div>
 
             <div className="pt-1 flex items-center justify-between">
-              <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1">
-                <span>🍃</span> Eco Mode Siêu Nhẹ
+              <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
+                <Leaf size={14} strokeWidth={1.5} className="text-zinc-400 shrink-0" />
+                <span>Eco Mode siêu nhẹ</span>
               </span>
               <button
                 type="button"
@@ -614,7 +616,7 @@ export const DockBar: React.FC = () => {
                     : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
                 }`}
               >
-                {isEcoMode ? 'BẬT' : 'TẮT'}
+                {isEcoMode ? 'Bật' : 'Tắt'}
               </button>
             </div>
           </div>

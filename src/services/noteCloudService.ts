@@ -48,10 +48,22 @@ export class NoteCloudService {
         }
       }
 
-      // Đẩy ngược lại ghi chú offline lên Cloud nếu Cloud đang trống
-      if (Array.isArray(cloudNotes) && cloudNotes.length === 0 && localNotes.length > 0) {
+      // Đẩy các ghi chú cục bộ chưa có trên Cloud hoặc mới hơn Cloud lên Cloud
+      if (Array.isArray(cloudNotes)) {
         for (const ln of localNotes) {
-          this.upsertNote(ln, userId).catch(() => {});
+          if (ln.userId === userId || !ln.userId || ln.userId === 'guest') {
+            const existingCloud = cloudNotes.find((cn: any) => cn.id === ln.id);
+            if (!existingCloud) {
+              // Ghi chú tồn tại cục bộ nhưng chưa có trên Cloud
+              this.upsertNote({ ...ln, userId }, userId).catch(() => {});
+            } else {
+              const cloudUpdatedAt = new Date(existingCloud.updated_at).getTime();
+              if (ln.updatedAt > cloudUpdatedAt) {
+                // Ghi chú cục bộ mới hơn bản trên Cloud
+                this.upsertNote({ ...ln, userId }, userId).catch(() => {});
+              }
+            }
+          }
         }
       }
 
@@ -60,6 +72,13 @@ export class NoteCloudService {
       console.warn('[NoteCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ:', err);
       return await db.notes.toArray();
     }
+  }
+
+  /**
+   * Alias tương thích cho đồng bộ ghi chú với Supabase Cloud
+   */
+  static async syncNotesWithCloud(userId: string): Promise<Note[]> {
+    return this.syncFromCloud(userId);
   }
 
   /**

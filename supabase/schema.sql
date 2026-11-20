@@ -393,6 +393,22 @@ begin
   set credits_balance = public.user_wallets.credits_balance + excluded.credits_balance,
       updated_at = now();
 
+  -- Đồng bộ trực tiếp vào profiles để UI hiển thị ngay lập tức
+  update public.profiles
+  set credits = coalesce(credits, 0) + v_credits,
+      ai_credits_balance = coalesce(ai_credits_balance, 0) + v_credits,
+      updated_at = now()
+  where id = v_user_id;
+
+  -- Ghi nhận giao dịch vào bảng payment_transactions
+  insert into public.payment_transactions (
+    order_id, user_id, amount, status, plan_type, description, created_at, updated_at
+  ) values (
+    upper(trim(p_order_code)), v_user_id, p_transfer_amount, 'completed', 'credit_pack',
+    'Nạp ' || v_credits || ' AI Credits (' || coalesce(p_gateway, 'VietQR') || ')', now(), now()
+  ) on conflict (order_id) do update
+  set status = 'completed', updated_at = now();
+
   return jsonb_build_object('success', true, 'user_id', v_user_id, 'credits_added', v_credits);
 end;
 $$ language plpgsql security definer;
@@ -477,3 +493,52 @@ begin
   );
 end;
 $$ language plpgsql security definer;
+
+-- ====================================================================
+-- 7. BẢNG PHIÊN TẬP TRUNG (FOCUS_SESSIONS) & CHUỖI STREAK (BUG-19)
+-- ====================================================================
+create table if not exists public.focus_sessions (
+  id text primary key default gen_random_uuid()::text,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  mode text not null default 'pomodoro',
+  duration_minutes integer not null default 25,
+  started_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  ended_at timestamp with time zone,
+  completed boolean default true not null,
+  tag text,
+  notes text,
+  -- Các trường bổ trợ tương thích ngược với TaskCloudService & SyncQueueService
+  task_id text,
+  task_title text,
+  phase text default 'pomodoro',
+  actual_duration_seconds integer default 1500,
+  completed_at timestamp with time zone default timezone('utc'::text, now()),
+  date_string text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Chỉ mục tối ưu hóa truy vấn người dùng và chuỗi streak
+create index if not exists idx_focus_sessions_user_id on public.focus_sessions (user_id);
+create index if not exists idx_focus_sessions_started_at on public.focus_sessions (started_at);
+create index if not exists idx_focus_sessions_user_date on public.focus_sessions (user_id, date_string);
+
+-- Kích hoạt Row Level Security (RLS)
+alter table public.focus_sessions enable row level security;
+
+-- Chính sách RLS: Người dùng sở hữu toàn quyền với phiên tập trung của mình
+drop policy if exists "Users read own focus sessions" on public.focus_sessions;
+create policy "Users read own focus sessions" on public.focus_sessions
+  for select using (auth.uid() = user_id);
+
+drop policy if exists "Users insert own focus sessions" on public.focus_sessions;
+create policy "Users insert own focus sessions" on public.focus_sessions
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Users update own focus sessions" on public.focus_sessions;
+create policy "Users update own focus sessions" on public.focus_sessions
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "Users delete own focus sessions" on public.focus_sessions;
+create policy "Users delete own focus sessions" on public.focus_sessions
+  for delete using (auth.uid() = user_id);

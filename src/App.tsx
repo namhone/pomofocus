@@ -43,6 +43,7 @@ import { useMediaQuery } from './hooks/useMediaQuery';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
 import { runStorageSchemaMigration } from './utils/safeStorage';
+import { syncQueueService } from './services/syncQueueService';
 
 // Polyfill supabase.auth.setSession for native deep link authentication
 if (typeof window !== 'undefined' && supabase?.auth) {
@@ -147,6 +148,7 @@ export const App: React.FC = () => {
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
   const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
   const closeTopupModal = useAiStore((state) => state.closeTopupModal);
+  const isAiOpen = useAiStore((state) => state.isOpen);
   const initTimer = useTimerStore((state) => state.init);
   const destroyTimer = useTimerStore((state) => state.destroy);
   const timerLifecycleGeneration = useRef(0);
@@ -156,6 +158,14 @@ export const App: React.FC = () => {
     runStorageSchemaMigration();
   }, []);
 
+  // V8.1 (BUG-24): Start offline sync queue listener on mount to auto-flush pending mutations on reconnect
+  useEffect(() => {
+    const cleanup = syncQueueService.startAutoSync(() => useAuthStore.getState().user?.id);
+    return () => {
+      cleanup();
+    };
+  }, []);
+
   // V8.1 (Feature 17): Auto-refresh AI energy balance (⚡) & PRO entitlement when returning from banking app
   useEffect(() => {
     const handleAppVisibilityOrFocus = () => {
@@ -163,7 +173,7 @@ export const App: React.FC = () => {
         useAiStore.getState().refreshCreditsFromCloud();
         const user = useAuthStore.getState().user;
         if (user?.id) {
-          useAuthStore.getState().syncUserFromSupabase(user.id);
+          useAuthStore.getState().loadUserFromCloud(user.id);
         }
       }
     };
@@ -582,11 +592,10 @@ export const App: React.FC = () => {
           ) : (
             <>
               <PlatformHeader />
-              <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
               <KeyboardShortcutsModal />
 
               <h1 className="sr-only">Pomodoro Workspace — Không Gian Làm Việc Tập Trung</h1>
-              <main className="fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28">
+              <main className={`fixed inset-0 pointer-events-none w-screen h-screen z-10 overflow-visible pt-2 pb-28 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isAiOpen ? 'sm:-translate-x-32 xl:-translate-x-24 2xl:translate-x-0' : 'translate-x-0'}`}>
                 <WidgetContainer id="timer">
                   <TimerWidget />
                 </WidgetContainer>

@@ -29,9 +29,13 @@ import { AiCodeBlock, FormattedAiMessage } from './AiMessageMarkdown';
 import { copyToClipboard } from '../utils/clipboard';
 export { AiCodeBlock, FormattedAiMessage };
 export const AiCompanionWidget: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user, isOwner: authIsOwner, isAdmin } = useAuthStore();
   const isOwner = Boolean(
-    (user && (user.email === 'namho03052k9@gmail.com' || user.email === 'huyentrantt09@gmail.com' || user.email === 'tony31082009@gmail.com')) ||
+    authIsOwner ||
+    isAdmin ||
+    user?.role === 'founder' ||
+    user?.role === 'admin' ||
+    (user as any)?.app_metadata?.role === 'admin' ||
     isOwnerAiUser()
   );
   const {
@@ -227,10 +231,10 @@ export const AiCompanionWidget: React.FC = () => {
 
   return (
     <>
-      {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Mobile Backdrop) */}
+      {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Backdrop cho < 2xl) */}
       <div
         data-testid="ai-backdrop"
-        className={`fixed inset-0 z-[75] bg-black/50 backdrop-blur-xs transition-opacity duration-300 sm:hidden ${
+        className={`fixed inset-0 z-[75] bg-black/50 backdrop-blur-xs transition-opacity duration-300 2xl:hidden ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => toggleOpen(false)}
@@ -241,7 +245,7 @@ export const AiCompanionWidget: React.FC = () => {
       <div
         data-testid="ai-companion-drawer"
         aria-hidden={!isOpen}
-        className={`fixed top-0 bottom-0 right-0 z-[80] w-full sm:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        className={`fixed top-0 bottom-0 right-0 z-[80] w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
           isOpen
             ? 'translate-x-0 opacity-100 pointer-events-auto'
             : 'translate-x-full opacity-0 pointer-events-none'
@@ -251,8 +255,8 @@ export const AiCompanionWidget: React.FC = () => {
       <div className="h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-2.5">
         <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
           <div className="relative shrink-0">
-            <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-              <Sparkles size={14} />
+            <div className="w-7 h-7 rounded-xl bg-zinc-800 border border-zinc-700/80 flex items-center justify-center text-white shadow-sm">
+              <Sparkles size={14} className="text-zinc-200 stroke-[1.5]" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
           </div>
@@ -458,10 +462,10 @@ export const AiCompanionWidget: React.FC = () => {
                           data-testid="ai-continue-btn"
                           onClick={continueGenerating}
                           disabled={isLoading}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold transition cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-xs font-semibold transition cursor-pointer"
                         >
-                          <Play size={12} className="fill-cyan-300" />
-                          ▶️ Viết tiếp câu trả lời...
+                          <Play size={12} className="stroke-[1.5]" />
+                          Viết tiếp câu trả lời...
                         </button>
                       </div>
                     )}
@@ -495,7 +499,7 @@ export const AiCompanionWidget: React.FC = () => {
                           type="button"
                           data-testid="ai-insert-note-btn"
                           onClick={() => handleInsertToNote(msg.content, msg.id)}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition cursor-pointer"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
                           title="Chèn nội dung giải đáp này vào Ghi chú đang mở"
                         >
                           {insertedNoteId === msg.id ? (
@@ -516,7 +520,7 @@ export const AiCompanionWidget: React.FC = () => {
                       {msg.role === 'assistant' && (
                         <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
                           <span className="inline-flex items-center gap-1 text-zinc-400">
-                            <Sparkles size={10} className="text-teal-400" />
+                            <Sparkles size={10} className="text-zinc-400 stroke-[1.5]" />
                             Nội dung do AI tạo (Luật 134/2025/QH15)
                           </span>
                           {typeof msg.creditsUsed === 'number' && msg.creditsUsed > 0 && (
@@ -789,7 +793,7 @@ export const AiCompanionWidget: React.FC = () => {
             </span>
           </div>
           <p className="text-[9.5px] text-zinc-500/80 text-center font-sans">
-            Phản hồi AI mang tính tham khảo học tập, vui lòng đối chiếu giáo trình chính thống.
+            Phản hồi AI mang tính tham khảo học tập (Luật 134/2025/QH15), vui lòng đối chiếu giáo trình chính thống.
           </p>
         </div>
       </div>

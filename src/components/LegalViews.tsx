@@ -111,14 +111,14 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <ul className="list-disc pl-5 space-y-1 text-zinc-400">
                 <li><strong className="text-zinc-200">Niêm yết giá:</strong> Toàn bộ giá gói cước (Tháng, Năm, Trọn đời Founder) và gói nạp AI Credits được niêm yết rõ ràng bằng Việt Nam Đồng (VND), đã bao gồm toàn bộ phí dịch vụ và thuế áp dụng.</li>
                 <li><strong className="text-zinc-200">Phương thức thanh toán:</strong> Người dùng thanh toán qua cổng điện tử hợp pháp (Chuyển khoản QR Ngân hàng VietQR/SePay hoặc Ví MoMo). Hệ thống kích hoạt gói hoặc cộng điểm tự động sau khi đối soát thành công.</li>
-                <li><strong className="text-zinc-200">Chính sách hoàn tiền (Refund Policy):</strong> Khách hàng được quyền yêu cầu hoàn tiền 100% trong vòng <strong>07 ngày</strong> kể từ thời điểm giao dịch nếu xảy ra lỗi kỹ thuật từ phía hệ thống khiến tài khoản không nhận được dịch vụ hoặc điểm Credits như cam kết. Yêu cầu gửi về email <code className="text-zinc-300">namho03052k9@gmail.com</code> kèm mã đơn hàng.</li>
+                <li><strong className="text-zinc-200">Chính sách hoàn tiền (Refund Policy):</strong> Khách hàng được quyền yêu cầu hoàn tiền 100% trong vòng <strong>07 ngày</strong> kể từ thời điểm giao dịch nếu xảy ra lỗi kỹ thuật từ phía hệ thống khiến tài khoản không nhận được dịch vụ hoặc điểm Credits như cam kết. Yêu cầu gửi về email <code className="text-zinc-300">support@pomofocus.vn</code> kèm mã đơn hàng.</li>
               </ul>
             </section>
 
             <section className="space-y-2">
               <h2 className="text-sm font-semibold text-white">4. Trí Tuệ Nhân Tạo & Giới Hạn Trách Nhiệm</h2>
               <p>
-                Tính năng Trợ Lý AI Học Tập được tích hợp nhằm mục đích giải đáp thắc mắc và gợi ý học tập. Theo Luật Trí tuệ nhân tạo số 134/2025/QH15, nội dung phản hồi do thuật toán sinh ra tự động, chỉ mang tính chất tham khảo học tập. Người học cần đối chiếu với tài liệu giáo trình chính thống; PomoFocus không chịu trách nhiệm đối với các quyết định học thuật hoặc pháp lý của người dùng dựa trên thông tin này.
+                Tính năng Trợ Lý AI Học Tập được tích hợp nhằm mục đích giải đáp thắc mắc và gợi ý học tập. Theo Luật Trí tuệ nhân tạo số 134/2025/QH15 và Nghị định 142/2026/NĐ-CP, nội dung phản hồi do thuật toán sinh ra tự động, chỉ mang tính chất tham khảo học tập. Người học cần đối chiếu với tài liệu giáo trình chính thống; PomoFocus không chịu trách nhiệm đối với các quyết định học thuật hoặc pháp lý của người dùng dựa trên thông tin này.
               </p>
             </section>
 
@@ -126,7 +126,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <h2 className="text-sm font-semibold text-white">5. Đơn Vị Vận Hành & Hỗ Trợ Khách Hàng</h2>
               <p>
                 Đại diện quản trị: <strong>Hồ Ngọc Bảo Nam</strong><br />
-                Email tiếp nhận: <code className="text-zinc-300">namho03052k9@gmail.com</code> • Hotline: <code className="text-zinc-300">0704862629</code><br />
+                Email tiếp nhận: <code className="text-zinc-300">support@pomofocus.vn</code> • Cổng hỗ trợ trực tuyến: <code className="text-zinc-300">pomofocus-workspace.vercel.app/contact</code><br />
                 Địa chỉ: Đà Nẵng, Việt Nam.
               </p>
             </section>
@@ -154,7 +154,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <p>
                 <strong>Bên Kiểm soát và Xử lý Dữ liệu:</strong> PomoFocus Workspace.<br />
                 <strong>Cán bộ phụ trách bảo vệ dữ liệu (DPO):</strong> Hồ Ngọc Bảo Nam.<br />
-                <strong>Kênh tiếp nhận khiếu nại & yêu cầu:</strong> Email <code className="text-zinc-300">namho03052k9@gmail.com</code> | SĐT: <code className="text-zinc-300">0704862629</code>.
+                <strong>Kênh tiếp nhận khiếu nại & yêu cầu:</strong> Email <code className="text-zinc-300">support@pomofocus.vn</code> | Biểu mẫu liên hệ trực tuyến.
               </p>
             </section>
 
@@ -196,7 +196,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
             <section className="space-y-2">
               <h2 className="text-sm font-semibold text-white flex items-center gap-1.5">
                 <Shield size={14} className="text-emerald-400" />
-                <span>4. Quyền Của Chủ Thể Dữ Liệu (Điều 9 Luật 91/2025/QH15)</span>
+                <span>4. Quyền Của Chủ Thể Dữ Liệu (Điều 4 &amp; Điều 10 Luật 91/2025/QH15)</span>
               </h2>
               <p>
                 Chủ thể dữ liệu có đầy đủ các quyền: Quyền được biết, Quyền đồng ý, Quyền truy cập/xem, Quyền chỉnh sửa, Quyền xóa dữ liệu, Quyền rút lại sự đồng ý, Quyền hạn chế xử lý dữ liệu và Quyền khiếu nại bồi thường thiệt hại.
@@ -206,8 +206,8 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
                   <strong className="text-zinc-200">Quy trình & Thời hạn giải quyết (Điều 5 Nghị định 356/2025/NĐ-CP):</strong>
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>Tự phục vụ tức thì:</strong> Bạn có thể xuất bản sao JSON hoặc xóa sạch toàn bộ dữ liệu chỉ với 1 click tại trang <button type="button" onClick={() => router.navigate('/privacy-data')} className="text-white underline hover:text-emerald-300">Dữ Liệu Cá Nhân</button>.</li>
-                  <li><strong>Yêu cầu qua email:</strong> Khi nhận được yêu cầu của chủ thể dữ liệu gửi tới <code className="text-zinc-300">namho03052k9@gmail.com</code>, chúng tôi cam kết phản hồi hướng dẫn trong vòng <strong>02 ngày làm việc</strong> và hoàn tất xử lý xóa bỏ thông tin trong tối đa <strong>20 ngày</strong> theo đúng quy định pháp luật.</li>
+                  <li><strong>Tự phục vụ tức thì:</strong> Bạn có thể xuất bản sao JSON hoặc xóa sạch toàn bộ dữ liệu chỉ với 1 click tại trang <button type="button" onClick={() => router.navigate('/privacy-data')} className="text-white underline hover:text-emerald-300">Dữ Liệu Cá Nhân</button>, hoặc chủ động rút lại sự đồng ý thu thập cookie bất kỳ lúc nào tại trang <button type="button" onClick={() => router.navigate('/settings')} className="text-white underline hover:text-emerald-300">Cài Đặt</button>.</li>
+                  <li><strong>Yêu cầu qua email:</strong> Khi nhận được yêu cầu của chủ thể dữ liệu gửi tới <code className="text-zinc-300">support@pomofocus.vn</code>, chúng tôi cam kết phản hồi hướng dẫn trong vòng <strong>02 ngày làm việc</strong> và hoàn tất xử lý xóa bỏ thông tin trong tối đa <strong>20 ngày</strong> theo đúng quy định pháp luật.</li>
                 </ul>
               </div>
             </section>

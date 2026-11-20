@@ -103,7 +103,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
           <span
             data-testid="status-indicator"
-            className="uppercase tracking-wider font-semibold text-[10px] text-neutral-300"
+            className="font-medium text-[10px] text-neutral-300"
           >
             {status === 'running' ? 'Đang chạy' : status === 'paused' ? 'Tạm dừng' : 'Chờ bắt đầu'}
           </span>

@@ -962,7 +962,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             <span>Kỷ luật</span>
           </button>
 
-          {/* Pocket Lock 🔒 Button */}
+          {/* Pocket Lock Button */}
           <button
             type="button"
             data-testid="mobile-pocket-lock-btn"
@@ -972,7 +972,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             className="h-8 px-3 rounded-full border border-white/10 bg-zinc-900/65 hover:border-emerald-400/40 text-zinc-300 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer backdrop-blur-md"
           >
             <Lock className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Khóa 🔒</span>
+            <span>Khóa</span>
           </button>
         </div>
 
@@ -1024,7 +1024,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           </div>
 
           {/* Status Label */}
-          <div className="text-xs uppercase font-medium tracking-widest text-zinc-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)] mt-1.5 flex items-center gap-1.5">
+          <div className="text-xs font-medium text-zinc-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)] mt-1.5 flex items-center gap-1.5">
             <span>
               {status === 'running'
                 ? phase === 'pomodoro'

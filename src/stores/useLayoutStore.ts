@@ -65,9 +65,9 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
     L: { width: 460, height: 620 }
   },
   media: {
-    S: { width: 280, height: 158 },
-    M: { width: 384, height: 216 },
-    L: { width: 420, height: 236 }
+    S: { width: 320, height: 300 },
+    M: { width: 384, height: 340 },
+    L: { width: 480, height: 400 }
   }
 };
 
@@ -216,7 +216,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
   },
   spaces: {
     id: 'spaces',
-    title: 'Không Gian Nền',
+    title: 'Không gian nền',
     isOpen: false,
     isCollapsed: false,
     x: 500,
@@ -232,7 +232,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
   },
   sounds: {
     id: 'sounds',
-    title: 'Bảng Âm Thanh & Chuông',
+    title: 'Bảng âm thanh & chuông',
     isOpen: false,
     isCollapsed: false,
     x: 460,
@@ -248,7 +248,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
   },
   settings: {
     id: 'settings',
-    title: 'Cài Đặt Hệ Thống',
+    title: 'Cài đặt hệ thống',
     isOpen: false,
     isCollapsed: false,
     x: 480,
@@ -270,11 +270,11 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     x: 480,
     y: 120,
     width: 384,
-    height: 216,
-    minWidth: 280,
-    minHeight: 140,
-    maxWidth: 420,
-    maxHeight: 260,
+    height: 340,
+    minWidth: 320,
+    minHeight: 320,
+    maxWidth: 640,
+    maxHeight: 560,
     resizable: true,
     zIndex: 18
   }
@@ -333,8 +333,14 @@ export function loadStoredLayout(): {
       }
     }
 
-    if (mergedWidgets.settings && mergedWidgets.settings.title === 'Cài Đặt Không Gian') {
-      mergedWidgets.settings.title = 'Cài Đặt Hệ Thống';
+    if (mergedWidgets.settings && (mergedWidgets.settings.title === 'Cài Đặt Không Gian' || mergedWidgets.settings.title === 'Cài Đặt Hệ Thống')) {
+      mergedWidgets.settings.title = 'Cài đặt hệ thống';
+    }
+    if (mergedWidgets.spaces && mergedWidgets.spaces.title === 'Không Gian Nền') {
+      mergedWidgets.spaces.title = 'Không gian nền';
+    }
+    if (mergedWidgets.sounds && mergedWidgets.sounds.title === 'Bảng Âm Thanh & Chuông') {
+      mergedWidgets.sounds.title = 'Bảng âm thanh & chuông';
     }
 
     const savedGlass = data.glassSettings;

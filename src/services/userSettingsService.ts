@@ -15,6 +15,8 @@ export interface UserCustomSettings {
     longBreakMinutes: number;
     roundsBeforeLongBreak: number;
   };
+  updated_at?: number;
+  last_modified?: number;
 }
 
 export const USER_SETTINGS_KEY_PREFIX = 'pomofocus_user_settings_';
@@ -30,6 +32,17 @@ export const userSettingsService = {
     const timer = useTimerStore.getState().settings;
     const audio = useAudioStore.getState();
 
+    let lastModified = Date.now();
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem('pomofocus_user_settings_last_modified');
+      if (raw) {
+        const parsed = parseInt(raw, 10);
+        if (!isNaN(parsed) && parsed > 0) {
+          lastModified = parsed;
+        }
+      }
+    }
+
     return {
       dock_position: layout.dockPosition,
       dock_size: layout.dockSize,
@@ -40,7 +53,9 @@ export const userSettingsService = {
         shortBreakMinutes: timer.shortBreakMinutes,
         longBreakMinutes: timer.longBreakMinutes,
         roundsBeforeLongBreak: timer.roundsBeforeLongBreak
-      }
+      },
+      updated_at: lastModified,
+      last_modified: lastModified
     };
   },
 
@@ -80,6 +95,12 @@ export const userSettingsService = {
         // Fallback safely
       }
     }
+
+    // Đồng bộ timestamp nếu có
+    const ts = settings.updated_at || settings.last_modified;
+    if (ts && typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('pomofocus_user_settings_last_modified', String(ts));
+    }
   },
 
   /**
@@ -88,10 +109,17 @@ export const userSettingsService = {
   async saveSettings(userId: string, partial?: Partial<UserCustomSettings>): Promise<void> {
     if (!userId) return;
 
+    const now = Date.now();
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('pomofocus_user_settings_last_modified', String(now));
+    }
+
     const current = this.collectCurrent();
     const merged: UserCustomSettings = {
       ...current,
-      ...(partial || {})
+      ...(partial || {}),
+      updated_at: now,
+      last_modified: now
     };
 
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -124,6 +152,70 @@ export const userSettingsService = {
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
+    }
+  },
+
+  /**
+   * Hợp nhất cài đặt trên cơ sở Dấu thời gian (Timestamp-Based Merge) khi đăng nhập.
+   * Nếu cài đặt khách cục bộ được chỉnh sửa gần đây hơn cài đặt đám mây, bảo lưu cài đặt
+   * cục bộ và tải lên Supabase Cloud, tránh ghi đè các tùy chỉnh của người dùng bằng mặc định cũ.
+   */
+  async mergeSettingsOnLogin(
+    userId: string,
+    cloudSettings?: UserCustomSettings | null,
+    cloudUpdatedAtIso?: string
+  ): Promise<void> {
+    if (!userId) return;
+
+    // 1. Xác định timestamp của cài đặt cục bộ (khách)
+    let localTimestamp = 0;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedTs = localStorage.getItem('pomofocus_user_settings_last_modified');
+      if (storedTs) {
+        localTimestamp = parseInt(storedTs, 10) || 0;
+      }
+      if (!localTimestamp) {
+        const guestSettingsRaw = localStorage.getItem(`${USER_SETTINGS_KEY_PREFIX}guest`);
+        if (guestSettingsRaw) {
+          try {
+            const guestSettings = JSON.parse(guestSettingsRaw);
+            localTimestamp = guestSettings.updated_at || guestSettings.last_modified || 0;
+          } catch {}
+        }
+      }
+    }
+
+    // 2. Xác định timestamp của cài đặt trên đám mây
+    let cloudTimestamp = 0;
+    if (cloudSettings) {
+      cloudTimestamp = cloudSettings.updated_at || cloudSettings.last_modified || 0;
+    }
+    if (!cloudTimestamp && cloudUpdatedAtIso) {
+      const parsed = new Date(cloudUpdatedAtIso).getTime();
+      if (!isNaN(parsed)) {
+        cloudTimestamp = parsed;
+      }
+    }
+
+    // 3. Nếu Cloud hoàn toàn chưa có cài đặt, đẩy cài đặt cục bộ hiện tại lên Cloud
+    if (!cloudSettings) {
+      await this.saveSettings(userId);
+      return;
+    }
+
+    // 4. So sánh: Nếu cài đặt cục bộ mới hơn cài đặt Cloud
+    if (localTimestamp > 0 && localTimestamp > cloudTimestamp) {
+      // Bảo lưu cài đặt cục bộ hiện tại và đồng bộ ngược lên Cloud
+      await this.saveSettings(userId);
+    } else {
+      // Cài đặt đám mây mới hơn hoặc bằng: Áp dụng cài đặt đám mây vào stores
+      this.applySettings(cloudSettings);
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(`${USER_SETTINGS_KEY_PREFIX}${userId}`, JSON.stringify(cloudSettings));
+        if (cloudTimestamp > 0) {
+          localStorage.setItem('pomofocus_user_settings_last_modified', String(cloudTimestamp));
+        }
+      }
     }
   }
 };

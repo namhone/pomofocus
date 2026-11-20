@@ -131,6 +131,71 @@ export const BACKGROUND_PRESETS: BackgroundPreset[] = [
     tags: ['flower', 'bloom', 'timelapse', 'nature', 'video']
   },
   {
+    id: 'cyberpunk-neon-rain',
+    title: 'Hẻm mưa Neon Tokyo',
+    category: 'video',
+    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300&auto=format&fit=crop',
+    author: 'Mozilla Open Media (CC0)',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Video ánh đèn neon lung linh trong cơn mưa đêm phố thị.',
+    tags: ['cyberpunk', 'neon', 'rain', 'tokyo', 'video', 'night']
+  },
+  {
+    id: 'tears-of-steel-scifi',
+    title: 'Đô thị tương lai viễn tưởng',
+    category: 'video',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=300&auto=format&fit=crop',
+    author: 'Blender Foundation (Open Project)',
+    license: 'Creative Commons CC-BY 3.0',
+    description: 'Video vòng lặp khung cảnh đô thị viễn tưởng kỹ xảo điện ảnh mở.',
+    tags: ['scifi', 'future', 'city', 'blender', 'video']
+  },
+  {
+    id: 'cozy-fireplace-loop',
+    title: 'Lò sưởi ấm cúng mùa đông',
+    category: 'video',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=300&auto=format&fit=crop',
+    author: 'Wikimedia Commons / Google Media',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Ngọn lửa bập bùng ấm áp trong đêm đông yên tĩnh.',
+    tags: ['fireplace', 'cozy', 'warm', 'fire', 'video', 'winter']
+  },
+  {
+    id: 'aurora-night-sky',
+    title: 'Cực quang bầu trời đêm',
+    category: 'video',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=300&auto=format&fit=crop',
+    author: 'Google Open Streams (CC0)',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Dải cực quang xanh ngọc nhảy múa trên bầu trời Bắc Cực huyền ảo.',
+    tags: ['aurora', 'night', 'stars', 'sky', 'video', 'zen']
+  },
+  {
+    id: 'cloud-sea-mountains',
+    title: 'Biển mây bồng bềnh đỉnh núi',
+    category: 'video',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    fallbackUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop',
+    author: 'Google Cloud Streaming (CC0)',
+    license: 'Creative Commons (CC0 / Open Media)',
+    description: 'Biển mây trắng xóa trôi lững lờ qua các đỉnh núi hùng vĩ.',
+    tags: ['clouds', 'mountains', 'nature', 'video', 'peaceful']
+  },
+  {
     id: 'sunset-lake',
     title: 'Hồ Chiều Tà',
     category: 'image',

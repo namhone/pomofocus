@@ -72,7 +72,8 @@ import {
   Trash2,
   Pencil,
   Plus,
-  LogOut
+  LogOut,
+  Zap
 } from 'lucide-react';
 
 interface FloatingReaction {
@@ -2942,22 +2943,22 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               {/* Badge vai trò */}
               {isLadyBoss(user?.email) ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold shadow-sm">
-                  👑 NÓC NHÀ PRO
+                  👑 Nóc nhà Pro
                 </span>
               ) : userRole === 'host' ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold">
                   <Crown size={11} className="text-zinc-400" />
-                  CHỦ PHÒNG
+                  Chủ phòng
                 </span>
               ) : userRole === 'member' ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-bold">
                   <Sparkles size={11} className="text-zinc-400" />
-                  THÀNH VIÊN PRO
+                  Thành viên Pro
                 </span>
               ) : (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold">
                   <UserCheck size={11} className="text-zinc-400" />
-                  KHÁCH MỜI FREE
+                  Khách mời Free
                 </span>
               )}
 
@@ -2966,7 +2967,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 type="button"
                 data-testid="btn-copy-room-id-prejoin"
                 onClick={handleCopyRoomId}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/25 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-zinc-200 text-xs font-semibold hover:bg-white/15 transition cursor-pointer"
                 title="Sao chép mã phòng"
               >
                 <Radio size={12} className="animate-pulse" />
@@ -2977,7 +2978,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           </div>
 
           <div className="text-center mb-5">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">Chuẩn Bị Vào Phòng Học</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">Chuẩn bị vào phòng học</h1>
             <p className="text-xs text-neutral-400">
               Kiểm tra camera, micro và đặt tên hiển thị trước khi tham gia học nhóm cùng mọi người
             </p>
@@ -3062,11 +3063,11 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
           {/* Mic level meter */}
           <div className="mb-4 flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5">
-            <Mic size={15} className={micEnabled ? 'text-emerald-400' : 'text-neutral-500'} />
+            <Mic size={15} className={micEnabled ? 'text-zinc-200' : 'text-neutral-500'} />
             <div className="flex-1">
               <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-emerald-400 transition-all duration-150"
+                  className="h-full bg-white transition-all duration-150"
                   style={{ width: `${micLevel}%` }}
                 />
               </div>
@@ -3087,7 +3088,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               value={participantName}
               onChange={(e) => setParticipantName(e.target.value)}
               placeholder="Nhập tên hiển thị..."
-              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs text-white focus:outline-none focus:border-white"
             />
           </div>
 
@@ -3095,9 +3096,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             type="button"
             data-testid="btn-join-room-confirm"
             onClick={handleJoinConfirm}
-            className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
+            className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-wide transition shadow-md active:scale-98 cursor-pointer"
           >
-            Tham Gia Phòng Học Ngay
+            Tham gia phòng học ngay
           </button>
         </div>
 
@@ -4323,12 +4324,12 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             data-testid="btn-room-ai"
             onClick={() => useAiStore.getState().toggleOpen()}
             className="hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer items-center justify-center shrink-0 relative"
-            title="Mở Trợ lý AI Companion (⚡)"
+            title="Mở Trợ lý AI Companion"
             aria-label="Mở Trợ lý AI Companion"
           >
             <Sparkles size={18} />
-            <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-neutral-950 font-mono shadow-xs">
-              ⚡
+            <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-neutral-950 shadow-xs">
+              <Zap size={10} strokeWidth={2} className="text-neutral-950" />
             </span>
           </button>
 
@@ -5158,8 +5159,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     <div className="text-xs font-semibold text-white">Khóa phòng (Lock Room)</div>
                     <div className="text-[11px] text-neutral-400">
                       {room?.settings?.is_locked
-                        ? '🔒 Phòng đang khóa: Không cho người mới vào'
-                        : '🔓 Phòng mở: Khách có link hợp lệ được vào'}
+                        ? 'Phòng đang khóa: Không cho người mới vào'
+                        : 'Phòng mở: Khách có link hợp lệ được vào'}
                     </div>
                   </div>
                 </div>

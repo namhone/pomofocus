@@ -67,17 +67,16 @@ describe('Milestone 4: Dimension Guardrails, Zen Minimalism & Cascade Logic', ()
       expect(current.height).toBe(720);
     });
 
-    it('khóa chặt biên độ Media Player: 280x140px đến 420x260px và chuẩn 16:9', () => {
+    it('khóa chặt biên độ Media Player: Min 320x320px — Max 640x560px với chiều cao mở rộng 340px', () => {
       const { media } = DEFAULT_WIDGETS;
-      expect(media.minWidth).toBe(280);
-      expect(media.minHeight).toBe(140);
-      expect(media.maxWidth).toBe(420);
-      expect(media.maxHeight).toBe(260);
+      expect(media.minWidth).toBe(320);
+      expect(media.minHeight).toBe(320);
+      expect(media.maxWidth).toBe(640);
+      expect(media.maxHeight).toBe(560);
 
-      // Kích thước mặc định chuẩn 16:9
+      // Kích thước mặc định mở rộng hiển thị đầy đủ cụm điều khiển media (384x340px)
       expect(media.width).toBe(384);
-      expect(media.height).toBe(216);
-      expect(Math.round(384 * (9 / 16))).toBe(216);
+      expect(media.height).toBe(340);
 
       const widgetContainerPath = path.resolve(__dirname, '../../src/components/WidgetContainer.tsx');
       const widgetContainerCode = fs.readFileSync(widgetContainerPath, 'utf-8');

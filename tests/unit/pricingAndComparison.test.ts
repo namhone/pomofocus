@@ -80,14 +80,14 @@ describe('Pricing & Feature Comparison Specifications', () => {
 
     // Yearly
     expect(yearly.id).toBe('yearly');
-    expect(yearly.badge).toBe('GÓI PHỔ BIẾN NHẤT');
+    expect(yearly.badge).toBe('Gói phổ biến nhất');
     expect(yearly.features.some((f) => f.includes('Tối đa 35 người/phòng'))).toBe(true);
     expect(yearly.features.some((f) => f.includes('300 câu hỏi AI tóm tắt tài liệu/tháng'))).toBe(true);
     expect(yearly.features.some((f) => f.includes('Đặt URL cố định theo nickname cá nhân'))).toBe(true);
 
     // Lifetime
     expect(lifetime.id).toBe('lifetime');
-    expect(lifetime.badge).toBe('FOUNDER VIP');
+    expect(lifetime.badge).toBe('Founder VIP');
     expect(lifetime.features.some((f) => f.includes('Lên đến 60 người'))).toBe(true);
     expect(lifetime.features.some((f) => f.includes('AI Study Companion không giới hạn'))).toBe(true);
     expect(lifetime.features.some((f) => f.includes('Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn'))).toBe(true);
