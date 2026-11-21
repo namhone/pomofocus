@@ -246,4 +246,63 @@ describe('SePay VPBank VA (AGBSPTJE34IA3A8SAAX) Webhook & QR Integration Tests',
       expect(qrUrl).toContain('des=POMO_PF8M2K9');
     });
   });
+
+  describe('4. Real Production Transaction #101305288 (PFJQREP) Verification', () => {
+    it('correctly matches hyphenated memo ...-0704862629-PFJQREP and credits 50 credits', async () => {
+      let rpcPayload: any = null;
+      const globalFetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async (url: any, opts: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes('/rpc/process_payment_by_order') && opts?.method === 'POST') {
+          rpcPayload = JSON.parse(opts.body);
+          return {
+            ok: true,
+            json: async () => ({
+              success: true,
+              user_id: 'e61e687b-a19d-7db0-6644-8e50bdf7dd16',
+              credits_added: 50,
+              new_balance: 100
+            })
+          } as any;
+        }
+        return { ok: false, json: async () => ({}) } as any;
+      });
+
+      const realPayload = {
+        gateway: 'VPBank',
+        transactionDate: '2026-11-21 11:01:11',
+        accountNumber: '0704862629',
+        subAccount: 'AGBSPTJE34IA3A8SAAX',
+        code: null,
+        content: 'NHAN TU 116000074230 TRACE 118166 ND 157970129631-0704862629-PFJQREP',
+        transferType: 'in',
+        description: 'BankAPINotify NHAN TU 116000074230 TRACE 118166 ND 157970129631-0704862629-PFJQREP',
+        transferAmount: 10000,
+        referenceCode: 'FT26325051385063',
+        accumulated: 0,
+        id: 101305288
+      };
+
+      const req: any = {
+        method: 'POST',
+        headers: { authorization: `Apikey ${TEST_SEPAY_KEY}` },
+        body: realPayload
+      };
+      const res = createMockResponse();
+
+      await sepayWebhookHandler(req, res);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.orderCode).toBe('PFJQREP');
+      expect(res.body.credits_added).toBe(50);
+      expect(res.body.new_balance).toBe(100);
+
+      expect(rpcPayload).not.toBeNull();
+      expect(rpcPayload.p_order_code).toBe('PFJQREP');
+      expect(rpcPayload.p_transfer_amount).toBe(10000);
+      expect(rpcPayload.p_gateway).toBe('SePay_VPBank');
+
+      globalFetch.mockRestore();
+    });
+  });
 });

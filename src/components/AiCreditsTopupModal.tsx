@@ -363,6 +363,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
+            userEmail: user.email,
             amount: targetPrice,
             creditsToAdd: targetCredits
           })

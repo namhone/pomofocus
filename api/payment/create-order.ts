@@ -14,7 +14,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const { userId, amount, creditsToAdd } = body;
+    const { userId, amount, creditsToAdd, userEmail, email } = body;
 
     // BUG-14 Remediation: Từ chối tuyệt đối khách chưa đăng nhập / guest tạo đơn nạp tiền
     if (!userId || typeof userId !== 'string' || userId.trim() === '' || userId === 'guest' || userId === 'guest_user' || userId === '00000000-0000-0000-0000-000000000000') {
@@ -28,6 +28,7 @@ export default async function handler(req: any, res: any) {
     const numAmount = Number(amount);
     const numCredits = Number(creditsToAdd || Math.round(numAmount / 100)); // Mặc định 10.000đ = 100⚡
     const effectiveUserId = userId.trim();
+    const effectiveUserEmail = (userEmail || email || '').trim().toLowerCase();
 
     const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -49,13 +50,17 @@ export default async function handler(req: any, res: any) {
           body: JSON.stringify({
             p_user_id: effectiveUserId,
             p_amount: numAmount,
-            p_credits: numCredits
+            p_credits: numCredits,
+            p_email: effectiveUserEmail || null
           })
         });
 
         if (rpcRes.ok) {
           const data = await rpcRes.json();
           orderCode = typeof data === 'string' ? data : data?.order_code || '';
+        } else {
+          const rpcErr = await rpcRes.text();
+          console.warn('[create-order] RPC returned status', rpcRes.status, rpcErr);
         }
       } catch (err) {
         console.warn('[create-order] RPC get_or_create_payment_order error:', err);
@@ -64,8 +69,11 @@ export default async function handler(req: any, res: any) {
       // 2. Fallback nếu RPC chưa tạo trên DB: Tìm đơn pending cũ còn hạn trực tiếp từ REST API
       if (!orderCode) {
         try {
+          const filter = effectiveUserEmail
+            ? `or=(user_id.eq.${encodeURIComponent(effectiveUserId)},user_email.eq.${encodeURIComponent(effectiveUserEmail)})`
+            : `user_id=eq.${encodeURIComponent(effectiveUserId)}`;
           const existingRes = await fetch(
-            `${supabaseUrl}/rest/v1/payment_orders?user_id=eq.${encodeURIComponent(effectiveUserId)}&status=eq.pending&amount=eq.${numAmount}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&order=created_at.desc&limit=1`,
+            `${supabaseUrl}/rest/v1/payment_orders?${filter}&status=eq.pending&amount=eq.${numAmount}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&order=created_at.desc&limit=1`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -95,7 +103,7 @@ export default async function handler(req: any, res: any) {
         orderCode = randomCode;
 
         try {
-          await fetch(`${supabaseUrl}/rest/v1/payment_orders`, {
+          const insertRes = await fetch(`${supabaseUrl}/rest/v1/payment_orders`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -106,12 +114,17 @@ export default async function handler(req: any, res: any) {
             body: JSON.stringify({
               order_code: orderCode,
               user_id: effectiveUserId,
+              user_email: effectiveUserEmail || null,
               amount: numAmount,
               credits_to_add: numCredits,
               status: 'pending',
               expires_at: expiresAt
             })
           });
+          if (!insertRes.ok) {
+            const insErr = await insertRes.text();
+            console.warn('[create-order] Direct insert payment_orders returned', insertRes.status, insErr);
+          }
         } catch (insertErr) {
           console.warn('[create-order] Direct insert payment_orders error:', insertErr);
         }

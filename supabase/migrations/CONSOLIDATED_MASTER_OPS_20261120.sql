@@ -40,6 +40,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
+-- Bỏ ràng buộc cứng profiles_id_fkey để hỗ trợ Google OAuth và tài khoản đa nền tảng
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+
 -- Nâng cấp ràng buộc check nếu bảng đã tồn tại trước đó
 DO $$
 BEGIN
@@ -253,7 +256,8 @@ CREATE POLICY "Service role manage focus sessions" ON public.focus_sessions
 CREATE TABLE IF NOT EXISTS public.payment_orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   order_code TEXT UNIQUE NOT NULL,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  user_id TEXT NOT NULL,
+  user_email TEXT,
   amount INTEGER NOT NULL,
   credits_to_add BIGINT NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'expired')),
@@ -261,6 +265,11 @@ CREATE TABLE IF NOT EXISTS public.payment_orders (
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   completed_at TIMESTAMPTZ
 );
+
+-- Bảo đảm schema idempotent: chuyển user_id sang TEXT và thêm user_email nếu bảng đã tạo trước đó
+ALTER TABLE public.payment_orders DROP CONSTRAINT IF EXISTS payment_orders_user_id_fkey;
+ALTER TABLE public.payment_orders ALTER COLUMN user_id TYPE TEXT;
+ALTER TABLE public.payment_orders ADD COLUMN IF NOT EXISTS user_email TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_payment_orders_lookup ON public.payment_orders (order_code, status);
 CREATE INDEX IF NOT EXISTS idx_payment_orders_user_pending ON public.payment_orders (user_id, status, expires_at);
@@ -270,7 +279,7 @@ ALTER TABLE public.payment_orders ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users read own orders" ON public.payment_orders;
 CREATE POLICY "Users read own orders" ON public.payment_orders
-  FOR SELECT TO authenticated USING ((select auth.uid()) = user_id);
+  FOR SELECT TO authenticated USING ((select auth.uid())::text = user_id);
 
 DROP POLICY IF EXISTS "Public can read payment_orders" ON public.payment_orders;
 CREATE POLICY "Public can read payment_orders" ON public.payment_orders
@@ -279,7 +288,18 @@ CREATE POLICY "Public can read payment_orders" ON public.payment_orders
 
 DROP POLICY IF EXISTS "Users insert own orders" ON public.payment_orders;
 CREATE POLICY "Users insert own orders" ON public.payment_orders
-  FOR INSERT TO authenticated WITH CHECK ((select auth.uid()) = user_id);
+  FOR INSERT TO authenticated WITH CHECK ((select auth.uid())::text = user_id);
+
+DROP POLICY IF EXISTS "Public can insert payment_orders" ON public.payment_orders;
+CREATE POLICY "Public can insert payment_orders" ON public.payment_orders
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public can update payment_orders" ON public.payment_orders;
+CREATE POLICY "Public can update payment_orders" ON public.payment_orders
+  FOR UPDATE TO anon
+  USING (true)
+  WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Service role manage orders" ON public.payment_orders;
 CREATE POLICY "Service role manage orders" ON public.payment_orders
@@ -578,10 +598,15 @@ CREATE TRIGGER on_auth_user_created
 -- ------------------------------------------------------------------------------
 -- 10. HÀM TẠO HOẶC TÁI SỬ DỤNG ĐƠN HÀNG (GET_OR_CREATE_PAYMENT_ORDER)
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.get_or_create_payment_order(UUID, INTEGER, BIGINT);
+DROP FUNCTION IF EXISTS public.get_or_create_payment_order(TEXT, INTEGER, BIGINT);
+DROP FUNCTION IF EXISTS public.get_or_create_payment_order(TEXT, INTEGER, BIGINT, TEXT);
+
 CREATE OR REPLACE FUNCTION public.get_or_create_payment_order(
-  p_user_id UUID,
+  p_user_id TEXT,
   p_amount INTEGER,
-  p_credits BIGINT
+  p_credits BIGINT,
+  p_email TEXT DEFAULT NULL
 )
 RETURNS TEXT AS $$
 DECLARE
@@ -589,24 +614,20 @@ DECLARE
   v_new_code TEXT;
   v_chars TEXT := '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   v_i INTEGER;
+  v_resolved_user_id TEXT := TRIM(p_user_id);
+  v_email TEXT := LOWER(TRIM(COALESCE(p_email, '')));
 BEGIN
-  -- Đảm bảo user profile tồn tại
-  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = p_user_id) THEN
-    INSERT INTO public.profiles (id, email, display_name, credits, ai_credits_balance, role, plan)
-    SELECT id, email, split_part(email, '@', 1), 50, 50, 'user', 'free'
-    FROM auth.users WHERE id = p_user_id
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
-
   -- 1. Tự động dọn rác các đơn hết hạn
   UPDATE public.payment_orders
   SET status = 'expired'
-  WHERE user_id = p_user_id AND status = 'pending' AND expires_at < NOW();
+  WHERE (user_id = v_resolved_user_id OR (v_email <> '' AND user_email = v_email))
+    AND status = 'pending' AND expires_at < NOW();
 
   -- 2. Tái sử dụng đơn pending cùng số tiền còn hạn
   SELECT order_code INTO v_existing_code
   FROM public.payment_orders
-  WHERE user_id = p_user_id AND status = 'pending' AND amount = p_amount AND expires_at > NOW()
+  WHERE (user_id = v_resolved_user_id OR (v_email <> '' AND user_email = v_email))
+    AND status = 'pending' AND amount = p_amount AND expires_at > NOW()
   ORDER BY created_at DESC
   LIMIT 1;
 
@@ -626,8 +647,8 @@ BEGIN
     END IF;
   END LOOP;
 
-  INSERT INTO public.payment_orders (order_code, user_id, amount, credits_to_add, expires_at)
-  VALUES (v_new_code, p_user_id, p_amount, p_credits, NOW() + INTERVAL '15 minutes');
+  INSERT INTO public.payment_orders (order_code, user_id, user_email, amount, credits_to_add, expires_at)
+  VALUES (v_new_code, v_resolved_user_id, NULLIF(v_email, ''), p_amount, p_credits, NOW() + INTERVAL '15 minutes');
 
   RETURN v_new_code;
 END;
@@ -648,10 +669,12 @@ CREATE OR REPLACE FUNCTION public.process_payment_by_order(
 RETURNS JSONB AS $$
 DECLARE
   v_order_id UUID;
-  v_user_id UUID;
+  v_user_id_text TEXT;
+  v_user_email TEXT;
+  v_target_profile_id UUID;
   v_credits BIGINT;
   v_order_code TEXT := UPPER(TRIM(p_order_code));
-  v_new_balance BIGINT;
+  v_new_balance BIGINT := 0;
 BEGIN
   -- 1. Tìm và cập nhật payment_orders từ pending -> completed
   UPDATE public.payment_orders
@@ -660,29 +683,109 @@ BEGIN
   WHERE order_code = v_order_code
     AND status = 'pending'
     AND amount <= p_transfer_amount
-  RETURNING id, user_id, credits_to_add INTO v_order_id, v_user_id, v_credits;
+  RETURNING id, user_id, user_email, credits_to_add INTO v_order_id, v_user_id_text, v_user_email, v_credits;
 
   IF NOT FOUND THEN
+    -- Kiểm tra xem đơn đã hoàn tất trước đó hay chưa (Idempotent response)
+    IF EXISTS (SELECT 1 FROM public.payment_orders WHERE order_code = v_order_code AND status = 'completed') THEN
+      RETURN jsonb_build_object(
+        'success', true,
+        'already_processed', true,
+        'message', 'Đơn hàng đã hoàn tất trước đó'
+      );
+    END IF;
+
     RETURN jsonb_build_object(
       'success', false,
-      'message', 'Đơn hàng không tồn tại, đã hoàn tất trước đó hoặc số tiền chuyển khoản không đủ'
+      'message', 'Đơn hàng không tồn tại hoặc số tiền chuyển khoản không đủ'
     );
   END IF;
 
-  -- 2. Cập nhật số dư trong user_wallets
+  -- 2. Tìm profile UUID tương ứng theo ID, Email, hoặc Google ID
+  SELECT id INTO v_target_profile_id
+  FROM public.profiles
+  WHERE (id::text = v_user_id_text)
+     OR (v_user_email IS NOT NULL AND LOWER(email) = LOWER(v_user_email))
+     OR (google_id = v_user_id_text)
+  LIMIT 1;
+
+  -- 3. Nếu chưa có profile trong bảng profiles, tự động tạo mới
+  IF v_target_profile_id IS NULL THEN
+    IF v_user_id_text ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
+      v_target_profile_id := v_user_id_text::uuid;
+    ELSIF v_user_email IS NOT NULL AND v_user_email <> '' THEN
+      v_target_profile_id := md5(v_user_email)::uuid;
+    ELSE
+      v_target_profile_id := gen_random_uuid();
+    END IF;
+
+    INSERT INTO public.profiles (
+      id,
+      email,
+      display_name,
+      role,
+      plan,
+      credits,
+      ai_credits_balance,
+      google_id,
+      is_google_linked
+    )
+    VALUES (
+      v_target_profile_id,
+      COALESCE(v_user_email, v_user_id_text || '@user.local'),
+      COALESCE(v_user_email, 'Người dùng'),
+      'user',
+      'free',
+      50,
+      50,
+      v_user_id_text,
+      true
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+
+  -- 4. Cập nhật số dư trong user_wallets
   INSERT INTO public.user_wallets (user_id, credits_balance, updated_at)
-  VALUES (v_user_id, v_credits, NOW())
+  VALUES (v_target_profile_id, 50 + v_credits, NOW())
   ON CONFLICT (user_id) DO UPDATE
-  SET credits_balance = public.user_wallets.credits_balance + EXCLUDED.credits_balance,
+  SET credits_balance = public.user_wallets.credits_balance + v_credits,
       updated_at = NOW()
   RETURNING credits_balance INTO v_new_balance;
 
-  -- 3. Cập nhật số dư trong profiles để UI nhận dữ liệu ngay
+  -- 5. Cập nhật số dư trong profiles để UI nhận dữ liệu ngay
   UPDATE public.profiles
-  SET credits = COALESCE(credits, 0) + v_credits,
-      ai_credits_balance = COALESCE(ai_credits_balance, 0) + v_credits,
+  SET credits = COALESCE(credits, 50) + v_credits,
+      ai_credits_balance = COALESCE(ai_credits_balance, 50) + v_credits,
       updated_at = NOW()
-  WHERE id = v_user_id;
+  WHERE id = v_target_profile_id;
+
+  -- 6. Ghi nhận giao dịch vào payment_transactions
+  INSERT INTO public.payment_transactions (
+    order_id,
+    user_id,
+    amount,
+    status,
+    plan_type,
+    description
+  )
+  VALUES (
+    v_order_code,
+    v_target_profile_id,
+    p_transfer_amount,
+    'completed',
+    'credit_pack',
+    format('Nạp %s AI Credits qua %s (Đơn: %s)', v_credits, p_gateway, v_order_code)
+  );
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'order_code', v_order_code,
+    'user_id', v_target_profile_id,
+    'credits_added', v_credits,
+    'new_balance', v_new_balance
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
   -- 4. Ghi nhận giao dịch vào payment_transactions
   INSERT INTO public.payment_transactions (

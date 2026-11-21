@@ -98,10 +98,10 @@ export default async function handler(req: any, res: any) {
     }
 
     // 4. Nhận diện mã đơn hàng:
-    // Nhóm A: Mã nạp AI Credits Base36 7 ký tự bắt đầu bằng 'PF' (Ví dụ: 'PF8M2K9', 'PF9K2A8')
+    // Nhóm A: Mã nạp AI Credits Base36 7 ký tự bắt đầu bằng 'PF' (Ví dụ: 'PF8M2K9', 'PF9K2A8', 'PFJQREP')
     const base36Match =
-      combinedText.match(/(?:^|[^a-zA-Z0-9])(PF[2-9A-HJ-NP-Z]{5})(?:[^a-zA-Z0-9]|$)/i) ||
-      combinedText.match(/(?:ND|GD|CT|NAPAS|MOMO|IB|SEPAY)?[:\s\\/._-]*(PF[2-9A-Z]{5})\b/i);
+      combinedText.match(/(?:^|[^a-zA-Z0-9])(PF[0-9A-Za-z]{5})(?:[^a-zA-Z0-9]|$)/i) ||
+      combinedText.match(/(?:ND|GD|CT|NAPAS|MOMO|IB|SEPAY|[0-9]+)?[:\s\\/._-]*(PF[0-9A-Za-z]{5})\b/i);
 
     // Nhóm B: Mã kích hoạt PRO Subscription cũ hoặc mới (POMO_xxxxxx, SW_xxxxxx)
     const proMatch =
@@ -146,18 +146,22 @@ export default async function handler(req: any, res: any) {
                 referenceCode: transactionRef
               });
             }
-            if (data?.message?.includes('đã hoàn tất') || data?.message?.includes('không tồn tại')) {
+            if (data?.already_processed || data?.message?.includes('đã hoàn tất')) {
               return res.status(200).json({
-                status: 'already_processed_or_invalid',
-                message: data.message
+                success: true,
+                alreadyProcessed: true,
+                message: data.message || 'Đơn hàng đã hoàn tất trước đó',
+                referenceCode: transactionRef
               });
             }
+            // Nếu RPC báo lỗi khác hoặc không tìm thấy, không return vội mà chuyển tiếp sang REST fallback bên dưới
+            console.warn('[SePay Webhook] RPC thông báo:', data?.message);
           }
         } catch (rpcErr) {
           console.warn('[SePay Webhook] RPC process_payment_by_order error:', rpcErr);
         }
 
-        // A2. Direct REST Fallback (Phòng ngừa RPC chưa kịp nạp trên DB)
+        // A2. Direct REST Fallback (Phòng ngừa RPC chưa kịp nạp trên DB hoặc chưa tìm thấy)
         try {
           const orderRes = await fetch(
             `${supabaseUrl}/rest/v1/payment_orders?order_code=eq.${encodeURIComponent(creditOrderCode)}&status=eq.pending&select=*`,
@@ -189,9 +193,28 @@ export default async function handler(req: any, res: any) {
                 })
               });
 
+              // Tìm profile theo user_id, user_email hoặc google_id
+              let targetProfileId = pendingOrder.user_id;
+              try {
+                const queryFilter = pendingOrder.user_email
+                  ? `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},email.eq.${encodeURIComponent(pendingOrder.user_email)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`
+                  : `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`;
+                const profRes = await fetch(`${supabaseUrl}/rest/v1/profiles?${queryFilter}&limit=1`, {
+                  headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+                });
+                if (profRes.ok) {
+                  const profs = await profRes.json();
+                  if (Array.isArray(profs) && profs.length > 0) {
+                    targetProfileId = profs[0].id;
+                  }
+                }
+              } catch (profErr) {
+                console.warn('[SePay Webhook] Lookup profile error:', profErr);
+              }
+
               // Cập nhật ví user_wallets
               const walletRes = await fetch(
-                `${supabaseUrl}/rest/v1/user_wallets?user_id=eq.${pendingOrder.user_id}&select=*`,
+                `${supabaseUrl}/rest/v1/user_wallets?user_id=eq.${encodeURIComponent(targetProfileId)}&select=*`,
                 { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
               );
               let currentBalance = 0;
@@ -212,14 +235,14 @@ export default async function handler(req: any, res: any) {
                   Prefer: 'resolution=merge-duplicates'
                 },
                 body: JSON.stringify({
-                  user_id: pendingOrder.user_id,
+                  user_id: targetProfileId,
                   credits_balance: newBalance,
                   updated_at: new Date().toISOString()
                 })
               });
 
               // Cập nhật profile
-              await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${pendingOrder.user_id}`, {
+              await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(targetProfileId)}`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',
@@ -244,7 +267,7 @@ export default async function handler(req: any, res: any) {
                 },
                 body: JSON.stringify({
                   order_id: creditOrderCode,
-                  user_id: pendingOrder.user_id,
+                  user_id: targetProfileId,
                   amount: numAmount,
                   status: 'completed',
                   plan_type: 'credit_pack',
