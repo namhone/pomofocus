@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useRouter } from '../services/router';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   HelpCircle,
   Keyboard,
@@ -43,16 +43,20 @@ const FAQS = [
 ];
 
 export const HelpView: React.FC = () => {
+  const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <div
-      data-testid="help-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Trung Tâm Trợ Giúp"
+      subtitle="Phương pháp Pomodoro & phím tắt"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
     >
-      <PlatformHeader />
-
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
+      <div
+        data-testid="help-view"
+        className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
+      >
         {/* Title */}
         <div className="space-y-1.5">
           <div className="flex items-center gap-2.5">
@@ -173,9 +177,7 @@ export const HelpView: React.FC = () => {
             ))}
           </div>
         </div>
-      </main>
-
-      <SharedFooter />
-    </div>
+      </div>
+    </MobileSubViewLayout>
   );
 };

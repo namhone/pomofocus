@@ -1,3 +1,4 @@
 # Explorer Survey 2 Context
-- Scope: Survey Sections 3, 4 of ORIGINAL_REQUEST.md
-- Target: /app workspace top clearance (y=8px), Home nav tuck-in, macOS Liquid Dock magnification and styling from apple-liquid-dock.md.
+Task: Survey APK Navigation Shell, Native TopBar, Hardware Back-Stack & Android 15 Edge-to-Edge Insets
+Authoritative request: .agents/teamwork/ORIGINAL_REQUEST.md
+Parent: orchestrator_p2

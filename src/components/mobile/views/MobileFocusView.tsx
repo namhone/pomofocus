@@ -13,7 +13,8 @@ import {
   ChevronDown,
   AlertTriangle,
   Lock,
-  LockOpen
+  LockOpen,
+  Plus
 } from 'lucide-react';
 import { useTimerStore } from '../../../stores/useTimerStore';
 import { useTaskStore } from '../../../stores/useTaskStore';
@@ -102,9 +103,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   const tasks = useTaskStore((s) => s.tasks) ?? [];
   const linkTaskToTimer = useTaskStore((s) => s.linkTaskToTimer);
   const toggleTaskComplete = useTaskStore((s) => s.toggleTaskComplete);
+  const createTask = useTaskStore((s) => s.createTask);
 
   // Local state
   const [isTaskPickerOpen, setIsTaskPickerOpen] = useState(false);
+  const [quickTaskTitle, setQuickTaskTitle] = useState('');
   const [pendingPhaseChange, setPendingPhaseChange] = useState<TimerPhase | null>(null);
   const [isStrictMode, setIsStrictMode] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
@@ -636,6 +639,23 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
     setIsTaskPickerOpen(false);
   };
 
+  const handleCreateQuickTask = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = quickTaskTitle.trim();
+    if (!trimmed) return;
+    try {
+      const newTask = await createTask({ title: trimmed });
+      if (newTask?.id) {
+        linkTaskToTimer(newTask.id);
+        useTimerStore.getState().setLinkedTask(newTask.id, newTask.title);
+      }
+      setQuickTaskTitle('');
+      setIsTaskPickerOpen(false);
+    } catch (err) {
+      console.error('Lỗi tạo nhanh công việc:', err);
+    }
+  };
+
   const linkedTask = useMemo(() => {
     if (!linkedTaskId) return null;
     return tasks.find((t) => t.id === linkedTaskId) ?? null;
@@ -897,28 +917,80 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                 )}
 
                 {activeTodoTasks.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-zinc-400">
-                    Chưa có công việc đang chờ. Hãy thêm trong tab Công việc!
+                  <div
+                    data-testid="mobile-task-picker-empty"
+                    className="px-3 py-4 text-center space-y-3"
+                  >
+                    <div className="text-xs text-zinc-400">
+                      Chưa có công việc đang chờ. Tạo nhanh để bắt đầu:
+                    </div>
+                    <form
+                      onSubmit={handleCreateQuickTask}
+                      className="flex items-center gap-1.5"
+                    >
+                      <input
+                        type="text"
+                        data-testid="mobile-quick-task-input"
+                        value={quickTaskTitle}
+                        onChange={(e) => setQuickTaskTitle(e.target.value)}
+                        placeholder="Nhập tên mục tiêu phiên này..."
+                        className="flex-1 bg-zinc-900 border border-white/15 focus:border-emerald-400/60 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 outline-none transition"
+                      />
+                      <button
+                        type="submit"
+                        data-testid="mobile-quick-task-submit-btn"
+                        disabled={!quickTaskTitle.trim()}
+                        className="px-3 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-semibold rounded-xl text-xs flex items-center gap-1 transition active:scale-95 cursor-pointer shrink-0"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Thêm</span>
+                      </button>
+                    </form>
                   </div>
                 ) : (
-                  activeTodoTasks.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => handleSelectTask(t.id)}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                        t.id === linkedTaskId
-                          ? 'bg-white/10 text-white font-medium border border-white/15'
-                          : 'text-zinc-200 hover:bg-zinc-800/80'
-                      }`}
+                  <>
+                    {activeTodoTasks.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => handleSelectTask(t.id)}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                          t.id === linkedTaskId
+                            ? 'bg-white/10 text-white font-medium border border-white/15'
+                            : 'text-zinc-200 hover:bg-zinc-800/80'
+                        }`}
+                      >
+                        <span className="truncate flex-1">{t.title}</span>
+                        <span className="text-[10px] font-mono text-zinc-400 shrink-0">
+                          {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
+                        </span>
+                        {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-zinc-200 shrink-0" />}
+                      </button>
+                    ))}
+                    {/* Compact quick add row for when tasks already exist */}
+                    <form
+                      onSubmit={handleCreateQuickTask}
+                      className="flex items-center gap-1.5 pt-1"
                     >
-                      <span className="truncate flex-1">{t.title}</span>
-                      <span className="text-[10px] font-mono text-zinc-400 shrink-0">
-                        {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
-                      </span>
-                      {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-zinc-200 shrink-0" />}
-                    </button>
-                  ))
+                      <input
+                        type="text"
+                        data-testid="mobile-quick-task-input-existing"
+                        value={quickTaskTitle}
+                        onChange={(e) => setQuickTaskTitle(e.target.value)}
+                        placeholder="+ Thêm nhanh mục tiêu..."
+                        className="flex-1 bg-zinc-900/60 border border-white/10 focus:border-emerald-400/60 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 outline-none transition"
+                      />
+                      <button
+                        type="submit"
+                        data-testid="mobile-quick-task-submit-existing-btn"
+                        disabled={!quickTaskTitle.trim()}
+                        className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 disabled:opacity-30 rounded-xl cursor-pointer transition shrink-0"
+                        title="Thêm công việc"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </form>
+                  </>
                 )}
 
                 {onManageTasks && (
@@ -1048,7 +1120,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-valuenow={Math.round(progressPercent)}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="w-48 sm:w-64 h-1 bg-zinc-800/80 rounded-full overflow-hidden mt-3.5 shadow-inner"
+            className="w-48 sm:w-64 h-1 bg-zinc-800/80 rounded-full overflow-hidden mt-3 shadow-inner shrink-0"
           >
             <div
               className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 transition-all duration-300 rounded-full"
@@ -1056,9 +1128,15 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             />
           </div>
 
-          {/* Completed Cycle Dots */}
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-[10px] font-mono font-medium text-zinc-400">
+          {/* Completed Cycle Dots & Round Indicator */}
+          <div
+            data-testid="mobile-cycle-status-pill"
+            className="flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-zinc-900/60 border border-white/10 backdrop-blur-md shadow-sm"
+          >
+            <span
+              data-testid="mobile-cycle-round-label"
+              className="text-[11px] font-mono font-medium text-zinc-300"
+            >
               Hiệp {currentRound}/{totalRounds}
             </span>
             <div
@@ -1074,13 +1152,17 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                 return (
                   <span
                     key={idx}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    data-testid={`mobile-cycle-dot-${roundNum}`}
+                    data-round={roundNum}
+                    data-state={isPast ? 'completed' : isCurrent ? 'active' : 'upcoming'}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                       isPast
                         ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
                         : isCurrent
-                        ? 'bg-emerald-400/90 ring-2 ring-emerald-400/30'
-                        : 'bg-zinc-800'
+                        ? 'bg-transparent border-2 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)] animate-pulse'
+                        : 'bg-zinc-800 border border-white/10'
                     }`}
+                    aria-label={`Hiệp ${roundNum}: ${isPast ? 'Đã hoàn thành' : isCurrent ? 'Đang diễn ra' : 'Chưa diễn ra'}`}
                   />
                 );
               })}

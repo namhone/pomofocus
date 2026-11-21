@@ -1,114 +1,206 @@
-# HANDOFF REPORT: EXPLORER M1-3 (TEST SUITE & BUILD IMPACT)
+# Handoff Report: Cookie Consent Banner Native Suppression & Deep Link / 404 Routing
 
-**Dự án:** Pomofocus v6.0 Ultimate (Liquid Glass & Zen Minimalism)  
-**Milestone:** M1 — Zero-FOUT & Typography Foundation  
-**Agent:** Explorer M1-3  
-**Người nhận (Recipient):** Project Orchestrator (`1bd3b181-5618-4e23-9890-9f34e23eca19`) / Sub-Orchestrator M1  
-**Tình trạng bàn giao:** Hard Handoff (Hoàn tất 100% mục tiêu điều tra kiểm thử và đóng gói)  
-
----
-
-## 1. OBSERVATION (QUAN SÁT TRỰC TIẾP)
-
-1. **`tests/unit/wcagAccessibilityAudit.test.ts:159-166`:**
-   - Nguyên văn đoạn code kiểm thử:
-     ```typescript
-     it('8. KaTeX CSS is preconnected and non-render-blocking in index.html', () => {
-       const indexPath = path.resolve('index.html');
-       const indexContent = fs.readFileSync(indexPath, 'utf8');
-       expect(indexContent).toContain('<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />');
-       expect(indexContent).toContain('<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />');
-       expect(indexContent).toContain('media="print"');
-       expect(indexContent).toContain("onload=\"this.media='all'\"");
-     });
-     ```
-   - Đây là tệp kiểm thử **DUY NHẤT** trong toàn bộ 52 tệp test đọc trực tiếp nội dung `index.html`. Nó chỉ assert 4 chuỗi ký tự KaTeX CDN và không kiểm tra class/style của thẻ `<html>` hay `<body>`.
-2. **`tests/unit/timerDocumentTitleLifecycle.test.ts:13-14`:**
-   - Nguyên văn:
-     ```typescript
-     beforeEach(() => {
-       // Reset document.title
-       document.title = 'Initial Title';
-       vi.restoreAllMocks();
-     });
-     ```
-   - Kiểm thử `document.title` chạy trên JSDOM và được mock chủ động bằng `'Initial Title'`. Không có test nào trong unit hoặc E2E đọc thẻ `<title>` gốc của `index.html`.
-3. **Truy vấn thẻ `<meta>` và `<div id="root">`:**
-   - Tìm kiếm `meta` trên toàn bộ thư mục `tests/`: 0 kết quả khớp với thẻ HTML `<meta>` của `index.html` (chỉ khớp `user_metadata` của Supabase Auth).
-   - Tìm kiếm `root` hoặc `getElementById('root')` trên toàn bộ `tests/`: 0 kết quả truy vấn.
-4. **Môi trường JSDOM & React Testing Library:**
-   - `vite.config.ts:57-61`: Vitest chạy với `environment: 'jsdom'` không có `setupFiles`. JSDOM bắt đầu với trang trắng mặc định `about:blank`.
-   - `tests/unit/zenErrorPages.test.tsx:23`: Sử dụng `@testing-library/react` hàm `render()`, tạo container `div` độc lập gắn vào `document.body`. Tệp `index.html` hoàn toàn không được JSDOM nạp trong các bài unit test.
-5. **Đặc tính kỹ thuật của `#pomo-splash-curtain` đối với Playwright E2E:**
-   - CSS: `pointer-events: none;` được khai báo inline ngay từ đầu.
-   - Script inline: `window.addEventListener('DOMContentLoaded', ...)` gán class `.loaded` sau 100ms.
-   - Class `.loaded` có `opacity: 0; visibility: hidden;`.
-   - Toàn bộ các bài test trong `tests/e2e/` (như `layoutZenFlow.spec.ts`) đều sử dụng `await expect(page.locator(...)).toBeVisible()`, thời gian chờ hydration (>100ms) tự nhiên vượt quá thời gian tháo rèm.
-   - Không có bài test E2E nào dùng `toHaveScreenshot()` để so sánh pixel diff vàng (golden diff).
-6. **Thực thi lệnh kiểm tra hiện trạng (Baseline Execution):**
-   - Lệnh `npm test` (`vitest run`): **52 passed (52 files), 466 passed (466 tests)**, Thời gian: 254.43s.
-   - Lệnh `npm run type-check` (`tsc --noEmit`): **Exit code 0 (0 errors, 0 warnings)**.
-   - Lệnh `npx vite build`: **Built in 52.93s, 50 assets precached in `dist/sw.js`**. Tệp `dist/index.html` bảo toàn nguyên vẹn toàn bộ các khối `<style>`, `<script>` inline và thuộc tính thẻ `<html>`, `<body>`.
+**Agent**: explorer_m1_3  
+**Milestone**: M1 (APK Navigation Shell & 100% Web Isolation)  
+**Parent**: orchestrator_p2 (`cf5bc11e-435c-4f27-a55e-a32f3bebfefa`)  
+**Scope Reference**: BUG-03 and BUG-11 from `docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md`
 
 ---
 
-## 2. LOGIC CHAIN (CHUỖI LẬP LUẬN TỪ QUAN SÁT ĐẾN KẾT LUẬN)
+## 1. Observation
 
-1. **Từ Quan sát 1 và 3:** Vì `wcagAccessibilityAudit.test.ts` chỉ kiểm tra 4 chuỗi KaTeX, việc bổ sung `class="dark" style="background-color: #09090b !important; color: #f4f4f5;"` vào thẻ `<html>`/`<body>` và thêm `#pomo-splash-curtain` sẽ **không làm vỡ** bất kỳ assertion nào, miễn là các dòng KaTeX được bảo toàn.
-2. **Từ Quan sát 2 và 3:** Thẻ `<title>` và các thẻ `<meta>` trong `index.html` không bị bất kỳ unit test hay E2E test nào ràng buộc nội dung cứng. Mọi thay đổi hoặc giữ nguyên đều an toàn 100%.
-3. **Từ Quan sát 4:** Vitest chạy JSDOM không nạp `index.html`. Do đó, `#pomo-splash-curtain` thậm chí không hiện diện trong JSDOM khi chạy unit test. React Testing Library trong `zenErrorPages.test.tsx` hoàn toàn không bị ảnh hưởng.
-4. **Từ Quan sát 5:** Trong Playwright E2E, `#pomo-splash-curtain` sở hữu `pointer-events: none;` nên không bao giờ chặn click. Đồng thời, cơ chế tự động ẩn `.loaded` sau 100ms và tính chất bất đồng bộ của Playwright (`toBeVisible()`) bảo đảm rèm che đã biến mất hoàn toàn trước khi Playwright tương tác với các widget React.
-5. **Từ Quan sát 6:** Trình biên dịch Vite xử lý `index.html` ở dạng AST mà không xóa bỏ hoặc can thiệp vào inline CSS/JS. Các thẻ inline của Splash Curtain được giữ nguyên 100% trong `dist/index.html` và được Service Worker PWA nạp vào bộ nhớ đệm (precache) an toàn.
-6. **Kết luận tổng hợp:** Việc triển khai Milestone 1 (Zero-FOUT Dark Lock, Splash Curtain Preloader, và `font-display: optional`) có **độ an toàn tuyệt đối (100% Zero-Regression)** với toàn bộ test suite và build pipeline hiện hữu.
+### Observation 1.1: Cookie Consent Banner Display on Native APK
+- **File & Lines**: `src/components/CookieConsentBanner.tsx:11-22, 51-54`
+- **Mount Point**: `src/App.tsx:667` mounts `<CookieConsentBanner />` globally across the entire app unconditionally.
+- **Verbatim Code**:
+  ```tsx
+  useEffect(() => {
+    try {
+      const consent = localStorage.getItem(CONSENT_STORAGE_KEY);
+      if (!consent) {
+        // Trì hoãn nhẹ 800ms để trải nghiệm mượt mà không chặn giao diện tức thì
+        const timer = setTimeout(() => setIsVisible(true), 800);
+        return () => clearTimeout(timer);
+      }
+    } catch {
+      // LocalStorage không khả dụng (Private browsing)
+    }
+  }, []);
+  ...
+  if (!isVisible) return null;
+  // Không làm phiền hoặc chặn thao tác khi người dùng đang trong phòng học Meet
+  if (router.currentRoute.pathname.startsWith('/rooms/')) return null;
+  ```
+- **Physical Coordinates**:
+  `className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 ..."`
+- **Observed Defect**:
+  - In a fresh Android Capacitor APK, `localStorage` is empty. The banner schedules an 800ms timer and renders.
+  - The render condition only checks `!isVisible` and `/rooms/`. There is zero check for `Capacitor.isNativePlatform()`.
+  - In `MobileFocusView.tsx`, the primary timer buttons (Start/Pause, Reset, Skip) reside in the bottom 80px above the bottom navigation. The banner sits directly on top of these action buttons at `z-40`, completely blocking timer interaction.
+
+### Observation 1.2: Cookie Banner Button Wrapping on Web Viewport
+- **File & Lines**: `src/components/CookieConsentBanner.tsx:87-113`
+- **Verbatim Code**:
+  ```tsx
+  <div className="flex flex-wrap items-center gap-2 pt-1.5">
+    <button
+      type="button"
+      data-testid="consent-accept-btn"
+      onClick={handleAccept}
+      className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+    >
+      Đồng ý & Tiếp tục
+    </button>
+    <button
+      type="button"
+      data-testid="consent-decline-btn"
+      onClick={handleDecline}
+      className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+    >
+      Từ chối
+    </button>
+    <button
+      type="button"
+      data-testid="consent-details-btn"
+      onClick={handleOpenPrivacy}
+      className="px-2.5 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1 cursor-pointer"
+    >
+      <span>Xem chính sách</span>
+      <ChevronRight size={12} />
+    </button>
+  </div>
+  ```
+- **Observed Defect**:
+  - The buttons lack `whitespace-nowrap`.
+  - On viewports < 400px or when container width is ~260px, multi-word button labels ("Đồng ý & Tiếp tục", "Chấp nhận tất cả", "Xem chính sách") wrap across 2 vertical lines within the button itself, causing visual deformation and misaligned heights.
+
+### Observation 1.3: Dropped Deep Links in `src/App.tsx`
+- **File & Lines**: `src/App.tsx:393-405`
+- **Verbatim Code**:
+  ```tsx
+  // 2. App Link for /rooms/:roomId or /rooms
+  if (rawUrl.includes('/rooms')) {
+    try {
+      const parsedUrl = new URL(
+        rawUrl.startsWith('pomofocus://') ? rawUrl.replace('pomofocus://', 'https://app/') : rawUrl
+      );
+      const roomPath = parsedUrl.pathname.startsWith('/rooms') ? parsedUrl.pathname : `/rooms${parsedUrl.pathname}`;
+      router.navigate(roomPath + parsedUrl.search);
+    } catch (e) {
+      console.warn('[DeepLink] Error routing room link:', e);
+    }
+  }
+  ```
+- **Observed Defect**:
+  - `handleDeepLinkUrl` only handles `oauth/callback` and `/rooms`.
+  - Inbound deep links such as `pomofocus://billing`, `pomofocus://settings`, `pomofocus://profile`, `pomofocus://dashboard`, `pomofocus://calendar`, `pomofocus://privacy`, `pomofocus://terms`, `pomofocus://app`, and `pomofocus://<random-404>` are silently ignored. No navigation occurs.
+
+### Observation 1.4: Trapped Users on `NotFoundPage.tsx` & Missing Back Button
+- **File & Lines**: `src/pages/NotFoundPage.tsx:28-43, 76-96`
+- **Verbatim Code**:
+  ```tsx
+  {/* Header tối giản */}
+  <header className="relative z-10 px-4 sm:px-8 py-5 flex items-center justify-between">
+    <button
+      type="button"
+      onClick={() => router.navigate('/')}
+      className="flex items-center gap-2 hover:opacity-90 transition cursor-pointer"
+      title="Trang chủ PomoFocus"
+    >
+      <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="text-sm font-bold text-white tracking-tight" />
+    </button>
+
+    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[11px] font-mono text-zinc-400">
+      <Compass size={12} className="text-emerald-400" />
+      <span>Tọa độ không xác định</span>
+    </div>
+  </header>
+  ...
+  <button data-testid="404-btn-back-workspace" onClick={() => router.navigate('/app')} ...>
+    <Clock size={16} />
+    <span>⏱ Quay Về Bàn Học Ngay</span>
+  </button>
+  <button data-testid="404-btn-home" onClick={() => router.navigate('/')} ...>
+    <Home size={16} />
+    <span>🏠 Về Trang Chủ</span>
+  </button>
+  ```
+- **Observed Defect**:
+  - There is no Back button (`← Quay lại`) in the header or anywhere for mobile (`< 640px`).
+  - Users arriving at 404 from within the app cannot return to their previous screen.
+  - In Android APK, `MainActivity.java:22` registers `appBackCallback = new OnBackPressedCallback(false)`. Because `MobileAppShell` unmounts on 404 and sets `canGoBackInApp = false`, pressing the Android hardware Back button terminates the app process instead of returning to the previous screen.
+  - Buttons contain raw emojis (`⏱`, `🏠`) alongside Lucide icons (`<Clock />`, `<Home />`).
 
 ---
 
-## 3. CAVEATS (GIỚI HẠN & GIẢ ĐỊNH)
+## 2. Logic Chain
 
-1. **Vị trí của `#pomo-splash-curtain` trong DOM:** Bắt buộc phải đặt `#pomo-splash-curtain` là phần tử anh em (sibling) của `<div id="root">`, tuyệt đối không đặt lồng bên trong `<div id="root">` (vì React reconciler sẽ dọn dẹp hoặc unmount cây con bên trong root khi nạp).
-2. **Bảo tồn nội dung Crawler bên trong `#root`:** Dù có splash curtain che phủ bên ngoài, 30 dòng HTML tĩnh (crawler text) bên trong `<div id="root">` phải được giữ nguyên vẹn để phục vụ SEO và bot tìm kiếm.
-3. **Phạm vi quyền hạn:** Là Explorer, agent tuân thủ nguyên tắc Read-Only, không trực tiếp sửa đổi mã nguồn. Đề xuất bản vá mã nguồn và mẫu hoàn chỉnh do Explorer M1-1 cung cấp.
-
----
-
-## 4. CONCLUSION (KẾT LUẬN CUỐI CÙNG)
-
-1. **Đánh giá tác động kiểm thử:**
-   - 0 bài unit test bị ảnh hưởng tiêu cực.
-   - 0 bài E2E test bị ảnh hưởng hoặc chặn sự kiện.
-   - Đảm bảo 100% duy trì kết quả 52/52 test files pass và 466/466 tests pass.
-2. **Đánh giá tác động bản dựng:**
-   - Vite 5 và plugin VitePWA xử lý hoàn hảo `index.html` cải tiến, bảo toàn inline CSS, script và đưa vào danh sách precache offline.
-   - `tsc --noEmit` hoàn tất sạch sẽ 0 lỗi.
-3. **Khuyến nghị bổ sung:**
-   - Bổ sung tệp kiểm thử tự động `tests/unit/zeroFoutAndTypography.test.ts` (7 ca kiểm thử) theo thiết kế tại mục 7 của `analysis.md` để tự động hóa việc bảo vệ các tiêu chuẩn Zero-FOUT trong các lần build tiếp theo.
+1. **Premise 1 (APK Context)**: Under `Capacitor.isNativePlatform() === true`, an application operates as an installed native app. It stores data locally in sandboxed WebView storage (IndexedDB/Preferences), not third-party web tracking cookies. Showing a web cookie banner is inappropriate and violates the native shell isolation principle.
+2. **From Observation 1.1**: `CookieConsentBanner.tsx` checks only `localStorage` without checking `Capacitor.isNativePlatform()`. In a fresh APK, this causes the banner to appear after 800ms and sit at `z-40` directly over the timer controls in `MobileFocusView`.
+3. **Deduction 1**: Checking `if (Capacitor.isNativePlatform()) return null;` in both `useEffect` and the render function completely suppresses the banner on native APK, eliminating timer collision.
+4. **From Observation 1.2**: In `CookieConsentBanner.tsx:87-113`, the buttons lack `whitespace-nowrap`. When the container width shrinks below ~280px on 360px–390px screens, the text breaks inside each button.
+5. **Deduction 2**: Adding `whitespace-nowrap shrink-0` to the three button elements enforces single-line pill geometry, while allowing the parent `flex flex-wrap` container to drop whole buttons to subsequent rows cleanly.
+6. **From Observation 1.3**: `AndroidManifest.xml` configures `pomofocus://*` for the application, but `src/App.tsx:handleDeepLinkUrl` only processes `/oauth/callback` and `/rooms`. Any other internal route (`/billing`, `/settings`, `/profile`, `/calendar`, `/dashboard`, `/terms`, `/privacy`) is dropped.
+7. **Deduction 3**: Extracting the path and search query from `pomofocus://` or `https://pomofocus-workspace.vercel.app/*` and calling `router.navigate(cleanPath + search)` restores universal deep link functionality.
+8. **From Observation 1.4**: `NotFoundPage.tsx` lacks a back button on mobile screens (`< 640px`) and does not signal `PomoNativeBack.setCanGoBackInApp(true)`. Consequently, users cannot navigate back to their previous screen, and pressing the Android hardware back button kills the application.
+9. **Deduction 4**: Adding a prominent `← Quay lại` button (`data-testid="not-found-back-btn"`) in the top bar with a fallback (`window.history.length > 1 ? window.history.back() : router.navigate('/app')`), integrating with `PomoNativeBack`, and removing raw emojis (`⏱`, `🏠`) satisfies both mobile UX requirements and BUG-11.
 
 ---
 
-## 5. VERIFICATION METHOD (PHƯƠNG PHÁP KIỂM CHỨNG ĐỘC LẬP)
+## 3. Caveats
 
-Để kiểm chứng tính độc lập và chính xác của báo cáo:
+- **Caveat 1 (Hash routing vs Path routing)**: PomoFocus uses path-based routing with HTML5 History API (`window.history.pushState`). In Capacitor native Android, `server.androidScheme` is `'https'`, so `window.location.pathname` works identically to web. Custom scheme URLs (`pomofocus://path`) must be translated to root-relative paths (`/path`) before passing to `router.navigate`.
+- **Caveat 2 (OAuth deep links)**: `pomofocus://oauth/callback` contains tokens in the hash fragment (`#access_token=...`). The OAuth handler must remain the highest priority in `handleDeepLinkUrl` to avoid token parsing collisions.
+- **Caveat 3 (History Length Reliability)**: In certain WebView boot scenarios, `window.history.length` may be 1 (if the app opened directly to a deep link that 404ed). The fallback `router.navigate('/app')` is necessary so users are never stuck.
 
-1. **Kiểm tra hồi quy bài test đọc `index.html`:**
-   ```powershell
-   npx vitest run tests/unit/wcagAccessibilityAudit.test.ts
-   ```
-   *Kỳ vọng:* 8 tests pass trong ~30ms.
-2. **Kiểm tra biên dịch tĩnh TypeScript:**
-   ```powershell
-   npm run type-check
-   ```
-   *Kỳ vọng:* Exit code 0, không có lỗi kiểu dữ liệu.
-3. **Kiểm tra đóng gói bản dựng Vite:**
-   ```powershell
-   npx vite build
-   ```
-   *Kỳ vọng:* Hoàn tất trong ~50s, sinh `dist/index.html` và `dist/sw.js` không có cảnh báo lỗi.
-4. **Kiểm tra toàn bộ hệ thống Unit Test:**
-   ```powershell
-   npm test
-   ```
-   *Kỳ vọng:* 52/52 test files passed, 466/466 tests passed.
-5. **Điều kiện vô hiệu hóa kết luận (Invalidation Conditions):**
-   - Nếu bất kỳ thuộc tính nào trong 4 dòng KaTeX preconnect của `index.html` bị xóa hoặc chỉnh sửa làm fail bài test `wcagAccessibilityAudit.test.ts:159`.
-   - Nếu `#pomo-splash-curtain` thiếu thuộc tính `pointer-events: none;`, dẫn đến việc các bài test Playwright E2E bị chặn click khi mạng bị lag bất thường.
+---
+
+## 4. Conclusion
+
+1. **`CookieConsentBanner.tsx`**:
+   - Add `import { Capacitor } from '@capacitor/core';`.
+   - Add early return in `useEffect`: `if (Capacitor.isNativePlatform()) return;`.
+   - Add early return in render: `if (Capacitor.isNativePlatform()) return null;`.
+   - Add `whitespace-nowrap shrink-0` to `consent-accept-btn`, `consent-decline-btn`, and `consent-details-btn`.
+2. **`App.tsx` Deep Link Router**:
+   - Expand `handleDeepLinkUrl` to parse all `pomofocus://` and `https://pomofocus-workspace.vercel.app` routes, navigating to `cleanPath + targetSearch`.
+3. **`NotFoundPage.tsx`**:
+   - Add `<button data-testid="not-found-back-btn" onClick={handleGoBack}>` in the header.
+   - Implement `handleGoBack` using `window.history.back()` with fallback to `/app`.
+   - Register `PomoNativeBack.setCanGoBackInApp(true)` on mount and cleanup on unmount.
+   - Remove redundant emojis `⏱` and `🏠`.
+
+---
+
+## 5. Verification Method
+
+### 5.1. Unit Tests
+1. **Cookie Consent Suppression**:
+   - File: `tests/unit/cookieConsentNativeSuppression.test.tsx`
+   - Command: `npx vitest run tests/unit/cookieConsentNativeSuppression.test.tsx`
+   - Checks:
+     * When `Capacitor.isNativePlatform() === true`, banner does not render after 1000ms.
+     * When `Capacitor.isNativePlatform() === false`, banner renders after 850ms with `whitespace-nowrap` on all buttons.
+2. **Deep Link & 404 Navigation**:
+   - File: `tests/unit/deepLinkAndNotFoundRouting.test.tsx`
+   - Command: `npx vitest run tests/unit/deepLinkAndNotFoundRouting.test.tsx`
+   - Checks:
+     * `appUrlOpen` event with `pomofocus://billing` calls `router.navigate('/billing')`.
+     * `appUrlOpen` event with `pomofocus://settings` calls `router.navigate('/settings')`.
+     * `appUrlOpen` event with `pomofocus://rooms/room-99` calls `router.navigate('/rooms/room-99')`.
+     * `NotFoundPage` renders `not-found-back-btn`.
+     * Clicking back button calls `window.history.back()` or `router.navigate('/app')`.
+     * `pomofocus:native-back` triggers back navigation.
+     * Raw emojis `⏱` and `🏠` are absent from button texts.
+
+### 5.2. Existing Test Regression Check
+- `npx vitest run tests/unit/zenErrorPages.test.tsx`
+- `npx vitest run tests/unit/m4LegalAndCookieConsent.test.tsx`
+- `npx vitest run tests/unit/m1EmpiricalChallengerStress.test.tsx`
+- `npm run type-check` (0 errors)
+
+### 5.3. Invalidation Conditions
+- If `CookieConsentBanner` renders while `Capacitor.isNativePlatform()` is `true`.
+- If clicking deep link `pomofocus://billing` fails to navigate to `/billing`.
+- If `NotFoundPage` does not render a back button on mobile.
+- If Android hardware back on `NotFoundPage` exits the application process.

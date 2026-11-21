@@ -16,36 +16,56 @@ export default async function handler(req: any, res: any) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
     const { userId, amount, creditsToAdd, userEmail, email } = body;
 
-    // BUG-14 Remediation: Từ chối tuyệt đối khách chưa đăng nhập / guest tạo đơn nạp tiền
-    if (!userId || typeof userId !== 'string' || userId.trim() === '' || userId === 'guest' || userId === 'guest_user' || userId === '00000000-0000-0000-0000-000000000000') {
+    // BUG-14 & M0 Remediation: Từ chối tuyệt đối khách chưa đăng nhập / guest / sentinel IDs
+    const trimmedUserId = typeof userId === 'string' ? userId.trim() : '';
+    const lowerUserId = trimmedUserId.toLowerCase();
+    if (
+      !trimmedUserId ||
+      lowerUserId === 'guest' ||
+      lowerUserId === 'guest_user' ||
+      lowerUserId === 'anonymous' ||
+      lowerUserId === 'null' ||
+      lowerUserId === 'undefined' ||
+      lowerUserId === '00000000-0000-0000-0000-000000000000'
+    ) {
       return res.status(401).json({ error: 'Yêu cầu đăng nhập tài khoản thật để tạo đơn hàng thanh toán' });
     }
 
-    if (!amount || Number(amount) <= 0) {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       return res.status(400).json({ error: 'Số tiền nạp không hợp lệ' });
     }
 
     const numAmount = Number(amount);
     const numCredits = Number(creditsToAdd || Math.round(numAmount / 100)); // Mặc định 10.000đ = 100⚡
-    const effectiveUserId = userId.trim();
+    const effectiveUserId = trimmedUserId;
     const effectiveUserEmail = (userEmail || email || '').trim().toLowerCase();
 
     const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+    const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    const hasServiceRoleKey = Boolean(serviceRoleKey);
+
+    // Fail-fast nếu SUPABASE_URL được cấu hình nhưng thiếu SUPABASE_SERVICE_ROLE_KEY khi thực thi tác vụ đặc quyền
+    if (process.env.SUPABASE_URL && !hasServiceRoleKey) {
+      console.error('[create-order] CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing when executing service-role privileged operations.');
+      return res.status(500).json({
+        success: false,
+        error: 'Server configuration error: SUPABASE_SERVICE_ROLE_KEY is required for payment order creation'
+      });
+    }
 
     let orderCode = '';
     let expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     const createdAt = new Date().toISOString();
 
-    if (supabaseUrl && supabaseKey) {
-      // 1. Thử gọi Stored Procedure RPC get_or_create_payment_order
+    if (supabaseUrl && hasServiceRoleKey) {
+      // 1. Thử gọi Stored Procedure RPC get_or_create_payment_order (SECURITY DEFINER)
       try {
         const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/get_or_create_payment_order`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`
+            'apikey': serviceRoleKey,
+            'Authorization': `Bearer ${serviceRoleKey}`
           },
           body: JSON.stringify({
             p_user_id: effectiveUserId,
@@ -66,8 +86,8 @@ export default async function handler(req: any, res: any) {
         console.warn('[create-order] RPC get_or_create_payment_order error:', err);
       }
 
-      // 2. Fallback nếu RPC chưa tạo trên DB: Tìm đơn pending cũ còn hạn trực tiếp từ REST API
-      if (!orderCode) {
+      // 2. Fallback nếu RPC chưa tạo trên DB: Tìm đơn pending cũ còn hạn trực tiếp từ REST API (CHỈ thực hiện nếu có Service Role Key)
+      if (!orderCode && hasServiceRoleKey) {
         try {
           const filter = effectiveUserEmail
             ? `or=(user_id.eq.${encodeURIComponent(effectiveUserId)},user_email.eq.${encodeURIComponent(effectiveUserEmail)})`
@@ -76,8 +96,8 @@ export default async function handler(req: any, res: any) {
             `${supabaseUrl}/rest/v1/payment_orders?${filter}&status=eq.pending&amount=eq.${numAmount}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&order=created_at.desc&limit=1`,
             {
               headers: {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`
+                'apikey': serviceRoleKey,
+                'Authorization': `Bearer ${serviceRoleKey}`
               }
             }
           );
@@ -91,44 +111,54 @@ export default async function handler(req: any, res: any) {
         } catch (fetchErr) {
           console.warn('[create-order] Direct query payment_orders error:', fetchErr);
         }
-      }
 
-      // 3. Nếu vẫn chưa có orderCode, tạo mới và lưu trực tiếp vào bảng payment_orders
-      if (!orderCode) {
-        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-        let randomCode = 'PF';
-        for (let i = 0; i < 5; i++) {
-          randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        orderCode = randomCode;
-
-        try {
-          const insertRes = await fetch(`${supabaseUrl}/rest/v1/payment_orders`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-              order_code: orderCode,
-              user_id: effectiveUserId,
-              user_email: effectiveUserEmail || null,
-              amount: numAmount,
-              credits_to_add: numCredits,
-              status: 'pending',
-              expires_at: expiresAt
-            })
-          });
-          if (!insertRes.ok) {
-            const insErr = await insertRes.text();
-            console.warn('[create-order] Direct insert payment_orders returned', insertRes.status, insErr);
+        // 3. Nếu vẫn chưa có orderCode, tạo mới và lưu trực tiếp vào bảng payment_orders bằng Service Role Key
+        if (!orderCode) {
+          const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+          let randomCode = 'PF';
+          for (let i = 0; i < 5; i++) {
+            randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
           }
-        } catch (insertErr) {
-          console.warn('[create-order] Direct insert payment_orders error:', insertErr);
+          orderCode = randomCode;
+
+          try {
+            const insertRes = await fetch(`${supabaseUrl}/rest/v1/payment_orders`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': serviceRoleKey,
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'Prefer': 'return=minimal'
+              },
+              body: JSON.stringify({
+                order_code: orderCode,
+                user_id: effectiveUserId,
+                user_email: effectiveUserEmail || null,
+                amount: numAmount,
+                credits_to_add: numCredits,
+                status: 'pending',
+                expires_at: expiresAt
+              })
+            });
+            if (!insertRes.ok) {
+              const insErr = await insertRes.text();
+              console.warn('[create-order] Direct insert payment_orders returned', insertRes.status, insErr);
+              orderCode = '';
+            }
+          } catch (insertErr) {
+            console.warn('[create-order] Direct insert payment_orders error:', insertErr);
+            orderCode = '';
+          }
         }
       }
+    }
+
+    if (!orderCode && process.env.SUPABASE_URL) {
+      console.error('[create-order] Failed to persist payment order to database.');
+      return res.status(500).json({
+        success: false,
+        error: 'Không thể tạo đơn hàng thanh toán trên cơ sở dữ liệu. Vui lòng thử lại sau.'
+      });
     }
 
     // Fallback cục bộ cuối cùng nếu không có Supabase env

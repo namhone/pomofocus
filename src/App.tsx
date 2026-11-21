@@ -7,8 +7,8 @@ import { GlobalAudioHost } from './components/GlobalAudioHost';
 import { FloatingVideoPiP } from './components/FloatingVideoPiP';
 import { PlatformHeader } from './components/PlatformHeader';
 import { AuthView } from './components/AuthView';
+import { BillingView } from './components/BillingView';
 // Lazy-loaded heavy views
-const BillingView = lazy(() => import('./components/BillingView').then((m) => ({ default: m.BillingView })));
 const DedicatedCalendarView = lazy(() => import('./components/DedicatedCalendarView').then((m) => ({ default: m.DedicatedCalendarView })));
 const StudyRoomView = lazy(() => import('./components/StudyRoomView').then((m) => ({ default: m.StudyRoomView })));
 import { StudyRoomLobby } from './components/StudyRoomLobby';
@@ -42,6 +42,8 @@ import { getStaticRouteTitle, updateDocumentTitle } from './stores/useTimerStore
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
+import { MobileSubViewLayout } from './components/mobile/MobileSubViewLayout';
+import { MobileSettingsView } from './components/mobile/views/MobileSettingsView';
 import { runStorageSchemaMigration } from './utils/safeStorage';
 import { syncQueueService } from './services/syncQueueService';
 
@@ -233,6 +235,8 @@ export const App: React.FC = () => {
 
   // Lắng nghe sự kiện PWA beforeinstallprompt & appinstalled
   useEffect(() => {
+    if (isNativeCapacitor) return;
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       usePwaInstallStore.getState().setDeferredPrompt(e as any);
@@ -249,7 +253,7 @@ export const App: React.FC = () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [isNativeCapacitor]);
 
   const router = useRouter();
   const currentPath = router.currentRoute.path;
@@ -295,7 +299,14 @@ export const App: React.FC = () => {
 
   // Dọn dẹp & Khôi phục tiêu đề trang tĩnh hoặc tiêu đề đếm ngược Pomodoro khi đổi tuyến đường
   useEffect(() => {
-    if (isNativeCapacitor && (currentPath === '/' || currentPath === '/landing')) {
+    if (
+      isNativeCapacitor &&
+      (currentPath === '/' ||
+        currentPath === '/landing' ||
+        currentPath === '/download' ||
+        currentPath === '/downloads' ||
+        currentPath === '/apk')
+    ) {
       router.navigate('/app', { replace: true });
       return;
     }
@@ -330,59 +341,37 @@ export const App: React.FC = () => {
           }
 
           const params = new URLSearchParams(hashOrSearch);
+
+          if (params.get('error')) {
+            console.warn('[DeepLink] OAuth provider returned error:', params.get('error'), params.get('error_description'));
+            return;
+          }
+
           const accessToken = params.get('access_token');
           const refreshToken = params.get('refresh_token') || '';
 
           if (accessToken) {
-            let user: any = null;
-            try {
-              const idToken = params.get('id_token') || accessToken;
-              const parts = idToken.split('.');
-              if (parts.length >= 2) {
-                const base64Url = parts[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const decoded = JSON.parse(decodeURIComponent(escape(atob(base64))));
-                const email = (decoded.email || '').toLowerCase();
-                const displayName =
-                  decoded.name ||
-                  decoded.user_metadata?.full_name ||
-                  decoded.user_metadata?.name ||
-                  (email ? email.split('@')[0] : 'Người dùng Google');
-                const avatarUrl =
-                  decoded.picture ||
-                  decoded.avatar_url ||
-                  decoded.user_metadata?.avatar_url ||
-                  '';
-                user = {
-                  id: decoded.sub || `g_${Date.now()}`,
-                  email,
-                  user_metadata: {
-                    full_name: displayName,
-                    name: displayName,
-                    avatar_url: avatarUrl,
-                    picture: avatarUrl,
-                    email_verified: Boolean(decoded.email_verified),
-                    ...decoded.user_metadata,
-                  },
-                  app_metadata: decoded.app_metadata || { provider: 'google' },
-                  role: decoded.role || 'authenticated',
-                };
-              }
-            } catch (e) {
-              console.warn('[DeepLink] Error decoding JWT token:', e);
-            }
-
+            let authenticatedUser: any = null;
             if (typeof (supabase.auth as any).setSession === 'function') {
-              await (supabase.auth as any).setSession({ access_token: accessToken, refresh_token: refreshToken });
-            } else {
-              const session = { user, access_token: accessToken, refresh_token: refreshToken };
-              (supabase.auth as any).saveSession(session);
+              const sessionResult = await (supabase.auth as any).setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              if (sessionResult?.error) {
+                console.error('[DeepLink] Supabase setSession verification failed:', sessionResult.error);
+                return;
+              }
+              if (sessionResult?.data?.user) {
+                authenticatedUser = sessionResult.data.user;
+              }
             }
 
-            if (user) {
-              useAuthStore.getState().syncUserFromSupabase(user);
+            if (authenticatedUser) {
+              await useAuthStore.getState().syncUserFromSupabase(authenticatedUser);
+              router.navigate('/app');
+            } else {
+              console.warn('[DeepLink] Token verification returned no valid user session.');
             }
-            router.navigate('/app');
           }
         } catch (err) {
           console.error('[DeepLink] OAuth callback error:', err);
@@ -390,17 +379,33 @@ export const App: React.FC = () => {
         return;
       }
 
-      // 2. App Link for /rooms/:roomId or /rooms
-      if (rawUrl.includes('/rooms')) {
-        try {
-          const parsedUrl = new URL(
-            rawUrl.startsWith('pomofocus://') ? rawUrl.replace('pomofocus://', 'https://app/') : rawUrl
-          );
-          const roomPath = parsedUrl.pathname.startsWith('/rooms') ? parsedUrl.pathname : `/rooms${parsedUrl.pathname}`;
-          router.navigate(roomPath + parsedUrl.search);
-        } catch (e) {
-          console.warn('[DeepLink] Error routing room link:', e);
+      // 2. Universal deep link router for pomofocus:// and internal app links
+      try {
+        let pathWithSearch = '';
+        if (rawUrl.startsWith('pomofocus://')) {
+          const withoutScheme = rawUrl.replace(/^pomofocus:\/*/, '');
+          pathWithSearch = withoutScheme ? `/${withoutScheme}` : '/';
+        } else if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+          const parsed = new URL(rawUrl);
+          pathWithSearch = parsed.pathname + parsed.search + parsed.hash;
         }
+
+        if (pathWithSearch) {
+          // Special case: normalize room links if needed
+          if (pathWithSearch.startsWith('/rooms') || pathWithSearch.startsWith('rooms')) {
+            const parsedUrl = new URL(
+              rawUrl.startsWith('pomofocus://') ? rawUrl.replace('pomofocus://', 'https://app/') : rawUrl
+            );
+            const roomPath = parsedUrl.pathname.startsWith('/rooms') ? parsedUrl.pathname : `/rooms${parsedUrl.pathname}`;
+            router.navigate(roomPath + parsedUrl.search);
+            return;
+          }
+
+          router.navigate(pathWithSearch);
+          return;
+        }
+      } catch (e) {
+        console.warn('[DeepLink] Error routing deep link:', e);
       }
     };
 
@@ -522,6 +527,17 @@ export const App: React.FC = () => {
       return <DashboardView />;
     }
     if (currentPath === '/settings') {
+      if (isMobile || isNativeCapacitor) {
+        return (
+          <MobileSubViewLayout
+            title="Cài Đặt Hệ Thống"
+            subtitle="Tùy biến thời gian & âm thanh"
+            onBack={() => router.navigate('/app')}
+          >
+            <MobileSettingsView />
+          </MobileSubViewLayout>
+        );
+      }
       return <SettingsView />;
     }
     if (currentPath === '/privacy-data' || currentPath === '/data') {
@@ -543,6 +559,13 @@ export const App: React.FC = () => {
       return <LegalViews initialTab="about" />;
     }
     if (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk') {
+      if (isNativeCapacitor) {
+        return (
+          <ErrorBoundary>
+            <MobileAppShell />
+          </ErrorBoundary>
+        );
+      }
       return <WebDownloadHub />;
     }
     const normalized = (currentPath.length > 1 && currentPath.endsWith('/')) ? currentPath.slice(0, -1) : currentPath;

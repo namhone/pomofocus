@@ -3,8 +3,8 @@ import { db, PlannerBlockRecord } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
 import { generateUUID } from '../utils/uuid';
 import { Task } from '../types/tasks';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useRouter } from '../services/router';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -20,6 +20,7 @@ import {
 type CalendarViewMode = 'day' | 'week';
 
 export const DedicatedCalendarView: React.FC = () => {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<CalendarViewMode>(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       return 'day';
@@ -159,11 +160,13 @@ export const DedicatedCalendarView: React.FC = () => {
   const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6:00 to 23:00
 
   return (
-    <div className="min-h-screen w-full bg-[#0b0e14] text-neutral-100 flex flex-col select-none">
-      <PlatformHeader />
-
-      {/* Calendar Sub-bar */}
-      <main className="flex-1 w-full max-w-7xl mx-auto pt-16 sm:pt-20 pb-12 px-3 sm:px-6 flex flex-col space-y-4">
+    <MobileSubViewLayout
+      title="Lịch Học & Kế Hoạch"
+      subtitle="Time-blocking Pomodoro"
+      onBack={() => router.navigate('/app')}
+      className="bg-[#0b0e14] text-neutral-100"
+    >
+      <div className="w-full max-w-7xl mx-auto pt-4 sm:pt-6 pb-12 px-3 sm:px-6 flex flex-col space-y-4">
         <div className="rounded-2xl border border-white/10 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 backdrop-blur-md shrink-0 shadow-lg">
           <div className="flex items-center gap-2">
             <CalendarIcon size={18} className="text-emerald-400 shrink-0" />
@@ -449,7 +452,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
 
         </div>
-      </main>
+      </div>
 
       {/* Add Study Block Modal */}
       {isAddModalOpen && (
@@ -548,8 +551,6 @@ export const DedicatedCalendarView: React.FC = () => {
           </div>
         </div>
       )}
-
-      <SharedFooter />
-    </div>
+    </MobileSubViewLayout>
   );
 };

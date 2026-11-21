@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
   Mail,
@@ -21,6 +22,9 @@ import {
 } from 'lucide-react';
 
 export const SharedFooter: React.FC = () => {
+  const { isNativeCapacitor } = useDeviceDetection();
+  if (isNativeCapacitor) return null;
+
   const router = useRouter();
   const [copiedEmail, setCopiedEmail] = useState(false);
 
@@ -106,7 +110,7 @@ export const SharedFooter: React.FC = () => {
   return (
     <footer
       data-testid="shared-footer"
-      className="w-full border-t border-zinc-800/80 bg-[#09090b] text-zinc-400 text-xs py-6 px-4 sm:py-8 sm:px-6 md:py-10 md:px-12 mt-auto select-none"
+      className="w-full border-t border-zinc-800/80 bg-[#09090b] text-zinc-400 text-xs py-6 px-4 sm:py-8 sm:px-6 md:py-10 md:px-12 mt-auto select-none pb-safe"
     >
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         {/* Main Grid: 1 col on mobile, 4 cols on desktop */}

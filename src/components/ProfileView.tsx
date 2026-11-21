@@ -4,8 +4,8 @@ import { useRouter } from '../services/router';
 import { generateInitialsAvatarSvg, isValidAvatarUrl } from '../services/authService';
 import { ProfileService } from '../services/profileService';
 import { processAndSaveCustomAvatar } from '../services/avatarUploadService';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   ArrowLeft,
   Shield,
@@ -34,10 +34,15 @@ import {
 } from 'lucide-react';
 import { MONOCHROME_GEOMETRIC_AVATARS } from '../utils/monochromeAvatars';
 import { UserAvatar } from './common/UserAvatar';
+import { getSubscriptionBadge } from '../utils/userBadge';
 
 export const ProfileView: React.FC = () => {
   const router = useRouter();
-  const { user, isAuthenticated, isPro, isLifetime, effectiveBadge, updateProfile } = useAuthStore();
+  const { isMobile, isNativeCapacitor } = useDeviceDetection();
+  const isMobileOrNative = isMobile || isNativeCapacitor;
+  const { user, isAuthenticated, isLifetime, updateProfile } = useAuthStore();
+  const badgeInfo = getSubscriptionBadge(user);
+  const effectiveBadge = badgeInfo.label;
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.customAvatarUrl || user?.avatarUrl || '');
@@ -74,8 +79,11 @@ export const ProfileView: React.FC = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] flex flex-col font-sans">
-        <PlatformHeader />
+      <MobileSubViewLayout
+        title="Hồ Sơ Cá Nhân"
+        subtitle="Yêu cầu đăng nhập"
+        onBack={() => router.navigate('/app')}
+      >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
             <h1 className="text-xl font-bold text-white">Yêu Cầu Đăng Nhập</h1>
@@ -100,8 +108,7 @@ export const ProfileView: React.FC = () => {
             </div>
           </div>
         </div>
-        <SharedFooter />
-      </div>
+      </MobileSubViewLayout>
     );
   }
 
@@ -277,32 +284,38 @@ export const ProfileView: React.FC = () => {
     : 'Không áp dụng';
 
   return (
-    <div
-      data-testid="profile-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Hồ Sơ Cá Nhân"
+      subtitle={user.email}
+      backTestId="back-to-workspace-btn"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
     >
-      <PlatformHeader />
+      <div
+        data-testid="profile-view"
+        className="w-full max-w-3xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
+      >
+        {/* Nút Quay Lại Bàn Học & User Email cho Desktop Web */}
+        {!isMobileOrNative && (
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              data-testid="back-to-workspace-btn"
+              onClick={() => router.navigate('/app')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
+            >
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
+              <span>Quay lại không gian học</span>
+            </button>
 
-      <main className="flex-1 w-full max-w-3xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
-        {/* Nút Quay Lại Bàn Học & User Email */}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            data-testid="back-to-workspace-btn"
-            onClick={() => router.navigate('/app')}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
-          >
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
-            <span>Quay lại không gian học</span>
-          </button>
-
-          <span
-            className="text-[11px] sm:text-xs text-zinc-400 font-mono truncate max-w-[140px] sm:max-w-xs"
-            title={user.email}
-          >
-            {user.email}
-          </span>
-        </div>
+            <span
+              className="text-[11px] sm:text-xs text-zinc-400 font-mono truncate max-w-[140px] sm:max-w-xs"
+              title={user.email}
+            >
+              {user.email}
+            </span>
+          </div>
+        )}
 
         {/* Sub-nav Tabs: Hồ sơ | Bảo mật | Gói cước | Dữ liệu (Full Width Scrollable) */}
         <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
@@ -366,6 +379,7 @@ export const ProfileView: React.FC = () => {
                   ring="ring-2 ring-zinc-700/80"
                   alt={displayName || user.displayName || 'Avatar'}
                   testId="profile-user-avatar"
+                  className="rounded-full"
                 />
 
                 {/* Camera quick edit button */}
@@ -403,15 +417,9 @@ export const ProfileView: React.FC = () => {
                   )}
                   <span
                     data-testid="profile-plan-badge"
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border shrink-0 whitespace-nowrap ${
-                      isLifetime
-                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200 shadow-sm'
-                        : isPro
-                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
-                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
-                    }`}
+                    className={badgeInfo.badgeClass}
                   >
-                    {effectiveBadge}
+                    {badgeInfo.label}
                   </span>
                 </div>
 
@@ -425,10 +433,12 @@ export const ProfileView: React.FC = () => {
 
                 {/* Email and Join Date */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-zinc-400">
-                  <span className="flex items-center gap-1.5 font-mono min-w-0">
-                    <Mail size={12} className="shrink-0 text-zinc-400" />
-                    <span className="truncate text-zinc-300 select-text">{user.email || 'Chưa cập nhật email'}</span>
-                  </span>
+                  {user.email && user.email.trim() ? (
+                    <span className="flex items-center gap-1.5 font-mono min-w-0" data-testid="profile-email-container">
+                      <Mail size={12} className="shrink-0 text-zinc-400" />
+                      <span className="truncate text-zinc-300 select-text">{user.email}</span>
+                    </span>
+                  ) : null}
                   <span className="flex items-center gap-1.5 text-zinc-400 whitespace-nowrap">
                     <Calendar size={12} className="shrink-0 text-zinc-400" />
                     <span>Tham gia: {formattedJoinDate}</span>
@@ -650,7 +660,7 @@ export const ProfileView: React.FC = () => {
                         <img
                           src={geo.svgDataUri}
                           alt={geo.name}
-                          className="w-10 h-10 rounded-lg object-contain"
+                          className="w-10 h-10 rounded-full object-contain"
                         />
                         <span className="text-[9px] text-zinc-400 group-hover:text-zinc-200 transition text-center line-clamp-1 truncate w-full">
                           {geo.name.split(' (')[0]}
@@ -809,9 +819,7 @@ export const ProfileView: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-
-      <SharedFooter />
-    </div>
+      </div>
+    </MobileSubViewLayout>
   );
 };

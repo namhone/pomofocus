@@ -1,78 +1,62 @@
-# Changes Summary — Worker M1 (Milestone 1: Zero-FOUT & Typography Foundation)
+# Changes Summary — Worker M1 (Payment & Billing Remediation Phase 1)
 
 ## Overview
-Worker M1 executed surgical, minimal-diff modifications strictly within its exclusive ownership boundaries (`index.html` and `src/index.css`) to eradicate page load flicker (FOUT), enforce instant dark mode locking, add a zero-dependency preloader curtain with emerald spinner, and establish typography guardrails for font loading.
+Worker M1 executed surgical, minimal-diff modifications across 10 assigned files to eliminate critical payment and billing vulnerabilities identified in FORENSIC_DEEP_AUDIT_REPORT.md (BUG-21, BUG-22, BUG-14, BUG-23).
 
 ---
 
-## 1. File: `index.html`
+## 1. `api/payment/vcb-webhook.ts` (BUG-21, BUG-23)
+- Replaced hardcoded fallback secret `POMO_VCB_SECRET_KEY_2026` with `process.env.POMO_VCB_SECRET_KEY || process.env.VCB_WEBHOOK_SECRET`.
+- Completely removed fallback lines 146-157 which queried `user_entitlements` sorted by `updated_at.desc` and granted PRO to arbitrary active users.
+- When `!targetUserId`:
+  - Inserts/updates `payment_transactions` with status `'UNMATCHED_PENDING_MANUAL_REVIEW'`, amount, description, and timestamp.
+  - Returns HTTP 200 with `{ success: true, message: 'Giao dịch không khớp mã đơn hàng/người dùng; đã ghi nhận UNMATCHED_PENDING_MANUAL_REVIEW để đối soát thủ công', status: 'UNMATCHED_PENDING_MANUAL_REVIEW', orderId, amount }`.
 
-### Modifications Applied:
-1. **HTML Root Dark Lock**:
-   - Updated `<html lang="vi">` to `<html lang="vi" class="dark" style="background-color: #09090b !important; color: #f4f4f5;">`.
-   - **Rationale**: Locks the dark theme immediately at the root node before any CSS or JS chunks are fetched, preventing white screen flashes.
+## 2. `api/momo/check-status.ts` (BUG-22)
+- Removed line 54: `if (isPro) isPaid = true;`.
+- Restricted `isPaid = true` strictly to order status `'completed'` or `'verified_paid'` from `payment_transactions`.
 
-2. **Inline Critical CSS (Head)**:
-   - Added `<style>` block immediately after `<meta name="theme-color" content="#09090b" />`.
-   - Included rules:
-     - `html, body { background-color: #09090b !important; color: #f4f4f5 !important; margin: 0; padding: 0; overflow-x: hidden; }`
-     - `#pomo-splash-curtain { position: fixed; inset: 0; background-color: #09090b; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms; pointer-events: none; }`
-     - `#pomo-splash-curtain.loaded { opacity: 0; visibility: hidden; }`
-     - `.pomo-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.1); border-top-color: #10b981; animation: pomoSpin 0.7s linear infinite; }`
-     - `@keyframes pomoSpin { to { transform: rotate(360deg); } }`
-   - **Rationale**: Delivers 0ms render-blocking zero-dependency preloader styling before browser paints body content.
+## 3. `src/components/MoMoPaymentModal.tsx` (BUG-22, BUG-14)
+- Removed `|| res.isPro` from payment status polling (line 148).
+- Bound Realtime Supabase channel to specific `order.orderId` in `payment_transactions`.
+- Blocked unauthenticated/guest users (`!user?.id || user.id === 'guest' || user.id === 'guest_user' || (user as any).isGuest`) from initiating checkout or generating QR codes.
+- Added centered Auth Gate render with login redirect.
 
-3. **Body Dark Lock & Splash Curtain Preloader**:
-   - Replaced `<body class="bg-slate-900 text-slate-100 select-none">` with:
-     `<body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">`
-   - Inserted curtain sibling right before `<div id="root">`:
-     ```html
-     <!-- Zero-FOUT Splash Curtain Preloader -->
-     <div id="pomo-splash-curtain" aria-hidden="true">
-       <div class="pomo-spinner"></div>
-     </div>
-     ```
-   - **Rationale**: Guarantees DOM sibling relationship with `#root` so React mounting never unmounts or disrupts curtain fade animation.
+## 4. `src/components/BillingView.tsx` (BUG-14)
+- In `handleSelectPlanAndCheckout`, blocked unauthenticated/guest users from opening checkout, displaying clear login notification and routing to `/login`.
 
-4. **Curtain Dismissal Script**:
-   - Inserted at end of `<body>` after `/src/main.tsx`:
-     ```html
-     <!-- Zero-FOUT Splash Curtain Dismissal Script -->
-     <script>
-       (function() {
-         function dismissCurtain() {
-           var curtain = document.getElementById('pomo-splash-curtain');
-           if (curtain && !curtain.classList.contains('loaded')) {
-             curtain.classList.add('loaded');
-           }
-         }
-         if (document.readyState === 'interactive' || document.readyState === 'complete') {
-           setTimeout(dismissCurtain, 100);
-         } else {
-           window.addEventListener('DOMContentLoaded', function() {
-             setTimeout(dismissCurtain, 100);
-           });
-         }
-       })();
-     </script>
-     ```
-   - **Rationale**: Smoothly triggers `.loaded` 100ms after DOM is ready with fallback for cached / fast loads, eliminating FOUT without delaying interactivity (`pointer-events: none`).
+## 5. `src/components/mobile/views/MobileSettingsView.tsx` (BUG-14)
+- Guarded "Nạp thêm" and "Nâng cấp" buttons to trigger `onOpenAuth?.()` for guest users.
 
-5. **Critical Invariants Preserved**:
-   - 100% preservation of all KaTeX CDN `<link>` preconnect/prefetch/print tags.
-   - 100% preservation of all static crawler / SEO `<header>`, `<nav>`, `<main>`, `<p>`, `<ul>`, `<footer>` text inside `<div id="root">`.
+## 6. `src/components/AiCreditsTopupModal.tsx` (BUG-14)
+- Blocked order initialization in `useEffect` when user is unauthenticated or guest.
+- Rendered centered Auth Gate requiring login before topup.
 
----
+## 7. `api/payment/create-order.ts` (BUG-14)
+- Added validation rejecting missing, empty, `'guest'`, `'guest_user'`, or nil UUID `'00000000-0000-0000-0000-000000000000'` with HTTP 401 `{ error: 'Yêu cầu đăng nhập tài khoản thật để tạo đơn hàng thanh toán' }`.
 
-## 2. File: `src/index.css`
+## 8. `api/momo/create-payment.ts` (BUG-14)
+- Added validation rejecting missing, empty, `'guest'`, `'guest_user'`, or nil UUID `'00000000-0000-0000-0000-000000000000'` with HTTP 401 `{ success: false, error: 'Yêu cầu đăng nhập tài khoản thật để tạo đơn hàng thanh toán' }`.
 
-### Modifications Applied:
-- Added architectural invariant rule comment documenting the `font-display: optional` policy:
-  ```css
-  /* Quy chuẩn Zero-FOUT & Typography Invariant:
-   * - Mặc định ưu tiên System Font Stack để đạt 0ms latency và 0 layout shift (CLS = 0.00).
-   * - Mọi @font-face hoặc web font nạp ngoài bắt buộc phải sử dụng 'font-display: optional'
-   *   theo chuẩn kỹ thuật Pomofocus v6.0 Ultimate. Tuyệt đối không dùng 'font-display: swap'.
-   */
-  ```
-- **Rationale**: Enforces project-wide design invariant preventing future developers or agents from introducing `font-display: swap` or unoptimized web font delays.
+## 9. `api/payment/webhook.ts` (BUG-23)
+- Removed hardcoded fallback `POMO_VCB_SECRET_KEY_2026`.
+- Read from `process.env.POMO_VCB_SECRET_KEY || process.env.PAYMENT_WEBHOOK_SECRET || process.env.VCB_WEBHOOK_SECRET`.
+- Enhanced regex matching for Base36 codes (`PFxxxxx`) and interbank formats.
+
+## 10. `scripts/vcb_email_listener.js` (BUG-23)
+- Removed hardcoded secret `POMO_VCB_SECRET_KEY_2026`, reading from `PropertiesService.getScriptProperties().getProperty('POMO_VCB_SECRET_KEY')`.
+- Implemented 300-item Message ID ring buffer (`PROCESSED_MESSAGE_IDS`) in Script Properties to resolve Gmail thread blackout.
+- Removed `-label:VcbProcessed` from Gmail search query.
+- Expanded senders to MB Bank, Techcombank, ACB, VPBank, TPBank, MoMo, Vietcombank.
+- Handled UTF-8 non-ASCII currency boundaries (`VNĐ`, `đ`) using negative lookahead `(?![a-zA-Z0-9])`.
+
+## 11. `tests/unit/paymentRemediationPhase1.test.ts` (New Test Suite)
+- 10 unit test cases covering all 4 bugs:
+  - VCB webhook rejects missing secret with 401.
+  - VCB webhook records `UNMATCHED_PENDING_MANUAL_REVIEW` and does NOT query `user_entitlements` or grant PRO.
+  - Check-status returns `isPaid: false` when order is pending even if user is PRO.
+  - Check-status returns `isPaid: true` only on completed/verified_paid transactions.
+  - Create-order and create-payment reject guest users with HTTP 401.
+  - Create-order accepts authenticated user.
+  - Payment webhook rejects mismatched secret.
+  - Multi-bank transfer notes and amounts parsed accurately across 6 banks.

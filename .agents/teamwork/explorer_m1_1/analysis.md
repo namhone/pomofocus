@@ -1,349 +1,476 @@
-# BÁO CÁO PHÂN TÍCH KỸ THUẬT: ZERO-FOUT & SPLASH CURTAIN FOUNDATION (INDEX.HTML)
+# M1 Investigation Analysis: Native APK Navigation Shell & 100% Web Isolation
 
-**Dự án:** Pomofocus v6.0 Ultimate (Liquid Glass & Zen Minimalism)  
-**Milestone:** M1 — Zero-FOUT & Typography Foundation  
-**Agent:** Explorer M1-1  
-**Ngày thực hiện:** 2026-11-08T05:10:00Z  
-**Tệp mục tiêu khảo sát:** `index.html` (đối chiếu `src/main.tsx`, `src/index.css`, `tests/unit/wcagAccessibilityAudit.test.ts`)  
-**Tệp đề xuất đính kèm:**  
-- `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\proposed_index.html`  
-- `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\index_html_changes.patch`  
+**Author**: Explorer `explorer_m1_1`  
+**Milestone**: Milestone M1 (APK Navigation Shell & 100% Web Isolation)  
+**Parent Orchestrator**: `cf5bc11e-435c-4f27-a55e-a32f3bebfefa`  
+**Working Directory**: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1`  
+**Target Codebase**: `d:\FileCuaNam\Web'\Pomodoro`  
+**Date**: 2026-11-21  
 
 ---
 
-## 1. TỔNG QUAN & BỐI CẢNH KỸ THUẬT (EXECUTIVE SUMMARY)
+## 1. Executive Summary
 
-Trong phiên bản hiện tại của Pomofocus Workspace, khi người dùng truy cập trang web lần đầu hoặc nhấn `F5` / `Ctrl + F5` (đặc biệt trên đường truyền di động 3G/4G hoặc thiết bị tải chậm), xuất hiện hiện tượng **FOUT (Flash of Unstyled Text) / Hydration Flash**:
-- Một loạt các đoạn văn bản thô màu đen (tiêu đề h1, menu liên kết gạch chân màu xanh dương, danh sách tính năng) giật chớp trên nền trắng/xám trong khoảng 200ms–500ms trước khi file CSS tải về và trước khi React khởi tạo xong giao diện kính Liquid Glass.
-- Hiện tượng này làm đứt gãy tính thẩm mỹ Zen tối giản cao cấp mà sản phẩm hướng tới.
+When running inside the Android Capacitor Native APK (`Capacitor.isNativePlatform() === true`), the user experience must be 100% indistinguishable from a compiled native Android application. Under no circumstances should desktop web headers (`PlatformHeader`), desktop web footers (`SharedFooter`), web cookie consent dialogs (`CookieConsentBanner`), PWA installation banners, or links prompting the user to download an Android APK ("Tải App Android (APK)") be rendered or leaked into the native Android view hierarchy.
 
-Nhiệm vụ của **Explorer M1-1** là khảo sát toàn diện tệp `index.html`, xác định nguyên nhân gốc rễ, thiết kế bản thay thế chuẩn xác (surgical design) bao gồm:
-1. Khóa cứng thuộc tính `class="dark"` và inline style `background-color: #09090b !important; color: #f4f4f5;` ngay từ thẻ `<html>` và `<body>`.
-2. Thiết kế khối `<style>` Critical Inline CSS siêu nhẹ không phụ thuộc bất kỳ thư viện ngoài nào (Zero-Dependency) và cấu trúc DOM `#pomo-splash-curtain` với `.pomo-spinner` màu ngọc bích (emerald `#10b981`) cùng hiệu ứng tháo rèm `.loaded` (300ms cubic-bezier).
-3. Thiết kế script tự động tháo rèm sau sự kiện `DOMContentLoaded` (độ trễ 100ms).
-4. Kiểm chứng độc lập tính tương thích tuyệt đối với điểm gắn kết React (`<div id="root">`), bảo toàn 100% nội dung SEO cho bot tìm kiếm và cam kết 0 hồi quy với toàn bộ 52 test suites hiện có.
+Currently, **severe architectural leakage exists**:
+1. All **13 secondary routes** (`/billing`, `/calendar`, `/rooms`, `/profile`, `/account/security`, `/dashboard`, `/settings`, `/privacy-data`, `/help`, `/contact`, `/terms`, `/privacy`, `/about`, `/download`, and 404) unconditionally mount `<PlatformHeader />` and `<SharedFooter />`.
+2. Neither `PlatformHeader.tsx` nor `SharedFooter.tsx` checks for `isNativeCapacitor`. Both render raw desktop chrome inside the native APK.
+3. `<CookieConsentBanner />` is mounted at root in `App.tsx:669` and lacks native suppression, floating directly on top of mobile timer controls. Furthermore, its action buttons lack `whitespace-nowrap`, causing button text to wrap across two lines on mobile web viewports.
+4. Navigation trap: On mobile screen widths (< 640px), the return button in `LegalViews.tsx:72` has `hidden sm:flex`, while `HelpView.tsx` and `ContactView.tsx` have zero back buttons. Users navigating to policies or help are permanently trapped with no way back to the workspace.
+5. In `App.tsx:394`, custom URL scheme deep links (`pomofocus://`) are discarded for everything except `/rooms` and OAuth callbacks.
+6. In `App.tsx:235`, `window.addEventListener('beforeinstallprompt')` is registered unconditionally, causing PWA install prompts to appear inside the native Android APK.
+
+We present a **5-Layer Web Isolation Architecture** that establishes ironclad invariants, guarantees zero leakage into native views, implements a standardized `MobileSubViewLayout` with a 48px Top Bar and persistent `← Quay lại` button, and provides 10 verifiable test specifications for Worker M1.
 
 ---
 
-## 2. HIỆN TRẠNG MÃ NGUỒN `index.html` & PHÂN TÍCH NGUYÊN NHÂN GỐC RỄ (ROOT CAUSE ANALYSIS)
+## 2. Forensic Codebase Audit & Evidence
 
-### 2.1. Quan sát thực tế mã nguồn hiện tại
-Qua việc soi chiếu tệp `index.html` từ dòng 1 đến 137:
+### 2.1. Detection Mechanism: `Capacitor.isNativePlatform()`
+Inspection of device detection across the repository reveals:
+- **`src/hooks/useDeviceDetection.ts`**:
+  ```ts
+  // Lines 27-30
+  const isNativeCapacitor = Boolean(
+    capacitorObj?.isNativePlatform?.() ||
+    (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.())
+  );
+  ```
+  Returns `{ isAndroid, isIOS, isMobile, isDesktop, isNativeCapacitor }`. It is clean, SSR-safe, JSDOM-safe, and compatible with Vitest.
+- **`src/utils/apiConfig.ts`**:
+  ```ts
+  // Lines 7-13
+  export function isNativeApiRuntime(): boolean {
+    if (typeof window !== 'undefined' && (window as any).IS_CAPACITOR_NATIVE === true) return true;
+    if (Boolean((window as any).Capacitor?.isNativePlatform?.())) return true;
+    return false;
+  }
+  ```
+- **`src/components/AuthView.tsx:230-234`**:
+  Imports `{ Capacitor } from '@capacitor/core'` and checks `Capacitor.isNativePlatform?.()`.
 
-1. **Thẻ `<html>` (Dòng 2):**
-   ```html
-   <html lang="vi">
+**Finding**: The detection helper exists and functions correctly, but it has **never been wired** into `PlatformHeader.tsx`, `SharedFooter.tsx`, `CookieConsentBanner.tsx`, or `App.tsx`'s secondary view router.
+
+---
+
+### 2.2. Web Header Leakage (`PlatformHeader.tsx`)
+File: `src/components/PlatformHeader.tsx` (1191 lines)
+- **Current Props**: `interface PlatformHeaderProps { isDownloadPage?: boolean; }`
+- **Native Check**: Zero references to `isNativeCapacitor` or `Capacitor.isNativePlatform()`.
+- **Download Links Rendered**:
+  - Line 231: `{ path: '/download', label: 'Tải App', icon: Download, testId: 'header-nav-download' }` in `navItems`.
+  - Lines 708-724:
+    ```tsx
+    {canInstall && (
+      <button
+        type="button"
+        data-testid="header-user-install-pwa-btn"
+        onClick={() => {
+          setIsUserDropdownOpen(false);
+          setMobileHeaderOpen(false);
+          setHeaderExpanded(false);
+          triggerInstall();
+        }}
+        ...
+      >
+        <Download size={14} className="text-zinc-400 shrink-0" />
+        <span>Cài đặt ứng dụng (PWA)</span>
+      </button>
+    )}
+    ```
+- **Mobile Viewport Overflow (BUG-01)**:
+  On a 390px viewport, `PlatformHeader` width is 358px (`390px - px-4`). Left logo is ~120px with `shrink-0`. Right controls (Credits + Login + Hamburger `≡`) require ~268px with `shrink-0`. Total width is 388px > 358px, overflowing by 30px and cutting the 32px hamburger button `≡` in half.
+
+---
+
+### 2.3. Web Footer Leakage (`SharedFooter.tsx`)
+File: `src/components/SharedFooter.tsx` (239 lines)
+- **Native Check**: Zero references to `isNativeCapacitor`.
+- **Download Links Rendered**:
+  - Lines 62-66:
+    ```tsx
+    {
+      label: 'Tải App Android (APK)',
+      path: '/download',
+      icon: <Download size={13} className="text-emerald-400 shrink-0" />
+    }
+    ```
+- **Layout Collisions**:
+  Lacks `pb-safe` on line 109, causing Android 15 Edge-to-Edge system navigation gesture lines (24–36px) to occlude copyright text on mobile devices (BUG-06).
+
+---
+
+### 2.4. Cookie Consent Banner in APK (BUG-03)
+File: `src/components/CookieConsentBanner.tsx` (119 lines)
+- Mounted unconditionally at `App.tsx:669`: `<CookieConsentBanner />`.
+- Lines 51-53:
+  ```tsx
+  if (!isVisible) return null;
+  if (router.currentRoute.pathname.startsWith('/rooms/')) return null;
+  ```
+  Lacks `isNativeCapacitor` check.
+- **Defects**:
+  1. Pops up inside Android APK after 800ms, covering bottom action buttons (`Start/Pause/Skip`) in `MobileFocusView`.
+  2. Buttons at lines 88-113 (`consent-accept-btn`, `consent-decline-btn`, `consent-details-btn`) lack `whitespace-nowrap`, causing "Đồng ý & Tiếp tục" and "Xem chính sách" to wrap into 2 lines on viewports under 390px.
+
+---
+
+### 2.5. Secondary Views Isolation Audit (BUG-01, BUG-02, BUG-76)
+In `src/App.tsx:486-552`, non-workspace routes render standalone desktop view components:
+
+| Route | Component | Web Header Mounted | Web Footer Mounted | Mobile Back Button | Trapped in APK? |
+|---|---|:---:|:---:|:---:|:---:|
+| `/terms`, `/privacy`, `/about` | `LegalViews.tsx` | Line 28 | Line 268 | `hidden sm:flex` (Line 72) | **YES (Trapped < 640px)** |
+| `/billing`, `/subscription` | `BillingView.tsx` | Line 188 | Line 1277 | Inline only (Line 196) | Partial (Desktop chrome) |
+| `/profile` | `ProfileView.tsx` | Line 78, 284 | Line 103, 814 | Inline only (Line 292) | Partial (Desktop chrome) |
+| `/settings` | `SettingsView.tsx` | Line 137 | Line 545 | Inline icon only (Line 183) | Partial (Desktop chrome) |
+| `/dashboard` | `DashboardView.tsx` | Line 251 | Line 486 | "Mở Không Gian" (Line 271) | Partial (Desktop chrome) |
+| `/calendar` | `DedicatedCalendarView.tsx` | Line 163 | Line 552 | Zero back button | **YES (Trapped)** |
+| `/rooms`, `/meet` | `StudyRoomLobby.tsx` | Line 291 | Line 1075 | Zero back button | **YES (Trapped)** |
+| `/help` | `HelpView.tsx` | Line 53 | Line 178 | Zero back button | **YES (Trapped)** |
+| `/contact` | `ContactView.tsx` | Line 46 | Line 226 | Zero back button | **YES (Trapped)** |
+| `/privacy-data` | `PrivacyDataView.tsx` | Line 171 | Line 442 | Inline only (Line 179) | Partial (Desktop chrome) |
+| `/account/security` | `AccountSecurityView.tsx` | Line 95, 321 | Line 111, 1203 | Inline only (Line 330) | Partial (Desktop chrome) |
+| `/download`, `/apk` | `WebDownloadHub.tsx` | Line 218 | Line 623 | Prompts to download APK | **Absurd in APK** |
+| `/*` (unmatched) | `NotFoundPage.tsx` | None | None | No TopBar / Emojis | Degraded |
+
+---
+
+### 2.6. Deep Linking & 404 Routing Defect (BUG-11)
+In `src/App.tsx:380-405`:
+```tsx
+const handleDeepLinkUrl = (rawUrl: string) => {
+  // 1. OAuth Tokens callback
+  if (rawUrl.includes('access_token=') || rawUrl.includes('id_token=')) { ... }
+
+  // 2. App Link for /rooms/:roomId or /rooms
+  if (rawUrl.includes('/rooms')) { ... }
+};
+```
+If a user clicks an external link or Android App Link such as `pomofocus://billing`, `pomofocus://calendar`, `pomofocus://settings`, `pomofocus://profile`, or `pomofocus://privacy`:
+- The URL is completely ignored because `App.tsx` has zero handler for anything other than `/rooms`!
+- In `NotFoundPage.tsx`, buttons render raw emojis (`⏱`, `🏠`), and there is no TopBar or native back navigation.
+
+---
+
+## 3. Five-Layer Web Isolation Architectural Blueprint
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          5-LAYER WEB ISOLATION MODEL                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ LAYER 1: GLOBAL COMPONENT SELF-SUPPRESSION (DEFENSE IN DEPTH)                │
+│ • PlatformHeader: returns null when isNativeCapacitor === true               │
+│ • SharedFooter:   returns null when isNativeCapacitor === true               │
+│ • CookieConsent:  returns null when isNativeCapacitor === true               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ LAYER 2: NATIVE SECONDARY NAVIGATION SHELL                                  │
+│ • MobileSubViewLayout (h-12 Top Bar, ← Quay lại, title, pt-safe, pb-safe)    │
+│ • Zero Z-index collision, State Singularity (Never 2 headers rendered)      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ LAYER 3: APP ROUTER NATIVE ISOLATION & REDIRECTION                          │
+│ • Route /download in native APK automatically redirects to /app             │
+│ • Secondary routes render MobileSubViewLayout in APK & Mobile viewports     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ LAYER 4: UNIVERSAL DEEP LINK ROUTER                                         │
+│ • pomofocus://<any-path> is normalized and navigated in React Router        │
+│ • NotFoundPage equipped with native TopBar and clean Lucide icons           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ LAYER 5: MOBILE WEB ACCESSIBILITY & TEXT-WRAP FIXES                         │
+│ • LegalViews return button: unhide on mobile (remove hidden sm:flex)        │
+│ • CookieConsentBanner buttons: add whitespace-nowrap                        │
+│ • Suppress beforeinstallprompt in native Capacitor environment              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. Exact File Edits & Implementation Recommendations for Worker M1
+
+### File 1: `src/components/mobile/MobileSubViewLayout.tsx` (NEW FILE)
+Create a reusable, highly optimized native subview wrapper conforming to Material 3 / Android Liquid Zen design standards:
+
+```tsx
+import React from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from '../../services/router';
+
+export interface MobileSubViewLayoutProps {
+  title: string;
+  onBack?: () => void;
+  actionSlot?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  testId?: string;
+}
+
+export const MobileSubViewLayout: React.FC<MobileSubViewLayoutProps> = ({
+  title,
+  onBack,
+  actionSlot,
+  children,
+  className = '',
+  testId = 'mobile-subview-layout',
+}) => {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      router.navigate('/app');
+    }
+  };
+
+  return (
+    <div
+      data-testid={testId}
+      className={`min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full flex flex-col bg-[#09090b] text-[#f4f4f5] select-none overflow-hidden relative ${className}`}
+    >
+      {/* Native Top Bar (48px / h-12 with pt-safe containment) */}
+      <header
+        data-testid="mobile-subview-header"
+        role="banner"
+        className="h-12 min-h-[48px] max-h-[48px] w-full flex items-center justify-between px-3 bg-zinc-950/90 backdrop-blur-xl border-b border-white/10 z-20 shrink-0"
+      >
+        <button
+          type="button"
+          data-testid="mobile-subview-back-btn"
+          onClick={handleBack}
+          className="flex items-center gap-1.5 py-1 px-2.5 -ml-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 hover:text-white transition active:scale-95 cursor-pointer text-xs font-medium shrink-0"
+          aria-label="Quay lại"
+        >
+          <ArrowLeft size={16} className="text-zinc-300" />
+          <span>Quay lại</span>
+        </button>
+
+        <h1 className="text-sm font-bold text-white tracking-tight truncate max-w-[200px] text-center px-2">
+          {title}
+        </h1>
+
+        <div className="w-20 flex items-center justify-end shrink-0">
+          {actionSlot ?? null}
+        </div>
+      </header>
+
+      {/* Scrollable Subview Content with bottom safe area padding */}
+      <main className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden relative z-10 px-3 sm:px-4 py-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+export default MobileSubViewLayout;
+```
+
+---
+
+### File 2: `src/components/PlatformHeader.tsx`
+Add Layer 1 invariant to suppress rendering when in native APK mode:
+
+```tsx
+// At top imports:
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+
+// Inside PlatformHeader component (around line 47):
+export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: isDownloadPageProp }) => {
+  const { isNativeCapacitor } = useDeviceDetection();
+
+  // Layer 1 Invariant: Strictly zero web headers inside native Capacitor APK
+  if (isNativeCapacitor) {
+    return null;
+  }
+  // ... rest of component
+```
+
+---
+
+### File 3: `src/components/SharedFooter.tsx`
+Add Layer 1 invariant to suppress rendering when in native APK mode:
+
+```tsx
+// At top imports:
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+
+// Inside SharedFooter component (around line 24):
+export const SharedFooter: React.FC = () => {
+  const { isNativeCapacitor } = useDeviceDetection();
+
+  // Layer 1 Invariant: Strictly zero web footers & APK download links inside native Capacitor APK
+  if (isNativeCapacitor) {
+    return null;
+  }
+  // ... rest of component
+```
+
+---
+
+### File 4: `src/components/CookieConsentBanner.tsx`
+Fix BUG-03 (Native suppression and button wrapping):
+
+```tsx
+// At top imports:
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+
+// Inside CookieConsentBanner component (around line 10):
+export const CookieConsentBanner: React.FC = () => {
+  const router = useRouter();
+  const { isNativeCapacitor } = useDeviceDetection();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Invariant 1: Suppress banner completely on Native APK
+  if (isNativeCapacitor) {
+    return null;
+  }
+
+  // ... around line 88-113: Add whitespace-nowrap to all 3 action buttons
+  <button
+    type="button"
+    data-testid="consent-accept-btn"
+    onClick={handleAccept}
+    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer whitespace-nowrap"
+  >
+    Đồng ý & Tiếp tục
+  </button>
+  <button
+    type="button"
+    data-testid="consent-decline-btn"
+    onClick={handleDecline}
+    className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer whitespace-nowrap"
+  >
+    Từ chối
+  </button>
+  <button
+    type="button"
+    data-testid="consent-details-btn"
+    onClick={handleOpenPrivacy}
+    className="px-2.5 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
+  >
+    <span>Xem chính sách</span>
+    <ChevronRight size={12} />
+  </button>
+```
+
+---
+
+### File 5: `src/App.tsx`
+1. **PWA prompt suppression**:
+   ```tsx
+   useEffect(() => {
+     if (isNativeCapacitor) return; // Do not capture PWA install prompt in native APK
+
+     const handleBeforeInstallPrompt = (e: Event) => {
+       e.preventDefault();
+       usePwaInstallStore.getState().setDeferredPrompt(e as any);
+     };
+     // ...
+   }, [isNativeCapacitor]);
    ```
-   *Hiện trạng:* Hoàn toàn không có class giao diện tối (`dark`), không có inline style khóa màu nền. Khi trình duyệt tải HTML, viewport áp dụng user-agent stylesheet mặc định (`background-color: #ffffff`, `color: #000000`).
+2. **Deep link handler expansion (BUG-11)**:
+   ```tsx
+   const handleDeepLinkUrl = (rawUrl: string) => {
+     if (!rawUrl) return;
 
-2. **Thẻ `<body>` (Dòng 102):**
-   ```html
-   <body class="bg-slate-900 text-slate-100 select-none">
+     // 1. OAuth Tokens callback
+     if (rawUrl.includes('access_token=') || rawUrl.includes('id_token=') || rawUrl.includes('error=')) {
+       // ... existing OAuth handling
+       return;
+     }
+
+     // 2. Generic internal deep linking (pomofocus://<path> or https://<domain>/<path>)
+     try {
+       let targetPath = '';
+       if (rawUrl.startsWith('pomofocus://')) {
+         const urlWithoutScheme = rawUrl.replace('pomofocus://', '');
+         targetPath = urlWithoutScheme.startsWith('/') ? urlWithoutScheme : `/${urlWithoutScheme}`;
+       } else {
+         const parsed = new URL(rawUrl);
+         targetPath = parsed.pathname + parsed.search;
+       }
+
+       if (targetPath) {
+         router.navigate(targetPath);
+       }
+     } catch (err) {
+       console.warn('[DeepLink] Failed to parse URL:', rawUrl, err);
+     }
+   };
    ```
-   *Hiện trạng:*
-   - Lớp `bg-slate-900` có mã màu `#0f172a` (xanh navy đậm), lệch tông màu với nền Zen chuẩn của ứng dụng là `#09090b` (zinc-950).
-   - Quan trọng hơn: Class Tailwind CSS chỉ có hiệu lực sau khi file bundle CSS (`assets/index-*.css`) được tải về mạng, phân tích cú pháp (parse) và kích hoạt (thường mất 150ms – 600ms). Trong toàn bộ khoảng thời gian đó, class `bg-slate-900` hoàn toàn vô hiệu.
-
-3. **Khối HTML Crawler bên trong `<div id="root">` (Dòng 103–133):**
-   ```html
-   <div id="root">
-     <!-- Nội dung tĩnh cho AI Crawlers & Trình duyệt không bật JavaScript -->
-     <header>
-       <nav>
-         <a href="/">PomoFocus Workspace</a> |
-         <a href="/app">Không Gian Học Tập</a> |
-         ...
-       </nav>
-     </header>
-     <main id="main-content">
-       <h1>PomoFocus — Không Gian Làm Việc & Học Tập Tập Trung Chuẩn Zen</h1>
-       <p>PomoFocus là nền tảng không gian làm việc ảo tối giản...</p>
-       <h2>Tính Năng Cốt Lõi</h2>
-       <ul>...</ul>
-       ...
-     </main>
-     <footer>...</footer>
-   </div>
+3. **Download page redirection on native APK**:
+   ```tsx
+   if (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk') {
+     if (isNativeCapacitor) {
+       router.navigate('/app', { replace: true });
+       return (
+         <ErrorBoundary>
+           <MobileAppShell />
+         </ErrorBoundary>
+       );
+     }
+     return <WebDownloadHub />;
+   }
    ```
-   *Hiện trạng:*
-   - Khối HTML này rất có giá trị cho Googlebot, Bingbot và các crawler không chạy JS.
-   - Tuy nhiên, vì trình duyệt người dùng hiển thị HTML theo cơ chế streaming/incremental rendering, trình duyệt lập tức vẽ các thẻ `<h1>`, `<p>`, `<nav>` này lên màn hình trước khi Vite nạp `main.tsx`. Kết quả là người dùng thấy trang web thô sơ kiểu thập niên 90 giật chớp lên màn hình rồi mới biến mất khi React render.
-
-4. **Vắng mặt hoàn toàn cơ chế Splash Screen:**
-   - Trong `index.html` hiện tại không có bất kỳ màn che Splash Curtain hay spinner nào.
 
 ---
 
-## 3. THIẾT KẾ KỸ THUẬT CHI TIẾT (EXACT SURGICAL SPECIFICATIONS)
-
-### 3.1. Khóa màu nền Dark Theme tức thì tại `<html>` và `<body>`
-
-#### A. Thay thế thẻ `<html>` (Dòng 2):
-```html
-<!-- TRƯỚC: -->
-<html lang="vi">
-
-<!-- SAU: -->
-<html lang="vi" class="dark" style="background-color: #09090b !important; color: #f4f4f5;">
-```
-*Cơ sở kỹ thuật:*
-- `class="dark"`: Cho phép Tailwind CSS và mọi component dark mode kích hoạt tức thì ngay từ phần tử gốc.
-- `style="background-color: #09090b !important; color: #f4f4f5;"`: Trình duyệt đọc inline style ngay khi khởi tạo DOM node, khóa cứng màu nền đen tuyền `#09090b` (zinc-950) và màu chữ trắng ngà `#f4f4f5` từ microsecond đầu tiên, đè bẹp (override) mọi mặc định của user-agent stylesheet.
-
-#### B. Thay thế thẻ `<body>` (Dòng 102):
-```html
-<!-- TRƯỚC: -->
-<body class="bg-slate-900 text-slate-100 select-none">
-
-<!-- SAU: -->
-<body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">
-```
-*Cơ sở kỹ thuật:*
-- Thay thế `bg-slate-900` (`#0f172a`) bằng `bg-[#09090b]` để đồng nhất 100% với bảng màu Liquid Glass Zen.
-- Bảo lưu thuộc tính `select-none` của ứng dụng.
-- Thêm inline style `background-color: #09090b !important; color: #f4f4f5;` để đảm bảo body cũng được khóa màu đen tức thì ngay cả khi Tailwind CSS chưa nạp.
+### File 6: `src/components/LegalViews.tsx` (BUG-01, BUG-76)
+1. Detect device: `const { isNativeCapacitor, isMobile } = useDeviceDetection();`
+2. Remove `hidden sm:flex` on line 72:
+   ```tsx
+   // Replace:
+   className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap hidden sm:flex"
+   // With:
+   className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
+   ```
+3. When `isNativeCapacitor`: Render with `MobileSubViewLayout`:
+   ```tsx
+   if (isNativeCapacitor) {
+     return (
+       <MobileSubViewLayout
+         title={activeTab === 'terms' ? 'Điều Khoản Dịch Vụ' : activeTab === 'privacy' ? 'Chính Sách Bảo Mật' : 'Về PomoFocus'}
+         onBack={() => router.navigate('/app')}
+       >
+         {/* Sub-nav Tabs & Content without PlatformHeader/SharedFooter */}
+       </MobileSubViewLayout>
+     );
+   }
+   ```
 
 ---
 
-### 3.2. Khối Critical Inline CSS `<style>` trong `<head>`
-
-Đặt khối `<style>` ngay sau `<meta name="theme-color" content="#09090b" />` (dòng 8) để được phân tích cú pháp đồng bộ trước mọi tài nguyên ngoại vi:
-
-```html
-    <!-- Zero-FOUT & Instant Dark Shell Critical Styling -->
-    <style>
-      html, body {
-        background-color: #09090b !important;
-        color: #f4f4f5 !important;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
-      #pomo-splash-curtain {
-        position: fixed;
-        inset: 0;
-        background-color: #09090b;
-        z-index: 99999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms;
-        pointer-events: none;
-      }
-      #pomo-splash-curtain.loaded {
-        opacity: 0;
-        visibility: hidden;
-      }
-      .pomo-spinner {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-top-color: #10b981;
-        animation: pomoSpin 0.7s linear infinite;
-      }
-      @keyframes pomoSpin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
-```
-
-#### Phân tích chi tiết từng thuộc tính CSS:
-1. `html, body { margin: 0; padding: 0; overflow-x: hidden; }`:
-   - Triệt tiêu hoàn toàn khoảng đệm mặc định 8px của trình duyệt quanh body (vốn có thể tạo viền trắng lóe sáng khi render).
-   - Ngăn chặn triệt để thanh cuộn ngang chớp nháy (horizontal jitter).
-2. `#pomo-splash-curtain`:
-   - `position: fixed; inset: 0`: Trùm kín 100% diện tích màn hình thiết bị từ mép trên cùng đến đáy.
-   - `background-color: #09090b`: Nền đen đặc che phủ toàn bộ nội dung HTML tĩnh bên dưới.
-   - `z-index: 99999`: Phân tầng tối cao (tuân thủ mục 14 của `PROJECT.md`), cao hơn header (`z-50`) và AI panel (`z-[80]`).
-   - `pointer-events: none`: **Bất biến quan trọng!** Ngay cả khi màn che đang hiển thị hoặc trong quá trình mờ dần 300ms, nó không bao giờ chặn hay nuốt các thao tác click, tap hoặc cuộn của người dùng đối với ứng dụng bên dưới.
-   - `transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms`: Đường cong gia tốc vật lý Apple (Deceleration Curve) giúp việc biến mất mượt mà, êm ái tự nhiên.
-3. `#pomo-splash-curtain.loaded`:
-   - `opacity: 0`: Mờ dần về trong suốt.
-   - `visibility: hidden`: Đưa phần tử ra khỏi luồng tương tác và Accessibility Tree sau khi hiệu ứng kết thúc.
-4. `.pomo-spinner` & `@keyframes pomoSpin`:
-   - Kích thước chuẩn `32px x 32px`, viền mờ 10% trắng ngà `rgba(255, 255, 255, 0.1)`.
-   - Đỉnh viền màu xanh ngọc Zen `#10b981` (Emerald-500) quay mượt với chu kỳ `0.7s linear infinite`.
+### File 7: `src/pages/NotFoundPage.tsx` (BUG-11)
+1. Add a top return navigation bar with back button.
+2. Clean up emojis to proper Lucide SVG icons (`<Clock size={16} />`, `<Home size={16} />`).
+3. Add `data-testid="404-top-back-btn"`:
+   ```tsx
+   <header className="relative z-10 px-4 sm:px-8 py-4 flex items-center justify-between">
+     <button
+       type="button"
+       data-testid="404-top-back-btn"
+       onClick={() => router.navigate('/app')}
+       className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 transition cursor-pointer"
+     >
+       <ArrowLeft size={14} />
+       <span>Quay lại</span>
+     </button>
+     ...
+   ```
 
 ---
 
-### 3.3. Cấu trúc phần tử DOM Preloader trong `<body>`
+## 5. Verification Test Plan (10 Test Cases)
 
-Đặt ngay đầu `<body>`, làm phần tử anh em đứng trước `<div id="root">`:
+Worker M1 should create `tests/unit/m1WebIsolationAndNavigation.test.tsx` containing:
 
-```html
-  <body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">
-    <!-- Zero-FOUT Splash Curtain Preloader -->
-    <div id="pomo-splash-curtain" aria-hidden="true">
-      <div class="pomo-spinner"></div>
-    </div>
-
-    <div id="root">
-```
-
-*Cơ sở kỹ thuật:*
-- Thuộc tính `aria-hidden="true"`: Đảm bảo công cụ đọc màn hình (Screen Readers) và người dùng khiếm thị không bị gián đoạn hay đọc thông báo spinner vô nghĩa, bảo vệ 100% tiêu chuẩn tiếp cận WCAG.
-- Đặt trước `<div id="root">`: Giúp trình duyệt khởi tạo phần tử màn che ngay khi bắt đầu parse body, vẽ spinner lên màn hình trước cả khi xử lý các thẻ con của `#root`.
-
----
-
-### 3.4. Script tháo rèm tự động (Dismissal Script)
-
-Đặt trước thẻ đóng `</body>`, ngay sau `<script type="module" src="/src/main.tsx"></script>`:
-
-```html
-    <!-- Zero-FOUT Splash Curtain Dismissal Script -->
-    <script>
-      (function() {
-        function dismissCurtain() {
-          var curtain = document.getElementById('pomo-splash-curtain');
-          if (curtain && !curtain.classList.contains('loaded')) {
-            curtain.classList.add('loaded');
-          }
-        }
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-          setTimeout(dismissCurtain, 100);
-        } else {
-          window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(dismissCurtain, 100);
-          });
-        }
-      })();
-    </script>
-  </body>
-```
-
-#### Phân tích cơ chế hoạt động:
-1. Tuân thủ chính xác yêu cầu từ `ORIGINAL_REQUEST.md` (Mục 1) và `PROJECT.md` (Interface Contract 1):
-   - Chờ sự kiện `DOMContentLoaded` (khi DOM đã được parse xong và các script defer/module được tải).
-   - Thêm lớp `.loaded` sau `100ms` timeout.
-2. Xử lý kịch bản biên (Edge Case Resilience):
-   - Nếu trang được nạp từ bộ nhớ đệm (bfcache) hoặc script chạy khi `document.readyState` đã là `'interactive'` hoặc `'complete'`, hàm `dismissCurtain` vẫn được kích hoạt sau 100ms, triệt tiêu nguy cơ màn che bị "treo" (hung splash screen).
-   - Đóng gói trong IIFE `(function() { ... })()` để không gây ô nhiễm biến toàn cục (global scope).
-
----
-
-## 4. XÁC MINH TOÀN VẸN ĐIỂM GẮN KẾT REACT ROOT (`<div id="root">`)
-
-Một trong những yêu cầu bắt buộc tối cao của nhiệm vụ là: **"Verify that these changes do not break any existing React root mounting (<div id="root">)"**.
-
-Chúng tôi đã phân tích và xác minh 6 luận điểm kỹ thuật:
-
-| # | Tiêu chí kiểm chứng | Phân tích & Bằng chứng thực nghiệm | Kết quả |
-|---|---------------------|-----------------------------------|---------|
-| 1 | **ID & Cấu trúc DOM** | Điểm gắn kết của React trong `src/main.tsx:20` là `ReactDOM.createRoot(document.getElementById('root')!)`. Thẻ `<div id="root">` giữ nguyên vẹn 100% ID, vị trí trong body và cấu trúc con. | **AN TOÀN TUYỆT ĐỐI** |
-| 2 | **Quan hệ cây DOM (Sibling)** | `#pomo-splash-curtain` được đặt làm phần tử anh em (sibling) đứng trước `<div id="root">`. Nó KHÔNG nằm bên trong `#root`. Do đó, thuật toán Virtual DOM Reconciliation của React 18 không chạm vào, không re-render và không gỡ bỏ `#pomo-splash-curtain`. | **ĐỘC LẬP HOÀN TOÀN** |
-| 3 | **Cơ chế thế chỗ con của React** | Khi `createRoot(...).render(...)` chạy, React 18 tự động thay thế toàn bộ HTML tĩnh bên trong `#root` bằng cây React component thực thụ. Trong quá trình React chuẩn bị và render này, `#pomo-splash-curtain` với `z-index: 99999` che phủ hoàn toàn mắt nhìn của người dùng, biến quá trình thế chỗ này thành vô hình (invisible transition). | **ZERO-FLICKER** |
-| 4 | **Bảo toàn khả năng Crawl SEO** | Toàn bộ 29 dòng văn bản semantic (`<header>`, `<nav>`, `<h1>`, `<p>`, `<ul>`, `<footer>`) bên trong `<div id="root">` vẫn hiện diện 100% trong mã nguồn HTML thô gửi về từ server. Các công cụ tìm kiếm (Googlebot, Bingbot, Zalo scraper) vẫn trích xuất đầy đủ từ khóa và nội dung. | **BẢO TỒN SEO 100%** |
-| 5 | **Không chặn tương tác (Non-blocking)** | Nhờ thuộc tính `pointer-events: none` trên `#pomo-splash-curtain`, ngay cả trong 300ms khi rèm đang mờ dần (fade-out), các tương tác click, kéo thả widget hay gõ phím của người dùng tới các phần tử React bên dưới đều đi xuyên qua tức thì, không có độ trễ tương tác (0ms Input Latency). | **TRƠ VỚI INPUT** |
-| 6 | **Tương thích Test Suites** | Tệp `tests/unit/wcagAccessibilityAudit.test.ts:159-166` trực tiếp đọc `index.html` bằng `fs.readFileSync` để kiểm tra các thẻ `<link rel="preconnect">` và `media="print"`. Tất cả các thẻ này được giữ nguyên vị trí, không bị xáo trộn. Toàn bộ 52 test suites (466 tests) tiếp tục vượt qua 100%. | **100% PASS** |
-
----
-
-## 5. BẢNG SO SÁNH TRỰC QUAN (BEFORE VS AFTER)
-
-```html
-<!-- ==================== HIỆN TRẠNG (BEFORE) ==================== -->
-<!doctype html>
-<html lang="vi">
-  <head>
-    ...
-    <meta name="theme-color" content="#09090b" />
-    <meta name="description" content="..." />
-    ...
-  </head>
-  <body class="bg-slate-900 text-slate-100 select-none">
-    <div id="root">
-      ... [Nội dung tĩnh bị chớp nháy đen/trắng 200-500ms] ...
-    </div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-
-<!-- ==================== ĐỀ XUẤT (AFTER) ==================== -->
-<!doctype html>
-<html lang="vi" class="dark" style="background-color: #09090b !important; color: #f4f4f5;">
-  <head>
-    ...
-    <meta name="theme-color" content="#09090b" />
-
-    <!-- Zero-FOUT & Instant Dark Shell Critical Styling -->
-    <style>
-      html, body {
-        background-color: #09090b !important;
-        color: #f4f4f5 !important;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
-      #pomo-splash-curtain {
-        position: fixed;
-        inset: 0;
-        background-color: #09090b;
-        z-index: 99999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms;
-        pointer-events: none;
-      }
-      #pomo-splash-curtain.loaded {
-        opacity: 0;
-        visibility: hidden;
-      }
-      .pomo-spinner {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-top-color: #10b981;
-        animation: pomoSpin 0.7s linear infinite;
-      }
-      @keyframes pomoSpin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
-
-    <meta name="description" content="..." />
-    ...
-  </head>
-  <body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">
-    <!-- Zero-FOUT Splash Curtain Preloader -->
-    <div id="pomo-splash-curtain" aria-hidden="true">
-      <div class="pomo-spinner"></div>
-    </div>
-
-    <div id="root">
-      ... [Nội dung tĩnh vẫn nguyên vẹn cho Crawlers, nhưng được che khuất hoàn hảo khỏi mắt người dùng] ...
-    </div>
-    <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Zero-FOUT Splash Curtain Dismissal Script -->
-    <script>
-      (function() {
-        function dismissCurtain() {
-          var curtain = document.getElementById('pomo-splash-curtain');
-          if (curtain && !curtain.classList.contains('loaded')) {
-            curtain.classList.add('loaded');
-          }
-        }
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-          setTimeout(dismissCurtain, 100);
-        } else {
-          window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(dismissCurtain, 100);
-          });
-        }
-      })();
-    </script>
-  </body>
-</html>
-```
-
----
-
-## 6. KẾT LUẬN & KIẾN NGHỊ BƯỚC TIẾP THEO
-
-1. Thiết kế đã được cô đọng, tuân thủ nghiêm ngặt nguyên tắc **Karpathy Guidelines** (Surgical Changes, Simplicity First).
-2. Tệp đề xuất sẵn sàng được áp dụng ngay tại `proposed_index.html` hoặc qua bản vá `index_html_changes.patch`.
-3. Khuyến nghị Sub-Orchestrator M1 phối hợp cùng Explorer M1-2 và M1-3 để đồng bộ hoá việc nạp phông chữ `font-display: optional` và CSS liquid glass, đảm bảo Milestone 1 hoàn thành trọn vẹn, không lỗi.
+1. **Test 1.1**: `PlatformHeader` returns `null` when `isNativeCapacitor === true`.
+2. **Test 1.2**: `PlatformHeader` renders normally when `isNativeCapacitor === false`.
+3. **Test 1.3**: `SharedFooter` returns `null` when `isNativeCapacitor === true`.
+4. **Test 1.4**: `SharedFooter` renders normally on web and contains no crash.
+5. **Test 1.5**: `CookieConsentBanner` returns `null` when `isNativeCapacitor === true`.
+6. **Test 1.6**: `CookieConsentBanner` action buttons have `whitespace-nowrap` on web viewports.
+7. **Test 1.7**: `MobileSubViewLayout` renders header with `title`, `ArrowLeft`, and clicking back calls `onBack` or navigates to `/app`.
+8. **Test 1.8**: `LegalViews` in mobile mode (< 640px) renders a visible return button (`hidden sm:flex` removed).
+9. **Test 1.9**: Deep link `pomofocus://billing`, `pomofocus://calendar`, `pomofocus://settings` navigates correctly in `App.tsx`.
+10. **Test 1.10**: Navigating to `/download` inside native APK mode redirects to `/app` without rendering the download hub.

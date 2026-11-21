@@ -103,7 +103,7 @@ export const generateInitialsAvatarSvg = (
 
   const hash = initials.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   const [col1, col2] = customGradient || (initials === 'K' ? ['#10b981', '#047857'] : gradients[hash % gradients.length]);
-  const radius = Math.round(size * 0.28);
+  const radius = Math.round(size / 2);
   const fontSize = Math.round(size * 0.42);
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><defs><linearGradient id="g_${hash}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${col1}"/><stop offset="100%" stop-color="${col2}"/></linearGradient></defs><rect width="${size}" height="${size}" rx="${radius}" fill="url(#g_${hash})"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="${fontSize}" letter-spacing="-0.5">${initials}</text></svg>`;
@@ -313,7 +313,8 @@ export function isAdmin(user?: UserProfile | null, session?: any): boolean {
 
 export function isOwnerEmail(email?: string | null): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === OWNER_EMAIL.toLowerCase();
+  const clean = email.trim().toLowerCase();
+  return OWNER_EMAILS.some((e) => e.toLowerCase() === clean);
 }
 
 export function isLadyBoss(email?: string | null): boolean {

@@ -18,7 +18,8 @@ import {
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useAiStore } from '../../../stores/useAiStore';
 import { useTimerStore } from '../../../stores/useTimerStore';
-import { authService, hasVipAccess, isOwnerEmail, getEffectiveAvatarUrl } from '../../../services/authService';
+import { authService, hasVipAccess, getEffectiveAvatarUrl } from '../../../services/authService';
+import { getSubscriptionBadge } from '../../../utils/userBadge';
 import { UserAvatar } from '../../common/UserAvatar';
 import { googleAuthService, GoogleUserPayload } from '../../../services/googleAuthService';
 import { db } from '../../../db';
@@ -52,7 +53,6 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const storeLoginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const storeLogout = useAuthStore((s) => s.logout);
-  const planLabel = useAuthStore((s) => s.planLabel);
 
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
@@ -73,13 +73,13 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
     streakDays: 1,
   });
 
-  const isVip = useMemo(() => {
-    return hasVipAccess(user) || (user?.email ? isOwnerEmail(user.email) : false);
+  const badgeInfo = useMemo(() => {
+    return getSubscriptionBadge(user);
   }, [user]);
 
-  const isOwner = useMemo(() => {
-    return (user?.email ? isOwnerEmail(user.email) : false) || user?.role === 'founder';
-  }, [user]);
+  const isVip = useMemo(() => {
+    return badgeInfo.tier === 'founder' || badgeInfo.tier === 'pro' || hasVipAccess(user);
+  }, [badgeInfo, user]);
 
   // Load stats from IndexedDB when sheet opens
   useEffect(() => {
@@ -146,15 +146,29 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
     setIsGoogleLoading(true);
     setFeedback(null);
     try {
+      const isNative = Boolean(
+        googleAuthService.isNativePlatform() ||
+        (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.())
+      );
+
+      if (isNative) {
+        await googleAuthService.loginWithGoogleNative();
+        setFeedback({
+          type: 'success',
+          message: 'Đang mở trình duyệt xác thực Google...',
+        });
+        return;
+      }
+
       let payload: GoogleUserPayload;
       if (typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
-        try {
-          payload = await googleAuthService.signInWithPopup();
-        } catch {
-          payload = await googleAuthService.simulateGoogleLogin();
-        }
-      } else {
+        payload = await googleAuthService.signInWithPopup();
+      } else if (typeof googleAuthService.simulateGoogleLogin === 'function' && typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
         payload = await googleAuthService.simulateGoogleLogin();
+      } else {
+        const redirectUrl = googleAuthService.getGoogleOAuthRedirectUrl();
+        window.location.href = redirectUrl;
+        return;
       }
 
       await authService.loginWithGoogle(payload);
@@ -300,9 +314,9 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 </div>
               </div>
 
-              {/* VIP / Founder Badge */}
+              {/* VIP / Founder / Pro / Free Badge */}
               <div className="shrink-0">
-                {isOwner ? (
+                {badgeInfo.tier === 'founder' ? (
                   <span
                     data-testid="mobile-auth-vip-badge"
                     className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1"
@@ -310,17 +324,20 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                     <Crown className="w-3.5 h-3.5 text-amber-400" />
                     <span>Founder VIP</span>
                   </span>
-                ) : isVip ? (
+                ) : badgeInfo.tier === 'pro' ? (
                   <span
                     data-testid="mobile-auth-vip-badge"
                     className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm flex items-center gap-1"
                   >
                     <Star className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>{planLabel || 'PRO VIP'}</span>
+                    <span>{badgeInfo.label}</span>
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-white/10">
-                    Miễn phí
+                  <span
+                    data-testid="mobile-auth-vip-badge"
+                    className="px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-white/10"
+                  >
+                    Free
                   </span>
                 )}
               </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useRouter } from '../services/router';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   Mail,
   HelpCircle,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export const ContactView: React.FC = () => {
+  const router = useRouter();
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -39,13 +40,16 @@ export const ContactView: React.FC = () => {
   };
 
   return (
-    <div
-      data-testid="contact-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Liên Hệ & Hỗ Trợ"
+      subtitle="Hòm thư tiếp nhận 24/7"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
     >
-      <PlatformHeader />
-
-      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16 space-y-10">
+      <div
+        data-testid="contact-view"
+        className="w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16 space-y-10"
+      >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 text-xs font-medium">
             <MessageSquare size={13} className="text-emerald-400" />
@@ -221,9 +225,7 @@ export const ContactView: React.FC = () => {
             </form>
           )}
         </div>
-      </main>
-
-      <SharedFooter />
-    </div>
+      </div>
+    </MobileSubViewLayout>
   );
 };

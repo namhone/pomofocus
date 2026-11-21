@@ -10,11 +10,24 @@ export default async function handler(req: any, res: any) {
 
   try {
     const rawOrderCode = req.query?.orderCode || req.body?.orderCode || req.query?.orderId || req.body?.orderId;
-    const userId = req.query?.userId || req.body?.userId;
+    const rawUserId = req.query?.userId || req.body?.userId;
     const includeHistory = req.query?.history === 'true' || req.body?.history === true;
 
+    // Chuẩn hóa và làm sạch userId (nếu người dùng đăng nhập)
+    const cleanUserId = (
+      rawUserId &&
+      typeof rawUserId === 'string' &&
+      rawUserId.trim() !== '' &&
+      rawUserId.trim().toLowerCase() !== 'guest' &&
+      rawUserId.trim().toLowerCase() !== 'guest_user' &&
+      rawUserId.trim() !== '00000000-0000-0000-0000-000000000000'
+    ) ? rawUserId.trim() : null;
+
     const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+    // Ưu tiên cao nhất SUPABASE_SERVICE_ROLE_KEY để tra cứu đơn hàng khi RLS đã siết chặt
+    const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    const anonKey = (process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+    const supabaseKey = serviceRoleKey || anonKey;
 
     if (!supabaseUrl || !supabaseKey) {
       return res.status(200).json({ isPaid: false, status: 'unknown', error: 'Supabase credentials not configured' });
@@ -43,6 +56,26 @@ export default async function handler(req: any, res: any) {
           const list = await orderRes.json();
           if (Array.isArray(list) && list.length > 0) {
             const order = list[0];
+
+            // M0 Security Check: Nếu yêu cầu có kèm userId, bắt buộc đơn hàng phải thuộc về đúng userId này
+            if (cleanUserId) {
+              const orderUserId = String(order.user_id || '').trim();
+              const orderEmail = String(order.user_email || '').trim().toLowerCase();
+              const isOwner =
+                orderUserId === cleanUserId ||
+                (orderEmail !== '' && orderEmail === cleanUserId.toLowerCase());
+
+              if (!isOwner) {
+                console.warn(`[check-status] Ownership mismatch: order ${code} owned by ${orderUserId}, queried with userId ${cleanUserId}`);
+                return res.status(403).json({
+                  success: false,
+                  isPaid: false,
+                  status: 'forbidden',
+                  error: 'Đơn hàng không thuộc về tài khoản người dùng được yêu cầu'
+                });
+              }
+            }
+
             const isExpired = order.status === 'pending' && new Date(order.expires_at).getTime() < Date.now();
             const effectiveStatus = isExpired ? 'expired' : order.status;
 
@@ -82,6 +115,21 @@ export default async function handler(req: any, res: any) {
             const txList = await txRes.json();
             if (Array.isArray(txList) && txList.length > 0) {
               const tx = txList[0];
+
+              // M0 Security Check: Xác thực quyền sở hữu giao dịch MoMo/PRO nếu có userId
+              if (cleanUserId && tx.user_id) {
+                const txUserId = String(tx.user_id).trim();
+                if (txUserId !== cleanUserId) {
+                  console.warn(`[check-status] Ownership mismatch on tx ${tx.order_id}: owned by ${txUserId}, queried with userId ${cleanUserId}`);
+                  return res.status(403).json({
+                    success: false,
+                    isPaid: false,
+                    status: 'forbidden',
+                    error: 'Giao dịch không thuộc về tài khoản người dùng được yêu cầu'
+                  });
+                }
+              }
+
               if (tx.status === 'completed' || tx.status === 'verified_paid') {
                 isPaid = true;
               }
@@ -102,10 +150,10 @@ export default async function handler(req: any, res: any) {
     }
 
     // 3. Nếu có yêu cầu lịch sử giao dịch gần đây của người dùng
-    if (userId && typeof userId === 'string' && userId !== 'guest' && userId !== 'guest_user') {
+    if (cleanUserId) {
       try {
         const historyRes = await fetch(
-          `${supabaseUrl}/rest/v1/payment_orders?user_id=eq.${encodeURIComponent(userId.trim())}&select=*&order=created_at.desc&limit=10`,
+          `${supabaseUrl}/rest/v1/payment_orders?user_id=eq.${encodeURIComponent(cleanUserId)}&select=*&order=created_at.desc&limit=10`,
           {
             headers: {
               'apikey': supabaseKey,

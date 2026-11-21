@@ -2,7 +2,9 @@
 import { cleanupOutdatedCaches, precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
-import { NetworkOnly } from 'workbox-strategies';
+import { NetworkOnly, CacheFirst } from 'workbox-strategies';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
+import { ExpirationPlugin } from 'workbox-expiration';
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -49,4 +51,27 @@ const navigationRoute = new NavigationRoute(defaultHandler, {
   denylist: [/^\/downloads\/.*/, /^\/version\.json$/, /^\/api\/.*/]
 });
 registerRoute(navigationRoute);
+
+/**
+ * BUG-12: KaTeX Offline CDN Caching.
+ * Intercepts external requests to KaTeX stylesheets and webfonts from cdn.jsdelivr.net,
+ * storing them locally with CacheFirst strategy so LaTeX formulas render offline.
+ */
+registerRoute(
+  ({ url }) =>
+    url.origin === 'https://cdn.jsdelivr.net' &&
+    (url.pathname.includes('/katex@') || url.pathname.includes('/fonts/KaTeX_')),
+  new CacheFirst({
+    cacheName: 'katex-cdn-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200]
+      }),
+      new ExpirationPlugin({
+        maxEntries: 60,
+        maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
+      })
+    ]
+  })
+);
 

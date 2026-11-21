@@ -5,6 +5,8 @@ import { useLayoutStore } from '../stores/useLayoutStore';
 import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
 import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
+import { getSubscriptionBadge } from '../utils/userBadge';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
 import { UserAvatar } from './common/UserAvatar';
 import { PomoFocusLogo } from './PomoFocusLogo';
 import {
@@ -39,12 +41,15 @@ interface PlatformHeaderProps {
 }
 
 export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: isDownloadPageProp }) => {
+  const { isNativeCapacitor } = useDeviceDetection();
+  if (isNativeCapacitor) return null;
+
   const router = useRouter();
   const currentPath = router.currentRoute.path;
   const isDownloadPage =
     isDownloadPageProp ??
     (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk');
-  const { user, isAuthenticated, logout, isPro, isLifetime, effectiveBadge: storeEffectiveBadge } = useAuthStore();
+  const { user, isAuthenticated, logout, isPro, isLifetime } = useAuthStore();
   const { canInstall, triggerInstall } = usePwaInstallStore();
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
@@ -98,9 +103,13 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
   );
 
 
+  const badgeInfo = getSubscriptionBadge(isAuthenticated ? user : null);
+
   const isProAccount = Boolean(
     isAuthenticated &&
-      (isLifetimeAccount ||
+      (badgeInfo.tier === 'founder' ||
+        badgeInfo.tier === 'pro' ||
+        isLifetimeAccount ||
         isPro ||
         hasVipAccess(user) ||
         user?.plan === 'pro' ||
@@ -110,7 +119,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         (user?.plan as string) === 'pro_beta')
   );
 
-  const effectiveBadge = isAuthenticated ? (storeEffectiveBadge || 'Free') : 'Thành viên Free';
+  const effectiveBadge = isAuthenticated ? badgeInfo.label : 'Free';
 
   const safeCreditsNum = !isAuthenticated
     ? (typeof aiCreditsBalance === 'number' && Number.isFinite(aiCreditsBalance)
@@ -552,7 +561,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   alt={user.displayName}
                   testId="desktop-header-profile-avatar"
                 />
-                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[130px] xl:max-w-[160px]">
+                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[160px] sm:max-w-[200px] md:max-w-[220px] xl:max-w-[260px]">
                   {user.displayName}
                 </span>
                 <ChevronDown
@@ -587,10 +596,11 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                       </div>
                     </div>
                     <span
+                      data-testid="header-user-badge"
                       className={`px-1.5 py-0.5 rounded-md text-[9px] font-semibold border shrink-0 ${
-                        isLifetimeAccount
+                        badgeInfo.tier === 'founder'
                           ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
-                          : isProAccount
+                          : badgeInfo.tier === 'pro'
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                           : 'bg-white/10 text-neutral-300 border-white/10'
                       }`}

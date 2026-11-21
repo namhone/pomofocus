@@ -33,16 +33,55 @@
         opacity: 0;
         visibility: hidden;
       }
+      .pomo-splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        animation: pomoPulse 2s ease-in-out infinite;
+      }
+      .pomo-splash-logo {
+        width: 64px;
+        height: 64px;
+        filter: drop-shadow(0 4px 20px rgba(16, 185, 129, 0.25));
+      }
+      .pomo-splash-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .pomo-splash-title {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #f4f4f5;
+      }
+      .pomo-splash-sub {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        color: #10b981;
+        text-transform: uppercase;
+      }
       .pomo-spinner {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.1);
         border-top-color: #10b981;
         animation: pomoSpin 0.7s linear infinite;
+        margin-top: 4px;
       }
       @keyframes pomoSpin {
         to { transform: rotate(360deg); }
+      }
+      @keyframes pomoPulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.88; transform: scale(0.98); }
       }
     </style>
     <meta name="description" content="PomoFocus — Không gian làm việc và học tập tập trung tối ưu với Pomodoro, âm thanh ambient và phòng học nhóm WebRTC." />
@@ -140,7 +179,37 @@
   <body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">
     <!-- Zero-FOUT Splash Curtain Preloader -->
     <div id="pomo-splash-curtain" aria-hidden="true">
-      <div class="pomo-spinner"></div>
+      <div class="pomo-splash-content">
+        <svg class="pomo-splash-logo" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="splashBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#18181b" />
+              <stop offset="100%" stop-color="#09090b" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="984" height="984" rx="232" ry="232" fill="url(#splashBgGrad)" stroke="rgba(255,255,255,0.08)" stroke-width="16" />
+          <g fill="#FFFFFF">
+            <rect x="440" y="143" width="120" height="56" rx="16" ry="16" />
+            <rect x="473" y="190" width="54" height="50" />
+            <rect x="283.5" y="650" width="54" height="202" />
+            <circle cx="500" cy="498" r="243" fill="none" stroke="#FFFFFF" stroke-width="54" />
+            <rect x="491" y="302" width="18" height="48" rx="9" ry="9" />
+            <rect x="491" y="648" width="18" height="48" rx="9" ry="9" />
+            <rect x="304" y="489" width="48" height="18" rx="9" ry="9" />
+            <rect x="648" y="489" width="48" height="18" rx="9" ry="9" />
+          </g>
+          <g stroke="#FFFFFF" stroke-linecap="round" fill="none">
+            <line x1="482" y1="485" x2="404" y2="428" stroke-width="18" />
+            <line x1="516" y1="483" x2="625" y2="381" stroke-width="15" />
+            <circle cx="500" cy="498" r="19.5" fill="#10b981" stroke-width="18" />
+          </g>
+        </svg>
+        <div class="pomo-splash-brand">
+          <span class="pomo-splash-title">PomoFocus</span>
+          <span class="pomo-splash-sub">Study Workspace</span>
+        </div>
+        <div class="pomo-spinner"></div>
+      </div>
     </div>
 
     <div id="root">

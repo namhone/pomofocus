@@ -134,7 +134,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
       aria-disabled={disabled}
       data-testid={effectiveTestId}
       onKeyDown={handleKeyDown}
-      className={`h-14 min-h-[56px] max-h-[56px] w-full flex items-center justify-between px-4 bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-white/5 select-none transition-opacity ${
+      className={`min-h-[56px] w-full flex items-center justify-between px-4 py-2.5 bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-white/5 select-none transition-opacity ${
         disabled ? 'opacity-50' : 'hover:border-white/10'
       }`}
     >
@@ -149,7 +149,12 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[13px] font-medium text-zinc-200 truncate leading-tight">{label}</span>
             {subtitle ? (
-              <span className="text-[10px] tracking-[-0.01em] text-zinc-400 truncate leading-tight mt-0.5">{subtitle}</span>
+              <span
+                data-testid={`${effectiveTestId}-subtitle`}
+                className="text-[10.5px] tracking-[-0.01em] text-zinc-400 whitespace-normal break-words leading-snug mt-0.5"
+              >
+                {subtitle}
+              </span>
             ) : null}
           </div>
           <span className="inline-flex flex-col items-center justify-center shrink-0 overflow-hidden min-w-[28px] leading-none">

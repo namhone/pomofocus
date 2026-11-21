@@ -118,7 +118,7 @@ export default defineConfig({
       },
       injectManifest: {
         maximumFileSizeToCacheInBytes: 3145728, // 3 MiB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2,ttf}']
       },
       workbox: {
         navigateFallbackDenylist: [/^\/downloads\/.*/, /^\/version\.json$/]

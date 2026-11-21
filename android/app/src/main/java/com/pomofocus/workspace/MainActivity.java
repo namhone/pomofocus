@@ -16,6 +16,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     private OnBackPressedCallback appBackCallback;
     private volatile boolean inAppCanGoBack = false;
+    private long lastBackPressedTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,27 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (!inAppCanGoBack) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastBackPressedTime < 2000) {
+                finishAffinity();
+                return;
+            }
+            lastBackPressedTime = currentTime;
+            WebView webView = getBridge() != null ? getBridge().getWebView() : null;
+            if (webView != null) {
+                webView.post(() -> webView.evaluateJavascript(
+                    "window.dispatchEvent(new CustomEvent('pomofocus:native-back'));",
+                    null
+                ));
+                return;
+            }
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     protected void load() {
         WebView webView = findViewById(com.getcapacitor.android.R.id.webview);
         if (webView != null) {
@@ -92,6 +114,13 @@ public class MainActivity extends BridgeActivity {
                         if (appBackCallback != null) {
                             appBackCallback.setEnabled(inAppCanGoBack);
                         }
+                    });
+                }
+
+                @JavascriptInterface
+                public void exitApp() {
+                    runOnUiThread(() -> {
+                        finishAffinity();
                     });
                 }
 

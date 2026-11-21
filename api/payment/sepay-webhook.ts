@@ -4,7 +4,7 @@ export default async function handler(req: any, res: any) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, apikey');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, x-vcb-secret, apikey');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -16,7 +16,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     // 1. Xác thực bảo mật Webhook từ SePay:
-    // SePay gửi header: 'Authorization: Apikey <API_KEY>'
+    // SePay gửi header: 'Authorization: Apikey <API_KEY>' hoặc các biến thể x-api-key / x-vcb-secret
     const expectedKey =
       process.env.SEPAY_WEBHOOK_API_KEY ||
       process.env.POMO_VCB_SECRET_KEY ||
@@ -26,6 +26,7 @@ export default async function handler(req: any, res: any) {
     const clientKey =
       authHeader.replace(/^Apikey\s+/i, '').replace(/^Bearer\s+/i, '').trim() ||
       req.headers['x-api-key'] ||
+      req.headers['x-vcb-secret'] ||
       req.headers['apikey'] ||
       req.query?.key ||
       req.query?.apiKey ||
@@ -58,26 +59,39 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    const numAmount = parseInt(String(transferAmount).replace(/[^0-9]/g, ''), 10) || 0;
+    const rawAmount = transferAmount || payload.amount || 0;
+    const numAmount = parseInt(String(rawAmount).replace(/[^0-9]/g, ''), 10) || 0;
     if (numAmount <= 0) {
       return res.status(400).json({ success: false, error: 'Số tiền giao dịch không hợp lệ' });
     }
 
-    const combinedText = [code, content, description].filter(Boolean).join(' ');
+    const combinedText = [code, content, description, payload.orderCode, payload.text].filter(Boolean).join(' ');
 
     const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+    // M0 Remediation: Ưu tiên Service Role Key cho webhook server-to-server
+    const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    const hasServiceRoleKey = Boolean(serviceRoleKey);
+
+    // Fail-fast nếu SUPABASE_URL được cấu hình nhưng thiếu SUPABASE_SERVICE_ROLE_KEY khi thực thi tác vụ đặc quyền
+    if (process.env.SUPABASE_URL && !hasServiceRoleKey) {
+      console.error('[SePay Webhook] CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing when executing service-role privileged operations.');
+      return res.status(500).json({
+        success: false,
+        error: 'Server configuration error: SUPABASE_SERVICE_ROLE_KEY is required for payment webhook processing',
+        retryable: true
+      });
+    }
 
     // 3. Kiểm tra Idempotency chống trùng lặp theo referenceCode hoặc SePay ID
     const transactionRef = referenceCode || (id ? `SEPAY_${id}` : null);
-    if (transactionRef && supabaseUrl && supabaseKey) {
+    if (transactionRef && supabaseUrl && hasServiceRoleKey) {
       try {
         const checkRes = await fetch(
           `${supabaseUrl}/rest/v1/payment_transactions?or=(order_id.eq.${encodeURIComponent(transactionRef)},description.ilike.*${encodeURIComponent(transactionRef)}*)&select=id,status,order_id&limit=1`,
           {
             headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`
             }
           }
         );
@@ -116,15 +130,15 @@ export default async function handler(req: any, res: any) {
     if (base36Match) {
       const creditOrderCode = (base36Match[1] || base36Match[0]).toUpperCase().trim();
 
-      if (supabaseUrl && supabaseKey) {
-        // A1. Gọi Stored Procedure process_payment_by_order
+      if (supabaseUrl && hasServiceRoleKey) {
+        // A1. Cơ chế chính: Gọi Stored Procedure process_payment_by_order (SECURITY DEFINER)
         try {
           const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/process_payment_by_order`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`
             },
             body: JSON.stringify({
               p_order_code: creditOrderCode,
@@ -154,143 +168,154 @@ export default async function handler(req: any, res: any) {
                 referenceCode: transactionRef
               });
             }
-            // Nếu RPC báo lỗi khác hoặc không tìm thấy, không return vội mà chuyển tiếp sang REST fallback bên dưới
-            console.warn('[SePay Webhook] RPC thông báo:', data?.message);
+            console.warn('[SePay Webhook] RPC process_payment_by_order notice:', data?.message);
           }
         } catch (rpcErr) {
           console.warn('[SePay Webhook] RPC process_payment_by_order error:', rpcErr);
         }
 
-        // A2. Direct REST Fallback (Phòng ngừa RPC chưa kịp nạp trên DB hoặc chưa tìm thấy)
-        try {
-          const orderRes = await fetch(
-            `${supabaseUrl}/rest/v1/payment_orders?order_code=eq.${encodeURIComponent(creditOrderCode)}&status=eq.pending&select=*`,
-            {
-              headers: {
-                apikey: supabaseKey,
-                Authorization: `Bearer ${supabaseKey}`
-              }
-            }
-          );
-
-          if (orderRes.ok) {
-            const orders = await orderRes.json();
-            if (Array.isArray(orders) && orders.length > 0) {
-              const pendingOrder = orders[0];
-              const creditsToAdd = Number(pendingOrder.credits_to_add) || Math.floor(numAmount / 200);
-
-              // Đánh dấu đơn hoàn thành
-              await fetch(`${supabaseUrl}/rest/v1/payment_orders?id=eq.${pendingOrder.id}`, {
-                method: 'PATCH',
+        // A2. Direct REST Fallback (CHỈ thực hiện nếu có SUPABASE_SERVICE_ROLE_KEY)
+        if (hasServiceRoleKey) {
+          try {
+            const orderRes = await fetch(
+              `${supabaseUrl}/rest/v1/payment_orders?order_code=eq.${encodeURIComponent(creditOrderCode)}&status=eq.pending&select=*`,
+              {
                 headers: {
-                  'Content-Type': 'application/json',
-                  apikey: supabaseKey,
-                  Authorization: `Bearer ${supabaseKey}`
-                },
-                body: JSON.stringify({
-                  status: 'completed',
-                  completed_at: new Date().toISOString()
-                })
-              });
+                  apikey: serviceRoleKey,
+                  Authorization: `Bearer ${serviceRoleKey}`
+                }
+              }
+            );
 
-              // Tìm profile theo user_id, user_email hoặc google_id
-              let targetProfileId = pendingOrder.user_id;
-              try {
-                const queryFilter = pendingOrder.user_email
-                  ? `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},email.eq.${encodeURIComponent(pendingOrder.user_email)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`
-                  : `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`;
-                const profRes = await fetch(`${supabaseUrl}/rest/v1/profiles?${queryFilter}&limit=1`, {
-                  headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+            if (orderRes.ok) {
+              const orders = await orderRes.json();
+              if (Array.isArray(orders) && orders.length > 0) {
+                const pendingOrder = orders[0];
+                const creditsToAdd = Number(pendingOrder.credits_to_add) || Math.floor(numAmount / 200);
+
+                // Đánh dấu đơn hoàn thành
+                await fetch(`${supabaseUrl}/rest/v1/payment_orders?id=eq.${pendingOrder.id}`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    apikey: serviceRoleKey,
+                    Authorization: `Bearer ${serviceRoleKey}`
+                  },
+                  body: JSON.stringify({
+                    status: 'completed',
+                    completed_at: new Date().toISOString()
+                  })
                 });
-                if (profRes.ok) {
-                  const profs = await profRes.json();
-                  if (Array.isArray(profs) && profs.length > 0) {
-                    targetProfileId = profs[0].id;
+
+                // Tìm profile theo user_id, user_email hoặc google_id
+                let targetProfileId = pendingOrder.user_id;
+                try {
+                  const queryFilter = pendingOrder.user_email
+                    ? `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},email.eq.${encodeURIComponent(pendingOrder.user_email)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`
+                    : `or=(id.eq.${encodeURIComponent(pendingOrder.user_id)},google_id.eq.${encodeURIComponent(pendingOrder.user_id)})`;
+                  const profRes = await fetch(`${supabaseUrl}/rest/v1/profiles?${queryFilter}&limit=1`, {
+                    headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` }
+                  });
+                  if (profRes.ok) {
+                    const profs = await profRes.json();
+                    if (Array.isArray(profs) && profs.length > 0) {
+                      targetProfileId = profs[0].id;
+                    }
+                  }
+                } catch (profErr) {
+                  console.warn('[SePay Webhook] Lookup profile error:', profErr);
+                }
+
+                // Cập nhật ví user_wallets
+                const walletRes = await fetch(
+                  `${supabaseUrl}/rest/v1/user_wallets?user_id=eq.${encodeURIComponent(targetProfileId)}&select=*`,
+                  { headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` } }
+                );
+                let currentBalance = 0;
+                if (walletRes.ok) {
+                  const wallets = await walletRes.json();
+                  if (Array.isArray(wallets) && wallets.length > 0) {
+                    currentBalance = Number(wallets[0].credits_balance) || 0;
                   }
                 }
-              } catch (profErr) {
-                console.warn('[SePay Webhook] Lookup profile error:', profErr);
+
+                const newBalance = currentBalance + creditsToAdd;
+                await fetch(`${supabaseUrl}/rest/v1/user_wallets`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    apikey: serviceRoleKey,
+                    Authorization: `Bearer ${serviceRoleKey}`,
+                    Prefer: 'resolution=merge-duplicates'
+                  },
+                  body: JSON.stringify({
+                    user_id: targetProfileId,
+                    credits_balance: newBalance,
+                    updated_at: new Date().toISOString()
+                  })
+                });
+
+                // Cập nhật profile
+                await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(targetProfileId)}`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    apikey: serviceRoleKey,
+                    Authorization: `Bearer ${serviceRoleKey}`
+                  },
+                  body: JSON.stringify({
+                    credits: newBalance,
+                    ai_credits_balance: newBalance,
+                    updated_at: new Date().toISOString()
+                  })
+                });
+
+                // Ghi lịch sử giao dịch
+                await fetch(`${supabaseUrl}/rest/v1/payment_transactions`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    apikey: serviceRoleKey,
+                    Authorization: `Bearer ${serviceRoleKey}`,
+                    Prefer: 'resolution=merge-duplicates'
+                  },
+                  body: JSON.stringify({
+                    order_id: creditOrderCode,
+                    user_id: targetProfileId,
+                    amount: numAmount,
+                    status: 'completed',
+                    plan_type: 'credit_pack',
+                    description: `Nạp ${creditsToAdd} AI Credits qua SePay VPBank VA (${accountNumber || process.env.VITE_VIETQR_ACCOUNT_NO || 'AGBSPTJE34IA3A8SAAX'}). Ref: ${transactionRef || 'N/A'}`,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                  })
+                });
+
+                return res.status(200).json({
+                  success: true,
+                  orderCode: creditOrderCode,
+                  gateway: effectiveGateway,
+                  user_id: pendingOrder.user_id,
+                  credits_added: creditsToAdd,
+                  new_balance: newBalance,
+                  referenceCode: transactionRef
+                });
               }
-
-              // Cập nhật ví user_wallets
-              const walletRes = await fetch(
-                `${supabaseUrl}/rest/v1/user_wallets?user_id=eq.${encodeURIComponent(targetProfileId)}&select=*`,
-                { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-              );
-              let currentBalance = 0;
-              if (walletRes.ok) {
-                const wallets = await walletRes.json();
-                if (Array.isArray(wallets) && wallets.length > 0) {
-                  currentBalance = Number(wallets[0].credits_balance) || 0;
-                }
-              }
-
-              const newBalance = currentBalance + creditsToAdd;
-              await fetch(`${supabaseUrl}/rest/v1/user_wallets`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  apikey: supabaseKey,
-                  Authorization: `Bearer ${supabaseKey}`,
-                  Prefer: 'resolution=merge-duplicates'
-                },
-                body: JSON.stringify({
-                  user_id: targetProfileId,
-                  credits_balance: newBalance,
-                  updated_at: new Date().toISOString()
-                })
-              });
-
-              // Cập nhật profile
-              await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(targetProfileId)}`, {
-                method: 'PATCH',
-                headers: {
-                  'Content-Type': 'application/json',
-                  apikey: supabaseKey,
-                  Authorization: `Bearer ${supabaseKey}`
-                },
-                body: JSON.stringify({
-                  credits: newBalance,
-                  ai_credits_balance: newBalance,
-                  updated_at: new Date().toISOString()
-                })
-              });
-
-              // Ghi lịch sử giao dịch
-              await fetch(`${supabaseUrl}/rest/v1/payment_transactions`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  apikey: supabaseKey,
-                  Authorization: `Bearer ${supabaseKey}`,
-                  Prefer: 'resolution=merge-duplicates'
-                },
-                body: JSON.stringify({
-                  order_id: creditOrderCode,
-                  user_id: targetProfileId,
-                  amount: numAmount,
-                  status: 'completed',
-                  plan_type: 'credit_pack',
-                  description: `Nạp ${creditsToAdd} AI Credits qua SePay VPBank VA (${accountNumber || 'AGBSPTJE34IA3A8SAAX'}). Ref: ${transactionRef || 'N/A'}`,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                })
-              });
-
-              return res.status(200).json({
-                success: true,
-                orderCode: creditOrderCode,
-                gateway: effectiveGateway,
-                user_id: pendingOrder.user_id,
-                credits_added: creditsToAdd,
-                new_balance: newBalance,
-                referenceCode: transactionRef
-              });
             }
+          } catch (restErr) {
+            console.error('[SePay Webhook] REST fallback error:', restErr);
           }
-        } catch (restErr) {
-          console.error('[SePay Webhook] REST fallback error:', restErr);
         }
+      }
+
+      if (supabaseUrl) {
+        console.error(`[SePay Webhook] Failed to process credit order ${creditOrderCode} in database via RPC and REST fallback.`);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to process credit order in database',
+          orderCode: creditOrderCode,
+          retryable: true
+        });
       }
 
       return res.status(200).json({
@@ -319,11 +344,11 @@ export default async function handler(req: any, res: any) {
         targetDurationDays = 365;
       }
 
-      if (supabaseUrl && supabaseKey) {
+      if (supabaseUrl && hasServiceRoleKey) {
         try {
           const txRes = await fetch(
             `${supabaseUrl}/rest/v1/payment_transactions?order_id=eq.${encodeURIComponent(proOrderCode)}&select=*`,
-            { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+            { headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` } }
           );
 
           if (txRes.ok) {
@@ -352,8 +377,8 @@ export default async function handler(req: any, res: any) {
                   method: 'PATCH',
                   headers: {
                     'Content-Type': 'application/json',
-                    apikey: supabaseKey,
-                    Authorization: `Bearer ${supabaseKey}`
+                    apikey: serviceRoleKey,
+                    Authorization: `Bearer ${serviceRoleKey}`
                   },
                   body: JSON.stringify({
                     status: 'completed',
@@ -375,6 +400,41 @@ export default async function handler(req: any, res: any) {
         } catch (proErr) {
           console.error('[SePay Webhook] Pro activation error:', proErr);
         }
+
+        // Nếu không tìm thấy giao dịch hoặc không có targetUserId trong DB -> Ghi nhận UNMATCHED_PENDING_MANUAL_REVIEW
+        try {
+          await fetch(`${supabaseUrl}/rest/v1/payment_transactions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`,
+              Prefer: 'return=minimal'
+            },
+            body: JSON.stringify({
+              order_id: proOrderCode,
+              user_id: null,
+              amount: numAmount,
+              status: 'UNMATCHED_PENDING_MANUAL_REVIEW',
+              plan_type: 'unmatched',
+              description: `[SePay VPBank VA ${accountNumber || process.env.VITE_VIETQR_ACCOUNT_NO || 'AGBSPTJE34IA3A8SAAX'}] Không tìm thấy user cho đơn PRO ${proOrderCode}. Nội dung: "${content || description}". Ref: ${transactionRef || 'N/A'}`,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+          });
+        } catch (recordErr) {
+          console.error('[SePay Webhook] Lỗi ghi nhận UNMATCHED cho đơn PRO:', recordErr);
+        }
+
+        return res.status(200).json({
+          success: true,
+          status: 'UNMATCHED_PENDING_MANUAL_REVIEW',
+          message: 'Giao dịch PRO không khớp người dùng; đã ghi nhận UNMATCHED_PENDING_MANUAL_REVIEW để đối soát thủ công',
+          orderId: proOrderCode,
+          amount: numAmount,
+          gateway: effectiveGateway,
+          referenceCode: transactionRef
+        });
       }
 
       return res.status(200).json({
@@ -391,22 +451,23 @@ export default async function handler(req: any, res: any) {
     // Ghi nhận UNMATCHED_PENDING_MANUAL_REVIEW để đối soát thủ công
     // =========================================================================
     console.warn(`[SePay Webhook] Không tìm thấy mã đơn hàng trong nội dung "${combinedText}". Ghi nhận UNMATCHED.`);
-    if (supabaseUrl && supabaseKey) {
+    if (supabaseUrl && hasServiceRoleKey) {
       try {
         await fetch(`${supabaseUrl}/rest/v1/payment_transactions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
             Prefer: 'return=minimal'
           },
           body: JSON.stringify({
             order_id: transactionRef ? `SEPAY_${transactionRef}` : `SEPAY_UNMATCHED_${Date.now()}`,
+            user_id: null,
             amount: numAmount,
             status: 'UNMATCHED_PENDING_MANUAL_REVIEW',
             plan_type: 'unmatched',
-            description: `[SePay VPBank VA AGBSPTJE34IA3A8SAAX] Nội dung: "${content}". Ref: ${transactionRef || 'N/A'}`,
+            description: `[SePay VPBank VA ${accountNumber || process.env.VITE_VIETQR_ACCOUNT_NO || 'AGBSPTJE34IA3A8SAAX'}] Nội dung: "${content || description}". Ref: ${transactionRef || 'N/A'}`,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })

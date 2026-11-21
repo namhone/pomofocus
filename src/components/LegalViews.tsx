@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   FileText,
   Shield,
@@ -20,14 +19,21 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'terms' | 'privacy' | 'about'>(initialTab);
 
-  return (
-    <div
-      data-testid="legal-views"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
-    >
-      <PlatformHeader />
+  const pageTitle =
+    activeTab === 'terms'
+      ? 'Điều Khoản Dịch Vụ'
+      : activeTab === 'privacy'
+      ? 'Chính Sách Bảo Mật (PDPL)'
+      : 'Về PomoFocus';
 
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
+  return (
+    <MobileSubViewLayout
+      title={pageTitle}
+      subtitle="Pháp lý & Quyền riêng tư"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
+    >
+      <div data-testid="legal-views" className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
         {/* Sub-nav Tabs */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
           <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
@@ -69,7 +75,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
           <button
             type="button"
             onClick={() => router.navigate('/app')}
-            className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap hidden sm:flex"
+            className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
           >
             <span>Vào Không Gian</span>
             <span>→</span>
@@ -263,9 +269,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
             </section>
           </div>
         )}
-      </main>
-
-      <SharedFooter />
-    </div>
+      </div>
+    </MobileSubViewLayout>
   );
 };

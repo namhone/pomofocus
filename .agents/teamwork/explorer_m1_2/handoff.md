@@ -1,148 +1,119 @@
-# BÁO CÁO BÀN GIAO (HANDOFF REPORT) — EXPLORER M1-2
+# BÁO CÁO BÀN GIAO KỸ THUẬT: TOPBAR & NÚT BACK CÁC MÀN HÌNH PHỤ (M1)
 
-**Dự án:** Pomofocus v6.0 Ultimate  
-**Vai trò:** Explorer M1-2 (Zero-FOUT & Typography Foundation)  
-**Thời gian:** 2026-11-08T05:13:00Z  
-**Nhiệm vụ:** Điều tra toàn diện khai báo nạp phông chữ, liên kết Google Fonts, thuộc tính `font-display: swap` vs `font-display: optional`, và tác động đến Typography / Layout Shifts (CLS).  
-**Loại bàn giao:** Hard Handoff (Hoàn tất điều tra 100%, sẵn sàng cho pha thực thi của Coder)
+**Tên Agent**: Explorer M1-2  
+**Milestone**: M1 — APK Navigation Shell & 100% Web Isolation  
+**Người nhận (Recipient)**: Orchestrator P2 (`cf5bc11e-435c-4f27-a55e-a32f3bebfefa`) & Worker M1  
+**Tình trạng bàn giao**: Hard Handoff (Hoàn tất 100% mục tiêu điều tra, đã sẵn sàng cho Worker M1 triển khai)  
+**Tệp đính kèm phân tích chi tiết**: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_2\analysis.md`
 
 ---
 
 ## 1. OBSERVATION (QUAN SÁT TRỰC TIẾP TỪ MÃ NGUỒN)
 
-1. **Quan sát `index.html` (Đường dẫn: `d:\FileCuaNam\Web'\Pomodoro\index.html`):**
-   - Đã kiểm tra toàn bộ 137 dòng của `index.html`.
-   - **Hoàn toàn không có thẻ `<link>` nào trỏ đến Google Fonts** (không có `fonts.googleapis.com` hay `fonts.gstatic.com`).
-   - **Hoàn toàn không có thẻ `<style>` chứa `@import`** liên quan đến phông chữ ngoại lai.
-   - Thư viện font duy nhất được liên kết ngoại lai là KaTeX tại dòng 31-36:
-     ```html
-     <link
-       rel="stylesheet"
-       href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-       media="print"
-       onload="this.media='all'"
-     />
+1. **Khảo sát 11 màn hình phụ trong `src/`**:
+   - `src/components/LegalViews.tsx`: Dòng 28 gắn `<PlatformHeader />`, dòng 268 gắn `<SharedFooter />`. Dòng 72-76 nút quay lại mang class `hidden sm:flex`:
+     ```tsx
+     <button
+       type="button"
+       onClick={() => router.navigate('/app')}
+       className="text-xs text-zinc-400 hover:text-white transition flex items-center gap-1 cursor-pointer whitespace-nowrap hidden sm:flex"
+     >
+       <span>Vào Không Gian</span>
+       <span>→</span>
+     </button>
      ```
-   - Tại dòng 103-133, có khối HTML tĩnh gồm `<header>`, `<nav>`, `<h1>`, `<p>`, `<ul>`, `<footer>` nằm trực tiếp bên trong `<div id="root">`. Khi trình duyệt nạp trang nhưng chưa nạp xong CSS và React chưa mount, đoạn text này bị hiển thị trần ra màn hình.
+     Trên màn hình di động (< 640px) và trong APK, nút này bị ẩn hoàn toàn, không có lối thoát.
+   - `src/components/BillingView.tsx`: Dòng 188 gắn `<PlatformHeader />`, dòng 1277 gắn `<SharedFooter />`. Dòng 193-202 có nút inline `data-testid="billing-back-btn"` nhưng bị `PlatformHeader` đè lên trên mobile.
+   - `src/components/ProfileView.tsx`: Dòng 78 & 284 gắn `<PlatformHeader />`, dòng 103 & 814 gắn `<SharedFooter />`. Nhánh chưa đăng nhập (dòng 75-106) hoàn toàn không có nút quay lại ngoài việc bấm nút đăng nhập.
+   - `src/components/SettingsView.tsx`: Dòng 137 gắn `<PlatformHeader />`, dòng 545 gắn `<SharedFooter />`. Dòng 180 có nút quay lại nhưng text bị ẩn `hidden sm:inline`.
+   - `src/components/DashboardView.tsx`: Dòng 251 gắn `<PlatformHeader />`, dòng 486 gắn `<SharedFooter />`. Dòng 270 có nút "Mở Không Gian Học" đặt trong hàng tiêu đề nhưng thiếu TopBar native.
+   - `src/components/DedicatedCalendarView.tsx`: Dòng 163 gắn `<PlatformHeader />`, dòng 552 gắn `<SharedFooter />`. **Toàn bộ 556 dòng mã KHÔNG CÓ BẤT KỲ NÚT QUAY LẠI NÀO (0 back button)**.
+   - `src/components/StudyRoomLobby.tsx`: Dòng 291 gắn `<PlatformHeader />`, dòng 1075 gắn `<SharedFooter />`. **Toàn bộ 1079 dòng mã KHÔNG CÓ BẤT KỲ NÚT QUAY LẠI NÀO (0 back button)**.
+   - `src/components/PrivacyDataView.tsx`: Dòng 171 gắn `<PlatformHeader />`, dòng 442 gắn `<SharedFooter />`. Dòng 178 có nút inline trong `<main>` với `pt-20`.
+   - `src/components/AccountSecurityView.tsx`: Dòng 95 & 321 gắn `<PlatformHeader />`, dòng 111 & 1203 gắn `<SharedFooter />`. Nhánh chưa login không có nút quay lại.
+   - `src/components/HelpView.tsx`: Dòng 53 gắn `<PlatformHeader />`, dòng 178 gắn `<SharedFooter />`. **Toàn bộ 182 dòng mã KHÔNG CÓ BẤT KỲ NÚT QUAY LẠI NÀO (0 back button)**.
+   - `src/components/ContactView.tsx`: Dòng 46 gắn `<PlatformHeader />`, dòng 226 gắn `<SharedFooter />`. **Toàn bộ 230 dòng mã KHÔNG CÓ BẤT KỲ NÚT QUAY LẠI NÀO (0 back button)**.
 
-2. **Quan sát `src/index.css` (Đường dẫn: `d:\FileCuaNam\Web'\Pomodoro\src\index.css`):**
-   - Đã kiểm tra toàn bộ 190 dòng của `src/index.css`.
-   - Không có bất kỳ khai báo `@font-face` nào.
-   - Tại dòng 18, ứng dụng định nghĩa typography bằng **System Font Stack bản địa**:
-     ```css
-     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-     ```
-   - Tại dòng 24-38, định nghĩa quy chuẩn ngắt chữ tiếng Việt:
-     `text-wrap: balance` cho tiêu đề (`h1-h6`, `.text-balance`) và `text-wrap: pretty` cho đoạn văn (`p, li, .text-pretty`), đi kèm `hyphens: none; -webkit-hyphens: none;`.
-   - Tại dòng 50-53, định nghĩa số đếm dạng bảng:
-     ```css
-     .tabular-nums {
-       font-variant-numeric: tabular-nums;
-       font-feature-settings: "tnum" 1;
-     }
-     ```
+2. **Khảo sát `PlatformHeader.tsx` và `SharedFooter.tsx`**:
+   - `src/components/PlatformHeader.tsx`: Không hề kiểm tra `isNativeCapacitor`. Trên màn hình 390px, thanh header rộng 388px > 358px khả dụng, làm tràn 30px và cắt cụt nút hamburger menu `≡`.
+   - `src/components/SharedFooter.tsx`: Không hề kiểm tra `isNativeCapacitor`. Dòng 62 chứa liên kết `Tải App Android (APK)` hiển thị ngay trong ứng dụng Android APK.
 
-3. **Quan sát việc tìm kiếm `font-display` trên toàn bộ codebase:**
-   - Sử dụng lệnh `grep_search` với từ khóa `font-display: swap` trên toàn bộ thư mục gốc dự án:
-     - Kết quả trong các tệp mã nguồn sản xuất (`src/**`, `public/**`, `index.html`): **0 kết quả**.
-     - Kết quả duy nhất: `pomofocus-design-system/references/anti-fout-loading-guide.md:92` (tệp tài liệu tham khảo cảnh báo về tác hại của `font-display: swap`).
-   - Sử dụng lệnh `grep_search` với từ khóa `display=swap`: **0 kết quả**.
+3. **Khảo sát `CookieConsentBanner.tsx` (BUG-03)**:
+   - Dòng 51 không kiểm tra `isNativeCapacitor`, khiến banner cookie web hiển thị nổi ngay trên màn hình timer di động.
+   - Các nút ở dòng 92, 100, 108 thiếu `whitespace-nowrap`, khiến chữ bị bẻ thành 2 hàng trên viewport hẹp.
 
-4. **Quan sát kiểm thử hiện có liên quan đến font & CSS:**
-   - Tệp `tests/unit/wcagAccessibilityAudit.test.ts:159-166`:
-     ```ts
-     it('8. KaTeX CSS is preconnected and non-render-blocking in index.html', () => {
-       const indexPath = path.resolve('index.html');
-       const indexContent = fs.readFileSync(indexPath, 'utf8');
-       expect(indexContent).toContain('<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />');
-       expect(indexContent).toContain('<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />');
-       expect(indexContent).toContain('media="print"');
-       expect(indexContent).toContain("onload=\"this.media='all'\"");
-     });
-     ```
-     *Khẳng định:* Kiểm thử này bắt buộc bảo toàn thẻ `<link>` của KaTeX trong `index.html`.
-   - Lệnh `npm test` thực thi toàn bộ 52 test suites: **52 passed (100%), 466 tests passed**.
-   - Lệnh `npm run build` thực thi `tsc && vite build`: **0 lỗi biên dịch TypeScript, build thành công sạch sẽ trong 29.12s**.
+4. **Khảo sát `App.tsx` Deep Link Router (BUG-11)**:
+   - Dòng 393-404 chỉ xử lý deep link `/rooms`. Mọi deep link nội bộ khác (`pomofocus://billing`, `pomofocus://calendar`, `pomofocus://settings`, etc.) bị bỏ rơi.
+   - `src/pages/NotFoundPage.tsx` dòng 84 và 94 dùng raw emoji `⏱` và `🏠`, thiếu thanh TopBar native.
+
+5. **Kết quả kiểm tra TypeScript hiện hành**:
+   - Lệnh: `npm run type-check` (`tsc --noEmit`) $\rightarrow$ **0 errors (Exit code 0)**.
 
 ---
 
-## 2. LOGIC CHAIN (CHUỖI SUY LUẬN TỪ QUAN SÁT ĐẾN KẾT LUẬN)
+## 2. LOGIC CHAIN (CHUỖI LẬP LUẬN TỪ QUAN SÁT ĐẾN GIẢI PHÁP)
 
-1. **Từ Quan sát 1 & 2:**
-   - Pomofocus hiện sử dụng **System Font Stack** trên nền hệ điều hành (`-apple-system`, `BlinkMacSystemFont`, `Segoe UI`, `Roboto`), không nạp web font UI từ bên ngoài qua Google Fonts hay `@font-face`.
-   - Do font có sẵn trên máy của người dùng, chi phí tải về qua mạng là 0 byte và thời gian nạp font là 0ms.
-
-2. **Từ Quan sát 3:**
-   - Trong mã nguồn hiện tại không có xuất hiện của `font-display: swap`.
-   - Yêu cầu trong `ORIGINAL_REQUEST.md` (Mục 1.3) và `PROJECT.md` (Feature 3): *"Trong CSS phông chữ: Đổi font-display: swap thành font-display: optional để triệt tiêu hoàn toàn hiện tượng nhảy phông"* được đề ra như một nguyên lý bảo vệ kiến trúc (Architectural Invariant / Guardrail).
-
-3. **Từ Quan sát 1 & Hiện tượng FOUT thực tế:**
-   - Hiện tượng "nháy chữ khi tải trang" mà người dùng phản ánh thực chất xảy ra do trình duyệt render khối HTML tĩnh trong `<div id="root">` (dòng 103-133 của `index.html`) trước khi file CSS chính (`index.css`) và React được tải xong.
-   - Thêm vào đó, thẻ `<html>` và `<body>` trước đây chưa được khóa màu nền `#09090b !important`, dẫn tới màn hình chớp sáng/xám với văn bản thô không kiểu dáng trước khi theme tối áp dụng.
-   - Do đó, việc triển khai `#pomo-splash-curtain` kết hợp khóa màu nền `#09090b` (thuộc Feature 1 & 2 của Milestone 1) chính là chìa khóa triệt tiêu 100% hiện tượng này.
-
-4. **Về Typography & Tránh Layout Shifts (CLS):**
-   - Hệ thống phông chữ hiện tại kết hợp `.tabular-nums` đảm bảo các con số đồng hồ đếm ngược có chiều rộng cố định, không tạo ra rung giật layout (0.00 CLS).
-   - Quy chuẩn `text-wrap: balance` và `hyphens: none` đảm bảo chữ tiếng Việt hiển thị mượt mà, không bị tách từ cụt ngủn.
-   - Để bảo vệ bất biến kiến trúc trong tương lai, cần đưa một quy định rõ ràng vào `src/index.css`: Nếu có bất kỳ font ngoại lai nào được bổ sung, bắt buộc phải khai báo `font-display: optional`, tuyệt đối không dùng `font-display: swap`.
+1. Từ **Quan sát 1 & 2**: Toàn bộ 11 màn hình phụ đang bị "rò rỉ web" (Web Leakage) do tự nhúng `<PlatformHeader />` và `<SharedFooter />`. Trên mobile và APK, `PlatformHeader` bị vỡ layout, còn `SharedFooter` hiển thị nội dung vô nghĩa. Đặc biệt, 5/11 màn hình (`DedicatedCalendarView`, `StudyRoomLobby`, `HelpView`, `ContactView`, và `LegalViews` trên mobile) hoàn toàn không có nút quay lại, khiến người dùng bị kẹt 100% trong trang khi duyệt trên mobile hoặc APK.
+2. Từ **Quan sát 1, 2 và quy định trong UI/UX Playbook (State Singularity & Z-Index)**:
+   - Cần một component layout thống nhất: `src/components/mobile/MobileSubViewLayout.tsx`.
+   - Component này áp dụng cơ chế **Dual-Morph**:
+     - Khi `isMobile || isNativeCapacitor`: Render thanh `MobileTopBar` native chuẩn (cao 48px `h-12`, có `pt-safe`, nút back `←` chuẩn WCAG $\ge 44\times 44$px, tiêu đề tự co dãn, khay hành động bên phải). Đồng thời **triệt tiêu 100%** `PlatformHeader` và `SharedFooter`.
+     - Khi trên Desktop Web (`!isMobile && !isNativeCapacitor`): Render `PlatformHeader` và `SharedFooter` bình thường để bảo tồn trải nghiệm desktop.
+3. Từ **Quan sát 2 (Phòng vệ chiều sâu - Defense in Depth)**:
+   - Để ngăn chặn mọi rò rỉ web trong tương lai, cần đặt chốt chặn tự triệt tiêu ngay đầu `PlatformHeader.tsx` và `SharedFooter.tsx`:
+     `const { isNativeCapacitor } = useDeviceDetection(); if (isNativeCapacitor) return null;`
+4. Từ **Quan sát 3 & 4 (BUG-03 & BUG-11)**:
+   - Thêm kiểm tra `isNativeCapacitor` vào `CookieConsentBanner.tsx` và thêm `whitespace-nowrap` cho các nút bấm.
+   - Cập nhật hàm `handleDeepLinkUrl` trong `App.tsx` để điều hướng chuẩn xác cho toàn bộ các route `pomofocus://...`.
+   - Chuẩn hóa `NotFoundPage.tsx`: thay thế raw emoji bằng Lucide SVG icons và trang bị nút quay lại có `data-testid="404-btn-back-workspace"`.
 
 ---
 
-## 3. CAVEATS (CÁC ĐIỂM CẦN LƯU Ý & GIẢ ĐỊNH)
+## 3. CAVEATS (GIỚI HẠN & GIẢ ĐỊNH)
 
-1. **Giả định về Web Fonts tương lai:**
-   - Hiện tại ứng dụng chưa cần tải Google Fonts vì System Font Stack cho độ sắc nét và tốc độ cao nhất. Nếu trong tương lai muốn tích hợp Google Fonts (như `Plus Jakarta Sans`), liên kết Google Fonts bắt buộc phải có tham số `&display=optional`.
-2. **KaTeX Math Fonts:**
-   - KaTeX chứa các font riêng trong package `node_modules/katex/dist/fonts/`. Chúng được nạp bất đồng bộ và chỉ ảnh hưởng đến các khối công thức toán học (`.katex`). Không được gỡ bỏ thẻ KaTeX trong `index.html` vì test suite `wcagAccessibilityAudit.test.ts` đang giám sát trực tiếp.
-3. **Phạm vi quyền của Explorer:**
-   - Explorer là vai trò điều tra chỉ đọc (Read-only), không chỉnh sửa trực tiếp mã nguồn. Các đề xuất được đúc kết dưới dạng code snippet và quy tắc kiến trúc cụ thể để Coder M1 thực thi.
-
----
-
-## 4. CONCLUSION (KẾT LUẬN & KIẾN NGHỊ HÀNH ĐỘNG)
-
-1. **Hiện trạng:**
-   - Không có `font-display: swap` trong codebase cần phải xóa.
-   - Không có liên kết Google Fonts thừa thãi làm chậm trang.
-   - Typography hiện tại dựa trên System Font Stack + `.tabular-nums` + quy chuẩn ngắt chữ tiếng Việt là tối ưu nhất cho Zero-FOUT và 0 CLS.
-2. **Kế hoạch hành động cụ thể cho Coder M1:**
-   - **Hành động 1:** Khi thực hiện Feature 1 & 2 trên `index.html`, tuyệt đối giữ nguyên vẹn thẻ `<link>` của KaTeX tại dòng 28-39 để không làm gãy test `wcagAccessibilityAudit.test.ts`.
-   - **Hành động 2:** Trong `src/index.css`, bổ sung một khối chú thích chuẩn kiến trúc Zero-FOUT quy định bất biến:
-     ```css
-     /* Quy chuẩn Zero-FOUT & Typography Invariant:
-        - Mặc định ưu tiên System Font Stack để đạt 0ms latency và 0 layout shift.
-        - Mọi @font-face hoặc web font nạp ngoài bắt buộc phải sử dụng 'font-display: optional'
-          theo chuẩn kỹ thuật Pomofocus v6.0 Ultimate. Tuyệt đối không dùng 'font-display: swap'.
-     */
-     ```
-   - **Hành động 3:** Xác nhận tính ổn định của Feature 3 (Optional Font Display) đã được nghiệm thu trọn vẹn theo đúng yêu cầu dự án.
+1. **Phạm vi quyền hạn**: Explorer M1-2 tuân thủ nghiêm ngặt nguyên tắc chỉ đọc (Read-only investigation). Không trực tiếp sửa mã nguồn `src/`. Báo cáo phân tích chi tiết và bản thiết kế kiến trúc đầy đủ đã được lập sẵn tại:
+   `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_2\analysis.md`.
+2. **Tương thích ngược với E2E Tests**:
+   - `tests/e2e/billingAndUpgradeFlow.spec.ts` kiểm tra `page.getByTestId('billing-back-btn')`.
+   - `tests/unit/zenErrorPages.test.tsx` kiểm tra `screen.getByTestId('404-btn-back-workspace')`.
+   - Do đó, `MobileSubViewLayout` được thiết kế có prop `backTestId`, cho phép gán đúng testid mong đợi trên từng view, bảo đảm 100% test suite hiện hành không bị ảnh hưởng.
+3. **Phân tách giữa SettingsView và MobileSettingsView**:
+   - Khi route là `/settings` trên mobile / APK, `App.tsx` nên bọc và render trực tiếp `MobileSettingsView` (thay vì `SettingsView` web) bên trong `MobileSubViewLayout` để mang lại trải nghiệm cảm ứng tốt nhất.
 
 ---
 
-## 5. VERIFICATION METHOD (PHƯƠNG PHÁP XÁC MINH ĐỘC LẬP)
+## 4. CONCLUSION (KẾT LUẬN & KIẾN TRÚC ĐỀ XUẤT)
 
-Để kiểm chứng độc lập báo cáo này, thực hiện các bước sau:
+1. Thiết kế kiến trúc `MobileSubViewLayout.tsx` giải quyết triệt để 4 lỗi cốt lõi:
+   - Giải quyết dứt điểm **BUG-01**: Cung cấp nút `← Quay lại` luôn hiển thị trên mobile (< 640px) và APK cho `LegalViews` và mọi màn hình phụ; xóa bỏ hiện tượng tràn 30px của hamburger menu.
+   - Giải quyết dứt điểm **BUG-02**: Tách biệt 100% kiến trúc APK khỏi Web bằng cách loại bỏ hoàn toàn `PlatformHeader` và `SharedFooter` khi chạy dưới `Capacitor.isNativePlatform()`.
+   - Giải quyết dứt điểm **BUG-03**: Ẩn hoàn toàn `CookieConsentBanner` trên APK và chống vỡ 2 dòng trên Web.
+   - Giải quyết dứt điểm **BUG-11**: Mở rộng deep link router cho toàn bộ đường dẫn nội bộ và trang bị nút quay lại cho `NotFoundPage`.
+2. Lộ trình triển khai cụ thể cho Worker M1 gồm 5 bước phẫu thuật đã được mô tả chi tiết tại Mục 5 của `analysis.md`.
 
-1. **Kiểm tra sự vắng mặt của `font-display: swap` trong mã nguồn sản xuất:**
+---
+
+## 5. VERIFICATION METHOD (PHƯƠNG PHÁP KIỂM CHỨNG ĐỘC LẬP)
+
+Sau khi Worker M1 áp dụng các thay đổi:
+
+1. **Kiểm tra kiểu dữ liệu TypeScript**:
    ```powershell
-   git grep -i "font-display: swap" -- index.html src/ public/
+   npm run type-check
    ```
-   *Kết quả mong đợi:* Không có kết quả nào được trả về (exit code 1).
+   *Kỳ vọng*: Exit code 0, 0 errors.
 
-2. **Kiểm tra System Font Stack trong `src/index.css`:**
+2. **Chạy các test suites hiện hành có liên quan**:
    ```powershell
-   git grep "font-family: -apple-system" src/index.css
+   npx vitest run tests/unit/auditorM1ForensicEmpirical.test.tsx
+   npx vitest run tests/unit/zenErrorPages.test.tsx
+   npx vitest run tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx
+   npx vitest run tests/unit/wcagAccessibilityAudit.test.ts
    ```
-   *Kết quả mong đợi:* Dòng 18 hiển thị: `font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;`.
+   *Kỳ vọng*: 100% tests pass.
 
-3. **Chạy toàn bộ Unit Tests kiểm tra tính toàn vẹn của Typography & KaTeX:**
-   ```powershell
-   npm test
-   ```
-   *Kết quả mong đợi:* 52/52 test files passed (466/466 tests passed), đặc biệt `wcagAccessibilityAudit.test.ts` pass 100%.
-
-4. **Kiểm tra biên dịch sản xuất:**
-   ```powershell
-   npm run build
-   ```
-   *Kết quả mong đợi:* `tsc && vite build` hoàn thành với mã thoát 0, không có lỗi TypeScript hay Vite chunking.
+3. **Viết test mới `tests/unit/mobileSubViewNavigation.test.tsx` kiểm chứng 4 điều kiện**:
+   - Điều kiện 1: Khi `isNativeCapacitor === true`, toàn bộ 11 màn hình phụ KHÔNG render `PlatformHeader` và `SharedFooter`.
+   - Điều kiện 2: Khi màn hình < 640px, thanh `MobileTopBar` xuất hiện trên cả 11 màn hình phụ, nút `←` có touch target $\ge 44\times 44$px và khi bấm sẽ gọi `router.navigate('/app')`.
+   - Điều kiện 3: `CookieConsentBanner` trả về `null` trong môi trường native APK.
+   - Điều kiện 4: Deep link custom scheme `pomofocus://billing`, `pomofocus://calendar` được điều hướng chính xác.

@@ -1,174 +1,53 @@
-# Project: Pomofocus V8.1 Wave 1 (Đợt 1/4)
-# Scope: Storage, UserAvatar, DB Sync, Payment Webhook & Timer/Task Logic
+# Project: Pomofocus Remediation Phase 1
+# Scope: Security, VietQR/MoMo Payment Engine, Auth Sync & VN Legal Compliance
 
 ## Architecture
-- **Tech Stack**: Vite, React 18, TypeScript, Tailwind CSS, Supabase Cloud, Dexie.js (IndexedDB), Zustand stores, Capacitor Android.
-- **Data Layer Separation**:
-  - `SafeStorage`: Ultra-lightweight configuration flags only in `localStorage` (`STORAGE_SCHEMA_VERSION`, volume, eco mode, `targetEndTimeMs` on state transition). Immune to `QuotaExceededError` and incognito mode via `MemoryStorage` fallback.
-  - `Dexie.js` (`PomoFocusLocalDB` v3): Heavy data arrays (Tasks, Notes, Projects, Focus Sessions, AI Messages, Whiteboard Strokes, Custom Backgrounds, Sync Queue).
-  - `Supabase Cloud`: Single source of truth for Meet rooms (`/api/rooms`), authenticated energy wallet (`user_wallets`), user profile & VIP permissions (`hasVipAccess`).
-- **Unified Avatar Subsystem**:
-  - `<UserAvatar />` component (`src/components/common/UserAvatar.tsx`): 3 priority cascades (Custom uploaded compressed <= 256x256 -> Google OAuth image with robust `onError` fallback -> Clean SVG with 'K' for guest / initials for user). Subscribed to `useAuthStore` for real-time reactivity.
-- **Data Sync & DB Performance Subsystem**:
-  - Standard RFC4122 UUID v4 (`src/utils/uuid.ts`).
-  - Server clock skew offset calculation (`serverClockOffsetMs`).
-  - Soft delete tombstones (`deleted_at`) preventing zombie records.
-  - Dexie v3 schema with `userId` indexing and user data isolation.
-  - Resilient `sync_queue` with status `'failed'` and exponential backoff.
-  - Date index queries for `focus_sessions`, AI message pagination, and `safeParseJson` protecting against Captive Portals / Lie-Fi.
-- **Payment & VietQR Subsystem**:
-  - Google Apps Script `checkVietcombankEmails` with `LockService` mutex and 15-email batching.
-  - `api/payment/webhook.ts` non-blocking response and idempotent 200 settlement.
-  - Mandatory login guard for VietQR modals.
-  - Transparent VietQR branding (clean up MoMo misnomer).
-  - Explicit HTTP 429 rate limit handling.
-- **Timer Engine & Task Logic Subsystem**:
-  - Stepper adjustment synchronization at IDLE; next-round break application.
-  - Phase change confirmation covering both `running` and `paused` states.
-  - Atomic session recording preventing statistical inflation.
-  - Activated midnight rollover (`checkMidnightRollover`).
-  - Task linkage synchronization on update/soft-delete.
-  - Global `AbortController` canceling prior AI stream on chat switch.
-
----
+- Tech Stack: Vite, React 18, TypeScript, Tailwind CSS, Supabase Cloud, Dexie.js, Vitest
+- Module Boundaries & Data Flows:
+  - Payment Engine: `api/payment/vcb-webhook.ts`, `api/momo/check-status.ts`, `api/payment/create-order.ts`, `scripts/vcb_email_listener.js`. Single source of truth is `payment_transactions` with status `'UNMATCHED_PENDING_MANUAL_REVIEW'` and `'completed'`. No PRO fallback. Mandatory auth guards.
+  - Security & PII: `index.html`, `LegalViews.tsx`, `SharedFooter.tsx`, `ContactView.tsx`, `momoService.ts`, `middleware.ts`. Support channel is `support@pomofocus.vn`. Admin role determined by Supabase JWT claims `app_metadata.role === 'admin'`. HTML sanitized via `DOMPurify.sanitize()`.
+  - Auth Store & Sync Queue: `useAuthStore.ts`, `taskCloudService.ts`, `noteCloudService.ts`, `userSettingsService.ts`, `focus_sessions` table in Supabase. Guest data merged synchronously before store loads. 2FA gate enforces TOTP check before unlock.
+  - VN Law & Consent: Strict adherence to `vn-law-check` references (Luật 91/2025/QH15, NĐ 356/2025/NĐ-CP, Luật 134/2025/QH15, NĐ 142/2026/NĐ-CP). Cookie banner with explicit "Từ chối", close without consent, and consent revocation in Settings.
 
 ## Feature Inventory
-Every feature identified during the Survey Phase is cataloged below and assigned to a milestone.
-
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | SafeStorage Wrapper & Schema Version | `src/utils/safeStorage.ts` with QuotaExceededError protection, in-memory fallback, and `STORAGE_SCHEMA_VERSION = 1` auto-purge | M1 | Survey 1, ORIGINAL_REQUEST §1 |
-| 2 | Heavy Data Array Evacuation | Remove `messages` from `useAiStore` persist; persist whiteboard strokes in Dexie table; clean obsolete mock stores | M1 | Survey 1, ORIGINAL_REQUEST §1 |
-| 3 | Cloud-First Rooms & Energy Source of Truth | Remove local room stores from localStorage; use `/api/rooms` and Supabase Realtime channel; authenticated wallet strictly Cloud-first | M1 | Survey 1, ORIGINAL_REQUEST §1 |
-| 4 | Unified `<UserAvatar />` Component | `src/components/common/UserAvatar.tsx` with 3-tier cascade (Custom <=256px -> OAuth -> SVG 'K'/initials), `onError` fallback, real-time sync | M1 | Survey 1, ORIGINAL_REQUEST §2 |
-| 5 | Avatar Integration Across All Screens | Replace divergent avatar renders in Desktop Header, Mobile Shell, Mobile Settings, Bottom Sheet, Meet room tiles, and Modals | M1 | Survey 1, ORIGINAL_REQUEST §2 |
-| 6 | RFC4122 UUID v4 Utility | `src/utils/uuid.ts` replacing `Date.now() + Math.random()` across stores, services, and UI components | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 7 | Server Clock Skew Synchronization | Calculate `serverClockOffsetMs` from HTTP headers; broadcast relative timer offsets for Meet rooms | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 8 | Soft Delete Tombstones (`deleted_at`) | Add `deletedAt` / `deleted_at` to Task, Note, and Project models to prevent zombie record resurrection | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 9 | Cloud Sync for Settings & Guest AI Messages | Sync personal settings to Supabase profile; expand `mergeGuestDataOnLogin` to migrate guest AI conversations and messages | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 10 | Resilient Sync Queue with Exponential Backoff | Dexie `sync_queue` with `status: 'failed'`, `nextRetryAt`, exponential backoff calculation, and manual retry UI hook | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 11 | User Data Isolation & Pre-Logout Queue Flush | Index `userId` in Dexie v3; filter store queries by `userId`; warn/flush queue before logout | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 12 | Query Optimization, AI Pagination & Captive Portal Shield | Index queries on `focus_sessions`, paginated AI message loading, and `safeParseJson` protecting against HTML Captive Portals | M2 | Survey 2, ORIGINAL_REQUEST §3 |
-| 13 | Vietcombank GAS Script Hardening | Verify and refine `scripts/vcb_email_listener.js` (LockService mutex, batch size 15, per-message try-catch, 200 OK label) | M3 | Survey 3, ORIGINAL_REQUEST §4 |
-| 14 | Webhook Idempotency & Non-Blocking Settlement | Ensure `api/payment/webhook.ts` rapidly returns HTTP 200 and handles Base36/legacy codes idempotently | M3 | Survey 3, ORIGINAL_REQUEST §4 |
-| 15 | VietQR Modal Mandatory Login Gate | Block unauthenticated guests from opening/viewing VietQR top-up QR in `MoMoPaymentModal.tsx` / `AiCreditsTopupModal.tsx` | M3 | Survey 3, ORIGINAL_REQUEST §4 |
-| 16 | Payment Branding Realignment | Rebrand "MoMo QR" to "VietQR (Vietcombank)" across modals and services | M3 | Survey 3, ORIGINAL_REQUEST §4 |
-| 17 | Global Energy Balance Refresh & Rate Limiting | Add global `visibilitychange` listener in `App.tsx` to refresh `⚡`; handle HTTP 429 rate limit cooldown in `useAiStore.ts` | M3 | Survey 3, ORIGINAL_REQUEST §4 |
-| 18 | Timer Stepper IDLE & Next Round Break Application | Stepper updates `remainingSeconds` at IDLE; mid-session break change applies dynamically to next interval | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 19 | Phase Change Confirmation for Paused Sessions | Extend `MobileFocusView.tsx` phase change guard to `status !== 'idle'` to protect paused sessions | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 20 | Skip Button & Round 4/4 Reset Verification | Verify skip records 0 stats; verify Round 4/4 long break resets cycle cleanly to Round 1/4 | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 21 | Atomic Stats Increment (Anti-Double Recording) | Increment store `dailyProgress` and `todayFocusMinutes` ONLY after `recordFocusSessionAtomic` succeeds | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 22 | Runtime Midnight Rollover Activation | Hook `checkMidnightRollover` into timer `tick()` (every 60s) and document `visibilitychange` | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 23 | Task Linkage Synchronization on Update & Delete | Ensure `updateTask` and `deleteTask` sync/unlink when `linkedTaskId === id` regardless of `activeTaskId` | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 24 | Global AI Stream AbortController | Store `activeAbortController` on `useAiStore` and abort prior stream on session change or unmount | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 25 | Strict Mode Dialog Exemptions & Timer Independence | Exempt OAuth, permissions, and payment modals from strict mode violation; prevent dual personal/meet countdowns | M4 | Survey 3, ORIGINAL_REQUEST §5 |
-| 26 | Full Project Regression & Forensic Audit | 0 type errors (`npm run type-check`), 100% Vitest unit tests pass, independent Forensic Audit CLEAN | M5 | All Surveys, ORIGINAL_REQUEST §Nghiệm thu |
-
----
+| 1 | VCB Webhook PRO Fallback Removal | Remove `user_entitlements` fallback in `vcb-webhook.ts`; mark unmatched transactions as `UNMATCHED_PENDING_MANUAL_REVIEW` | M1 | Explorer 1, BUG-21 |
+| 2 | Check-Status Strict Order ID Validation | Remove `if (isPro) isPaid = true` in `check-status.ts` and `|| res.isPro` in `MoMoPaymentModal.tsx` | M1 | Explorer 1, BUG-22 |
+| 3 | Payment Guest Order Creation Block | Enforce login guards in `MobileSettingsView`, `AiCreditsTopupModal`, `MoMoPaymentModal`, `BillingView`; reject missing userId with HTTP 401 | M1 | Explorer 1, BUG-14 |
+| 4 | VCB Email Listener Hardening | Remove hardcoded `POMO_VCB_SECRET_KEY_2026`; switch to Script Properties; per-Message ID deduplication; multi-bank regex (MB, TCB, ACB, VPB, TPB, MoMo) | M1 | Explorer 1, BUG-23 |
+| 5 | PII Phone Number Removal | Replace `0704862629` across 6 production files and tests with `support@pomofocus.vn` | M2 | Explorer 2, BUG-04, BUG-71 |
+| 6 | Hardcoded Admin Emails Removal | Migrate `OWNER_EMAILS` client checks in `authService.ts`, `useAuthStore.ts`, `SettingsView.tsx`, `AiCompanionWidget.tsx`, `profileService.ts`, `companion.ts` to JWT claims & Supabase RLS | M2 | Explorer 2, BUG-72 |
+| 7 | DOMPurify XSS Sanitization | Install `dompurify` + `@types/dompurify`, create `src/utils/sanitize.ts`, wrap `dangerouslySetInnerHTML` in `MinimalDocEditor`, `NotesWidget`, `WebDownloadHub`, `WhiteboardView` | M2 | Explorer 2, BUG-73 |
+| 8 | Guest Tasks & Notes Merge on Login | Call `mergeGuestDataOnLogin` in `syncUserFromSupabase` before loading stores; push migrated notes/sessions to Supabase Cloud | M3 | Explorer 3, BUG-18, BUG-20 |
+| 9 | Timestamp-Based Settings Merge | Compare `updated_at` / `last_modified` in `userSettingsService` instead of blind cloud overwrite | M3 | Explorer 3, BUG-20 |
+| 10 | 2FA/TOTP Gate on OAuth Login | Enforce 2FA verification in `syncUserFromSupabase` before unlocking session if `two_factor_enabled` | M3 | Explorer 3, BUG-27 |
+| 11 | Supabase `focus_sessions` Schema & RLS | Add DDL and RLS policies for `focus_sessions` in `supabase/schema.sql` and migration file | M3 | Explorer 3, BUG-19 |
+| 12 | AutoSync & String ID Fix | Invoke `syncQueueService.startAutoSync()` on mount in `App.tsx`; fix `syncUserFromSupabase(user.id)` string call | M3 | Explorer 3, BUG-24 |
+| 13 | VN Law Legal Citations Alignment | Retain verified 2025-2026 citations (Luật 91/2025/QH15, NĐ 356/2025/NĐ-CP, Luật 134/2025/QH15) in `LegalViews.tsx`, `CookieConsentBanner.tsx`, `AiCompanionWidget.tsx` | M4 | Explorer 3, BUG-74 |
+| 14 | Cookie Consent Decline & Revocation | Add "Từ chối" button, prevent 'X' from accepting consent, add "Rút lại sự đồng ý thu thập dữ liệu" in `SettingsView.tsx` | M4 | Explorer 3, BUG-75 |
+| 15 | Remediation Unit Test Suite | Write unit tests for VCB webhook, check-status, guest merge, DOMPurify sanitization, cookie consent | M5 | Prompt Item 5 |
+| 16 | Verification & External Checklist | Run `npm run type-check`, all tests passing, assemble complete manual ops checklist | M5 | Prompt Item 5 |
 
 ## Milestones
-
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Storage Layer & Unified UserAvatar | Features 1, 2, 3, 4, 5 (`SafeStorage`, `STORAGE_SCHEMA_VERSION`, Dexie heavy array migration, `<UserAvatar />` component & screen integration) | none | DONE |
-| M2 | 7 Data Sync & DB Performance Overhauls | Features 6, 7, 8, 9, 10, 11, 12 (`uuid.ts`, clock skew, soft delete tombstones, settings/AI sync, `sync_queue` backoff, `userId` isolation, captive portal shield) | M1 | DONE |
-| M3 | Vietcombank Script, VietQR Webhook & Coupon | Features 13, 14, 15, 16, 17 (`vcb_email_listener.js`, `api/payment/webhook.ts`, login gate, branding alignment, global balance refresh, 429 rate limit) | M1, M2 | PLANNED |
-| M4 | Timer Engine, Task Linkage & Concurrency Logic | Features 18, 19, 20, 21, 22, 23, 24, 25 (Stepper sync, paused phase guard, atomic stats increment, midnight rollover, task linkage, AI stream abort, strict mode exemption) | M1, M2 | PLANNED |
-| M5 | Full Regression Verification & Gate Hardening | Feature 26 (Project type-check, 100% Vitest unit test suite pass, Forensic Integrity Audit CLEAN) | M1, M2, M3, M4 | PLANNED |
-
----
-
-## Interface Contracts
-
-### M1 Storage & UserAvatar Contracts
-- `src/utils/safeStorage.ts`:
-  ```typescript
-  export interface ISafeStorage {
-    getItem(key: string, fallback?: string | null): string | null;
-    setItem(key: string, value: string): boolean;
-    removeItem(key: string): void;
-    clear(): void;
-    safeGetJSON<T>(key: string, fallback: T): T;
-    safeSetJSON<T>(key: string, value: T): boolean;
-  }
-  export const safeStorage: ISafeStorage;
-  export const STORAGE_SCHEMA_VERSION = 1;
-  export function runStorageSchemaMigration(): void;
-  ```
-- `src/components/common/UserAvatar.tsx`:
-  ```typescript
-  export interface UserAvatarProps {
-    user?: UserProfile | null;
-    name?: string;
-    avatarUrl?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number; // xs: 24, sm: 28, md: 36, lg: 48, xl: 64
-    className?: string;
-    ring?: boolean | string;
-    alt?: string;
-    showStatusDot?: boolean;
-    onClick?: () => void;
-  }
-  export const UserAvatar: React.FC<UserAvatarProps>;
-  ```
-
-### M2 Data Sync & DB Contracts
-- `src/utils/uuid.ts`:
-  ```typescript
-  export function generateUUID(): string; // RFC4122 v4 compliant in secure & insecure contexts
-  ```
-- `src/utils/safeFetch.ts`:
-  ```typescript
-  export function safeParseJson<T = any>(
-    res: Response,
-    fallbackValue?: T | null
-  ): Promise<{ ok: boolean; data: T | null; error?: string }>;
-  ```
-- Dexie Schema v3 (`src/db/index.ts`):
-  - `tasks`: `'id, userId, completed, order, updatedAt, deletedAt, synced'`
-  - `notes`: `'id, userId, linkedTaskId, linkedProjectId, updatedAt, deletedAt, synced'`
-  - `projects`: `'id, userId, name, createdAt, deletedAt, synced'`
-  - `focus_sessions`: `'id, userId, dateString, completedAt, phase, taskId, synced'`
-  - `ai_messages`: `'id, userId, conversationId, createdAt'`
-  - `sync_queue`: `'id, userId, tableName, recordId, action, status, createdAt, retryCount, nextRetryAt'`
-  - `whiteboard_strokes`: `'roomId, updatedAt'`
-
-### M3 Payment & Webhook Contracts
-- `scripts/vcb_email_listener.js`:
-  - `LockService.getScriptLock()` (10s timeout, try-finally)
-  - `newer_than:2d` query filter, batch limit 15, per-message try-catch, mark read + `VcbProcessed` on HTTP 200.
-- `api/payment/webhook.ts`:
-  - Non-blocking execution, idempotent HTTP 200 response.
-- `src/components/MoMoPaymentModal.tsx` & `src/components/AiCreditsTopupModal.tsx`:
-  - `if (!user?.id) return <LoginRequiredView />;` (hard gate against guest payments).
-
-### M4 Timer & Task Contracts
-- `src/stores/useTimerStore.ts`:
-  - `onComplete`: awaits `recordFocusSessionAtomic(record)`. Only if `true`, increments `dailyProgress` and `todayFocusMinutes`.
-  - `checkMidnightRollover()`: invoked on `visibilitychange` and every 60s in `tick()`.
-- `src/stores/useTaskStore.ts`:
-  - `updateTask` and `deleteTask`: check `useTimerStore.getState().linkedTaskId === id` to sync/unlink title.
-- `src/stores/useAiStore.ts`:
-  - `activeAbortController: AbortController | null` stored and aborted on conversation switch.
-
----
+| M1 | Payment & Billing Remediation | Features 1, 2, 3, 4 | none | DONE |
+| M2 | Security, PII & XSS Sanitization | Features 5, 6, 7 | none | DONE |
+| M3 | Auth Sync & Supabase Schema | Features 8, 9, 10, 11, 12 | none | DONE |
+| M4 | Legal Compliance & Cookie Consent | Features 13, 14 | none | DONE |
+| M5 | Test Suite, Verification & Final Audit | Features 15, 16 | M1, M2, M3, M4 | DONE |
 
 ## Code Layout
-- `src/utils/safeStorage.ts`
-- `src/utils/uuid.ts`
-- `src/utils/safeFetch.ts`
-- `src/components/common/UserAvatar.tsx`
-- `src/db/index.ts`
-- `src/services/timerEngine.ts`
-- `src/stores/useTimerStore.ts`
-- `src/stores/useTaskStore.ts`
-- `src/stores/useAiStore.ts`
-- `src/components/mobile/views/MobileFocusView.tsx`
-- `src/components/MoMoPaymentModal.tsx`
-- `src/components/AiCreditsTopupModal.tsx`
-- `scripts/vcb_email_listener.js`
-- `api/payment/webhook.ts`
-- `tests/unit/safeStorage.test.ts`
-- `tests/unit/userAvatarUnified.test.tsx`
-- `tests/unit/dataSyncAndDbFixes.test.ts`
-- `tests/unit/paymentAndWebhook.test.ts`
-- `tests/unit/timerAndTaskLogic.test.ts`
+- `api/payment/vcb-webhook.ts` — Vietcombank payment webhook handler
+- `api/momo/check-status.ts` — Order payment status check endpoint
+- `api/payment/create-order.ts`, `api/momo/create-payment.ts` — Payment order creation endpoints
+- `scripts/vcb_email_listener.js` — Google Apps Script for Vietcombank email parsing
+- `src/components/MobileSettingsView.tsx`, `src/components/AiCreditsTopupModal.tsx`, `src/components/MoMoPaymentModal.tsx`, `src/components/BillingView.tsx` — Payment modals & views
+- `index.html`, `src/components/LegalViews.tsx`, `src/components/SharedFooter.tsx`, `src/components/ContactView.tsx`, `src/services/momoService.ts`, `middleware.ts` — PII & legal texts
+- `src/services/authService.ts`, `src/stores/useAuthStore.ts`, `src/components/SettingsView.tsx`, `src/components/AiCompanionWidget.tsx`, `src/services/profileService.ts`, `api/ai/companion.ts` — Admin authorization & auth state
+- `src/utils/sanitize.ts`, `src/components/MinimalDocEditor.tsx`, `src/components/NotesWidget.tsx`, `src/components/WebDownloadHub.tsx`, `src/components/WhiteboardView.tsx` — XSS Sanitization
+- `src/services/taskCloudService.ts`, `src/services/noteCloudService.ts`, `src/services/userSettingsService.ts`, `src/services/syncQueueService.ts`, `src/App.tsx` — Cloud sync & queue
+- `supabase/schema.sql`, `supabase/migrations/20261120_focus_sessions.sql` — Database schema & migrations
+- `src/components/CookieConsentBanner.tsx` — Cookie consent banner
+- `tests/unit/` — Unit test suite

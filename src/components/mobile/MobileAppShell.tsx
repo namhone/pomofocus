@@ -47,6 +47,7 @@ import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
 import { GlobalAudioHost } from '../GlobalAudioHost';
 import { UserAvatar } from '../common/UserAvatar';
 import { isNativeApiRuntime } from '../../utils/apiConfig';
+import { backStack } from '../../services/backStack';
 
 const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
 
@@ -92,6 +93,18 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const isSoundPlaying = useAudioStore((s) => s.tracks.some((t) => t.isPlaying) || s.customMusicPlaying);
 
   const [isAuthSheetOpen, setIsAuthSheetOpen] = useState(false);
+  const [isInAppPipOpen, setIsInAppPipOpen] = useState(false);
+  const [backStackCount, setBackStackCount] = useState(backStack.count);
+  const [isExitToastVisible, setIsExitToastVisible] = useState(false);
+  const lastBackPressRef = useRef<number | null>(null);
+  const exitToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Subscribe to centralized back stack
+  useEffect(() => {
+    return backStack.subscribe(() => {
+      setBackStackCount(backStack.count);
+    });
+  }, []);
 
   // Hydrate persistent stores on mobile shell startup & auth change
   useEffect(() => {
@@ -132,11 +145,13 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 1. Predictive Back Gesture (popstate + Android Native OnBackPressedCallback)
+  // 1. Centralized Android Hardware Back-Stack & Double-Tap Exit (BUG-05)
   // ---------------------------------------------------------------------------
+  const hasAnyOverlay = isAuthSheetOpen || isTopupModalOpen || isInAppPipOpen || backStackCount > 0;
+  const canGoBackInApp = activeTab !== 'focus' || hasAnyOverlay || isExitToastVisible;
+
   useEffect(() => {
-    const canGoBackInApp = activeTab !== 'focus' || isTopupModalOpen;
-    const nativeBridge = (window as any).PomoNativeBack;
+    const nativeBridge = (window as any).PomoNativeBack || (window as any).PomoNativeBridge;
     if (nativeBridge?.setCanGoBackInApp) {
       nativeBridge.setCanGoBackInApp(canGoBackInApp);
     }
@@ -145,13 +160,31 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         nativeBridge.setCanGoBackInApp(false);
       }
     };
-  }, [activeTab, isTopupModalOpen]);
+  }, [canGoBackInApp]);
 
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      if (backStack.hasOverlays()) {
+        e.preventDefault?.();
+        backStack.dismissTop();
+        return;
+      }
+
+      if (isAuthSheetOpen) {
+        e.preventDefault?.();
+        setIsAuthSheetOpen(false);
+        return;
+      }
+
       if (useAiStore.getState().isTopupModalOpen) {
         e.preventDefault?.();
         useAiStore.getState().closeTopupModal();
+        return;
+      }
+
+      if (isInAppPipOpen) {
+        e.preventDefault?.();
+        setIsInAppPipOpen(false);
         return;
       }
 
@@ -163,17 +196,65 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     };
 
     const handleNativeBack = () => {
+      // 1. Centralized back-stack (topmost overlay dismissal)
+      if (backStack.hasOverlays()) {
+        backStack.dismissTop();
+        return;
+      }
+
+      // 2. Local shell overlays
+      if (isAuthSheetOpen) {
+        setIsAuthSheetOpen(false);
+        return;
+      }
+
       if (useAiStore.getState().isTopupModalOpen) {
         useAiStore.getState().closeTopupModal();
         return;
       }
 
+      if (isInAppPipOpen) {
+        setIsInAppPipOpen(false);
+        return;
+      }
+
+      // 3. Tab navigation back to root 'focus' tab
       const currentTab = (useLayoutStore.getState().activeMobileTab as unknown) as string;
       if (currentTab !== 'focus' && currentTab !== 'timer') {
         useLayoutStore.setState({ activeMobileTab: 'focus' as any });
         if (window.history?.state?.mobileTab && window.history.replaceState) {
           window.history.replaceState({}, '');
         }
+        return;
+      }
+
+      // 4. Root screen double-tap back handling (BUG-05)
+      const now = Date.now();
+      if (lastBackPressRef.current && now - lastBackPressRef.current < 2000) {
+        // 2nd tap within 2000ms: Confirm exit!
+        lastBackPressRef.current = null;
+        setIsExitToastVisible(false);
+        if (exitToastTimerRef.current) clearTimeout(exitToastTimerRef.current);
+
+        const nativeBridge = (window as any).PomoNativeBack || (window as any).PomoNativeBridge;
+        if (nativeBridge?.exitApp) {
+          nativeBridge.exitApp();
+        } else if (nativeBridge?.setCanGoBackInApp) {
+          nativeBridge.setCanGoBackInApp(false);
+        }
+        const capacitorApp = (window as any).Capacitor?.Plugins?.App;
+        if (capacitorApp?.exitApp) {
+          capacitorApp.exitApp();
+        }
+      } else {
+        // 1st tap: Trigger confirmation toast and start 2000ms window
+        lastBackPressRef.current = now;
+        setIsExitToastVisible(true);
+        if (exitToastTimerRef.current) clearTimeout(exitToastTimerRef.current);
+        exitToastTimerRef.current = setTimeout(() => {
+          setIsExitToastVisible(false);
+          lastBackPressRef.current = null;
+        }, 2000);
       }
     };
 
@@ -182,8 +263,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('pomofocus:native-back', handleNativeBack);
+      if (exitToastTimerRef.current) clearTimeout(exitToastTimerRef.current);
     };
-  }, []);
+  }, [isAuthSheetOpen, isInAppPipOpen]);
 
   // ---------------------------------------------------------------------------
   // 2. Screen Wake Lock API
@@ -254,8 +336,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   // ---------------------------------------------------------------------------
   // 3. Document Picture-in-Picture (PiP) API & Floating Mini Timer Fallback
   // ---------------------------------------------------------------------------
-  const [isInAppPipOpen, setIsInAppPipOpen] = useState(false);
-
   const handleTriggerPip = async () => {
     const isDocPipSupported =
       typeof window !== 'undefined' &&
@@ -330,7 +410,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     <div
       data-testid="mobile-app-shell"
       style={{ transform: 'translateZ(0)' }}
-      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] pt-safe pb-safe select-none relative ${className}`}
+      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] select-none relative ${className}`}
     >
       {/* Dynamic Background & Ambient Particle Canvas (z-0 / z-[1]) */}
       <BackgroundCanvas />
@@ -343,12 +423,12 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       <MobileAuthBottomSheet isOpen={isAuthSheetOpen} onClose={() => setIsAuthSheetOpen(false)} />
 
       {/* -------------------------------------------------------------------- */}
-      {/* Top Header (48px / h-12)                                             */}
+      {/* Top Header (48px / h-12 + safe-area)                                 */}
       {/* -------------------------------------------------------------------- */}
       <header
         data-testid="mobile-top-header"
         role="banner"
-        className={`h-12 min-h-[48px] max-h-[48px] w-full flex items-center justify-between px-3.5 ${
+        className={`min-h-[48px] h-[calc(48px+env(safe-area-inset-top,0px))] pt-safe w-full flex items-center justify-between px-3.5 ${
           isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/80 backdrop-blur-xl'
         } border-b border-white/10 z-20 shrink-0`}
       >
@@ -414,7 +494,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       {isInAppPipOpen && (
         <div
           data-testid="mobile-in-app-pip-pill"
-          className="fixed top-16 right-4 z-50 flex items-center gap-3 px-3 py-1.5 bg-zinc-900/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-xl shadow-black/50 text-white font-mono text-xs"
+          className="fixed top-[calc(4rem+env(safe-area-inset-top,0px))] right-4 z-50 flex items-center gap-3 px-3 py-1.5 bg-zinc-900/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-xl shadow-black/50 text-white font-mono text-xs"
         >
           <div className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${statusDotClasses}`} />
@@ -480,7 +560,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         data-testid="mobile-bottom-nav"
         role="tablist"
         aria-label="Điều hướng chính"
-        className={`h-14 min-h-[56px] max-h-[56px] shrink-0 w-full ${
+        className={`h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full ${
           isEcoMode ? 'bg-[#09090b]/95' : 'bg-[#09090b]/90 backdrop-blur-2xl'
         } border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe`}
       >
@@ -521,6 +601,18 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
           onClick={() => handleSelectTab('settings')}
         />
       </nav>
+
+      {/* Visual Exit Confirmation Toast (BUG-05) */}
+      {isExitToastVisible && (
+        <div
+          data-testid="back-exit-toast"
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-[calc(72px+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-zinc-900/95 border border-white/15 text-white text-xs font-medium shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 pointer-events-none whitespace-nowrap"
+        >
+          Nhấn lần nữa để thoát
+        </div>
+      )}
     </div>
   );
 };
@@ -751,7 +843,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto px-4 py-3.5 space-y-3.5 pb-28">
+    <div className="w-full h-full overflow-y-auto px-4 py-3.5 space-y-3.5 pb-28 pb-safe">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-white flex items-center gap-2">
@@ -1140,7 +1232,7 @@ const MobileSpacesSubView: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full h-full overflow-y-auto px-4 py-4 space-y-5 pb-28">
+    <div className="w-full h-full overflow-y-auto px-4 py-4 space-y-5 pb-28 pb-safe">
       <div className="flex items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">

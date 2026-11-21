@@ -1,3 +1,4 @@
 # Explorer Survey 1 Context
-- Scope: Survey Sections 0, 1, 2 of ORIGINAL_REQUEST.md
-- Target: Zero-FOUT preloader, font-display, AI Companion z-index / header collision, UI/UX playbook alignment.
+Task: Survey Backend & Auth Security (RLS payment orders/transactions + Supabase Native Google OAuth on Capacitor)
+Authoritative request: .agents/teamwork/ORIGINAL_REQUEST.md
+Parent: orchestrator_p2

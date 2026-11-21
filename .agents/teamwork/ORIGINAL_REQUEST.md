@@ -1,101 +1,115 @@
 # Original User Request
 
-## Parameters
+## Initial Request — 2026-11-19 19:58:43 UTC
 
-[skip-interview]
-How this run was launched; not part of the task.
+/karpathy-guidelines  /security-compliance-compliance-check  /api-security-best-practices  /auth-implementation-patterns  /systematic-debugging  /vn-law-check  /production-code-audit  /verification-before-completion 
 
-## Initial Request — 2026-11-15T15:49:19Z
+NHIỆM VỤ: REMEDIATION PHASE 1 — VÁ TRIỆT ĐỂ BẢO MẬT, DÒNG TIỀN VIETQR/MOMO, ĐỒNG BỘ AUTH & PHÁP LÝ
 
-/karpathy-guidelines /mobile-design /mobile-developer /mobile-security-coder /android-cli /android-device-hub /systematic-debugging /memory-leak-debugging /production-code-audit /vercel-deployment /verification-before-completion
+Không phỏng vấn hỏi lại. Bám sát `docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md` và tuân thủ `/karpathy-guidelines` (sửa phẫu thuật đúng chỗ, viết test kiểm chứng cho từng lỗ hổng):
 
-MỤC TIÊU ĐỢT 3: CHUẨN HÓA ANDROID APK, PHẦN CỨNG, WEBVIEW, AUDIO MIXER & CƠ CHẾ OFFLINE/UPDATE
+1. Vá lỗ hổng dòng tiền VietQR / MoMo / Billing:
+   - `api/payment/vcb-webhook.ts` (BUG-21): Xóa bỏ hoàn toàn logic fallback gán gói PRO cho user hoạt động gần nhất khi thiếu `targetUserId`; đánh dấu giao dịch không khớp là `UNMATCHED_PENDING_MANUAL_REVIEW`.
+   - `api/momo/check-status.ts` (BUG-22): Xóa bỏ `if (isPro) isPaid = true`; chỉ xác nhận thanh toán theo đúng `order_id` cụ thể trong bảng `pending_orders`.
+   - `MobileSettingsView.tsx`, `AiCreditsTopupModal.tsx`, `MoMoPaymentModal.tsx`, `BillingView.tsx` & API tạo đơn (BUG-14): Cấm tuyệt đối Guest/chưa đăng nhập tạo đơn hàng hoặc sinh mã QR chuyển tiền; bắt buộc đăng nhập tài khoản thật trước khi vào luồng thanh toán và từ chối ở tầng API nếu thiếu `userId` hợp lệ.
+   - `scripts/vcb_email_listener.js` & `api/payment/webhook.ts` (BUG-23): Gỡ secret key hardcode `POMO_VCB_SECRET_KEY_2026` sang biến môi trường / Script Properties; đánh dấu xử lý theo từng Message ID thay vì Thread để không bỏ sót email cùng luồng; mở rộng regex hỗ trợ nội dung chuyển khoản liên ngân hàng (MB, Techcombank, ACB, VPBank, TPBank, MoMo).
 
-Không phỏng vấn hỏi lại. Áp dụng triệt để `/karpathy-guidelines`: đọc toàn bộ cấu hình Capacitor/Android, `AndroidManifest.xml`, Service Worker, Audio Engine, Auth OAuth và `vercel.json` trước khi sửa; làm tối giản, sửa đúng chỗ (surgical changes), không phá vỡ các phần pháp lý `vn-law-check` vừa tích hợp.
+2. Bảo vệ PII, Phân quyền Admin & Chống XSS:
+   - Xóa sạch SĐT cá nhân `0704862629` khỏi toàn bộ 7 file (`index.html`, `LegalViews.tsx`, `SharedFooter.tsx`, `ContactView.tsx`, `momoService.ts`...) (BUG-04, BUG-71), thay bằng email/kênh hỗ trợ chính thức.
+   - Gỡ bỏ `OWNER_EMAILS` hardcode ở client (`SettingsView.tsx`, `AiCompanionWidget.tsx`, `authService.ts`...) (BUG-72), chuyển kiểm tra quyền Admin sang JWT claim / Supabase RLS.
+   - Bọc `DOMPurify.sanitize()` cho toàn bộ `dangerouslySetInnerHTML` trong `MinimalDocEditor.tsx`, `NotesWidget.tsx`, `WebDownloadHub.tsx` (BUG-73).
 
-1. Khắc phục tương thích Android System & WebView:
-   - Kiểm tra `git status` và xóa file tạm `update_momo_modal.js` nếu vẫn còn sót lại trong repo.
-   - Xiaomi MIUI Force Dark: Khai báo `color-scheme: dark` đúng chuẩn trong CSS/HTML để hệ thống MIUI không ép đảo màu gây loang nền đen hoặc sai tương phản.
-   - Android 15 Edge-to-Edge `WindowInsets`: Xử lý trường hợp `env(safe-area-inset-top/bottom)` trả về `0px` trên WebView Android 15, đảm bảo Header và Bottom Nav không bị đè vào thanh trạng thái hay thanh điều hướng cử chỉ.
-   - Font Scale (1.3x+): Không để các nút cố định chiều cao bị cắt chữ khi người dùng bật cỡ chữ hệ thống lớn.
-   - Hỗ trợ xoay ngang (Landscape) hợp lý cho `/rooms` khi xem PDF hoặc chia sẻ màn hình, và giữ layout an toàn khi chia đôi màn hình (split-screen) hoặc cửa sổ nổi.
-   - Bổ sung React `ErrorBoundary` toàn cục và fallback cho route 404 SPA.
+3. Chống mất dữ liệu Auth & Đồng bộ Cloud:
+   - `useAuthStore.ts` (BUG-18, BUG-20, BUG-27): Gọi `mergeGuestDataOnLogin` cho Tasks & Notes ngay trong `syncUserFromSupabase` (kể cả khi login Google OAuth); xử lý merge cài đặt dựa trên timestamp thay vì ghi đè mù quáng; bắt buộc kiểm tra 2FA/TOTP trước khi mở khóa phiên nếu tài khoản bật 2FA.
+   - `supabase/schema.sql` & `syncQueueService.ts` (BUG-19, BUG-24): Bổ sung bảng `focus_sessions` + RLS policies vào schema để đồng bộ lịch sử tập trung & streak; kích hoạt `syncQueueService.startAutoSync()` trong `App.tsx`.
 
-2. Bàn phím ảo, Nhập liệu tiếng Việt & OAuth / Deep Link:
-   - Cấu hình `adjustResize` chuẩn cho bàn phím mềm Android, gắn `enterkeyhint` và `inputMode="numeric"` cho các ô nhập số/thời gian.
-   - Sửa lỗi gõ tiếng Việt Telex/VNI bị kẹt hoặc submit sớm khi nhấn Enter lúc `event.isComposing === true`.
-   - Sửa lỗi Google OAuth `403 disallowed_useragent` trên WebView: chuyển luồng đăng nhập sang Chrome Custom Tabs (`@capacitor/browser`) kết hợp Deep Link `appUrlOpen` để quay lại app mượt mà.
-   - Hỗ trợ App Links cho `/rooms` và chặn mọi link `http(s)` bên ngoài (trong AI chat, Meet chat) mở bằng `@capacitor/browser` thay vì điều hướng mất WebView app.
-   - Tích hợp `@capacitor/haptics` cho phản hồi rung native, `@capacitor/filesystem` + `@capacitor/share` cho xuất file JSON backup, và fallback `@capacitor/clipboard`.
+4. Đối chiếu Pháp lý chuẩn với `vn-law-check`:
+   - ĐỐI CHIẾU TRỰC TIẾP với các file trong `.agents/skills/vn-law-check/references/` trước khi sửa trích dẫn luật trong `LegalViews.tsx`, `CookieConsentBanner.tsx`, `AiCompanionWidget.tsx` (BUG-74) — tuyệt đối không xóa nhầm các văn bản 2025–2026 hợp lệ có trong bộ tham chiếu `vn-law-check`.
+   - `CookieConsentBanner.tsx` & `SettingsView.tsx` (BUG-75): Thêm nút `"Từ chối"` ngang hàng với `"Đồng ý & Tiếp tục"`, bấm `X` không ghi nhận đồng ý, và thêm nút `"Rút lại sự đồng ý thu thập dữ liệu"` trong Cài đặt.
 
-3. Thông báo nền, Wake Lock & Audio Engine:
-   - Android 13+: Xin quyền runtime `POST_NOTIFICATIONS`, tạo `NotificationChannel` mức `IMPORTANCE_HIGH` và đặt lịch báo thức chính xác (`allowWhileIdle`) khi hết phiên Pomodoro (đối chiếu khớp với khai báo quyền trong `AndroidManifest.xml` và `LegalViews.tsx`).
-   - Tự động xin lại `Screen Wake Lock` mỗi khi `visibilitychange` chuyển về `visible` để màn hình không tắt giữa chừng khi quay lại app.
-   - Audio Ducking: Tự động giảm âm lượng nhạc nền Mixer trước khi phát chuông hết giờ; chặn chuông phát chồng lên nhau và tắt âm preview ngay khi rời tab Settings.
-   - Nút "Tắt tất cả" trong Mixer phải ngắt kết nối triệt để mọi Web Audio nodes để tránh rò rỉ bộ nhớ và hao pin.
-   - Lắng nghe `devicechange` (rút/mất kết nối tai nghe Bluetooth) để tự tạm dừng hoặc hạ âm lượng an toàn; trong `/rooms` Meet dùng luồng `VOICE_COMMUNICATION` phải tự tạm dừng/duck Mixer.
-   - Nếu âm lượng Media hệ thống bằng 0, hiển thị cảnh báo trực quan + kích hoạt Haptic fallback; đồng bộ `MediaSession API` cho trình điều khiển khóa màn hình.
+5. Kiểm chứng & Checklist hạ tầng ngoài:
+   - Chạy `npm run type-check` (0 lỗi) và viết/chạy unit tests cho webhook VietQR, `check-status`, merge guest data, `DOMPurify` và `CookieConsentBanner`.
+   - Cuối báo cáo BẮT BUỘC liệt kê rõ các thao tác tay tôi cần chạy ngoài repo (chạy SQL migration `focus_sessions` trên Supabase, gắn admin role trên Supabase, copy-paste & đặt Script Properties cho `vcb_email_listener.js` trên `script.google.com`).
 
-4. Offline, Bộ nhớ, PWA Cache & Build APK sạch:
-   - Đóng gói offline cho font chữ, ảnh nền mặc định và âm thanh synth; áp dụng lazy-load và `URL.revokeObjectURL` cho file tải lên.
-   - Tự động nén/resize ảnh nền custom người dùng chọn xuống tối đa `1080p` định dạng WebP để không tràn RAM WebView.
-   - Sửa lỗi nhúng YouTube trong APK WebView (origin/referer policy).
-   - Cấu hình PWA `navigateFallbackDenylist` loại trừ `/downloads/` và `/version.json`; đặt `Cache-Control: no-cache, must-revalidate` trên Vercel cho file HTML/manifest/version.
-   - Nút cập nhật phiên bản trong app APK phải mở trình duyệt hệ thống để tải bản mới.
-   - Chạy `npm run type-check`, Vitest liên quan, build release APK sạch, kiểm tra dung lượng thực tế và cài thử qua `adb install -r` nếu thiết bị Android đang kết nối.
+## Follow-up — 2026-11-19 20:01:57 UTC
 
----
-### CONTEXT TRƯỚC ĐÓ ĐÃ HOÀN THÀNH:
-- Master branch commits gần nhất:
-  - `3c49c1b`: `feat(v8.1-d4): standalone apk v8.1 build, assetlinks & 100% full-tier e2e verification`
-  - `e5f53c8`: `feat(v8.1-d3): layout & stacking context polish, task reordering, audio stop resilience & settings streamline`
-  - `cab3f26`: `feat(v8.1-d2): complete meet rooms overhaul - multi-device, webrtc resilience, 2-layer whiteboard & clean meet UI`
-  - `7c076d8`: `feat(v8.1-d1): complete wave 1 - storage, user avatar, db sync, timer engine & payment hardening`
-- Tệp cấu hình App Links: `public/.well-known/assetlinks.json` (SHA-256 cert fingerprint `23:9F:25:FE:7F:C7:55:E3:F9:A2:05:A6:A4:F8:E9:C2:D0:A5:C9:EA:6E:87:E6:D8:C4:7A:A0:8F:39:86:B2:0F`, package: `com.pomofocus.workspace`).
-- Bản APK v8.1 đã biên dịch hiện tại: `public/downloads/PomoFocus-v8.1.apk` (8.69 MB, `22adf20...`).
-- Bộ kiểm thử hiện tại: 131/131 files unit tests pass (1900/1900 tests), 219/219 Playwright tests `v81E2EHubAndMeet.spec.ts` pass.
-- Testbed Vite LAN: đang chạy trên `http://0.0.0.0:5173`.
-- Báo cáo kiểm toán: `master_audit_v81_completion_report.md`.
+[skip-interview] Bắt đầu thực thi Remediation Phase 1 ngay lập tức. Người dùng đã có chỉ thị dứt khoát: "Không phỏng vấn hỏi lại. Bám sát docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md và tuân thủ /karpathy-guidelines". Yêu cầu đã chi tiết và đầy đủ 100% trong prompt, hãy kích hoạt Project Orchestrator và các Worker triển khai mã nguồn ngay.
 
-## Follow-up — 2026-11-15T23:38:31Z
+## Follow-up — 2026-11-20 03:38:42 UTC
 
-MỤC TIÊU ĐỢT 4: ĐỒNG BỘ THẨM MỸ MONOCHROME 90-10, TINH CHỈNH UI/COPY VÀ NGHIỆM THU TOÀN DIỆN
+tiếp tục
 
-Không phỏng vấn hỏi lại. Đối chiếu trực tiếp toàn bộ UI trên Web Desktop, Mobile Web và APK theo chuẩn Monochrome 90-10 (`#09090b` OLED black, trắng/zinc, đường chia mảnh `white/[0.06]`, không đóng hộp thừa). Tuyệt đối giữ nguyên nội dung pháp lý `vn-law-check` đã thêm ở `CookieConsentBanner.tsx`, `LegalViews.tsx`, `AiCompanionWidget.tsx` và `MoMoPaymentModal.tsx`, chỉ tinh chỉnh lại vị trí và sắc độ cho đồng bộ.
+Quoted Earlier Context & Progress:
+NHIỆM VỤ: REMEDIATION PHASE 1 — VÁ TRIỆT ĐỂ BẢO MẬT, DÒNG TIỀN VIETQR/MOMO, ĐỒNG BỘ AUTH & PHÁP LÝ
 
-1. Quy chuẩn Thị giác, Tương tác & Bảo toàn Pháp lý:
-   - Thay thế toàn bộ emoji màu (`🍅`, `💡`, `⚡` cam) bằng icon Lucide nét mảnh `1.5px` đồng nhất sắc độ.
-   - Chuyển toàn bộ text giao diện sang Sentence Case (tuyệt đối bỏ ALL CAPS ở label, nút, badge).
-   - Sửa triệt để lỗi tương phản WCAG chữ đen trên nền xanh đậm ở các nút chính; kiểm tra checkbox ở `SettingsWidget.tsx` (không để gradient xanh lá gắt lạc tông khỏi Monochrome 90-10); bọc `@media (hover: hover)` để triệt tiêu lỗi dính trạng thái hover trên cảm ứng mobile.
-   - Tinh chỉnh vị trí `CookieConsentBanner.tsx` trên Mobile để không che khuất Bottom Nav `56px` hoặc nút điều khiển chính; sắp xếp Z-index chuẩn giữa Cookie Banner, Toast, Pocket Lock và Auth Bottom Sheet; chuẩn hóa `document.title` cho từng trang.
+Không phỏng vấn hỏi lại. Bám sát docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md và tuân thủ /karpathy-guidelines (sửa phẫu thuật đúng chỗ, viết test kiểm chứng cho từng lỗ hổng):
 
-2. Shell, Header & Bottom Nav:
-   - Header gọn `48px`: gỡ bỏ badge `LIQUID ZEN` và chấm vàng bị kẹt, chỉ giữ `[ Logo + PomoFocus ]` bên trái và `[ 50 · K ]` bên phải; ẩn nút `PiP` khi chạy trong APK.
-   - Bottom Nav `56px`: bỏ quầng sáng xanh neon gây chói, chỉ dùng icon trắng + chấm `3px` báo tab đang chọn và chấm báo âm thanh đang phát; đảm bảo trên Mobile có lối vào rõ ràng tới Meet (`/rooms`), Notes, Lịch/Thống kê và trang Nạp Credit/Billing.
+Tiến độ đã hoàn thành và đã kiểm chứng:
+1. Milestone M1: Vá dòng tiền VietQR/MoMo/Billing (BUG-21, BUG-22, BUG-14, BUG-23) — HOÀN TẤT & VERIFIED:
+   - api/payment/vcb-webhook.ts: xóa fallback gán PRO sai lệch, ghi nhận UNMATCHED_PENDING_MANUAL_REVIEW.
+   - api/momo/check-status.ts: xóa `if (isPro) isPaid = true`.
+   - MoMoPaymentModal.tsx, BillingView.tsx, AiCreditsTopupModal.tsx, MobileSettingsView.tsx, api/payment/create-order.ts, api/momo/create-payment.ts: Auth Gate chặn guest tạo đơn và sinh QR.
+   - scripts/vcb_email_listener.js & api/payment/webhook.ts: secret key ra env, xử lý theo Message ID, regex liên ngân hàng.
+   - Test suite tests/unit/paymentRemediationPhase1.test.ts passed 10/10.
 
-3. Tab Focus, Tasks, Spaces & Mixer:
-   - Tab Focus: Sửa lỗi nội suy chuỗi `Hiệp $1/$4` thành `Hiệp 1/4`; cân bằng độ rộng 3 nút chuyển chế độ phiên; đổi placeholder thành `"Chọn mục tiêu phiên này..."`; gỡ viền hộp quanh chế độ `Kỷ luật`.
-   - Bộ chọn task trong Focus mở dạng Bottom Sheet (không bao giờ che mất đồng hồ `25:00`); nút Play chính `56px`, hai nút phụ `40px`, nút Reset `↺` có vòng tròn nhấn giữ `1.5s`; thanh thống kê đáy dùng font sans-serif một dòng mảnh `0g 0p · 0 phiên`; thêm xem/xóa Session Log; Pocket Lock dùng `createPortal` với thông báo `"Đã bật khóa chống chạm nhầm"` và `"Nhấn giữ để mở khóa"`.
-   - Tab Tasks: Sửa lỗi hiển thị 3 dấu chevron (`^`, `v`, `v`), làm sạch từng dòng task; bổ sung sửa tiêu đề, sửa số hiệp ước tính, xác nhận/Undo khi xóa toàn bộ việc đã xong, vuốt xóa có Undo Snackbar; khóa nút gắn vào Focus với task đã hoàn thành; tự chuyển bộ lọc khỏi `Đã xong` khi thêm task mới; tối ưu empty state theo ngữ cảnh, placeholder `"Việc cần làm..."` và sửa tương phản nút `+`.
-   - Tab Spaces & Mixer: Giảm số thanh top bar chồng chéo; gộp nút `Tắt nền (Pure Zen Black)` bị trùng và đảm bảo tắt sạch nền Trái Đất đồng bộ qua mọi tab; Việt hóa `Solid`/`Image`/`Video`, thêm bộ lọc và thanh chỉnh Blur/Brightness. Trong Mixer, khi track tắt phải làm xám cả thanh trượt lẫn `%`, thêm công tắc bật/tắt từng track, dùng Sentence Case cho các pill, thêm fade mask cho `Sóng não (`, thanh trượt mảnh `3px` và phân biệt rõ `"Âm lượng chuông"` với `"Âm lượng nhạc nền"`.
+2. Milestone M2: PII, Admin RBAC & XSS Sanitization (BUG-04, BUG-71, BUG-72, BUG-73) — HOÀN TẤT & VERIFIED:
+   - Xóa số điện thoại 0704862629 khỏi 6 tệp mã nguồn và các tệp test, thay bằng support@pomofocus.vn.
+   - Xóa OWNER_EMAILS hardcode ở client trong authService.ts, useAuthStore.ts, profileService.ts, SettingsView.tsx, api/ai/companion.ts; chuyển sang kiểm tra token claims.
+   - Cài dompurify, tạo src/utils/sanitize.ts, bọc sanitizeHtml/sanitizeSvg tại toàn bộ dangerouslySetInnerHTML.
+   - Test suite tests/unit/securityPiiAndXssRemediation.test.ts passed 20/20.
 
-4. Tab AI, Settings, Auth & Topup Modal:
-   - Tab AI: Gỡ lời chào lặp chồng, gỡ badge `⚡ 50 (Nạp thêm)` bị lặp; khi lỗi mạng chỉ hiện một bong bóng lỗi kèm nút `Thử lại` (không nhân đôi tin nhắn người dùng); bổ sung Drawer lịch sử chat, nút Tạo chat mới, nút Dừng streaming, xác nhận xóa (ẩn/vô hiệu hóa khi rỗng); ô nhập nhiều dòng `"Nhắn cho trợ lý..."`; bật `select-text` để copy và `overflow-x-auto` cho bảng/KaTeX; bỏ `💡` và chip `"ôn thi đại học"`; sửa tương phản nút Gửi và giữ nguyên nhãn `Nội dung do AI tạo (Luật 134/2025)` theo tông Monochrome tinh gọn.
-   - Settings, Auth & Topup: Thêm `pb-28` và `scroll-padding-top` để không bị cắt dropdown `Twinkle` hay lòi viền card phía trên; Việt hóa tên chuông; nút cộng/trừ stepper `36px` kèm bấm trực tiếp vào số để nhập tay; gỡ nút `"Khôi phục giao diện ban đầu"` trên Mobile; gom nhóm bằng hairline `1px` và gọn thẻ Tài khoản thành 2 dòng.
-   - Auth Sheet: Gỡ tiêu đề `"Đăng nhập"` bị lặp, đổi placeholder `"Nhập email của bạn"`, `"hoặc dùng email"`, sửa chữ đen trên nền xanh đậm ở nút `"Nhận mã đăng nhập qua email"`, nút Google `44px` dịu mắt hơn, tự cuộn khi mở bàn phím và giữ nguyên nội dung đang gõ nếu lỡ chạm backdrop; đảm bảo `AiCreditsTopupModal` và `MoMoPaymentModal` (kèm dòng cam kết hoàn tiền 7 ngày) hiển thị vừa vặn ở chiều ngang `390px`.
+3. Milestone M3: Auth Data Loss & Supabase Schema (ĐANG THỰC HIỆN DỞ DANG):
+   - Đã sửa: taskCloudService.ts (upsert guest notes/sessions lên Cloud), noteCloudService.ts (merge notes theo timestamp), userSettingsService.ts (mergeSettingsOnLogin theo timestamp), useAuthStore.ts (mergeGuestDataOnLogin trong syncUserFromSupabase, 2FA gating trước khi unlock session).
+   - Cần hoàn tất ngay:
+     - supabase/schema.sql & supabase/migrations/20261120_focus_sessions.sql (BUG-19): Bổ sung DDL bảng focus_sessions + RLS policies vào schema để đồng bộ lịch sử tập trung & streak.
+     - src/App.tsx (BUG-24): kích hoạt syncQueueService.startAutoSync() và sửa lỗi gọi useAuthStore.getState().syncUserFromSupabase(user.id) thành loadUserFromCloud(user.id).
 
-5. Trang `/download` & Các Route Web khác:
-   - Header trang `/download`: Gỡ bỏ hoàn toàn `Mở bản web →`, `50 ⚡`, `Đăng Nhập`, `Thành viên Free` và 8 link điều hướng web nội bộ.
-   - Cập nhật dung lượng thật của bản APK vừa build ở Đợt 3, gỡ chữ `Liquid Zen` và các chữ ALL CAPS, cập nhật ảnh/mô hình 3D mockup sang đúng giao diện V8.1 Monochrome mới (có đủ 3 nút điều khiển và avatar `K`), đồng nhất màu sắc 3 icon tính năng, căn chỉnh vừa khít 100% trong khung `1440x900` không cần cuộn thừa, và kiểm tra lại thẻ OpenGraph.
-   - Rà soát đồng bộ luôn `/`, `/app` Desktop, `/calendar`, `/dashboard`, `/billing` và breakpoint Tablet.
+4. Milestone M4: Đối chiếu Pháp lý chuẩn với vn-law-check:
+   - ĐỐI CHIẾU TRỰC TIẾP với các file trong .agents/skills/vn-law-check/references/ trước khi sửa trích dẫn luật trong LegalViews.tsx, CookieConsentBanner.tsx, AiCompanionWidget.tsx (BUG-74) — tuyệt đối không xóa nhầm các văn bản 2025–2026 hợp lệ có trong bộ tham chiếu vn-law-check.
+   - CookieConsentBanner.tsx & SettingsView.tsx (BUG-75): Thêm nút "Từ chối" ngang hàng với "Đồng ý & Tiếp tục", bấm X không ghi nhận đồng ý, và thêm nút "Rút lại sự đồng ý thu thập dữ liệu" trong Cài đặt.
 
-6. Nghiệm thu & Deploy toàn diện:
-   - Chạy kiểm tra trực quan đa thiết bị bằng Playwright (Desktop, Tablet, Mobile 390px), chạy `npm run type-check`, chạy toàn bộ Vitest suite, kiểm tra `git status` dọn sạch file tạm/rác.
-   - Build lại APK cuối cùng (`npm run build:apk`), cài thử qua `adb install -r` nếu có máy kết nối, commit & push Git, và deploy kiểm chứng trên cả hai domain Vercel (`pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`).
+5. Milestone M5: Kiểm chứng & Checklist hạ tầng ngoài:
+   - Chạy npm run type-check (0 lỗi) và viết/chạy unit tests cho auth sync, focus_sessions, CookieConsentBanner.
+   - Xuất danh mục thao tác tay tôi cần chạy ngoài repo (chạy SQL migration focus_sessions trên Supabase, gắn admin role trên Supabase, copy-paste & đặt Script Properties cho vcb_email_listener.js trên script.google.com).
 
----
-### THÔNG TIN TIỀN ĐỀ TỪ ĐỢT 3 VỪA HOÀN TẤT:
-- Bản phát hành APK hiện tại: `public/downloads/PomoFocus-v8.1.apk` (8.70 MB, SHA-256: `466f8f73bafc2cac7fd2d63177a13ffae250ea6a4243385a19b8ddbff053d853`, version `8.1.0`).
-- Cấu hình Vercel hiện tại: Đã hỗ trợ cả hai domain, cấu hình No-Cache cho APK & manifest.
-- Báo cáo Đợt 3: `audit_v81_dot3_completion_report.md`.
-- Toàn bộ 135/135 test suites pass, 0 type errors. Commit gần nhất: `53a1449`.
+## Follow-up — 2026-11-21 05:05:36 UTC
+
+[skip-interview] NHIỆM VỤ: REMEDIATION PHASE 2 — SIẾT RLS PAYMENT ORDERS, TÁCH BIỆT ANDROID APK ĐỘC LẬP 100%, NÚT BACK PHẦN CỨNG & GOOGLE OAUTH THẬT
+
+Không phỏng vấn hỏi lại. Bám sát `docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md` và tuân thủ `/karpathy-guidelines`:
+
+0. Siết lại bảo mật RLS `payment_orders` & `payment_transactions` (từ đợt vá SePay vừa rồi):
+   - Hiện tại vừa mở quyền `INSERT/UPDATE/SELECT` cho `anon` trên `payment_orders` / `payment_transactions` để phục vụ `create-order.ts` và `check-status.ts`. Hãy chuyển các API serverless (`create-order.ts`, `check-status.ts`, `sepay-webhook.ts`) sang sử dụng `SUPABASE_SERVICE_ROLE_KEY` (hoặc RPC `SECURITY DEFINER` có `SET search_path = public, pg_temp`), đồng thời đóng lại các policy `anon` mở rộng (`USING (true)`) để người ngoài không thể đọc/ghi trực tiếp bảng đơn hàng qua `ANON_KEY`.
+
+1. Tách biệt kiến trúc APK độc lập 100% khỏi Web (BUG-01, 02, 03, 11, 13, 76):
+   - Tạo shell/wrapper điều hướng chuẩn cho môi trường `Capacitor.isNativePlatform()`: toàn bộ các màn hình mở từ APK (`LegalViews`, `BillingView`, `ProfileView`, `SettingsView`, `DashboardView`, `DedicatedCalendarView`, `StudyRoomLobby`, `PrivacyDataView`, `AccountSecurityView`, `HelpView`, `ContactView`, `NotFoundPage`) tuyệt đối KHÔNG render `PlatformHeader` Web, `SharedFooter` Web, nút `Tải App Android (APK)` hay `Cài đặt PWA`.
+   - Mọi màn hình phụ trong APK phải có thanh Top Bar native gọn gàng kèm nút `← Quay lại` luôn hiển thị trên mobile (`< 640px`).
+   - Ẩn hoàn toàn `CookieConsentBanner` kiểu web nổi khi đang chạy trong APK (BUG-03); trên Web, thêm `whitespace-nowrap` cho nút banner không bị gãy 2 dòng.
+   - Mở rộng router deep link xử lý các đường dẫn nội bộ và bổ sung nút quay lại trên `NotFoundPage` (BUG-11).
+
+2. Nút Back phần cứng Android, Edge-to-Edge Insets & Splash/Offline (BUG-04, 05, 06, 07, 12):
+   - `MainActivity.java` & `MobileAppShell.tsx` (BUG-05): Xây dựng back-stack tập trung cho tất cả modal/drawer/bottom-sheet; `canGoBackInApp` phải luôn `true` khi còn bất kỳ sheet/route phụ nào đang mở; ở màn hình gốc mới áp dụng bấm Back 2 lần trong 2 giây để thoát app.
+   - Android 15 Edge-to-Edge (BUG-06, 07): Gỡ bỏ `max-h-[56px]` khỏi `MobileBottomNav.tsx` và `MobileAppShell.tsx`, tính chiều cao động `calc(56px + env(safe-area-inset-bottom, 0px))` và thêm `pb-safe` cho đáy các view để thanh Gesture hệ thống không đè chữ; đưa `pt-safe` vào padding bên trong header thay vì tạo dải đen cắt ngang đầu ảnh nền.
+   - Gắn logo PomoFocus tối giản vào `#pomo-splash-curtain` trong `index.html` (BUG-04) và đảm bảo KaTeX CSS/fonts hoạt động offline qua Workbox/local bundle (BUG-12).
+
+3. Google OAuth thật trên APK & Đồng bộ Danh tính User (BUG-15, 16, 17):
+   - `MobileAuthBottomSheet.tsx` & `googleAuthService.ts` (BUG-15): Loại bỏ fallback rơi vào tài khoản mock `nam.studyworkspace@gmail.com` và hạn chế sinh ID giả `usr_g_...`; triển khai luồng Supabase Native Google OAuth thật qua `@capacitor/browser` + Deep Link `pomofocus://oauth/callback` (hoặc plugin Google Auth chuẩn Capacitor) để nhận UUID thật từ Supabase Auth.
+   - Đồng bộ 1 nguồn dữ liệu duy nhất cho `UserAvatar` (`rounded-full`, sửa `ProfileView.tsx:362` hết bị vuông `rounded-2xl` và ẩn icon `Mail` trơ trọi khi trống), tên hiển thị (nới `max-w` trên `PlatformHeader.tsx:555`), số dư Credits và hàm chuẩn hóa `getSubscriptionBadge(user)` xuyên suốt Header, Dropdown, Profile và APK (BUG-13, 16, 17).
+
+4. Sửa dứt điểm cắt chữ & logic hiển thị trên Mobile (BUG-08, 09, 10, 33, 34):
+   - `MobileSettingsView.tsx` & `MobileStepperRow.tsx` (BUG-10, 34): Đổi lưới 5 phím tắt bị bóp nghẹt sang lưới 2 hàng / 3 cột để không còn `"Thống..."`, `"Gói cư..."`; cho phép mô tả stepper xuống dòng tự nhiên thay vì cắt `...`.
+   - `MobileFocusView.tsx` (BUG-08, 09): Sửa logic 4 chấm tròn vòng đấu (vòng hiện tại dùng viền/pulse thay vì sáng đặc cả 4 chấm xanh khi đang ở 24:58, tránh progress bar đè chữ `Hiệp x/y`); thêm ô tạo nhanh công việc ngay trong Task Picker dropdown khi danh sách trống (0/0).
+
+5. Kiểm chứng & Tự động cập nhật Supabase (nếu có sửa SQL):
+   - Nếu có cập nhật SQL RLS, tự dùng `/browser` chạy lên `pgsgmmtpunuttspqcgof` (không bắt user chạy tay).
+   - Chạy `npm run type-check` (0 lỗi), chạy test liên quan, kiểm tra build Capacitor Android (`npx cap sync android`) và liệt kê rõ bất kỳ cấu hình nào cần trên **Supabase Auth Dashboard** (Redirect URLs) / **Google Cloud Console** (SHA-1) nếu Google Login APK cần xác thực.
+
+Context bổ sung từ hệ thống:
+- Supabase Project ID: `pgsgmmtpunuttspqcgof` (`pomofocus-live`)
+- Vercel Production: `https://pomofocus-workspace.vercel.app` (dự án `pomodoro-workspace`, scope `axis-be33`)
+- Báo cáo lỗi chi tiết: `docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md` (chứa đầy đủ danh mục lỗi BUG-01 đến BUG-76)
+- Quy chuẩn UI/UX bắt buộc: `docs/UI_UX_DESIGN_PLAYBOOK_AND_POSTMORTEM.md` (Z-Index Hierarchy, Safe Area, State Singularity, Cloud-first persistence).
+
+## Follow-up — 2026-11-21 08:35:55 UTC
+
+tiếp tục

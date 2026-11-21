@@ -63,8 +63,8 @@ export async function callSupabaseActivatePro(params: {
   planType: string;
   durationDays: number | null;
 }): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
+  const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
   if (!supabaseUrl || !supabaseKey) {
     return { success: false, error: 'Thiếu cấu hình SUPABASE_URL hoặc API key' };
@@ -107,8 +107,8 @@ export async function savePendingOrder(params: {
   amount: number;
   planType: string;
 }): Promise<void> {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
+  const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
   if (!supabaseUrl || !supabaseKey || !params.userId || params.userId === 'guest_user') return;
 

@@ -1,48 +1,33 @@
-# BRIEFING — 2026-11-08T04:56:00Z
+# BRIEFING — 2026-11-21T05:13:00Z
 
 ## Mission
-Investigate Pomofocus v6.0 Ultimate Section 3 (/app workspace layout and drag limits) and Section 4 (macOS Liquid Dock), producing comprehensive analysis and handoff reports.
+Investigate and design solutions for APK Native Navigation Shell, TopBar, Hardware Back-Stack, and Android 15 Edge-to-Edge insets (BUG-01, 02, 03, 05, 06, 07, 11, 13, 76).
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: investigation, synthesis
+- Roles: investigation, synthesis, architecture audit
 - Working directory: d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_survey_2
-- Original parent: 1bd3b181-5618-4e23-9890-9f34e23eca19
-- Milestone: Survey & Investigation (Explorer 2)
+- Original parent: cf5bc11e-435c-4f27-a55e-a32f3bebfefa
+- Milestone: survey_apk_navigation_edge_to_edge
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- Strictly observe UI/UX Design Playbook and AGENTS.md rules
-- Master Solution Team rules & Pomofocus Playbook compliance
+- Read-only investigation — do NOT implement directly in source code during this task phase
+- Produce comprehensive handoff.md with line-by-line evidence, exact root cause, and concrete diff proposals
+- Adhere strictly to UI/UX Design Playbook and Anti-Regression contract
 
 ## Current Parent
-- Conversation ID: 1bd3b181-5618-4e23-9890-9f34e23eca19
-- Updated: 2026-11-08T04:44:20Z
+- Conversation ID: cf5bc11e-435c-4f27-a55e-a32f3bebfefa
+- Updated: not yet
 
 ## Investigation State
-- **Explored paths**:
-  - `src/components/WidgetContainer.tsx` (lines 159-164, 223-236)
-  - `src/stores/useLayoutStore.ts` (lines 744-758, 800-838, 1153-1232, 108-150, 152-281)
-  - `src/App.tsx` (lines 295-355, 404-414)
-  - `src/components/PlatformHeader.tsx` (lines 268-364, 387-442)
-  - `src/components/DockBar.tsx` (lines 1-450)
-  - `src/components/SettingsWidget.tsx` (lines 1-120, 500-555)
-  - `tests/unit/layoutAndZen.test.ts`
-  - `pomofocus-design-system/references/apple-liquid-dock.md`
-- **Key findings**:
-  - Top drag boundary y >= 68px is hardcoded in `WidgetContainer.tsx` (line 160) and `useLayoutStore.ts` (lines 745, 750). Can be cleanly adjusted to y >= 8px (`top-2`).
-  - Home navigation at `/app` can be neatly tucked into `floating-header-capsule` via a sleek Home icon and inside User dropdown / `SettingsWidget.tsx`.
-  - Current `DockBar.tsx` lacks magnification physics, specular highlight `::before`, glass tooltips (14px, blur 18px), and 3px pearl white dots. Also, buttons are isolated in 4 separate divs, which prevents CSS wave sibling selectors.
-  - Baseline tests confirmed: 52 test files, 466 tests passed (100% green), 0 TypeScript errors. Preserving all `data-testid` attributes ensures zero regressions.
-- **Unexplored areas**: None for Section 3 & 4. All investigation targets fully completed.
+- **Explored paths**: None yet
+- **Key findings**: TBD
+- **Unexplored areas**: APK vs Web shell separation, PlatformHeader, SharedFooter, CookieConsentBanner, NotFoundPage, MobileAppShell, MainActivity.java, MobileBottomNav, safe areas.
 
 ## Key Decisions Made
-- Recommending pure CSS for Apple Liquid Dock without installing `styled-components`, keeping bundle minimal and adhering to Karpathy Guidelines.
-- Keeping all `data-testid` attributes strictly identical to maintain 100% test passing rate across 52 test files.
+- Prioritize forensic verification using ripgrep and view_file to confirm line numbers and exact code patterns.
 
 ## Artifact Index
-- DISPATCH.md — Dispatch log
-- BRIEFING.md — Persistent context & state
+- handoff.md — Final 5-component report
 - progress.md — Liveness heartbeat
-- analysis.md — Full deep-dive report
-- handoff.md — 5-component handoff report
+- DISPATCH.md — Received task specifications

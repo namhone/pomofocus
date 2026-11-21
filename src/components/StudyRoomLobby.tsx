@@ -9,8 +9,7 @@ import {
 } from '../services/studyRoomService';
 import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
 import { supabase } from '../lib/supabase';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import { copyToClipboard } from '../utils/clipboard';
 import {
   Users,
@@ -287,10 +286,13 @@ export const StudyRoomLobby: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-zinc-950 text-zinc-100 flex flex-col selection:bg-zinc-800 selection:text-white">
-      <PlatformHeader />
-
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col justify-start">
+    <MobileSubViewLayout
+      title="PomoFocus Meet"
+      subtitle="Phòng học nhóm trực tuyến"
+      onBack={() => router.navigate('/app')}
+      className="bg-zinc-950 text-zinc-100 selection:bg-zinc-800 selection:text-white"
+    >
+      <div className="w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col justify-start">
         {/* Hero Header (Monochrome Stealth) */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium mb-4">
@@ -823,7 +825,7 @@ export const StudyRoomLobby: React.FC = () => {
             })}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Modal 1: Xác Nhận Xóa Phòng Học */}
       {roomToDelete && (
@@ -1071,8 +1073,6 @@ export const StudyRoomLobby: React.FC = () => {
           </div>
         </div>
       )}
-
-      <SharedFooter />
-    </div>
+    </MobileSubViewLayout>
   );
 };

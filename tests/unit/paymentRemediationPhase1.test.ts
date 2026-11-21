@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import vcbWebhookHandler from '../../api/payment/vcb-webhook';
+import vcbWebhookHandler from '../../api/payment/sepay-webhook';
 import checkStatusHandler from '../../api/momo/check-status';
 import createOrderHandler from '../../api/payment/create-order';
 import createPaymentHandler from '../../api/momo/create-payment';
@@ -261,7 +261,7 @@ describe('Payment & Billing Remediation Phase 1 (M1)', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.orderCode).toMatch(/^PF[2-9A-Z]{5}$/);
-      expect(res.body.vietQrUrl).toContain('1066633885');
+      expect(res.body.vietQrUrl).toMatch(/1066633885|AGBSPTJE34IA3A8SAAX/);
     });
   });
 

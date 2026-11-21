@@ -340,22 +340,76 @@ export const googleAuthService = {
   },
 
   /**
-   * Đăng nhập Google giả lập dành cho môi trường phát triển / thử nghiệm hoặc khi chưa gắn Client ID
+   * Kiểm tra ứng dụng có đang chạy trên nền tảng Native Capacitor (Android/iOS) hay không
+   */
+  isNativePlatform(): boolean {
+    if (typeof window === 'undefined') return false;
+    const cap = (window as any).Capacitor;
+    if (cap?.isNativePlatform && typeof cap.isNativePlatform === 'function') {
+      return cap.isNativePlatform();
+    }
+    return false;
+  },
+
+  /**
+   * Đăng nhập Google OAuth thật trên nền tảng Native Capacitor (Android APK)
+   * Sử dụng Supabase signInWithOAuth + @capacitor/browser mở In-App Browser hoặc System Browser
+   * và điều hướng về deep link pomofocus://oauth/callback
+   */
+  async loginWithGoogleNative(): Promise<{ url: string }> {
+    const { supabase } = await import('../lib/supabase');
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'pomofocus://oauth/callback',
+        skipBrowserRedirect: true,
+      } as any,
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Không thể khởi tạo phiên đăng nhập Google');
+    }
+
+    if (!data?.url) {
+      throw new Error('Supabase không trả về URL xác thực Google OAuth');
+    }
+
+    const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+    if (browserPlugin?.open) {
+      await browserPlugin.open({ url: data.url, windowName: '_system' });
+    } else if (typeof window !== 'undefined') {
+      window.open(data.url, '_system');
+    }
+
+    return { url: data.url };
+  },
+
+  /**
+   * Đóng In-App Browser / Chrome Custom Tab khi nhận được Deep Link callback
+   */
+  async closeNativeBrowser(): Promise<void> {
+    const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
+    if (browserPlugin?.close) {
+      await browserPlugin.close().catch(() => {});
+    }
+  },
+
+  /**
+   * Stub đăng nhập Google phục vụ môi trường Unit Test (Yêu cầu truyền payload cụ thể từ test runner)
+   * Đã gỡ bỏ 100% tài khoản hardcoded mock (nam.studyworkspace@gmail.com, g_usr_10987654321).
    */
   async simulateGoogleLogin(mock?: Partial<GoogleUserPayload>): Promise<GoogleUserPayload> {
-    // Độ trễ giả lập mạng 500ms
-    await new Promise((r) => setTimeout(r, 500));
-
+    if (!mock?.email) {
+      throw new Error('Mock Google credentials have been purged. Provide explicit credentials in test runner.');
+    }
     return {
-      sub: mock?.sub || 'g_usr_10987654321',
-      email: (mock?.email || 'nam.studyworkspace@gmail.com').toLowerCase(),
+      sub: mock.sub || `g_${Date.now()}`,
+      email: mock.email.toLowerCase(),
       email_verified: true,
-      name: mock?.name || 'Hồ Ngọc Bảo Nam (Google)',
-      picture:
-        mock?.picture ||
-        'https://ui-avatars.com/api/?name=Bao+Nam&background=10b981&color=fff&bold=true',
-      given_name: 'Bảo Nam',
-      family_name: 'Hồ Ngọc'
+      name: mock.name || mock.email.split('@')[0],
+      picture: mock.picture || '',
+      given_name: mock.given_name,
+      family_name: mock.family_name
     };
   }
 };

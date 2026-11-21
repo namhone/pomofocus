@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
 import { useRouter } from '../services/router';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   Check,
   CheckCircle2,
@@ -86,6 +86,8 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
 
 export const BillingView: React.FC = () => {
   const router = useRouter();
+  const { isMobile, isNativeCapacitor } = useDeviceDetection();
+  const isMobileOrNative = isMobile || isNativeCapacitor;
   const [cycle, setCycle] = useState<PlanCycle>('yearly');
   const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success'; text: string } | null>(null);
   const [isMoMoModalOpen, setIsMoMoModalOpen] = useState(false);
@@ -181,25 +183,31 @@ export const BillingView: React.FC = () => {
   );
 
   return (
-    <div
-      data-testid="billing-view"
-      className="min-h-screen w-full max-w-full overflow-x-clip bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Gói Cước & Quyền Lợi PRO"
+      subtitle="Bảng giá nâng cấp PomoFocus"
+      backTestId="billing-back-btn"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black overflow-x-clip"
     >
-      <PlatformHeader />
-
-      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-clip">
-        {/* Back to App Navigation */}
-        <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60">
-          <button
-            type="button"
-            data-testid="billing-back-btn"
-            onClick={() => router.navigate('/app')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
-          >
-            <ArrowLeft size={14} />
-            <span>Quay lại Không Gian Học</span>
-          </button>
-        </div>
+      <div
+        data-testid="billing-view"
+        className="w-full max-w-5xl mx-auto p-4 sm:p-8 md:p-12 space-y-10 box-border overflow-x-clip"
+      >
+        {/* Back to App Navigation for Desktop Web */}
+        {!isMobileOrNative && (
+          <div className="w-full max-w-full flex items-center justify-between gap-3 pb-3 border-b border-zinc-800/60">
+            <button
+              type="button"
+              data-testid="billing-back-btn"
+              onClick={() => router.navigate('/app')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
+            >
+              <ArrowLeft size={14} />
+              <span>Quay lại Không Gian Học</span>
+            </button>
+          </div>
+        )}
         {statusMessage && (
           <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
             <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
@@ -1257,7 +1265,7 @@ export const BillingView: React.FC = () => {
             </div>
           )}
         </div>
-        </main>
+      </div>
 
       {/* MoMo / VietQR Payment Modal */}
       <MoMoPaymentModal
@@ -1273,8 +1281,6 @@ export const BillingView: React.FC = () => {
           });
         }}
       />
-
-      <SharedFooter />
-    </div>
+    </MobileSubViewLayout>
   );
 };

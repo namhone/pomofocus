@@ -13,6 +13,7 @@ import { MobileMoreDrawer } from './MobileMoreDrawer';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useAiStore } from '../stores/useAiStore';
 import { WidgetId } from '../types/layout';
+import { useBackStackEffect } from '../services/backStack';
 
 export const MobileBottomNav: React.FC = () => {
   const {
@@ -36,6 +37,10 @@ export const MobileBottomNav: React.FC = () => {
   const [isMoreDrawerOpen, setIsMoreDrawerOpen] = useState(false);
   const [showQuickSettings, setShowQuickSettings] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  useBackStackEffect('mobile-more-drawer', isMoreDrawerOpen, () => setIsMoreDrawerOpen(false), 10);
+  useBackStackEffect('mobile-quick-settings', showQuickSettings, () => setShowQuickSettings(false), 20);
+  useBackStackEffect('mobile-reset-confirm', showResetConfirm, () => setShowResetConfirm(false), 30);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isProgrammaticNavRef = useRef(false);
   const isUserTouchingRef = useRef(false);
@@ -354,7 +359,7 @@ export const MobileBottomNav: React.FC = () => {
         role="toolbar"
         aria-label="Thanh điều hướng di động"
         data-testid="mobile-bottom-navigation"
-        className={`fixed bottom-0 left-0 right-0 h-14 min-h-[56px] max-h-[56px] pb-safe ${
+        className={`fixed bottom-0 left-0 right-0 h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] pb-safe ${
           isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-2xl'
         } border-t border-white/[0.08] z-30 px-1 grid grid-cols-5 items-center select-none transition-all duration-200 ${
           isKeyboardOpen || isAiOpen

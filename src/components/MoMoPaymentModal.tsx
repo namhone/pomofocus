@@ -382,9 +382,15 @@ export const MoMoPaymentModal: React.FC<MoMoPaymentModalProps> = ({
 
   const handleQuickGoogleSignIn = async () => {
     try {
-      const simulated = await googleAuthService.simulateGoogleLogin();
-      await loginWithGoogle(simulated);
-      setEmail(simulated.email);
+      if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) {
+        await googleAuthService.loginWithGoogleNative();
+        return;
+      }
+      const googleUser = await googleAuthService.signInWithPopup();
+      if (googleUser && googleUser.email) {
+        await loginWithGoogle(googleUser);
+        setEmail(googleUser.email);
+      }
     } catch (err) {
       console.warn('Lỗi đăng nhập Google nhanh:', err);
     }

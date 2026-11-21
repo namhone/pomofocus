@@ -297,25 +297,16 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         }
       }
 
-      // 3. Fallback cho môi trường test offline / unit tests
-      const simulated = await googleAuthService.simulateGoogleLogin({
-        email: 'nam.studyworkspace@gmail.com',
-        name: 'Hồ Ngọc Bảo Nam (Google)',
-        picture:
-          'https://ui-avatars.com/api/?name=Bao+Nam&background=10b981&color=fff&bold=true'
-      });
-      const ok = await loginWithGoogle(simulated);
-      if (ok) {
-        setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
-        setTimeout(() => router.navigate('/app'), 500);
-      }
+      // 3. Nếu không thể khởi chạy popup hoặc redirect
+      setOauthGuidanceError('Không thể kết nối tài khoản Google. Vui lòng thử lại.');
+      setIsGoogleLoadingLocal(false);
     } catch (err: any) {
       console.error('Lỗi đăng nhập Google:', err);
       const msg = String(err?.message || '');
       if (msg.includes('Google Cloud Console') || msg.includes('redirect_uri_mismatch') || msg.includes('origin')) {
         setOauthGuidanceError(GOOGLE_OAUTH_GUIDANCE_MESSAGE);
       } else {
-        setOauthGuidanceError(msg || 'Lỗi kết nối tài khoản Google. Vui lòng thử lại.');
+        setOauthGuidanceError(msg || 'Không thể kết nối tài khoản Google. Vui lòng thử lại.');
       }
       setIsGoogleLoadingLocal(false);
     }

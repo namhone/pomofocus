@@ -3,8 +3,7 @@ import { db } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
 import { useRouter } from '../services/router';
 import { FocusSessionRecord } from '../types/timer';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   BarChart3,
   Flame,
@@ -244,13 +243,16 @@ export const DashboardView: React.FC = () => {
   };
 
   return (
-    <div
-      data-testid="dashboard-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Thống Kê Năng Suất"
+      subtitle="Lịch sử phiên & chuỗi ngày học"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
     >
-      <PlatformHeader />
-
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
+      <div
+        data-testid="dashboard-view"
+        className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
+      >
         {/* Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -481,9 +483,7 @@ export const DashboardView: React.FC = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <SharedFooter />
-    </div>
+      </div>
+    </MobileSubViewLayout>
   );
 };

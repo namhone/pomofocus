@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from '../services/router';
 import { PomoFocusLogo } from '../components/PomoFocusLogo';
-import { Clock, Home, Compass, Sparkles } from 'lucide-react';
+import { Clock, Home, Compass, Sparkles, ArrowLeft } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
   const router = useRouter();
+
+  const handleGoBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else {
+      router.navigate('/app');
+    }
+  };
+
+  useEffect(() => {
+    const nativeBridge = (window as any).PomoNativeBack;
+    if (nativeBridge?.setCanGoBackInApp) {
+      nativeBridge.setCanGoBackInApp(true);
+    }
+    const handleNativeBack = () => {
+      handleGoBack();
+    };
+    window.addEventListener('pomofocus:native-back', handleNativeBack);
+    return () => {
+      if (nativeBridge?.setCanGoBackInApp) {
+        nativeBridge.setCanGoBackInApp(false);
+      }
+      window.removeEventListener('pomofocus:native-back', handleNativeBack);
+    };
+  }, []);
 
   return (
     <div
@@ -27,14 +52,25 @@ export const NotFoundPage: React.FC = () => {
 
       {/* Header tối giản */}
       <header className="relative z-10 px-4 sm:px-8 py-5 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => router.navigate('/')}
-          className="flex items-center gap-2 hover:opacity-90 transition cursor-pointer"
-          title="Trang chủ PomoFocus"
-        >
-          <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="text-sm font-bold text-white tracking-tight" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            data-testid="not-found-back-btn"
+            onClick={handleGoBack}
+            aria-label="Quay lại"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => router.navigate('/')}
+            className="flex items-center gap-2 hover:opacity-90 transition cursor-pointer"
+            title="Trang chủ PomoFocus"
+          >
+            <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="text-sm font-bold text-white tracking-tight" />
+          </button>
+        </div>
 
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[11px] font-mono text-zinc-400">
           <Compass size={12} className="text-emerald-400" />
@@ -81,7 +117,7 @@ export const NotFoundPage: React.FC = () => {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-lg shadow-emerald-500/20 transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Clock size={16} />
-              <span>⏱ Quay Về Bàn Học Ngay</span>
+              <span>Quay Về Bàn Học Ngay</span>
             </button>
 
             <button
@@ -91,7 +127,7 @@ export const NotFoundPage: React.FC = () => {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white font-medium text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-sm"
             >
               <Home size={16} />
-              <span>🏠 Về Trang Chủ</span>
+              <span>Về Trang Chủ</span>
             </button>
           </div>
         </div>
@@ -104,3 +140,4 @@ export const NotFoundPage: React.FC = () => {
     </div>
   );
 };
+export default NotFoundPage;

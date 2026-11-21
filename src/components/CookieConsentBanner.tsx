@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, ChevronRight, X } from 'lucide-react';
 import { useRouter } from '../services/router';
+import { Capacitor } from '@capacitor/core';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
 
 export const CONSENT_STORAGE_KEY = 'pomofocus_consent_v1';
 
 export const CookieConsentBanner: React.FC = () => {
   const router = useRouter();
+  const { isNativeCapacitor } = useDeviceDetection();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     try {
+      if (Capacitor.isNativePlatform() || (typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.()))) {
+        return;
+      }
       const consent = localStorage.getItem(CONSENT_STORAGE_KEY);
       if (!consent) {
         // Trì hoãn nhẹ 800ms để trải nghiệm mượt mà không chặn giao diện tức thì
@@ -48,6 +54,7 @@ export const CookieConsentBanner: React.FC = () => {
     router.navigate('/privacy');
   };
 
+  if (isNativeCapacitor || Capacitor.isNativePlatform() || (typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.()))) return null;
   if (!isVisible) return null;
   // Không làm phiền hoặc chặn thao tác khi người dùng đang trong phòng học Meet
   if (router.currentRoute.pathname.startsWith('/rooms/')) return null;
@@ -89,7 +96,7 @@ export const CookieConsentBanner: React.FC = () => {
               type="button"
               data-testid="consent-accept-btn"
               onClick={handleAccept}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
             >
               Đồng ý & Tiếp tục
             </button>
@@ -97,7 +104,7 @@ export const CookieConsentBanner: React.FC = () => {
               type="button"
               data-testid="consent-decline-btn"
               onClick={handleDecline}
-              className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold active:scale-95 transition shadow-sm cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
             >
               Từ chối
             </button>
@@ -105,7 +112,7 @@ export const CookieConsentBanner: React.FC = () => {
               type="button"
               data-testid="consent-details-btn"
               onClick={handleOpenPrivacy}
-              className="px-2.5 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1 whitespace-nowrap shrink-0 cursor-pointer"
             >
               <span>Xem chính sách</span>
               <ChevronRight size={12} />

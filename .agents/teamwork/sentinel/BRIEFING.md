@@ -1,7 +1,7 @@
-# BRIEFING — 2026-11-14T18:17:00Z
+# BRIEFING — 2026-11-17T06:30:00Z
 
 ## Mission
-Sentinel monitoring and lifecycle orchestration for ĐỢT 1/4: THANH LỌC LOCALSTORAGE, ĐỒNG BỘ DỮ LIỆU, AVATAR, LOGIC TIMER & BACKEND VIETQR (PomoFocus V8.1).
+Sentinel monitoring and lifecycle orchestration for SỬA TRIỆT ĐỂ 14 LỖI TỪ BÁO CÁO PLAYWRIGHT + TỐI ƯU TỈ LỆ, KHUNG CHAT & KHO ẢNH NỀN (PomoFocus V8.1 Polish).
 
 ## 🔒 My Identity
 - Archetype: sentinel
@@ -12,6 +12,8 @@ Sentinel monitoring and lifecycle orchestration for ĐỢT 1/4: THANH LỌC LOCA
 - Victory Auditor (v7.4): [to be spawned on victory claim]
 - Orchestrator (v8.1 Đợt 1): c8f90afe-cc27-42a6-bc46-1bceeef03cf3
 - Victory Auditor (v8.1 Đợt 1): [to be spawned on victory claim]
+- Orchestrator (v8.1 Polish 14 Bugs): 37192e0d-c9ce-4a38-a530-15578ca177a8
+- Victory Auditor (v8.1 Polish 14 Bugs): [to be spawned on victory claim]
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -34,22 +36,27 @@ Sentinel monitoring and lifecycle orchestration for ĐỢT 1/4: THANH LỌC LOCA
 - Cấp cứu Google Apps Script checkVietcombankEmails, VietQR & Coupon
 - Sửa logic Timer, Task & AI Stream
 - Nghiệm thu: npm run type-check (0 lỗi) và 100% Vitest unit tests pass
+- Route v8.1 Polish 14 Bugs: General (teamwork_orchestrator)
+- Sửa dứt điểm 14 lỗi từ báo cáo Playwright
+- Tuân thủ /karpathy-guidelines, bảo toàn vn-law-check
+- Playwright test pass 100%, npm run type-check 0 lỗi, vitest run pass
+- Dọn dẹp file audit tạm trước khi commit
 
 ## User Context
-- **Last user request**: ĐỢT 1/4: THANH LỌC LOCALSTORAGE, ĐỒNG BỘ DỮ LIỆU, AVATAR, LOGIC TIMER & BACKEND VIETQR
+- **Last user request**: NHIỆM VỤ: SỬA TRIỆT ĐỂ 14 LỖI TỪ BÁO CÁO PLAYWRIGHT + TỐI ƯU TỈ LỆ, KHUNG CHAT & KHO ẢNH NỀN
 - **Pending clarifications**: none
 - **Delivered results**:
   - v6.4.1 completed & verified
   - v7.0 completed & verified
   - v7.4 completed & verified
-  - v8.1 M1-M4 completed & verified
-  - Đợt 1/4 dispatched to orchestrator c8f90afe-cc27-42a6-bc46-1bceeef03cf3
+  - v8.1 Đợt 1-4 completed & verified
+  - Polish 14 Bugs: dispatched to orchestrator 37192e0d-c9ce-4a38-a530-15578ca177a8
 
 ## Project Status
 - **Phase**: in progress
-- **Orchestrator**: c8f90afe-cc27-42a6-bc46-1bceeef03cf3
-- **Cron 1 (Reporting)**: 5c066dce-026a-433f-a8a8-e1b73a5f3478/task-30 (active)
-- **Cron 2 (Liveness)**: 5c066dce-026a-433f-a8a8-e1b73a5f3478/task-32 (active)
+- **Orchestrator**: 37192e0d-c9ce-4a38-a530-15578ca177a8
+- **Cron 1 (Reporting)**: b6e74f0a-432e-49cd-91bd-3b41a4590851/task-26 (active)
+- **Cron 2 (Liveness)**: b6e74f0a-432e-49cd-91bd-3b41a4590851/task-28 (active)
 
 ## Victory Audit Status
 - **Triggered**: no
@@ -59,5 +66,5 @@ Sentinel monitoring and lifecycle orchestration for ĐỢT 1/4: THANH LỌC LOCA
 ## Artifact Index
 - .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative record of user requests
 - .agents/teamwork/sentinel/BRIEFING.md — Sentinel briefing memory
-- .agents/teamwork/orchestrator_v81_d1/DISPATCH.md — Orchestrator dispatch record
-- .agents/teamwork/orchestrator_v81_d1/progress.md — Orchestrator live progress
+- .agents/teamwork/orchestrator_polish14/DISPATCH.md — Orchestrator dispatch record (to create)
+- .agents/teamwork/orchestrator_polish14/progress.md — Orchestrator live progress (to monitor)

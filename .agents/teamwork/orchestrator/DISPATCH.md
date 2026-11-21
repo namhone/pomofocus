@@ -177,3 +177,55 @@ Follow all project rules and user instructions:
 
 Maintain your plan.md, progress.md, and BRIEFING.md in .agents/teamwork/orchestrator/.
 When all tasks and verifications are complete, report your victory claim with full evidence to me.
+
+## 2026-11-19T15:05:53Z
+
+[Message] timestamp=2026-11-19T15:05:53Z sender=647839d2-7215-4b3d-a69e-e8416d5f008d priority=MESSAGE_PRIORITY_HIGH content=/master-solution-team /master-solution-team  /dispatching-parallel-agents  /karpathy-guidelines  /production-code-audit  /systematic-debugging  /memory-leak-debugging  /playwright-skill  /a11y-debugging  /cookie-debugging  /wcag-audit-patterns  /vn-law-check  /ponytail-audit  /verification-before-completion 
+
+NHIỆM VỤ: FORENSIC DEEP-AUDIT HỢP NHẤT (TRUY VẾT SÂU LỖI ĐÃ BIẾT + QUÉT MỚI TOÀN HỆ THỐNG — CHỈ BÁO CÁO, CHƯA SỬA CODE)
+
+Không phỏng vấn hỏi lại, tuyệt đối chưa chỉnh sửa bất kỳ file code nào. Không đánh giá "đạt chuẩn" chung chung. Hãy chạy kiểm toán song song trên 4 môi trường:
+- Môi trường A: Desktop Laptop `1366x768` zoom 100%
+- Môi trường B: Desktop Chuẩn `1440x900` zoom 100%
+- Môi trường C: Mobile Web `390x844` (`hasTouch: true`)
+- Môi trường D: Giả lập Android Capacitor Native (`Capacitor.isNativePlatform() === true` + Android 15 Edge-to-Edge insets + bàn phím ảo)
+
+Phủ toàn bộ 12 routes (`/`, `/app`, `/rooms`, `/rooms/:id`, `/billing`, `/profile`, `/settings`, `/calendar`, `/dashboard`, `/download`, `/privacy`, `/terms`) và mọi modals/drawers/widgets. Mọi lỗi ghi nhận BẮT BUỘC phải có bằng chứng (`file:dòng_code`, giá trị đo DOM/CSS, log console/network hoặc screenshot).
+
+PHẦN 0 — XÁC MINH & TRUY VẾT LAN TỎA TỪ CÁC LỖI ĐÃ PHÁT HIỆN (SEED BUGS)
+Với mỗi lỗi đã phát hiện dưới đây, KHÔNG CHỈ kiểm tra lại ngay tại chỗ đó mà phải truy vết xem **cùng một lỗi / cùng nguyên nhân gốc** có đang lặp lại ở các component, widget hoặc route anh em khác không:
+
+1. Lỗi kiến trúc & tách biệt APK vs Web:
+   - Bấm `"Xem chính sách"` trong APK bị đẩy sang giao diện Web thu nhỏ có Header Web (bị cắt nửa nút `≡`), Footer Web (`LIÊN HỆ TRỰC TIẾP`, `Tải App Android (APK)`, `Cài đặt ứng dụng (PWA)`), mất Bottom Nav nhưng thiếu nút `← Quay lại`. Kiểm tra luôn màn `Nâng cấp VIP`, `Nạp Credits`, `Hồ sơ`, `Thống kê` xem có bị dính Web-leakage tương tự không.
+   - `CookieConsentBanner` hiện kiểu web nổi che nội dung Chính sách & đáy Focus trên APK, nút `"Đồng ý & Tiếp tục"` và `"Xem chính sách"` bị bẻ 2 dòng thô.
+   - Màn hình khởi động APK đen thui chỉ có 1 vòng xoay xanh lá không logo; lộ SĐT cá nhân thật (`0704862629`) trong `LegalViews.tsx`.
+
+2. Lỗi Auth, Guest ảo & Đồng bộ Cloud:
+   - APK tự sinh `"Khách học tập"` (`K`, `⚡ 48`) khi chưa đăng nhập Google; tab Focus hiện `K` (`⚡ 48`) nhưng sang Chính sách lại hiện `Đăng Nhập` (`✨ 48 Credits`); cho hiện cả `Nạp thêm` và `Nâng cấp` khi chưa đăng nhập thật; Google OAuth trên APK không vào luồng thật được.
+   - Desktop Header hiện avatar `US` xanh lá + cắt cụt `namho03052...` (`PlatformHeader.tsx:575` `max-w-[85px]`); `ProfileView.tsx:365` dùng avatar vuông `rounded-2xl` thay vì `UserAvatar` `rounded-full`; icon `✉` đứng trơ trọi không chữ; lệch nhãn gói cước giữa Header (`Pro trọn đời`/`Founder VIP`), Dropdown (`Thành viên Free`) và Profile (`PRO TRỌN ĐỜI`).
+
+3. Lỗi Tương tác Widget, Layout & Tỉ lệ:
+   - Mini Pill Timer (`• 05:00 ▶ ↗↙`) liệt 100% nút (`WidgetContainer.tsx:437` thiếu `pointer-events-auto` trong `<main pointer-events-none>`). Truy vết xem còn widget/floating pill nào khác dính lỗi tương tự không.
+   - Media Player mất sạch nút chuyển nhạc/playlist khi bấm `"Reset vị trí"` (`useLayoutStore.ts:69` height `216px` cắt mất thanh điều khiển dưới); thiếu xác nhận / `Undo` khi bấm Reset vị trí.
+   - Ghi chú Desktop mất `+ Thêm`, `✓ Đã lưu` và tab khi kéo rộng ngang, xếp 3 tầng toolbar cắt dòng cuối, `Ý tưởng` đứng ngang hàng `Soạn thảo | Xem trước`.
+   - `Không Gian Nền` khi kéo rộng ngang kẹt nửa trái, trống nửa phải (`grid-cols-2`), thanh cuộn Windows thô `▲▼`, xếp 5 tầng bar che lưới ảnh; nút `—` và `✕` trên widget quá to.
+   - Desktop `1366x768` zoom 100% bị to quá khổ (zoom 90% mới hài hòa); Header nhồi >12 nút trùng `Tải App` & `Cài App`; Dropdown Avatar lặp 4 link Header đè widget Ghi chú; Dock kẹt chấm vàng số `1`; Timer Desktop bày 2 tầng chỉnh giờ (`25|5|15`) trùng Cài đặt.
+   - Android 15 Gesture Bar đè lên chữ `"Không gian"` (Bottom Nav) và `"Bản quyền thuộc PomoFocus"`; dải đen Header cắt ngang đầu ảnh nền; APK thiếu cảnh báo quyền thông báo/tối ưu pin; Tab Focus APK thiếu tạo nhanh task khi trống (`0/0`); `Hiệp 4/4` sáng đủ 4 chấm xanh dù mới `24:58` và bị thanh progress bar cắt ngang.
+   - Cài đặt APK bóp nghẹt 5 ô shortcut (`Thống ...`, `Gói cư...`), cắt mô tả (`Số phút cho mỗi phiên họ...`), tách rời `Âm lượng chính`/`Chuông` sang Settings khác với Desktop.
+
+4. Lỗi Tương phản, Kho ảnh, AI Chat & Copy:
+   - Nền ảnh sáng (`Góc Học Tập Lo-Fi`) làm chìm toàn bộ tiêu đề mục xám, empty state, nút `+`, `Hiệp 4/4`, dòng cuối Cài đặt; nút `Chế độ Eco` chưa gắn với video nền/blur.
+   - Kho ảnh sai tên (`Góc Học Tập Lo-Fi` lại là ảnh cây nắng gắt), quảng cáo lố `"1.000+ ảnh"` & `"4K"`, thiếu Anime đa dạng ngoài Ghibli, Cyberpunk, Lofi, và thiếu ảnh chuyển động (Video), chữ đè `TUYỂN CHỌN Pure Zen Black)`.
+   - AI Chat: Khung `"Nhắn cho trợ lý..."` hở khoảng đen đáy trên APK, nhãn `Luật 134/2025` font monospace rớt 2 dòng ở câu chào, nút Xóa bật sáng khi rỗng, AI Drawer đè nửa widget Ghi chú trên Desktop.
+   - Còn sót đầy màu xanh lá neon (`Nền & Hiệu ứng`, `Đang chọn`, nút Meet `bg-emerald-500`, avatar `K`, slider `84%`, `Nghe thử`, `Chế độ Eco`, vòng xoay splash, 4 chấm Hiệp), Sticky Note cầu vồng, nút đỏ/vàng/xanh; còn chữ ALL CAPS (`TẠM DỪNG`, `CHỜ BẮT ĐẦU`, `TUYỂN CHỌN`, `PRO TRỌN ĐỜI`, footer...); còn emoji (`🔒`, `📝`, `✨`, `⚡`, `🎯`, `💻`, `🔥`, `🖼`, `🎵`, `🍃`); lộ từ kỹ thuật (`All-in-One Avatar`, `Cloud Sync 1:1`, `Retina SVG Ready`, `CORS qua Proxy`, `IndexedDB/LocalStorage`, `OLED #09090b`, `(Privacy Controls)`...); trang `/download` mâu thuẫn hardcode `8.70 MB` vs `8.5 MB`.
+
+PHẦN 1 — 5 MŨI ĐIỀU TRA PHÁP Y TÌM THÊM TOÀN BỘ LỖI MỚI
+Song song với việc truy vết Phần 0, chia 5 mũi chuyên sâu quét toàn bộ codebase & Playwright:
+- **Mũi 1 (Kiến trúc APK Độc lập & Routing)**: Quét mọi route/modal/link xem còn chỗ nào rò UI web, kẹt nút Back, lỗi 404/fallback hoặc cold-start offline.
+- **Mũi 2 (Auth, Sync, Merge Conflict & Luồng tiền VietQR/MoMo)**: Soi logic merge dữ liệu khi Khách đăng nhập Google, chặn nạp tiền khi chưa đăng nhập thật, đối chiếu code `.gs` VietQR (regex đa ngân hàng, `label:UNREAD`, idempotency DB, Realtime UI), đồng bộ 2 chiều Web <-> APK.
+- **Mũi 3 (Playwright DOM & Interaction Stress)**: Đo `getBoundingClientRect`, `scrollWidth`, `elementFromPoint`, click thật (không `force: true`) ở mọi kích thước widget min/max, đo contrast ratio WCAG trên ảnh nền sáng/tối, kiểm tra bàn phím ảo che input & gõ tiếng Việt `isComposing`.
+- **Mũi 4 (Meet `/rooms`, WebRTC, Audio Engine & Memory Leaks)**: Soi `RTCPeerConnection`, `MediaStream`, Supabase Realtime channels, `AudioContext`, `setInterval`, event listeners, double-submit / rapid-click race conditions, mất mạng giữa chừng.
+- **Mũi 5 (Monochrome 90-10, Copywriting, Bảo mật & `vn-law-check`)**: Regex quét toàn bộ `src/` tìm mọi emoji, ALL CAPS, Title Case sai, màu lạc tông, thuật ngữ kỹ thuật lộ cho user, dữ liệu nhạy cảm, XSS/dangerouslySetInnerHTML và lệch chuẩn pháp lý giữa Web vs APK.
+
+ĐẦU RA BẮT BUỘC:
+Xuất 1 báo cáo tổng hợp duy nhất vào `docs/reports/FORENSIC_DEEP_AUDIT_REPORT.md` (đánh số liên tục toàn bộ lỗi từ Phần 0 xác nhận + lỗi mới tìm thêm, phân nhóm theo 5 Mũi và mức độ `CRITICAL / HIGH / MEDIUM / LOW`, mỗi lỗi ghi rõ `file:dòng`, bước tái hiện và bằng chứng đo được), kèm ma trận tổng kết số lượng lỗi ngay trong chat.

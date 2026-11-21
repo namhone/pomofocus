@@ -1,112 +1,108 @@
-# HANDOFF REPORT: EXPLORER M1-1 (ZERO-FOUT & SPLASH CURTAIN FOUNDATION)
+# HANDOFF REPORT — Explorer M1-1
 
-**Dự án:** Pomofocus v6.0 Ultimate  
-**Milestone:** M1 — Zero-FOUT & Typography Foundation  
-**Agent:** Explorer M1-1  
-**Người nhận (Recipient):** Sub-Orchestrator M1 / Project Orchestrator (`1bd3b181-5618-4e23-9890-9f34e23eca19`)  
-**Tình trạng bàn giao:** Hard Handoff (Hoàn tất 100% mục tiêu điều tra)  
-
----
-
-## 1. OBSERVATION (QUAN SÁT TRỰC TIẾP)
-
-1. **`index.html:2`:**
-   - Nguyên văn: `<html lang="vi">`
-   - Quan sát: Không có `class="dark"`, không có inline styling.
-2. **`index.html:8`:**
-   - Nguyên văn: `<meta name="theme-color" content="#09090b" />`
-   - Quan sát: Đã có thẻ meta theme-color nhưng chưa có Critical CSS đồng bộ bên dưới.
-3. **`index.html:102`:**
-   - Nguyên văn: `<body class="bg-slate-900 text-slate-100 select-none">`
-   - Quan sát: Sử dụng `bg-slate-900` (`#0f172a`), không đồng nhất với nền Zen chuẩn `#09090b`. Class Tailwind không kích hoạt trước khi bundle CSS được tải.
-4. **`index.html:103-133`:**
-   - Quan sát: Bên trong `<div id="root">`, tồn tại 30 dòng HTML tĩnh (gồm `<header>`, `<nav>`, `<main>`, `<h1>`, `<p>`, `<ul>`, `<footer>`). Khi trình duyệt parse HTML trước lúc JS tải về, đoạn văn bản thô này bị render trên nền trắng với phông mặc định, gây hiện tượng FOUT/Hydration Flash.
-5. **`src/main.tsx:20-28`:**
-   - Nguyên văn:
-     ```tsx
-     ReactDOM.createRoot(document.getElementById('root')!).render(
-       <React.StrictMode>
-         <ErrorBoundary>
-           <RouterProvider>
-             <App />
-           </RouterProvider>
-         </ErrorBoundary>
-       </React.StrictMode>,
-     );
-     ```
-   - Quan sát: React 18 gắn kết vào `document.getElementById('root')`. React sẽ tự động dọn sạch và thế chỗ các phần tử con bên trong `#root`.
-6. **`tests/unit/wcagAccessibilityAudit.test.ts:159-166`:**
-   - Quan sát: Kiểm thử đọc trực tiếp `index.html` bằng `fs.readFileSync(indexPath, 'utf8')` và kiểm tra:
-     - `<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />`
-     - `<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />`
-     - `media="print"`
-     - `onload="this.media='all'"`
-   - Bất kỳ thay đổi nào trong `index.html` bắt buộc phải bảo lưu các dòng này.
-7. **Kết quả chạy kiểm thử nền tảng ban đầu:**
-   - Lệnh: `npm test` (`vitest run`) $\rightarrow$ **52 passed (52 test files), 466 passed (466 tests)**, Thời gian: 253.33s.
-   - Lệnh: `npm run type-check` (`tsc --noEmit`) $\rightarrow$ **0 errors (Exit code 0)**.
+**Milestone**: M1 (APK Navigation Shell & 100% Web Isolation)  
+**Agent**: `explorer_m1_1` (Teamwork Explorer)  
+**Recipient**: `orchestrator_p2` (`cf5bc11e-435c-4f27-a55e-a32f3bebfefa`) / Worker M1  
+**Timestamp**: 2026-11-21T11:21:00Z  
+**Analysis Reference**: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\analysis.md`  
 
 ---
 
-## 2. LOGIC CHAIN (CHUỖI LẬP LUẬN TỪ QUAN SÁT ĐẾN KẾT LUẬN)
+## 1. Observation
 
-1. Từ **Quan sát 1, 3 và 4**: Trình duyệt nạp HTML trước khi tải CSS và JS. Vì `<html>` và `<body>` không có inline dark style, và `<div id="root">` chứa văn bản crawler thô, trình duyệt hiển thị các dòng chữ đen trên nền trắng mặc định trong 200–500ms trước khi React và Tailwind nạp xong. Đây chính là nguyên nhân gốc rễ gây ra FOUT.
-2. Từ suy luận trên và yêu cầu tại `ORIGINAL_REQUEST.md`: Cần áp dụng cơ chế 3 tác động đồng thời ngay trong `index.html`:
-   - Khóa màu nền và chữ ngay lập tức tại thẻ gốc:
-     - Thẻ `<html>`: `<html lang="vi" class="dark" style="background-color: #09090b !important; color: #f4f4f5;">`
-     - Thẻ `<body>`: `<body class="bg-[#09090b] text-[#f4f4f5] select-none" style="background-color: #09090b !important; color: #f4f4f5;">`
-   - Bổ sung khối Critical Inline CSS `<style>` trong `<head>` (ngay sau `<meta name="theme-color" content="#09090b" />`) định nghĩa `#pomo-splash-curtain` (`position: fixed; inset: 0; background-color: #09090b; z-index: 99999; pointer-events: none;`) cùng animation `.pomo-spinner` màu ngọc `#10b981`.
-   - Bổ sung phần tử DOM `<div id="pomo-splash-curtain" aria-hidden="true"><div class="pomo-spinner"></div></div>` ngay đầu `<body>` trước `<div id="root">`.
-   - Bổ sung script tháo rèm tại cuối `<body>`: Lắng nghe sự kiện `DOMContentLoaded` và kích hoạt `.loaded` sau `100ms` (có dự phòng khi `document.readyState === 'interactive' || 'complete'`).
-3. Từ **Quan sát 5 (React Mounting)**: Vì `#pomo-splash-curtain` là phần tử anh em (sibling) của `<div id="root">`, nó không can thiệp vào cây DOM nội bộ mà React quản lý. Nhờ `pointer-events: none`, màn che không nuốt bất kỳ sự kiện click hay chạm nào. Toàn bộ nội dung crawler trong `<div id="root">` vẫn được bảo toàn trọn vẹn cho bot tìm kiếm (SEO).
-4. Từ **Quan sát 6 và 7**: Cấu trúc thay đổi đề xuất hoàn toàn giữ nguyên các thẻ preconnect KaTeX, title, meta og/twitter và JSON-LD schema. Điều này đảm bảo không làm gãy test `wcagAccessibilityAudit.test.ts` và bảo lưu tỷ lệ 100% pass trên toàn bộ test suite.
+1. **`Capacitor.isNativePlatform()` Detection**:
+   - `src/hooks/useDeviceDetection.ts:27-30`: Properly detects `isNativeCapacitor = Boolean(capacitorObj?.isNativePlatform?.() || (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()))`.
+   - However, grep search across `src/components/` confirmed that `PlatformHeader.tsx`, `SharedFooter.tsx`, and `CookieConsentBanner.tsx` have **zero references** to `isNativeCapacitor`.
 
----
+2. **Web Header & Footer Leakage**:
+   - `src/components/PlatformHeader.tsx:41-47`: Renders unconditionally without checking native environment.
+   - `src/components/PlatformHeader.tsx:231`: Contains `{ path: '/download', label: 'Tải App', icon: Download }` in `navItems`.
+   - `src/components/PlatformHeader.tsx:708-724`: Renders `{canInstall && (... Cài đặt ứng dụng (PWA) ...)}`.
+   - `src/components/SharedFooter.tsx:62-66`: Renders `{ label: 'Tải App Android (APK)', path: '/download' }` unconditionally across all non-workspace pages.
 
-## 3. CAVEATS (GIỚI HẠN & GIẢ ĐỊNH)
+3. **Universal Blast Radius on Secondary Views (BUG-01, BUG-02, BUG-76)**:
+   - `src/App.tsx:486-552`: All 13 secondary view routes (`/billing`, `/calendar`, `/rooms`, `/profile`, `/account/security`, `/dashboard`, `/settings`, `/privacy-data`, `/help`, `/contact`, `/terms`, `/privacy`, `/about`, `/download`, and 404) directly mount raw desktop web components that hardcode `<PlatformHeader />` and `<SharedFooter />`.
+   - `src/components/LegalViews.tsx:72-76`: The back button `<button onClick={() => router.navigate('/app')}>` has class `hidden sm:flex`. On mobile screen widths (< 640px), the button is completely hidden, trapping mobile users in legal pages.
+   - `src/components/HelpView.tsx:53` & `src/components/ContactView.tsx:46`: Contain zero return buttons on any viewport.
 
-1. **Phạm vi quyền hạn:** Là Explorer, agent tuân thủ nghiêm ngặt nguyên tắc chỉ đọc (Read-only investigation). Không trực tiếp chỉnh sửa `index.html` nguồn. Thay vào đó, toàn bộ mã nguồn đề xuất hoàn chỉnh đã được tạo tại:
-   - `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\proposed_index.html`
-   - `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\index_html_changes.patch`
-2. **Font Display:** Nhiệm vụ cấu hình `font-display: optional` thuộc phân công của Explorer M1-2 và Sub-Orchestrator M1. Phân tích này tập trung chuyên sâu vào `index.html`, Zero-FOUT preloader và tính toàn vẹn của React root mounting.
-3. **Thời gian tháo rèm 100ms:** Thời gian 100ms sau `DOMContentLoaded` là mức chuẩn vàng được quy định trong `PROJECT.md` Interface Contract 1. Nếu trên máy yếu có mạng cực chậm (CPU throttling 4x), 100ms vẫn đủ an toàn vì rèm che có transition 300ms và `pointer-events: none` không gây đơ giao diện.
+4. **Cookie Consent Banner Collision (BUG-03)**:
+   - `src/App.tsx:669`: Mounts `<CookieConsentBanner />` unconditionally at root.
+   - `src/components/CookieConsentBanner.tsx:51`: Lacks `isNativeCapacitor` check. It renders 800ms after startup in the native APK, floating over the timer controls in `MobileFocusView`.
+   - `src/components/CookieConsentBanner.tsx:88-113`: Buttons lack `whitespace-nowrap`, wrapping "Đồng ý & Tiếp tục" across 2 lines on viewports under 390px.
 
----
+5. **Deep Link Drop & 404 Page (BUG-11)**:
+   - `src/App.tsx:394`: `if (rawUrl.includes('/rooms'))` is the only custom scheme route handled. Links like `pomofocus://billing` or `pomofocus://settings` are discarded.
+   - `src/pages/NotFoundPage.tsx:51, 80-95`: Renders raw emojis (`⏱`, `🏠`) and lacks a top navigation bar with a back button.
 
-## 4. CONCLUSION (KẾT LUẬN CUỐI CÙNG)
-
-1. Thiết kế Zero-FOUT cho `index.html` đã hoàn thiện 100%, bảo đảm triệt tiêu hoàn toàn hiện tượng nhấp nháy chữ thô/nền trắng khi vào trang hoặc F5.
-2. Việc bổ sung `#pomo-splash-curtain` hoàn toàn **KHÔNG gây ảnh hưởng tiêu cực** đến việc gắn kết React root (`<div id="root">`), đồng thời bảo tồn 100% SEO fallback HTML cho các công cụ thu thập dữ liệu (AI Crawlers & Search Engines).
-3. Đã xuất bản hai sản phẩm bàn giao kỹ thuật trực tiếp:
-   - Bản mẫu hoàn chỉnh: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\proposed_index.html`
-   - Bản vá Unified Diff: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\index_html_changes.patch`
-   - Báo cáo phân tích chuyên sâu: `d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\analysis.md`
+6. **Baseline Build & Tests**:
+   - `npm run type-check`: Ran via background task (Task ID `d6a2c851-381d-42d1-ae1d-9348f614aa28/task-188`), completed with **0 errors** (exit code 0).
 
 ---
 
-## 5. VERIFICATION METHOD (PHƯƠNG PHÁP KIỂM CHỨNG ĐỘC LẬP)
+## 2. Logic Chain
 
-Để kiểm chứng tính chính xác của đề xuất trước khi implement:
+1. From Observation 1, `useDeviceDetection` reliably returns `isNativeCapacitor: true` when running inside Capacitor Android APK.
+2. From Observation 2, because `PlatformHeader.tsx` and `SharedFooter.tsx` never check `isNativeCapacitor`, whenever any view mounts them inside the APK, they leak full web desktop chrome, including "Tải App" and "Cài đặt PWA" links.
+3. Therefore, adding a Layer 1 self-suppression invariant (`if (isNativeCapacitor) return null;`) at the top of `PlatformHeader.tsx` and `SharedFooter.tsx` guarantees that no matter where or how they are mounted, they will NEVER render inside native APK mode (Defense in Depth).
+4. From Observation 3, when `PlatformHeader` is suppressed, secondary views in APK mode need a native top navigation bar. Creating `MobileSubViewLayout.tsx` with a standard 48px TopBar (`h-12`), persistent `← Quay lại` button, title, and safe area insets (`pt-safe`, `pb-safe`) provides a native Android app experience across all secondary views.
+5. In `LegalViews.tsx`, removing `hidden sm:flex` from the return button fixes BUG-01 on mobile web viewports (< 640px). Wrapping legal views in `MobileSubViewLayout` in native APK mode resolves BUG-76.
+6. From Observation 4, adding `if (isNativeCapacitor) return null;` to `CookieConsentBanner.tsx` and adding `whitespace-nowrap` to its buttons resolves BUG-03.
+7. From Observation 5, expanding `handleDeepLinkUrl` in `App.tsx` to parse any `pomofocus://` path, and adding a top back button and Lucide icons to `NotFoundPage.tsx`, resolves BUG-11.
+8. In `App.tsx`, intercepting `/download` routes on `isNativeCapacitor` to redirect to `/app` prevents APK users from ever viewing a download hub for the app they are already using.
 
-1. **Kiểm tra cú pháp và độ khớp bản vá:**
-   ```powershell
-   git apply --check "d:\FileCuaNam\Web'\Pomodoro\.agents\teamwork\explorer_m1_1\index_html_changes.patch"
-   ```
-2. **Kiểm tra WCAG Accessibility & Index HTML assertions:**
-   ```powershell
-   npx vitest run tests/unit/wcagAccessibilityAudit.test.ts
-   ```
-   *Kỳ vọng:* 8/8 tests pass trong ~30ms.
-3. **Kiểm tra biên dịch kiểu TypeScript:**
-   ```powershell
+---
+
+## 3. Caveats
+
+- **Android 15 Edge-to-Edge**: Full dynamic keyboard insets and hardware back-stack coordination are assigned to Milestone M2 (`MobileAppShell.tsx` and `MainActivity.java`). Milestone M1 focuses strictly on Web Isolation, secondary view navigation shell, and banner suppression.
+- **Google OAuth Native Flow**: Native OAuth via `@capacitor/browser` is assigned to Milestone M3 (`googleAuthService.ts`).
+- **No Caveats** regarding the Web Isolation scope: the proposed file modifications and invariants are completely self-contained.
+
+---
+
+## 4. Conclusion
+
+The strategy for Worker M1 is clear, surgical, and robust:
+1. **New Component**: Create `src/components/mobile/MobileSubViewLayout.tsx` (TopBar `h-12`, back button, title, action slot, `overflow-y-auto`, safe area insets).
+2. **Layer 1 Invariants**:
+   - `src/components/PlatformHeader.tsx`: Return `null` if `isNativeCapacitor`.
+   - `src/components/SharedFooter.tsx`: Return `null` if `isNativeCapacitor`.
+   - `src/components/CookieConsentBanner.tsx`: Return `null` if `isNativeCapacitor`; add `whitespace-nowrap` to buttons.
+3. **App Router & Deep Links (`src/App.tsx`)**:
+   - Suppress `beforeinstallprompt` if `isNativeCapacitor`.
+   - Expand `handleDeepLinkUrl` to parse `pomofocus://<path>`.
+   - Redirect `/download` -> `/app` in native APK mode.
+4. **Secondary Views**:
+   - `src/components/LegalViews.tsx`: Unhide return button on mobile (remove `hidden sm:flex`); render inside `MobileSubViewLayout` in APK mode.
+   - `src/pages/NotFoundPage.tsx`: Add top back button, replace raw emojis with Lucide icons.
+5. **Unit Tests**: Implement 10 comprehensive tests in `tests/unit/m1WebIsolationAndNavigation.test.tsx`.
+
+---
+
+## 5. Verification Method
+
+1. **Static Analysis & Typecheck**:
+   ```bash
    npm run type-check
    ```
-   *Kỳ vọng:* 0 lỗi.
-4. **Kiểm tra toàn bộ test suite:**
-   ```powershell
-   npm test
+   Must exit with code 0.
+2. **Unit Tests**:
+   ```bash
+   npx vitest run tests/unit/m1WebIsolationAndNavigation.test.tsx
    ```
-   *Kỳ vọng:* 52/52 test files pass, 466/466 tests pass.
-5. **Điều kiện vô hiệu hóa kết luận (Invalidation Conditions):**
-   - Nếu bất kỳ thẻ con nào bên trong `<div id="root">` bị xóa bỏ khiến bot SEO không thấy nội dung.
-   - Nếu `#pomo-splash-curtain` bị lồng nhầm vào bên trong `<div id="root">`, khiến React unmount làm mất hiệu ứng mờ dần.
+   All 10 tests must pass:
+   - `PlatformHeader` returns `null` on `isNativeCapacitor === true`.
+   - `SharedFooter` returns `null` on `isNativeCapacitor === true`.
+   - `CookieConsentBanner` returns `null` on `isNativeCapacitor === true`.
+   - Cookie banner action buttons contain `whitespace-nowrap`.
+   - `MobileSubViewLayout` renders TopBar with title and triggers back navigation.
+   - `LegalViews` return button does not contain `hidden sm:flex`.
+   - Deep links `pomofocus://billing` trigger router navigation.
+   - Navigating to `/download` on native APK redirects to `/app`.
+3. **Existing Test Suite Regression**:
+   ```bash
+   npm run test
+   ```
+   All 53 test suites must pass without regressions.
+4. **Invalidation Condition**:
+   If any web header or footer is visible when `(window as any).Capacitor = { isNativePlatform: () => true }`, or if any secondary view is trapped without a back button on `< 640px`, the fix is invalid.

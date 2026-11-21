@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../db';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
-import { PlatformHeader } from './PlatformHeader';
-import { SharedFooter } from './SharedFooter';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
+import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
 import {
   ArrowLeft,
   Database,
@@ -25,6 +25,8 @@ import {
 
 export const PrivacyDataView: React.FC = () => {
   const router = useRouter();
+  const { isMobile, isNativeCapacitor } = useDeviceDetection();
+  const isMobileOrNative = isMobile || isNativeCapacitor;
   const { exportUserData, clearUserData } = useAuthStore();
 
   const [stats, setStats] = useState({
@@ -164,30 +166,36 @@ export const PrivacyDataView: React.FC = () => {
   };
 
   return (
-    <div
-      data-testid="privacy-data-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+    <MobileSubViewLayout
+      title="Quyền Riêng Tư & Dữ Liệu"
+      subtitle="Client Encrypted"
+      backTestId="back-to-workspace-btn"
+      onBack={() => router.navigate('/app')}
+      className="selection:bg-white selection:text-black"
     >
-      <PlatformHeader />
+      <div
+        data-testid="privacy-data-view"
+        className="w-full max-w-4xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
+      >
+        {/* Nút Quay Lại Bàn Học & Privacy Status cho Desktop Web */}
+        {!isMobileOrNative && (
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              data-testid="back-to-workspace-btn"
+              onClick={() => router.navigate('/app')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
+            >
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
+              <span>Quay lại không gian học</span>
+            </button>
 
-      <main className="flex-1 w-full max-w-4xl mx-auto pt-20 sm:pt-24 pb-16 px-4 space-y-6">
-        {/* Nút Quay Lại Bàn Học & Privacy Status */}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            data-testid="back-to-workspace-btn"
-            onClick={() => router.navigate('/app')}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group py-1"
-          >
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1 text-zinc-400 group-hover:text-white" />
-            <span>Quay lại không gian học</span>
-          </button>
-
-          <div className="flex items-center gap-1.5 text-xs text-emerald-400">
-            <ShieldCheck size={14} />
-            <span className="whitespace-nowrap font-medium text-[11px] sm:text-xs">Client Encrypted</span>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+              <ShieldCheck size={14} />
+              <span className="whitespace-nowrap font-medium text-[11px] sm:text-xs">Client Encrypted</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Sub-nav Tabs: Hồ sơ | Bảo mật | Gói cước | Dữ liệu (Full Width Scrollable) */}
         <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
@@ -376,7 +384,7 @@ export const PrivacyDataView: React.FC = () => {
             </button>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
@@ -438,8 +446,6 @@ export const PrivacyDataView: React.FC = () => {
           </div>
         </div>
       )}
-
-      <SharedFooter />
-    </div>
+    </MobileSubViewLayout>
   );
 };
