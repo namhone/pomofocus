@@ -75,6 +75,8 @@ declare global {
 
 const GSI_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
 export const OFFICIAL_GOOGLE_CLIENT_ID = '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
+export const OFFICIAL_GOOGLE_ANDROID_CLIENT_ID = '935136578653-4vqaofqn46l1jqoh8argpjoaa1tncrtf.apps.googleusercontent.com';
+export const GOOGLE_PROJECT_ID = 'pomo-513105';
 
 export const GOOGLE_OAUTH_GUIDANCE_MESSAGE =
   'Google OAuth yêu cầu thêm domain https://pomofocus-workspace.vercel.app vào Google Cloud Console. Vui lòng kiểm tra cài đặt hoặc sử dụng đăng nhập bằng Email.';
@@ -88,6 +90,16 @@ export const googleAuthService = {
       }
     }
     return OFFICIAL_GOOGLE_CLIENT_ID;
+  },
+
+  getAndroidClientId(): string {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      const envId = (import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID as string) || '';
+      if (envId && envId.trim().length > 0) {
+        return envId.trim();
+      }
+    }
+    return OFFICIAL_GOOGLE_ANDROID_CLIENT_ID;
   },
 
   isConfigured(): boolean {
