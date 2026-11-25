@@ -108,22 +108,31 @@ describe('Multi-Channel Audio Engine & Comprehensive Ambient Suite (v6.3)', () =
 
   describe('2. Multi-Channel Audio Engine (HTMLAudioElement Map)', () => {
     it('khởi tạo HTMLAudioElement khi bật track có URL và thêm vào activeAudioElements map', async () => {
-      const store = useAudioStore.getState();
-      await store.toggleTrack('rain');
+      vi.useFakeTimers();
+      try {
+        const store = useAudioStore.getState();
+        await store.toggleTrack('rain');
 
-      const activeMap = getActiveAudioElements();
-      const rainAudio = activeMap.get('rain');
-      expect(rainAudio).toBeDefined();
-      expect(rainAudio?.loop).toBe(true);
-      // Đảm bảo không gán crossOrigin để trình duyệt phát ở chế độ HTML5 No-CORS chuẩn (tránh bị CDN Google chặn CORS)
-      expect(rainAudio?.crossOrigin).toBeFalsy();
+        const activeMap = getActiveAudioElements();
+        const rainAudio = activeMap.get('rain');
+        expect(rainAudio).toBeDefined();
+        expect(rainAudio?.loop).toBe(true);
+        // Đảm bảo không gán crossOrigin để trình duyệt phát ở chế độ HTML5 No-CORS chuẩn (tránh bị CDN Google chặn CORS)
+        expect(rainAudio?.crossOrigin).toBeFalsy();
 
-      const track = useAudioStore.getState().tracks.find((t) => t.id === 'rain');
-      expect(track?.isPlaying).toBe(true);
+        const track = useAudioStore.getState().tracks.find((t) => t.id === 'rain');
+        expect(track?.isPlaying).toBe(true);
 
-      // Âm lượng gán bằng track.volume * masterVolume
-      const expectedVol = track!.volume * DEFAULT_SETTINGS.masterVolume;
-      expect(rainAudio?.volume).toBeCloseTo(expectedVol, 2);
+        // Bắt đầu từ volume 0 và fade-in mượt mà trong 220ms tới expectedVol
+        expect(rainAudio?.volume).toBe(0);
+        await vi.advanceTimersByTimeAsync(250);
+
+        // Âm lượng gán bằng track.volume * masterVolume
+        const expectedVol = track!.volume * DEFAULT_SETTINGS.masterVolume;
+        expect(rainAudio?.volume).toBeCloseTo(expectedVol, 2);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('dừng track và xóa khỏi activeAudioElements map khi toggle off', async () => {

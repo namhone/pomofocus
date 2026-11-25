@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { studyRoomService } from '../../src/services/studyRoomService';
 import { roomService, MASTER_ADMINS, isMasterAdmin, getRoomRole, canManageRoom } from '../../src/services/roomService';
-import { useRoomStore } from '../../src/stores/useRoomStore';
 import { UserProfile } from '../../src/services/authService';
 
 describe('Room Governance, Anti-Squatting & Host Controls Specification', () => {
@@ -39,7 +38,6 @@ describe('Room Governance, Anti-Squatting & Host Controls Specification', () => 
 
   beforeEach(() => {
     localStorage.clear();
-    useRoomStore.getState().reset();
   });
 
   describe('1. Persistent & Reserved Room Slug (Định danh độc quyền & Anti-Squatting)', () => {
@@ -178,7 +176,7 @@ describe('Room Governance, Anti-Squatting & Host Controls Specification', () => 
     });
   });
 
-  describe('3. Host Controls Panel, Realtime Signaling & State Store (useRoomStore)', () => {
+  describe('3. Host Controls & Active Realtime Signaling', () => {
     it('Chủ phòng cập nhật công tắc: Cho phép bật Mic (allow_mic = false) -> Khóa mic thành viên thường', async () => {
       const createRes = studyRoomService.createRoom({
         title: 'Phòng Thuyết Trình',
@@ -198,21 +196,12 @@ describe('Room Governance, Anti-Squatting & Host Controls Specification', () => 
       const updatedRoom = studyRoomService.getRoom('presentation-room');
       expect(updatedRoom?.settings?.allow_mic).toBe(false);
 
-      // useRoomStore của thành viên B phản ứng: mic bị khóa bởi Host
-      useRoomStore.getState().initRoom(updatedRoom!, userB);
-      expect(useRoomStore.getState().role).toBe('participant');
-      expect(useRoomStore.getState().isMicLockedByHost).toBe(true);
-
-      // Khi nhận broadcast FORCE_MUTE từ host
-      const onForceMuteLocal = vi.fn();
-      useRoomStore.getState().handleAdminAction(
-        { action: 'FORCE_MUTE', targetId: 'all' },
-        'peer_guest_b',
-        userB.id,
-        onForceMuteLocal
-      );
-      expect(onForceMuteLocal).toHaveBeenCalled();
-      expect(useRoomStore.getState().adminNotice).toContain('bị Quản trị viên tắt Micro');
+      expect(getRoomRole(userB, updatedRoom!)).toBe('participant');
+      const channel = { send: vi.fn() };
+      roomService.broadcastForceMute('presentation-room', 'all', userA, channel as any);
+      expect(channel.send).toHaveBeenCalledWith(expect.objectContaining({
+        event: 'room-admin-action', payload: expect.objectContaining({ action: 'FORCE_MUTE', targetId: 'all' })
+      }));
     });
 
     it('Chủ phòng cấm chia sẻ màn hình (allow_screen_share = false) -> Dừng stream và khóa nút share', async () => {
@@ -231,18 +220,12 @@ describe('Room Governance, Anti-Squatting & Host Controls Specification', () => 
       const updatedRoom = studyRoomService.getRoom('focus-no-share');
       expect(updatedRoom?.settings?.allow_screen_share).toBe(false);
 
-      useRoomStore.getState().initRoom(updatedRoom!, userB);
-      expect(useRoomStore.getState().isScreenShareLockedByHost).toBe(true);
-
-      const onForceStopScreenShare = vi.fn();
-      useRoomStore.getState().handleAdminAction(
-        { action: 'FORCE_STOP_SCREEN_SHARE', targetId: 'all' },
-        'peer_guest_b',
-        userB.id,
-        undefined,
-        onForceStopScreenShare
-      );
-      expect(onForceStopScreenShare).toHaveBeenCalled();
+      expect(getRoomRole(userB, updatedRoom!)).toBe('participant');
+      const channel = { send: vi.fn() };
+      roomService.broadcastForceStopScreenShare(room.roomId, 'all', userA, channel as any);
+      expect(channel.send).toHaveBeenCalledWith(expect.objectContaining({
+        payload: expect.objectContaining({ action: 'FORCE_STOP_SCREEN_SHARE', targetId: 'all' })
+      }));
     });
 
     it('Chủ phòng Khóa phòng (is_locked = true) -> Chặn người mới vào, nhưng cho phép Host & Master Admin vào', async () => {
@@ -274,33 +257,13 @@ describe('Room Governance, Anti-Squatting & Host Controls Specification', () => 
       expect(accessNam.allowed).toBe(true);
     });
 
-    it('Lệnh Kick: Người bị kick bị kích hoạt onKicked callback, nhưng Master Admin không bao giờ bị kick', () => {
-      useRoomStore.getState().role = 'participant';
-      const onKickedLocal = vi.fn();
-
-      // Bị kick
-      useRoomStore.getState().handleAdminAction(
-        { action: 'KICK', targetId: 'peer_b' },
-        'peer_b',
-        userB.id,
-        undefined,
-        undefined,
-        onKickedLocal
-      );
-      expect(onKickedLocal).toHaveBeenCalled();
-
-      // Master Admin không thể bị kick
-      useRoomStore.getState().role = 'master_admin';
-      const onMasterKicked = vi.fn();
-      useRoomStore.getState().handleAdminAction(
-        { action: 'KICK', targetId: 'peer_nam' },
-        'peer_nam',
-        masterNam.id,
-        undefined,
-        undefined,
-        onMasterKicked
-      );
-      expect(onMasterKicked).not.toHaveBeenCalled();
+    it('broadcasts the exact kick target and preserves Founder role priority', () => {
+      const channel = { send: vi.fn() };
+      roomService.broadcastKickParticipant('test-room', 'peer_b', userB.id, userA, channel as any);
+      expect(channel.send).toHaveBeenCalledWith(expect.objectContaining({
+        payload: expect.objectContaining({ action: 'KICK', targetId: 'peer_b', targetUserId: userB.id })
+      }));
+      expect(getRoomRole(masterNam, null)).toBe('master_admin');
     });
 
     it('Xóa phòng vĩnh viễn: Chỉ Chủ phòng hoặc Master Admin mới xóa được, người khác xóa bị từ chối', () => {

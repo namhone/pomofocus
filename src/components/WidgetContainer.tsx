@@ -325,7 +325,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               toggleCollapseWidget(id);
             }
           }}
-          className={`w-full max-w-xl mx-auto mb-3 cursor-pointer select-none bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl hover:border-white/25 transition-all duration-200 flex items-center justify-between gap-3 touch-pan-y group ${className}`}
+          className={`pointer-events-auto w-full max-w-xl mx-auto mb-3 cursor-pointer select-none bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl hover:border-white/25 transition-all duration-200 flex items-center justify-between gap-3 touch-pan-y group ${className}`}
           title={`Bấm 1-chạm hoặc bấm ↗ để mở rộng ${widget.title}`}
         >
           <CollapsedWidgetCard id={id} isMobile={true} />
@@ -350,7 +350,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               }
             : {})
         }}
-        className={isCenteredModal ? `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-lg z-50 max-h-[85vh] rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}` : `w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
+        className={isCenteredModal ? `pointer-events-auto fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-lg z-50 max-h-[85vh] rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}` : `pointer-events-auto w-full max-w-xl mx-auto mb-5 rounded-[20px] border-t border-t-white/25 border-b border-b-white/5 border-x border-x-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] overflow-hidden flex flex-col touch-pan-y ${className}`}
       >
         {/* Mobile Header Bar */}
         <div className="h-10 flex items-center justify-between px-3.5 border-b border-white/[0.08] bg-white/[0.02] select-none touch-pan-y">
@@ -399,7 +399,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             <CollapsedWidgetCard id={id} isMobile={true} />
           </div>
         ) : (
-          <div className={`${isMedia ? 'p-0 h-[340px] max-h-[70vh]' : isCenteredModal ? 'p-3.5 sm:p-4 overflow-y-auto scrollbar-none' : 'p-4 overflow-visible'} flex-1 min-h-0 touch-pan-y`}>{children}</div>
+          <div className={`${isMedia ? 'p-0 h-[340px] max-h-[70vh]' : isCenteredModal ? 'p-3.5 sm:p-4 overflow-y-auto scrollbar-none' : 'p-4 overflow-visible'} ${isMedia ? 'flex-none' : 'flex-1'} min-h-0 touch-pan-y`}>{children}</div>
         )}
       </section>
     );

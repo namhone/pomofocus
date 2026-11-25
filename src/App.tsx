@@ -46,6 +46,7 @@ import { MobileSubViewLayout } from './components/mobile/MobileSubViewLayout';
 import { MobileSettingsView } from './components/mobile/views/MobileSettingsView';
 import { runStorageSchemaMigration } from './utils/safeStorage';
 import { syncQueueService } from './services/syncQueueService';
+import { subscribeWorkspaceRealtime } from './services/workspaceRealtimeService';
 
 // Polyfill supabase.auth.setSession for native deep link authentication
 if (typeof window !== 'undefined' && supabase?.auth) {
@@ -154,6 +155,10 @@ export const App: React.FC = () => {
   const initTimer = useTimerStore((state) => state.init);
   const destroyTimer = useTimerStore((state) => state.destroy);
   const timerLifecycleGeneration = useRef(0);
+  const realtimeUserId = useAuthStore(state => state.isAuthenticated ? state.user?.id : undefined);
+  useEffect(() => {
+    if (realtimeUserId) return subscribeWorkspaceRealtime(realtimeUserId);
+  }, [realtimeUserId]);
 
   // V8.1: Run storage schema migration on app startup to purge obsolete keys and heavy data
   useEffect(() => {
@@ -180,12 +185,12 @@ export const App: React.FC = () => {
       }
     };
 
-    window.addEventListener('visibilitychange', handleAppVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleAppVisibilityOrFocus);
     window.addEventListener('pageshow', handleAppVisibilityOrFocus);
     window.addEventListener('focus', handleAppVisibilityOrFocus);
 
     return () => {
-      window.removeEventListener('visibilitychange', handleAppVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleAppVisibilityOrFocus);
       window.removeEventListener('pageshow', handleAppVisibilityOrFocus);
       window.removeEventListener('focus', handleAppVisibilityOrFocus);
     };

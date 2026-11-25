@@ -357,7 +357,7 @@ export const SpacesWidget: React.FC = () => {
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-white text-xs truncate">Thư Viện Không Gian</h3>
-              <p className="text-[10px] text-neutral-400 truncate">Không gian nền 4K</p>
+              <p className="text-[10px] text-neutral-400 truncate">Không gian nền</p>
             </div>
           </div>
 
@@ -430,7 +430,7 @@ export const SpacesWidget: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* TAB 1: KHO HÌNH NỀN (1.000+ Ảnh Pinterest Aesthetic)     */}
+      {/* TAB 1: KHO HÌNH NỀN (Ảnh tinh tuyển)     */}
       {/* ========================================================= */}
       {activeTab === 'wallpapers' && (
         <div className="flex-1 flex flex-col min-h-0 pt-2 space-y-2 overflow-hidden">

@@ -74,6 +74,9 @@ export const ICE_SERVERS = DEFAULT_RTC_CONFIG;
 
 export class WebRTCConnectionManager {
   private localStream: MediaStream | null = null;
+  private remoteStreams = new Map<string, MediaStream>();
+  private destroyed = false;
+  private signalingCleanup: Array<() => void> = [];
   private peerConnections: Map<string, RTCPeerConnection> = new Map();
   private pendingCandidates: Map<string, RTCIceCandidateInit[]> = new Map();
   private channel: RealtimeChannel;
@@ -178,6 +181,7 @@ export class WebRTCConnectionManager {
     targetPeerId: string,
     data: any
   ) {
+    if (this.destroyed) return;
     let cleanData = data;
     if (signalType === 'ICE_CANDIDATE' && data) {
       cleanData = typeof data.toJSON === 'function' ? data.toJSON() : {
@@ -243,7 +247,7 @@ export class WebRTCConnectionManager {
   /** Lắng nghe các bản tin Signaling từ Supabase Broadcast & BroadcastChannel */
   private setupSignalingListeners() {
     const handleIncomingSignal = async (event: string, payload: any) => {
-      if (!payload) return;
+      if (!payload || this.destroyed) return;
 
       const from = payload.fromPeerId || payload.senderId;
       const target = payload.targetPeerId || payload.targetId;
@@ -276,28 +280,19 @@ export class WebRTCConnectionManager {
     };
 
     // Supabase Channel listeners
-    this.channel
-      .on('broadcast', { event: 'p2p-signal' }, (payload: any) =>
-        handleIncomingSignal('p2p-signal', payload?.payload || payload)
-      )
-      .on('broadcast', { event: 'webrtc-offer' }, (payload: any) =>
-        handleIncomingSignal('webrtc-offer', payload?.payload || payload)
-      )
-      .on('broadcast', { event: 'webrtc-answer' }, (payload: any) =>
-        handleIncomingSignal('webrtc-answer', payload?.payload || payload)
-      )
-      .on('broadcast', { event: 'webrtc-candidate' }, (payload: any) =>
-        handleIncomingSignal('webrtc-candidate', payload?.payload || payload)
-      )
-      .on('presence', { event: 'leave' }, (payload: any) => {
-        const leftPresences = payload?.leftPresences || [];
-        leftPresences.forEach((presence: { user_id?: string; userId?: string; key?: string }) => {
-          const peerId = presence.key || presence.user_id || presence.userId;
-          if (peerId && peerId !== this.myUserId) {
-            this.closeConnection(peerId);
-          }
-        });
-      });
+    for (const event of ['p2p-signal', 'webrtc-offer', 'webrtc-answer', 'webrtc-candidate']) {
+      const listener = (payload: any) => handleIncomingSignal(event, payload?.payload || payload);
+      this.channel.on('broadcast', { event }, listener);
+      this.signalingCleanup.push(() => this.channel.off?.('broadcast', { event }, listener));
+    }
+    const handlePresenceLeave = (payload: any) => {
+      for (const presence of payload?.leftPresences || []) {
+        const peerId = presence.key || presence.user_id || presence.userId;
+        if (peerId && peerId !== this.myUserId) this.closeConnection(peerId);
+      }
+    };
+    this.channel.on('presence', { event: 'leave' }, handlePresenceLeave);
+    this.signalingCleanup.push(() => this.channel.off?.('presence', { event: 'leave' }, handlePresenceLeave));
 
     // Local BroadcastChannel listener
     if (this.broadcastChannel) {
@@ -355,7 +350,7 @@ export class WebRTCConnectionManager {
       this.makingOfferMap.set(peerId, true);
       const offer = await pc.createOffer({ iceRestart: true });
       await pc.setLocalDescription(offer);
-      this.sendTargetedSignal('OFFER', peerId, offer);
+      if (!this.destroyed && this.peerConnections.get(peerId) === pc) this.sendTargetedSignal('OFFER', peerId, offer);
     } catch (err) {
       console.warn(`[WebRTC] Lỗi createOffer với iceRestart cho ${peerId}:`, err);
     } finally {
@@ -396,18 +391,13 @@ export class WebRTCConnectionManager {
    * Tái tạo lại PeerConnection hoàn toàn sạch mới nếu ICE Restart bị kẹt
    */
   public recreatePeerConnection(peerId: string) {
+    if (this.destroyed) return;
     console.log(`[WebRTC] Tái tạo PeerConnection sạch mới cho ${peerId}`);
-    const oldPc = this.peerConnections.get(peerId);
-    if (oldPc) {
-      try {
-        oldPc.close();
-      } catch {}
-      this.peerConnections.delete(peerId);
-    }
-    const newPc = this.createPeerConnection(peerId);
-    this.peerConnections.set(peerId, newPc);
+    this.releasePeerResources(peerId);
     if (this.myUserId > peerId) {
-      this.callPeer(peerId);
+      void this.callPeer(peerId);
+    } else {
+      this.peerConnections.set(peerId, this.createPeerConnection(peerId));
     }
   }
 
@@ -435,7 +425,7 @@ export class WebRTCConnectionManager {
 
   /** Khởi tạo kết nối tới một peer cụ thể (Tạo SDP Offer) */
   public async callPeer(peerId: string) {
-    if (!peerId || peerId === this.myUserId) return;
+    if (this.destroyed || !peerId || peerId === this.myUserId) return;
     const existing = this.peerConnections.get(peerId);
     if (existing && existing.signalingState !== 'closed') {
       if (existing.signalingState === 'stable') {
@@ -511,7 +501,10 @@ export class WebRTCConnectionManager {
       if (!remoteStream && event.track) {
         remoteStream = new MediaStream([event.track]);
       }
-      if (remoteStream) {
+      if (remoteStream && !this.destroyed) {
+        const previous = this.remoteStreams.get(peerId);
+        if (previous && previous !== remoteStream) previous.getTracks().forEach(track => track.stop());
+        this.remoteStreams.set(peerId, remoteStream);
         this.callbacks.onRemoteStream(peerId, remoteStream);
       }
     };
@@ -696,33 +689,34 @@ export class WebRTCConnectionManager {
   /**
    * Dọn dẹp kết nối khi có người rời phòng (Peer Teardown sạch sẽ)
    */
-  public closeConnection(peerId: string) {
+  private releasePeerResources(peerId: string) {
     const timer = this.disconnectTimers.get(peerId);
-    if (timer) {
-      clearTimeout(timer);
-      this.disconnectTimers.delete(peerId);
-    }
+    if (timer) clearTimeout(timer);
+    this.disconnectTimers.delete(peerId);
     const dc = this.dataChannels.get(peerId);
     if (dc) {
-      try {
-        dc.close();
-      } catch {
-        // Ignored
-      }
+      dc.onmessage = null;
+      try { dc.close(); } catch { /* Already closed. */ }
       this.dataChannels.delete(peerId);
     }
     const pc = this.peerConnections.get(peerId);
     if (pc) {
-      try {
-        pc.close();
-      } catch {
-        // Ignored
-      }
+      pc.ontrack = null;
+      pc.onicecandidate = null;
+      pc.onconnectionstatechange = null;
+      try { pc.close(); } catch { /* Already closed. */ }
       this.peerConnections.delete(peerId);
-      this.pendingCandidates.delete(peerId);
-      this.makingOfferMap.delete(peerId);
-      this.callbacks.onPeerLeave(peerId);
     }
+    this.remoteStreams.get(peerId)?.getTracks().forEach(track => track.stop());
+    this.remoteStreams.delete(peerId);
+    this.pendingCandidates.delete(peerId);
+    this.makingOfferMap.delete(peerId);
+  }
+
+  public closeConnection(peerId: string) {
+    const existed = this.peerConnections.has(peerId);
+    this.releasePeerResources(peerId);
+    if (existed) this.callbacks.onPeerLeave(peerId);
   }
 
   /** Lấy danh sách ID các peer hiện đang có kết nối trong Mesh */
@@ -732,32 +726,23 @@ export class WebRTCConnectionManager {
 
   /** Giải phóng toàn bộ ma trận P2P khi bản thân rời phòng */
   public destroy() {
-    if (this.natKeepAliveInterval) {
-      clearInterval(this.natKeepAliveInterval);
-      this.natKeepAliveInterval = null;
-    }
-    this.disconnectTimers.forEach((t) => clearTimeout(t));
+    if (this.destroyed) return;
+    this.destroyed = true;
+    if (this.natKeepAliveInterval) clearInterval(this.natKeepAliveInterval);
+    this.natKeepAliveInterval = null;
+    this.signalingCleanup.splice(0).forEach(cleanup => cleanup());
+    for (const peerId of [...this.peerConnections.keys()]) this.closeConnection(peerId);
+    this.remoteStreams.forEach(stream => stream.getTracks().forEach(track => track.stop()));
+    this.remoteStreams.clear();
+    this.localStream?.getTracks().forEach(track => track.stop());
+    this.localStream = null;
+    this.disconnectTimers.forEach(timer => clearTimeout(timer));
     this.disconnectTimers.clear();
-    this.dataChannels.forEach((dc) => {
-      try {
-        dc.close();
-      } catch {
-        // Ignored
-      }
-    });
     this.dataChannels.clear();
-    this.peerConnections.forEach((pc, peerId) => {
-      try {
-        pc.close();
-      } catch {
-        // Ignored
-      }
-      this.callbacks.onPeerLeave(peerId);
-    });
-    this.peerConnections.clear();
     this.pendingCandidates.clear();
     this.makingOfferMap.clear();
     if (this.broadcastChannel) {
+      this.broadcastChannel.onmessage = null;
       this.broadcastChannel.close();
       this.broadcastChannel = null;
     }

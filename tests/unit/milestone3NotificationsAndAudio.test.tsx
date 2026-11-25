@@ -356,18 +356,25 @@ describe('Milestone 3: Background Notifications, WakeLock & Audio Engine Hardeni
   // =========================================================================
   describe('Feature 15: Mixer "Tắt tất cả" button & AudioContext Suspension', () => {
     it('15.1 AmbientSynthesizer.stopAll() disconnects all active nodes and suspends AudioContext', async () => {
-      const audioMgr = AudioContextManager.getInstance();
-      const suspendSpy = vi.spyOn(audioMgr, 'suspend');
+      vi.useFakeTimers();
+      try {
+        const audioMgr = AudioContextManager.getInstance();
+        const suspendSpy = vi.spyOn(audioMgr, 'suspend');
 
-      const synth = AmbientSynthesizer.getInstance();
-      await synth.playTrack('noise_pink', 0.5);
+        const synth = AmbientSynthesizer.getInstance();
+        await synth.playTrack('noise_pink', 0.5);
 
-      expect(synth.isTrackPlaying('noise_pink')).toBe(true);
+        expect(synth.isTrackPlaying('noise_pink')).toBe(true);
 
-      synth.stopAll();
+        synth.stopAll();
 
-      expect(synth.isTrackPlaying('noise_pink')).toBe(false);
-      expect(suspendSpy).toHaveBeenCalled();
+        expect(synth.isTrackPlaying('noise_pink')).toBe(false);
+        // Cho phép fade-out 150ms hoàn tất trước khi suspend()
+        await vi.advanceTimersByTimeAsync(200);
+        expect(suspendSpy).toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('15.2 MobileAppShell renders "Tắt tất cả" button in mixer when tracks are active and triggers stopAllTracks', async () => {

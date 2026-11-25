@@ -107,6 +107,10 @@ export const MobileBottomNav: React.FC = () => {
     window.addEventListener('wheel', onTouchStart, { passive: true });
 
     return () => {
+      if (touchTimeoutRef.current) {
+        clearTimeout(touchTimeoutRef.current);
+        touchTimeoutRef.current = null;
+      }
       window.removeEventListener('focusin', handleFocusIn);
       window.removeEventListener('focusout', handleFocusOut);
       if (vv) {

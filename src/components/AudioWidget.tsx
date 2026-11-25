@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Volume2,
   VolumeX,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAudioStore } from '../stores/useAudioStore';
 import { ALARM_CHIMES } from '../data/alarmSounds';
+import { soundEffects } from '../services/soundEffects';
 
 export const AudioWidget: React.FC = () => {
   const {
@@ -33,28 +34,49 @@ export const AudioWidget: React.FC = () => {
   } = useAudioStore();
 
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isUnmountedRef = useRef(false);
+
+  const clearPreviewTimer = useCallback(() => {
+    if (previewTimeoutRef.current !== null) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
+    isUnmountedRef.current = false;
     return () => {
+      isUnmountedRef.current = true;
+      clearPreviewTimer();
       stopChime();
     };
-  }, [stopChime]);
+  }, [clearPreviewTimer, stopChime]);
 
   useEffect(() => {
     if (activeTab !== 'chime') {
+      clearPreviewTimer();
       stopChime();
       setIsPlayingPreview(false);
     }
-  }, [activeTab, stopChime]);
+  }, [activeTab, clearPreviewTimer, stopChime]);
 
   const handlePreview = async () => {
+    clearPreviewTimer();
     setIsPlayingPreview(true);
     try {
       await previewChime();
     } catch (err) {
       console.warn('Lỗi nghe thử chuông:', err);
     } finally {
-      setTimeout(() => setIsPlayingPreview(false), 2000);
+      if (!isUnmountedRef.current) {
+        previewTimeoutRef.current = setTimeout(() => {
+          previewTimeoutRef.current = null;
+          if (!isUnmountedRef.current) {
+            setIsPlayingPreview(false);
+          }
+        }, 2000);
+      }
     }
   };
 
@@ -171,7 +193,12 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           data-testid="tab-chime"
-          onClick={() => setActiveTab('chime')}
+          onClick={() => {
+            if (activeTab !== 'chime') {
+              soundEffects.playClick();
+              setActiveTab('chime');
+            }
+          }}
           className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
             activeTab === 'chime'
               ? 'bg-white/15 text-white shadow-sm'
@@ -185,7 +212,12 @@ export const AudioWidget: React.FC = () => {
         <button
           type="button"
           data-testid="tab-ambient"
-          onClick={() => setActiveTab('ambient')}
+          onClick={() => {
+            if (activeTab !== 'ambient') {
+              soundEffects.playClick();
+              setActiveTab('ambient');
+            }
+          }}
           className={`py-1.5 text-xs font-medium rounded-lg transition flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
             activeTab === 'ambient'
               ? 'bg-white/15 text-white shadow-sm'
@@ -215,7 +247,15 @@ export const AudioWidget: React.FC = () => {
                   key={opt.value}
                   type="button"
                   data-testid={`chime-option-${opt.value}`}
-                  onClick={() => setSelectedChime(opt.value)}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    if (isPlayingPreview) {
+                      clearPreviewTimer();
+                      stopChime();
+                      setIsPlayingPreview(false);
+                    }
+                    setSelectedChime(opt.value);
+                  }}
                   className={`p-2.5 rounded-xl border text-left transition cursor-pointer min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
                     settings.selectedChime === opt.value
                       ? 'bg-neutral-800/80 border-neutral-400/40 shadow-inner'
@@ -284,7 +324,10 @@ export const AudioWidget: React.FC = () => {
               <button
                 type="button"
                 data-testid="btn-stop-all-ambient"
-                onClick={stopAllTracks}
+                onClick={() => {
+                  soundEffects.playClick();
+                  stopAllTracks();
+                }}
                 className="text-[11px] text-rose-400 hover:text-rose-300 font-medium cursor-pointer shrink-0 whitespace-nowrap"
               >
                 Dừng tất cả
@@ -304,7 +347,12 @@ export const AudioWidget: React.FC = () => {
                   key={tab.id}
                   type="button"
                   data-testid={`ambient-category-${tab.id}`}
-                  onClick={() => setAmbientCategory(tab.id)}
+                  onClick={() => {
+                    if (ambientCategory !== tab.id) {
+                      soundEffects.playClick();
+                      setAmbientCategory(tab.id);
+                    }
+                  }}
                   className={`px-2.5 py-1 rounded-xl text-xs font-medium transition shrink-0 flex items-center gap-1.5 cursor-pointer min-h-[30px] whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 ${
                     ambientCategory === tab.id
                       ? 'bg-neutral-800 text-white border border-white/25 shadow-sm'
@@ -418,7 +466,10 @@ export const AudioWidget: React.FC = () => {
       <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400 flex-nowrap shrink-0">
         <button
           type="button"
-          onClick={resetToDefaults}
+          onClick={() => {
+            soundEffects.playClick();
+            resetToDefaults();
+          }}
           className="flex items-center gap-1.5 hover:text-neutral-200 transition cursor-pointer text-xs min-h-[26px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 rounded-lg px-1.5 py-0.5 shrink-0 whitespace-nowrap"
         >
           <RotateCcw size={12} className="shrink-0" />

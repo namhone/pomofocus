@@ -56,6 +56,14 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
       const activeNotes = allNotes.filter((n) => !n.deletedAt || n.deletedAt <= 0);
       const sorted = activeNotes.sort((a, b) => b.updatedAt - a.updatedAt);
 
+      if (sorted.length === 0 && currentUserId !== 'guest') {
+        const cloudNotes = await NoteCloudService.syncFromCloud(currentUserId);
+        if (useAuthStore.getState().user?.id !== currentUserId) return;
+        const notes = cloudNotes.filter(note => note.userId === currentUserId && !note.deletedAt)
+          .sort((a, b) => b.updatedAt - a.updatedAt);
+        set({ notes, activeNoteId: notes[0]?.id || null, isLoading: false, saveStatus: 'saved' });
+        return;
+      }
       if (sorted.length === 0) {
         // Khởi tạo ghi chú mẫu ban đầu nếu cơ sở dữ liệu trống
         const defaultNote: Note = {
@@ -80,7 +88,8 @@ export const useNoteStore = create<NoteStoreState>((set, get) => ({
         const userId = useAuthStore.getState().user?.id;
         if (userId) {
           NoteCloudService.syncFromCloud(userId).then((cloudNotes) => {
-            const activeCloudNotes = cloudNotes.filter((n) => !n.deletedAt || n.deletedAt <= 0);
+            if (useAuthStore.getState().user?.id !== userId) return;
+            const activeCloudNotes = cloudNotes.filter((n) => n.userId === userId && (!n.deletedAt || n.deletedAt <= 0));
             if (activeCloudNotes.length > 0) {
               set({
                 notes: activeCloudNotes.sort((a, b) => b.updatedAt - a.updatedAt),

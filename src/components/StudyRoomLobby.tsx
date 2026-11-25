@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import {
@@ -142,33 +142,44 @@ export const StudyRoomLobby: React.FC = () => {
     )
   );
 
-  const handleCreateRoom = (e: React.FormEvent) => {
+  const submittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       router.navigate('/login');
       return;
     }
 
-    const result = studyRoomService.createRoom({
-      title: roomTitle.trim() || undefined,
-      slug: roomSlug.trim() || undefined,
-      hostUser: user,
-      isFreeRoom: !isProUser,
-      passcode: createPasscode.trim() || null,
-      roomGoal: createGoal.trim() || null,
-      roomCategory: createCategory,
-      silentMode: createSilentMode,
-      requireCam: createRequireCam,
-      hostOnlyTimer: createHostOnlyTimer,
-      maxParticipants: createMaxCapacity
-    });
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const result = await studyRoomService.createRoom({
+        title: roomTitle.trim() || undefined,
+        slug: roomSlug.trim() || undefined,
+        hostUser: user,
+        isFreeRoom: !isProUser,
+        passcode: createPasscode.trim() || null,
+        roomGoal: createGoal.trim() || null,
+        roomCategory: createCategory,
+        silentMode: createSilentMode,
+        requireCam: createRequireCam,
+        hostOnlyTimer: createHostOnlyTimer,
+        maxParticipants: createMaxCapacity
+      });
 
-    if (!result.success) {
-      setErrorMsg(result.error);
-      return;
+      if (!result.success) {
+        setErrorMsg(result.error);
+        return;
+      }
+
+      router.navigate(`/rooms/${result.room.roomId}`);
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-
-    router.navigate(`/rooms/${result.room.roomId}`);
   };
 
   const handleConfirmDeleteRoom = () => {
@@ -344,7 +355,7 @@ export const StudyRoomLobby: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleCreateRoom} className="space-y-3">
+              <form onSubmit={handleCreateRoom} aria-busy={isSubmitting} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-medium text-zinc-300 mb-1">
                     Tên phòng học (tùy chọn)
@@ -500,6 +511,7 @@ export const StudyRoomLobby: React.FC = () => {
                     <button
                       type="submit"
                       data-testid="btn-create-room"
+                      disabled={isSubmitting}
                       className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                     >
                       <Video size={15} />
@@ -513,6 +525,7 @@ export const StudyRoomLobby: React.FC = () => {
                   <button
                     type="submit"
                     data-testid="btn-create-room"
+                      disabled={isSubmitting}
                     className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                   >
                     <Video size={15} />

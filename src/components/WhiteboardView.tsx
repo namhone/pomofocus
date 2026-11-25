@@ -236,6 +236,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
 
   // Remote Realtime Live State
   const [remoteCursors, setRemoteCursors] = useState<Record<string, WhiteboardCursorPayload>>({});
+  const remoteCursorsRef = useRef(remoteCursors);
+  remoteCursorsRef.current = remoteCursors;
+  const drawerActivityRef = useRef(onDrawerActivity);
+  drawerActivityRef.current = onDrawerActivity;
   const remoteStreamsRef = useRef<Record<string, WhiteboardStroke>>({});
   const [activeDrawers, setActiveDrawers] = useState<string[]>([]);
   const lastCursorBroadcastRef = useRef<number>(0);
@@ -748,8 +752,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     if (!channel) return;
 
     // 1. Nhận nét vẽ từ các thành viên khác
-    const handleDraw = (event: { payload: WhiteboardDrawPayload }) => {
-      const { stroke, userId } = event.payload;
+    const handleDraw = (event: WhiteboardDrawPayload | { payload: WhiteboardDrawPayload }) => {
+      const { stroke, userId } = 'payload' in event ? event.payload : event;
       if (userId !== currentUserId) {
         delete remoteStreamsRef.current[userId];
         setStrokes((prev) => [...prev, stroke]);
@@ -757,8 +761,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     };
 
     // 1b. Nhận nét vẽ in-flight streaming (<50ms)
-    const handleDrawStream = (event: { payload: WhiteboardDrawStreamPayload }) => {
-      const p = event.payload;
+    const handleDrawStream = (event: WhiteboardDrawStreamPayload | { payload: WhiteboardDrawStreamPayload }) => {
+      const p = 'payload' in event ? event.payload : event;
       if (p.userId !== currentUserId) {
         remoteStreamsRef.current[p.userId] = {
           id: `stream-${p.userId}`,
@@ -775,8 +779,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     };
 
     // 1c. Nhận con trỏ chuột thời gian thực từ bạn học (Live Cursors)
-    const handleCursor = (event: { payload: WhiteboardCursorPayload }) => {
-      const p = event.payload;
+    const handleCursor = (event: WhiteboardCursorPayload | { payload: WhiteboardCursorPayload }) => {
+      const p = 'payload' in event ? event.payload : event;
       if (p.userId !== currentUserId) {
         setRemoteCursors((prev) => ({
           ...prev,
@@ -798,14 +802,14 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     };
 
     // 3. Nhận sự kiện Undo từ peer
-    const handleUndo = (event: { payload: WhiteboardUndoPayload }) => {
-      const { strokeId } = event.payload;
+    const handleUndo = (event: WhiteboardUndoPayload | { payload: WhiteboardUndoPayload }) => {
+      const { strokeId } = 'payload' in event ? event.payload : event;
       setStrokes((prev) => prev.filter((s) => s.id !== strokeId));
     };
 
     // 4. Nhận sự kiện lật trang / đổi chế độ sách từ người giảng bài
-    const handleMaterialPage = (event: { payload: { page: number; mode?: 'single' | 'book' } }) => {
-      const { page, mode } = event.payload;
+    const handleMaterialPage = (event: { page: number; mode?: 'single' | 'book' } | { payload: { page: number; mode?: 'single' | 'book' } }) => {
+      const { page, mode } = 'payload' in event ? event.payload : event;
       const currentMaterial = materialRef.current;
       if (currentMaterial && currentMaterial.type === 'pdf') {
         switchPdfPageOrModeRef.current?.(page, mode || pdfViewModeRef.current, false);
@@ -813,8 +817,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     };
 
     // 5. Nhận yêu cầu đồng bộ từ người mới vào
-    const handleSyncRequest = (event: { payload: WhiteboardSyncRequestPayload }) => {
-      const { requesterId } = event.payload;
+    const handleSyncRequest = (event: WhiteboardSyncRequestPayload | { payload: WhiteboardSyncRequestPayload }) => {
+      const { requesterId } = 'payload' in event ? event.payload : event;
       if (requesterId !== currentUserId) {
         setStrokes((currentStrokes) => {
           if (currentStrokes.length > 0) {
@@ -833,8 +837,8 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
     };
 
     // 6. Nhận snapshot đồng bộ cho chính mình
-    const handleSyncSnapshot = (event: { payload: WhiteboardSyncSnapshotPayload }) => {
-      const { targetId, strokes: syncedStrokes } = event.payload;
+    const handleSyncSnapshot = (event: WhiteboardSyncSnapshotPayload | { payload: WhiteboardSyncSnapshotPayload }) => {
+      const { targetId, strokes: syncedStrokes } = 'payload' in event ? event.payload : event;
       if (targetId === currentUserId) {
         setStrokes(syncedStrokes);
       }
@@ -866,14 +870,14 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
         (channel as any).off('broadcast', { event: 'WHITEBOARD_SYNC_REQUEST' }, handleSyncRequest);
         (channel as any).off('broadcast', { event: 'WHITEBOARD_SYNC_SNAPSHOT' }, handleSyncSnapshot);
       }
-      if (subDraw && typeof (subDraw as any).unsubscribe === 'function') (subDraw as any).unsubscribe();
-      if (subStream && typeof (subStream as any).unsubscribe === 'function') (subStream as any).unsubscribe();
-      if (subCursor && typeof (subCursor as any).unsubscribe === 'function') (subCursor as any).unsubscribe();
-      if (subClear && typeof (subClear as any).unsubscribe === 'function') (subClear as any).unsubscribe();
-      if (subUndo && typeof (subUndo as any).unsubscribe === 'function') (subUndo as any).unsubscribe();
-      if (subPage && typeof (subPage as any).unsubscribe === 'function') (subPage as any).unsubscribe();
-      if (subSyncReq && typeof (subSyncReq as any).unsubscribe === 'function') (subSyncReq as any).unsubscribe();
-      if (subSyncSnap && typeof (subSyncSnap as any).unsubscribe === 'function') (subSyncSnap as any).unsubscribe();
+      if (subDraw && subDraw !== channel && typeof (subDraw as any).unsubscribe === 'function') (subDraw as any).unsubscribe();
+      if (subStream && subStream !== channel && typeof (subStream as any).unsubscribe === 'function') (subStream as any).unsubscribe();
+      if (subCursor && subCursor !== channel && typeof (subCursor as any).unsubscribe === 'function') (subCursor as any).unsubscribe();
+      if (subClear && subClear !== channel && typeof (subClear as any).unsubscribe === 'function') (subClear as any).unsubscribe();
+      if (subUndo && subUndo !== channel && typeof (subUndo as any).unsubscribe === 'function') (subUndo as any).unsubscribe();
+      if (subPage && subPage !== channel && typeof (subPage as any).unsubscribe === 'function') (subPage as any).unsubscribe();
+      if (subSyncReq && subSyncReq !== channel && typeof (subSyncReq as any).unsubscribe === 'function') (subSyncReq as any).unsubscribe();
+      if (subSyncSnap && subSyncSnap !== channel && typeof (subSyncSnap as any).unsubscribe === 'function') (subSyncSnap as any).unsubscribe();
     };
   }, [channel, currentUserId]);
 
@@ -895,19 +899,17 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       });
 
       const drawers: string[] = [];
-      for (const cur of Object.values(remoteCursors)) {
+      for (const cur of Object.values(remoteCursorsRef.current)) {
         if (cur.isDrawing && now - cur.lastActive < 2500) {
           drawers.push(cur.userName || 'Bạn học');
         }
       }
       setActiveDrawers(drawers);
-      if (onDrawerActivity) {
-        onDrawerActivity(drawers.length > 0, drawers[0]);
-      }
+      drawerActivityRef.current?.(drawers.length > 0, drawers[0]);
     }, 800);
 
     return () => clearInterval(timer);
-  }, [remoteCursors, onDrawerActivity]);
+  }, []);
 
   useEffect(() => {
     redrawCanvas();

@@ -19,6 +19,11 @@ export class AmbientSynthesizer {
   private audioMgr: AudioContextManager;
   private activeTracks = new Map<AmbientTrackId, ActiveTrackNodes>();
   private noiseBuffers = new Map<string, AudioBuffer>();
+  private cachedCtx: AudioContext | null = null;
+  private trackGenerations = new Map<AmbientTrackId, number>();
+  private pendingStopTimers = new Map<AmbientTrackId, ReturnType<typeof setTimeout>>();
+  private pendingStopCleanups = new Map<AmbientTrackId, () => void>();
+  private bulkCleanupTimers = new Set<ReturnType<typeof setTimeout>>();
 
   private constructor() {
     this.audioMgr = AudioContextManager.getInstance();
@@ -31,22 +36,73 @@ export class AmbientSynthesizer {
     return AmbientSynthesizer.instance;
   }
 
+  private disposeTrackNodes(active: ActiveTrackNodes): void {
+    active.stopNodes.forEach((node) => {
+      try {
+        node.stop();
+      } catch {
+        // Ignore if already stopped
+      }
+      try {
+        node.disconnect();
+      } catch {
+        // Ignore
+      }
+    });
+    try {
+      active.gainNode.disconnect();
+    } catch {
+      // Ignore
+    }
+  }
+
+  private cancelPendingStop(id: AmbientTrackId, runCleanup = true): void {
+    const timer = this.pendingStopTimers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this.pendingStopTimers.delete(id);
+    }
+    const cleanup = this.pendingStopCleanups.get(id);
+    if (cleanup) {
+      this.pendingStopCleanups.delete(id);
+      if (runCleanup) {
+        cleanup();
+      }
+    }
+  }
+
+  private maybeSuspendIfIdle(): void {
+    if (this.activeTracks.size === 0) {
+      this.audioMgr.suspend().catch(() => {});
+    }
+  }
+
   /**
    * Phát một track âm thanh môi trường
    */
   public async playTrack(id: AmbientTrackId, volume = 0.5): Promise<void> {
+    const gen = (this.trackGenerations.get(id) ?? 0) + 1;
+    this.trackGenerations.set(id, gen);
+
     await this.audioMgr.ensureResumed();
+    if (this.trackGenerations.get(id) !== gen) return;
+
     const ctx = this.audioMgr.getContext();
     const ambientBus = this.audioMgr.getAmbientBusGain() || this.audioMgr.getMasterGain();
-    if (!ctx || !ambientBus) return;
+    if (!ctx || !ambientBus || ctx.state === 'closed') return;
 
-    // Nếu track đang chạy, dừng track cũ trước khi tạo mới
-    this.stopTrack(id);
+    // Dọn dẹp pending stop hoặc track cũ đang chạy cho cùng id mà không làm trôi generation mới
+    this.cancelPendingStop(id, true);
+    const prevActive = this.activeTracks.get(id);
+    if (prevActive) {
+      this.activeTracks.delete(id);
+      this.disposeTrackNodes(prevActive);
+    }
 
     const trackGain = ctx.createGain();
     const safeVol = Math.max(0, Math.min(1, volume));
     trackGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    trackGain.gain.linearRampToValueAtTime(safeVol, ctx.currentTime + 0.05); // Smooth fade-in
+    trackGain.gain.linearRampToValueAtTime(Math.max(0.0001, safeVol), ctx.currentTime + 0.22); // Smooth 220ms fade-in
     trackGain.connect(ambientBus);
 
     const stopNodes: Array<{ stop: () => void; disconnect: () => void }> = [];
@@ -69,40 +125,38 @@ export class AmbientSynthesizer {
    * Dừng một track âm thanh
    */
   public stopTrack(id: AmbientTrackId): void {
-    const active = this.activeTracks.get(id);
-    if (!active) return;
+    this.trackGenerations.set(id, (this.trackGenerations.get(id) ?? 0) + 1);
+    this.cancelPendingStop(id, true);
 
-    const ctx = this.audioMgr.getContext();
+    const active = this.activeTracks.get(id);
+    if (!active) {
+      this.maybeSuspendIfIdle();
+      return;
+    }
+
+    this.activeTracks.delete(id);
+
+    const ctx = this.audioMgr.peekContext();
     if (ctx && ctx.state !== 'closed') {
       const now = ctx.currentTime;
       active.gainNode.gain.cancelScheduledValues(now);
       active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now);
-      active.gainNode.gain.linearRampToValueAtTime(0.0001, now + 0.05); // Smooth fade-out
-    }
+      active.gainNode.gain.linearRampToValueAtTime(0.0001, now + 0.18); // Smooth 180ms fade-out
 
-    setTimeout(() => {
-      active.stopNodes.forEach((node) => {
-        try {
-          node.stop();
-        } catch {
-          // Ignore if already stopped
-        }
-        try {
-          node.disconnect();
-        } catch {
-          // Ignore
-        }
-      });
-      try {
-        active.gainNode.disconnect();
-      } catch {
-        // Ignore
-      }
-    }, 60);
-
-    this.activeTracks.delete(id);
-    if (this.activeTracks.size === 0) {
-      this.audioMgr.suspend().catch(() => {});
+      const disposeOnly = () => {
+        this.pendingStopTimers.delete(id);
+        this.pendingStopCleanups.delete(id);
+        this.disposeTrackNodes(active);
+      };
+      this.pendingStopCleanups.set(id, disposeOnly);
+      const timer = setTimeout(() => {
+        disposeOnly();
+        this.maybeSuspendIfIdle();
+      }, 200);
+      this.pendingStopTimers.set(id, timer);
+    } else {
+      this.disposeTrackNodes(active);
+      this.maybeSuspendIfIdle();
     }
   }
 
@@ -112,33 +166,63 @@ export class AmbientSynthesizer {
   public setTrackVolume(id: AmbientTrackId, volume: number): void {
     const active = this.activeTracks.get(id);
     if (!active) return;
-    const ctx = this.audioMgr.getContext();
-    if (!ctx) return;
+    const ctx = this.audioMgr.peekContext();
+    if (!ctx || ctx.state === 'closed') return;
 
     const safeVol = Math.max(0, Math.min(1, volume));
-    active.gainNode.gain.setTargetAtTime(safeVol, ctx.currentTime, 0.03);
+    const now = ctx.currentTime;
+    active.gainNode.gain.cancelScheduledValues(now);
+    active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now);
+    active.gainNode.gain.setTargetAtTime(safeVol, now, 0.03);
   }
 
   /**
    * Dừng tất cả các track đang phát và tạm dừng AudioContext để giải phóng phần cứng
    */
   public stopAll(): void {
-    for (const [, active] of this.activeTracks.entries()) {
-      try {
-        const ctx = this.audioMgr.getContext();
-        if (ctx && ctx.state !== 'closed') {
-          active.gainNode.gain.cancelScheduledValues(ctx.currentTime);
-          active.gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        }
-        active.stopNodes.forEach((node) => {
-          try { node.stop(); } catch {}
-          try { node.disconnect(); } catch {}
-        });
-        active.gainNode.disconnect();
-      } catch {}
+    const knownKeys = new Set<AmbientTrackId>([
+      ...this.activeTracks.keys(),
+      ...this.pendingStopTimers.keys(),
+      ...this.trackGenerations.keys(),
+    ]);
+    for (const id of knownKeys) {
+      this.trackGenerations.set(id, (this.trackGenerations.get(id) ?? 0) + 1);
+      this.cancelPendingStop(id, true);
     }
+
+    const entries = Array.from(this.activeTracks.values());
     this.activeTracks.clear();
-    this.audioMgr.suspend().catch(() => {});
+
+    if (entries.length === 0) {
+      this.maybeSuspendIfIdle();
+      return;
+    }
+
+    const ctx = this.audioMgr.peekContext();
+    if (ctx && ctx.state !== 'closed') {
+      const now = ctx.currentTime;
+      for (const active of entries) {
+        try {
+          active.gainNode.gain.cancelScheduledValues(now);
+          active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now);
+          active.gainNode.gain.linearRampToValueAtTime(0.0001, now + 0.15); // Smooth 150ms fade-out
+        } catch {}
+      }
+
+      const bulkTimer = setTimeout(() => {
+        this.bulkCleanupTimers.delete(bulkTimer);
+        for (const active of entries) {
+          this.disposeTrackNodes(active);
+        }
+        this.maybeSuspendIfIdle();
+      }, 170);
+      this.bulkCleanupTimers.add(bulkTimer);
+    } else {
+      for (const active of entries) {
+        this.disposeTrackNodes(active);
+      }
+      this.maybeSuspendIfIdle();
+    }
   }
 
   public isTrackPlaying(id: AmbientTrackId): boolean {
@@ -150,6 +234,10 @@ export class AmbientSynthesizer {
   // ==========================================
 
   private getNoiseBuffer(ctx: AudioContext, type: 'white' | 'pink' | 'brown' | 'blue'): AudioBuffer {
+    if (this.cachedCtx !== ctx) {
+      this.noiseBuffers.clear();
+      this.cachedCtx = ctx;
+    }
     const cached = this.noiseBuffers.get(type);
     if (cached) return cached;
 
@@ -378,7 +466,8 @@ export class AmbientSynthesizer {
       const lfoGain = ctx.createGain();
       lfo.frequency.setValueAtTime(0.4, ctx.currentTime);
       lfoGain.gain.setValueAtTime(120, ctx.currentTime);
-      lfo.connect(bp.frequency);
+      lfo.connect(lfoGain);
+      lfoGain.connect(bp.frequency);
 
       source.connect(bp);
       bp.connect(destination);

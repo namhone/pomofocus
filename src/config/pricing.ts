@@ -112,7 +112,7 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     features: [
       'Thời lượng phòng riêng: Không giới hạn thời gian',
       'Chất lượng phòng học: HD 720p mượt mà (Tối đa 25 người/phòng)',
-      'Kho âm thanh & Hình nền: Toàn bộ kho 4K đa tầng & YouTube Sync',
+      'Kho âm thanh & Hình nền: Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
       'Bảng vẽ Whiteboard: Đầy đủ công cụ & Xuất ảnh PNG',
       'Trợ lý AI Study: 50 câu hỏi AI/tháng',
       'Đường dẫn phòng học: Ngẫu nhiên dạng mã số'
@@ -229,9 +229,9 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     feature: 'Kho âm thanh & Hình nền',
     category: 'tools',
     free: '5 âm thanh cơ bản & 3 hình nền tĩnh',
-    monthly: 'Toàn bộ kho 4K đa tầng & YouTube Sync',
-    yearly: 'Toàn bộ kho 4K đa tầng & YouTube Sync',
-    lifetime: 'Toàn bộ kho 4K đa tầng & YouTube Sync'
+    monthly: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
+    yearly: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
+    lifetime: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync'
   },
   {
     id: 'whiteboard',
@@ -371,7 +371,7 @@ export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
   },
   {
     id: 'backgrounds_4k',
-    name: 'Kho 1.000+ Hình nền 4K, Anime & Ghibli',
+    name: 'Bộ sưu tập hình nền tinh tuyển',
     free: false,
     pro: true,
     lifetime: true

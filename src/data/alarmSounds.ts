@@ -13,7 +13,6 @@ export const ALARM_CHIMES: AlarmSoundConfig[] = [
     id: 'tibetan_bowl',
     name: 'Chuông bát Tây Tạng',
     desc: 'Âm ngân trầm hùng 3.5s, hài hòa xuyên qua tạp âm',
-    url: 'https://actions.google.com/sounds/v1/household/clock_chime_bell.ogg',
     durationMs: 3500
   },
   {

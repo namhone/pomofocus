@@ -1,0 +1,15 @@
+{
+  "streams": 2,
+  "allTracksEnded": true,
+  "mediaDetached": true,
+  "workersTerminated": true,
+  "workerURLsRevoked": true,
+  "roomContexts": 1,
+  "contextsClosed": true,
+  "pageErrors": [],
+  "mobileTargets": {
+    "reset": 48,
+    "skip": 48,
+    "main": 64
+  }
+}

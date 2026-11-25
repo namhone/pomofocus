@@ -1,0 +1,189 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+
+ ✓ tests/unit/audioRemediationPhase3.test.ts (27 tests) 5211ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 2: soundEffects.ts Debounce/Mutex, Chime Race & UI Call Sites > TimerWidget gọi đúng SFX cho Start, Pause, Resume, Reset, Skip và chuyển tab 662ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 2: soundEffects.ts Debounce/Mutex, Chime Race & UI Call Sites > MobileFocusView gọi đúng SFX cho main action, reset, skip, phase change và quick task complete 454ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 2: soundEffects.ts Debounce/Mutex, Chime Race & UI Call Sites > MobileSettingsView dùng previewChime, chống bấm nhanh < 150ms cùng chuông, đổi select dừng chuông và dọn timer khi unmount 552ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 2: soundEffects.ts Debounce/Mutex, Chime Race & UI Call Sites > AudioWidget dọn preview timer và gọi stopChime khi unmount hoặc chuyển tab 301ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 4: Mixer Fade-In/Out, Stream LFO, Noise Cache & BUG-46 PCM Cleanup > AmbientSynthesizer sửa wiring stream (lfo -> lfoGain -> bp.frequency), fade mượt và làm mới noiseBuffers theo ctx 425ms
+ ✓ tests/unit/v81MeetRoomsAndWhiteboard.test.tsx (23 tests) 17109ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > keeps cursor cleanup ticking during continuous updates without closing the shared channel 891ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > stops a camera grant that resolves after room unmount 725ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > releases the room AudioContext and keep-alive Worker URL on unmount 529ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.1: Clicking Start button broadcasts room-timer-sync with action: START 427ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.2: Clicking Pause button while running broadcasts room-timer-sync with action: PAUSE 861ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.3: Clicking Reset button broadcasts room-timer-sync with action: RESET and reset remainingSeconds 351ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.4: Changing phase (shortBreak / longBreak / work) broadcasts room-timer-sync with action: PHASE_CHANGE 1637ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.5: Whiteboard mini timer pill controls also trigger broadcast on toggle and reset 1333ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.1: Receiving START from remote peer synchronizes remainingSeconds and isRunning state 695ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.2: Receiving PAUSE from remote peer stops timer running state 834ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.3: Receiving PHASE_CHANGE updates phase pills and resets seconds to phase duration 1052ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.4: Receiving self broadcast echo is safely ignored without state oscillation 1288ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.5: UI renders synchronization badge in both video grid and whiteboard views 1047ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.1: Initializing whiteboard with saved strokes in durable storage loads them accurately 1086ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.2: Switching between Video Grid and Whiteboard preserves drawing strokes without loss 2486ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.3: Unmounting and reopening StudyRoomView restores strokes faithfully from durable storage 994ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 6. Concurrency & Room Isolation > 6.2: Malformed or incomplete broadcast payload does not crash timer 427ms
+ ✓ tests/unit/milestone3NotificationsAndAudio.test.tsx (19 tests) 12191ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 13: Centralized Screen Wake Lock with auto re-acquisition > 13.2 wakeLockManager handles rejection gracefully without throwing 432ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 13: Centralized Screen Wake Lock with auto re-acquisition > 13.3 useTimerStore.start() acquires wake lock and pause() releases wake lock 367ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 14: Audio Ducking & Overlap Prevention > 14.4 AudioWidget cleans up chime preview when switching tabs away from chime 4018ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 14: Audio Ducking & Overlap Prevention > 14.5 MobileSettingsView cleans up chime preview upon unmount 800ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 15: Mixer "Tắt tất cả" button & AudioContext Suspension > 15.1 AmbientSynthesizer.stopAll() disconnects all active nodes and suspends AudioContext 2091ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 15: Mixer "Tắt tất cả" button & AudioContext Suspension > 15.2 MobileAppShell renders "Tắt tất cả" button in mixer when tracks are active and triggers stopAllTracks 3572ms
+ ✓ tests/unit/mobileViewsStressV70.test.tsx (23 tests) 22600ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.1 Founder primary email (namho03052k9@gmail.com) strictly receives Founder VIP badge and 0 upgrade banners even with unprivileged store payload 1185ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.2 Founder primary email with upper-case and whitespace trimming still strictly resolves to Founder VIP with 0 upgrade banners 550ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.3 Secondary owner email (huyentrantt09@gmail.com) strictly receives Founder VIP badge and 0 upgrade banners 1034ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.4 PRO VIP user displays PRO VIP badge and strictly 0 upgrade banners 419ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.5 Free student user displays "Miễn phí" badge AND displays upgrade prompt with working action 2369ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 1: VIP Whitelist Boundary & Privilege Tests > 1.6 Unauthenticated Guest user displays "Khách học tập", "Miễn phí", and upgrade prompt 600ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.1 Rapid toggle spam: 50 sequential clicks cleanly alternates state and leaves store strictly synchronized 4580ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.2 Odd toggle spam: 51 sequential clicks leaves state at true without desync 1980ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.3 Switch toggle while timer is running updates autoTransition without mutating running status or timer drift 360ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.4 Stepper Upper Bound Clamp: Focus stepper clamped at 120 minutes under 150 increment clicks 1351ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.5 Stepper Lower Bound Clamp: Focus stepper clamped at 1 minute under 50 decrement clicks 785ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 2: Auto-Transition Switch Toggle Spam & Timing Settings > 2.6 Stepper Break Bounds Clamp: Short & Long break clamped between 1 and 60 minutes 1959ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 3: Master Volume Slider & Chime Preview > 3.1 Master volume boundary at 0%: reflects 0%, updates store to 0.0, and renders VolumeX icon 420ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 3: Master Volume Slider & Chime Preview > 3.2 Master volume boundary at 100%: reflects 100% and updates store to 1.0 412ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 3: Master Volume Slider & Chime Preview > 3.3 Chime preview: clicking "Nghe thử" triggers previewChime with current selected chime 447ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 3: Master Volume Slider & Chime Preview > 3.4 Chime selection cycle: iterates through ALARM_CHIMES and triggers preview with selected chime 773ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 3: Master Volume Slider & Chime Preview > 3.5 Audio preview error resilience: component handles audio rejection gracefully without throwing unhandled exceptions 711ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 4: Reset & Skip Action Buttons & Ergonomics > 4.1 Reset and Skip buttons strictly satisfy Fitts's Law >= 48x48dp minimum touch target bounds 385ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 4: Reset & Skip Action Buttons & Ergonomics > 4.4 Skip button advances timer phase and notifies user 351ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 4: Reset & Skip Action Buttons & Ergonomics > 4.5 Monumental timer displays edge cases properly (00:00, 00:01, 120:00) 905ms
+   ✓ Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) > Vector 4: Reset & Skip Action Buttons & Ergonomics > 4.6 Phase selector pills: clicking each phase resets remainingMs to corresponding duration 521ms
+ ❯ tests/unit/adversarialTasksAndWhiteboardM2.test.tsx (13 tests | 1 failed) 15865ms
+   × Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > nhấp đúp vào tiêu đề task mở ô input chỉnh sửa và lưu thành công khi nhấn Enter 5875ms
+     → expected <input …(4)></input> to be null
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head>[39m
+    [36m<title>[39m
+      [0mPomoFocus — Không Gian Học Tập Tập Trung[0m
+    [36m</title>[39m
+  [36m</head>[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"w-full h-full flex flex-col text-neutral-100 overflow-hidden"[39m
+        [33mdata-testid[39m=[32m"tasks-widget"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex items-center justify-between flex-nowrap w-full gap-2 ...
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > bấm vào nút bút chì (Pencil icon) mở ô input tương đương nhấp đúp 1771ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > tự động cắt khoảng trắng đầu cuối (trim) khi lưu tên mới 842ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > fallback an toàn: khi xóa sạch tên thành chuỗi rỗng hoặc toàn space, KHÔNG lưu rỗng và giữ nguyên tên cũ 375ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > hủy chỉnh sửa khi nhấn Escape: giữ nguyên tên cũ 2276ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 2: Clear Completed Tasks Edge Conditions & Stress Testing > khi có 0 task completed: clearCompletedTasks chạy an toàn, không ném lỗi, không thay đổi dữ liệu 1105ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 2: Clear Completed Tasks Edge Conditions & Stress Testing > stress test 50 completed tasks: dọn dẹp sạch sẽ 50 task completed đồng thời bảo vệ toàn vẹn các task uncompleted 2945ms
+ ✓ tests/unit/audioEngine.test.ts (21 tests) 2617ms
+   ✓ Audio Engine & Synthesis Unit Tests > 3. AmbientSynthesizer > tạo buffer và phát White, Pink, Brown noise mà không phát sinh lỗi 334ms
+   ✓ Audio Engine & Synthesis Unit Tests > 3. AmbientSynthesizer > tạo âm thanh môi trường procedural độc lập (rain, ocean_waves, cafe, keyboard, stream, campfire) 820ms
+ ✓ tests/unit/challengerPolishM3Stress.test.tsx (21 tests) 22644ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > root container enforces fluid width (w-full min-w-0 max-h-[80vh]) and does not restrict to max-w-[420px] 5746ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > presets grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 2313ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > wallpaper grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 2748ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 2: Adversarial Search & Wallpaper Query Stress Tests > searching in SpacesWidget UI updates results and does not crash when results are 0 1849ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > photo presets exclude solid and zen-pure-black from thumbnail cards 1471ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > zen flat color buttons exist separately and trigger selectPreset 997ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > filter by video category renders video presets in presets-grid 1166ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > switching between wallpapers and audio tabs works without crashing or orphaned state 1498ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > toggling adjustments view and clicking "Xem kho hình nền" switches back to wallpapers view 1437ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > reset background button clears active preset and resets to default (deep-space) 892ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > SettingsView Eco Mode section uses Lucide Leaf and Sentence Case 486ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > StudyRoomLobby room badges use Sentence Case and no ALL CAPS 606ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > BillingView does not contain ALL CAPS badges or headers 444ms
+ ✓ tests/unit/paymentRemediationPhase1.test.ts (10 tests) 136ms
+ ✓ tests/unit/roomGovernanceAndHostControls.test.ts (11 tests) 335ms
+ ✓ tests/unit/challenger2Milestone3Stress.test.tsx (17 tests) 4211ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > SpacesWidget renders all required testids matching Playwright specs 1523ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Clicking adjustments toggle opens bg-adjustments-panel with slider-overlay 541ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to anime-ghibli category renders "Chuyến tàu trên mặt nước" card matching E2E selector 362ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Search filtering works robustly and case-insensitively 829ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to video category displays only video presets and hides deep-space 383ms
+ ✓ tests/unit/layoutAndZen.test.ts (15 tests) 312ms
+ ✓ tests/unit/multiChannelAudioEngine.test.ts (12 tests) 306ms
+ ✓ tests/unit/webrtcFullMesh.test.ts (8 tests) 359ms
+ ✓ tests/unit/timerEngine.test.ts (14 tests) 357ms
+ ✓ tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx (16 tests) 6325ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > SpacesWidget renders with responsive container classes (w-full min-w-0 max-h-[80vh]) 2814ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Search input has updated placeholder matching spec: "Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)" 518ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Presets grid renders with responsive 2-to-4 column grid classes (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 372ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Presets grid excludes solid and pure-black presets from thumbnail cards 534ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Curated badge on preset cards displays Sentence Case "Tuyển chọn" 995ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Wallpaper button displays Sentence Case label "Xem kho hình nền" in effects view 790ms
+ ✓ tests/unit/phase4aLogicAndCatalog.test.tsx (10 tests) 1698ms
+   ✓ Phase 4A layout safeguards > mobile widget captures taps under a pointer-disabled workspace (collapsed=false) 455ms
+   ✓ Phase 4A layout safeguards > mini pill play, pause and expand dispatch to their owners 568ms
+ ✓ tests/unit/timerDocumentTitleLifecycle.test.ts (12 tests) 92ms
+ ✓ tests/unit/momoPayment.test.ts (9 tests) 447ms
+   ✓ MoMo & Vietcombank Payment & Account Linking Service Tests > 8. Xác thực Webhook máy chủ với chữ ký HMAC-SHA256 cấp PRO chính thức 344ms
+ ✓ tests/unit/meetRealtime.test.ts (6 tests) 326ms
+ ✓ tests/unit/mediaAndAudioLifecycle.test.ts (7 tests) 78ms
+ ✓ tests/unit/phase3RealtimeAdapter.test.ts (6 tests) 196ms
+ ✓ tests/unit/meetRepository.test.ts (8 tests) 443ms
+ ✓ tests/unit/v63AudioDuckingAndTimerClean.test.ts (7 tests) 90ms
+ ✓ tests/unit/cloudSyncRealtime.test.ts (6 tests) 628ms
+   ✓ Supabase Cloud Persistence & Multi-Device Sync Specification > 1. Tạo và tải danh sách phiên chat (ai_conversations) từ Supabase Cloud 317ms
+ ✓ tests/unit/phase3WorkspaceRealtime.test.ts (4 tests) 171ms
+ ✓ tests/unit/backgroundStore.test.ts (8 tests) 86ms
+ ✓ tests/unit/phase3HardwareCleanup.test.tsx (3 tests) 306ms
+ ✓ tests/unit/phase3SubmissionGuards.test.tsx (2 tests) 3284ms
+   ✓ Phase 3 submit locks > coalesces rapid task submissions until the pending write resolves, then accepts another 1314ms
+   ✓ Phase 3 submit locks > locks room creation across repeated submits and releases the lock after a service failure 1966ms
+ ✓ tests/unit/phase4aProfileIme.test.tsx (2 tests) 7944ms
+   ✓ Profile avatar URL composing Enter > does not upload until Enter finishes composition ({"isComposing":true}) 6287ms
+   ✓ Profile avatar URL composing Enter > does not upload until Enter finishes composition ({"keyCode":229}) 1618ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/adversarialTasksAndWhiteboardM2.test.tsx > Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > nhấp đúp vào tiêu đề task mở ô input chỉnh sửa và lưu thành công khi nhấn Enter
+AssertionError: expected <input …(4)></input> to be null
+
+Ignored nodes: comments, script, style
+<html>
+  <head>
+    <title>
+      PomoFocus — Không Gian Học Tập Tập Trung
+    </title>
+  </head>
+  <body>
+    <div>
+      <div
+        class="w-full h-full flex flex-col text-neutral-100 overflow-hidden"
+        data-testid="tasks-widget"
+      >
+        <div
+          class="flex items-center justify-between flex-nowrap w-full gap-2 ...
+
+- Expected:
+null
+
++ Received:
+<input
+  class="w-full text-xs px-2 py-0.5 rounded bg-black/60 border border-white/30 text-white focus:outline-none focus:ring-1 focus:ring-emerald-400"
+  data-testid="input-edit-task-322cfbb4-9afe-42e8-919e-5eda5fcd47e7"
+  type="text"
+  value="Task Đã Đổi Tên"
+/>
+
+ ❯ tests/unit/adversarialTasksAndWhiteboardM2.test.tsx:57:68
+     55|       // Input phải đóng và tên mới xuất hiện
+     56|       await waitFor(() => {
+     57|         expect(screen.queryByTestId(`input-edit-task-${task.id}`)).toB…
+       |                                                                    ^
+     58|       });
+     59|
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 28 passed (29)
+      Tests  1 failed | 339 passed (340)
+   Start at  01:13:21
+   Duration  330.81s (transform 38.34s, setup 0ms, collect 178.73s, tests 126.37s, environment 261.49s, prepare 17.36s)

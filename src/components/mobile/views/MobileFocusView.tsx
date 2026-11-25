@@ -21,6 +21,7 @@ import { useTaskStore } from '../../../stores/useTaskStore';
 import { db } from '../../../db';
 import { getVietnamTodayDateKey, VIETNAM_TIMEZONE } from '../../../utils/timezone';
 import { TimerPhase } from '../../../types/timer';
+import { soundEffects } from '../../../services/soundEffects';
 
 export const STRICT_GRACE_PERIOD_MS = 5000;
 const STRICT_MODE_STORAGE_KEY = 'pomofocus_strict_mode';
@@ -166,6 +167,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   const skipNextClickRef = useRef(false);
 
   const handleToggleStrictMode = () => {
+    soundEffects.playClick();
     setIsStrictMode((prev) => {
       const next = !prev;
       try {
@@ -364,6 +366,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   // Pocket Lock (🔒) Handlers
   // ---------------------------------------------------------------------------
   const handleEngagePocketLock = () => {
+    soundEffects.playClick();
     setIsPocketLocked(true);
     setUnlockHoldProgress(0);
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
@@ -389,6 +392,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         unlockHoldIntervalRef.current = null;
         unlockHoldStartRef.current = null;
         setUnlockHoldProgress(0);
+        soundEffects.playClick();
         setIsPocketLocked(false);
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
           try {
@@ -413,16 +417,19 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   // ---------------------------------------------------------------------------
   const handleTogglePlay = () => {
     if (status === 'running') {
+      soundEffects.playTimerPause();
       pause();
       if (useTimerStore.getState().status !== 'paused') {
         useTimerStore.setState({ status: 'paused' });
       }
     } else if (status === 'paused') {
+      soundEffects.playTimerStart();
       resume();
       if (useTimerStore.getState().status !== 'running') {
         useTimerStore.setState({ status: 'running' });
       }
     } else {
+      soundEffects.playTimerStart();
       start();
       if (useTimerStore.getState().status !== 'running') {
         useTimerStore.setState({ status: 'running' });
@@ -537,6 +544,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       skipNextClickRef.current = false;
       return;
     }
+    soundEffects.playClick();
     reset();
     if (useTimerStore.getState().status !== 'idle') {
       useTimerStore.setState({ status: 'idle' });
@@ -567,6 +575,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           navigator.vibrate([12, 30, 12]);
         } catch {}
       }
+      soundEffects.playClick();
       resetCycle();
       setResetHoldProgress(0);
       if (resetHoldIntervalRef.current) {
@@ -602,14 +611,18 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   };
 
   const handleSkip = () => {
+    soundEffects.playClick();
     skip();
   };
 
   const executePhaseChange = (newPhase: TimerPhase) => {
-    if (newPhase !== phase && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      try {
-        navigator.vibrate(10);
-      } catch {}
+    if (newPhase !== phase) {
+      soundEffects.playClick();
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate(10);
+        } catch {}
+      }
     }
     setPhase(newPhase);
     const duration =
@@ -666,6 +679,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   const handleQuickCompleteTask = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!linkedTaskId) return;
+    if (!isLinkedTaskCompleted) {
+      soundEffects.playTaskComplete();
+    } else {
+      soundEffects.playClick();
+    }
     setIsJadeBursting(true);
     if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
     burstTimerRef.current = setTimeout(() => setIsJadeBursting(false), 380);
@@ -1212,13 +1230,13 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerCancel={cancelResetHold}
               title="Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)"
               aria-label="Đặt lại hiệp này"
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+              className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
             >
               <RotateCcw className="w-4 h-4 stroke-[2]" aria-hidden="true" />
             </button>
           </div>
 
-          {/* Primary Action: Play / Pause (56px, Hold 800ms to Start or 1-Tap Toggle) */}
+          {/* Primary Action: Play / Pause (64px, Hold 800ms to Start or 1-Tap Toggle) */}
           <div className="relative flex items-center justify-center">
             {/* Visual Filling Ring for 800ms Hold */}
             {holdToStartProgress > 0 && (
@@ -1241,7 +1259,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerLeave={handleActionPointerCancel}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
               {status === 'running' ? (
                 <Pause className="w-6 h-6 fill-current stroke-current" aria-hidden="true" />
@@ -1251,14 +1269,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             </button>
           </div>
 
-          {/* Secondary: Skip (⏭) 40px */}
+          {/* Secondary: Skip (48px) */}
           <button
             type="button"
             data-testid="mobile-timer-skip"
             onClick={handleSkip}
             title="Bỏ qua hiệp này"
             aria-label="Bỏ qua hiệp này"
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+            className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
           >
             <SkipForward className="w-4 h-4 stroke-[2]" aria-hidden="true" />
           </button>

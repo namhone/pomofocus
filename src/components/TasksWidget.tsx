@@ -27,6 +27,8 @@ export const TasksWidget: React.FC = () => {
   const timerDailyProgress = useTimerStore((s) => s.dailyProgress);
   const timerTodayMinutes = useTimerStore((s) => s.todayFocusMinutes);
 
+  const submittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('p2');
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(2);
@@ -52,18 +54,24 @@ export const TasksWidget: React.FC = () => {
 
   const handleAddTask = async (e?: React.SyntheticEvent) => {
     e?.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || submittingRef.current) return;
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      await createTask({
+        title: newTitle,
+        priority,
+        projectId: selectedProjectId,
+        estimatedPomodoros
+      });
 
-    await createTask({
-      title: newTitle,
-      priority,
-      projectId: selectedProjectId,
-      estimatedPomodoros
-    });
-
-    setNewTitle('');
-    if (useTaskStore.getState().statusFilter === 'completed' || statusFilter === 'completed') {
-      setStatusFilter('all');
+      setNewTitle('');
+      if (useTaskStore.getState().statusFilter === 'completed' || statusFilter === 'completed') {
+        setStatusFilter('all');
+      }
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -388,7 +396,7 @@ export const TasksWidget: React.FC = () => {
           <button
             data-testid="add-task-btn"
             type="submit"
-            onClick={handleAddTask}
+            disabled={isSubmitting}
             className="liquid-glass-btn px-3.5 py-1 text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition cursor-pointer h-7 gap-1 shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             + Thêm

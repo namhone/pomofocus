@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-26",
+  "typeCheck": {
+    "exitCode": 0
+  },
+  "vitest": {
+    "relatedSuites": 29,
+    "uniqueTests": 340,
+    "aggregateRun": {
+      "passed": 339,
+      "failed": 1
+    },
+    "targetedRerun": {
+      "suite": "adversarialTasksAndWhiteboardM2.test.tsx",
+      "passed": 13,
+      "failed": 0
+    },
+    "allRelatedTestsConfirmedAcrossRuns": true,
+    "wholeRepositoryRun": false
+  },
+  "supabaseReadOnlySmoke": {
+    "tasksRest": 200,
+    "notesRest": 200,
+    "user_walletsRest": 200,
+    "serverJoinAcknowledgedTables": [
+      "tasks",
+      "notes",
+      "user_wallets"
+    ],
+    "cloudWrites": false
+  },
+  "limitations": [
+    "No physical Android device check",
+    "No real Founder or two-device authenticated sessions",
+    "No actual payment",
+    "Existing Meet mobile header crowding and non-monochrome UI remain outside this logic phase"
+  ]
+}

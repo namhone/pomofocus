@@ -34,22 +34,22 @@ export interface FavoritePlaylist {
 export const DEFAULT_FAVORITE_PLAYLISTS: FavoritePlaylist[] = [
   {
     id: 'fav-lofi-night',
-    name: '🌙 Lofi Chill Học Đêm',
+    name: 'Lo-fi học đêm',
     url: 'https://www.youtube.com/playlist?list=PLofht4PTcKYnaH8w5gkDC0o6z738yq2Qn'
   },
   {
     id: 'fav-piano-focus',
-    name: '🎹 Piano Không Lời Thư Giãn',
+    name: 'Piano không lời thư giãn',
     url: 'https://www.youtube.com/playlist?list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo'
   },
   {
     id: 'fav-anime-ost',
-    name: '✨ Anime OST Học & Code',
+    name: 'Nhạc anime tập trung',
     url: 'https://www.youtube.com/playlist?list=PLRBp0Fe2GpgnZOm5rCopMAOYhZCPoUyNY'
   },
   {
     id: 'fav-lofigirl-mix',
-    name: '🔀 Lofi Girl YouTube Mix',
+    name: 'Lofi Girl YouTube Mix',
     url: 'https://www.youtube.com/watch?v=5qap5aO4i9A&list=RDMM5qap5aO4i9A'
   }
 ];
@@ -325,7 +325,7 @@ export const MediaWidget: React.FC = () => {
     >
       {/* 1. Khung phát YouTube độc lập qua react-youtube (100% video, không bị nút đè chéo) */}
       <div
-        className="flex-1 w-full bg-black relative min-h-[160px] overflow-hidden flex items-center justify-center"
+        className="flex-1 w-full bg-black relative min-h-0 overflow-hidden flex items-center justify-center"
         data-testid="media-youtube-container"
       >
         {cleanVideoId || playlistId ? (
@@ -387,7 +387,7 @@ export const MediaWidget: React.FC = () => {
       </form>
 
       {/* 3. Thanh điều khiển tách biệt ở đáy, hoàn toàn ngoài khung video */}
-      <div className="h-11 px-3 flex items-center justify-between border-t border-white/5 bg-zinc-950/95 shrink-0 gap-2">
+      <div className="min-h-11 py-1 px-3 flex flex-wrap items-center justify-between border-t border-white/5 bg-zinc-950/95 shrink-0 gap-2">
         {/* Bên trái: Thông tin trạm / Mix / Playlist */}
         <div className="flex items-center gap-1.5 min-w-0 max-w-[38%]">
           <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
@@ -397,7 +397,7 @@ export const MediaWidget: React.FC = () => {
         </div>
 
         {/* Bên phải: Nút Trước ⏮ / Play-Pause / Tiếp ⏭ / Đổi trạm / Tắt */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <div className="flex flex-wrap justify-end items-center max-w-full gap-1 sm:gap-1.5 shrink-0">
           <button
             type="button"
             data-testid="btn-media-prev-video"

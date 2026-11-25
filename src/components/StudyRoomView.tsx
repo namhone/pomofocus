@@ -27,6 +27,7 @@ import { getServerTime } from '../utils/clockSync';
 import { copyToClipboard } from '../utils/clipboard';
 import { AiCompanionWidget } from './AiCompanionWidget';
 import { UserAvatar } from './common/UserAvatar';
+import { RoomStreamMedia } from './common/RoomStreamMedia';
 import { useAiStore } from '../stores/useAiStore';
 import { useAudioStore } from '../stores/useAudioStore';
 import {
@@ -179,16 +180,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
       title={canAdmin ? 'Bấm để quản trị thành viên (Tặng PRO, Tắt mic, Mời ra)' : undefined}
     >
       {hasVideoTrack ? (
-        <video
-          autoPlay
-          playsInline
-          ref={(el) => {
-            if (el && el.srcObject !== stream) {
-              el.srcObject = stream || null;
-            }
-          }}
-          className="w-full h-full object-cover"
-        />
+        <RoomStreamMedia kind="video" stream={stream} className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-4 bg-gradient-to-b from-zinc-800/40 via-zinc-900/60 to-zinc-950/80 backdrop-blur-xl border border-white/5 text-zinc-400 select-none">
           <UserAvatar
@@ -212,15 +204,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
       )}
 
       {stream && (
-        <audio
-          autoPlay
-          playsInline
-          ref={(el) => {
-            if (el && el.srcObject !== stream) {
-              el.srcObject = stream || null;
-            }
-          }}
-        />
+        <RoomStreamMedia kind="audio" stream={stream} />
       )}
 
       {/* In-Card Status Bar */}
@@ -398,6 +382,20 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const screenStreamRef = useRef<MediaStream | null>(null);
   const screenVideoRef = useRef<HTMLVideoElement | null>(null);
+  const mediaRequestRef = useRef(0);
+  const roomMountedRef = useRef(false);
+  const attachPreJoinVideo = useCallback((node: HTMLVideoElement | null) => {
+    if (preJoinVideoRef.current && preJoinVideoRef.current !== node) preJoinVideoRef.current.srcObject = null;
+    preJoinVideoRef.current = node;
+  }, []);
+  const attachMainVideo = useCallback((node: HTMLVideoElement | null) => {
+    if (mainVideoRef.current && mainVideoRef.current !== node) mainVideoRef.current.srcObject = null;
+    mainVideoRef.current = node;
+  }, []);
+  const attachScreenVideo = useCallback((node: HTMLVideoElement | null) => {
+    if (screenVideoRef.current && screenVideoRef.current !== node) screenVideoRef.current.srcObject = null;
+    screenVideoRef.current = node;
+  }, []);
 
   // Hand raise & Reactions
   const [isHandRaised, setIsHandRaised] = useState(false);
@@ -722,6 +720,23 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
   // WebRTC Real Remote Streams
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
+  const remoteStreamsRef = useRef(remoteStreams);
+  remoteStreamsRef.current = remoteStreams;
+  useEffect(() => {
+    roomMountedRef.current = true;
+    return () => {
+      roomMountedRef.current = false;
+      screenStreamRef.current?.getTracks().forEach(track => track.stop());
+      screenStreamRef.current = null;
+      Object.values(remoteStreamsRef.current).forEach(stream => stream.getTracks().forEach(track => track.stop()));
+      remoteStreamsRef.current = {};
+      analysersRef.current.forEach(({ source, analyser }) => { source.disconnect(); analyser.disconnect(); });
+      analysersRef.current.clear();
+      const context = audioContextRef.current;
+      audioContextRef.current = null;
+      if (context && context.state !== 'closed') void context.close().catch(() => {});
+    };
+  }, []);
   const [presenceUsers, setPresenceUsers] = useState<
     Record<string, { id: string; name: string; role: string; isMicOn?: boolean; isVideoOn?: boolean }>
   >({});
@@ -1685,12 +1700,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     window.addEventListener('online', handleOnline);
 
     let worker: Worker | null = null;
+    let workerUrl: string | null = null;
     try {
       if (typeof window !== 'undefined' && typeof Blob !== 'undefined' && typeof Worker !== 'undefined') {
         const workerBlob = new Blob([
           'let timer = null; self.onmessage = function(e) { if (e.data === "start") { if (timer) clearInterval(timer); timer = setInterval(function() { self.postMessage("tick"); }, 15000); } else if (e.data === "stop") { if (timer) clearInterval(timer); timer = null; } };'
         ], { type: 'application/javascript' });
-        worker = new Worker(URL.createObjectURL(workerBlob));
+        workerUrl = URL.createObjectURL(workerBlob);
+        worker = new Worker(workerUrl);
         worker.onmessage = () => {
           if (channelRef.current && channelRef.current.state === 'joined') {
             try {
@@ -1715,6 +1732,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         worker.postMessage('stop');
         worker.terminate();
       }
+      if (workerUrl) URL.revokeObjectURL(workerUrl);
     };
   }, [hasJoined, handleBackgroundRecovery, participantId]);
 
@@ -2334,6 +2352,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
   // Request & manage local media stream (camera + mic)
   const initLocalStream = useCallback(async () => {
+    const request = ++mediaRequestRef.current;
     try {
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -2372,6 +2391,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       }
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (request !== mediaRequestRef.current) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       localStreamRef.current = stream;
       setMediaError(null);
 
@@ -2387,6 +2410,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         mainVideoRef.current.srcObject = stream;
       }
     } catch (err: any) {
+      if (request !== mediaRequestRef.current) return;
       console.warn('Không thể truy cập camera hoặc micro cục bộ:', err);
       // Fallback mượt mà: Tắt switch và hiển thị avatar tròn thay thế
       setCameraEnabled(false);
@@ -2432,8 +2456,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   useEffect(() => {
     initLocalStream();
     return () => {
+      mediaRequestRef.current += 1;
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
       }
     };
   }, [initLocalStream]);
@@ -2493,6 +2519,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         return;
       }
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      if (!roomMountedRef.current) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       screenStreamRef.current = stream;
       setIsScreenSharing(true);
 
@@ -2988,7 +3018,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           <div className="relative aspect-video rounded-2xl bg-black/70 border border-white/10 overflow-hidden mb-5 flex flex-col items-center justify-center">
             {cameraEnabled ? (
               <video
-                ref={preJoinVideoRef}
+                ref={attachPreJoinVideo}
                 autoPlay
                 playsInline
                 muted
@@ -3726,7 +3756,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           {isScreenSharing && (
             <div className="mb-4 relative rounded-2xl bg-black border border-emerald-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] landscape:max-h-[75vh] flex flex-col items-center justify-center">
               <video
-                ref={screenVideoRef}
+                ref={attachScreenVideo}
                 autoPlay
                 playsInline
                 className="w-full h-full object-contain"
@@ -3767,7 +3797,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   >
                     {cameraEnabled ? (
                       <video
-                        ref={mainVideoRef}
+                        ref={attachMainVideo}
                         autoPlay
                         playsInline
                         muted
@@ -3933,7 +3963,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                         >
                           {cameraEnabled ? (
                             <video
-                              ref={mainVideoRef}
+                              ref={attachMainVideo}
                               autoPlay
                               playsInline
                               muted
@@ -3985,16 +4015,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           }`}
                         >
                           {hasVideoTrack ? (
-                            <video
-                              autoPlay
-                              playsInline
-                              ref={(el) => {
-                                if (el && el.srcObject !== stream) {
-                                  el.srcObject = stream;
-                                }
-                              }}
-                              className="w-full h-full object-cover"
-                            />
+                            <RoomStreamMedia kind="video" stream={stream} className="w-full h-full object-cover" />
                           ) : (
                             <div className="flex items-center gap-1 text-neutral-400">
                               <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
@@ -4004,15 +4025,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           )}
 
                           {stream && (
-                            <audio
-                              autoPlay
-                              playsInline
-                              ref={(el) => {
-                                if (el && el.srcObject !== stream) {
-                                  el.srcObject = stream;
-                                }
-                              }}
-                            />
+                            <RoomStreamMedia kind="audio" stream={stream} />
                           )}
 
                           <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-xs text-[10px] text-white border border-white/5">

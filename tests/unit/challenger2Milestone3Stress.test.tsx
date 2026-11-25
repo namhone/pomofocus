@@ -35,11 +35,11 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
   });
 
   describe('Vector 1: E2E Presets & Wallpaper Invariants', () => {
-    it('CRITICAL: ANIME_WALLPAPERS_LOCAL[0] is exactly anime-01.webp with title "Chuyến Tàu Trên Mặt Nước"', () => {
+    it('CRITICAL: ANIME_WALLPAPERS_LOCAL[0] is exactly anime-01.webp with title "Chuyến tàu trên mặt nước"', () => {
       const first = ANIME_WALLPAPERS_LOCAL[0];
       expect(first).toBeDefined();
       expect(first.filename).toBe('anime-01.webp');
-      expect(first.title).toBe('Chuyến Tàu Trên Mặt Nước');
+      expect(first.title).toBe('Chuyến tàu trên mặt nước');
       expect(first.author).toContain('Studio Ghibli');
     });
 
@@ -77,36 +77,17 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
       }
     });
 
-    it('WALLPAPERS contains all 6 required curated anime & ambient presets', () => {
-      const required = [
-        { id: 'wp-anime-suzume', title: 'Cánh cửa Suzume' },
-        { id: 'wp-anime-edgerunners', title: 'Ánh trăng Edgerunners' },
-        { id: 'wp-anime-violet', title: 'Bức thư Violet Evergarden' },
-        { id: 'wp-anime-frieren', title: 'Hành trình Frieren' },
-        { id: 'wp-anime-demonslayer', title: 'Hoa tử đằng Kimetsu' },
-        { id: 'wp-anime-tokyo-neon', title: 'Tokyo Neon hoàng hôn' }
-      ];
-
-      for (const req of required) {
-        const found = WALLPAPERS.find((w) => w.id === req.id);
-        expect(found, `Missing curated preset: ${req.id}`).toBeDefined();
-        expect(found?.title).toBe(req.title);
+    it('contains 30 distinct curated wallpapers across anime, lofi and cyberpunk', () => {
+      expect(WALLPAPERS).toHaveLength(30);
+      expect(new Set(WALLPAPERS.map(item => item.fullUrl)).size).toBe(30);
+      for (const category of ['anime-ghibli', 'lofi-study', 'cyberpunk-tokyo']) {
+        expect(WALLPAPERS.some(item => item.category === category)).toBe(true);
       }
     });
 
-    it('BACKGROUND_PRESETS contains all baseline E2E presets and 5 CC0 video loops with 0 duplicates', () => {
+    it('BACKGROUND_PRESETS contains all baseline E2E presets and 2 real video clips with 0 duplicates', () => {
       const ids = new Set<string>();
-      const expectedIds = [
-        'deep-space',
-        'cozy-lofi-room',
-        'rainy-window',
-        'zen-pure-black',
-        'cyberpunk-neon-rain',
-        'tears-of-steel-scifi',
-        'cozy-fireplace-loop',
-        'aurora-night-sky',
-        'cloud-sea-mountains'
-      ];
+      const expectedIds = ['deep-space', 'cozy-lofi-room', 'pure-black', 'oceans-wave', 'flower-timelapse', 'tokyo-neon'];
 
       for (const preset of BACKGROUND_PRESETS) {
         expect(ids.has(preset.id), `Duplicate preset id: ${preset.id}`).toBe(false);
@@ -145,7 +126,7 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
       expect(screen.getByTestId('presets-grid')).toBeDefined();
       expect(screen.getByTestId('preset-card-deep-space')).toBeDefined();
       expect(screen.getByTestId('preset-card-cozy-lofi-room')).toBeDefined();
-      expect(screen.getByTestId('preset-card-rainy-window')).toBeDefined();
+      expect(screen.getByTestId('preset-card-oceans-wave')).toBeDefined();
     });
 
     it('Clicking adjustments toggle opens bg-adjustments-panel with slider-overlay', () => {
@@ -158,17 +139,17 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
       expect(screen.getByTestId('slider-overlay')).toBeDefined();
     });
 
-    it('Switching to anime-ghibli category renders "Chuyến Tàu Trên Mặt Nước" card matching E2E selector', () => {
+    it('Switching to anime-ghibli category renders "Chuyến tàu trên mặt nước" card matching E2E selector', () => {
       const { container } = render(<SpacesWidget />);
 
       const animeTab = screen.getByTestId('filter-cat-anime-ghibli');
       fireEvent.click(animeTab);
 
-      // Playwright E2E selector: page.locator('[data-testid="spaces-widget"] button').filter({ hasText: 'Chuyến Tàu Trên Mặt Nước' }).first()
+      // Playwright E2E selector: page.locator('[data-testid="spaces-widget"] button').filter({ hasText: 'Chuyến tàu trên mặt nước' }).first()
       const widget = container.querySelector('[data-testid="spaces-widget"]');
       expect(widget).toBeDefined();
       const buttons = Array.from(widget?.querySelectorAll('button') || []);
-      const matchedButtons = buttons.filter((b) => b.textContent?.includes('Chuyến Tàu Trên Mặt Nước'));
+      const matchedButtons = buttons.filter((b) => b.textContent?.includes('Chuyến tàu trên mặt nước'));
       expect(matchedButtons.length).toBeGreaterThanOrEqual(1);
 
       const firstAnimeCard = matchedButtons[0];
@@ -186,13 +167,13 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
       fireEvent.change(searchInput, { target: { value: 'CHUYẾN TÀU' } });
       const widget = container.querySelector('[data-testid="spaces-widget"]');
       let buttons = Array.from(widget?.querySelectorAll('button') || []);
-      let matched = buttons.filter((b) => b.textContent?.includes('Chuyến Tàu'));
+      let matched = buttons.filter((b) => b.textContent?.includes('Chuyến tàu'));
       expect(matched.length).toBeGreaterThanOrEqual(1);
 
       // Non-matching query
       fireEvent.change(searchInput, { target: { value: 'xyz_non_existent_search_query_999' } });
       buttons = Array.from(widget?.querySelectorAll('button') || []);
-      matched = buttons.filter((b) => b.textContent?.includes('Chuyến Tàu'));
+      matched = buttons.filter((b) => b.textContent?.includes('Chuyến tàu'));
       expect(matched.length).toBe(0);
 
       // Clear search
@@ -206,8 +187,8 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
       const videoTab = screen.getByTestId('filter-cat-video');
       fireEvent.click(videoTab);
 
-      expect(screen.getByTestId('preset-card-rainy-window')).toBeDefined();
-      expect(screen.getByTestId('preset-card-cyberpunk-neon-rain')).toBeDefined();
+      expect(screen.getByTestId('preset-card-oceans-wave')).toBeDefined();
+      expect(screen.getByTestId('preset-card-flower-timelapse')).toBeDefined();
       expect(screen.queryByTestId('preset-card-deep-space')).toBeNull();
     });
   });

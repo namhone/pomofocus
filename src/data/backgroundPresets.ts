@@ -1,4 +1,5 @@
 import { BackgroundPreset } from '../types/background';
+import { WALLPAPERS } from './wallpapers';
 
 // Data URI SVG & CSS Gradients dự phòng cho offline và fallback tức thì
 export const FALLBACK_GRADIENTS = {
@@ -13,272 +14,37 @@ export const FALLBACK_GRADIENTS = {
 
 export const PURE_ZEN_BLACK_HEX = '#09090b';
 
+// 30 ảnh riêng biệt, hai video có nội dung đúng tên và nền tĩnh nhẹ.
 export const BACKGROUND_PRESETS: BackgroundPreset[] = [
   {
-    id: 'pure-black',
-    title: 'Tắt nền (Pure Zen Black)',
-    category: 'solid',
-    url: '#09090b',
-    fallbackUrl: '#09090b',
-    thumbnailUrl: '',
-    author: 'PomoFocus Zen Engine',
-    license: 'Built-in',
-    description: 'Nền đen OLED thuần khiết tối đa hóa thời lượng pin và sự tập trung tuyệt đối.',
-    tags: ['pure-black', 'zen', 'oled', 'battery', 'minimal']
+    "id": "pure-black",
+    "title": "Tắt nền",
+    "category": "solid",
+    "url": "#09090b",
+    "fallbackUrl": "#09090b",
+    "thumbnailUrl": "",
+    "author": "PomoFocus",
+    "license": "Built-in",
+    "description": "Nền đen tĩnh, không cần tải ảnh.",
+    "tags": [
+      "zen",
+      "black",
+      "offline"
+    ]
   },
-  {
-    id: 'deep-space',
-    title: 'Không Gian Sâu',
-    category: 'image',
-    url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop',
-    fallbackUrl: FALLBACK_GRADIENTS.deepSpace,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop',
-    author: 'NASA / Unsplash',
-    license: 'Unsplash Free Commercial License',
-    description: 'Tinh vân vũ trụ sâu thẳm với ánh sáng cực quang và dải ngân hà huyền bí.',
-    tags: ['space', 'galaxy', 'night', 'stars', 'cosmic']
-  },
-  {
-    id: 'cozy-lofi-room',
-    title: 'Góc Học Tập Lo-Fi',
-    category: 'image',
-    url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1920&auto=format&fit=crop',
-    fallbackUrl: FALLBACK_GRADIENTS.cozyLofi,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=300&auto=format&fit=crop',
-    author: 'Unsplash Community',
-    license: 'Unsplash Free Commercial License',
-    description: 'Ánh đèn vàng ấm cúng bên bàn làm việc gỗ, sách vở và không gian học tập yên tĩnh.',
-    tags: ['cozy', 'warm', 'study', 'lofi', 'hygge']
-  },
-  {
-    id: 'oceans-wave',
-    title: 'Đại Dương Sóng Vỗ',
-    category: 'video',
-    url: 'https://vjs.zencdn.net/v/oceans.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300&auto=format&fit=crop',
-    author: 'VideoJS Open Media Library',
-    license: 'Creative Commons (CC0)',
-    description: 'Video chuyển động sóng biển xanh biếc dạt dào êm ả lặp vòng liên tục.',
-    tags: ['ocean', 'waves', 'video', 'water', 'nature']
-  },
-  {
-    id: 'rainy-window',
-    title: 'Cửa Sổ Mưa Rơi',
-    category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    fallbackUrl: FALLBACK_GRADIENTS.rainyWindow,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=300&auto=format&fit=crop',
-    author: 'Wikimedia Commons / Google Test Streams',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Video vòng lặp giọt mưa trượt trên mặt kính mờ ảo, tạo không gian tập trung trầm lắng.',
-    tags: ['rain', 'video', 'mood', 'cozy', 'water']
-  },
-  {
-    id: 'pine-forest',
-    title: 'Rừng Thông Sương Sớm',
-    category: 'image',
-    url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1920&auto=format&fit=crop',
-    fallbackUrl: FALLBACK_GRADIENTS.mistyForest,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=300&auto=format&fit=crop',
-    author: 'Unsplash Community',
-    license: 'Unsplash Free Commercial License',
-    description: 'Thiên nhiên hoang dã mát lành với những rặng thông xanh bạt ngàn trong làn sương sớm.',
-    tags: ['nature', 'forest', 'green', 'peaceful', 'mist']
-  },
-  {
-    id: 'sintel-nature',
-    title: 'Hoạt Cảnh Thiên Nhiên',
-    category: 'video',
-    url: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=300&auto=format&fit=crop',
-    author: 'Blender Foundation (Open Movie)',
-    license: 'Creative Commons CC-BY 3.0',
-    description: 'Video hoạt cảnh đồ họa mở chất lượng cao lặp vòng thiên nhiên và ngọn lửa.',
-    tags: ['animation', 'nature', 'video', 'blender', 'fire']
-  },
-  {
-    id: 'tokyo-neon',
-    title: 'Đêm Phố Tokyo',
-    category: 'video',
-    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300&auto=format&fit=crop',
-    author: 'Mozilla Open Media / Unsplash Community',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Video ánh đèn neon hiện đại và nhịp sống đô thị cyberpunk về đêm.',
-    tags: ['neon', 'cyberpunk', 'city', 'video', 'tokyo']
-  },
-  {
-    id: 'flower-timelapse',
-    title: 'Hoa Nở Trong Vườn',
-    category: 'video',
-    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=300&auto=format&fit=crop',
-    author: 'Mozilla Open Media',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Video time-lapse cánh hoa nở thư giãn, truyền cảm hứng bình yên.',
-    tags: ['flower', 'bloom', 'timelapse', 'nature', 'video']
-  },
-  {
-    id: 'cyberpunk-neon-rain',
-    title: 'Hẻm mưa Neon Tokyo',
-    category: 'video',
-    url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300&auto=format&fit=crop',
-    author: 'Mozilla Open Media (CC0)',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Video ánh đèn neon lung linh trong cơn mưa đêm phố thị.',
-    tags: ['cyberpunk', 'neon', 'rain', 'tokyo', 'video', 'night']
-  },
-  {
-    id: 'tears-of-steel-scifi',
-    title: 'Đô thị tương lai viễn tưởng',
-    category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=300&auto=format&fit=crop',
-    author: 'Blender Foundation (Open Project)',
-    license: 'Creative Commons CC-BY 3.0',
-    description: 'Video vòng lặp khung cảnh đô thị viễn tưởng kỹ xảo điện ảnh mở.',
-    tags: ['scifi', 'future', 'city', 'blender', 'video']
-  },
-  {
-    id: 'cozy-fireplace-loop',
-    title: 'Lò sưởi ấm cúng mùa đông',
-    category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=300&auto=format&fit=crop',
-    author: 'Wikimedia Commons / Google Media',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Ngọn lửa bập bùng ấm áp trong đêm đông yên tĩnh.',
-    tags: ['fireplace', 'cozy', 'warm', 'fire', 'video', 'winter']
-  },
-  {
-    id: 'aurora-night-sky',
-    title: 'Cực quang bầu trời đêm',
-    category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=300&auto=format&fit=crop',
-    author: 'Google Open Streams (CC0)',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Dải cực quang xanh ngọc nhảy múa trên bầu trời Bắc Cực huyền ảo.',
-    tags: ['aurora', 'night', 'stars', 'sky', 'video', 'zen']
-  },
-  {
-    id: 'cloud-sea-mountains',
-    title: 'Biển mây bồng bềnh đỉnh núi',
-    category: 'video',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    fallbackUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop',
-    author: 'Google Cloud Streaming (CC0)',
-    license: 'Creative Commons (CC0 / Open Media)',
-    description: 'Biển mây trắng xóa trôi lững lờ qua các đỉnh núi hùng vĩ.',
-    tags: ['clouds', 'mountains', 'nature', 'video', 'peaceful']
-  },
-  {
-    id: 'sunset-lake',
-    title: 'Hồ Chiều Tà',
-    category: 'image',
-    url: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=1920&auto=format&fit=crop',
-    fallbackUrl: FALLBACK_GRADIENTS.sunsetLake,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=300&auto=format&fit=crop',
-    author: 'Kalab Teshale / Unsplash',
-    license: 'Unsplash Free Commercial License',
-    description: 'Mặt hồ phẳng lặng phản chiếu ánh hoàng hôn cam vàng tuyệt đẹp giữa lòng thung lũng.',
-    tags: ['sunset', 'water', 'lake', 'mountains', 'calm']
-  },
-  {
-    id: 'mountain-sunset',
-    title: 'Hoàng Hôn Đỉnh Núi',
-    category: 'image',
-    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop',
-    fallbackUrl: FALLBACK_GRADIENTS.sunsetLake,
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop',
-    author: 'Unsplash Community',
-    license: 'Unsplash Free Commercial License',
-    description: 'Ánh nắng vàng cam buông xuống những đỉnh núi điệp trùng.',
-    tags: ['mountain', 'sunset', 'alpine', 'sky', 'warm']
-  },
-  {
-    id: 'gradient-space',
-    title: 'Gradient Tối Giản Vũ Trụ',
-    category: 'gradient',
-    url: FALLBACK_GRADIENTS.deepSpace,
-    fallbackUrl: FALLBACK_GRADIENTS.deepSpace,
-    thumbnailUrl: '',
-    author: 'System Preset',
-    license: 'MIT',
-    description: 'Nền dải màu tím đen tinh tế, siêu nhẹ, không tốn băng thông mạng.',
-    tags: ['gradient', 'minimal', 'offline', 'dark']
-  },
-  {
-    id: 'gradient-forest',
-    title: 'Gradient Tối Giản Rừng Xanh',
-    category: 'gradient',
-    url: FALLBACK_GRADIENTS.mistyForest,
-    fallbackUrl: FALLBACK_GRADIENTS.mistyForest,
-    thumbnailUrl: '',
-    author: 'System Preset',
-    license: 'MIT',
-    description: 'Nền dải màu xanh ngọc bích đậm thư thái cho đôi mắt.',
-    tags: ['gradient', 'minimal', 'offline', 'green']
-  },
-  {
-    id: 'zen-pure-black',
-    title: 'Đen Tuyền Tuyệt Đối',
-    category: 'solid',
-    url: '#09090b',
-    fallbackUrl: '#09090b',
-    thumbnailUrl: '',
-    author: 'Pure Zen',
-    license: 'MIT',
-    description: 'Nền đen phẳng 100% không hình ảnh, tối đa hóa tĩnh tâm.',
-    tags: ['zen', 'black', 'minimal', 'solid']
-  },
-  {
-    id: 'zen-deep-graphite',
-    title: 'Xám Than Chì Sâu',
-    category: 'solid',
-    url: '#18181b',
-    fallbackUrl: '#18181b',
-    thumbnailUrl: '',
-    author: 'Pure Zen',
-    license: 'MIT',
-    description: 'Màu xám than chì sâu phẳng 100%.',
-    tags: ['zen', 'graphite', 'minimal', 'solid']
-  },
-  {
-    id: 'zen-night-blue',
-    title: 'Xanh Bóng Đêm',
-    category: 'solid',
-    url: '#0b132b',
-    fallbackUrl: '#0b132b',
-    thumbnailUrl: '',
-    author: 'Pure Zen',
-    license: 'MIT',
-    description: 'Màu xanh bóng đêm phẳng 100%.',
-    tags: ['zen', 'night-blue', 'minimal', 'solid']
-  }
+  { id: 'deep-space', title: 'Trái đất từ không gian', category: 'image', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=75', fallbackUrl: FALLBACK_GRADIENTS.deepSpace, thumbnailUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=360&q=60', author: 'NASA / Unsplash', license: 'Unsplash', description: 'Trái đất nhìn từ không gian.', tags: ['earth', 'space'] },
+  ...WALLPAPERS.map((item): BackgroundPreset => ({
+    id: ({"wp-anime-ghibli-12":"cozy-lofi-room","wp-photo-9":"pine-forest","wp-photo-6":"tokyo-neon"} as Record<string, string>)[item.id] || item.id,
+    title: item.id === 'wp-anime-ghibli-12' ? 'Góc học tập Lo-fi' : item.title,
+    category: 'image', url: item.fullUrl, fallbackUrl: '#09090b', thumbnailUrl: item.thumbnailUrl, author: item.author,
+    license: item.fullUrl.startsWith('/') ? 'Tài nguyên có sẵn trong dự án' : 'Unsplash',
+    description: item.title, tags: item.tags
+  })),
+  { id: 'oceans-wave', title: 'Sóng biển', category: 'video', url: 'https://videos.pexels.com/video-files/1893746/1893746-sd_640_360_25fps.mp4', fallbackUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1280&q=70', thumbnailUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=360&q=60', author: 'Atlantic Ambience / Pexels', license: 'Pexels Free License', description: 'Cảnh biển chuyển động. Chế độ Eco dùng ảnh tĩnh.', tags: ['ocean', 'waves', 'video'] },
+  { id: 'flower-timelapse', title: 'Hoa nở', category: 'video', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', fallbackUrl: '#09090b', thumbnailUrl: '', author: 'MDN Web Docs', license: 'CC0', description: 'Cận cảnh hoa nở theo thời gian. Chế độ Eco dùng nền tĩnh.', tags: ['flower', 'timelapse', 'video'] },
+  { id: 'gradient-space', title: 'Dải màu vũ trụ', category: 'gradient', url: FALLBACK_GRADIENTS.deepSpace, fallbackUrl: '#09090b', thumbnailUrl: '', author: 'PomoFocus', license: 'Built-in', description: 'Dải màu tĩnh, không tải dữ liệu mạng.', tags: ['gradient', 'offline'] },
+  // Keep saved Zen color IDs compatible without duplicating image/video resources.
+  { id: 'zen-pure-black', title: 'Đen tuyền', category: 'solid', url: '#09090b', fallbackUrl: '#09090b', thumbnailUrl: '', author: 'PomoFocus', license: 'Built-in', description: 'Nền đen tĩnh.', tags: ['solid', 'offline'] },
+  { id: 'zen-night-blue', title: 'Xanh đêm', category: 'solid', url: '#0b132b', fallbackUrl: '#0b132b', thumbnailUrl: '', author: 'PomoFocus', license: 'Built-in', description: 'Nền xanh đêm tĩnh.', tags: ['solid', 'offline'] },
+  { id: 'zen-deep-graphite', title: 'Xám than chì', category: 'solid', url: '#18181b', fallbackUrl: '#18181b', thumbnailUrl: '', author: 'PomoFocus', license: 'Built-in', description: 'Nền xám tĩnh.', tags: ['solid', 'offline'] }
 ];

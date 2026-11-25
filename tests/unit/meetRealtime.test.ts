@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { meetRealtimeService, MeetRealtimeService } from '../../src/services/meet/realtimeService';
-import { useMeetStore } from '../../src/stores/useMeetStore';
 import { supabase } from '../../src/lib/supabase';
 import type { RoomMessage, PresenceState } from '../../src/types/meet';
 
@@ -11,7 +10,6 @@ describe('Meet Realtime Service & Defense-in-Depth Teardown Tests', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    useMeetStore.getState().reset();
     vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName: string, params: any) => {
       if (fnName === 'create_study_room') {
         return {
@@ -154,86 +152,23 @@ describe('Meet Realtime Service & Defense-in-Depth Teardown Tests', () => {
     });
   });
 
-  describe('2. Defense-in-Depth Teardown trong useMeetStore', () => {
-    it('khi bản thân bị Kick: hủy kết nối WebSocket, xóa sạch state phòng và kích hoạt redirect', async () => {
-      const onKickedRedirect = vi.fn();
-      const onCloseRedirect = vi.fn();
-
-      const store = useMeetStore.getState();
-      await store.createRoom('Phòng Kiểm Tra Teardown Kick', 10);
-      await store.sendMessage(roomId, 'Tin nhắn trước khi bị kick', 'c1');
-
-      store.subscribeRealtime(roomId, myUserId, {
-        onKicked: onKickedRedirect,
-        onClosed: onCloseRedirect,
-      });
-
-      expect(useMeetStore.getState().currentRoom).not.toBeNull();
-      expect(useMeetStore.getState().isKicked).toBe(false);
-
-      // Kích hoạt sự kiện Kick từ Host
-      const channel = meetRealtimeService.getChannel();
-      channel?.dispatchLocalPostgresChange('room_memberships', 'UPDATE', {
-        user_id: myUserId,
-        room_id: roomId,
-        status: 'revoked',
-      });
-
-      // Kiểm tra Tầng 1: Client state được dọn dẹp sạch sẽ
-      expect(useMeetStore.getState().currentRoom).toBeNull();
-      expect(useMeetStore.getState().messages).toHaveLength(0);
-      expect(useMeetStore.getState().onlineMembers).toHaveLength(0);
-      expect(useMeetStore.getState().isKicked).toBe(true);
-      expect(useMeetStore.getState().kickedReason).toContain('mời ra khỏi phòng học');
-      expect(onKickedRedirect).toHaveBeenCalledTimes(1);
-
-      // WebSocket / Socket channel đã được đóng hoàn toàn
+  describe('2. Active realtime service teardown', () => {
+    const callbacks = () => ({ onNewMessage: vi.fn(), onPresenceSync: vi.fn(), onMemberRevoked: vi.fn(), onRoomClosed: vi.fn() });
+    it('unsubscribe releases the channel and a new visit creates a fresh subscription', () => {
+      meetRealtimeService.subscribe(roomId, myUserId, callbacks());
+      const previous = meetRealtimeService.getChannel()!;
+      meetRealtimeService.unsubscribe();
+      expect(previous.isSubscribed).toBe(false);
       expect(meetRealtimeService.getChannel()).toBeNull();
+      meetRealtimeService.subscribe(roomId, myUserId, callbacks());
+      expect(meetRealtimeService.getChannel()).not.toBe(previous);
     });
-
-    it('khi thành viên khác bị Kick: bản thân không bị ảnh hưởng, phòng vẫn duy trì', async () => {
-      const onKickedRedirect = vi.fn();
-
-      const store = useMeetStore.getState();
-      await store.createRoom('Phòng Duy Trì', 10);
-
-      store.subscribeRealtime(roomId, myUserId, {
-        onKicked: onKickedRedirect,
-      });
-
-      const channel = meetRealtimeService.getChannel();
-      channel?.dispatchLocalPostgresChange('room_memberships', 'UPDATE', {
-        user_id: otherUserId,
-        room_id: roomId,
-        status: 'revoked',
-      });
-
-      expect(useMeetStore.getState().currentRoom).not.toBeNull();
-      expect(useMeetStore.getState().isKicked).toBe(false);
-      expect(onKickedRedirect).not.toHaveBeenCalled();
-      expect(meetRealtimeService.getChannel()).not.toBeNull();
-    });
-
-    it('khi Host đóng phòng: toàn bộ học viên hủy kết nối socket và nhận thông báo phòng đóng', async () => {
-      const onClosedRedirect = vi.fn();
-
-      const store = useMeetStore.getState();
-      await store.createRoom('Phòng Chuẩn Bị Kết Thúc', 10);
-
-      store.subscribeRealtime(roomId, myUserId, {
-        onClosed: onClosedRedirect,
-      });
-
-      const channel = meetRealtimeService.getChannel();
-      channel?.dispatchLocalPostgresChange('study_rooms', 'UPDATE', {
-        id: roomId,
-        status: 'closed',
-      });
-
-      expect(useMeetStore.getState().isRoomClosed).toBe(true);
-      expect(useMeetStore.getState().roomClosedReason).toContain('kết thúc phiên');
-      expect(onClosedRedirect).toHaveBeenCalledTimes(1);
-      expect(meetRealtimeService.getChannel()).toBeNull();
+    it('switching rooms tears down the previous subscription', () => {
+      meetRealtimeService.subscribe(roomId, myUserId, callbacks());
+      const previous = meetRealtimeService.getChannel()!;
+      meetRealtimeService.subscribe('another-room', myUserId, callbacks());
+      expect(previous.isSubscribed).toBe(false);
+      expect(meetRealtimeService.getChannel()?.topic).toBe('room:another-room');
     });
   });
 });

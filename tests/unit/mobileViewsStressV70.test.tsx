@@ -184,7 +184,7 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
     });
 
     it('1.5 Free student user displays "Miễn phí" badge AND displays upgrade prompt with working action', () => {
-      const topupSpy = vi.spyOn(useAiStore.getState(), 'openTopupModal');
+      const navigation = vi.spyOn(window.history, 'pushState');
 
       useAuthStore.setState({
         user: {
@@ -210,7 +210,7 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
       expect(upgradeBtn).toBeDefined();
       fireEvent.click(upgradeBtn);
 
-      expect(topupSpy).toHaveBeenCalledTimes(1);
+      expect(navigation).toHaveBeenCalledWith({}, '', '/billing');
     });
 
     it('1.6 Unauthenticated Guest user displays "Khách học tập", "Miễn phí", and upgrade prompt', () => {
@@ -366,13 +366,13 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
       expect(screen.getByText('100%')).toBeDefined();
     });
 
-    it('3.3 Chime preview: clicking "Nghe thử" triggers playChime with current selected chime', () => {
-      const playChimeSpy = vi.fn().mockResolvedValue(undefined);
+    it('3.3 Chime preview: clicking "Nghe thử" triggers previewChime with current selected chime', () => {
+      const previewChimeSpy = vi.fn().mockResolvedValue(undefined);
       useAudioStore.setState({
-        playChime: playChimeSpy,
+        previewChime: previewChimeSpy,
         settings: {
           ...useAudioStore.getState().settings,
-          selectedChime: 'zen_bell',
+          selectedChime: 'zen_bell' as any,
         },
       });
 
@@ -381,13 +381,13 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
       const previewBtn = screen.getByText('Nghe thử');
       fireEvent.click(previewBtn);
 
-      expect(playChimeSpy).toHaveBeenCalledTimes(1);
-      expect(playChimeSpy).toHaveBeenCalledWith('zen_bell');
+      expect(previewChimeSpy).toHaveBeenCalledTimes(1);
+      expect(previewChimeSpy).toHaveBeenCalledWith('zen_bell');
     });
 
     it('3.4 Chime selection cycle: iterates through ALARM_CHIMES and triggers preview with selected chime', () => {
-      const playChimeSpy = vi.fn().mockResolvedValue(undefined);
-      useAudioStore.setState({ playChime: playChimeSpy });
+      const previewChimeSpy = vi.fn().mockResolvedValue(undefined);
+      useAudioStore.setState({ previewChime: previewChimeSpy });
 
       render(<MobileSettingsView />);
 
@@ -399,13 +399,13 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
         expect(useAudioStore.getState().settings.selectedChime).toBe(chime.id);
 
         fireEvent.click(previewBtn);
-        expect(playChimeSpy).toHaveBeenLastCalledWith(chime.id);
+        expect(previewChimeSpy).toHaveBeenLastCalledWith(chime.id);
       }
     });
 
     it('3.5 Audio preview error resilience: component handles audio rejection gracefully without throwing unhandled exceptions', () => {
-      const playChimeSpy = vi.fn().mockRejectedValue(new Error('AudioContext autoplay blocked by user agent'));
-      useAudioStore.setState({ playChime: playChimeSpy });
+      const previewChimeSpy = vi.fn().mockRejectedValue(new Error('AudioContext autoplay blocked by user agent'));
+      useAudioStore.setState({ previewChime: previewChimeSpy });
 
       render(<MobileSettingsView />);
 
@@ -416,7 +416,7 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
         fireEvent.click(previewBtn);
       }).not.toThrow();
 
-      expect(playChimeSpy).toHaveBeenCalled();
+      expect(previewChimeSpy).toHaveBeenCalled();
     });
   });
 

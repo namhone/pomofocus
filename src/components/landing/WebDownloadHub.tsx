@@ -30,8 +30,8 @@ import { useRouter } from '../../services/router';
 
 export const PUBLIC_APK_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk';
 export const CURRENT_APK_VERSION = 'v8.1';
-export const APK_SIZE_MB = 8.7;
-export const APK_SIZE_LABEL = '8.70 MB';
+export const APK_SIZE_MB = 8.5;
+export const APK_SIZE_LABEL = '8.5 MB';
 
 interface TiltState {
   rotateX: number;
@@ -144,57 +144,57 @@ export const WebDownloadHub: React.FC = () => {
 
   const featureCards = [
     {
-      title: 'Anchor Timestamp Engine',
+      title: 'Đếm giờ theo mốc thời gian',
       subtitle: 'Đếm giờ chính xác khi tắt màn hình',
       desc: 'Tính toán dựa trên mốc thời gian thực tuyệt đối, không bị trôi giờ ngay cả khi hệ thống tạm dừng tác vụ chạy nền.',
       icon: Zap,
-      gradient: 'from-emerald-500/20 to-teal-500/10',
-      border: 'border-emerald-500/30',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
       badge: 'Chạy nền ổn định',
     },
     {
-      title: 'Screen Wake Lock API',
-      subtitle: 'Giữ sáng màn hình OLED',
-      desc: 'Duy trì màn hình tập trung luôn mở dịu nhẹ khi làm việc sâu mà không gây hao tốn năng lượng pin.',
+      title: 'Giữ sáng khi tập trung',
+      subtitle: 'Giữ sáng khi thiết bị hỗ trợ',
+      desc: 'Tùy chọn giữ màn hình sáng trong lúc tập trung trên thiết bị hỗ trợ. Tắt khi không cần để giảm sử dụng pin.',
       icon: BatteryCharging,
-      gradient: 'from-amber-500/20 to-orange-500/10',
-      border: 'border-amber-500/30',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
       badge: 'Thân thiện OLED',
     },
     {
-      title: 'Haptics & Spring Physics',
-      subtitle: 'Phản hồi rung 120Hz tinh tế',
+      title: 'Phản hồi khi chạm',
+      subtitle: 'Phản hồi rung khi thao tác',
       desc: 'Rung nhẹ 10ms mô phỏng cảm giác núm xoay vật lý khi chỉnh phút; chuyển động lò xo mượt mà ở từng thao tác.',
       icon: Smartphone,
-      gradient: 'from-sky-500/20 to-blue-500/10',
-      border: 'border-sky-500/30',
-      badge: '120Hz tự nhiên',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
+      badge: 'Phản hồi nhẹ',
     },
     {
-      title: 'Zero-Scroll-Chaining',
-      subtitle: 'Cố định khung hình 100dvh',
+      title: 'Không gian vừa màn hình',
+      subtitle: 'Vừa với màn hình',
       desc: 'Khung hiển thị cố định hoàn toàn không bị trôi nóc hay giật khung hình khi vuốt trên màn hình cảm ứng.',
       icon: Layers,
-      gradient: 'from-purple-500/20 to-indigo-500/10',
-      border: 'border-purple-500/30',
-      badge: 'Cố định 100dvh',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
+      badge: 'Vừa màn hình',
     },
     {
-      title: 'Offline First & Security',
+      title: 'Học tập khi ngoại tuyến',
       subtitle: 'Hoạt động offline & riêng tư',
-      desc: 'Ứng dụng chạy trực tiếp toàn bộ tính năng cốt lõi không cần kết nối mạng; dữ liệu được lưu an toàn trên máy.',
+      desc: 'Đếm giờ và xem dữ liệu đã lưu khi ngoại tuyến. Cần kết nối mạng để đồng bộ và dùng các tính năng trực tuyến.',
       icon: ShieldCheck,
-      gradient: 'from-rose-500/20 to-pink-500/10',
-      border: 'border-rose-500/30',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
       badge: 'Bảo mật cao',
     },
     {
-      title: 'Rolling Digit Morphing',
-      subtitle: 'Chuyển số mượt mà 120ms',
+      title: 'Chuyển số nhẹ nhàng',
+      subtitle: 'Chuyển số nhẹ nhàng',
       desc: 'Mặt đồng hồ và thanh chỉnh stepper trượt mượt mà theo trục tung với các chuyển động vi mô tinh tế.',
       icon: Sparkles,
-      gradient: 'from-teal-500/20 to-emerald-500/10',
-      border: 'border-teal-500/30',
+      gradient: 'from-zinc-500/20 to-zinc-500/10',
+      border: 'border-zinc-500/30',
       badge: 'Chuyển động vi mô',
     },
   ];
@@ -202,16 +202,16 @@ export const WebDownloadHub: React.FC = () => {
   return (
     <div
       data-testid="download-hub-container"
-      className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-emerald-500/30 selection:text-emerald-300 flex flex-col relative overflow-x-hidden"
+      className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"
     >
       {/* Background Zen Glow Accents */}
       <div
         aria-hidden="true"
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-emerald-500/12 via-teal-500/5 to-transparent blur-[140px] pointer-events-none -z-10"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/5 to-transparent blur-[140px] pointer-events-none -z-10"
       />
       <div
         aria-hidden="true"
-        className="fixed bottom-0 right-0 w-[500px] h-[400px] bg-emerald-950/20 blur-[160px] pointer-events-none -z-10"
+        className="fixed bottom-0 right-0 w-[500px] h-[400px] bg-zinc-950/20 blur-[160px] pointer-events-none -z-10"
       />
 
       {/* Unified Platform Header (Single Header Guarantee) */}
@@ -221,21 +221,21 @@ export const WebDownloadHub: React.FC = () => {
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6">
         {/* Compact Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-2.5 sm:mb-3">
-          <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-2.5 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-fade-in">
+          <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/30 text-zinc-400 text-xs font-semibold mb-2.5 shadow-[0_0_20px_rgba(255,255,255,0.15)] animate-fade-in">
             <PomoFocusLogo size={16} withContainer={false} />
             <span>pomofocus · Ứng dụng Android APK độc lập v8.1</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-ping" />
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-2 leading-tight">
             Tập trung sâu.{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent block sm:inline">
+            <span className="bg-gradient-to-r from-zinc-400 via-zinc-300 to-zinc-400 bg-clip-text text-transparent block sm:inline">
               Trôi chảy từng khoảnh khắc.
             </span>
           </h1>
 
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Ứng dụng Pomodoro độc lập dành riêng cho Android. Đếm giờ chính xác ngay cả khi tắt màn hình, chuyển động mượt mà 120Hz và hoàn toàn không bị làm phiền.
+            Ứng dụng Pomodoro dành cho Android. Theo dõi phiên tập trung bằng mốc thời gian, quản lý công việc và đồng bộ khi có kết nối mạng.
           </p>
         </div>
 
@@ -249,7 +249,7 @@ export const WebDownloadHub: React.FC = () => {
                   <PomoFocusLogo size={28} />
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-tight text-white">pomofocus</span>
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-emerald-400">
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-400">
                       Bản phát hành chính thức {CURRENT_APK_VERSION}
                     </span>
                   </div>
@@ -277,14 +277,14 @@ export const WebDownloadHub: React.FC = () => {
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
                     download="PomoFocus-v8.1.apk"
-                    className="w-full h-14 sm:h-16 min-h-[56px] px-6 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_32px_rgba(16,185,129,0.45)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    className="w-full h-14 sm:h-16 min-h-[56px] px-6 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_32px_rgba(255,255,255,0.45)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
                   >
-                    <Download className="w-5 h-5 text-white stroke-[2.5]" />
+                    <Download className="w-5 h-5 text-current stroke-[1.5]" />
                     <span>Tải PomoFocus APK (v8.1)</span>
                   </a>
 
                   <div className="text-center md:text-left text-[11px] text-zinc-400 font-medium">
-                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · Miễn phí hoàn toàn
+                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · Miễn phí tải xuống
                   </div>
 
                   {/* Play Protect micro-hint */}
@@ -298,17 +298,17 @@ export const WebDownloadHub: React.FC = () => {
                   {/* Device Detection Hint */}
                   <div className="flex items-center gap-1.5 text-xs text-zinc-400 pt-0.5">
                     {isAndroid ? (
-                      <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
                         <CheckCircle2 className="w-4 h-4" />
                         Phát hiện bạn đang dùng Android · Chạm nút trên để tải và cài đặt ngay
                       </span>
                     ) : isDesktop ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400">
-                        <QrCode className="w-4 h-4 text-emerald-400" />
+                        <QrCode className="w-4 h-4 text-zinc-400" />
                         Bạn đang ở Desktop · Quét mã QR bên cạnh để cài ngay trên điện thoại
                       </span>
                     ) : isIOS ? (
-                      <span className="inline-flex items-center gap-1.5 text-amber-400/90">
+                      <span className="inline-flex items-center gap-1.5 text-zinc-400/90">
                         Thiết bị iOS hỗ trợ cài đặt PWA trực tiếp từ trình duyệt Safari
                       </span>
                     ) : (
@@ -324,7 +324,7 @@ export const WebDownloadHub: React.FC = () => {
                     className="p-1.5 rounded-xl bg-white border border-white/20 shadow-md shrink-0"
                     dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrSvg) }}
                   />
-                  <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400 mt-2 tracking-wider">
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 mt-2 tracking-wider">
                     <QrCode className="w-3.5 h-3.5" />
                     <span>Quét mã cài ngay</span>
                   </div>
@@ -336,8 +336,8 @@ export const WebDownloadHub: React.FC = () => {
                   >
                     {copied ? (
                       <>
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-400 font-semibold">Đã sao chép liên kết APK!</span>
+                        <Check className="w-3 h-3 text-zinc-400" />
+                        <span className="text-zinc-400 font-semibold">Đã sao chép liên kết APK!</span>
                       </>
                     ) : (
                       <>
@@ -352,17 +352,17 @@ export const WebDownloadHub: React.FC = () => {
               {/* Verified Badges */}
               <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/5 text-center">
                 <div className="flex flex-col items-center">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 mb-0.5" />
-                  <span className="text-[11px] font-semibold text-zinc-200">100% sạch</span>
+                  <ShieldCheck className="w-4 h-4 text-zinc-400 mb-0.5" />
+                  <span className="text-[11px] font-semibold text-zinc-200">Tải trực tiếp</span>
                   <span className="text-[10px] text-zinc-400">Không quảng cáo</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <Zap className="w-4 h-4 text-emerald-400 mb-0.5" />
-                  <span className="text-[11px] font-semibold text-zinc-200">Mượt mà 120Hz</span>
+                  <Zap className="w-4 h-4 text-zinc-400 mb-0.5" />
+                  <span className="text-[11px] font-semibold text-zinc-200">Thao tác thuận tiện</span>
                   <span className="text-[10px] text-zinc-400">Chuyển động tự nhiên</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <BatteryCharging className="w-4 h-4 text-emerald-400 mb-0.5" />
+                  <BatteryCharging className="w-4 h-4 text-zinc-400 mb-0.5" />
                   <span className="text-[11px] font-semibold text-zinc-200">Tiết kiệm pin</span>
                   <span className="text-[10px] text-zinc-400">Tối ưu màn hình OLED</span>
                 </div>
@@ -413,13 +413,13 @@ export const WebDownloadHub: React.FC = () => {
                     ? 'transform 120ms cubic-bezier(0.22, 1, 0.36, 1)'
                     : 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
-                className="relative w-[250px] sm:w-[270px] lg:w-[280px] aspect-[9/19] rounded-[44px] bg-zinc-900/95 p-3 border-[3px] border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),_0_0_40px_rgba(52,211,153,0.18)] overflow-hidden will-change-transform"
+                className="relative w-[250px] sm:w-[270px] lg:w-[280px] aspect-[9/19] rounded-[44px] bg-zinc-900/95 p-3 border-[3px] border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),_0_0_40px_rgba(255,255,255,0.18)] overflow-hidden will-change-transform"
               >
                 {/* Dynamic Specular Sheen Light Reflection Layer */}
                 <div
                   aria-hidden="true"
                   style={{
-                    background: `radial-gradient(circle at ${tilt.sheenX}% ${tilt.sheenY}%, rgba(255,255,255,0.22) 0%, rgba(52,211,153,0.08) 38%, transparent 72%)`,
+                    background: `radial-gradient(circle at ${tilt.sheenX}% ${tilt.sheenY}%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 38%, transparent 72%)`,
                   }}
                   className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200"
                 />
@@ -441,7 +441,7 @@ export const WebDownloadHub: React.FC = () => {
                   {/* Ambient Breathing Emerald Glow inside Screen */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 rounded-full bg-emerald-500/15 blur-3xl animate-pulse"
+                    className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 rounded-full bg-zinc-500/15 blur-3xl animate-pulse"
                   />
 
                   {/* Top App Bar inside Mockup */}
@@ -449,11 +449,11 @@ export const WebDownloadHub: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <PomoFocusLogo size={16} />
                       <span className="text-xs font-bold tracking-tight text-white">pomofocus</span>
-                      <span className="sr-only">Anchor 120Hz</span>
+                      <span className="sr-only">Đồng hồ tập trung</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-zinc-900 border border-white/10 text-[9px] font-mono text-zinc-200">
-                        <Zap size={9} className="text-amber-400 fill-amber-400" />
+                        <Zap size={9} className="text-zinc-400 fill-zinc-400" />
                         <span className="font-bold">50 · K</span>
                       </div>
                       <div className="w-5 h-5 rounded-full bg-zinc-800 border border-white/20 flex items-center justify-center text-[9px] font-bold text-white shadow-sm">
@@ -464,7 +464,7 @@ export const WebDownloadHub: React.FC = () => {
 
                   {/* Mode Segmented Pills */}
                   <div className="flex justify-center gap-1 z-10 mt-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 font-bold text-[9px] shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-500/25 border border-zinc-400/40 text-zinc-300 font-bold text-[9px] shadow-[0_0_10px_rgba(255,255,255,0.3)]">
                       Tập trung
                     </span>
                     <span className="px-2.5 py-0.5 rounded-full bg-zinc-900 text-zinc-400 text-[9px] border border-white/5">
@@ -479,7 +479,7 @@ export const WebDownloadHub: React.FC = () => {
                   <div className="flex items-center gap-1 w-full z-10 mt-2">
                     <div className="flex-1 h-6 rounded-full bg-zinc-900/90 border border-white/10 px-2 flex items-center justify-between text-[8px] text-zinc-300">
                       <span className="flex items-center gap-1 truncate">
-                        <Target className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                        <Target className="w-2.5 h-2.5 text-zinc-400 shrink-0" />
                         <span className="truncate">Chọn mục tiêu phiên này...</span>
                       </span>
                     </div>
@@ -487,26 +487,26 @@ export const WebDownloadHub: React.FC = () => {
                       <Shield className="w-2.5 h-2.5" />
                       <span>Kỷ luật</span>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-zinc-900/90 border border-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-zinc-900/90 border border-white/10 flex items-center justify-center text-zinc-400 shrink-0">
                       <Lock className="w-2.5 h-2.5" />
                     </div>
                   </div>
 
                   {/* Monumental Numerals (V8.1) */}
                   <div className="flex flex-col items-center justify-center my-auto z-10 py-1">
-                    <div className="text-4xl font-extrabold font-mono tabular-nums tracking-tighter text-white drop-shadow-[0_4px_24px_rgba(52,211,153,0.35)]">
+                    <div className="text-4xl font-extrabold font-mono tabular-nums tracking-tighter text-white drop-shadow-[0_4px_24px_rgba(255,255,255,0.35)]">
                       25:00
                     </div>
-                    <div className="text-[9px] text-emerald-400/90 tracking-widest font-semibold mt-0.5">
+                    <div className="text-[9px] text-zinc-400/90 tracking-widest font-semibold mt-0.5">
                       Sẵn sàng
                     </div>
                     {/* Session Progress Bar */}
                     <div className="w-28 h-1 bg-zinc-800 rounded-full mt-2 overflow-hidden">
-                      <div className="w-1/4 h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" />
+                      <div className="w-1/4 h-full bg-gradient-to-r from-zinc-500 to-zinc-400 rounded-full" />
                     </div>
                     {/* Cycle Dots */}
                     <div className="flex items-center gap-1.5 mt-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
                       <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
                       <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
                       <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
@@ -529,11 +529,11 @@ export const WebDownloadHub: React.FC = () => {
                   <div className="w-full px-2 py-1 rounded-xl bg-zinc-900/60 border border-white/5 z-10 text-[8px] space-y-0.5">
                     <div className="flex justify-between text-zinc-400">
                       <span>Dòng chảy hôm nay</span>
-                      <span className="text-emerald-400 font-mono">0g 0p · 0 phiên</span>
+                      <span className="text-zinc-400 font-mono">0g 0p · 0 phiên</span>
                     </div>
                     <div className="flex items-center justify-between gap-0.5 h-1.5">
                       {Array.from({ length: 12 }).map((_, i) => (
-                        <span key={i} className={`flex-1 rounded-sm h-full ${i === 8 ? 'bg-emerald-400' : 'bg-zinc-800'}`} />
+                        <span key={i} className={`flex-1 rounded-sm h-full ${i === 8 ? 'bg-zinc-400' : 'bg-zinc-800'}`} />
                       ))}
                     </div>
                   </div>
@@ -541,7 +541,7 @@ export const WebDownloadHub: React.FC = () => {
                   {/* Bottom 5 Material 3 Tabs */}
                   <div className="flex justify-around items-center pt-1.5 border-t border-white/10 text-[8px] text-zinc-400 z-10 pb-0.5">
                     <span className="text-white font-bold flex flex-col items-center">
-                      <Target size={11} className="text-emerald-400 mb-0.5" />
+                      <Target size={11} className="text-zinc-400 mb-0.5" />
                       <span>Tập trung</span>
                     </span>
                     <span className="flex flex-col items-center hover:text-white">
@@ -565,7 +565,7 @@ export const WebDownloadHub: React.FC = () => {
               </div>
 
               <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Rê chuột hoặc chạm nghiêng khung máy để trải nghiệm 3D Titanium Glass</span>
               </div>
             </div>
@@ -575,7 +575,7 @@ export const WebDownloadHub: React.FC = () => {
         {/* Deep Tech Feature Showcase Cards */}
         <div className="mt-8 sm:mt-12">
           <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-            <h3 className="text-xs font-mono font-bold tracking-widest text-emerald-400 mb-3">
+            <h3 className="text-xs font-mono font-bold tracking-widest text-zinc-400 mb-3">
               Công nghệ cốt lõi v8.1
             </h3>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
@@ -598,7 +598,7 @@ export const WebDownloadHub: React.FC = () => {
                   <div className="relative z-10 flex flex-col h-full justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition duration-300">
+                        <div className="w-10 h-10 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-zinc-400 group-hover:scale-110 transition duration-300">
                           <Icon className="w-5 h-5" />
                         </div>
                         <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-zinc-400">
@@ -606,7 +606,7 @@ export const WebDownloadHub: React.FC = () => {
                         </span>
                       </div>
                       <h4 className="text-lg font-bold text-white mb-1">{card.title}</h4>
-                      <div className="text-xs font-semibold text-emerald-400/90 mb-2">
+                      <div className="text-xs font-semibold text-zinc-400/90 mb-2">
                         {card.subtitle}
                       </div>
                       <p className="text-xs text-zinc-400 leading-relaxed">{card.desc}</p>

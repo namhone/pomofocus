@@ -1,0 +1,14 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+
+ ✓ tests/unit/adversarialTasksAndWhiteboardM2.test.tsx (13 tests) 5819ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > nhấp đúp vào tiêu đề task mở ô input chỉnh sửa và lưu thành công khi nhấn Enter 1243ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > bấm vào nút bút chì (Pencil icon) mở ô input tương đương nhấp đúp 381ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > tự động cắt khoảng trắng đầu cuối (trim) khi lưu tên mới 426ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 1: Inline Task Rename UI & Interaction Edge Cases > hủy chỉnh sửa khi nhấn Escape: giữ nguyên tên cũ 337ms
+   ✓ Milestone 2 Adversarial Stress Suite — Tasks Widget & Whiteboard Persistence > Adversarial 2: Clear Completed Tasks Edge Conditions & Stress Testing > stress test 50 completed tasks: dọn dẹp sạch sẽ 50 task completed đồng thời bảo vệ toàn vẹn các task uncompleted 2765ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  01:20:24
+   Duration  98.50s (transform 22.14s, setup 0ms, collect 57.73s, tests 5.82s, environment 21.49s, prepare 2.37s)

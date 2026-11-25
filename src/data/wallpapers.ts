@@ -18,435 +18,400 @@ export interface WallpaperItem {
   tags: string[];
 }
 
+// Mỗi mục tương ứng một tài nguyên thật; không sinh biến thể để tăng số lượng.
 export const WALLPAPER_CATEGORIES: { id: WallpaperCategory | 'all'; label: string; icon: string }[] = [
-  { id: 'all', label: 'Tất cả', icon: '🌌' },
-  { id: 'lofi-study', label: 'Lo-Fi', icon: '🛋️' },
-  { id: 'anime-ghibli', label: 'Anime', icon: '🎨' },
-  { id: 'cyberpunk-tokyo', label: 'Cyberpunk', icon: '🏙️' },
-  { id: 'minimalist-desk', label: 'Tối giản', icon: '💻' },
-  { id: 'nature-zen', label: 'Thiên nhiên', icon: '🌲' }
-];
-
-interface CategorySeedData {
-  photos: { id: string; author: string }[];
-  titleTemplates: string[];
-  tags: string[];
-}
-
-// Bộ 18 bức tranh vẽ Anime & Ghibli đích thực (Digital Art / Illustration) lưu trữ nội bộ
-export const ANIME_WALLPAPERS_LOCAL: {
-  filename: string;
-  title: string;
-  author: string;
-  tags: string[];
-}[] = [
-  // 1. Ghibli Scenery
   {
-    filename: 'anime-01.webp',
-    title: 'Chuyến Tàu Trên Mặt Nước',
-    author: 'Studio Ghibli (Spirited Away)',
-    tags: ['ghibli', 'spirited-away', 'water-train', 'sea', 'anime', 'digital-art']
+    "id": "all",
+    "label": "Tất cả",
+    "icon": ""
   },
   {
-    filename: 'anime-02.webp',
-    title: 'Đồng cỏ Totoro',
-    author: 'Studio Ghibli (My Neighbor Totoro)',
-    tags: ['ghibli', 'totoro', 'green-field', 'clouds', 'anime', 'scenery']
+    "id": "lofi-study",
+    "label": "Lo-fi",
+    "icon": ""
   },
   {
-    filename: 'anime-03.webp',
-    title: 'Lâu đài Howl',
-    author: 'Studio Ghibli (Howl Castle)',
-    tags: ['ghibli', 'howl', 'castle', 'meadow', 'anime', 'fantasy']
+    "id": "anime-ghibli",
+    "label": "Anime",
+    "icon": ""
   },
   {
-    filename: 'anime-04.webp',
-    title: 'Vườn Arrietty',
-    author: 'Studio Ghibli (The Secret World of Arrietty)',
-    tags: ['ghibli', 'arrietty', 'garden', 'green', 'peaceful', 'nature']
+    "id": "cyberpunk-tokyo",
+    "label": "Cyberpunk",
+    "icon": ""
   },
   {
-    filename: 'anime-05.webp',
-    title: 'Thị trấn Kiki',
-    author: 'Studio Ghibli (Kiki Delivery Service)',
-    tags: ['ghibli', 'kiki', 'sea-town', 'summer', 'anime', 'scenery']
-  },
-
-  // 2. Makoto Shinkai Scenery
-  {
-    filename: 'anime-06.webp',
-    title: 'Sao băng Your Name',
-    author: 'Makoto Shinkai (Kimi no Na Wa)',
-    tags: ['shinkai', 'your-name', 'meteor', 'stars', 'comet', 'anime-art']
+    "id": "minimalist-desk",
+    "label": "Tối giản",
+    "icon": ""
   },
   {
-    filename: 'anime-07.webp',
-    title: 'Hoàng hôn Your Name',
-    author: 'Makoto Shinkai (Kimi no Na Wa)',
-    tags: ['shinkai', 'sunset', 'lake', 'purple', 'twilight', 'anime']
-  },
-  {
-    filename: 'anime-08.webp',
-    title: 'Ngân hà Shinkai',
-    author: 'Makoto Shinkai (Your Name)',
-    tags: ['shinkai', 'galaxy', 'night-sky', 'stars', 'milky-way', 'anime']
-  },
-  {
-    filename: 'anime-09.webp',
-    title: 'Tokyo hoàng hôn',
-    author: 'Makoto Shinkai (Cityscape)',
-    tags: ['shinkai', 'tokyo', 'sunset', 'clouds', 'city', 'anime']
-  },
-  {
-    filename: 'anime-10.webp',
-    title: 'Đường ray Shinkai',
-    author: 'Makoto Shinkai (Railway)',
-    tags: ['shinkai', 'railway', 'train', 'afternoon', 'japan', 'anime']
-  },
-
-  // 3. Lofi Study Anime
-  {
-    filename: 'anime-11.webp',
-    title: 'Bàn học Lofi',
-    author: 'Lofi Girl Digital Art',
-    tags: ['lofi', 'anime-study', 'desk', 'room', 'warm', 'night', 'chill']
-  },
-  {
-    filename: 'anime-12.webp',
-    title: 'Góc học đêm',
-    author: 'Aesthetic Lofi Illustration',
-    tags: ['lofi', 'study-girl', 'computer', 'night', 'headphones', 'cozy']
-  },
-  {
-    filename: 'anime-13.webp',
-    title: 'Cửa sổ nắng mai',
-    author: 'Peaceful Anime Art',
-    tags: ['lofi', 'reading', 'sunlight', 'morning', 'books', 'peaceful']
-  },
-  {
-    filename: 'anime-14.webp',
-    title: 'Mây trời xanh',
-    author: 'Japanese Anime Illustration',
-    tags: ['anime-girl', 'sky', 'clouds', 'school', 'dreamy', 'art']
-  },
-
-  // 4. Cozy Anime Night
-  {
-    filename: 'anime-15.webp',
-    title: 'Phố đêm Anime',
-    author: 'Tokyo Anime Night Art',
-    tags: ['cozy-night', 'city-lights', 'neon', 'balcony', 'anime-city']
-  },
-  {
-    filename: 'anime-16.webp',
-    title: 'Mưa đêm phố thị',
-    author: 'Rainy Anime Illustration',
-    tags: ['rain', 'night', 'city', 'lights', 'reflective', 'cozy']
-  },
-  {
-    filename: 'anime-17.webp',
-    title: 'Hẻm lồng đèn đỏ',
-    author: 'Japan Street Anime Art',
-    tags: ['ramen', 'street', 'lanterns', 'cozy', 'japan', 'night']
-  },
-  {
-    filename: 'anime-18.webp',
-    title: 'Mặt hồ đêm trăng',
-    author: 'Shinkai Lake Art',
-    tags: ['lake', 'moon', 'peaceful', 'water', 'city-glow', 'anime']
+    "id": "nature-zen",
+    "label": "Thiên nhiên",
+    "icon": ""
   }
 ];
 
-const CATEGORY_SEEDS: Record<
-  'lofi-study' | 'cyberpunk-tokyo' | 'minimalist-desk' | 'nature-zen',
-  CategorySeedData
-> = {
-  'lofi-study': {
-    photos: [
-      { id: 'photo-1518495973542-4542c06a5843', author: 'Priscilla Du Preez' },
-      { id: 'photo-1498050108023-c5249f4df085', author: 'Christopher Gower' },
-      { id: 'photo-1499750310107-5fef28a66643', author: 'Cathryn Lavery' },
-      { id: 'photo-1515378791036-0648a3ef77b2', author: 'Glenn Carstens-Peters' },
-      { id: 'photo-1486312338219-ce68d2c6f44d', author: 'Glenn Carstens-Peters' },
-      { id: 'photo-1501504905252-473c47e087f8', author: 'Jonas Jacobsson' },
-      { id: 'photo-1483058712412-4245e9b90334', author: 'Green Chameleon' },
-      { id: 'photo-1456513080510-7bf3a84b82f8', author: 'Thought Catalog' },
-      { id: 'photo-1476820865390-c52aeebb9891', author: 'Travis Yewell' },
-      { id: 'photo-1517842645767-c639042777db', author: 'Slava Bowman' },
-      { id: 'photo-1434030216411-0b793f4b4173', author: 'Green Chameleon' },
-      { id: 'photo-1521587760476-6c12a4b040da', author: 'Patrick Tomasso' },
-      { id: 'photo-1481627834876-b7833e8f5570', author: 'Aaron Burden' },
-      { id: 'photo-1524995997946-a1c2e315a42f', author: 'Freddie Marriage' },
-      { id: 'photo-1512820790803-83ca734da794', author: 'Alisa Anton' },
-      { id: 'photo-1501339847302-ac426a4a7cbb', author: 'Petr Sevcovic' },
-      { id: 'photo-1453614512568-c4024d13c247', author: 'Declan Sun' },
-      { id: 'photo-1509042239860-f550ce710b93', author: 'Nathan Dumlao' },
-      { id: 'photo-1516321318423-f06f85e504b3', author: 'John Schnobrich' },
-      { id: 'photo-1519389950473-47ba0277781c', author: 'Annie Spratt' },
-      { id: 'photo-1516962215378-7fa2e137ae93', author: 'Bench Accounting' },
-      { id: 'photo-1497633762265-9d179a990aa6', author: 'Giammarco Boscaro' },
-      { id: 'photo-1513542789411-b6a5d4f31634', author: 'Jeremy Bishop' }
-    ],
-    titleTemplates: [
-      'Bàn gỗ đèn vàng',
-      'Sổ tay & laptop',
-      'Mưa rơi bên bàn',
-      'Kệ sách nắng chiều',
-      'Chill đĩa than',
-      'Gác mái tĩnh lặng',
-      'Bàn gỗ cây xanh',
-      'Đèn bàn cổ điển',
-      'Tập trung bên tách trà',
-      'Hoàng hôn bên cửa sổ'
-    ],
-    tags: ['lofi', 'study', 'desk', 'cozy', 'warm', 'laptop', 'books', 'night', 'chill', 'reading']
-  },
-  'cyberpunk-tokyo': {
-    photos: [
-      { id: 'photo-1508739773434-c26b3d09e071', author: 'Aleksandar Pasaric' },
-      { id: 'photo-1519501025264-65ba15a82390', author: 'Ben Cheung' },
-      { id: 'photo-1514565131-fce0801e5785', author: 'Joshua Sortino' },
-      { id: 'photo-1542751371-adc38448a05e', author: 'Florian Olivo' },
-      { id: 'photo-1563245372-f21724e3856d', author: 'Sean Foley' },
-      { id: 'photo-1526374965328-7f61d4dc18c5', author: 'Markus Spiske' },
-      { id: 'photo-1550745165-9bc0b252726f', author: 'Carl Raw' },
-      { id: 'photo-1569701813229-33284b643e3c', author: 'Fakurian Design' },
-      { id: 'photo-1515260268569-9271009adfdb', author: 'Stefan K' },
-      { id: 'photo-1541701494587-cb58502866ab', author: 'Denys Nevozhai' },
-      { id: 'photo-1509198397868-475647b2a1e5', author: 'Sasha Freemind' },
-      { id: 'photo-1518709268805-4e9042af9f23', author: 'NASA Hubble' },
-      { id: 'photo-1503899036084-c55cdd92da26', author: 'Masashi Wakui' },
-      { id: 'photo-1542051841857-5f90071e7989', author: 'Aleksandar Pasaric' },
-      { id: 'photo-1534447677768-be436bb09401', author: 'Guille Pozzi' },
-      { id: 'photo-1519681393784-d120267933ba', author: 'Benjamin Davies' }
-    ],
-    titleTemplates: [
-      'Phố đêm Neon mưa',
-      'Setup Gaming RGB',
-      'Cao tốc ánh đèn tím',
-      'Hẻm phố Hong Kong',
-      'Ma trận dữ liệu',
-      'Phòng game Arcade',
-      'Đô thị Cyberpunk 2077',
-      'Hologram đa chiều',
-      'Quán mì Ramen neon',
-      'Trạm tàu viễn tưởng'
-    ],
-    tags: ['cyberpunk', 'tokyo', 'neon', 'night', 'rain', 'future', 'rgb', 'city', 'tech', 'matrix']
-  },
-  'minimalist-desk': {
-    photos: [
-      { id: 'photo-1498050108023-c5249f4df085', author: 'Christopher Gower' },
-      { id: 'photo-1499951360447-b19be8fe80f5', author: 'Dmitry Zvolskiy' },
-      { id: 'photo-1486312338219-ce68d2c6f44d', author: 'Glenn Carstens-Peters' },
-      { id: 'photo-1515378791036-0648a3ef77b2', author: 'Glenn Carstens-Peters' },
-      { id: 'photo-1483058712412-4245e9b90334', author: 'Green Chameleon' },
-      { id: 'photo-1526738549149-8e07eca6c147', author: 'Mitch Lensink' },
-      { id: 'photo-1587829741301-dc798b83add3', author: 'Jayden Staines' },
-      { id: 'photo-1542751371-adc38448a05e', author: 'Florian Olivo' },
-      { id: 'photo-1494438639946-1ebd1d20bf85', author: 'Simone Hutsch' },
-      { id: 'photo-1487147264018-f937fba0c817', author: 'Federico Respini' },
-      { id: 'photo-1491553895911-0055eca6402d', author: 'Joel Filipe' },
-      { id: 'photo-1486406146926-c627a92ad1ab', author: 'Sean Pollock' },
-      { id: 'photo-1518531933037-91b2f5f229cc', author: 'Desiree Fawn' },
-      { id: 'photo-1507679799987-c73779587ccf', author: 'Hunters Race' },
-      { id: 'photo-1517842645767-c639042777db', author: 'Slava Bowman' }
-    ],
-    titleTemplates: [
-      'Setup Mac tối giản',
-      'Kiến trúc đen trắng',
-      'Bóng đổ tương phản',
-      'Màn hình Ultrawide',
-      'Bàn phím cơ tối giản',
-      'Góc code đêm',
-      'Cấu trúc Monolith',
-      'Studio đen mờ',
-      'Mặt bàn gỗ đèn led',
-      'Góc sáng tạo tinh gọn'
-    ],
-    tags: ['minimalist', 'dark', 'monochrome', 'clean', 'sleek', 'black', 'desk', 'workspace', 'focus']
-  },
-  'nature-zen': {
-    photos: [
-      { id: 'photo-1506744038136-46273834b3fb', author: 'Bailey Zindel' },
-      { id: 'photo-1448375240586-882707db888b', author: 'Sebastian Unrau' },
-      { id: 'photo-1470071459604-3b5ec3a7fe05', author: 'Lukas Rodriguez' },
-      { id: 'photo-1426604966848-d7adac402bff', author: 'Luca Bravo' },
-      { id: 'photo-1472214103451-9374bd1c798e', author: 'Bessie Turner' },
-      { id: 'photo-1464822759023-fed622ff2c3b', author: 'Kalab Teshale' },
-      { id: 'photo-1507525428034-b723cf961d3e', author: 'Sean Oulashin' },
-      { id: 'photo-1433086966358-54859d0ed716', author: 'James Wheeler' },
-      { id: 'photo-1501785888041-af3ef285b470', author: 'Pietro De Grandi' },
-      { id: 'photo-1469474968028-56623f02e42e', author: 'David Marcu' },
-      { id: 'photo-1515694346937-94d85e41e6f0', author: 'Maxime Bouffard' },
-      { id: 'photo-1534274988757-a28bf1a57c17', author: 'Valentin Antonucci' },
-      { id: 'photo-1519692933481-e162a57d6721', author: 'Raychel Sanner' },
-      { id: 'photo-1501999635878-71cb5379c2d8', author: 'Dawid Zawila' },
-      { id: 'photo-1428592953211-077101b2021b', author: 'Roman Kraft' }
-    ],
-    titleTemplates: [
-      'Rừng thông sương sớm',
-      'Hồ nước mờ ảo',
-      'Thung lũng ban mai',
-      'Thác nước rừng già',
-      'Đỉnh núi tuyết',
-      'Bờ biển sóng vỗ',
-      'Cầu gỗ vào rừng',
-      'Hồ nước Dolomites',
-      'Giọt mưa trên kính',
-      'Mặt hồ sáng sớm'
-    ],
-    tags: ['nature', 'zen', 'forest', 'pine', 'mountains', 'lake', 'mist', 'morning', 'peaceful', 'green']
-  }
-};
-
-export const ANIME_WALLPAPERS_CURATED: WallpaperItem[] = [
+export const ANIME_WALLPAPERS_LOCAL: { filename: string; title: string; author: string; tags: string[] }[] = [
   {
-    id: 'wp-anime-suzume',
-    title: 'Cánh cửa Suzume',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=80',
-    author: 'Makoto Shinkai (Suzume)',
-    tags: ['suzume', 'shinkai', 'door', 'sky', 'anime', 'art']
+    "filename": "anime-01.webp",
+    "title": "Chuyến tàu trên mặt nước",
+    "author": "Studio Ghibli (Spirited Away)",
+    "tags": [
+      "ghibli",
+      "train",
+      "sea"
+    ]
   },
   {
-    id: 'wp-anime-edgerunners',
-    title: 'Ánh trăng Edgerunners',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80',
-    author: 'Studio Trigger (Edgerunners)',
-    tags: ['cyberpunk', 'edgerunners', 'lucy', 'moon', 'anime', 'art']
+    "filename": "anime-02.webp",
+    "title": "Ngôi nhà của Totoro",
+    "author": "Studio Ghibli (My Neighbor Totoro)",
+    "tags": [
+      "ghibli",
+      "house",
+      "garden"
+    ]
   },
   {
-    id: 'wp-anime-violet',
-    title: 'Bức thư Violet Evergarden',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80',
-    author: 'Kyoto Animation (Violet Evergarden)',
-    tags: ['violet-evergarden', 'letter', 'vintage', 'peaceful', 'anime', 'art']
+    "filename": "anime-03.webp",
+    "title": "Sophie và Howl",
+    "author": "Studio Ghibli (Howl’s Moving Castle)",
+    "tags": [
+      "ghibli",
+      "howl",
+      "characters"
+    ]
   },
   {
-    id: 'wp-anime-frieren',
-    title: 'Hành trình Frieren',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
-    author: 'Madhouse (Sousou no Frieren)',
-    tags: ['frieren', 'fantasy', 'magic', 'journey', 'nature', 'anime', 'art']
+    "filename": "anime-04.webp",
+    "title": "Khu vườn Arrietty",
+    "author": "Studio Ghibli (Arrietty)",
+    "tags": [
+      "ghibli",
+      "garden",
+      "nature"
+    ]
   },
   {
-    id: 'wp-anime-demonslayer',
-    title: 'Hoa tử đằng Kimetsu',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80',
-    author: 'ufotable (Demon Slayer)',
-    tags: ['demon-slayer', 'kimetsu', 'wisteria', 'night', 'blade', 'anime', 'art']
+    "filename": "anime-05.webp",
+    "title": "Kiki và mèo Jiji",
+    "author": "Studio Ghibli (Kiki’s Delivery Service)",
+    "tags": [
+      "ghibli",
+      "kiki",
+      "cat"
+    ]
   },
   {
-    id: 'wp-anime-lofi-room',
-    title: 'Phòng học Lofi đêm',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1920&q=80',
-    author: 'ChilledCow / Lofi Girl',
-    tags: ['lofi', 'study', 'night', 'room', 'anime', 'chill']
+    "filename": "anime-06.webp",
+    "title": "Sao băng trên thành phố",
+    "author": "Makoto Shinkai (Your Name)",
+    "tags": [
+      "shinkai",
+      "meteor",
+      "city"
+    ]
   },
   {
-    id: 'wp-anime-tokyo-neon',
-    title: 'Tokyo Neon hoàng hôn',
-    category: 'anime-ghibli',
-    orientation: 'responsive',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=360&h=202&q=60',
-    fullUrl: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=1920&q=80',
-    author: 'Tokyo Neon Visuals',
-    tags: ['tokyo', 'neon', 'sunset', 'cyberpunk', 'anime', 'art']
+    "filename": "anime-07.webp",
+    "title": "Ngân hà trên hồ",
+    "author": "Makoto Shinkai (Your Name)",
+    "tags": [
+      "shinkai",
+      "galaxy",
+      "lake"
+    ]
+  },
+  {
+    "filename": "anime-08.webp",
+    "title": "Vệt sao giữa trời đêm",
+    "author": "Makoto Shinkai (Your Name)",
+    "tags": [
+      "shinkai",
+      "comet",
+      "stars"
+    ]
+  },
+  {
+    "filename": "anime-09.webp",
+    "title": "Tokyo dưới trời xanh",
+    "author": "Minh họa anime trong dự án",
+    "tags": [
+      "anime",
+      "tokyo",
+      "sky"
+    ]
+  },
+  {
+    "filename": "anime-10.webp",
+    "title": "Đường ray mùa hạ",
+    "author": "Minh họa anime trong dự án",
+    "tags": [
+      "anime",
+      "railway",
+      "summer"
+    ]
+  },
+  {
+    "filename": "anime-11.webp",
+    "title": "Phòng ngủ Cyberpunk",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "cyberpunk",
+      "neon",
+      "room"
+    ]
+  },
+  {
+    "filename": "anime-12.webp",
+    "title": "Góc học đêm Lo-fi",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "lofi",
+      "desk",
+      "night",
+      "study"
+    ]
+  },
+  {
+    "filename": "anime-13.webp",
+    "title": "Góc bếp Pixel",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "pixel-art",
+      "kitchen",
+      "cozy"
+    ]
+  },
+  {
+    "filename": "anime-14.webp",
+    "title": "Mây mùa hạ bên đường tàu",
+    "author": "Minh họa anime trong dự án",
+    "tags": [
+      "anime",
+      "clouds",
+      "railway"
+    ]
+  },
+  {
+    "filename": "anime-15.webp",
+    "title": "Phố đèn lồng",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "fantasy",
+      "lanterns",
+      "night"
+    ]
+  },
+  {
+    "filename": "anime-16.webp",
+    "title": "Hẻm Neon đêm mưa",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "cyberpunk",
+      "rain",
+      "neon"
+    ]
+  },
+  {
+    "filename": "anime-17.webp",
+    "title": "Quán nhỏ dưới tán cây",
+    "author": "Minh họa trong dự án",
+    "tags": [
+      "anime",
+      "cafe",
+      "tree"
+    ]
+  },
+  {
+    "filename": "anime-18.webp",
+    "title": "Sao băng trên mặt hồ",
+    "author": "Minh họa anime trong dự án",
+    "tags": [
+      "anime",
+      "meteor",
+      "lake"
+    ]
   }
 ];
 
-/**
- * Sinh bộ hình nền chất lượng cao được tuyển chọn theo các gu thẩm mỹ Pinterest & Anime:
- * Toàn bộ ảnh được chuẩn hóa responsive: Thumbnail đồng nhất 16:9, ảnh gốc tự động co giãn
- * hoàn hảo trên cả máy tính lẫn điện thoại nhờ CSS object-fit: cover & object-position: center.
- */
-function buildWallpapers(): WallpaperItem[] {
-  const categories: Array<keyof typeof CATEGORY_SEEDS> = [
-    'lofi-study',
-    'cyberpunk-tokyo',
-    'minimalist-desk',
-    'nature-zen'
-  ];
+const LOCAL_WALLPAPERS: WallpaperItem[] = ANIME_WALLPAPERS_LOCAL.map((item, i) => ({
+  id: `wp-anime-ghibli-${i + 1}`,
+  title: item.title,
+  category: item.tags.includes('lofi') ? 'lofi-study' : item.tags.includes('cyberpunk') ? 'cyberpunk-tokyo' : 'anime-ghibli',
+  orientation: 'responsive',
+  thumbnailUrl: `/backgrounds/anime/${item.filename}`,
+  fullUrl: `/backgrounds/anime/${item.filename}`,
+  author: item.author,
+  tags: item.tags
+}));
 
-  const result: WallpaperItem[] = [];
+export const ANIME_WALLPAPERS_CURATED: WallpaperItem[] = LOCAL_WALLPAPERS.filter((item) => !item.tags.includes('ghibli'));
 
-  // 1. Sinh hình nền từ 4 danh mục tuyển chọn Unsplash
-  categories.forEach((cat) => {
-    const seed = CATEGORY_SEEDS[cat];
-    const totalForCategory = 200;
-
-    for (let i = 0; i < totalForCategory; i++) {
-      const photo = seed.photos[i % seed.photos.length];
-      const titleBase = seed.titleTemplates[i % seed.titleTemplates.length];
-      const variantNum = Math.floor(i / seed.photos.length) + 1;
-      const title = variantNum > 1 ? `${titleBase} (Góc Nhìn ${variantNum})` : titleBase;
-
-      // Unique wallpaper ID
-      const id = `wp-${cat}-${i + 1}`;
-
-      // Thumbnail nhẹ chuẩn 16:9 đồng nhất & ảnh gốc phân giải cao responsive
-      const thumbnailUrl = `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=360&h=202&q=60`;
-      const fullUrl = `https://images.unsplash.com/${photo.id}?auto=format&fit=crop&w=1920&q=80`;
-
-      result.push({
-        id,
-        title,
-        category: cat,
-        orientation: 'responsive',
-        thumbnailUrl,
-        fullUrl,
-        author: photo.author,
-        tags: [...seed.tags, `collection-${variantNum}`, 'pinterest', 'aesthetic']
-      });
-    }
-  });
-
-  // 2. Danh mục Anime & Ghibli: Tranh vẽ hoạt hình nghệ thuật (Digital Art / Illustration) lưu trữ nội bộ
-  const totalAnime = 200;
-  for (let i = 0; i < totalAnime; i++) {
-    const localItem = ANIME_WALLPAPERS_LOCAL[i % ANIME_WALLPAPERS_LOCAL.length];
-    const variantNum = Math.floor(i / ANIME_WALLPAPERS_LOCAL.length) + 1;
-    const title = variantNum > 1 ? `${localItem.title} (Bản Phối ${variantNum})` : localItem.title;
-    const id = `wp-anime-ghibli-${i + 1}`;
-    const url = `/backgrounds/anime/${localItem.filename}`;
-
-    result.push({
-      id,
-      title,
-      category: 'anime-ghibli',
-      orientation: 'responsive',
-      thumbnailUrl: url,
-      fullUrl: url,
-      author: localItem.author,
-      tags: [...localItem.tags, `collection-${variantNum}`, 'anime', 'ghibli', 'shinkai', 'illustration']
-    });
+const PHOTO_WALLPAPERS: WallpaperItem[] = [
+  {
+    "id": "wp-photo-1",
+    "title": "Sổ tay bên laptop",
+    "category": "lofi-study",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1920&q=75",
+    "author": "Cathryn Lavery",
+    "tags": [
+      "study",
+      "notebook",
+      "desk"
+    ]
+  },
+  {
+    "id": "wp-photo-2",
+    "title": "Sách và ghi chép",
+    "category": "lofi-study",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1920&q=75",
+    "author": "Thought Catalog",
+    "tags": [
+      "books",
+      "study"
+    ]
+  },
+  {
+    "id": "wp-photo-3",
+    "title": "Trang sổ mở",
+    "category": "lofi-study",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=1920&q=75",
+    "author": "Slava Bowman",
+    "tags": [
+      "notebook",
+      "writing"
+    ]
+  },
+  {
+    "id": "wp-photo-4",
+    "title": "Bàn làm việc với laptop",
+    "category": "minimalist-desk",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1920&q=75",
+    "author": "Christopher Gower",
+    "tags": [
+      "desk",
+      "laptop"
+    ]
+  },
+  {
+    "id": "wp-photo-5",
+    "title": "Góc làm việc sáng",
+    "category": "minimalist-desk",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "desk",
+      "minimalist"
+    ]
+  },
+  {
+    "id": "wp-photo-6",
+    "title": "Tokyo về đêm",
+    "category": "cyberpunk-tokyo",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "tokyo",
+      "night",
+      "neon"
+    ]
+  },
+  {
+    "id": "wp-photo-7",
+    "title": "Ánh đèn thành phố",
+    "category": "cyberpunk-tokyo",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "city",
+      "night"
+    ]
+  },
+  {
+    "id": "wp-photo-8",
+    "title": "Phòng game Arcade",
+    "category": "cyberpunk-tokyo",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "arcade",
+      "retro",
+      "neon"
+    ]
+  },
+  {
+    "id": "wp-photo-9",
+    "title": "Rừng cây yên tĩnh",
+    "category": "nature-zen",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "forest",
+      "nature"
+    ]
+  },
+  {
+    "id": "wp-photo-10",
+    "title": "Thung lũng và mặt hồ",
+    "category": "nature-zen",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "valley",
+      "lake"
+    ]
+  },
+  {
+    "id": "wp-photo-11",
+    "title": "Đỉnh núi giữa mây",
+    "category": "nature-zen",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "mountain",
+      "clouds"
+    ]
+  },
+  {
+    "id": "wp-photo-12",
+    "title": "Bãi biển cát trắng",
+    "category": "nature-zen",
+    "orientation": "responsive",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=360&h=202&q=60",
+    "fullUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=75",
+    "author": "Unsplash Community",
+    "tags": [
+      "beach",
+      "ocean"
+    ]
   }
+];
 
-  // 3. Bổ sung các preset Anime, Lofi & Tokyo Neon phong phú
-  result.push(...ANIME_WALLPAPERS_CURATED);
-
-  return result;
-}
-
-export const WALLPAPERS: WallpaperItem[] = buildWallpapers();
+export const WALLPAPERS: WallpaperItem[] = [...LOCAL_WALLPAPERS, ...PHOTO_WALLPAPERS];
 
 export function queryWallpapers(params: {
   category?: WallpaperCategory | 'all';

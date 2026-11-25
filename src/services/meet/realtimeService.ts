@@ -106,7 +106,7 @@ export class MeetRealtimeService {
   // Hủy đăng ký và đóng socket sạch sẽ
   unsubscribe() {
     if (this.channel) {
-      this.channel.unsubscribe();
+      supabase.removeChannel(this.channel);
       this.channel = null;
     }
   }

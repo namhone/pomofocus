@@ -74,10 +74,10 @@ describe('Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emo
   });
 
   describe('2. Wallpapers & Live Video Presets Expansion', () => {
-    it('ANIME_WALLPAPERS_LOCAL[0] retains "Chuyến Tàu Trên Mặt Nước" prefix to protect E2E Playwright tests', () => {
+    it('ANIME_WALLPAPERS_LOCAL[0] retains "Chuyến tàu trên mặt nước" prefix to protect E2E Playwright tests', () => {
       const firstAnime = ANIME_WALLPAPERS_LOCAL[0];
       expect(firstAnime.filename).toBe('anime-01.webp');
-      expect(firstAnime.title.startsWith('Chuyến Tàu Trên Mặt Nước')).toBe(true);
+      expect(firstAnime.title.startsWith('Chuyến tàu trên mặt nước')).toBe(true);
     });
 
     it('ANIME_WALLPAPERS_LOCAL titles are concise and clean', () => {
@@ -86,36 +86,14 @@ describe('Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emo
       }
     });
 
-    it('WALLPAPERS includes curated anime & ambient presets (Suzume, Edgerunners, Violet Evergarden, Frieren, Demon Slayer, Tokyo Neon)', () => {
-      const suzume = WALLPAPERS.find((w) => w.id === 'wp-anime-suzume');
-      const edgerunners = WALLPAPERS.find((w) => w.id === 'wp-anime-edgerunners');
-      const violet = WALLPAPERS.find((w) => w.id === 'wp-anime-violet');
-      const frieren = WALLPAPERS.find((w) => w.id === 'wp-anime-frieren');
-      const demonSlayer = WALLPAPERS.find((w) => w.id === 'wp-anime-demonslayer');
-      const tokyoNeon = WALLPAPERS.find((w) => w.id === 'wp-anime-tokyo-neon');
-
-      expect(suzume).toBeDefined();
-      expect(suzume?.title).toBe('Cánh cửa Suzume');
-      expect(edgerunners).toBeDefined();
-      expect(edgerunners?.title).toBe('Ánh trăng Edgerunners');
-      expect(violet).toBeDefined();
-      expect(violet?.title).toBe('Bức thư Violet Evergarden');
-      expect(frieren).toBeDefined();
-      expect(frieren?.title).toBe('Hành trình Frieren');
-      expect(demonSlayer).toBeDefined();
-      expect(demonSlayer?.title).toBe('Hoa tử đằng Kimetsu');
-      expect(tokyoNeon).toBeDefined();
-      expect(tokyoNeon?.title).toBe('Tokyo Neon hoàng hôn');
+    it('contains 30 actual images without invented franchise photos or variants', () => {
+      expect(WALLPAPERS).toHaveLength(30);
+      expect(WALLPAPERS.some(item => item.tags.includes('pixel-art'))).toBe(true);
+      expect(WALLPAPERS.every(item => !/Bản Phối|Góc Nhìn/.test(item.title))).toBe(true);
     });
 
-    it('BACKGROUND_PRESETS contains the 5 new CC0 live video loops', () => {
-      const requiredVideoIds = [
-        'cyberpunk-neon-rain',
-        'tears-of-steel-scifi',
-        'cozy-fireplace-loop',
-        'aurora-night-sky',
-        'cloud-sea-mountains'
-      ];
+    it('BACKGROUND_PRESETS contains 2 distinct lightweight video clips', () => {
+      const requiredVideoIds = ['oceans-wave', 'flower-timelapse'];
 
       for (const id of requiredVideoIds) {
         const preset = BACKGROUND_PRESETS.find((p) => p.id === id);

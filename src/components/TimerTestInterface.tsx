@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, RefreshCw, SkipForward, Bell, Target, Sparkles 
 import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
 import { haptics } from '../utils/haptics';
+import { soundEffects } from '../services/soundEffects';
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -123,7 +124,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               type="button"
               data-testid="btn-unlink-timer-task"
               aria-label="Bỏ gắn công việc khỏi đồng hồ"
-              onClick={() => setLinkedTask(null, null)}
+              onClick={() => {
+                soundEffects.playClick();
+                setLinkedTask(null, null);
+              }}
               className="text-[10px] px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-300 transition cursor-pointer min-h-[24px] inline-flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
             >
               Bỏ gắn
@@ -144,6 +148,9 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                 disabled={status !== 'idle'}
                 onClick={() => {
                   haptics.phaseChange();
+                  if (p !== phase) {
+                    soundEffects.playClick();
+                  }
                   setPhase(p);
                 }}
                 className={`flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 ${
@@ -220,6 +227,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               data-testid="timer-start-btn"
               onClick={() => {
                 haptics.timerToggle();
+                soundEffects.playTimerStart();
                 start();
               }}
               title="Bắt đầu phiên tập trung"
@@ -236,6 +244,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               data-testid="timer-pause-btn"
               onClick={() => {
                 haptics.timerToggle();
+                soundEffects.playTimerPause();
                 pause();
               }}
               title="Tạm dừng phiên tập trung"
@@ -252,6 +261,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               data-testid="timer-resume-btn"
               onClick={() => {
                 haptics.timerToggle();
+                soundEffects.playTimerStart();
                 resume();
               }}
               title="Tiếp tục phiên tập trung"
@@ -267,6 +277,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             data-testid="timer-reset-btn"
             onClick={() => {
               haptics.impact('light');
+              soundEffects.playClick();
               reset();
             }}
             title="Đặt lại hiệp này"
@@ -280,6 +291,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             data-testid="timer-reset-cycle-btn"
             onClick={() => {
               haptics.impact('medium');
+              soundEffects.playClick();
               resetCycle();
             }}
             title={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
@@ -293,6 +305,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             data-testid="timer-skip-btn"
             onClick={() => {
               haptics.impact('light');
+              soundEffects.playClick();
               skip();
             }}
             title="Bỏ qua hiệp này"
@@ -318,7 +331,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             <button
               type="button"
               data-testid="btn-dismiss-toast"
-              onClick={() => setCelebrationToast(null)}
+              onClick={() => {
+                soundEffects.playClick();
+                setCelebrationToast(null);
+              }}
               className="text-neutral-400 hover:text-white text-xs cursor-pointer ml-1 p-0.5 rounded transition"
               aria-label="Đóng thông báo"
             >
@@ -337,7 +353,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               <button
                 data-testid="btn-request-notification"
                 type="button"
-                onClick={requestNotificationPermission}
+                onClick={() => {
+                  soundEffects.playClick();
+                  requestNotificationPermission();
+                }}
                 className="text-[10.5px] text-zinc-400 hover:text-white underline cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 rounded px-1"
               >
                 <Bell size={11} />
@@ -413,7 +432,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                     data-testid="checkbox-auto-transition"
                     type="checkbox"
                     checked={settings.autoTransition}
-                    onChange={(e) => updateSettings({ autoTransition: e.target.checked })}
+                    onChange={(e) => {
+                      soundEffects.playClick();
+                      updateSettings({ autoTransition: e.target.checked });
+                    }}
                     className="sr-only peer"
                   />
                   {/* Hộp Checkmark Chuẩn Monochrome 90-10 */}

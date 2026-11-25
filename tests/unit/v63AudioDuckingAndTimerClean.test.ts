@@ -14,16 +14,17 @@ describe('Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX', () =
 
     const tibetan = ALARM_CHIMES.find((c) => c.id === 'tibetan_bowl');
     expect(tibetan?.name).toContain('Tây Tạng');
-    expect(tibetan?.url).toBeDefined();
+    expect(tibetan?.durationMs).toBeGreaterThan(0);
+    expect(tibetan?.url).toBeUndefined(); // Uses its distinct offline synth voice.
 
     const crystal = ALARM_CHIMES.find((c) => c.id === 'crystal_chime');
-    expect(crystal?.name).toContain('Pha Lê');
+    expect(crystal?.name).toContain('pha lê');
 
     const digital = ALARM_CHIMES.find((c) => c.id === 'digital_alarm');
-    expect(digital?.name).toContain('Digital');
+    expect(digital?.name).toContain('kỹ thuật số');
 
     const brass = ALARM_CHIMES.find((c) => c.id === 'brass_bell');
-    expect(brass?.name).toContain('Chuông Đồng');
+    expect(brass?.name).toContain('Chuông đồng');
   });
 
   it('should have applyAudioDucking and restoreAudioDucking methods in useAudioStore', () => {
@@ -76,14 +77,14 @@ describe('Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX', () =
     const timerContent = fs.readFileSync(timerPath, 'utf-8');
     expect(timerContent).toContain('data-testid="checkbox-auto-transition"');
     expect(timerContent).toContain('className="sr-only peer"');
-    expect(timerContent).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
-    expect(timerContent).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+    expect(timerContent).toContain('bg-white border-white text-zinc-950 shadow-sm');
+    expect(timerContent).not.toContain('peer-checked:from-emerald-600');
 
     const settingsPath = path.resolve(__dirname, '../../src/components/SettingsWidget.tsx');
     const settingsContent = fs.readFileSync(settingsPath, 'utf-8');
     expect(settingsContent).toContain('data-testid="settings-checkbox-auto-transition"');
     expect(settingsContent).toContain('className="sr-only peer"');
-    expect(settingsContent).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
-    expect(settingsContent).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+    expect(settingsContent).toContain('bg-white border-white text-zinc-950 shadow-sm');
+    expect(settingsContent).not.toContain('peer-checked:from-emerald-600');
   });
 });

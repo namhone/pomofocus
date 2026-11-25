@@ -334,7 +334,7 @@ export const BillingView: React.FC = () => {
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Kho tài nguyên: 1.000+ hình nền 4K &amp; YouTube Sync</span>
+                    <span className="text-zinc-200">Kho tài nguyên: hình nền tinh tuyển &amp; YouTube Sync</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
@@ -777,7 +777,7 @@ export const BillingView: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Kho âm thanh &amp; <strong>1.000+ Hình nền 4K Pinterest</strong> &amp; YouTube Sync
+                        Kho âm thanh &amp; <strong>hình nền tinh tuyển</strong> &amp; YouTube Sync
                       </span>
                     </div>
                     <div className="flex items-start gap-2">

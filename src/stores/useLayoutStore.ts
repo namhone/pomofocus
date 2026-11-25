@@ -65,7 +65,7 @@ export const WIDGET_SIZE_PRESETS: Record<WidgetId, Record<SizePreset, { width: n
     L: { width: 460, height: 620 }
   },
   media: {
-    S: { width: 320, height: 300 },
+    S: { width: 320, height: 320 },
     M: { width: 384, height: 340 },
     L: { width: 480, height: 400 }
   }
@@ -332,6 +332,10 @@ export function loadStoredLayout(): {
         };
       }
     }
+
+    // Old saved dimensions must not reintroduce clipped media controls.
+    mergedWidgets.media.minHeight = DEFAULT_WIDGETS.media.minHeight;
+    mergedWidgets.media.height = Math.max(mergedWidgets.media.minHeight, mergedWidgets.media.height);
 
     if (mergedWidgets.settings && (mergedWidgets.settings.title === 'Cài Đặt Không Gian' || mergedWidgets.settings.title === 'Cài Đặt Hệ Thống')) {
       mergedWidgets.settings.title = 'Cài đặt hệ thống';
@@ -947,6 +951,7 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
   },
 
   resetLayout: () => {
+    if (typeof window !== 'undefined' && window.confirm('Đặt lại bố cục? Vị trí và kích thước các cửa sổ sẽ trở về mặc định.') === false) return;
     const winW = typeof window !== 'undefined' ? window.innerWidth : 1440;
     const winH = typeof window !== 'undefined' ? window.innerHeight : 900;
     const resetWidgets = computeBalancedDefaultLayout(winW, winH);

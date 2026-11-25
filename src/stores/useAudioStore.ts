@@ -13,12 +13,95 @@ import { ALARM_CHIMES } from '../data/alarmSounds';
 
 // Multi-Channel Audio Engine lưu trữ và quản lý các HTMLAudioElement đang chạy
 const activeAudioElements = new Map<string, HTMLAudioElement>();
+const activeAudioFades = new Map<HTMLAudioElement, () => void>();
+const audioTargetVolumes = new Map<HTMLAudioElement, number>();
+const pendingDisposeAudios = new Map<AmbientTrackId, HTMLAudioElement>();
+const toggleTrackGeneration = new Map<AmbientTrackId, number>();
+
 export const getActiveAudioElements = (): Map<string, HTMLAudioElement> => activeAudioElements;
+
+function cancelAudioFade(audio: HTMLAudioElement): void {
+  const cancel = activeAudioFades.get(audio);
+  if (cancel) {
+    activeAudioFades.delete(audio);
+    cancel();
+  }
+}
+
+function fadeAudioElement(
+  audio: HTMLAudioElement,
+  fromVol: number,
+  toVol: number,
+  durationMs: number,
+  onDone?: () => void
+): void {
+  cancelAudioFade(audio);
+  const safeFrom = Math.max(0, Math.min(1, fromVol));
+  const safeTo = Math.max(0, Math.min(1, toVol));
+  audioTargetVolumes.set(audio, safeTo);
+
+  if (durationMs <= 0 || Math.abs(safeFrom - safeTo) < 0.005) {
+    try {
+      audio.volume = safeTo;
+    } catch {}
+    onDone?.();
+    return;
+  }
+
+  try {
+    audio.volume = safeFrom;
+  } catch {}
+
+  const stepMs = 20;
+  const totalSteps = Math.max(1, Math.round(durationMs / stepMs));
+  let step = 0;
+
+  const timer = setInterval(() => {
+    step += 1;
+    const progress = Math.min(1, step / totalSteps);
+    const nextVol = Math.max(0, Math.min(1, safeFrom + (safeTo - safeFrom) * progress));
+    try {
+      audio.volume = nextVol;
+    } catch {}
+
+    if (step >= totalSteps) {
+      clearInterval(timer);
+      activeAudioFades.delete(audio);
+      try {
+        audio.volume = safeTo;
+      } catch {}
+      onDone?.();
+    }
+  }, stepMs);
+
+  activeAudioFades.set(audio, () => {
+    clearInterval(timer);
+  });
+}
+
+function disposeAudioElement(audio: HTMLAudioElement | null | undefined): void {
+  if (!audio) return;
+  cancelAudioFade(audio);
+  audioTargetVolumes.delete(audio);
+  try {
+    audio.onended = null;
+    audio.onerror = null;
+    audio.pause();
+    audio.currentTime = 0;
+    audio.src = '';
+    if (typeof audio.removeAttribute === 'function') {
+      audio.removeAttribute('src');
+    }
+    if (typeof audio.load === 'function') {
+      audio.load();
+    }
+  } catch {}
+}
 
 // Audio Ducking Engine: Lưu trữ mức âm lượng trước khi hạ nhạc
 const originalDuckedVolumes = new Map<string, number>();
-let duckingTimer: any = null;
-let restoreInterval: any = null;
+let duckingTimer: ReturnType<typeof setTimeout> | null = null;
+let restoreInterval: ReturnType<typeof setInterval> | null = null;
 let isVoiceDucked = false;
 const voiceDuckedOriginalVolumes = new Map<string, number>();
 
@@ -226,24 +309,39 @@ export interface AudioState {
 }
 
 let currentChimeAudio: HTMLAudioElement | null = null;
+let chimeRequestSeq = 0;
 
-export function stopChimeSound(): void {
+function haltCurrentChimePlayback(): void {
   if (currentChimeAudio) {
-    try {
-      currentChimeAudio.pause();
-      currentChimeAudio.currentTime = 0;
-    } catch {}
+    const audio = currentChimeAudio;
     currentChimeAudio = null;
+    disposeAudioElement(audio);
   }
   ChimeSynthesizer.getInstance().stopCurrentChime();
 }
 
-async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<void> {
+export function stopChimeSound(): void {
+  chimeRequestSeq += 1;
+  haltCurrentChimePlayback();
+}
+
+async function playAlarmChimeSound(
+  type: ChimeSoundType,
+  volume = 0.8,
+  reqSeq?: number
+): Promise<void> {
+  const activeSeq =
+    reqSeq ??
+    (() => {
+      chimeRequestSeq += 1;
+      return chimeRequestSeq;
+    })();
+
   // Dừng ngay lập tức âm thanh chuông đang phát dở (chống chồng tiếng khi bấm nghe thử liên tiếp)
-  stopChimeSound();
+  haltCurrentChimePlayback();
 
   const chimeConfig = ALARM_CHIMES.find((c) => c.id === type);
-  const safeVol = Math.max(0, Math.min(1, volume * 1.25)); // Chuẩn hóa 0dB True Peak
+  const safeVol = Math.max(0, Math.min(1, volume));
   if (chimeConfig?.url && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
     try {
       const audio = new Audio(chimeConfig.url);
@@ -253,21 +351,43 @@ async function playAlarmChimeSound(type: ChimeSoundType, volume = 0.8): Promise<
         if (currentChimeAudio === audio) {
           currentChimeAudio = null;
         }
+        disposeAudioElement(audio);
+      };
+      audio.onerror = () => {
+        if (currentChimeAudio === audio) {
+          currentChimeAudio = null;
+        }
+        disposeAudioElement(audio);
       };
       const playPromise = audio.play();
       if (playPromise !== undefined && typeof playPromise.catch === 'function') {
+        let fallbackTriggered = false;
         await playPromise.catch((e) => {
+          fallbackTriggered = true;
+          if (currentChimeAudio === audio) {
+            currentChimeAudio = null;
+          }
+          disposeAudioElement(audio);
+          if (activeSeq !== chimeRequestSeq) return;
           console.debug('[useAudioStore] CDN chime fallback to synth:', e);
-          return ChimeSynthesizer.getInstance().playChime(type, volume);
+          return ChimeSynthesizer.getInstance().playChime(type, safeVol);
         });
+        if (!fallbackTriggered && activeSeq !== chimeRequestSeq) {
+          if (currentChimeAudio === audio) {
+            currentChimeAudio = null;
+          }
+          disposeAudioElement(audio);
+          return;
+        }
       }
       return;
     } catch (e) {
       console.debug('[useAudioStore] Audio constructor error, fallback to synth:', e);
     }
   }
+  if (activeSeq !== chimeRequestSeq) return;
   // Fallback Web Audio synthesis (offline / headless)
-  await ChimeSynthesizer.getInstance().playChime(type, volume);
+  await ChimeSynthesizer.getInstance().playChime(type, safeVol);
 }
 
 export const useAudioStore = create<AudioState>((set, get) => {
@@ -408,10 +528,24 @@ export const useAudioStore = create<AudioState>((set, get) => {
 
         // Cập nhật âm lượng mượt mà thời gian thực cho tất cả HTMLAudioElement đang chạy
         activeAudioElements.forEach((audio, trackId) => {
+          cancelAudioFade(audio);
           const tr = state.tracks.find((t) => t.id === trackId);
           const trackVol = tr ? tr.volume : 0.5;
+          const effectiveVol = Math.max(0, Math.min(1, trackVol * safe));
+          audioTargetVolumes.set(audio, effectiveVol);
+          if (originalDuckedVolumes.has(trackId)) {
+            originalDuckedVolumes.set(trackId, effectiveVol);
+          }
+          if (voiceDuckedOriginalVolumes.has(trackId)) {
+            voiceDuckedOriginalVolumes.set(trackId, effectiveVol);
+          }
+          const duckFactor = isVoiceDucked
+            ? 0.2
+            : originalDuckedVolumes.has(trackId)
+            ? 0.15
+            : 1;
           try {
-            audio.volume = Math.max(0, Math.min(1, trackVol * safe));
+            audio.volume = Math.max(0, Math.min(1, effectiveVol * duckFactor));
           } catch {}
         });
 
@@ -428,13 +562,28 @@ export const useAudioStore = create<AudioState>((set, get) => {
 
         // Mute / Unmute tức thời cho các track HTMLAudioElement
         activeAudioElements.forEach((audio, trackId) => {
+          cancelAudioFade(audio);
           try {
             if (nextMuted) {
+              audioTargetVolumes.set(audio, 0);
               audio.volume = 0;
             } else {
               const tr = state.tracks.find((t) => t.id === trackId);
               const trackVol = tr ? tr.volume : 0.5;
-              audio.volume = Math.max(0, Math.min(1, trackVol * nextSettings.masterVolume));
+              const effectiveVol = Math.max(0, Math.min(1, trackVol * nextSettings.masterVolume));
+              audioTargetVolumes.set(audio, effectiveVol);
+              if (originalDuckedVolumes.has(trackId)) {
+                originalDuckedVolumes.set(trackId, effectiveVol);
+              }
+              if (voiceDuckedOriginalVolumes.has(trackId)) {
+                voiceDuckedOriginalVolumes.set(trackId, effectiveVol);
+              }
+              const duckFactor = isVoiceDucked
+                ? 0.2
+                : originalDuckedVolumes.has(trackId)
+                ? 0.15
+                : 1;
+              audio.volume = Math.max(0, Math.min(1, effectiveVol * duckFactor));
             }
           } catch {}
         });
@@ -462,12 +611,23 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     applyAudioDucking: () => {
-      // 1. Hạ âm lượng toàn bộ ambient HTMLAudioElements xuống 15%
+      if (duckingTimer) {
+        clearTimeout(duckingTimer);
+        duckingTimer = null;
+      }
+      if (restoreInterval) {
+        clearInterval(restoreInterval);
+        restoreInterval = null;
+      }
+
+      // 1. Hạ âm lượng toàn bộ ambient HTMLAudioElements xuống 15% mượt mà
       activeAudioElements.forEach((audio, id) => {
         if (!originalDuckedVolumes.has(id)) {
-          originalDuckedVolumes.set(id, audio.volume);
+          const baseVol = audioTargetVolumes.get(audio) ?? audio.volume;
+          originalDuckedVolumes.set(id, baseVol);
         }
-        audio.volume = originalDuckedVolumes.get(id)! * 0.15;
+        const orig = originalDuckedVolumes.get(id)!;
+        fadeAudioElement(audio, audio.volume, orig * 0.15, 120);
       });
 
       // 2. Hạ âm lượng Web Audio synth qua Ambient Bus (chime và masterGain không bị ảnh hưởng)
@@ -476,7 +636,7 @@ export const useAudioStore = create<AudioState>((set, get) => {
       if (ambientBus) {
         try {
           const ctx = audioMgr.getContext();
-          if (ctx) {
+          if (ctx && ctx.state !== 'closed') {
             ambientBus.gain.cancelScheduledValues(ctx.currentTime);
             ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
             ambientBus.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.12);
@@ -496,40 +656,48 @@ export const useAudioStore = create<AudioState>((set, get) => {
       } catch {}
 
       // Tự động khôi phục âm lượng sau 2.5s
-      if (duckingTimer) clearTimeout(duckingTimer);
-      if (restoreInterval) clearInterval(restoreInterval);
       duckingTimer = setTimeout(() => {
+        duckingTimer = null;
         get().restoreAudioDucking();
       }, 2500);
     },
 
     restoreAudioDucking: () => {
+      if (restoreInterval) {
+        clearInterval(restoreInterval);
+        restoreInterval = null;
+      }
+
+      // Khôi phục Web Audio Ambient Bus bằng một ramp liên tục mượt mà
+      const audioMgr = AudioContextManager.getInstance();
+      const ambientBus = audioMgr.getAmbientBusGain() || audioMgr.getMasterGain();
+      if (ambientBus) {
+        try {
+          const ctx = audioMgr.getContext();
+          if (ctx && ctx.state !== 'closed') {
+            ambientBus.gain.cancelScheduledValues(ctx.currentTime);
+            ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
+            ambientBus.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.5);
+          }
+        } catch {}
+      }
+
+      // Khôi phục mượt mà cho các HTMLAudioElement đã bị duck
+      activeAudioElements.forEach((audio, id) => {
+        const orig = originalDuckedVolumes.get(id);
+        if (orig !== undefined) {
+          const targetVol = isVoiceDucked ? orig * 0.2 : orig;
+          fadeAudioElement(audio, audio.volume, targetVol, 500);
+        }
+      });
+
       const steps = 10;
       const intervalMs = 50; // 10 * 50ms = 500ms
       let currentStep = 0;
 
-      if (restoreInterval) clearInterval(restoreInterval);
       restoreInterval = setInterval(() => {
         currentStep++;
-        const factor = 0.15 + (0.85 * (currentStep / steps));
-
-        activeAudioElements.forEach((audio, id) => {
-          const orig = originalDuckedVolumes.get(id);
-          if (orig !== undefined) {
-            audio.volume = orig * factor;
-          }
-        });
-
-        const audioMgr = AudioContextManager.getInstance();
-        const ambientBus = audioMgr.getAmbientBusGain() || audioMgr.getMasterGain();
-        if (ambientBus) {
-          try {
-            const ctx = audioMgr.getContext();
-            if (ctx) {
-              ambientBus.gain.setValueAtTime(factor, ctx.currentTime);
-            }
-          } catch {}
-        }
+        const factor = 0.15 + 0.85 * (currentStep / steps);
 
         try {
           const yt = (window as any).__pomoYoutubePlayer;
@@ -540,7 +708,10 @@ export const useAudioStore = create<AudioState>((set, get) => {
         } catch {}
 
         if (currentStep >= steps) {
-          clearInterval(restoreInterval);
+          if (restoreInterval) {
+            clearInterval(restoreInterval);
+            restoreInterval = null;
+          }
           originalDuckedVolumes.clear();
           delete (window as any).__pomoYtOriginalVol;
         }
@@ -558,12 +729,14 @@ export const useAudioStore = create<AudioState>((set, get) => {
 
         activeAudioElements.forEach((audio, id) => {
           if (!voiceDuckedOriginalVolumes.has(id)) {
-            voiceDuckedOriginalVolumes.set(id, audio.volume);
+            const baseVol = audioTargetVolumes.get(audio) ?? audio.volume;
+            voiceDuckedOriginalVolumes.set(id, baseVol);
           }
-          audio.volume = voiceDuckedOriginalVolumes.get(id)! * 0.2;
+          const orig = voiceDuckedOriginalVolumes.get(id)!;
+          fadeAudioElement(audio, audio.volume, orig * 0.2, 150);
         });
 
-        if (ambientBus && ctx) {
+        if (ambientBus && ctx && ctx.state !== 'closed') {
           try {
             ambientBus.gain.cancelScheduledValues(ctx.currentTime);
             ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
@@ -587,12 +760,12 @@ export const useAudioStore = create<AudioState>((set, get) => {
         activeAudioElements.forEach((audio, id) => {
           const orig = voiceDuckedOriginalVolumes.get(id);
           if (orig !== undefined) {
-            audio.volume = orig;
+            fadeAudioElement(audio, audio.volume, orig, 200);
           }
         });
         voiceDuckedOriginalVolumes.clear();
 
-        if (ambientBus && ctx) {
+        if (ambientBus && ctx && ctx.state !== 'closed') {
           try {
             ambientBus.gain.cancelScheduledValues(ctx.currentTime);
             ambientBus.gain.setValueAtTime(ambientBus.gain.value, ctx.currentTime);
@@ -616,27 +789,36 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     previewChime: async (chime?: ChimeSoundType) => {
+      stopChimeSound();
+      const seq = chimeRequestSeq;
       const targetChime = chime || get().settings.selectedChime;
       const vol = get().settings.chimeVolume;
       get().applyAudioDucking();
       // Chờ pre-duck ramp 120ms để nhạc nền hạ xuống êm ái trước khi phát chuông
       await new Promise((r) => setTimeout(r, 120));
-      await playAlarmChimeSound(targetChime, vol);
+      if (seq !== chimeRequestSeq) return;
+      await playAlarmChimeSound(targetChime, vol, seq);
     },
 
     playChime: async (chime?: ChimeSoundType) => {
       const { settings } = get();
       if (settings.isMuted) return;
+      stopChimeSound();
+      const seq = chimeRequestSeq;
       const targetChime = chime || settings.selectedChime;
       get().applyAudioDucking();
       // Chờ pre-duck ramp 120ms để nhạc nền hạ xuống êm ái trước khi phát chuông
       await new Promise((r) => setTimeout(r, 120));
-      await playAlarmChimeSound(targetChime, settings.chimeVolume);
+      if (seq !== chimeRequestSeq) return;
+      await playAlarmChimeSound(targetChime, settings.chimeVolume, seq);
     },
 
     toggleTrack: async (id: AmbientTrackId) => {
       const track = get().tracks.find((t) => t.id === id);
       if (!track) return;
+
+      const gen = (toggleTrackGeneration.get(id) ?? 0) + 1;
+      toggleTrackGeneration.set(id, gen);
 
       const nextPlaying = !track.isPlaying;
 
@@ -648,6 +830,12 @@ export const useAudioStore = create<AudioState>((set, get) => {
       }));
 
       if (nextPlaying) {
+        const pendingAudio = pendingDisposeAudios.get(id);
+        if (pendingAudio) {
+          pendingDisposeAudios.delete(id);
+          disposeAudioElement(pendingAudio);
+        }
+
         if (track.url && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
           try {
             let audio = activeAudioElements.get(id);
@@ -657,37 +845,77 @@ export const useAudioStore = create<AudioState>((set, get) => {
               // TUYỆT ĐỐI KHÔNG GÁN crossOrigin = 'anonymous' để tránh bị chặn CORS từ CDN audio ngoài
               activeAudioElements.set(id, audio);
             }
-            const currentSettings = get().settings;
-            const effectiveVol = currentSettings.isMuted ? 0 : track.volume * currentSettings.masterVolume;
-            audio.volume = Math.max(0, Math.min(1, effectiveVol));
+            audio.volume = 0;
             const playPromise = audio.play();
             if (playPromise !== undefined && typeof playPromise.catch === 'function') {
               await playPromise.catch((err) => {
                 console.debug(`[useAudioStore] Audio play caught for ${id}:`, err);
               });
             }
+
+            if (toggleTrackGeneration.get(id) !== gen) {
+              if (activeAudioElements.get(id) === audio) {
+                activeAudioElements.delete(id);
+              }
+              disposeAudioElement(audio);
+              return;
+            }
+
+            const latestSettings = get().settings;
+            const latestTrack = get().tracks.find((t) => t.id === id);
+            const latestEffectiveVol = latestSettings.isMuted
+              ? 0
+              : Math.max(0, Math.min(1, (latestTrack?.volume ?? track.volume) * latestSettings.masterVolume));
+
+            let targetVol = latestEffectiveVol;
+            if (isVoiceDucked) {
+              voiceDuckedOriginalVolumes.set(id, latestEffectiveVol);
+              targetVol = latestEffectiveVol * 0.2;
+            } else if (originalDuckedVolumes.size > 0) {
+              originalDuckedVolumes.set(id, latestEffectiveVol);
+              targetVol = latestEffectiveVol * 0.15;
+            }
+            fadeAudioElement(audio, 0, targetVol, 220);
           } catch (err) {
             console.debug(`[useAudioStore] Audio initialization error for ${id}:`, err);
           }
         } else {
           // Tổng hợp âm thanh bằng Web Audio API (Noise Pink/Brown/Blue & Binaural Beats)
           const resumed = await audioMgr.ensureResumed();
+          if (toggleTrackGeneration.get(id) !== gen) return;
           if (!resumed && !audioMgr.isRunning()) {
             set({ isAudioBlocked: true });
           } else {
             set({ isAudioBlocked: false });
           }
           await ambientSynth.playTrack(id, track.volume);
+          if (toggleTrackGeneration.get(id) !== gen) {
+            const latestTrack = get().tracks.find((t) => t.id === id);
+            if (!latestTrack?.isPlaying) {
+              ambientSynth.stopTrack(id);
+            }
+          }
         }
       } else {
-        // Dừng HTMLAudioElement nếu đang chạy
+        // Dừng HTMLAudioElement nếu đang chạy với fade-out mượt mà & giải phóng PCM
+        originalDuckedVolumes.delete(id);
+        voiceDuckedOriginalVolumes.delete(id);
+
         const audio = activeAudioElements.get(id);
         if (audio) {
-          try {
-            audio.pause();
-            audio.currentTime = 0;
-          } catch {}
           activeAudioElements.delete(id);
+          cancelAudioFade(audio);
+          if (audio.volume > 0.01) {
+            pendingDisposeAudios.set(id, audio);
+            fadeAudioElement(audio, audio.volume, 0, 160, () => {
+              if (pendingDisposeAudios.get(id) === audio) {
+                pendingDisposeAudios.delete(id);
+              }
+              disposeAudioElement(audio);
+            });
+          } else {
+            disposeAudioElement(audio);
+          }
         }
         // Dừng synthesizer nếu đang phát
         ambientSynth.stopTrack(id);
@@ -700,10 +928,25 @@ export const useAudioStore = create<AudioState>((set, get) => {
       // 1. Cập nhật HTMLAudioElement theo thời gian thực
       const audio = activeAudioElements.get(id);
       if (audio) {
+        cancelAudioFade(audio);
         const currentSettings = get().settings;
-        const effectiveVol = currentSettings.isMuted ? 0 : safe * currentSettings.masterVolume;
+        const effectiveVol = currentSettings.isMuted
+          ? 0
+          : Math.max(0, Math.min(1, safe * currentSettings.masterVolume));
+        audioTargetVolumes.set(audio, effectiveVol);
+        if (originalDuckedVolumes.has(id)) {
+          originalDuckedVolumes.set(id, effectiveVol);
+        }
+        if (voiceDuckedOriginalVolumes.has(id)) {
+          voiceDuckedOriginalVolumes.set(id, effectiveVol);
+        }
+        const duckFactor = isVoiceDucked
+          ? 0.2
+          : originalDuckedVolumes.has(id)
+          ? 0.15
+          : 1;
         try {
-          audio.volume = Math.max(0, Math.min(1, effectiveVol));
+          audio.volume = Math.max(0, Math.min(1, effectiveVol * duckFactor));
         } catch {}
       }
 
@@ -720,14 +963,32 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     stopAllTracks: () => {
+      if (duckingTimer) {
+        clearTimeout(duckingTimer);
+        duckingTimer = null;
+      }
+      if (restoreInterval) {
+        clearInterval(restoreInterval);
+        restoreInterval = null;
+      }
+      originalDuckedVolumes.clear();
+      voiceDuckedOriginalVolumes.clear();
+      isVoiceDucked = false;
+
+      for (const t of get().tracks) {
+        toggleTrackGeneration.set(t.id, (toggleTrackGeneration.get(t.id) ?? 0) + 1);
+      }
+
       activeAudioElements.forEach((audio) => {
-        try {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.src = '';
-        } catch {}
+        disposeAudioElement(audio);
       });
       activeAudioElements.clear();
+
+      pendingDisposeAudios.forEach((audio) => {
+        disposeAudioElement(audio);
+      });
+      pendingDisposeAudios.clear();
+
       ambientSynth.stopAll();
       stopChimeSound();
 
@@ -743,14 +1004,34 @@ export const useAudioStore = create<AudioState>((set, get) => {
     },
 
     resetToDefaults: () => {
+      if (duckingTimer) {
+        clearTimeout(duckingTimer);
+        duckingTimer = null;
+      }
+      if (restoreInterval) {
+        clearInterval(restoreInterval);
+        restoreInterval = null;
+      }
+      originalDuckedVolumes.clear();
+      voiceDuckedOriginalVolumes.clear();
+      isVoiceDucked = false;
+
+      for (const t of get().tracks) {
+        toggleTrackGeneration.set(t.id, (toggleTrackGeneration.get(t.id) ?? 0) + 1);
+      }
+
       activeAudioElements.forEach((audio) => {
-        try {
-          audio.pause();
-          audio.currentTime = 0;
-        } catch {}
+        disposeAudioElement(audio);
       });
       activeAudioElements.clear();
+
+      pendingDisposeAudios.forEach((audio) => {
+        disposeAudioElement(audio);
+      });
+      pendingDisposeAudios.clear();
+
       ambientSynth.stopAll();
+      stopChimeSound();
 
       audioMgr.setMasterVolume(DEFAULT_SETTINGS.masterVolume, DEFAULT_SETTINGS.isMuted);
       persistSettings(DEFAULT_SETTINGS);

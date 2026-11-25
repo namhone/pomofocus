@@ -81,13 +81,14 @@ export const BackgroundCanvas: React.FC = () => {
     document.addEventListener('visibilitychange', syncVideoPlayback);
     syncVideoPlayback();
     return () => document.removeEventListener('visibilitychange', syncVideoPlayback);
-  }, [setError, useStaticFallback, activePresetId, customUrl]);
+  }, [setError, useStaticFallback, activePresetId, customUrl, isEcoMode]);
 
   if (!preset) return null;
 
+  const effectiveBlurLevel = isEcoMode ? 0 : blurLevel;
   const filterStyle: React.CSSProperties = {
-    filter: `blur(${blurLevel}px) brightness(${brightnessLevel}%)`,
-    transform: blurLevel > 0 ? 'scale(1.04)' : 'none',
+    filter: `blur(${effectiveBlurLevel}px) brightness(${brightnessLevel}%)`,
+    transform: effectiveBlurLevel > 0 ? 'scale(1.04)' : 'none',
     transition: 'filter 0.3s ease, transform 0.3s ease'
   };
 
@@ -129,7 +130,7 @@ export const BackgroundCanvas: React.FC = () => {
 
   // Luôn đảm bảo gradient/solid CSS hợp lệ (tránh gán URL ảnh vào background shorthand)
   const validGradient =
-    isPureBlack
+    isPureBlack || hasError
       ? '#09090b'
       : isSolid
       ? preset.url
@@ -185,21 +186,8 @@ export const BackgroundCanvas: React.FC = () => {
           referrerPolicy="no-referrer"
           data-testid="background-image-element"
           onLoad={() => setLoading(false)}
-          onError={(e) => {
-            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-              setError(true, 'Ngoại tuyến, tự động chuyển sang nền tĩnh dự phòng');
-              return;
-            }
-            if (
-              e.currentTarget.src !==
-              'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80'
-            ) {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src =
-                'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1920&q=80';
-            } else {
-              setError(true, 'Ảnh nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
-            }
+          onError={() => {
+            setError(true, 'Ảnh nền lỗi, tự động chuyển sang nền tĩnh dự phòng');
           }}
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
           style={filterStyle}

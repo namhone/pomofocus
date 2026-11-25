@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 import {
   Clock,
   Coffee,
@@ -29,6 +29,7 @@ import { ALARM_CHIMES } from '../../../data/alarmSounds';
 import { ChimeSoundType } from '../../../types/audio';
 import { hasVipAccess, isOwnerEmail } from '../../../services/authService';
 import { UserAvatar } from '../../common/UserAvatar';
+import { soundEffects } from '../../../services/soundEffects';
 
 export interface MobileSettingsViewProps {
   className?: string;
@@ -60,7 +61,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   const setMasterVolume = useAudioStore((s) => s.setMasterVolume);
   const selectedChime = useAudioStore((s) => s.settings.selectedChime);
   const setSelectedChime = useAudioStore((s) => s.setSelectedChime);
-  const playChime = useAudioStore((s) => s.playChime);
+  const previewChime = useAudioStore((s) => s.previewChime);
 
   // Layout Store
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
@@ -102,6 +103,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
   // Stepper handlers
   const handleFocusChange = (val: number) => {
+    soundEffects.playClick();
     const clamped = Math.max(1, Math.min(120, val));
     updateTimerSettings({ pomodoroMinutes: clamped });
     const timerState = useTimerStore.getState();
@@ -117,6 +119,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   };
 
   const handleShortBreakChange = (val: number) => {
+    soundEffects.playClick();
     const clamped = Math.max(1, Math.min(60, val));
     updateTimerSettings({ shortBreakMinutes: clamped });
     const timerState = useTimerStore.getState();
@@ -132,6 +135,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   };
 
   const handleLongBreakChange = (val: number) => {
+    soundEffects.playClick();
     const clamped = Math.max(1, Math.min(60, val));
     updateTimerSettings({ longBreakMinutes: clamped });
     const timerState = useTimerStore.getState();
@@ -147,6 +151,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
   };
 
   const handleToggleAutoTransition = (checked: boolean) => {
+    soundEffects.playClick();
     updateTimerSettings({ autoTransition: checked });
     if (useTimerStore.getState().settings.autoTransition !== checked) {
       useTimerStore.setState({
@@ -158,14 +163,54 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
     }
   };
 
+  const [isPreviewingChime, setIsPreviewingChime] = useState(false);
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPreviewRef = useRef<{ chime: ChimeSoundType; at: number }>({
+    chime: selectedChime,
+    at: 0,
+  });
+  const isUnmountedRef = useRef(false);
+
   const handlePreviewChime = () => {
-    if (playChime) {
-      playChime(selectedChime).catch(() => {});
+    const now = Date.now();
+    if (
+      lastPreviewRef.current.chime === selectedChime &&
+      now - lastPreviewRef.current.at < 150
+    ) {
+      return;
+    }
+    lastPreviewRef.current = { chime: selectedChime, at: now };
+
+    if (previewTimeoutRef.current !== null) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+    setIsPreviewingChime(true);
+
+    if (previewChime) {
+      Promise.resolve(previewChime(selectedChime))
+        .catch(() => {})
+        .finally(() => {
+          if (!isUnmountedRef.current) {
+            previewTimeoutRef.current = setTimeout(() => {
+              previewTimeoutRef.current = null;
+              if (!isUnmountedRef.current) {
+                setIsPreviewingChime(false);
+              }
+            }, 2000);
+          }
+        });
     }
   };
 
   useEffect(() => {
+    isUnmountedRef.current = false;
     return () => {
+      isUnmountedRef.current = true;
+      if (previewTimeoutRef.current !== null) {
+        clearTimeout(previewTimeoutRef.current);
+        previewTimeoutRef.current = null;
+      }
       useAudioStore.getState().stopChime();
     };
   }, []);
@@ -488,10 +533,20 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
               <button
                 type="button"
+                data-testid="mobile-settings-preview-chime-btn"
+                aria-pressed={isPreviewingChime}
+                aria-label={isPreviewingChime ? 'Đang phát chuông nghe thử' : 'Nghe thử chuông'}
                 onClick={handlePreviewChime}
-                className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 active:scale-95 transition-all"
+                className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 active:scale-95 transition-all cursor-pointer"
               >
-                Nghe thử
+                {isPreviewingChime && (
+                  <span
+                    data-testid="mobile-settings-preview-indicator"
+                    className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"
+                    aria-hidden="true"
+                  />
+                )}
+                <span>Nghe thử</span>
               </button>
             </div>
 
@@ -499,7 +554,16 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
               id="mobile-chime-select"
               data-testid="mobile-settings-chime-select"
               value={selectedChime}
-              onChange={(e) => setSelectedChime(e.target.value as ChimeSoundType)}
+              onChange={(e) => {
+                soundEffects.playClick();
+                if (previewTimeoutRef.current !== null) {
+                  clearTimeout(previewTimeoutRef.current);
+                  previewTimeoutRef.current = null;
+                }
+                setIsPreviewingChime(false);
+                useAudioStore.getState().stopChime();
+                setSelectedChime(e.target.value as ChimeSoundType);
+              }}
               className="w-full bg-zinc-800/90 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-emerald-400/50 transition-all cursor-pointer"
             >
               {ALARM_CHIMES.map((chime) => (
@@ -537,7 +601,10 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             testId="mobile-settings-switch-eco"
             ariaLabel="Bật hoặc tắt Chế độ Eco"
             checked={Boolean(isEcoMode)}
-            onChange={(checked) => setEcoMode(checked)}
+            onChange={(checked) => {
+              soundEffects.playClick();
+              setEcoMode(checked);
+            }}
           />
         </div>
 

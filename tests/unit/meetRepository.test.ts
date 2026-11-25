@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LocalMeetAdapter } from '../../src/services/meet/localAdapter';
 import { SupabaseMeetAdapter, withRetry } from '../../src/services/meet/supabaseAdapter';
-import { useMeetStore } from '../../src/stores/useMeetStore';
+import { meetRepository } from '../../src/services/meet/meetRepository';
 import { supabase } from '../../src/lib/supabase';
 
 describe('Meet Repository, Adapters & Feature Flag Architecture Tests', () => {
   beforeEach(() => {
     localStorage.clear();
-    useMeetStore.getState().reset();
     vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName: string, params: any) => {
       if (fnName === 'create_study_room') {
         return {
@@ -127,30 +126,13 @@ describe('Meet Repository, Adapters & Feature Flag Architecture Tests', () => {
     });
   });
 
-  describe('3. Zustand useMeetStore Integration', () => {
-    it('quản lý trạng thái tạo phòng và lưu trữ currentRoom', async () => {
-      const store = useMeetStore.getState();
-      const room = await store.createRoom('Phòng Zustand Test', 8);
-
-      expect(useMeetStore.getState().currentRoom).toEqual(room);
-      expect(useMeetStore.getState().isLoading).toBe(false);
-      expect(useMeetStore.getState().error).toBeNull();
-    });
-
-    it('lưu trữ danh sách tin nhắn gửi đi trong messages', async () => {
-      const store = useMeetStore.getState();
-      const room = await store.createRoom('Phòng Chat Store Test', 8);
-      const msg = await store.sendMessage(room.id, 'Nội dung tin nhắn 1', 'cid_001');
-
-      expect(useMeetStore.getState().messages).toContainEqual(msg);
-    });
-
-    it('cập nhật trạng thái closed khi gọi closeRoom', async () => {
-      const store = useMeetStore.getState();
-      const room = await store.createRoom('Phòng Chuẩn Bị Đóng', 8);
-      await store.closeRoom(room.id);
-
-      expect(useMeetStore.getState().currentRoom?.status).toBe('closed');
+  describe('3. Active repository integration', () => {
+    it('creates a room, sends a message and closes through the configured adapter', async () => {
+      const room = await meetRepository.createRoom('Phòng kiểm thử', 8);
+      expect(room.capacityLimit).toBe(8);
+      const message = await meetRepository.sendMessage(room.id, 'cid_001', 'Nội dung tin nhắn');
+      expect(message.content).toBe('Nội dung tin nhắn');
+      await expect(meetRepository.closeRoom(room.id)).resolves.not.toThrow();
     });
   });
 });

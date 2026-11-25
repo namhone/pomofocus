@@ -110,11 +110,12 @@ export const useTaskStore = create<TaskStoreState>((set, get) => ({
       const userId = useAuthStore.getState().user?.id;
       if (userId) {
         TaskCloudService.syncFromCloud(userId).then(({ tasks, projects }) => {
+          if (useAuthStore.getState().user?.id !== userId) return;
           const syncedTasks = tasks
-            .filter((t) => t.status !== 'archived' && (!t.deletedAt || t.deletedAt <= 0))
+            .filter((t) => t.userId === userId && t.status !== 'archived' && (!t.deletedAt || t.deletedAt <= 0))
             .sort((a, b) => a.orderIndex - b.orderIndex);
           const syncedProjects = projects
-            .filter((p) => !p.deletedAt || p.deletedAt <= 0)
+            .filter((p) => p.userId === userId && (!p.deletedAt || p.deletedAt <= 0))
             .sort((a, b) => b.createdAt - a.createdAt);
           const reconciledActiveId = get().activeTaskId || reconcileLinkedTask(syncedTasks, true);
           set({

@@ -45,7 +45,6 @@ let coordinatorInstance: TabCoordinator | null = null;
 let lastSyncTimestamp = 0;
 let lastMidnightCheck = 0;
 const recordedSessionIds = new Set<string>();
-let hasBoundUnload = false;
 let visibilitySyncHandler: (() => void) | null = null;
 
 let keepAliveGain: GainNode | null = null;
@@ -489,17 +488,6 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       onReset: () => get().reset()
     });
 
-    // Gắn dọn dẹp khi đóng hoặc rời tab chuẩn Best Practices (beforeunload, pagehide)
-    if (!hasBoundUnload) {
-      hasBoundUnload = true;
-      const cleanupTab = () => {
-        if (coordinatorInstance) {
-          coordinatorInstance.destroy();
-        }
-      };
-      window.addEventListener('beforeunload', cleanupTab);
-      window.addEventListener('pagehide', cleanupTab);
-    }
   },
 
   setLinkedTask: (taskId: string | null, taskTitle: string | null) => {

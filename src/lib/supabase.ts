@@ -61,6 +61,19 @@ export class RealtimeChannel {
   private reconnectTimer: any = null;
   private onSubscribedCallback?: (status: string) => void;
   public isSubscribed: boolean = false;
+  public isDisposed = false;
+  private reconnectDelayMs = 2000;
+  private handleOnline = () => this.scheduleReconnect();
+
+  private scheduleReconnect() {
+    if (!this.isSubscribed || this.socket || this.reconnectTimer || navigator.onLine === false) return;
+    const delay = this.reconnectDelayMs;
+    this.reconnectDelayMs = Math.min(delay * 2, 30000);
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      if (this.isSubscribed && navigator.onLine !== false) this.initWebSocket();
+    }, delay);
+  }
 
   constructor(topic: string, opts?: ChannelConfig) {
     this.topic = topic;
@@ -81,7 +94,7 @@ export class RealtimeChannel {
 
   private initWebSocket(onSubscribed?: (status: string) => void) {
     if (typeof window === 'undefined' || !('WebSocket' in window)) return;
-    if (this.socket) return;
+    if (this.socket || !this.isSubscribed || navigator.onLine === false) return;
     if (onSubscribed) {
       this.onSubscribedCallback = onSubscribed;
     }
@@ -90,16 +103,26 @@ export class RealtimeChannel {
       const cleanUrl = SUPABASE_URL.replace(/^http/, 'ws').replace(/\/+$/, '');
       const wsUrl = `${cleanUrl}/realtime/v1/websocket?apikey=${encodeURIComponent(SUPABASE_ANON_KEY)}&vsn=1.0.0`;
 
-      this.socket = new WebSocket(wsUrl);
+      const socket = new WebSocket(wsUrl);
+      this.socket = socket;
 
-      this.socket.onopen = () => {
+      socket.onopen = () => {
+        if (this.socket !== socket || !this.isSubscribed) return;
+        let accessToken: string | undefined;
+        try {
+          const raw = localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
+          const session = raw ? JSON.parse(raw) : null;
+          accessToken = session?.access_token || session?.token || accessToken;
+        } catch { /* Keep the public key for unauthenticated channels. */ }
         // Tham gia phòng trên Phoenix Channel của Supabase
         this.joinRef = String(++this.refCounter);
         const joinMsg = {
           topic: `realtime:${this.topic}`,
           event: 'phx_join',
           payload: {
+            ...(accessToken ? { access_token: accessToken } : {}),
             config: {
+              postgres_changes: this.postgresChangeListeners.map(({ callback: _callback, ...binding }) => binding),
               broadcast: { self: true },
               presence: { key: this.presenceKey }
             }
@@ -123,17 +146,23 @@ export class RealtimeChannel {
         }, 15000);
       };
 
-      this.socket.onmessage = (event) => {
+      socket.onmessage = (event) => {
+        if (this.socket !== socket || !this.isSubscribed) return;
         try {
           const msg = JSON.parse(event.data);
           if (msg.event === 'phx_reply') {
             // Chỉ xử lý phản hồi cho lượt tham gia phòng (phx_join)
-            if (msg.ref === this.joinRef && msg.payload?.status === 'ok') {
+            if (msg.ref === this.joinRef && msg.payload?.status === 'error') {
+              this.state = 'errored';
+              this.onSubscribedCallback?.('CHANNEL_ERROR');
+              socket.close();
+              return;
+            }
+            if (msg.ref === this.joinRef && msg.payload?.status === 'ok' && !this.isJoined) {
+              this.reconnectDelayMs = 2000;
               this.isJoined = true;
               this.state = 'joined';
-              if (onSubscribed) {
-                onSubscribed('SUBSCRIBED');
-              }
+              this.onSubscribedCallback?.('SUBSCRIBED');
               // Gửi presence state đang chờ nếu có
               if (this.pendingTrackState && this.socket && this.socket.readyState === WebSocket.OPEN) {
                 const pendingJson = JSON.stringify(this.pendingTrackState);
@@ -181,6 +210,7 @@ export class RealtimeChannel {
                 .forEach((l) => l.callback(payload));
             }
           } else if (msg.event === 'presence_state') {
+            this.presences = {};
             const raw = msg.payload || {};
             Object.keys(raw).forEach((k) => {
               this.presences[k] = raw[k]?.metas || [raw[k]];
@@ -212,13 +242,14 @@ export class RealtimeChannel {
               .filter((l) => l.event === 'sync')
               .forEach((l) => l.callback());
           } else if (msg.event === 'postgres_changes') {
-            const { table, eventType, newRecord, oldRecord } = msg.payload || {};
-            this.postgresChangeListeners.forEach((listener) => {
-              const matchesTable = !listener.table || listener.table === table;
-              const matchesEvent = listener.event === '*' || listener.event === eventType;
-              if (matchesTable && matchesEvent) {
-                listener.callback({ eventType, new: newRecord, old: oldRecord });
-              }
+            const change = msg.payload?.data || msg.payload || {};
+            this.handleInboundMessage({
+              type: 'postgres_changes',
+              schema: change.schema,
+              table: change.table,
+              eventType: change.type || change.eventType,
+              newRecord: change.record || change.newRecord || {},
+              oldRecord: change.old_record || change.oldRecord || {}
             });
           }
         } catch {
@@ -226,12 +257,14 @@ export class RealtimeChannel {
         }
       };
 
-      this.socket.onerror = (err) => {
+      socket.onerror = (err) => {
+        if (this.socket !== socket || !this.isSubscribed) return;
         this.state = 'errored';
         console.warn('[Supabase Realtime WS] Lỗi kết nối socket:', err);
       };
 
-      this.socket.onclose = () => {
+      socket.onclose = () => {
+        if (this.socket !== socket) return;
         this.isJoined = false;
         this.state = 'closed';
         this.socket = null;
@@ -240,18 +273,12 @@ export class RealtimeChannel {
           this.heartbeatTimer = null;
         }
         // Tự động kết nối lại nếu đang trong trạng thái đã subscribe (Bảo vệ khi điện thoại tắt/bật màn hình)
-        if (this.isSubscribed) {
-          if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-          this.reconnectTimer = setTimeout(() => {
-            if (this.isSubscribed) {
-              console.log('[Supabase Realtime WS] Tự động kết nối lại socket sau ngắt kết nối...');
-              this.initWebSocket(this.onSubscribedCallback);
-            }
-          }, 2000);
-        }
+        this.scheduleReconnect();
       };
     } catch (err) {
       console.warn('[Supabase Realtime WS] Không thể mở kết nối WebSocket:', err);
+      this.socket = null;
+      this.scheduleReconnect();
     }
   }
 
@@ -259,15 +286,18 @@ export class RealtimeChannel {
     if (!data || typeof data !== 'object') return;
 
     if (data.type === 'postgres_changes') {
-      const { table, eventType, newRecord, oldRecord } = data;
+      const { schema, table, eventType, newRecord, oldRecord } = data;
       this.postgresChangeListeners.forEach((listener) => {
-        const matchesTable = !listener.table || listener.table === table;
+        const matchesTable = (!listener.table || listener.table === table) && (!schema || !listener.schema || listener.schema === schema);
         const matchesEvent = listener.event === '*' || listener.event === eventType;
         let matchesFilter = true;
-        if (listener.filter && newRecord) {
+        const record = eventType === 'DELETE' ? oldRecord : newRecord;
+        if (listener.filter && record) {
           const [col, opVal] = listener.filter.split('=eq.');
           if (col && opVal !== undefined) {
-            matchesFilter = String(newRecord[col]) === String(opVal);
+            matchesFilter = eventType === 'DELETE' && record[col] === undefined
+              ? true // DELETE frames can contain only primary keys; consumers verify ownership in their cache.
+              : String(record[col]) === String(opVal);
           }
         }
         if (matchesTable && matchesEvent && matchesFilter) {
@@ -366,16 +396,17 @@ export class RealtimeChannel {
   }
 
   subscribe(callback?: (status: string) => void): this {
+    if (this.isSubscribed || this.isDisposed) return this;
+    this.onSubscribedCallback = callback;
+    window.addEventListener('online', this.handleOnline);
     this.isSubscribed = true;
     this.state = 'joining';
     this.initWebSocket(callback);
-    if (callback) {
-      setTimeout(() => callback('SUBSCRIBED'), 0);
-    }
     return this;
   }
 
   async track(state: any): Promise<'ok' | 'error'> {
+    if (this.isDisposed) return 'error';
     this.presences[this.presenceKey] = [state];
     this.pendingTrackState = state;
 
@@ -431,6 +462,7 @@ export class RealtimeChannel {
   }
 
   async send(params: { type: 'broadcast'; event: string; payload: any }): Promise<'ok' | 'error'> {
+    if (this.isDisposed) return 'error';
     // 1. Gửi qua WebSocket Supabase Cloud để máy khác nhận được
     if (this.isJoined && this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(
@@ -482,6 +514,14 @@ export class RealtimeChannel {
 
   unsubscribe(): 'ok' {
     this.isSubscribed = false;
+    this.isDisposed = true;
+    this.isJoined = false;
+    this.pendingTrackState = null;
+    this.outboundQueue = [];
+    this.lastTrackedJson = null;
+    this.presences = {};
+    this.onSubscribedCallback = undefined;
+    window.removeEventListener('online', this.handleOnline);
     this.state = 'closed';
 
     if (this.reconnectTimer) {
@@ -656,18 +696,18 @@ function parseOAuthHashSession(): any {
 export const supabase = {
   channel: (topic: string, opts?: ChannelConfig): RealtimeChannel => {
     let chan = activeChannels.get(topic);
-    if (!chan) {
+    if (!chan || chan.isDisposed) {
       chan = new RealtimeChannel(topic, opts);
       activeChannels.set(topic, chan);
     }
     return chan;
   },
 
-  removeChannel: (topic: string) => {
-    const chan = activeChannels.get(topic);
+  removeChannel: (channel: string | RealtimeChannel) => {
+    const chan = typeof channel === 'string' ? activeChannels.get(channel) : channel;
     if (chan) {
       chan.unsubscribe();
-      activeChannels.delete(topic);
+      if (activeChannels.get(chan.topic) === chan) activeChannels.delete(chan.topic);
     }
   },
 

@@ -96,7 +96,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (disabled) return;
+    if (disabled || e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return;
     if (e.key === 'ArrowDown' || e.key === 'Down') {
       e.preventDefault();
       if (value > min) {
@@ -169,6 +169,8 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
                 onChange={(e) => setTempValue(e.target.value)}
                 onBlur={handleCommitValue}
                 onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return;
                   if (e.key === 'Enter') handleCommitValue();
                   if (e.key === 'Escape') {
                     setIsEditing(false);

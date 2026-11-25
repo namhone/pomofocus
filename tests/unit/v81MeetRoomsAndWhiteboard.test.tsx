@@ -189,6 +189,68 @@ describe('PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whit
   // --------------------------------------------------------------------------
   // 1. Contract & Helper Unit Tests
   // --------------------------------------------------------------------------
+  it('keeps cursor cleanup ticking during continuous updates without closing the shared channel', () => {
+    vi.useFakeTimers();
+    const activity = vi.fn();
+    const view = render(<WhiteboardView roomId={testRoomId} currentUserId="me" currentUserName="Nam" channel={mockChannel} isHost={true} onDrawerActivity={activity} />);
+    try {
+      for (let i = 0; i < 8; i++) {
+        act(() => {
+          const cursor = { userId: 'peer', userName: 'Peer', isDrawing: true, x: 0.2, y: 0.3 };
+          if (i % 2) mockChannel.getBroadcastListeners('WHITEBOARD_CURSOR').forEach(listener => listener(cursor));
+          else mockChannel.emitBroadcast('WHITEBOARD_CURSOR', cursor);
+          vi.advanceTimersByTime(200);
+        });
+      }
+      expect(activity).toHaveBeenCalledWith(true, 'Peer');
+      activity.mockClear();
+      act(() => { vi.advanceTimersByTime(4800); });
+      expect(activity).toHaveBeenLastCalledWith(false, undefined);
+      view.unmount();
+      expect(mockChannel.off).toHaveBeenCalled();
+      expect(mockChannel.unsubscribe).not.toHaveBeenCalled();
+      activity.mockClear();
+      act(() => { vi.advanceTimersByTime(1600); });
+      expect(activity).not.toHaveBeenCalled();
+    } finally { view.unmount(); vi.useRealTimers(); }
+  });
+
+  it('stops a camera grant that resolves after room unmount', async () => {
+    let grant!: (stream: any) => void;
+    navigator.mediaDevices.getUserMedia = vi.fn(() => new Promise(resolve => { grant = resolve; }));
+    const view = render(<StudyRoomView roomId={testRoomId} initialJoined={true} />);
+    expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalled();
+    view.unmount();
+    const stop = vi.fn();
+    await act(async () => { grant({ getTracks: () => [{ stop }] }); });
+    expect(stop).toHaveBeenCalledOnce();
+  });
+
+  it('releases the room AudioContext and keep-alive Worker URL on unmount', async () => {
+    const source = { connect: vi.fn(), disconnect: vi.fn() };
+    const analyser = { disconnect: vi.fn(), getByteTimeDomainData: vi.fn() };
+    const close = vi.fn().mockResolvedValue(undefined);
+    const audioContext = vi.fn(function () { return { state: 'running', close, createMediaStreamSource: () => source, createAnalyser: () => analyser }; });
+    const terminate = vi.fn(), postMessage = vi.fn(), revoke = vi.fn();
+    vi.stubGlobal('AudioContext', audioContext);
+    vi.stubGlobal('Worker', class { onmessage = null; terminate = terminate; postMessage = postMessage; });
+    const OriginalURL = URL;
+    vi.stubGlobal('URL', class extends OriginalURL { static createObjectURL = vi.fn(() => 'blob:room-worker'); static revokeObjectURL = revoke; });
+    const view = render(<StudyRoomView roomId={testRoomId} />);
+    try {
+      await act(async () => { await Promise.resolve(); });
+      fireEvent.click(screen.getByTestId('btn-join-room-confirm'));
+      await waitFor(() => expect(audioContext).toHaveBeenCalled());
+      expect(postMessage).toHaveBeenCalledWith('start');
+      view.unmount();
+      expect(close).toHaveBeenCalledOnce();
+      expect(source.disconnect).toHaveBeenCalled();
+      expect(analyser.disconnect).toHaveBeenCalled();
+      expect(terminate).toHaveBeenCalled();
+      expect(revoke).toHaveBeenCalledWith('blob:room-worker');
+    } finally { view.unmount(); vi.unstubAllGlobals(); }
+  });
+
   describe('1. RoomTimerSyncPayload Contract & Helper Functions', () => {
     it('1.1: getRoomPhaseDuration correctly returns standard Pomodoro durations', () => {
       expect(getRoomPhaseDuration('work')).toBe(1500); // 25 minutes

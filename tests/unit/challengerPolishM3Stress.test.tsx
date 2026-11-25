@@ -152,24 +152,13 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-deep-graphite');
     });
 
-    it('all 5 new CC0 video presets have valid HTTPS urls and descriptions', () => {
-      const expectedVideos = [
-        { id: 'cyberpunk-neon-rain', title: 'Hẻm mưa Neon Tokyo' },
-        { id: 'tears-of-steel-scifi', title: 'Đô thị tương lai viễn tưởng' },
-        { id: 'cozy-fireplace-loop', title: 'Lò sưởi ấm cúng mùa đông' },
-        { id: 'aurora-night-sky', title: 'Cực quang bầu trời đêm' },
-        { id: 'cloud-sea-mountains', title: 'Biển mây bồng bềnh đỉnh núi' }
-      ];
-
-      for (const exp of expectedVideos) {
-        const found = BACKGROUND_PRESETS.find((p) => p.id === exp.id);
-        expect(found).toBeDefined();
-        expect(found?.title).toBe(exp.title);
-        expect(found?.category).toBe('video');
-        expect(found?.url).toMatch(/^https:\/\//);
-        expect(found?.thumbnailUrl).toMatch(/^https:\/\//);
-        expect(found?.license).toContain('Creative Commons');
-      }
+    it('two real video presets have distinct HTTPS sources and accurate licenses', () => {
+      const videos = BACKGROUND_PRESETS.filter(preset => preset.category === 'video');
+      expect(videos).toHaveLength(2);
+      expect(new Set(videos.map(preset => preset.url)).size).toBe(2);
+      expect(videos.find(preset => preset.id === 'oceans-wave')?.license).toBe('Pexels Free License');
+      expect(videos.find(preset => preset.id === 'flower-timelapse')?.license).toBe('CC0');
+      expect(videos.every(preset => preset.url.startsWith('https://') && !/friday|ForBigger|TearsOfSteel/.test(preset.url))).toBe(true);
     });
 
     it('filter by video category renders video presets in presets-grid', () => {
@@ -177,10 +166,10 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
       const videoTab = screen.getByTestId('filter-cat-video');
       fireEvent.click(videoTab);
 
-      const cyberpunkCard = screen.getByTestId('preset-card-cyberpunk-neon-rain');
+      const cyberpunkCard = screen.getByTestId('preset-card-flower-timelapse');
       expect(cyberpunkCard).toBeDefined();
       fireEvent.click(cyberpunkCard);
-      expect(useBackgroundStore.getState().activePresetId).toBe('cyberpunk-neon-rain');
+      expect(useBackgroundStore.getState().activePresetId).toBe('flower-timelapse');
     });
   });
 
@@ -214,8 +203,8 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
     });
 
     it('reset background button clears active preset and resets to default (deep-space)', () => {
-      useBackgroundStore.getState().selectPreset('cyberpunk-neon-rain');
-      expect(useBackgroundStore.getState().activePresetId).toBe('cyberpunk-neon-rain');
+      useBackgroundStore.getState().selectPreset('flower-timelapse');
+      expect(useBackgroundStore.getState().activePresetId).toBe('flower-timelapse');
 
       render(<SpacesWidget />);
       const resetBtn = screen.getByTestId('btn-reset-bg');
@@ -284,10 +273,10 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
   });
 
   describe('Challenge 6: Invariant Preservation Check', () => {
-    it('ANIME_WALLPAPERS_LOCAL[0] invariant: starts with "Chuyến Tàu Trên Mặt Nước" for Playwright test selector', () => {
+    it('ANIME_WALLPAPERS_LOCAL[0] invariant: starts with "Chuyến tàu trên mặt nước" for Playwright test selector', () => {
       const firstAnime = ANIME_WALLPAPERS_LOCAL[0];
       expect(firstAnime.filename).toBe('anime-01.webp');
-      expect(firstAnime.title.startsWith('Chuyến Tàu Trên Mặt Nước')).toBe(true);
+      expect(firstAnime.title.startsWith('Chuyến tàu trên mặt nước')).toBe(true);
     });
 
     it('pricing tiers and ai packs do not contain raw emojis', () => {
