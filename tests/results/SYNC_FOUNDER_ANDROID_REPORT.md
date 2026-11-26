@@ -1,5 +1,7 @@
 # Hợp đồng sync hai thiết bị, Founder và Android smoke
 
+> Cập nhật 26/11/2026: Nam đã mở khóa auth/API và Codex vá 9 regression bên dưới. Founder hiện 17/17 pass; báo cáo kết thúc ở `AUTH_AVATAR_A11Y_REPORT.md`. Các kết quả đỏ phía dưới giữ làm baseline lịch sử.
+
 ## Kết quả tổng
 
 105 test riêng biệt trong 9 file: 96 pass, 9 fail. Chín failure là security/state contract thật ngoài khóa sửa; không skip, xfail hoặc đổi kỳ vọng để báo xanh. Type-check exit 0. Chưa nghiệm thu hai phiên Cloud có JWT thật hoặc Samsung thật.

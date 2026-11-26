@@ -6,7 +6,6 @@ import {
   UserProfile,
   ProfileUpdates,
   UserDataExport,
-  isAdmin,
   hasProEntitlement,
   hasVipAccess,
   isOwnerEmail,
@@ -14,7 +13,8 @@ import {
   isVipFriend,
   getPlanLabel,
   getEffectiveAvatarUrl,
-  isCustomAvatarUrl
+  getAvatarState,
+  getAvatarDisplayName
 } from '../services/authService';
 import { smsSecurityService } from '../services/smsSecurityService';
 import { totpService } from '../services/totpService';
@@ -92,27 +92,18 @@ export interface AuthState {
 }
 
 const initialSession = authService.getCurrentSession();
+let authEpoch = 0;
+let authEventRequestId = 0;
+let profileRequestId = 0;
+let entitlementRequestId = 0;
+let syncProfileRequestId = 0;
 
 export const computeDerivedPlanState = (user: UserProfile | null) => {
-  const adminAccess = Boolean(
-    user && (
-      isAdmin(user) ||
-      user.role === 'admin' ||
-      user.role === 'founder' ||
-      (user as any)?.app_metadata?.role === 'admin' ||
-      (user as any)?.app_metadata?.role === 'founder' ||
-      (user as any)?.user_metadata?.role === 'admin'
-    )
-  );
-  const isOwner = Boolean(
-    user && (
-      adminAccess ||
-      (user.email && isOwnerEmail(user.email)) ||
-      user.role === 'founder' ||
-      user.badge?.includes('Founder') ||
-      user.credits === Infinity
-    )
-  );
+  const appRole = user?.app_metadata?.role;
+  const adminAccess = appRole === 'admin' || appRole === 'founder';
+  const isOwner = adminAccess;
+  // Display/cache fields are not authorization claims, including inside legacy helpers.
+  const entitlementUser = user ? { ...user, role: appRole || 'user', badge: undefined, credits: undefined, user_metadata: undefined } : null;
   const isLifetime = Boolean(
     isOwner ||
     user?.isLifetime ||
@@ -122,7 +113,7 @@ export const computeDerivedPlanState = (user: UserProfile | null) => {
   const isPro = Boolean(
     isLifetime ||
     hasProEntitlement(user?.plan, user?.email) ||
-    hasVipAccess(user)
+    hasVipAccess(entitlementUser)
   );
 
   const effectiveBadge = isOwner
@@ -136,13 +127,13 @@ export const computeDerivedPlanState = (user: UserProfile | null) => {
   return {
     isAdmin: adminAccess,
     isPro,
-    hasVipAccess: isOwner || hasVipAccess(user),
+    hasVipAccess: isOwner || hasVipAccess(entitlementUser),
     isLifetime,
     isBetaPro: user?.plan === 'pro_beta',
     isOwner,
     isLadyBoss: Boolean(user?.email && isLadyBoss(user.email)),
     isVipFriend: Boolean(user?.email && isVipFriend(user.email)),
-    planLabel: getPlanLabel(user),
+    planLabel: getPlanLabel(entitlementUser),
     effectiveBadge
   };
 };
@@ -167,9 +158,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     ...computeDerivedPlanState(initialSession),
 
     login: async (email: string, pass: string, totpCode?: string) => {
+      const requestEpoch = authEpoch;
       set({ isLoading: true, error: null });
       try {
         const user = await authService.login(email, pass, totpCode);
+        if (requestEpoch !== authEpoch) return false;
         set({
           user,
           isAuthenticated: true,
@@ -187,6 +180,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         TaskCloudService.mergeGuestDataOnLogin(user.id).catch(() => {});
         return true;
       } catch (err: unknown) {
+        if (requestEpoch !== authEpoch) return false;
         if (err && typeof err === 'object' && (err as any).requires2Fa) {
           set({
             requires2Fa: true,
@@ -204,9 +198,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     signup: async (email: string, pass: string, name: string) => {
+      const requestEpoch = authEpoch;
       set({ isLoading: true, error: null });
       try {
         const user = await authService.signup(email, pass, name);
+        if (requestEpoch !== authEpoch) return false;
         set({
           user,
           isAuthenticated: true,
@@ -228,9 +224,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     loginAsFounder: async () => {
+      const requestEpoch = authEpoch;
       set({ isLoading: true, error: null });
       try {
         const user = await authService.loginAsFounder();
+        if (requestEpoch !== authEpoch) return false;
         set({
           user,
           isAuthenticated: true,
@@ -249,9 +247,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     loginWithGoogle: async (payload: GoogleUserPayload, totpCode?: string) => {
+      const requestEpoch = authEpoch;
       set({ isGoogleLoading: true, error: null });
       try {
         const user = await authService.loginWithGoogle(payload, totpCode);
+        if (requestEpoch !== authEpoch) return false;
         set({
           user,
           isAuthenticated: true,
@@ -286,6 +286,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     verify2FaLogin: async (code: string) => {
+      const requestEpoch = authEpoch;
       const { pending2FaUser } = get();
       if (!pending2FaUser) {
         return { success: false, message: 'Không tìm thấy phiên đăng nhập chờ xác thực.' };
@@ -293,6 +294,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
       const { totpService } = await import('../services/totpService');
       const res = await totpService.verifyLogin(pending2FaUser.id, code);
+      if (requestEpoch !== authEpoch || get().pending2FaUser?.id !== pending2FaUser.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
 
       if (!res.valid) {
         return {
@@ -325,6 +327,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
       // Hợp nhất dữ liệu khách và nạp lại dữ liệu
       await TaskCloudService.mergeGuestDataOnLogin(pending2FaUser.id);
+      if (requestEpoch !== authEpoch || get().user?.id !== pending2FaUser.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       get().loadUserFromCloud(pending2FaUser.id);
       get().syncEntitlementsFromCloud();
       import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
@@ -334,6 +337,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     cancel2FaLogin: () => {
+      ++authEpoch;
       supabase.auth.signOut().catch(() => {});
       set({
         requires2Fa: false,
@@ -345,37 +349,22 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     syncUserFromSupabase: (supabaseUser: any) => {
       if (!supabaseUser) return;
+      const requestEpoch = authEpoch;
+      const requestId = ++syncProfileRequestId;
 
       const email = (supabaseUser.email || '').trim().toLowerCase();
-      const currentSession = get().user || authService.getCurrentSession();
-      const isFounder = isOwnerEmail(email);
+      const candidateSession = get().user || authService.getCurrentSession();
+      const currentSession = candidateSession && (candidateSession.id === supabaseUser.id || candidateSession.email?.trim().toLowerCase() === email) ? candidateSession : null;
+      const appRole = supabaseUser.app_metadata?.role;
+      const isFounder = appRole === 'admin' || appRole === 'founder';
 
       // Canonical ID: Kiểm tra cả cache profile và cloud profile theo email
       const cachedProf = email ? (localProfileCache.get(email) || localProfileCache.get(supabaseUser.id)) : null;
+      const cachedCredits = cachedProf?.ai_credits_balance ?? currentSession?.credits ?? 0;
 
-      // KIỂM TRA AVATAR TÙY CHỈNH: Không bao giờ lấy ảnh Google đè lên Custom Avatar
-      const localStoredAvatar = (typeof window !== 'undefined' && email) ? localStorage.getItem('pomodoro_avatar_cache_' + email) : null;
-      const hasCustom = Boolean(
-        currentSession?.customAvatarUrl ||
-        currentSession?.hasCustomAvatar ||
-        (currentSession?.avatarUrl && isCustomAvatarUrl(currentSession.avatarUrl)) ||
-        cachedProf?.custom_avatar_url ||
-        cachedProf?.has_custom_avatar ||
-        (cachedProf?.avatar_url && isCustomAvatarUrl(cachedProf.avatar_url)) ||
-        localStoredAvatar
-      );
-      const customAvatar =
-        currentSession?.customAvatarUrl ||
-        (currentSession?.hasCustomAvatar ? currentSession?.avatarUrl : null) ||
-        (isCustomAvatarUrl(currentSession?.avatarUrl) ? currentSession?.avatarUrl : null) ||
-        cachedProf?.custom_avatar_url ||
-        ((cachedProf?.has_custom_avatar || isCustomAvatarUrl(cachedProf?.avatar_url)) ? cachedProf?.avatar_url : null) ||
-        localStoredAvatar ||
-        null;
-
-      const resolvedAvatar = hasCustom && customAvatar
-        ? customAvatar
-        : getEffectiveAvatarUrl(supabaseUser, cachedProf || currentSession);
+      const avatarState = getAvatarState(currentSession || supabaseUser, cachedProf);
+      const hasCustom = avatarState.hasCustomAvatar;
+      const resolvedAvatar = hasCustom ? avatarState.avatarUrl : getEffectiveAvatarUrl(supabaseUser, cachedProf);
 
       const displayName =
         currentSession?.displayName ||
@@ -398,9 +387,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
           avatarUrl: resolvedAvatar,
           customAvatarUrl: hasCustom ? resolvedAvatar : undefined,
           hasCustomAvatar: hasCustom,
-          role: 'founder',
+          role: appRole,
+          app_metadata: supabaseUser.app_metadata,
+          user_metadata: { ...supabaseUser.user_metadata, role: undefined },
           plan: 'lifetime',
           badge: 'Founder VIP 👑',
+          credits: cachedCredits,
           isLifetime: true,
           proExpiresAt: null,
           createdAt: currentSession?.createdAt || Date.now(),
@@ -410,14 +402,13 @@ export const useAuthStore = create<AuthState>((set, get) => {
           hasPassword: Boolean(currentSession?.hasPassword),
           emailVerified: true
         };
-        // Nạp đầy 1.000⚡ AI Credits vào ví useAiStore
+        // Hydrate the cached balance until the authoritative profile response arrives.
         try {
           useAiStore.setState({
-            aiCreditsBalance: 1000,
+            aiCreditsBalance: cachedCredits,
             aiPlan: 'lifetime',
             lastWeeklyReset: Date.now()
           });
-          useAiStore.getState().setAiPlan('lifetime');
         } catch (e) {
           console.warn('[syncUserFromSupabase] AI store update error:', e);
         }
@@ -429,10 +420,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
           avatarUrl: resolvedAvatar,
           customAvatarUrl: hasCustom ? resolvedAvatar : undefined,
           hasCustomAvatar: hasCustom,
-          role: currentSession?.role || 'user',
+          role: appRole || 'user',
+          app_metadata: supabaseUser.app_metadata,
+          user_metadata: { ...supabaseUser.user_metadata, role: undefined },
           plan: currentSession?.plan || 'free',
           badge: currentSession?.badge || 'Thành viên Free',
-          credits: typeof currentSession?.credits === 'number' ? currentSession.credits : 50,
+          credits: cachedCredits,
           isLifetime: Boolean(currentSession?.isLifetime),
           proExpiresAt: currentSession?.proExpiresAt || null,
           createdAt: currentSession?.createdAt || Date.now(),
@@ -442,13 +435,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
           hasPassword: Boolean(currentSession?.hasPassword),
           emailVerified: Boolean(supabaseUser.email_confirmed_at || supabaseUser.user_metadata?.email_verified)
         };
-        // Gói Free: 50 credits
+        // Hydration must not top up a depleted wallet or call the plan-upgrade writer.
         try {
           useAiStore.setState({
-            aiCreditsBalance: 50,
-            aiPlan: 'free'
+            aiCreditsBalance: cachedCredits,
+            aiPlan: profile.plan as any
           });
-          useAiStore.getState().setAiPlan('free');
         } catch (e) {
           console.warn('[syncUserFromSupabase] AI store update error:', e);
         }
@@ -521,6 +513,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         googleId: supabaseUser.id,
         isGoogleLinked: true
       }).then((cloudProf) => {
+        if (requestEpoch !== authEpoch || requestId !== syncProfileRequestId || get().user?.id !== profile.id) return;
         if (cloudProf) {
           const canonicalId = cloudProf.id || profile.id;
 
@@ -560,24 +553,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           }
           set((state) => {
             if (!state.user) return state;
-            const isCustom = Boolean(
-              cloudProf.custom_avatar_url ||
-              cloudProf.has_custom_avatar ||
-              isCustomAvatarUrl(cloudProf.avatar_url) ||
-              state.user.customAvatarUrl ||
-              state.user.hasCustomAvatar ||
-              (state.user.avatarUrl && isCustomAvatarUrl(state.user.avatarUrl))
-            );
-            const resolvedAvatar = getEffectiveAvatarUrl(state.user, cloudProf);
-            const canonicalCustom: string | undefined = isCustom
-              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : undefined) || state.user.customAvatarUrl || (isCustomAvatarUrl(state.user.avatarUrl) ? state.user.avatarUrl : undefined) || undefined)
-              : undefined;
-
-            if (isCustom && canonicalCustom && typeof window !== 'undefined' && profile.email) {
-              try {
-                localStorage.setItem('pomodoro_avatar_cache_' + profile.email, canonicalCustom);
-              } catch {}
-            }
+            const { avatarUrl: resolvedAvatar, customAvatarUrl: canonicalCustom, hasCustomAvatar: isCustom } = getAvatarState(state.user, cloudProf);
 
             userSettingsService.mergeSettingsOnLogin(canonicalId, cloudProf.settings, cloudProf.updated_at).catch(() => {});
 
@@ -592,8 +568,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
               hasCustomAvatar: isCustom,
               username: cloudProf.handle || state.user.username,
               bio: cloudProf.bio || state.user.bio,
-              role: cloudProf.role || state.user.role,
+              role: state.user.app_metadata?.role || 'user',
               plan: (cloudProf.plan as any) || state.user.plan,
+              credits: typeof cloudProf.ai_credits_balance === 'number' ? cloudProf.ai_credits_balance : state.user.credits,
               proExpiresAt: cloudProf.plan_expires_at ? new Date(cloudProf.plan_expires_at).getTime() : state.user.proExpiresAt
             };
             if (typeof window !== 'undefined' && window.localStorage) {
@@ -627,6 +604,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     logout: async () => {
+      ++authEpoch;
       const currentUser = get().user;
       const currentUserId = currentUser?.id || 'guest';
       // Pre-logout sync flush nếu có kết nối mạng và còn hàng đợi
@@ -649,6 +627,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
         credits: undefined,
         error: null,
         syncStats: null,
+        isLoading: false,
+        isGoogleLoading: false,
+        requires2Fa: false,
+        is2faPending: false,
+        pending2FaUser: null,
         ...computeDerivedPlanState(null)
       });
       // Đặt lại AI store về chế độ khách với số credits đọc từ pomofocus_guest_ai_credits_v5
@@ -689,6 +672,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     updateProfile: async (updatesOrName: ProfileUpdates | string, avatarUrl?: string) => {
       const { user } = get();
       if (!user) return false;
+      const requestEpoch = authEpoch;
       set({ isLoading: true, error: null });
       try {
         const payload: ProfileUpdates =
@@ -708,28 +692,15 @@ export const useAuthStore = create<AuthState>((set, get) => {
               };
 
         const updated = await authService.updateProfile(user.id, payload);
-
-        // 1. Ghi thẳng URL ảnh mới vào Supabase Cloud:
-        if (payload.avatarUrl !== undefined) {
-          await supabase
-            .from('profiles')
-            .update({
-              avatar_url: payload.avatarUrl,
-              custom_avatar_url: payload.avatarUrl,
-              has_custom_avatar: Boolean(payload.avatarUrl),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', user.id);
-        }
+        if (requestEpoch !== authEpoch || get().user?.id !== user.id) return false;
 
         // 2. Cập nhật ngay vào Store giao diện:
+        if (requestEpoch !== authEpoch || get().user?.id !== user.id) return false;
         set((state) => {
           const newUser = state.user ? {
             ...state.user,
             ...updated,
-            avatarUrl: payload.avatarUrl !== undefined ? payload.avatarUrl : state.user.avatarUrl,
-            customAvatarUrl: payload.avatarUrl !== undefined ? payload.avatarUrl : state.user.customAvatarUrl,
-            hasCustomAvatar: payload.avatarUrl !== undefined ? Boolean(payload.avatarUrl) : state.user.hasCustomAvatar
+            ...(payload.avatarUrl !== undefined ? getAvatarState({ ...state.user, ...updated }, { avatar_url: payload.avatarUrl, custom_avatar_url: payload.customAvatarUrl, has_custom_avatar: payload.hasCustomAvatar }) : {})
           } : updated;
           return {
             user: newUser,
@@ -826,9 +797,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     enableTotp2Fa: async (secret: string, code: string, backupCodes: string[]) => {
+      const requestEpoch = authEpoch;
       const { user } = get();
       if (!user) return { success: false, message: 'Vui lòng đăng nhập trước khi kích hoạt 2FA.' };
       const res = await totpService.confirmAndEnable(user.id, secret, code, backupCodes);
+      if (requestEpoch !== authEpoch || get().user?.id !== user.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       if (res.success && res.user) {
         set({
           user: res.user,
@@ -839,9 +812,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     disableTotp2Fa: async () => {
+      const requestEpoch = authEpoch;
       const { user } = get();
       if (!user) return { success: false, message: 'Chưa đăng nhập.' };
       const res = await totpService.disable(user.id);
+      if (requestEpoch !== authEpoch || get().user?.id !== user.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       if (res.success && res.user) {
         set({
           user: res.user,
@@ -860,9 +835,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     verifyAndLinkPhone: async (phone: string, code: string) => {
+      const requestEpoch = authEpoch;
       const { user } = get();
       if (!user) return { success: false, message: 'Vui lòng đăng nhập trước khi liên kết.' };
       const res = await smsSecurityService.verifyAndLinkPhone(user.id, phone, code);
+      if (requestEpoch !== authEpoch || get().user?.id !== user.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       if (res.success && res.user) {
         set({
           user: res.user,
@@ -873,9 +850,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     unlinkPhone: async () => {
+      const requestEpoch = authEpoch;
       const { user } = get();
       if (!user) return { success: false, message: 'Chưa đăng nhập.' };
       const res = await smsSecurityService.unlinkPhone(user.id);
+      if (requestEpoch !== authEpoch || get().user?.id !== user.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       if (res.success && res.user) {
         set({
           user: res.user,
@@ -886,9 +865,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     toggleTwoFactor: async (enabled: boolean) => {
+      const requestEpoch = authEpoch;
       const { user } = get();
       if (!user) return { success: false, message: 'Chưa đăng nhập.' };
       const res = await smsSecurityService.toggleTwoFactor(user.id, enabled);
+      if (requestEpoch !== authEpoch || get().user?.id !== user.id) return { success: false, message: 'Phiên đăng nhập đã thay đổi.' };
       if (res.success && res.user) {
         set({
           user: res.user,
@@ -980,6 +961,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
     syncEntitlementsFromCloud: async () => {
       const { user } = get();
       if (!user?.id) return;
+      const requestEpoch = authEpoch;
+      const requestId = ++entitlementRequestId;
+      const isCurrentRequest = () => requestEpoch === authEpoch && requestId === entitlementRequestId && get().user?.id === user.id;
 
       try {
         const { data } = await supabase
@@ -988,6 +972,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           .eq('user_id', user.id)
           .single();
 
+        if (!isCurrentRequest()) return;
         if (data?.is_pro) {
           const expiresAt = data.pro_expires_at ? new Date(data.pro_expires_at).getTime() : null;
           get().activateProFromPayment('pro', expiresAt);
@@ -996,12 +981,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
         // Đồng bộ 100% từ public.profiles trên Supabase Cloud
         const latestUser = get().user || user;
         const cloudProfile = await ProfileService.fetchProfile(latestUser.id);
+        if (!isCurrentRequest()) return;
         if (cloudProfile) {
           // Cloud sync privilege protection
-          const isPrivileged = isOwnerEmail(latestUser.email) || hasVipAccess(latestUser) || isLadyBoss(latestUser.email) || isVipFriend(latestUser.email);
-          const effectiveCredits = isPrivileged
-            ? Math.max(cloudProfile.ai_credits_balance || 0, 1000)
-            : (cloudProfile.ai_credits_balance ?? 50);
+          const isPrivileged = computeDerivedPlanState(latestUser).isOwner;
+          const effectiveCredits = cloudProfile.ai_credits_balance ?? latestUser.credits ?? 0;
           const effectivePlan = isPrivileged
             ? 'lifetime'
             : (latestUser.plan === 'pro' || latestUser.plan === 'pro_lifetime' ? latestUser.plan : (cloudProfile.plan || 'free'));
@@ -1015,24 +999,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
             });
           }
 
-          const isCustom = Boolean(
-            cloudProfile.custom_avatar_url ||
-            cloudProfile.has_custom_avatar ||
-            isCustomAvatarUrl(cloudProfile.avatar_url) ||
-            latestUser.customAvatarUrl ||
-            latestUser.hasCustomAvatar ||
-            (latestUser.avatarUrl && isCustomAvatarUrl(latestUser.avatarUrl))
-          );
-          const resolvedAvatar = getEffectiveAvatarUrl(latestUser, cloudProfile);
-          const canonicalCustom: string | undefined = isCustom
-            ? (cloudProfile.custom_avatar_url || (isCustomAvatarUrl(cloudProfile.avatar_url) ? cloudProfile.avatar_url : undefined) || latestUser.customAvatarUrl || (isCustomAvatarUrl(latestUser.avatarUrl) ? latestUser.avatarUrl : undefined) || undefined)
-            : undefined;
-
-          if (isCustom && canonicalCustom && typeof window !== 'undefined' && latestUser.email) {
-            try {
-              localStorage.setItem('pomodoro_avatar_cache_' + latestUser.email.toLowerCase().trim(), canonicalCustom);
-            } catch {}
-          }
+            const { avatarUrl: resolvedAvatar, customAvatarUrl: canonicalCustom, hasCustomAvatar: isCustom } = getAvatarState(latestUser, cloudProfile);
 
           const updatedUser: UserProfile = {
             ...latestUser,
@@ -1042,7 +1009,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
             hasCustomAvatar: isCustom,
             username: cloudProfile.handle || latestUser.username,
             bio: cloudProfile.bio || latestUser.bio,
-            role: isPrivileged && isOwnerEmail(latestUser.email) ? 'founder' : (cloudProfile.role || latestUser.role),
+            role: latestUser.app_metadata?.role || 'user',
             plan: effectivePlan as any,
             badge: isPrivileged && isOwnerEmail(latestUser.email) ? 'Founder VIP 👑' : (effectivePlan === 'pro' ? 'PRO HỘI VIÊN' : latestUser.badge),
             credits: effectiveCredits,
@@ -1075,18 +1042,22 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     loadUserFromCloud: async (userId: string) => {
       if (!userId) return;
+      const requestEpoch = authEpoch;
+      const requestId = ++profileRequestId;
+      const startingUserId = get().user?.id;
       try {
         const cloudProf = await ProfileService.fetchProfile(userId);
+        if (requestEpoch !== authEpoch || requestId !== profileRequestId || get().user?.id !== startingUserId) return;
         if (cloudProf) {
-          const isOwner = isOwnerEmail(cloudProf.email) || isLadyBoss(cloudProf.email) || isVipFriend(cloudProf.email);
-          const effectiveRole = isOwner ? 'founder' : cloudProf.role || 'user';
+          const isOwner = computeDerivedPlanState(get().user).isOwner;
+          const effectiveRole = get().user?.app_metadata?.role || 'user';
           const effectivePlan = isOwner ? 'lifetime' : cloudProf.plan || 'free';
           const isLifetimePlan = isOwner || effectivePlan === 'lifetime' || effectivePlan === 'pro_lifetime' || Boolean((cloudProf as any).is_lifetime);
           const isProPlan = isLifetimePlan || effectivePlan === 'pro' || effectivePlan === 'pro_beta' || effectivePlan === 'pro_sandbox';
           const effectiveBadge = isOwner ? 'Founder VIP 👑' : (isLifetimePlan ? '👑 PRO TRỌN ĐỜI' : (isProPlan ? 'PRO HỘI VIÊN' : 'Thành viên Free'));
           const effectiveCredits = typeof cloudProf.ai_credits_balance === 'number'
-            ? Math.max(cloudProf.ai_credits_balance, isOwner ? 1000 : (isLifetimePlan ? 1000 : 50))
-            : (isOwner || isLifetimePlan ? 1000 : 50);
+            ? cloudProf.ai_credits_balance
+            : (get().user?.credits ?? 0);
 
           // Khôi phục Cài Đặt Người Dùng (Settings) từ Supabase Cloud
           if (cloudProf.settings) {
@@ -1100,24 +1071,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
           set((state) => {
             const current = state.user;
-            const hasCustom = Boolean(
-              cloudProf.custom_avatar_url ||
-              cloudProf.has_custom_avatar ||
-              isCustomAvatarUrl(cloudProf.avatar_url) ||
-              current?.customAvatarUrl ||
-              current?.hasCustomAvatar ||
-              (current?.avatarUrl && isCustomAvatarUrl(current.avatarUrl))
-            );
-            const resolvedAvatar = getEffectiveAvatarUrl(current || { id: userId, email: cloudProf.email }, cloudProf);
-            const canonicalCustom: string | undefined = hasCustom
-              ? (cloudProf.custom_avatar_url || (isCustomAvatarUrl(cloudProf.avatar_url) ? cloudProf.avatar_url : undefined) || current?.customAvatarUrl || (isCustomAvatarUrl(current?.avatarUrl) ? current?.avatarUrl : undefined) || undefined)
-              : undefined;
-
-            if (hasCustom && canonicalCustom && typeof window !== 'undefined' && cloudProf.email) {
-              try {
-                localStorage.setItem('pomodoro_avatar_cache_' + cloudProf.email.toLowerCase().trim(), canonicalCustom);
-              } catch {}
-            }
+            const { avatarUrl: resolvedAvatar, customAvatarUrl: canonicalCustom, hasCustomAvatar: hasCustom } = getAvatarState(current || { id: userId, email: cloudProf.email }, cloudProf);
 
             const merged: UserProfile = {
               ...(current || {
@@ -1181,6 +1135,8 @@ if (typeof window !== 'undefined') {
   // Lắng nghe trạng thái phiên đăng nhập Server-Authoritative từ Supabase Auth (Single Source of Truth)
   try {
     supabase.auth.onAuthStateChange(async (_event, session) => {
+      const eventId = ++authEventRequestId;
+      const requestEpoch = authEpoch;
       if (session?.user) {
         // 1. Kéo trực tiếp hồ sơ từ Supabase Cloud
         let profile: any = null;
@@ -1203,15 +1159,15 @@ if (typeof window !== 'undefined') {
           console.warn('[useAuthStore] Supabase profile fetch error:', e);
         }
 
-        // 2. KHÓA BẢN QUYỀN OWNER / ADMIN (Xác thực qua JWT claims app_metadata hoặc DB profile.role):
+        if (requestEpoch !== authEpoch || eventId !== authEventRequestId) return;
+        // 2. KHÓA BẢN QUYỀN OWNER / ADMIN (chỉ JWT claims app_metadata):
         const appMetadataRole = session.user.app_metadata?.role;
-        const userMetadataRole = session.user.user_metadata?.role;
-        const isOwner = appMetadataRole === 'admin' || appMetadataRole === 'founder' || userMetadataRole === 'admin' || profile?.role === 'founder' || profile?.role === 'admin';
+        const isOwner = appMetadataRole === 'admin' || appMetadataRole === 'founder';
 
         const isLifetime = isOwner || profile?.plan === 'lifetime' || profile?.plan === 'pro_lifetime' || Boolean(profile?.is_lifetime);
         const plan = isOwner ? 'lifetime' : (profile?.plan || 'free');
-        const role = isOwner ? (profile?.role || 'founder') : (profile?.role || 'user');
-        const aiCredits = isOwner ? Infinity : (isLifetime ? 1000 : (profile?.ai_credits_balance ?? 50));
+        const role = appMetadataRole || 'user';
+        const aiCredits = profile?.ai_credits_balance ?? 0;
 
         // CANONICAL USER ID INVARIANT (Single Source of Truth):
         // Nếu hồ sơ trên Cloud đã tồn tại với email này, luôn chọn profile.id làm ID định danh duy nhất
@@ -1219,21 +1175,23 @@ if (typeof window !== 'undefined') {
         const isExternalProvider = session.user.id !== canonicalId;
 
         // AVATAR BẤT BIẾN: Luôn lấy avatar_url từ database, cấm lấy ảnh Google đè lên!
-        const avatarUrl = getEffectiveAvatarUrl(session.user, profile);
-        const hasCustom = Boolean(profile?.custom_avatar_url || profile?.has_custom_avatar);
+        const previous = useAuthStore.getState().user;
+        const sameAccount = previous?.id === canonicalId || previous?.email === session.user.email;
+        const identity = sameAccount ? { ...session.user, ...previous, user_metadata: session.user.user_metadata } : session.user;
+        const { avatarUrl, customAvatarUrl, hasCustomAvatar: hasCustom } = getAvatarState(identity, profile);
 
         const finalUser: UserProfile = {
           id: canonicalId,
           email: session.user.email,
-          displayName: profile?.display_name || profile?.full_name || session.user.user_metadata?.full_name || (session.user.email ? session.user.email.split('@')[0] : 'Học Viên'),
+          displayName: getAvatarDisplayName(session.user, profile),
           avatarUrl,
-          customAvatarUrl: hasCustom ? (profile?.custom_avatar_url || profile?.avatar_url || null) : null,
+          customAvatarUrl,
           hasCustomAvatar: hasCustom,
           plan: plan as any,
           role,
           badge: isOwner ? 'Founder VIP 👑' : (isLifetime ? '👑 PRO TRỌN ĐỜI' : (plan === 'pro' ? 'PRO HỘI VIÊN' : 'Thành viên Free')),
           isLifetime,
-          credits: isOwner ? 999999 : (aiCredits === Infinity ? 999999 : aiCredits),
+          credits: aiCredits,
           aiCredits,
           googleId: isExternalProvider ? session.user.id : (profile?.google_id || undefined),
           isGoogleLinked: isExternalProvider || Boolean(profile?.is_google_linked),
@@ -1250,7 +1208,7 @@ if (typeof window !== 'undefined') {
 
         try {
           useAiStore.setState({
-            aiCreditsBalance: isOwner ? 1000 : (aiCredits === Infinity ? 1000 : aiCredits),
+            aiCreditsBalance: aiCredits,
             aiPlan: isOwner ? 'lifetime' : (plan as any)
           });
         } catch {}
@@ -1275,6 +1233,7 @@ if (typeof window !== 'undefined') {
         import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});
         import('./useNoteStore').then(m => m.useNoteStore.getState().loadNotes()).catch(() => {});
       } else {
+        ++authEpoch;
         useAuthStore.setState({
           user: null,
           isAuthenticated: false,
@@ -1282,15 +1241,9 @@ if (typeof window !== 'undefined') {
           role: undefined,
           badge: undefined,
           credits: undefined,
-          isPro: false,
-          hasVipAccess: false,
-          isLifetime: false,
-          isBetaPro: false,
-          isOwner: false,
-          isLadyBoss: false,
-          isVipFriend: false,
-          planLabel: 'FREE'
+          ...computeDerivedPlanState(null)
         });
+        useAiStore.setState({ aiCreditsBalance: getInitialGuestCredits(), aiPlan: 'free', activeConversationId: null, currentSessionId: null, sessions: [], messages: [] });
 
         // Xóa sạch bộ nhớ store và nạp lại dữ liệu khách (user isolation)
         import('./useTaskStore').then(m => m.useTaskStore.getState().loadTasksAndProjects()).catch(() => {});

@@ -402,18 +402,19 @@ export const processAndSaveCustomAvatar = async (
     const finalAvatarUrl = isCloudStorage ? (storagePublicUrl as string) : compressed.dataUrl;
 
     // 3. Đồng bộ Database `public.profiles` trên Supabase Cloud
-    await ProfileService.updateAvatar(userId, finalAvatarUrl, email);
+    if (useAuthStore.getState().user?.id !== userId) throw new Error('Phiên đăng nhập đã thay đổi.');
+    if (!await ProfileService.updateAvatar(userId, finalAvatarUrl, email)) throw new Error('Không thể lưu ảnh đại diện.');
 
     // 4. Đồng bộ tức thì vào State Zustand (Header, Capsule, ProfileView)
     useAuthStore.setState((state) => ({
-      user: state.user
+      user: state.user?.id === userId
         ? {
             ...state.user,
             avatarUrl: finalAvatarUrl,
             customAvatarUrl: finalAvatarUrl,
             hasCustomAvatar: true
           }
-        : null
+        : state.user
     }));
 
     // Cập nhật cả cache local

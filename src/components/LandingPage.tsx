@@ -28,7 +28,7 @@ export const LandingPage: React.FC = () => {
     },
     {
       q: 'Chương trình Demo Beta (Tặng 3 Năm PRO) áp dụng như thế nào?',
-      a: 'Trong giai đoạn Demo Beta hiện tại, hệ thống TUYỆT ĐỐI KHÔNG THU TIỀN THẬT. Mọi tài khoản mới khi đăng ký (qua Email hoặc Google) đều được hệ thống tự động kích hoạt 3 Năm gói PRO hoàn toàn miễn phí.'
+      a: 'Trong giai đoạn Demo Beta hiện tại, hệ thống tuyệt đối không thu tiền thật. Mọi tài khoản mới khi đăng ký (qua Email hoặc Google) đều được hệ thống tự động kích hoạt 3 năm gói PRO hoàn toàn miễn phí.'
     },
     {
       q: 'Âm thanh có bị ngắt khi tôi ẩn widget hoặc chuyển tab không?',
@@ -36,7 +36,7 @@ export const LandingPage: React.FC = () => {
     },
     {
       q: 'Gói PRO khác gì so với gói Miễn phí?',
-      a: 'Gói Miễn phí cung cấp đầy đủ công cụ Pomodoro, âm thanh chuẩn, ghi chú và lưu trữ cục bộ vĩnh viễn. Gói PRO mở khóa thêm toàn bộ 101 không gian HD tuyển chọn thực tế, quyền tạo và điều phối Phòng học nhóm trực tuyến (WebRTC), lập kế hoạch Time-Blocking chuyên sâu và đồng bộ đám mây tự động.'
+      a: 'Gói Miễn phí cung cấp đầy đủ công cụ Pomodoro, âm thanh chuẩn, ghi chú và lưu trữ cục bộ vĩnh viễn. Gói PRO mở khóa thêm bộ sưu tập hình nền tinh tuyển thực tế, quyền tạo và điều phối Phòng học nhóm trực tuyến (WebRTC), lập kế hoạch Time-Blocking chuyên sâu và đồng bộ đám mây tự động.'
     }
   ];
 
@@ -64,7 +64,7 @@ export const LandingPage: React.FC = () => {
         </h1>
 
         <p className="text-xs sm:text-base text-zinc-400 max-w-2xl leading-relaxed mb-8 sm:mb-10 font-normal text-pretty">
-          Không gian pomodoro kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm. Đưa bạn vào trạng thái tập trung sâu.
+          Không gian Pomodoro kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm. Đưa bạn vào trạng thái tập trung sâu.
         </p>
 
         <div className="flex flex-col items-center gap-3.5 w-full sm:w-auto">
@@ -105,13 +105,13 @@ export const LandingPage: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/80 via-black to-zinc-950 flex flex-col p-3 sm:p-6 justify-between select-none">
               <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400 font-mono gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-zinc-600/80 shrink-0" />
                   <span className="w-2.5 h-2.5 rounded-full bg-zinc-700/80 shrink-0" />
                   <span className="w-2.5 h-2.5 rounded-full bg-zinc-700/80 shrink-0" />
-                  <span className="ml-1 sm:ml-2 text-zinc-400 whitespace-nowrap">PomoFocus Workspace v1.0</span>
+                  <span className="ml-1 sm:ml-2 text-zinc-400 whitespace-nowrap">PomoFocus Workspace</span>
                 </div>
                 <div className="flex items-center gap-1.5 whitespace-nowrap text-[10px] sm:text-xs">
-                  <span>101 cảnh quan hd</span>
+                  <span>Không gian tinh tuyển</span>
                   <span>•</span>
                   <span>Âm thanh thiên nhiên</span>
                 </div>
@@ -129,7 +129,7 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-center gap-2 text-[11px] text-zinc-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-ping" />
-                    <span>Giải tích & ielts task 2</span>
+                    <span>Giải tích &amp; IELTS Task 2</span>
                   </div>
                 </div>
 
@@ -186,7 +186,7 @@ export const LandingPage: React.FC = () => {
                 <Clock size={18} strokeWidth={1.5} />
               </div>
               <h3 className="text-base font-semibold text-white mb-2 text-balance">
-                Đồng hồ pomodoro
+                Đồng hồ Pomodoro
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed mb-6 font-normal text-pretty">
                 Bộ đếm thời gian khoa học, hoạt động mượt mà và bền bỉ kể cả khi ẩn tab. Hỗ trợ tùy biến thời lượng làm việc, nghỉ ngắn, nghỉ dài theo nhu cầu.
@@ -213,7 +213,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="pt-4 border-t border-zinc-800/60 font-mono text-[11px] text-zinc-400 flex justify-between">
               <span className="whitespace-nowrap">Phát nền liên tục</span>
-              <span className="whitespace-nowrap">MINI PIP VIDEO</span>
+              <span className="whitespace-nowrap">Mini PiP Video</span>
             </div>
           </div>
         </div>
@@ -228,7 +228,7 @@ export const LandingPage: React.FC = () => {
               Phòng học nhóm
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
-              Kết nối học cùng bạn bè với camera/mic trực tiếp, chia sẻ màn hình, bảng vẽ tương tác canvas và đồng hồ pomodoro nhóm đồng bộ.
+              Kết nối học cùng bạn bè với camera/mic trực tiếp, chia sẻ màn hình, bảng vẽ tương tác canvas và đồng hồ Pomodoro nhóm đồng bộ.
             </p>
           </div>
 
@@ -238,23 +238,23 @@ export const LandingPage: React.FC = () => {
               <Calendar size={16} strokeWidth={1.5} />
             </div>
             <h4 className="text-sm font-semibold text-white mb-1.5 text-balance">
-              Lịch học time-blocking
+              Lịch học Time-Blocking
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
-              Lập thời gian biểu theo ngày, tuần, tháng từ 07:00 đến 22:00. Liên kết trực tiếp từng phiên học với nhiệm vụ pomodoro tương ứng.
+              Lập thời gian biểu theo ngày, tuần, tháng từ 07:00 đến 22:00. Liên kết trực tiếp từng phiên học với nhiệm vụ Pomodoro tương ứng.
             </p>
           </div>
 
-          {/* Card 5: Local-First & 101 Spaces */}
+          {/* Card 5: Local-First & Curated Spaces */}
           <div className="p-5 sm:p-6 rounded-xl border border-zinc-800 bg-zinc-900/30">
             <div className="w-8 h-8 rounded-lg border border-zinc-700 bg-zinc-800/50 flex items-center justify-center text-white mb-4">
               <Shield size={16} strokeWidth={1.5} />
             </div>
             <h4 className="text-sm font-semibold text-white mb-1.5 text-balance">
-              101 cảnh quan tuyển chọn
+              Không gian tinh tuyển
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
-              Thư viện 101 hình ảnh hd được tuyển chọn thủ công, cam kết 100% không trùng lặp cảnh, lưu trữ an toàn ngay trên thiết bị.
+              Bộ sưu tập hình nền tinh tuyển thủ công, cam kết không trùng lặp cảnh, lưu trữ an toàn ngay trên thiết bị.
             </p>
           </div>
         </div>
@@ -282,7 +282,7 @@ export const LandingPage: React.FC = () => {
               Chọn không gian &amp; đặt mục tiêu
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
-              Mở không gian làm việc, chọn hình nền yêu thích từ 101&nbsp;cảnh quan và thêm việc cần làm vào bảng&nbsp;nhiệm&nbsp;vụ.
+              Mở không gian làm việc, chọn hình nền yêu thích từ bộ sưu tập tinh tuyển và thêm việc cần làm vào bảng&nbsp;nhiệm&nbsp;vụ.
             </p>
           </div>
 
@@ -303,7 +303,7 @@ export const LandingPage: React.FC = () => {
               03
             </div>
             <h3 className="text-sm font-semibold text-white mb-2 text-balance">
-              Khởi động chu kỳ pomodoro
+              Khởi động chu kỳ Pomodoro
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed font-normal text-pretty">
               Bắt đầu 25&nbsp;phút tập trung sâu. Nghỉ ngắn 5&nbsp;phút sau mỗi hiệp để hồi phục năng lượng cho trí&nbsp;não.
@@ -346,12 +346,12 @@ export const LandingPage: React.FC = () => {
                 <span className="whitespace-nowrap">0 vnđ</span>
               </div>
               <p className="text-xs text-zinc-400 mb-6 font-normal text-pretty">
-                Đầy đủ tính năng pomodoro cốt lõi, không&nbsp;quảng&nbsp;cáo, không giới hạn thời&nbsp;gian&nbsp;sử&nbsp;dụng.
+                Đầy đủ tính năng Pomodoro cốt lõi, không&nbsp;quảng&nbsp;cáo, không giới hạn thời&nbsp;gian&nbsp;sử&nbsp;dụng.
               </p>
 
               <ul className="space-y-2.5 text-xs text-zinc-300 mb-8 text-pretty">
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Đồng hồ pomodoro khoa học, dễ sử dụng
+                  <Check size={14} className="text-white shrink-0" /> Đồng hồ Pomodoro khoa học, dễ sử dụng
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={14} className="text-white shrink-0" /> Bảng âm thanh thiên nhiên chất lượng cao
@@ -399,13 +399,13 @@ export const LandingPage: React.FC = () => {
                   <Check size={14} className="text-white shrink-0" /> Toàn bộ tính năng của gói miễn phí
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Mở khóa toàn bộ 101 không gian hd tuyển chọn
+                  <Check size={14} className="text-white shrink-0" /> Mở khóa toàn bộ bộ sưu tập hình nền tinh tuyển
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={14} className="text-white shrink-0" /> Tạo &amp; chủ trì phòng học nhóm trực tuyến
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-white shrink-0" /> Lập kế hoạch time-blocking chuyên sâu
+                  <Check size={14} className="text-white shrink-0" /> Lập kế hoạch Time-Blocking chuyên sâu
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={14} className="text-white shrink-0" /> Đồng bộ dữ liệu đám mây đa thiết bị
@@ -432,18 +432,18 @@ export const LandingPage: React.FC = () => {
                 Đặc quyền dành cho{' '}
                 <span className="inline-block whitespace-nowrap">Người dùng mới</span>
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-zinc-700/20 text-[10px] font-mono whitespace-nowrap shrink-0">
-                DEMO BETA
+              <span className="px-2 py-0.5 rounded-full bg-zinc-700/30 text-[10px] font-mono whitespace-nowrap shrink-0">
+                Demo Beta
               </span>
             </div>
             <p className="text-xs text-zinc-300 leading-relaxed text-pretty">
-              Mọi tài khoản tạo mới trong giai đoạn demo beta đều được <strong>tự động kích hoạt 3&nbsp;năm gói PRO miễn&nbsp;phí</strong> (trị giá 1.404.000&nbsp;vnđ). Hệ thống không thu tiền&nbsp;thật.
+              Mọi tài khoản tạo mới trong giai đoạn Demo Beta đều được <strong>tự động kích hoạt 3&nbsp;năm gói PRO miễn&nbsp;phí</strong> (trị giá 1.404.000&nbsp;vnđ). Hệ thống không thu tiền&nbsp;thật.
             </p>
           </div>
           <button
             type="button"
             onClick={() => router.navigate('/signup')}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-black font-bold text-xs tracking-wide transition shrink-0 cursor-pointer shadow-lg shadow-zinc-500/20 whitespace-nowrap active:scale-[0.98]"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs tracking-wide transition shrink-0 cursor-pointer shadow-lg shadow-white/10 whitespace-nowrap active:scale-[0.98]"
           >
             Đăng ký nhận 3 năm PRO
           </button>

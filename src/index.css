@@ -144,7 +144,7 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: none !important;
+    outline: 2px solid transparent !important;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px #09090b !important;
   }
 
@@ -153,7 +153,7 @@
   textarea.no-focus-ring:focus-visible,
   .no-focus-ring:focus-visible {
     box-shadow: none !important;
-    outline: none !important;
+    outline: 2px solid transparent !important;
   }
 
   /* Tiện ích ẩn thanh cuộn tuyệt đối (Clean Scrollbar Suppression) */
@@ -364,6 +364,13 @@
 /* Phase 4B: consistent focus, quiet scrollbars and a two-row Meet header on phones. */
 :where(button, a, input, textarea, select, [tabindex]):focus-visible { outline: 2px solid #e4e4e7 !important; outline-offset: 3px; }
 .lucide { stroke-width: 1.5; }
+@media (forced-colors: active) {
+  html body :is(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 3px !important;
+    box-shadow: none !important;
+  }
+}
 * { scrollbar-width: thin; scrollbar-color: #52525b transparent; }
 *::-webkit-scrollbar { width: 5px; height: 5px; }
 *::-webkit-scrollbar-thumb { background: #52525b; border-radius: 999px; }

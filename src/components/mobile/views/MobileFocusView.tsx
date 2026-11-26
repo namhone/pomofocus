@@ -1107,7 +1107,9 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           {/* Monumental Pomodoro Numerals */}
           <div
             data-testid="mobile-monumental-timer"
-            aria-live="polite"
+            role="timer"
+            aria-label="Đồng hồ Pomodoro"
+            aria-live="off"
             style={{ textShadow: '0 4px 20px rgba(0,0,0,0.88)' }}
             className="font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)] select-none text-center"
           >
@@ -1115,7 +1117,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           </div>
 
           {/* Status Label */}
-          <div className="text-xs font-medium text-zinc-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)] mt-1.5 flex items-center gap-1.5">
+          <div role="status" aria-live="polite" aria-atomic="true" data-testid="mobile-phase-announcement" className="text-xs font-medium text-zinc-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.9)] mt-1.5 flex items-center gap-1.5">
+            <span className="sr-only">{phase === 'pomodoro' ? 'Tập trung' : phase === 'short_break' ? 'Nghỉ ngắn' : 'Nghỉ dài'}. Hiệp {currentRound} / {totalRounds}.</span>
             <span>
               {status === 'running'
                 ? phase === 'pomodoro'

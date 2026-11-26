@@ -1,0 +1,240 @@
+{
+  "config": {
+    "configFile": "D:\\FileCuaNam\\Web'\\Pomodoro\\playwright.auth-avatar.config.ts",
+    "rootDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/auth-avatar",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/auth-avatar/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/auth-avatar",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/auth-avatar",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5194 --strictPort",
+      "url": "http://127.0.0.1:5194",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "a11y.spec.ts",
+      "file": "a11y.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "320px: header spacing, keyboard focus and forced colors",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 5403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T07:49:27.296Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa3ad05f8c0e05077efb-56206c58c139775ff5a0",
+          "file": "a11y.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "timer semantics and phase announcements 1366",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 4445,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T07:49:33.799Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa3ad05f8c0e05077efb-437b574321c38e1f0b84",
+          "file": "a11y.spec.ts",
+          "line": 65,
+          "column": 3
+        },
+        {
+          "title": "timer semantics and phase announcements 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 6354,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T07:49:38.276Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa3ad05f8c0e05077efb-a6b92d4cfec7d91d93da",
+          "file": "a11y.spec.ts",
+          "line": 65,
+          "column": 3
+        },
+        {
+          "title": "timer semantics and phase announcements 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 2753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T07:49:44.704Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa3ad05f8c0e05077efb-f936e94c56f1f6df2cd0",
+          "file": "a11y.spec.ts",
+          "line": 65,
+          "column": 3
+        },
+        {
+          "title": "timer semantics and phase announcements 390-native",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 3467,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T07:49:47.489Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa3ad05f8c0e05077efb-4f19c306d19b9af5032b",
+          "file": "a11y.spec.ts",
+          "line": 65,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-26T07:49:22.670Z",
+    "duration": 32937.962,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

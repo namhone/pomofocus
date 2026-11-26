@@ -4,6 +4,8 @@
 
 | Agent | File được sửa |
 | --- | --- |
+| Codex — bổ sung kiểm tra Avatar theo Nam | UserAvatar.tsx, ProfileView.tsx, useAuthStore.ts, profileService.ts; helper Avatar trong authService.ts và avatarUploadService.ts khi cần vá đúng luồng lưu/hiển thị; test liên quan. Không sửa phần Antigravity đang làm. |
+| Codex — auth/wallet/A11y + production (Nam giao mới 2026-11-26) | Được sửa api/ai/companion.ts, src/stores/useAuthStore.ts, PlatformHeader.tsx, TimerWidget.tsx, mobile/views/MobileFocusView.tsx, src/index.css; test/script/bằng chứng và nhật ký liên quan. Được gom index.html/LandingPage.tsx của Antigravity sau kiểm chứng, commit/push/deploy hai alias. Giữ scripts/android_smoke_check.ps1. Các khóa cũ bên dưới là lịch sử. |
 | Codex — hợp đồng sync/Founder + Android smoke (Nam giao 2026-11-26) | Chỉ `tests/`, `scripts/`; `src/services/syncQueueService.ts`, `src/services/workspaceRealtimeService.ts` khi có bằng chứng lỗi logic; nhật ký này. Không sửa UI, auth store, adapter hoặc SQL ngoài khóa. |
 | Antigravity — kiểm toán E2E/A11y/SEO đang chạy | `index.html`, manifest, `LandingPage.tsx` và các file Antigravity đang khóa. Codex chỉ đọc; các khóa Phase 3/4B cũ bên dưới là lịch sử, không mở rộng quyền hiện tại. |
 | Codex — Phase 4B (Nam giao 2026-11-26) | Toàn bộ UI còn lại, theme/CSS/layout/copy, test UI/WCAG/Playwright, metadata APK/build/deploy liên quan. Antigravity đã dừng. Giữ nguyên logic Audio/Realtime/WebRTC Phase 3 và safeguard Phase 4A. |
@@ -15,6 +17,8 @@
 
 ## 2. Trạng thái & kế hoạch hiện tại
 
+- Codex auth/wallet/Avatar/A11y: type-check/build exit 0; 117 test riêng biệt/12 suite pass (lượt tổng 116 và Avatar chạy lại 12, thêm 1 test). Founder 17/17, sync hai thiết bị 12/12, conflict 7/7, presentation 9/9. Chrome 5/5: 320, 1366, 1440, 390 web/native giả lập; click Start/Pause thật, không pageerror/tràn ngang. Axe màu thường 0 vi phạm; forced colors xem ảnh/focus outline. Đang commit/push/deploy, chưa chốt production. Chi tiết `tests/results/AUTH_AVATAR_A11Y_REPORT.md`. Các dòng đỏ sync/Founder cũ bên dưới là baseline lịch sử, đã giải quyết trong lượt này.
+
 - Codex sync/Founder/Android (khóa mới): type-check exit 0; sync liên quan 78/78 và Android script qua fake ADB 10/10 pass. Founder security/state contract 8 pass/9 fail, chưa nghiệm thu entitlement do lỗi auth/API ngoài khóa. Không sửa UI hoặc SQL. Script chạy từ repo: `pwsh -NoProfile -File .\scripts\android_smoke_check.ps1`; `-CheckOnly` chỉ kiểm prerequisites/hash. Chưa có điện thoại thật; không nói mock thay thế live Cloud/thiết bị. Chi tiết theo suite: `tests/results/SYNC_FOUNDER_ANDROID_REPORT.md`.
 - Antigravity đang tiếp tục E2E/A11y/SEO theo Nam; các dòng Phase 3/4B hoàn tất bên dưới là lịch sử, không phải quyền sửa hiện tại của Codex.
 
@@ -24,6 +28,29 @@
 - Antigravity: đã dừng do hết credits; Codex tiếp quản Phase 3 theo chỉ thị Nam. Cập nhật lịch sử bên dưới được giữ nguyên.
 
 ## 3. Nhật ký Chat & Review chéo
+
+[CODEX | Avatar/auth/A11y đang kiểm chứng] Bộ bắt buộc 44/44 pass ở lượt đầu; đã sửa khai báo state trùng gây TS2783, đang chạy lại type-check sau vá Avatar. Mở thêm đúng luồng danh tính/avatar trong StudyRoomView.tsx: presence/broadcast trước đây không mang avatar và không theo dõi avatar thay đổi; bổ sung field/dependency, không thay engine WebRTC. Helper Avatar chung giữ custom, nhận reset rõ ràng từ Cloud và ưu tiên ảnh Google trước SVG chữ cái. ProfileService trả false khi server lỗi; xóa ảnh/đổi tên không tái gắn custom. Chưa tuyên bố build/deploy hoàn tất.
+
+[CODEX | Gates nguồn] Type-check exit 0; build exit 0 (còn cảnh báo bundle lớn/node:crypto từ cấu hình hiện hữu). 12 suite 116/116 pass; bổ sung một ca save profile về sau logout/đăng nhập lại, chạy riêng Avatar 12/12 pass => 117 test riêng biệt. Founder giữ 17/17; fixture Founder có số dư 1000 từ server rõ ràng, thêm test admin/founder số dư 0 để cấm top-up ngầm. Mở thêm workspaceRealtimeService.ts theo khóa sync đã có: subscribe profiles id=eq.userId, đọc Cloud mới khi đổi avatar từ máy khác. Hồi quy cũ cập nhật expectation Monochrome và 5 bảng Realtime; không nới assertion bảo mật. Đang chạy Chrome; chưa có điện thoại, JWT/Cloud transport trong unit test được mock, không thay thế kiểm chứng hai tài khoản thật.
+
+[CODEX | AUTH/WALLET/A11Y — START] Nam đã mở khóa auth/API và sáu file UI/CSS được nêu, yêu cầu làm xanh Founder17/17, giữ sync/Phase4B tests, sửa gap320/timer/live region/forced-colors và deploy. Baseline Founder17 ca còn9 fail đã có bằng chứng từ task trước. Đang truy mọi callback profile để gắn epoch guard, bỏ user_metadata/badge/credits làm nguồn quyền và bỏ floor số dư. Đã đọc playbook cùng ghi chú Antigravity; giữ nguyên patch index/Landing và Android smoke script, không đổi SQL/Cloud.
+
+[ANTIGRAVITY | AUDIT & FIX — ZOOM 400%, A11Y & SEO/OPENGRAPH (2026-11-26)]
+- **Live Playwright Zoom 400% (`320px × 640px`) trên Production (`pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`):**
+  - 5/5 route (`/`, `/app`, `/download`, `/billing`, `/rooms`) và `workplace` đều `docScrollWidth=320`, `overflowCount=0`, `pageErrors=[]`, và `axe-core` WCAG 2A/2AA/2.1AA = `0` vi phạm.
+  - **6 ca Chrome skip ở Phase 4B (`tests/e2e/phase4b/ui.spec.ts`):** xác nhận skip thuần túy theo viewport guard (`390` bỏ qua desktop workspace/gallery; `1366/1440` bỏ qua mobile/native), không phải do lỗi.
+  - **Phát hiện UI nhẹ (ngoài khóa Antigravity — ghi nhận để Codex/tối nay xử lý):** Ở `320px` trên `/`, `/billing`, `/rooms`, header guest (`PlatformHeader.tsx`) có chữ brand `PomoFocus` chạm sát pill `50 Credits` (thiếu `gap` giữa brand và cụm nút phải).
+- **Keyboard & Screen-Reader A11y (NVDA / TalkBack prep):**
+  - Đạt chuẩn: `0` nút/link thiếu tên truy cập trên `/` và `/app`; `Escape` đóng được header (`escapeClosesHeader=true`); `MobileBottomNav` có `role="tablist"` + `aria-label="Điều hướng chính"` + 5 `role="tab"`; `CookieConsentBanner` có `<aside role="region" aria-label="Thông báo bảo vệ dữ liệu và cookie">`; `NotesWidget` có `role="status"` ("Đã lưu").
+  - **Ghi nhận thiếu sót A11y (ngoài khóa — nhờ Codex bổ sung):**
+    1. Đồng hồ Pomodoro ở `/app` chưa có `role="timer"` và chưa thấy `aria-live="polite"` riêng cho thông báo chuyển hiệp/toast khi ở trạng thái chờ (cần kiểm tra để NVDA/TalkBack đọc khi hết giờ).
+    2. Focus ring hiện dùng `box-shadow` với `outlineStyle: none`; nên đổi sang `outline: 2px solid transparent` (hoặc `focus-visible:outline`) để tương thích Windows High Contrast Mode (`forced-colors: active`).
+- **SEO, OpenGraph, PWA Manifest & Copy (`index.html`, `public/manifest.webmanifest`, `src/components/LandingPage.tsx`):**
+  - `manifest.webmanifest` & meta/OG/JSON-LD: sạch SĐT cá nhân, đúng domain `pomofocus-workspace.vercel.app`.
+  - Đã sửa trực tiếp trong 2 file thuộc quyền:
+    * `index.html`: Đổi glow logo splash từ emerald sang monochrome trắng; thêm `"softwareVersion": "8.1.1"` vào JSON-LD; xóa `"4K"` & `"Hơn 1.000 hình nền..."` ở fallback `#root` sang `"Thư viện hình nền tinh tuyển..."`.
+    * `src/components/LandingPage.tsx`: Sửa nút `"Đăng ký nhận 3 năm PRO"` từ `bg-zinc-700 text-black` (~2.1:1 fail WCAG 1.4.3) sang `bg-white hover:bg-zinc-200 text-black`; xóa số liệu cũ `"101 không gian HD"` / `"101 cảnh quan"`; bỏ ALL CAPS (`TUYỆT ĐỐI KHÔNG THU TIỀN THẬT`, `MINI PIP VIDEO`, `DEMO BETA`) và chuẩn hóa chữ hoa/thường (`Pomodoro`, `IELTS Task 2`, `Time-Blocking`).
+  - **Kiểm chứng sau sửa:** `npm run type-check` exit `0`, đang hoàn tất `npm run build`.
 
 [CODEX | SYNC/FOUNDER/ANDROID — HANDOFF] 105 test/9 file: 96 pass/9 fail. Sync 7 suite 78/78; Android subprocess fake ADB 10/10; Founder contract 17 ca 8 pass/9 fail thật (không skip/xfail). Type-check exit 0. Coverage tập trung hai service từ 18 test: lines 70.54%, branches 48.07%; workspace lines95%/branches63.63%, queue lines64.8%/branches36.66% — không phải toàn repo. Script có lựa chọn serial, từ chối absent/unauthorized/multiple, install-r/version/launch/callback/logcat PID, phát hiện chết/crash/WebView/AudioContext, che token/code và giữ data/log cũ; 10 ca fake đã pass. ADB37.0.3/Java17.0.19/Gradle8.14.3 có sẵn, không cài nặng. Một lệnh tối nay: pwsh -NoProfile -File .\scripts\android_smoke_check.ps1. Callback rỗng không chứng minh OAuth Google thành công. Báo cáo + raw JSON trong tests/results, log thiết bị thật tương lai được gitignore. Commit chỉ các file Codex trong khóa; không push/deploy hoặc stage index.html/production-verification.json của phần việc khác. Các blocker auth/API đã ghi rõ để bên sở hữu sửa trước nghiệm thu bảo mật.
 

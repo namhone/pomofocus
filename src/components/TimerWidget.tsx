@@ -91,6 +91,9 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
   return (
     <div className={`flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
+      <span role="status" aria-live="polite" aria-atomic="true" className="sr-only" data-testid="timer-phase-announcement">
+        {currentPhaseStyle.label}. Hiệp {currentRound} / {settings.roundsBeforeLongBreak}. {status === 'running' ? 'Đang chạy' : status === 'paused' ? 'Tạm dừng' : 'Chờ bắt đầu'}
+      </span>
       <div className={isEmbeddedInZen ? 'w-full rounded-[20px] border-t border-t-white/[0.24] border-x border-x-white/[0.10] border-b border-b-white/[0.05] bg-[rgba(12,15,22,0.45)] p-6 shadow-2xl backdrop-blur-2xl backdrop-saturate-[180%]' : 'w-full flex flex-col justify-between h-auto min-h-fit overflow-visible'}>
         {/* Header Indicators */}
         <div className="flex items-center justify-between text-xs text-neutral-300 mb-2 select-none">
@@ -171,6 +174,9 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
         >
           <div
             data-testid="timer-display"
+            role="timer"
+            aria-label="Đồng hồ Pomodoro"
+            aria-live="off"
             className="font-mono tabular-nums text-4xl sm:text-5xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]"
           >
             {formatTime(remainingMs)}

@@ -164,56 +164,41 @@ export const getDisplayAvatar = (user: any, profile?: any): string => {
   return getEffectiveAvatarUrl(user, profile);
 };
 
+export const getAvatarDisplayName = (user: any, profile?: any): string => {
+  const candidates = [profile?.full_name, profile?.display_name, profile?.displayName,
+    user?.displayName, user?.full_name, user?.display_name, user?.name,
+    user?.user_metadata?.full_name, user?.user_metadata?.name, user?.email?.split('@')[0]];
+  return candidates.find(value => typeof value === 'string' && value.trim() &&
+    !/^(user|user avatar|người dùng|học viên)$/i.test(value.trim()))?.trim() || 'Khách';
+};
+
+export const getAvatarState = (user: any, profile?: any) => {
+  const reset = (profile?.has_custom_avatar === false || profile?.hasCustomAvatar === false) &&
+    !profile?.custom_avatar_url && !profile?.customAvatarUrl;
+  const customFrom = (value: any): string | undefined => {
+    const candidates = [value?.customAvatarUrl, value?.custom_avatar_url,
+      (value?.hasCustomAvatar || value?.has_custom_avatar) && (value?.avatarUrl || value?.avatar_url),
+      ...[value?.avatarUrl, value?.avatar_url].filter(isCustomAvatarUrl)];
+    return candidates.find(candidate => typeof candidate === 'string' && isValidAvatarUrl(candidate));
+  };
+  const custom = reset ? undefined : customFrom(profile) || customFrom(user);
+  const photoCandidates = [profile?.avatar_url, profile?.avatarUrl,
+    ...(!reset ? [user?.avatarUrl, user?.avatar_url] : []),
+    user?.user_metadata?.avatar_url, user?.user_metadata?.picture,
+    user?.raw_user_meta_data?.avatar_url, user?.raw_user_meta_data?.picture,
+    user?.picture, profile?.google_avatar, profile?.google_picture];
+  const photo = photoCandidates.find(value => typeof value === 'string' &&
+    isValidAvatarUrl(value) && !value.startsWith('data:image/svg') && !isCustomAvatarUrl(value));
+  return {
+    avatarUrl: custom || photo || generateInitialsAvatarSvg(getAvatarDisplayName(user, profile)),
+    customAvatarUrl: custom,
+    hasCustomAvatar: Boolean(custom)
+  };
+};
+
 export const getEffectiveAvatarUrl = (user: any, profile?: any): string => {
-  // 1. ƯU TIÊN 1 (TUYỆT ĐỐI BẤT BIẾN): Avatar tùy chỉnh người dùng tự upload
-  const candidateCustom =
-    (profile?.customAvatarUrl && isValidAvatarUrl(profile.customAvatarUrl) ? profile.customAvatarUrl : null) ||
-    (profile?.custom_avatar_url && isValidAvatarUrl(profile.custom_avatar_url) ? profile.custom_avatar_url : null) ||
-    ((profile?.hasCustomAvatar || profile?.has_custom_avatar) && profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
-    ((profile?.hasCustomAvatar || profile?.has_custom_avatar) && profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
-    (user?.customAvatarUrl && isValidAvatarUrl(user.customAvatarUrl) ? user.customAvatarUrl : null) ||
-    (user?.custom_avatar_url && isValidAvatarUrl(user.custom_avatar_url) ? user.custom_avatar_url : null) ||
-    ((user?.hasCustomAvatar || user?.has_custom_avatar) && user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
-    ((user?.hasCustomAvatar || user?.has_custom_avatar) && user?.avatar_url && isValidAvatarUrl(user.avatar_url) ? user.avatar_url : null) ||
-    // Tự động nhận diện URL custom dựa trên nội dung URL
-    (profile?.avatar_url && isCustomAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
-    (profile?.avatarUrl && isCustomAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
-    (user?.avatarUrl && isCustomAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
-    (user?.avatar_url && isCustomAvatarUrl(user.avatar_url) ? user.avatar_url : null);
+  return getAvatarState(user, profile).avatarUrl;
 
-  if (candidateCustom) {
-    return candidateCustom;
-  }
-
-  // 2. ƯU TIÊN 2: CHỈ KHI hoàn toàn KHÔNG CÓ custom avatar nào, mới dùng ảnh từ Google OAuth
-  const candidateGoogle =
-    (user?.avatarUrl && isValidAvatarUrl(user.avatarUrl) && !isCustomAvatarUrl(user.avatarUrl) ? user.avatarUrl : null) ||
-    (user?.avatar_url && isValidAvatarUrl(user.avatar_url) && !isCustomAvatarUrl(user.avatar_url) ? user.avatar_url : null) ||
-    (profile?.avatar_url && isValidAvatarUrl(profile.avatar_url) && !isCustomAvatarUrl(profile.avatar_url) ? profile.avatar_url : null) ||
-    (profile?.avatarUrl && isValidAvatarUrl(profile.avatarUrl) && !isCustomAvatarUrl(profile.avatarUrl) ? profile.avatarUrl : null) ||
-    (user?.user_metadata?.avatar_url && isValidAvatarUrl(user.user_metadata.avatar_url) ? user.user_metadata.avatar_url : null) ||
-    (user?.user_metadata?.picture && isValidAvatarUrl(user.user_metadata.picture) ? user.user_metadata.picture : null) ||
-    (user?.raw_user_meta_data?.avatar_url && isValidAvatarUrl(user.raw_user_meta_data.avatar_url) ? user.raw_user_meta_data.avatar_url : null) ||
-    (user?.raw_user_meta_data?.picture && isValidAvatarUrl(user.raw_user_meta_data.picture) ? user.raw_user_meta_data.picture : null) ||
-    (user?.picture && isValidAvatarUrl(user.picture) ? user.picture : null) ||
-    (profile?.google_avatar && isValidAvatarUrl(profile.google_avatar) ? profile.google_avatar : null) ||
-    (profile?.google_picture && isValidAvatarUrl(profile.google_picture) ? profile.google_picture : null);
-
-  if (candidateGoogle) {
-    return candidateGoogle;
-  }
-
-  // 3. ƯU TIÊN 3: Fallback cuối cùng an toàn tuyệt đối: Avatar SVG chữ cái cục bộ (hoàn toàn không phụ thuộc mạng ngoại vi)
-  const name =
-    profile?.full_name ||
-    profile?.display_name ||
-    profile?.displayName ||
-    user?.displayName ||
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    (user?.email ? user.email.split('@')[0] : 'User');
-
-  return generateInitialsAvatarSvg(name);
 };
 
 export interface UserProfile {
@@ -377,9 +362,11 @@ export function getPlanLabel(user?: UserProfile | null): string {
 }
 
 let memorySession: UserProfile | null = null;
+let sessionRevision = 0;
 
 export const authService = {
   saveSession(profile: UserProfile): void {
+    sessionRevision++;
     memorySession = profile;
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem('sb_auth_session', JSON.stringify({
@@ -817,6 +804,7 @@ export const authService = {
     userId: string,
     updates: ProfileUpdates
   ): Promise<UserProfile> {
+    const requestRevision = sessionRevision;
     const current = this.getCurrentSession();
     if (!current) {
       throw new Error('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
@@ -875,8 +863,9 @@ export const authService = {
     }
     if (updates.settings !== undefined) fieldsToSync.settings = updatedProfile.settings;
 
-    await ProfileService.updateFields(userId, fieldsToSync);
-
+    const saved = await ProfileService.updateFields(userId, fieldsToSync);
+    if (!saved) throw new Error('Không thể lưu hồ sơ. Vui lòng thử lại.');
+    if (requestRevision !== sessionRevision || this.getCurrentSession()?.id !== current.id) throw new Error('Phiên đăng nhập đã thay đổi.');
     this.saveSession(updatedProfile);
     return updatedProfile;
   },
@@ -1159,6 +1148,7 @@ export const authService = {
   },
 
   logout(): void {
+    sessionRevision++;
     memorySession = null;
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('sb_auth_session');

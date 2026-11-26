@@ -2,7 +2,7 @@ import { UiLabel } from './common/UiSymbol';
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
-import { generateInitialsAvatarSvg, isValidAvatarUrl } from '../services/authService';
+import { getEffectiveAvatarUrl, isValidAvatarUrl } from '../services/authService';
 import { ProfileService } from '../services/profileService';
 import { processAndSaveCustomAvatar } from '../services/avatarUploadService';
 import { useDeviceDetection } from '../hooks/useDeviceDetection';
@@ -197,16 +197,20 @@ export const ProfileView: React.FC = () => {
     setIsEditing(true);
 
     if (user?.id) {
-      await ProfileService.updateAvatar(user.id, svgDataUri, user.email);
+      if (!await ProfileService.updateAvatar(user.id, svgDataUri, user.email)) {
+        setAvatarError('Không thể lưu ảnh đại diện. Vui lòng thử lại.');
+        setAvatarUrl(user.avatarUrl || '');
+        return;
+      }
       useAuthStore.setState((state) => ({
-        user: state.user
+        user: state.user?.id === user.id
           ? {
               ...state.user,
               avatarUrl: svgDataUri,
               customAvatarUrl: svgDataUri,
               hasCustomAvatar: true
             }
-          : null
+          : state.user
       }));
     }
   };
@@ -219,9 +223,6 @@ export const ProfileView: React.FC = () => {
     setSaveStatus(null);
     const success = await updateProfile({
       displayName: displayName.trim(),
-      avatarUrl: avatarUrl.trim() || '',
-      customAvatarUrl: avatarUrl.trim() || '',
-      hasCustomAvatar: Boolean(avatarUrl.trim()),
       username: username.trim() || undefined,
       bio: focusGoal.trim() || undefined,
       focusGoal: focusGoal.trim() || undefined,
@@ -240,30 +241,16 @@ export const ProfileView: React.FC = () => {
   };
 
   const handleRemoveAvatar = async () => {
-    const fallbackSvg = generateInitialsAvatarSvg(user.displayName);
-    setAvatarUrl(fallbackSvg);
-    setAvatarOptimizationInfo(null);
     setAvatarError(null);
-    setIsEditing(true);
-
-    if (user?.id) {
-      await ProfileService.updateAvatar(user.id, '', user.email);
-      useAuthStore.setState((state) => ({
-        user: state.user
-          ? {
-              ...state.user,
-              avatarUrl: fallbackSvg,
-              customAvatarUrl: '',
-              hasCustomAvatar: false
-            }
-          : null
-      }));
-      await updateProfile({
-        avatarUrl: '',
-        customAvatarUrl: '',
-        hasCustomAvatar: false
-      });
+    const success = await updateProfile({ avatarUrl: '', customAvatarUrl: '', hasCustomAvatar: false });
+    if (!success) {
+      setAvatarError('Không thể xóa ảnh đại diện. Vui lòng thử lại.');
+      return;
     }
+    if (useAuthStore.getState().user?.id !== user.id) return;
+    setAvatarUrl(getEffectiveAvatarUrl(useAuthStore.getState().user));
+    setAvatarOptimizationInfo(null);
+    setIsEditing(true);
   };
 
   const formattedJoinDate = user.createdAt

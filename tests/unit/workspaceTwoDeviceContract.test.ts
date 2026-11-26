@@ -160,6 +160,15 @@ describe('Two-device workspace contract through the real Realtime adapter', () =
     await vi.waitFor(() => expect(b.tasks.some((row: any) => row.id === 'after-logout')).toBe(true));
     expect(a.tasks).toEqual([]); expect(a.socket.readyState).toBe(3);
   });
+  it('a profile avatar change refreshes both devices and rejects another account profile', async () => {
+    const a = await device('avatar-a'), b = await device('avatar-b'); a.socket.join(); b.socket.join();
+    await vi.waitFor(() => { expect(a.authLoad).toHaveBeenCalled(); expect(b.authLoad).toHaveBeenCalled(); });
+    a.authLoad.mockClear(); b.authLoad.mockClear();
+    publish('profiles', { id: 'account-b', has_custom_avatar: true, avatar_url: 'other' });
+    await Promise.resolve(); expect(a.authLoad).not.toHaveBeenCalled(); expect(b.authLoad).not.toHaveBeenCalled();
+    publish('profiles', { id: 'account-a', has_custom_avatar: false, avatar_url: '' });
+    await vi.waitFor(() => { expect(a.authLoad).toHaveBeenCalledWith('account-a'); expect(b.authLoad).toHaveBeenCalledWith('account-a'); });
+  });
   it('reconnect pulls focus sessions missed offline after a fresh server join', async () => {
     const a = await device('a'); a.socket.join();
     await vi.waitFor(() => expect(a.credits).toBe(50));

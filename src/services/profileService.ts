@@ -182,7 +182,7 @@ export class ProfileService {
         existing.avatar_url = canonicalCustom;
         existing.custom_avatar_url = canonicalCustom;
         existing.has_custom_avatar = true;
-      } else if (incomingHasCustom) {
+      } else if (incomingHasCustom && existing.has_custom_avatar !== false) {
         const customUrl = user.customAvatarUrl || user.avatarUrl || '';
         existing.avatar_url = customUrl;
         existing.custom_avatar_url = customUrl;
@@ -249,7 +249,7 @@ export class ProfileService {
       handle: user.email ? `@${user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()}` : '@user',
       avatar_url: user.avatarUrl || '',
       custom_avatar_url: user.customAvatarUrl,
-      has_custom_avatar: Boolean(user.customAvatarUrl),
+      has_custom_avatar: Boolean(user.hasCustomAvatar || user.customAvatarUrl),
       role: defaultRole,
       plan: defaultPlan,
       plan_expires_at: null,
@@ -337,10 +337,7 @@ export class ProfileService {
       id: userId || existing.id,
       updated_at: new Date().toISOString()
     } as CloudProfile;
-    if (userId) localProfileCache.set(userId, merged);
     const targetEmail = (email || fields.email || existing.email || '').trim().toLowerCase();
-    if (targetEmail) localProfileCache.set(targetEmail, merged);
-
     try {
       const payload: Record<string, any> = {
         ...fields,
@@ -353,25 +350,17 @@ export class ProfileService {
         payload.has_custom_avatar = fields.has_custom_avatar !== undefined ? fields.has_custom_avatar : Boolean(fields.avatar_url);
       }
 
-      let success = true;
-      if (userId) {
-        await supabase
-          .from('profiles')
-          .update(payload)
-          .eq('id', userId);
-      }
-
-      if (targetEmail) {
-        await supabase
-          .from('profiles')
-          .update(payload)
-          .eq('email', targetEmail);
-      }
-
-      return success;
+      // Update by canonical id once; a secondary email write can hide a failed first write.
+      const { error } = await supabase.from('profiles').update(payload)
+        .eq(userId ? 'id' : 'email', userId || targetEmail);
+      if (error) return false;
+      const saved = { ...merged, ...payload } as CloudProfile;
+      if (userId) localProfileCache.set(userId, saved);
+      if (targetEmail) localProfileCache.set(targetEmail, saved);
+      return true;
     } catch (err) {
       console.warn('[ProfileService] Ngoại lệ updateFields:', err);
-      return true;
+      return false;
     }
   }
 
@@ -379,40 +368,11 @@ export class ProfileService {
    * Cập nhật avatar tùy chỉnh trực tiếp lên Supabase Cloud với đầy đủ 3 trường
    */
   static async updateAvatar(userId: string, newAvatarUrl: string, email?: string): Promise<boolean> {
-    if (!userId && !email) return false;
-
-    const existing: Partial<CloudProfile> = localProfileCache.get(userId) || (email ? localProfileCache.get(email.toLowerCase().trim()) : null) || {};
-    const merged: CloudProfile = {
-      ...existing,
-      id: userId || existing.id,
+    return this.updateFields(userId, {
       avatar_url: newAvatarUrl,
       custom_avatar_url: newAvatarUrl,
-      has_custom_avatar: Boolean(newAvatarUrl),
-      updated_at: new Date().toISOString()
-    } as CloudProfile;
-    if (userId) localProfileCache.set(userId, merged);
-    const targetEmail = (email || existing.email || '').trim().toLowerCase();
-    if (targetEmail) localProfileCache.set(targetEmail, merged);
-
-    try {
-      const payload = {
-        avatar_url: newAvatarUrl,
-        custom_avatar_url: newAvatarUrl,
-        has_custom_avatar: Boolean(newAvatarUrl),
-        updated_at: new Date().toISOString()
-      };
-
-      if (userId) {
-        await supabase.from('profiles').update(payload).eq('id', userId);
-      }
-      if (targetEmail) {
-        await supabase.from('profiles').update(payload).eq('email', targetEmail);
-      }
-      return true;
-    } catch (err) {
-      console.warn('[ProfileService] Ngoại lệ updateAvatar:', err);
-      return true;
-    }
+      has_custom_avatar: Boolean(newAvatarUrl)
+    }, email);
   }
 
   /**

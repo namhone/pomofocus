@@ -19,9 +19,12 @@ beforeEach(() => {
   for (const fn of [m.tasks, m.notes, m.profile, m.auth, m.credits, m.delete]) fn.mockResolvedValue(undefined);
 });
 describe('Phase 3 workspace subscription ownership', () => {
-  it('registers the four account-scoped tables and reconciles after a real join', async () => {
+  it('registers the five account-scoped tables and reconciles after a real join', async () => {
     const stop = subscribeWorkspaceRealtime('user-a');
-    expect(m.bindings.map(({ table, filter }) => ({ table, filter }))).toEqual(['tasks', 'notes', 'focus_sessions', 'user_wallets'].map(table => ({ table, filter: 'user_id=eq.user-a' })));
+    expect(m.bindings.map(({ table, filter }) => ({ table, filter }))).toEqual([
+      ...['tasks', 'notes', 'focus_sessions', 'user_wallets'].map(table => ({ table, filter: 'user_id=eq.user-a' })),
+      { table: 'profiles', filter: 'id=eq.user-a' }
+    ]);
     expect(m.tasks).not.toHaveBeenCalled();
     m.status('SUBSCRIBED');
     await vi.waitFor(() => expect(m.credits).toHaveBeenCalledOnce());

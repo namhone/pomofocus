@@ -21,7 +21,7 @@ export async function verifyAdminOrOwnerToken(authHeader?: string): Promise<{ is
     });
     if (!res.ok) return { isAdmin: false };
     const user = await res.json();
-    const role = user?.app_metadata?.role || user?.user_metadata?.role;
+    const role = user?.app_metadata?.role;
     const isOwner = role === 'admin' || role === 'founder';
     return { isAdmin: isOwner, userId: user?.id };
   } catch {

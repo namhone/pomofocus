@@ -90,18 +90,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         user?.role === 'founder')
   );
 
-  const isVipOrOwner = Boolean(
-    isAuthenticated &&
-      (isOwner ||
-        isLifetimeAccount ||
-        user?.isLifetime ||
-        user?.role === 'founder' ||
-        user?.credits === Infinity ||
-        user?.aiCredits === Infinity ||
-        aiCreditsBalance === Infinity ||
-        (user?.email && isOwnerEmail(user.email)))
-  );
-
+  const isVipOrOwner = Boolean(isAuthenticated && isOwner);
 
   const badgeInfo = getSubscriptionBadge(isAuthenticated ? user : null);
 
@@ -140,12 +129,6 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
     : isVipOrOwner
     ? '∞'
     : safeCreditsNum.toLocaleString('vi-VN');
-
-  useEffect(() => {
-    if (isAuthenticated && isLifetimeAccount && aiCreditsBalance < 1000) {
-      useAiStore.getState().syncWithAuth('lifetime');
-    }
-  }, [isAuthenticated, isLifetimeAccount, aiCreditsBalance]);
 
   const handleCreditsBadgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -395,14 +378,14 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           isWorkspace
             ? `fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
-              } border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
+              } border-b border-white/[0.08] px-3 sm:px-4 xl:px-5 flex items-center justify-between gap-2 select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
                   : '-translate-y-full opacity-0 pointer-events-none invisible'
               } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
             : `sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
-              } px-4 xl:px-5 flex items-center justify-between select-none text-xs`
+              } px-3 sm:px-4 xl:px-5 flex items-center justify-between gap-2 select-none text-xs`
         }`}
       >
         {/* Brand & Plan Badge */}
@@ -511,7 +494,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 e.stopPropagation();
                 useAiStore.getState().toggleOpen();
               }}
-              className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
               title={
                 isVipOrOwner
                   ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
@@ -699,7 +682,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               id="header-login-btn"
               data-testid="header-login-btn"
               onClick={handleHeaderLoginClick}
-              className="h-8 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm active:scale-95"
+              className="h-8 flex items-center gap-1.5 px-2 sm:px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm active:scale-95"
               title="Đăng nhập tài khoản hoặc mở menu tiện ích"
             >
               <User size={13} className="text-zinc-300 shrink-0" />

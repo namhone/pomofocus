@@ -1,8 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
 import {
   UserProfile,
-  isValidAvatarUrl,
-  isCustomAvatarUrl,
+  getEffectiveAvatarUrl,
+  getAvatarDisplayName,
   generateInitialsAvatarSvg
 } from '../../services/authService';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -44,7 +44,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 }) => {
   // Reactive subscription: if user prop is omitted, bind to store user
   const storeUser = useAuthStore((state) => state.user);
-  const effectiveUser = user !== undefined ? user : storeUser;
+  const effectiveUser = user !== undefined ? user : (name !== undefined || avatarUrl !== undefined ? null : storeUser);
 
   const isGuest =
     !effectiveUser ||
@@ -68,56 +68,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     };
   }, [size]);
 
-  // 1. Priority 1 (Custom uploaded avatar)
-  const customCandidate = useMemo(() => {
-    if (effectiveUser?.customAvatarUrl && isValidAvatarUrl(effectiveUser.customAvatarUrl)) {
-      return effectiveUser.customAvatarUrl;
-    }
-    const userAny = effectiveUser as any;
-    if (userAny?.custom_avatar_url && isValidAvatarUrl(userAny.custom_avatar_url)) {
-      return userAny.custom_avatar_url;
-    }
-    if (effectiveUser?.avatarUrl && isCustomAvatarUrl(effectiveUser.avatarUrl)) {
-      return effectiveUser.avatarUrl;
-    }
-    if (avatarUrl && isCustomAvatarUrl(avatarUrl)) {
-      return avatarUrl;
-    }
-    return null;
-  }, [effectiveUser, avatarUrl]);
-
-  // 2. Priority 2 (Google OAuth photo or general valid avatarUrl)
-  const oauthCandidate = useMemo(() => {
-    if (effectiveUser?.avatarUrl && isValidAvatarUrl(effectiveUser.avatarUrl)) {
-      return effectiveUser.avatarUrl;
-    }
-    const userAny = effectiveUser as any;
-    if (userAny?.user_metadata?.avatar_url && isValidAvatarUrl(userAny.user_metadata.avatar_url)) {
-      return userAny.user_metadata.avatar_url;
-    }
-    if (userAny?.user_metadata?.picture && isValidAvatarUrl(userAny.user_metadata.picture)) {
-      return userAny.user_metadata.picture;
-    }
-    if (userAny?.picture && isValidAvatarUrl(userAny.picture)) {
-      return userAny.picture;
-    }
-    if (avatarUrl && isValidAvatarUrl(avatarUrl)) {
-      return avatarUrl;
-    }
-    return null;
-  }, [effectiveUser, avatarUrl]);
-
-  const candidateUrl = customCandidate || oauthCandidate;
-
-  // 3. Priority 3 (SVG Initials fallback)
-  const effectiveDisplayName = useMemo(() => {
-    if (name) return name;
-    if (effectiveUser?.displayName) return effectiveUser.displayName;
-    const userAny = effectiveUser as any;
-    if (userAny?.name) return userAny.name;
-    if (effectiveUser?.email) return effectiveUser.email.split('@')[0];
-    return '';
-  }, [name, effectiveUser]);
+  // Peer props must never borrow the signed-in account's photo.
+  const avatarUser = effectiveUser || { displayName: name, avatarUrl };
+  const candidateUrl = getEffectiveAvatarUrl(avatarUser);
+  const effectiveDisplayName = getAvatarDisplayName(name ? { ...avatarUser, displayName: name } : avatarUser);
 
   const fallbackSvg = useMemo(() => {
     if (isGuest && !name) {

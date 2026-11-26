@@ -53,7 +53,7 @@ describe('Unified <UserAvatar /> Component Specification', () => {
       expect(img.src).toBe(googlePhoto);
     });
 
-    it('Tier 3: Khách vãng lai (unauthenticated) hiển thị chữ K (Khách) trên nền emerald gradient', () => {
+    it('Tier 3: Khách vãng lai (unauthenticated) hiển thị chữ K (Khách) trên nền monochrome', () => {
       // Khi user = null (chưa đăng nhập)
       render(<UserAvatar user={null} testId="guest-avatar" />);
 
@@ -63,9 +63,9 @@ describe('Unified <UserAvatar /> Component Specification', () => {
       const decodedSvg = decodeURIComponent(img.src);
       // Chữ cái K
       expect(decodedSvg).toContain('>K<');
-      // Gradient emerald ngọc bích (#10b981 / #047857)
-      expect(decodedSvg).toContain('#10b981');
-      expect(decodedSvg).toContain('#047857');
+      // Monochrome theo giao diện Phase 4B
+      expect(decodedSvg).toContain('#3f3f46');
+      expect(decodedSvg).not.toContain('#10b981');
     });
 
     it('Tier 3: Người dùng đã đăng nhập chưa có ảnh hiển thị chữ cái viết tắt của tên', () => {
@@ -171,11 +171,11 @@ describe('Unified <UserAvatar /> Component Specification', () => {
       render(<UserAvatar ring={true} showStatusDot={true} testId="avatar-ring-dot" />);
 
       const container = screen.getByTestId('avatar-ring-dot');
-      expect(container.className).toContain('ring-2 ring-emerald-500/40');
+      expect(container.className).toContain('ring-2 ring-zinc-500/40');
 
       const dot = screen.getByTestId('avatar-ring-dot-status-dot');
       expect(dot).toBeDefined();
-      expect(dot.className).toContain('bg-emerald-500');
+      expect(dot.className).toContain('bg-zinc-700');
     });
 
     it('gọi hàm onClick khi người dùng click vào avatar', () => {

@@ -78,6 +78,10 @@ export function subscribeWorkspaceRealtime(userId: string): () => void {
   channel.on('postgres_changes', { event: '*', schema: 'public', table: 'user_wallets', filter: `user_id=eq.${userId}` }, () => {
     void handleWallet().catch(error => console.warn('[Workspace Realtime]', error));
   });
+  channel.on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, () => {
+    // Avatar/name edits from another device must bypass the cached profile too.
+    void handleWallet().catch(error => console.warn('[Workspace Realtime]', error));
+  });
   channel.subscribe(status => {
     if (status === 'SUBSCRIBED' && isCurrentUser()) {
       // Reconcile changes missed while the device was offline.

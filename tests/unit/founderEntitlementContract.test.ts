@@ -56,6 +56,8 @@ describe('Founder/Admin trust boundary contract (mocked Auth HTTP, never a real 
     expect((await verifyAdminOrOwnerToken('Bearer lifetime-member')).isAdmin).toBe(false);
   });
   it.each(['admin', 'founder'])('hydrates consistent Founder badge/plan/credits from trusted app role %s', async role => {
+    // The server owns this balance; the role itself must never grant a top-up.
+    m.profile = { ...m.profile, ai_credits_balance: 1000 };
     await m.listener('SIGNED_IN', { user: { ...student, app_metadata: { role }, user_metadata: {} } });
     expect(useAuthStore.getState()).toMatchObject({ isAdmin: true, isOwner: true, isLifetime: true, effectiveBadge: 'Founder VIP' });
     expect(useAuthStore.getState().user?.plan).toBe('lifetime');

@@ -1648,6 +1648,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           userId: user?.id || 'guest',
           clientSessionId,
           displayName: participantName,
+            avatar: user?.avatarUrl || '',
           role: userRole,
           isMicOn: micEnabled,
           isVideoOn: cameraEnabled,
@@ -1662,6 +1663,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           userId: user?.id || 'guest',
           clientSessionId,
           displayName: participantName,
+            avatar: user?.avatarUrl || '',
           role: userRole,
           isMicOn: micEnabled,
           isVideoOn: cameraEnabled,
@@ -1822,6 +1824,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             id: key,
             userId: p.userId || p.user_id,
             name: p.displayName || `Bạn học #${key.slice(0, 5)}`,
+            avatar: p.avatar,
             role: p.role || 'member',
             isMicOn: p.isMicOn,
             isVideoOn: p.isVideoOn,
@@ -1932,6 +1935,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               id: data.peerId,
               userId: data.userId,
               name: data.displayName || `Bạn học #${data.peerId.slice(0, 5)}`,
+              avatar: data.avatar,
               role: data.role || 'member',
               isMicOn: data.isMicOn,
               isVideoOn: data.isVideoOn,
@@ -1952,6 +1956,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               peerId: participantId,
               userId: user?.id,
               displayName: participantName,
+            avatar: user?.avatarUrl || '',
               role: userRole,
               isMicOn: micEnabled,
               isVideoOn: cameraEnabled,
@@ -2047,6 +2052,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             ...prev,
             [data.peerId]: {
               ...prev[data.peerId],
+              ...(typeof data.avatar === 'string' ? { avatar: data.avatar } : {}),
               isMicOn: data.isMicOn,
               isVideoOn: data.isVideoOn
             }
@@ -2178,6 +2184,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           await channel.track({
             userId: user?.id,
             displayName: participantName,
+            avatar: user?.avatarUrl || '',
             role: userRole,
             isMicOn: micEnabled,
             isVideoOn: cameraEnabled,
@@ -2195,6 +2202,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             peerId: participantId,
             userId: user?.id,
             displayName: participantName,
+            avatar: user?.avatarUrl || '',
             role: userRole,
             isMicOn: micEnabled,
             isVideoOn: cameraEnabled,
@@ -2246,6 +2254,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     channelRef.current.track({
       userId: user?.id,
       displayName: participantName,
+            avatar: user?.avatarUrl || '',
       role: userRole,
       isMicOn: micEnabled,
       isVideoOn: cameraEnabled,
@@ -2258,6 +2267,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         type: 'broadcast',
         event: 'peer-media-state',
         payload: {
+          avatar: user?.avatarUrl || '',
           peerId: participantId,
           isMicOn: micEnabled,
           isVideoOn: cameraEnabled,
@@ -2269,7 +2279,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     } catch {
       // Ignored
     }
-  }, [hasJoined, participantId, user?.id, participantName, userRole, micEnabled, cameraEnabled, isHandRaised, deviceType, deviceLabel]);
+  }, [hasJoined, participantId, user?.id, user?.avatarUrl, participantName, userRole, micEnabled, cameraEnabled, isHandRaised, deviceType, deviceLabel]);
 
   // Chu kỳ Heartbeat (15s) và Quét dọn Zombie Sessions (> 90s) bảo vệ mạng Mobile/4G/Wi-Fi
   useEffect(() => {
@@ -2298,6 +2308,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         channelRef.current.track({
           userId: user?.id,
           displayName: participantName,
+            avatar: user?.avatarUrl || '',
           role: userRole,
           isMicOn: micEnabled,
           isVideoOn: cameraEnabled
