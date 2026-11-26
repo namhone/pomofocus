@@ -1,11 +1,10 @@
 Vercel CLI 60.0.1 (Node.js 24.16.0)
 Fetching aliases under axis-be33
-> aliases found under axis-be33 [1s]
-  source                                               url                                                                       age    
-  pomodoro-workspace-11bwziahm-axis-be33.vercel.app    pomofocus-workspace.vercel.app                                            24d    
-  pomodoro-workspace-7592c9e93-axis-be33.vercel.app    pomofocus-workplace.vercel.app                                            24d    
-  pomodoro-workspace-3wt8h211a-axis-be33.vercel.app    pomodoro-workspace-axis-be33.vercel.app                                   33d    
-  axis-career-mshzp49cm-axis-be33.vercel.app           axis-career-app-git-codex-axis-production-safe-ui-axis-be33.vercel.app    45d    
-  axis-career-p87uf4zox-axis-be33.vercel.app           axis-career-app.vercel.app                                                71d    
-  axis-career-p87uf4zox-axis-be33.vercel.app           axis-career-app-axis-be33.vercel.app                                      71d    
-
+> aliases found under axis-be33 [813ms]
+  source                                               url                                                                       age
+  pomodoro-workspace-7592c9e93-axis-be33.vercel.app    pomofocus-workspace.vercel.app                                            24d
+  pomodoro-workspace-7592c9e93-axis-be33.vercel.app    pomofocus-workplace.vercel.app                                            24d
+  pomodoro-workspace-3wt8h211a-axis-be33.vercel.app    pomodoro-workspace-axis-be33.vercel.app                                   33d
+  axis-career-mshzp49cm-axis-be33.vercel.app           axis-career-app-git-codex-axis-production-safe-ui-axis-be33.vercel.app    45d
+  axis-career-p87uf4zox-axis-be33.vercel.app           axis-career-app.vercel.app                                                71d
+  axis-career-p87uf4zox-axis-be33.vercel.app           axis-career-app-axis-be33.vercel.app                                      71d
