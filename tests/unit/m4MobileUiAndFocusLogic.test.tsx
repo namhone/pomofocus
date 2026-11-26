@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
 // Components under test
+import { MobileToolsView } from '../../src/components/mobile/views/MobileToolsView';
 import { MobileSettingsView } from '../../src/components/mobile/views/MobileSettingsView';
 import { MobileStepperRow } from '../../src/components/mobile/primitives/MobileStepperRow';
 import { MobileFocusView } from '../../src/components/mobile/views/MobileFocusView';
@@ -84,55 +85,28 @@ describe('Milestone M4 — Mobile UI Polish & Focus Display Remediation (BUG-08,
   // =========================================================================
   // 1. MobileSettingsView: 2 Rows x 3 Cols Grid & No Truncated Shortcut Text (BUG-10, BUG-34)
   // =========================================================================
-  describe('1. MobileSettingsView Shortcut Grid (BUG-10, BUG-34)', () => {
-    it('1.1 Uses a 2-row x 3-column grid (grid-cols-3 gap-2) instead of cramped grid-cols-5', () => {
+  describe('1. Settings and dedicated learning tools', () => {
+    it('1.1 keeps learning shortcuts out of Settings while retaining billing', () => {
       render(<MobileSettingsView />);
-
-      const shortcutsGrid = screen.getByTestId('mobile-settings-shortcuts-grid');
-      expect(shortcutsGrid).toBeDefined();
-      expect(shortcutsGrid.className).toContain('grid-cols-3');
-      expect(shortcutsGrid.className).toContain('gap-2');
-      expect(shortcutsGrid.className).not.toContain('grid-cols-5');
+      expect(screen.queryByTestId('mobile-settings-shortcuts-grid')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Gói cước', exact: true })).toBeDefined();
     });
-
-    it('1.2 Renders all 5 shortcuts with full labels and zero truncate class on text', () => {
-      render(<MobileSettingsView />);
-
-      const roomsBtn = screen.getByTestId('mobile-settings-entry-rooms');
-      const notesBtn = screen.getByTestId('mobile-settings-entry-notes');
-      const calendarBtn = screen.getByTestId('mobile-settings-entry-calendar');
-      const dashboardBtn = screen.getByTestId('mobile-settings-entry-dashboard');
-      const billingBtn = screen.getByTestId('mobile-settings-entry-billing');
-
-      expect(roomsBtn.textContent).toContain('Meet');
-      expect(notesBtn.textContent).toContain('Ghi chú');
-      expect(calendarBtn.textContent).toContain('Lịch');
-      expect(dashboardBtn.textContent).toContain('Thống kê');
-      expect(billingBtn.textContent).toContain('Gói cước');
-
-      // Crucial: none of the label spans should have "truncate" class
-      const dashboardSpan = dashboardBtn.querySelector('span');
-      expect(dashboardSpan?.className).not.toContain('truncate');
-
-      const billingSpan = billingBtn.querySelector('span');
-      expect(billingSpan?.className).not.toContain('truncate');
+    it('1.2 exposes all four utilities with complete labels', () => {
+      render(<MobileToolsView onOpenNotes={vi.fn()} />);
+      for (const label of ['Meet', 'Ghi chú', 'Lịch', 'Thống kê']) {
+        expect(screen.getByRole('button', { name: new RegExp('^' + label) })).toBeDefined();
+      }
     });
-
-    it('1.3 Navigates correctly when shortcuts are clicked', () => {
+    it('1.3 opens the existing routes and native Notes entry', () => {
       const pushStateSpy = vi.spyOn(window.history, 'pushState');
-      render(<MobileSettingsView />);
-
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-rooms'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/rooms');
-
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-calendar'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/calendar');
-
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-dashboard'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/dashboard');
-
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-billing'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/billing');
+      const onOpenNotes = vi.fn();
+      render(<MobileToolsView onOpenNotes={onOpenNotes} />);
+      for (const [label, route] of [['Meet', '/rooms'], ['Lịch', '/calendar'], ['Thống kê', '/dashboard']]) {
+        fireEvent.click(screen.getByRole('button', { name: new RegExp('^' + label) }));
+        expect(pushStateSpy).toHaveBeenCalledWith({}, '', route);
+      }
+      fireEvent.click(screen.getByRole('button', { name: /^Ghi chú/ }));
+      expect(onOpenNotes).toHaveBeenCalledOnce();
     });
   });
 

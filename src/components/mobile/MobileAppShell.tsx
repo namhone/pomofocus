@@ -7,7 +7,9 @@ import {
   CheckSquare,
   Palette,
   Bot,
+  Settings,
   Sliders,
+  LayoutGrid,
   PictureInPicture2,
   Plus,
   Check,
@@ -34,7 +36,6 @@ import { useAiStore } from '../../stores/useAiStore';
 import { useTaskStore } from '../../stores/useTaskStore';
 import { haptics } from '../../utils/haptics';
 import { useBackgroundStore } from '../../stores/useBackgroundStore';
-import { widgetScrimOpacity } from '../../utils/widgetPresentation';
 import { useAudioStore } from '../../stores/useAudioStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNoteStore } from '../../stores/useNoteStore';
@@ -45,6 +46,8 @@ import { BackgroundCanvas } from '../BackgroundCanvas';
 import { AmbientOverlay } from '../AmbientOverlay';
 import { MobileFocusView } from './views/MobileFocusView';
 import { MobileSettingsView } from './views/MobileSettingsView';
+import { MobileToolsView } from './views/MobileToolsView';
+import { NotesWidget } from '../NotesWidget';
 import { MobileAuthBottomSheet } from './auth/MobileAuthBottomSheet';
 import { GlobalAudioHost } from '../GlobalAudioHost';
 import { UserAvatar } from '../common/UserAvatar';
@@ -53,7 +56,7 @@ import { backStack } from '../../services/backStack';
 
 const FormattedAiMessage = React.lazy(() => import('../AiMessageMarkdown'));
 
-export type MobileTab = 'focus' | 'tasks' | 'spaces' | 'ai' | 'settings';
+export type MobileTab = 'focus' | 'tasks' | 'spaces' | 'ai' | 'settings' | 'tools' | 'notes';
 
 interface MobileAppShellProps {
   className?: string;
@@ -87,10 +90,6 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
 
   const storeTab = useLayoutStore((s) => s.activeMobileTab);
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
-  const mobileScrim = useBackgroundStore(state => {
-    const hasImage = state.activePresetId === 'custom' || state.presets.find(preset => preset.id === state.activePresetId)?.category !== 'solid';
-    return hasImage ? widgetScrimOpacity(true, state.brightnessLevel, 0) : 0;
-  });
   const user = useAuthStore((s) => s.user);
   const isTopupModalOpen = useAiStore((s) => s.isTopupModalOpen);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
@@ -126,7 +125,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const activeTab: MobileTab = useMemo(() => {
     const rawTab = (storeTab as unknown) as string;
     if (rawTab === 'timer' || rawTab === 'focus') return 'focus';
-    if (['tasks', 'spaces', 'ai', 'settings'].includes(rawTab)) {
+    if (['tasks', 'spaces', 'ai', 'settings', 'tools', 'notes'].includes(rawTab)) {
       return rawTab as MobileTab;
     }
     return 'focus';
@@ -415,12 +414,10 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   return (
     <div
       data-testid="mobile-app-shell"
-      style={{ transform: 'translateZ(0)' }}
-      className={`h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] select-none relative ${className}`}
+      className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-col bg-[#09090b] text-[#f4f4f5] select-none relative ${className}`}
     >
       {/* Dynamic Background & Ambient Particle Canvas (z-0 / z-[1]) */}
       <BackgroundCanvas />
-      <div data-testid="mobile-readable-scrim" aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]" style={{ backgroundColor: `rgba(9, 9, 11, ${mobileScrim})` }} />
       <AmbientOverlay />
 
       {/* Background Audio Host for mobile chime/ambient playback */}
@@ -494,6 +491,15 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
               testId="mobile-header-avatar"
             />
           </button>
+          <button
+            type="button"
+            aria-label="Cài đặt"
+            aria-pressed={activeTab === 'settings'}
+            onClick={() => handleSelectTab('settings')}
+            className="pomo-glass min-w-10 min-h-10 rounded-full flex items-center justify-center touch-manipulation active:scale-95"
+          >
+            <Settings size={18} strokeWidth={1.5} />
+          </button>
         </div>
       </header>
 
@@ -558,6 +564,13 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             <MobileSettingsView onOpenAuth={() => setIsAuthSheetOpen(true)} />
           </div>
         )}
+        {activeTab === 'tools' && <MobileToolsView onOpenNotes={() => handleSelectTab('notes')} />}
+        {activeTab === 'notes' && (
+          <section aria-label="Ghi chú" className="w-full h-full min-w-0 flex flex-col px-4 pt-3 pb-4">
+            <button type="button" onClick={() => handleSelectTab('tools')} className="pomo-glass rounded-full px-4 py-2 self-start mb-3">Về tiện ích</button>
+            <div className="pomo-glass rounded-2xl flex-1 min-h-0 overflow-hidden"><NotesWidget /></div>
+          </section>
+        )}
       </main>
 
       {/* -------------------------------------------------------------------- */}
@@ -601,11 +614,11 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
           onClick={() => handleSelectTab('ai')}
         />
         <NavTabButton
-          id="settings"
-          label="Cài đặt"
-          icon={Sliders}
-          isActive={activeTab === 'settings'}
-          onClick={() => handleSelectTab('settings')}
+          id="tools"
+          label="Tiện ích"
+          icon={LayoutGrid}
+          isActive={activeTab === 'tools' || activeTab === 'notes'}
+          onClick={() => handleSelectTab('tools')}
         />
       </nav>
 

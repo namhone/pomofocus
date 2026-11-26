@@ -1,3 +1,6 @@
+const nativeSignIn = vi.hoisted(() => vi.fn());
+vi.mock('../../src/services/nativeGoogleAuth', () => ({ signInNativeGoogle: nativeSignIn }));
+beforeEach(() => nativeSignIn.mockReset().mockResolvedValue(undefined));
 import 'fake-indexeddb/auto';
 import React from 'react';
 import fs from 'fs';
@@ -103,90 +106,31 @@ describe('Challenger M3-1: Adversarial Google OAuth Attack Suite', () => {
   // SUITE 2: ATTACK 2 — NATIVE GOOGLE OAUTH INITIATE FLOW STRESS TEST
   // =========================================================================
   describe('Suite 2: Attack 2 — Native Google OAuth Initiate Flow Stress Test', () => {
-    it('2.1 Missing Browser plugin on native platform: falls back safely to window.open with _system', async () => {
-      const windowOpenMock = vi.fn();
-      vi.stubGlobal('open', windowOpenMock);
-
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: {}, // Browser plugin is undefined
-      };
-
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: {
-          provider: 'google',
-          url: 'https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google&redirect_to=pomofocus%3A%2F%2Foauth%2Fcallback',
-        },
-        error: null,
-      } as any);
-
-      const res = await googleAuthService.loginWithGoogleNative();
-      expect(res.url).toContain('pomofocus%3A%2F%2Foauth%2Fcallback');
-      expect(windowOpenMock).toHaveBeenCalledWith(
-        expect.stringContaining('pomofocus%3A%2F%2Foauth%2Fcallback'),
-        '_system'
-      );
+    it('2.1 native picker succeeds without opening a Browser or Web OAuth', async () => {
+      const browser = vi.spyOn(window, 'open');
+      const oauth = vi.spyOn(supabase.auth, 'signInWithOAuth');
+      await googleAuthService.loginWithGoogleNative();
+      expect(nativeSignIn).toHaveBeenCalledWith(googleAuthService.getClientId());
+      expect(browser).not.toHaveBeenCalled(); expect(oauth).not.toHaveBeenCalled();
     });
 
-    it('2.2 User dismiss / cancellation during Browser.open() bubbles error cleanly without leaving user authenticated', async () => {
-      const mockBrowserOpen = vi.fn().mockRejectedValue(new Error('User cancelled / dismissed in-app browser'));
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: {
-          Browser: {
-            open: mockBrowserOpen,
-            close: vi.fn(),
-          },
-        },
-      };
-
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: {
-          provider: 'google',
-          url: 'https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google',
-        },
-        error: null,
-      } as any);
-
-      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow(
-        'User cancelled / dismissed in-app browser'
-      );
+    it('2.2 native picker or token verification failure propagates without creating an account', async () => {
+      nativeSignIn.mockRejectedValueOnce(new Error('Native sign-in rejected'));
+      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow('Native sign-in rejected');
       expect(useAuthStore.getState().user).toBeNull();
       expect(useAuthStore.getState().isAuthenticated).toBe(false);
     });
 
-    it('2.3 Malformed OAuth URL from Supabase (null/empty/missing) is rejected before touching Browser', async () => {
-      const mockBrowserOpen = vi.fn();
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: {
-          Browser: {
-            open: mockBrowserOpen,
-            close: vi.fn(),
-          },
-        },
-      };
-
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: { provider: 'google', url: '' }, // empty URL returned
-        error: null,
-      } as any);
-
-      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow(
-        'Supabase không trả về URL xác thực Google OAuth'
-      );
-      expect(mockBrowserOpen).not.toHaveBeenCalled();
+    it('2.3 native picker or token verification failure propagates without creating an account', async () => {
+      nativeSignIn.mockRejectedValueOnce(new Error('Native sign-in rejected'));
+      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow('Native sign-in rejected');
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
     });
 
-    it('2.4 Supabase OAuth network timeout / offline failure throws without creating partial session', async () => {
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: null,
-        error: { message: 'FetchError: connection timed out to auth server' },
-      } as any);
-
-      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow(
-        'FetchError: connection timed out to auth server'
-      );
+    it('2.4 native picker or token verification failure propagates without creating an account', async () => {
+      nativeSignIn.mockRejectedValueOnce(new Error('Native sign-in rejected'));
+      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow('Native sign-in rejected');
       expect(useAuthStore.getState().user).toBeNull();
       expect(useAuthStore.getState().isAuthenticated).toBe(false);
     });

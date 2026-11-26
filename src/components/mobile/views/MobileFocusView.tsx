@@ -773,7 +773,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         <div
           role="tablist"
           aria-label="Chế độ tập trung"
-          className="grid grid-cols-3 w-full max-w-xs p-1 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 shadow-lg gap-1"
+          className="pomo-glass grid grid-cols-3 w-full max-w-xs p-1 rounded-full gap-1"
         >
           <button
             type="button"
@@ -783,7 +783,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('pomodoro')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'pomodoro'
-                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
+                ? 'pomo-glass pomo-glass-selected text-white font-semibold'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -798,7 +798,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('short_break')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'short_break'
-                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
+                ? 'pomo-glass pomo-glass-selected text-white font-semibold'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -813,7 +813,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('long_break')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'long_break'
-                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
+                ? 'pomo-glass pomo-glass-selected text-white font-semibold'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -823,7 +823,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
 
         {/* Action Row: Full-width Quick Task Bar Capsule (Bug #17) */}
         <div className="w-full max-w-sm relative">
-          <div className="w-full h-10 px-2.5 bg-zinc-900/65 border border-white/10 rounded-full flex items-center justify-between gap-2 shadow-sm backdrop-blur-md hover:border-zinc-500/30 transition-colors">
+          <div className="pomo-glass w-full h-10 px-2.5 rounded-full flex items-center justify-between gap-2 hover:border-zinc-500/30 transition-colors">
             {/* Left Quick Complete Circle */}
             {linkedTaskId && linkedTask ? (
               <button
@@ -1020,7 +1020,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-pressed={isStrictMode}
             onClick={handleToggleStrictMode}
             title="Chế độ kỷ luật: rời app quá 5 giây sẽ hủy hiệp hiện tại"
-            className={`h-8 px-3 rounded-full border backdrop-blur-md flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation ${
+            className={`pomo-glass h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation ${
               isStrictMode
                 ? 'border-white/20 bg-white/10 text-white'
                 : 'border-white/5 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200'
@@ -1041,7 +1041,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={handleEngagePocketLock}
             title="Khóa màn hình bỏ túi (pocket lock)"
             aria-label="Khóa màn hình bỏ túi"
-            className="h-8 px-3 rounded-full border border-white/10 bg-zinc-900/65 hover:border-zinc-400/40 text-zinc-300 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer backdrop-blur-md"
+            className="pomo-glass h-10 px-3 rounded-full hover:border-zinc-400/40 text-zinc-200 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer touch-manipulation"
           >
             <Lock className="w-3.5 h-3.5 text-zinc-300" />
             <span>Khóa</span>
@@ -1074,7 +1074,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       {/* 2. LAYER 2 (CENTER FOCUS CORE): Numerals, Breathing Aura, Thumb     */}
       {/* ------------------------------------------------------------------ */}
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative w-full z-10 py-4">
-        <div className="relative isolate flex flex-col items-center justify-center">
+        <div className="pomo-glass relative isolate flex flex-col items-center justify-center rounded-[2rem] px-5 py-4">
           {/* Breathing Aura */}
           {!isEcoMode && (
             <div
@@ -1135,7 +1135,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           {/* Completed Cycle Dots & Round Indicator */}
           <div
             data-testid="mobile-cycle-status-pill"
-            className="flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 border-t-white/20 backdrop-blur-md shadow-sm"
+            className="pomo-glass flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full"
           >
             <span
               data-testid="mobile-cycle-round-label"
@@ -1218,7 +1218,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerCancel={cancelResetHold}
               title="Đặt lại hiệp này (giữ 1.5s để làm lại từ đầu)"
               aria-label="Đặt lại hiệp này"
-              className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+              className="w-12 h-12 min-w-[48px] min-h-[48px] pomo-glass rounded-full text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
             >
               <RotateCcw className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
             </button>
@@ -1247,7 +1247,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerLeave={handleActionPointerLeave}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold liquid-glow shadow-[0_4px_28px_rgba(255,255,255,0.14),inset_0_1px_0_rgba(255,255,255,0.7)] active:scale-[0.96] transition-all touch-manipulation cursor-pointer"
+              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center pomo-glass pomo-glass-primary bg-white text-zinc-950 font-bold liquid-glow shadow-[0_4px_28px_rgba(255,255,255,0.14),inset_0_1px_0_rgba(255,255,255,0.7)] active:scale-[0.96] transition-all touch-manipulation cursor-pointer"
             >
               {status === 'running' ? (
                 <Pause className="w-6 h-6 fill-current stroke-current" aria-hidden="true" />
@@ -1264,7 +1264,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={handleSkip}
             title="Bỏ qua hiệp này"
             aria-label="Bỏ qua hiệp này"
-            className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
+            className="w-12 h-12 min-w-[48px] min-h-[48px] pomo-glass rounded-full text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
           >
             <SkipForward className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
           </button>
@@ -1279,7 +1279,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         <div
           data-testid="mobile-daily-flow-strip"
           onClick={() => setIsSessionLogOpen(true)}
-          className="liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer"
+          className="pomo-glass w-full rounded-2xl px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer"
           role="button"
           tabIndex={0}
           aria-label="Xem nhật ký phiên hôm nay"

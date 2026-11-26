@@ -4,6 +4,7 @@
 
 | Agent | File được sửa |
 | --- | --- |
+| Codex — nền kính, điều hướng và Google native (Nam giao sau4f6059e) | MobileFocusView/MobileAppShell/MobileBottomNav/MobileSettingsView, BackgroundCanvas/TimerWidget, CSS/token/helper và tools view liên quan; googleAuthService, supabase Auth adapter và plugin Android Credential Manager; tests/scripts/build metadata/APK/deploy. Không sửa phân quyền, ví hay Avatar đã chốt. |
 | Codex — sửa cảm ứng/khởi động Samsung (Nam giao sau 641525b) | MobileFocusView.tsx và handler cảm ứng liên quan; index.html, main.tsx, App.tsx, ErrorBoundary/BackgroundCanvas/MainActivity khi có bằng chứng; src/index.css chỉ vá focus Eco bị test phát hiện; test, script, metadata/APK/deploy. Giữ logic quyền/số dư/avatar đã chốt; xác minh USB thật trước nghiệm thu. |
 | Codex — Monochrome liquid glass + APK mới (Nam giao 26/11/2026) | MobileFocusView.tsx, TimerWidget.tsx, StudyRoomLobby.tsx, PlatformHeader.tsx; test/bằng chứng, scripts/buildApk.ts, android/app/build.gradle, metadata/APK và deploy liên quan. Giữ nguyên logic Auth/Wallet/Avatar/A11y ac43fbd; các khóa trước là lịch sử. |
 | Codex — bổ sung kiểm tra Avatar theo Nam | UserAvatar.tsx, ProfileView.tsx, useAuthStore.ts, profileService.ts; helper Avatar trong authService.ts và avatarUploadService.ts khi cần vá đúng luồng lưu/hiển thị; test liên quan. Không sửa phần Antigravity đang làm. |
@@ -18,6 +19,8 @@
 **Một file chỉ một agent sửa. Từ 2026-11-26, Codex tiếp quản các file Phase 3; khóa cũ của Antigravity được Nam thu hồi.**
 
 ## 2. Trạng thái & kế hoạch hiện tại
+
+- Nhiệm vụ mới: baseline4f6059e sạch; Pause và boot guard1800ms đã có ở62cb037, giữ hồi quy. Nguyên nhân ảnh tối bị đen: MobileAppShell dùng widgetScrimOpacity92% toàn màn hình và BackgroundCanvas phủ thêm overlay30%. Google native hiện gọi OAuth ngoài app, adapter không tôn trọng skipBrowserRedirect. Sẽ thay bằng Credential Manager, Web client ID làm serverClientId; không thay luồng quyền/credits/avatar. Supabase plugin tìm thấy nhưng chưa kết nối, chưa xác minh Provider hoặc Google Console từ xa. USB bản84 vẫn chưa nghiệm thu vì máy ngắt kết nối.
 
 - Cập nhật cuối: source/APK62cb037 đã push, production hai alias đã kiểm HTTP200/bundle/APK84 khớp. Các gates source/build/Chrome hoàn tất; **USB Samsung84 vẫn chờ thiết bị**, chưa kết luận hết màn hình đen. Nhật ký bàn giao mới nhất ở mục3 và SAMSUNG_TOUCH_STARTUP_FIX_REPORT.md; trạng thái “đang deploy” bên dưới là mốc trước kết quả production này.
 
@@ -38,6 +41,29 @@
 - Antigravity: đã dừng do hết credits; Codex tiếp quản Phase 3 theo chỉ thị Nam. Cập nhật lịch sử bên dưới được giữ nguyên.
 
 ## 3. Nhật ký Chat & Review chéo
+
+[ANTIGRAVITY | HANDOFF — HOÀN TẤT 8.1.4/CODE 85 & DEPLOY PRODUCTION (2026-11-26)]
+- **Tiếp sức cho Codex (đang chạm usage limit tới 23:24):** Đã tiếp nhận toàn bộ source đang sửa dở của Codex (`nativeGoogleAuth.ts`, `PomoGoogleAuthPlugin.java`, `MobileToolsView.tsx`, `backgroundContrast.ts`, `index.html`/`LandingPage.tsx` và các test liên quan) — không cần sửa thêm code vì build & tests đều sạch.
+- **Kiểm chứng Type-check & Vitest:**
+  - `npm run type-check`: Exit `0` (0 lỗi).
+  - 9 bộ Vitest liên quan (`nativeGoogleSignIn`, `backgroundContrast`, `mobileTouchRegression`, `startupCurtainRegression`, `m4MobileUiAndFocusLogic`, `phase4bPresentation`, `m3GoogleAuthAndIdentitySync`, `milestone4OfflineAndBuild`, `mobileAppShellAndRoutingV70`): **106/106 passed** (Exit `0`).
+- **Playwright & Axe (`playwright.liquid-glass.config.ts`):**
+  - **14/14 ca hợp lệ pass** (2 ca `Mobile Settings/Tools` skip đúng phạm vi trên desktop `1366`/`1440`; `0 failed`).
+  - Tất cả 14 file `artifacts/liquid-glass/axe-*.json`: **0 vi phạm WCAG**. Đã kiểm tra ảnh thực tế (`mobile-390-tools.png`, `mobile-390-wallpaper-bright.png`, `desktop-1440-wallpaper-dark.png`).
+- **Build Web & APK `8.1.4 / versionCode 85` (`npm run build:apk`):**
+  - Gradle `assembleDebug` **BUILD SUCCESSFUL in 22s** (153 tasks).
+  - Binary: `public/downloads/PomoFocus-v8.1.apk` — **9.8 MB (10,271,146 bytes)**, SHA-256 `1754dc26d765aa034b8635fc1a5718b7a25fc2700de1ef2ae1e73b2cd268a476`.
+  - Đã đồng bộ `public/version.json` (`8.1.4`/`85`/`9.8 MB`) và `src/config/apkRelease.json`.
+  - **ADB:** `adb devices -l` trống (không có thiết bị Samsung cắm USB lúc chạy), nên chưa cài đặt/smoke trên máy thật.
+- **Git & Production:** Đang commit, push `origin/master` và xác minh HTTP 200 + hash APK trên `pomofocus-workspace.vercel.app` & `pomofocus-workplace.vercel.app`.
+
+[CODEX | Provider400 đã có bằng chứng] GET https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google trả400, body chính xác “Unsupported provider: provider is not enabled”. Đây là blocker cấu hình server, không thể sửa bằng Android Client ID hoặc giả session. Một dòng cấu hình cần bật: Supabase Authentication / Google / Enable, Web Client ID935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com và Client Secret tương ứng; giữ kiểm nonce. Android credential Google phải khớp com.pomofocus.workspace và SHA-1 của APK; không truyền Android Client ID làm serverClientId. Plugin hiện không có công cụ sửa Auth Provider, chưa có secret được cấp; không đổi SQL hay lục token máy để vượt quyền. Chưa nghiệm thu login Google thật.
+
+[CODEX | Gates và phiên bản tiếp theo] 146/146 unit liên quan/13 file đã pass sau đổi assertion native Browser/Monochrome cũ. Đã thêm test chặn sai platform, IDtoken rỗng và clearCredentialState khi logout; đang đo coverage. Chrome lượt đầu có Focus/Meet và scrim sáng/tối desktop pass, đang kiểm Mobile Settings/Tools và Native giả lập. Version mới chuẩn bị8.1.4/code85, chưa build binary85 tại thời điểm ghi. USB vẫn trống; giữ trạng thái chưa nghiệm thu Samsung, không tuyên bố đã hết đen hoàn toàn.
+
+[CODEX | Google native + kính mobile đang kiểm chứng] Đã triển khai plugin Capacitor nội bộ PomoGoogleAuth dùng Android Credential Manager1.6.0 + googleid1.2.1 (pin, compile Java exit0), Web client ID làm serverClientId. Nonce ngẫu nhiên32bytes: gửi SHA256 sang Google, raw nonce sang GoTrue id_token; server xác minh trước lưu session, logout hủy kết quả về muộn. Không sửa auth quyền/wallet/avatar. Đã cài Android CLI chính thức1.1.16919734, docs search hoạt động, không cài SDK nặng. Supabase plugin đã kết nối và project ACTIVE_HEALTHY; endpoint authorize công khai trả400 chính xác “Unsupported provider: provider is not enabled”. Không thể nghiệm thu login thật khi Google Provider đang tắt; cần Enable Google với Web Client ID/secret tương ứng. Chưa đổi Cloud config/SQL. Security advisors có7 cảnh báo SECURITY DEFINER công khai từ trước, ngoài phạm vi, chưa sửa.
+
+[CODEX | UI và gates ban đầu] Bỏ scrim92% toàn màn MobileAppShell; BackgroundCanvas sample24x24 một lần/ảnh, dark cap12%, bright bounded55%, giữ mặt kính cục bộ có chữ. Đưa Settings lên Header, tab5 Tiện ích mở Meet/Notes/Calendar/Stats; Settings giữ tùy chỉnh và Gói cước. Native Notes dùng NotesWidget thật trong shell. Tokens kính dùng chung/rim tĩnh, Eco/reduced motion tắt blur. Bỏ translateZ root không cần thiết; giữ boot guard1800ms, onResume redraw và 8 hồi quy touch của62cb037. 146/146 Vitest liên quan/13 file, type-check0; Java compile0. Các assertion cũ yêu cầu mở browser/neon/settings tab được cập nhật theo yêu cầu mới, không đổi product để chiều test. Đang chạy web build/Chrome trước build APK mới; USB không thiết bị.
 
 [CODEX | Bàn giao source/APK84 và production — USB còn chờ] Source62cb037 đã push origin/master. Vercel pomodoro-workspace-39qvn5pwt-axis-be33.vercel.app READY, cả workspace/workplace HTTP200 với index-C94LvuYV.js và APK8.1.3/code84, 8.46 MB, SHA256 6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd. Kiểm 19:55 UTC+7 ngày26/11/2026, bằng chứng artifacts/samsung-fix/production-verification.json. Gates: 93 unit/9 file, type-check/build/APK0; 8 UI riêng biệt pass (6 lượt đầy đủ + 2 chạy lại vì UNKNOWN ghi artifact), A11y5/5, Axe0 trong phạm vi scan. Giữ failure lịch sử, không tô xanh một lượt 8/8. AuthStore/Avatar/API/wallet không sửa. ADB vẫn trống nên không install/tap/lock/logcat84: chưa nghiệm thu Samsung hết đen. Khi USB trở lại chạy pwsh -NoProfile -File .\scripts\android_smoke_check.ps1 rồi node scripts/android_usb_journey.cjs <serial>; raw evidence/log ở thư mục android-smoke gitignored. Không xóa dữ liệu hay gắn CDP trước chụp native. Chi tiết tests/results/SAMSUNG_TOUCH_STARTUP_FIX_REPORT.md.
 

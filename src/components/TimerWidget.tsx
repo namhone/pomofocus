@@ -92,7 +92,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
+    <div className={`pomo-glass rounded-2xl liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
       <span role="status" aria-live="polite" aria-atomic="true" className="sr-only" data-testid="timer-phase-announcement">
         {currentPhaseStyle.label}. Hiệp {currentRound} / {settings.roundsBeforeLongBreak}. {status === 'running' ? 'Đang chạy' : status === 'paused' ? 'Tạm dừng' : 'Chờ bắt đầu'}
       </span>

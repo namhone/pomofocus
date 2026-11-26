@@ -20,6 +20,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        registerPlugin(PomoGoogleAuthPlugin.class);
         appBackCallback = new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {

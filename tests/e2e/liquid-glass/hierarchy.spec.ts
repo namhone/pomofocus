@@ -104,3 +104,50 @@ test('Meet: single-line subtitle, visible CTA and retained advanced room code', 
   await page.getByRole('textbox', { name: 'Mã phòng (tùy chọn)', exact: true }).fill('nhom-hoc-toi');
   await expect(page.getByRole('textbox', { name: 'Mã phòng (tùy chọn)', exact: true })).toHaveValue('nhom-hoc-toi');
 });
+
+test('Adaptive wallpaper keeps dark images visible and bright text readable', async ({ page, workspace }, info) => {
+  const mobile = info.project.name.includes('390');
+  await page.route('https://wallpaper.example.test/**', route => route.fulfill({
+    contentType: 'image/svg+xml', headers: { 'Access-Control-Allow-Origin': '*' },
+    body: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200"><rect width="800" height="1200" fill="${route.request().url().endsWith('bright.svg') ? '#fff' : '#142336'}"/></svg>`
+  }));
+  await workspace.open();
+  await expect(page.getByRole('timer', { name: 'Đồng hồ Pomodoro' })).toBeVisible();
+  await page.evaluate(() => (window as any).useBackgroundStore.getState().setCustomBackground('https://wallpaper.example.test/dark.svg', 'image'));
+  const overlay = page.getByTestId('background-overlay');
+  await expect.poll(async () => Number(await overlay.evaluate(element => getComputedStyle(element).opacity))).toBeLessThanOrEqual(.15);
+  await expect(page.getByTestId('background-image-element')).toBeVisible();
+  await page.screenshot({ path: `artifacts/liquid-glass/${info.project.name}-wallpaper-dark.png` });
+  await page.evaluate(() => (window as any).useBackgroundStore.getState().setCustomBackground('https://wallpaper.example.test/bright.svg', 'image'));
+  await expect.poll(async () => Number(await overlay.evaluate(element => getComputedStyle(element).opacity))).toBeGreaterThan(.45);
+  await audit(page, `${info.project.name}-wallpaper-bright`);
+  await page.screenshot({ path: `artifacts/liquid-glass/${info.project.name}-wallpaper-bright.png` });
+  if (mobile) {
+    const play = page.getByRole('button', { name: 'Bắt đầu đếm giờ', exact: true });
+    await play.tap(); await page.getByRole('button', { name: 'Tạm dừng đồng hồ', exact: true }).tap();
+    await expect(page.getByTestId('mobile-phase-announcement')).toContainText('Tạm dừng');
+    await workspace.eco(true);
+    await expect(play).toHaveCSS('backdrop-filter', 'none');
+  }
+});
+
+test('Mobile Settings stays in Header; Tools opens Notes and the learning routes', async ({ page, workspace }, info) => {
+  test.skip(!info.project.name.includes('390'), 'Mobile navigation only');
+  await workspace.open();
+  const header = page.getByRole('banner');
+  await header.getByRole('button', { name: 'Cài đặt', exact: true }).tap();
+  await expect(page.getByTestId('mobile-settings-view')).toBeVisible();
+  await expect(page.getByTestId('mobile-settings-shortcuts-grid')).toHaveCount(0);
+  const tools = page.getByRole('tab', { name: 'Tiện ích', exact: true });
+  await tools.tap(); await expect(tools).toHaveAttribute('aria-selected', 'true');
+  for (const label of ['Meet', 'Ghi chú', 'Lịch', 'Thống kê']) {
+    await expect(page.getByRole('button', { name: new RegExp('^' + label) })).toBeVisible();
+  }
+  await audit(page, `${info.project.name}-tools`);
+  await page.screenshot({ path: `artifacts/liquid-glass/${info.project.name}-tools.png` });
+  await page.getByRole('button', { name: /^Ghi chú/ }).tap();
+  await expect(page.getByRole('textbox', { name: 'Nội dung ghi chú' })).toBeVisible();
+  await page.getByRole('button', { name: 'Về tiện ích', exact: true }).tap();
+  await page.getByRole('button', { name: /^Meet/ }).tap();
+  await expect(page).toHaveURL(/\/rooms$/);
+});

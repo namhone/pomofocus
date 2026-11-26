@@ -578,6 +578,7 @@ const activeChannels = new Map<string, RealtimeChannel>();
 
 
 const authSubscribers = new Set<(event: string, session: any) => void>();
+let idTokenAuthEpoch = 0;
 
 let pendingOAuthUserInfoPromise: Promise<any> | null = null;
 
@@ -777,6 +778,28 @@ export const supabase = {
   },
 
   auth: {
+    signInWithIdToken: async ({ provider, token, nonce }: { provider: 'google'; token: string; nonce: string }) => {
+      const epoch = ++idTokenAuthEpoch;
+      try {
+        const response = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/token?grant_type=id_token`, {
+          method: 'POST',
+          headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, id_token: token, nonce }),
+          signal: AbortSignal.timeout(15000)
+        });
+        const session = await response.json();
+        if (epoch !== idTokenAuthEpoch) throw new Error('Đăng nhập đã được hủy.');
+        if (!response.ok || !session.access_token || !session.user) {
+          throw new Error(session.error_description || session.msg || 'Không thể xác minh tài khoản Google.');
+        }
+        session.expires_at ||= Math.floor(Date.now() / 1000) + (session.expires_in || 3600);
+        localStorage.setItem('sb_auth_session', JSON.stringify(session));
+        authSubscribers.forEach(callback => { try { callback('SIGNED_IN', session); } catch {} });
+        return { data: { session, user: session.user }, error: null };
+      } catch (error: any) {
+        return { data: { session: null, user: null }, error: { message: error?.message || 'Không thể đăng nhập Google.' } };
+      }
+    },
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
@@ -846,21 +869,14 @@ export const supabase = {
       });
     },
 
-    signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string; directGoogle?: boolean } }) => {
+    signInWithOAuth: async ({ provider, options }: { provider: string; options?: { redirectTo?: string; directGoogle?: boolean; skipBrowserRedirect?: boolean } }) => {
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
         const redirectUri = options?.redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/app` : '/app');
-        const oauthUrl = `${baseUrl}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirectUri)}`;
+        const oauthUrl = `${baseUrl}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirectUri)}${provider === 'google' ? '&prompt=select_account' : ''}`;
 
-        if (typeof window !== 'undefined') {
-          if (provider === 'google' && options?.directGoogle) {
-            const clientId = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) || '935136578653-mfq96ugjbgf0bgg73ei9pask52rm0f09.apps.googleusercontent.com';
-            const nonce = Math.random().toString(36).substring(2);
-            const googleRedirectUri = window.location.origin;
-            window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
-          } else {
-            window.location.href = oauthUrl;
-          }
+        if (typeof window !== 'undefined' && !options?.skipBrowserRedirect) {
+          window.location.href = oauthUrl;
         }
         return { data: { provider, url: oauthUrl }, error: null };
       } catch (err: any) {
@@ -870,6 +886,7 @@ export const supabase = {
 
     signOut: async (options?: { scope?: 'global' | 'local' | 'others' }) => {
       if (typeof window !== 'undefined' && options?.scope !== 'others') {
+        idTokenAuthEpoch++;
         localStorage.removeItem('sb_auth_session');
         localStorage.removeItem('pomodoro_study_auth_session');
         authSubscribers.forEach((cb) => {
@@ -877,6 +894,9 @@ export const supabase = {
             cb('SIGNED_OUT', null);
           } catch {}
         });
+        if ((window as any).Capacitor?.getPlatform?.() === 'android') {
+          void import('../services/nativeGoogleAuth').then(({ nativeGoogleAuth }) => nativeGoogleAuth.clearCredentialState()).catch(() => {});
+        }
       }
       return { error: null };
     },

@@ -108,6 +108,304 @@
       "line": 0,
       "specs": [
         {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 14096,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:42:42.486Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-002883e66edb3ec22228",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 5339,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:42:58.585Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-0502119aeb2a2b84c0e4",
+          "file": "hierarchy.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "Adaptive wallpaper keeps dark images visible and bright text readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 7453,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:03.943Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-c00ae137b6c18e750f40",
+          "file": "hierarchy.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "Mobile Settings stays in Header; Tools opens Notes and the learning routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile navigation only"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "skipped",
+                  "duration": 958,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:11.419Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "2343872df80cab5be60a-4b37ecddea1e22c0ecb7",
+          "file": "hierarchy.spec.ts",
+          "line": 134,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 9436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:20.264Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-7385dba9e5ab244ba52d",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 6073,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:31.072Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-fae9f2d3082109ab0663",
+          "file": "hierarchy.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "Adaptive wallpaper keeps dark images visible and bright text readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 6248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:37.163Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-d57490c4189a786f3e8e",
+          "file": "hierarchy.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "Mobile Settings stays in Header; Tools opens Notes and the learning routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile navigation only"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "skipped",
+                  "duration": 1923,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:43.424Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "2343872df80cab5be60a-dc6c7a5476ad359b3163",
+          "file": "hierarchy.spec.ts",
+          "line": 134,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 6474,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:43:49.205Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-a6716c0c07486d67167e",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
           "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
           "ok": true,
           "tags": [],
@@ -120,14 +418,14 @@
               "projectName": "mobile-390",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 2,
                   "status": "passed",
-                  "duration": 5751,
+                  "duration": 5087,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T12:51:08.030Z",
+                  "startTime": "2026-11-26T15:43:56.759Z",
                   "attachments": []
                 }
               ],
@@ -137,6 +435,102 @@
           "id": "2343872df80cab5be60a-56dc22cbe41b0f1970fc",
           "file": "hierarchy.spec.ts",
           "line": 87,
+          "column": 1
+        },
+        {
+          "title": "Adaptive wallpaper keeps dark images visible and bright text readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 4840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:44:01.860Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-99c5bf399ef373439cc4",
+          "file": "hierarchy.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "Mobile Settings stays in Header; Tools opens Notes and the learning routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 4704,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:44:06.711Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-3c4f1dbf60bddda98563",
+          "file": "hierarchy.spec.ts",
+          "line": 134,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 6344,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:44:15.587Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-250b405e0068e44e09ff",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
           "column": 1
         },
         {
@@ -152,14 +546,14 @@
               "projectName": "native-390",
               "results": [
                 {
-                  "workerIndex": 1,
+                  "workerIndex": 3,
                   "status": "passed",
-                  "duration": 4170,
+                  "duration": 5168,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T12:51:18.966Z",
+                  "startTime": "2026-11-26T15:44:22.670Z",
                   "attachments": []
                 }
               ],
@@ -170,16 +564,80 @@
           "file": "hierarchy.spec.ts",
           "line": 87,
           "column": 1
+        },
+        {
+          "title": "Adaptive wallpaper keeps dark images visible and bright text readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 5512,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:44:27.859Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-bb5de33515374bd04dc9",
+          "file": "hierarchy.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "Mobile Settings stays in Header; Tools opens Notes and the learning routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 4047,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T15:44:33.396Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-ca4cdcc868f07bae6b0f",
+          "file": "hierarchy.spec.ts",
+          "line": 134,
+          "column": 1
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-26T12:51:02.832Z",
-    "duration": 21956.779,
-    "expected": 2,
-    "skipped": 0,
+    "startTime": "2026-11-26T15:42:31.918Z",
+    "duration": 130344.042,
+    "expected": 14,
+    "skipped": 2,
     "unexpected": 0,
     "flaky": 0
   }

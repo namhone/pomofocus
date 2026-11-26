@@ -1,3 +1,6 @@
+const nativeSignIn = vi.hoisted(() => vi.fn());
+vi.mock('../../src/services/nativeGoogleAuth', () => ({ signInNativeGoogle: nativeSignIn }));
+beforeEach(() => nativeSignIn.mockReset().mockResolvedValue(undefined));
 import 'fake-indexeddb/auto';
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
@@ -64,41 +67,12 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       expect(googleAuthService.isNativePlatform()).toBe(true);
     });
 
-    it('1.2 loginWithGoogleNative calls supabase.auth.signInWithOAuth with pomofocus://oauth/callback and opens Browser', async () => {
-      const mockBrowserOpen = vi.fn().mockResolvedValue(undefined);
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: {
-          Browser: {
-            open: mockBrowserOpen,
-            close: vi.fn(),
-          },
-        },
-      };
-
-      const oauthSpy = vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: {
-          provider: 'google',
-          url: 'https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google&redirect_to=pomofocus%3A%2F%2Foauth%2Fcallback',
-        },
-        error: null,
-      } as any);
-
-      const result = await googleAuthService.loginWithGoogleNative();
-
-      expect(oauthSpy).toHaveBeenCalledWith({
-        provider: 'google',
-        options: {
-          redirectTo: 'pomofocus://oauth/callback',
-          skipBrowserRedirect: true,
-        },
-      });
-
-      expect(mockBrowserOpen).toHaveBeenCalledWith({
-        url: 'https://pgsgmmtpunuttspqcgof.supabase.co/auth/v1/authorize?provider=google&redirect_to=pomofocus%3A%2F%2Foauth%2Fcallback',
-        windowName: '_system',
-      });
-      expect(result.url).toContain('pomofocus%3A%2F%2Foauth%2Fcallback');
+    it('1.2 native picker succeeds without opening a Browser or Web OAuth', async () => {
+      const browser = vi.spyOn(window, 'open');
+      const oauth = vi.spyOn(supabase.auth, 'signInWithOAuth');
+      await googleAuthService.loginWithGoogleNative();
+      expect(nativeSignIn).toHaveBeenCalledWith(googleAuthService.getClientId());
+      expect(browser).not.toHaveBeenCalled(); expect(oauth).not.toHaveBeenCalled();
     });
 
     it('1.3 closeNativeBrowser calls Capacitor Browser.close()', async () => {
@@ -116,16 +90,11 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       expect(mockBrowserClose).toHaveBeenCalledTimes(1);
     });
 
-    it('1.4 Throws error cleanly if Supabase signInWithOAuth fails on native, without creating fake accounts', async () => {
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: { provider: 'google', url: null },
-        error: { message: 'Network offline during OAuth initialization' },
-      } as any);
-
-      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow(
-        'Network offline during OAuth initialization'
-      );
+    it('1.4 native picker or token verification failure propagates without creating an account', async () => {
+      nativeSignIn.mockRejectedValueOnce(new Error('Native sign-in rejected'));
+      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow('Native sign-in rejected');
       expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
     });
 
     it('1.5 Hardcoded mock accounts (nam.studyworkspace@gmail.com, g_usr_...) are strictly purged', async () => {
@@ -309,7 +278,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
 
       const badge = screen.getByTestId('header-user-badge');
       expect(badge.textContent).toBe('Founder VIP');
-      expect(badge.className).toContain('text-amber-300');
+      expect(badge.className).toContain('text-zinc-300');
     });
 
     it('4.3 PlatformHeader User Dropdown displays Pro badge for pro account', () => {
@@ -332,7 +301,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
 
       const badge = screen.getByTestId('header-user-badge');
       expect(badge.textContent).toBe('Pro');
-      expect(badge.className).toContain('text-emerald-300');
+      expect(badge.className).toContain('text-zinc-300');
     });
 
     it('4.4 PlatformHeader User Dropdown displays Free badge for free account', () => {
@@ -380,7 +349,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       expect(founder1.tier).toBe('founder');
       expect(founder1.label).toBe('Founder VIP');
       expect(founder1.icon).toBe('crown');
-      expect(founder1.colorClass).toContain('text-amber-300');
+      expect(founder1.colorClass).toContain('text-zinc-300');
 
       const founder2 = getSubscriptionBadge({ email: 'huyentrantt09@gmail.com' });
       expect(founder2.tier).toBe('founder');
@@ -395,7 +364,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       const proUser = getSubscriptionBadge({ plan: 'pro' });
       expect(proUser.tier).toBe('pro');
       expect(proUser.label).toBe('Pro');
-      expect(proUser.colorClass).toContain('text-emerald-300');
+      expect(proUser.colorClass).toContain('text-zinc-300');
 
       const lifetimeUser = getSubscriptionBadge({ isLifetime: true });
       expect(lifetimeUser.tier).toBe('pro');
@@ -447,7 +416,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       render(<MobileAuthBottomSheet isOpen={true} onClose={() => {}} />);
       const badge = screen.getByTestId('mobile-auth-vip-badge');
       expect(badge.textContent).toContain('Founder VIP');
-      expect(badge.className).toContain('text-amber-300');
+      expect(badge.className).toContain('text-zinc-300');
     });
 
     it('6.2 Renders Pro badge in MobileAuthBottomSheet for Pro user', () => {
@@ -464,7 +433,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
       render(<MobileAuthBottomSheet isOpen={true} onClose={() => {}} />);
       const badge = screen.getByTestId('mobile-auth-vip-badge');
       expect(badge.textContent).toContain('Pro');
-      expect(badge.className).toContain('text-emerald-300');
+      expect(badge.className).toContain('text-zinc-300');
     });
   });
 });

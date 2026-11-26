@@ -1,3 +1,6 @@
+const nativeSignIn = vi.hoisted(() => vi.fn());
+vi.mock('../../src/services/nativeGoogleAuth', () => ({ signInNativeGoogle: nativeSignIn }));
+beforeEach(() => nativeSignIn.mockReset().mockResolvedValue(undefined));
 import 'fake-indexeddb/auto';
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -49,43 +52,19 @@ describe('Adversarial Challenger Test: Google OAuth Architecture & Identity Atta
   // SUITE 1: ADVERSARIAL STRESS TEST ON googleAuthService.ts
   // =========================================================================
   describe('Suite 1: Adversarial Stress Test on googleAuthService', () => {
-    it('ATTACK-01: Native OAuth fails gracefully when Capacitor Browser plugin is completely missing', async () => {
-      // Capacitor exists but Plugins.Browser does not exist
-      const mockWindowOpen = vi.fn();
-      const originalWindowOpen = window.open;
-      window.open = mockWindowOpen;
-
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: {},
-      };
-
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: { provider: 'google', url: 'https://auth.supabase.co/google' },
-        error: null,
-      } as any);
-
-      const result = await googleAuthService.loginWithGoogleNative();
-      expect(result.url).toBe('https://auth.supabase.co/google');
-      expect(mockWindowOpen).toHaveBeenCalledWith('https://auth.supabase.co/google', '_system');
-
-      window.open = originalWindowOpen;
+    it('ATTACK-01:native picker succeeds without opening a Browser or Web OAuth', async () => {
+      const browser = vi.spyOn(window, 'open');
+      const oauth = vi.spyOn(supabase.auth, 'signInWithOAuth');
+      await googleAuthService.loginWithGoogleNative();
+      expect(nativeSignIn).toHaveBeenCalledWith(googleAuthService.getClientId());
+      expect(browser).not.toHaveBeenCalled(); expect(oauth).not.toHaveBeenCalled();
     });
 
-    it('ATTACK-02: Native OAuth throws cleanly when Supabase returns null URL without throwing unhandled exceptions', async () => {
-      (window as any).Capacitor = {
-        isNativePlatform: () => true,
-        Plugins: { Browser: { open: vi.fn(), close: vi.fn() } },
-      };
-
-      vi.spyOn(supabase.auth, 'signInWithOAuth').mockResolvedValueOnce({
-        data: { provider: 'google', url: null },
-        error: null,
-      } as any);
-
-      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow(
-        'Supabase không trả về URL xác thực Google OAuth'
-      );
+    it('ATTACK-02:native picker or token verification failure propagates without creating an account', async () => {
+      nativeSignIn.mockRejectedValueOnce(new Error('Native sign-in rejected'));
+      await expect(googleAuthService.loginWithGoogleNative()).rejects.toThrow('Native sign-in rejected');
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
     });
 
     it('ATTACK-03: closeNativeBrowser handles crashing or rejecting Browser.close without throwing', async () => {

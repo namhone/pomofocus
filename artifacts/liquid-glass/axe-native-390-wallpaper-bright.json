@@ -1,0 +1,885 @@
+{
+  "url": "http://127.0.0.1:5198/app",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"mobile-top-header\" role=\"banner\" class=\"min-h-[48px] h-[calc(48px+env(safe-area-inset-top,0px))] pt-safe w-full flex items-center justify-between px-3.5 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10 z-20 shrink-0\">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-white font-bold tracking-tight text-sm font-bold text-white tracking-tight\">PomoFocus</span>",
+          "target": [
+            ".text-sm"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"mobile-header-credits-pill\" class=\"flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-900/90 border border-white/10 hover:border-white/20 text-xs font-mono font-medium text-zinc-200 transition active:scale-95 cursor-pointer shadow-sm\" title=\"Số dư điểm AI\" aria-label=\"Số dư AI: 50 điểm\">",
+                  "target": [
+                    ".bg-zinc-900\\/90"
+                  ]
+                },
+                {
+                  "html": "<header data-testid=\"mobile-top-header\" role=\"banner\" class=\"min-h-[48px] h-[calc(48px+env(safe-area-inset-top,0px))] pt-safe w-full flex items-center justify-between px-3.5 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10 z-20 shrink-0\">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"font-bold text-white tabular-nums\">50</span>",
+          "target": [
+            ".bg-zinc-900\\/90 > .tabular-nums.font-bold.text-white"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 pomo-glass pomo-glass-selected text-white font-semibold\">",
+                  "target": [
+                    ".pomo-glass-selected"
+                  ]
+                },
+                {
+                  "html": "<div role=\"tablist\" aria-label=\"Chế độ tập trung\" class=\"pomo-glass grid grid-cols-3 w-full max-w-xs p-1 rounded-full gap-1\">",
+                  "target": [
+                    ".grid"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 pomo-glass pomo-glass-selected text-white font-semibold\">",
+          "target": [
+            ".pomo-glass-selected"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div role=\"tablist\" aria-label=\"Chế độ tập trung\" class=\"pomo-glass grid grid-cols-3 w-full max-w-xs p-1 rounded-full gap-1\">",
+                  "target": [
+                    ".grid"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" data-testid=\"mobile-phase-short_break\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 text-zinc-400 hover:text-zinc-200 border border-transparent\">",
+          "target": [
+            "button[data-testid=\"mobile-phase-short_break\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div role=\"tablist\" aria-label=\"Chế độ tập trung\" class=\"pomo-glass grid grid-cols-3 w-full max-w-xs p-1 rounded-full gap-1\">",
+                  "target": [
+                    ".grid"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" data-testid=\"mobile-phase-long_break\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 text-zinc-400 hover:text-zinc-200 border border-transparent\">",
+          "target": [
+            "button[data-testid=\"mobile-phase-long_break\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"pomo-glass w-full h-10 px-2.5 rounded-full flex items-center justify-between gap-2 hover:border-zinc-500/30 transition-colors\">",
+                  "target": [
+                    ".hover\\:border-zinc-500\\/30"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"truncate font-medium \">Chọn mục tiêu phiên này...<span class=\"sr-only\"> (Chưa chọn công việc)</span></span>",
+          "target": [
+            ".truncate"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"mobile-strict-mode-toggle\" aria-pressed=\"false\" title=\"Chế độ kỷ luật: rời app quá 5 giây sẽ hủy hiệp hiện tại\" class=\"pomo-glass h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation border-white/5 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200\">",
+                  "target": [
+                    ".border-white\\/5"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Kỷ luật</span>",
+          "target": [
+            ".border-white\\/5 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"mobile-pocket-lock-btn\" title=\"Khóa màn hình bỏ túi (pocket lock)\" aria-label=\"Khóa màn hình bỏ túi\" class=\"pomo-glass h-10 px-3 rounded-full hover:border-zinc-400/40 text-zinc-200 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer touch-manipulation\">",
+                  "target": [
+                    ".hover\\:border-zinc-400\\/40"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Khóa</span>",
+          "target": [
+            ".hover\\:border-zinc-400\\/40 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "45.0pt (60px)",
+                "fontWeight": "bold",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div data-testid=\"mobile-monumental-timer\" role=\"timer\" aria-label=\"Đồng hồ Pomodoro\" aria-live=\"off\" class=\"font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)] select-none text-center\" style=\"text-shadow: rgba(0, 0, 0, 0.88) 0px 4px 20px;\">",
+          "target": [
+            ".font-tabular-nums"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Sẵn sàng</span>",
+          "target": [
+            ".drop-shadow-\\[0_1px_8px_rgba\\(0\\,0\\,0\\,0\\.9\\)\\] > span:nth-child(2)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-cycle-status-pill\" class=\"pomo-glass flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full\">",
+                  "target": [
+                    ".mt-4"
+                  ]
+                },
+                {
+                  "html": "<div class=\"pomo-glass relative isolate flex flex-col items-center justify-center rounded-[2rem] px-5 py-4\">",
+                  "target": [
+                    ".isolate"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"mobile-breathing-aura\" class=\"liquid-ambient absolute -inset-x-20 -inset-y-14 sm:-inset-x-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.04)_35%,transparent_72%)] pointer-events-none -z-10\" aria-hidden=\"true\" style=\"transform: translateZ(0px);\">",
+                  "target": [
+                    ".liquid-ambient"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"mobile-cycle-round-label\" class=\"text-[11px] font-mono font-medium text-white\">Hiệp 1/4</span>",
+          "target": [
+            "span[data-testid=\"mobile-cycle-round-label\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"pomo-glass w-full rounded-2xl px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
+                  "target": [
+                    ".rounded-2xl"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[11px] font-sans text-zinc-300\">Dòng chảy hôm nay</span>",
+          "target": [
+            ".font-sans.text-\\[11px\\].text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"pomo-glass w-full rounded-2xl px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
+                  "target": [
+                    ".rounded-2xl"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"mobile-daily-flow-summary\" class=\"text-xs text-zinc-400 font-sans\">0g 0p · 0 phiên</span>",
+          "target": [
+            "span[data-testid=\"mobile-daily-flow-summary\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<nav data-testid=\"mobile-bottom-nav\" role=\"tablist\" aria-label=\"Điều hướng chính\" class=\"h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe\">",
+                  "target": [
+                    "nav"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 text-white font-medium\">Tập trung</span>",
+          "target": [
+            "button[data-testid=\"mobile-nav-tab-focus\"] > .text-\\[10px\\].break-words.mt-0\\.5"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<nav data-testid=\"mobile-bottom-nav\" role=\"tablist\" aria-label=\"Điều hướng chính\" class=\"h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe\">",
+                  "target": [
+                    "nav"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 text-zinc-400 font-normal\">Công việc</span>",
+          "target": [
+            "button[data-testid=\"mobile-nav-tab-tasks\"] > .font-normal.text-\\[10px\\].break-words"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<nav data-testid=\"mobile-bottom-nav\" role=\"tablist\" aria-label=\"Điều hướng chính\" class=\"h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe\">",
+                  "target": [
+                    "nav"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 text-zinc-400 font-normal\">Không gian</span>",
+          "target": [
+            "button[data-testid=\"mobile-nav-tab-spaces\"] > .font-normal.text-\\[10px\\].break-words"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<nav data-testid=\"mobile-bottom-nav\" role=\"tablist\" aria-label=\"Điều hướng chính\" class=\"h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe\">",
+                  "target": [
+                    "nav"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 text-zinc-400 font-normal\">Trợ lý AI</span>",
+          "target": [
+            "button[data-testid=\"mobile-nav-tab-ai\"] > .font-normal.text-\\[10px\\].break-words"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<nav data-testid=\"mobile-bottom-nav\" role=\"tablist\" aria-label=\"Điều hướng chính\" class=\"h-[calc(56px+env(safe-area-inset-bottom,0px))] min-h-[56px] shrink-0 w-full bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/[0.08] flex items-center justify-around px-2 z-30 select-none pb-safe\">",
+                  "target": [
+                    "nav"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-[#09090b] transition-opacity duration-300\" style=\"opacity: 0.55;\"></div>",
+                  "target": [
+                    "div[data-testid=\"background-overlay\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://wallpaper.example.test/bright.svg\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: none; transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] leading-tight tracking-tight text-center break-words mt-0.5 text-zinc-400 font-normal\">Tiện ích</span>",
+          "target": [
+            "button[data-testid=\"mobile-nav-tab-tools\"] > .font-normal.text-\\[10px\\].break-words"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-command-name",
+      "nodes": 1
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 20
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 11
+    },
+    {
+      "id": "aria-progressbar-name",
+      "nodes": 1
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 20
+    },
+    {
+      "id": "aria-required-children",
+      "nodes": 2
+    },
+    {
+      "id": "aria-required-parent",
+      "nodes": 8
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 20
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 29
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 29
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 3
+    },
+    {
+      "id": "button-name",
+      "nodes": 17
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "image-alt",
+      "nodes": 1
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 24
+    },
+    {
+      "id": "role-img-alt",
+      "nodes": 4
+    }
+  ]
+}

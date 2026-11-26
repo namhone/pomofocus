@@ -510,7 +510,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-more mobile-btn-more"
-          aria-label="Menu mở rộng"
+          aria-label="Tiện ích"
           aria-current={isMoreDrawerOpen ? 'page' : undefined}
           aria-pressed={isMoreDrawerOpen}
           onClick={() => {
@@ -541,7 +541,7 @@ export const MobileBottomNav: React.FC = () => {
           <span className={`mt-0.5 text-[10px] leading-tight tracking-tight whitespace-nowrap ${
             isMoreDrawerOpen ? 'text-white font-medium' : 'text-zinc-400 font-normal'
           }`}>
-            Thêm
+            Tiện ích
           </span>
         </button>
       </nav>

@@ -371,6 +371,29 @@
 :where(button, a, input, textarea, select, [tabindex]):focus-visible { outline: 2px solid #e4e4e7 !important; outline-offset: 3px; }
 .lucide { stroke-width: 1.5; }
 /* Static surface depth; expensive effects stay on the few floating controls. */
+:root {
+  --pomo-glass-fill: rgb(9 9 11 / .74);
+  --pomo-glass-raised: rgb(39 39 42 / .84);
+  --pomo-glass-line: rgb(255 255 255 / .12);
+  --pomo-glass-rim: rgb(255 255 255 / .20);
+  --pomo-glass-blur: 12px;
+  --pomo-glass-shadow: inset 0 1px 0 rgb(255 255 255 / .12), 0 6px 18px rgb(0 0 0 / .18);
+}
+.pomo-glass {
+  background: var(--pomo-glass-fill);
+  border: 1px solid var(--pomo-glass-line);
+  border-top-color: var(--pomo-glass-rim);
+  box-shadow: var(--pomo-glass-shadow);
+  -webkit-backdrop-filter: blur(var(--pomo-glass-blur));
+  backdrop-filter: blur(var(--pomo-glass-blur));
+  color: #e4e4e7;
+}
+.pomo-glass-selected { background: var(--pomo-glass-raised); color: #fff; }
+.pomo-glass-primary { background: #fff; color: #09090b; border-top-color: #fff; }
+.liquid-eco { --pomo-glass-blur: 0px; --pomo-glass-fill: rgb(9 9 11 / .94); }
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {
+  :root { --pomo-glass-blur: 0px; --pomo-glass-fill: rgb(9 9 11 / .94); }
+}
 .liquid-elevated {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 8px 24px rgb(0 0 0 / 0.2);
 }

@@ -363,8 +363,8 @@ describe('Milestone 4: Offline Assets, Memory, PWA Cache & Release APK Build', (
   // Feature 22: Release APK Build Pipeline & ADB Detection
   // =========================================================================
   describe('Feature 22: Release APK Pipeline & ADB Detection', () => {
-    it('declares APP_VERSION 8.1.3 and APK_FILENAME PomoFocus-v8.1.apk', () => {
-      expect(APP_VERSION).toBe('8.1.3');
+    it('declares APP_VERSION 8.1.4 and APK_FILENAME PomoFocus-v8.1.apk', () => {
+      expect(APP_VERSION).toBe('8.1.4');
       expect(APK_FILENAME).toBe('PomoFocus-v8.1.apk');
     });
 
@@ -385,8 +385,8 @@ describe('Milestone 4: Offline Assets, Memory, PWA Cache & Release APK Build', (
       expect(fs.existsSync(versionJsonPath)).toBe(true);
 
       const versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf-8'));
-      expect(versionData.version).toBe('8.1.3');
-      expect(versionData.versionCode).toBe(84);
+      expect(versionData.version).toBe('8.1.4');
+      expect(versionData.versionCode).toBe(85);
       expect(versionData.downloadUrl).toContain('PomoFocus-v8.1.apk');
       expect(versionData.checksumSha256).toBeDefined();
       expect(typeof versionData.apkSizeMb).toBe('number');

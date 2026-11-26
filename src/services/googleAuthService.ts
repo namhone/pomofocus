@@ -1,3 +1,5 @@
+import { SUPABASE_URL } from '../config/env';
+
 /**
  * Google Authentication Service
  * Implements Google Identity Services (GSI) with secure JWT parsing,
@@ -340,15 +342,12 @@ export const googleAuthService = {
   },
 
   /**
-   * Tạo URL chuyển hướng Google OAuth 2.0 trực tiếp (chuẩn OAuth2)
-   * KHÓA CỨNG: Luôn sử dụng origin gốc (https://pomofocus-workspace.vercel.app)
+   * Web fallback qua Supabase; Google chỉ nhận callback đã cấu hình tại Provider.
    */
   getGoogleOAuthRedirectUrl(_redirectTo?: string): string {
-    const clientId = this.getClientId();
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pomofocus-workspace.vercel.app';
-    const redirectUri = origin;
-    const nonce = Math.random().toString(36).substring(2);
-    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+    const redirectUri = new URL('/app', origin).href;
+    return SUPABASE_URL.replace(/\/+$/, '') + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectUri) + '&prompt=select_account';
   },
 
   /**
@@ -364,36 +363,12 @@ export const googleAuthService = {
   },
 
   /**
-   * Đăng nhập Google OAuth thật trên nền tảng Native Capacitor (Android APK)
-   * Sử dụng Supabase signInWithOAuth + @capacitor/browser mở In-App Browser hoặc System Browser
-   * và điều hướng về deep link pomofocus://oauth/callback
+   * Chọn tài khoản trong Android Credential Manager, sau đó Supabase xác minh ID token.
    */
-  async loginWithGoogleNative(): Promise<{ url: string }> {
-    const { supabase } = await import('../lib/supabase');
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: 'pomofocus://oauth/callback',
-        skipBrowserRedirect: true,
-      } as any,
-    });
-
-    if (error) {
-      throw new Error(error.message || 'Không thể khởi tạo phiên đăng nhập Google');
-    }
-
-    if (!data?.url) {
-      throw new Error('Supabase không trả về URL xác thực Google OAuth');
-    }
-
-    const browserPlugin = (window as any).Capacitor?.Plugins?.Browser;
-    if (browserPlugin?.open) {
-      await browserPlugin.open({ url: data.url, windowName: '_system' });
-    } else if (typeof window !== 'undefined') {
-      window.open(data.url, '_system');
-    }
-
-    return { url: data.url };
+  async loginWithGoogleNative(): Promise<void> {
+    if (this.getClientId() === this.getAndroidClientId()) throw new Error('Đăng nhập Google chưa được cấu hình đúng. Vui lòng dùng email.');
+    const { signInNativeGoogle } = await import('./nativeGoogleAuth');
+    await signInNativeGoogle(this.getClientId());
   },
 
   /**

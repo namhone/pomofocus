@@ -60,19 +60,19 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
   // 1. MobileAppShell: Viewport, Header & Branding
   // =========================================================================
   describe('1. MobileAppShell: Viewport & 56px Header', () => {
-    it('1.1 Renders 100dvh root container with GPU promotion (translateZ(0))', () => {
+    it('1.1 Renders 100dvh root container without a redundant full-screen transform layer', () => {
       render(<MobileAppShell />);
       const shell = screen.getByTestId('mobile-app-shell');
       expect(shell).toBeDefined();
       expect(shell.className).toContain('100dvh');
-      expect(shell.style.transform).toBe('translateZ(0)');
+      expect(shell.style.transform).toBe('');
     });
 
     it('1.2 Renders 48px Top Header with PomoFocus brand', () => {
       render(<MobileAppShell />);
       const header = screen.getByTestId('mobile-top-header');
       expect(header).toBeDefined();
-      expect(header.className).toContain('h-12');
+      expect(header.className).toContain('min-h-[48px]');
       expect(header.textContent).toContain('PomoFocus');
     });
 
@@ -82,19 +82,19 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       expect(headers.length).toBe(1);
     });
 
-    it('1.4 3-State Timer Indicator Dot: emerald pulsing when running', () => {
+    it('1.4 3-State Timer Indicator Dot: monochrome pulse when running', () => {
       useTimerStore.setState({ status: 'running' });
       render(<MobileAppShell />);
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-emerald-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).toContain('animate-pulse');
     });
 
-    it('1.5 3-State Timer Indicator Dot: amber when paused', () => {
+    it('1.5 3-State Timer Indicator Dot: monochrome when paused', () => {
       useTimerStore.setState({ status: 'paused' });
       render(<MobileAppShell />);
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-amber-400');
+      expect(dot.className).toContain('bg-zinc-700');
     });
 
     it('1.6 3-State Timer Indicator Dot: zinc when idle', () => {
@@ -121,12 +121,12 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
   // 2. Material 3 Bottom Navigation Bar & Sub-Views
   // =========================================================================
   describe('2. Material 3 Bottom Navigation Bar & View Switching', () => {
-    it('2.1 Renders 5 equal tabs: focus, tasks, spaces, ai, settings with role="tab"', () => {
+    it('2.1 Renders 5 equal tabs: focus, tasks, spaces, ai, tools with role="tab"', () => {
       render(<MobileAppShell />);
       const nav = screen.getByTestId('mobile-bottom-nav');
       expect(nav).toBeDefined();
 
-      const tabs = ['focus', 'tasks', 'spaces', 'ai', 'settings'];
+      const tabs = ['focus', 'tasks', 'spaces', 'ai', 'tools'];
       tabs.forEach((tabId) => {
         const tabBtn = screen.getByTestId(`mobile-nav-tab-${tabId}`);
         expect(tabBtn.getAttribute('role')).toBe('tab');
@@ -150,7 +150,7 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       expect(screen.getByTestId('mobile-view-tasks')).toBeDefined();
 
       // Switch to settings
-      const settingsTab = screen.getByTestId('mobile-nav-tab-settings');
+      const settingsTab = screen.getByRole('button', { name: 'Cài đặt', exact: true });
       fireEvent.click(settingsTab);
       expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
       expect(screen.getByTestId('mobile-view-settings')).toBeDefined();

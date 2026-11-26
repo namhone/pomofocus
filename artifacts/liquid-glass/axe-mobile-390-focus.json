@@ -25,38 +25,6 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "9.0pt (12px)",
-                "fontWeight": "normal",
-                "messageKey": "bgGradient",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [
-                {
-                  "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]\">",
-                  "target": [
-                    ".from-white\\/\\[0\\.14\\]"
-                  ]
-                }
-              ],
-              "impact": "serious",
-              "message": "Element's background color could not be determined due to a background gradient"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]\">",
-          "target": [
-            ".from-white\\/\\[0\\.14\\]"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
                 "fontSize": "45.0pt (60px)",
                 "fontWeight": "bold",
                 "messageKey": "bgOverlap",
@@ -114,9 +82,15 @@
               },
               "relatedNodes": [
                 {
-                  "html": "<div data-testid=\"mobile-cycle-status-pill\" class=\"flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 border-t-white/20 backdrop-blur-md shadow-sm\">",
+                  "html": "<div data-testid=\"mobile-cycle-status-pill\" class=\"pomo-glass flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full\">",
                   "target": [
                     ".mt-4"
+                  ]
+                },
+                {
+                  "html": "<div class=\"pomo-glass relative isolate flex flex-col items-center justify-center rounded-[2rem] px-5 py-4\">",
+                  "target": [
+                    ".isolate"
                   ]
                 },
                 {
@@ -138,70 +112,6 @@
             "span[data-testid=\"mobile-cycle-round-label\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "8.3pt (11px)",
-                "fontWeight": "normal",
-                "messageKey": "bgGradient",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [
-                {
-                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
-                  "target": [
-                    ".liquid-elevated"
-                  ]
-                }
-              ],
-              "impact": "serious",
-              "message": "Element's background color could not be determined due to a background gradient"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<span class=\"text-[11px] font-sans text-zinc-300\">Dòng chảy hôm nay</span>",
-          "target": [
-            ".font-sans.text-\\[11px\\].text-zinc-300"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "9.0pt (12px)",
-                "fontWeight": "normal",
-                "messageKey": "bgGradient",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [
-                {
-                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
-                  "target": [
-                    ".liquid-elevated"
-                  ]
-                }
-              ],
-              "impact": "serious",
-              "message": "Element's background color could not be determined due to a background gradient"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<span data-testid=\"mobile-daily-flow-summary\" class=\"text-xs text-zinc-400 font-sans\">0g 0p · 0 phiên</span>",
-          "target": [
-            "span[data-testid=\"mobile-daily-flow-summary\"]"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
         }
       ]
     }
@@ -209,7 +119,7 @@
   "passes": [
     {
       "id": "aria-allowed-attr",
-      "nodes": 29
+      "nodes": 30
     },
     {
       "id": "aria-command-name",
@@ -217,7 +127,7 @@
     },
     {
       "id": "aria-conditional-attr",
-      "nodes": 29
+      "nodes": 30
     },
     {
       "id": "aria-deprecated-role",
@@ -229,7 +139,7 @@
     },
     {
       "id": "aria-hidden-focus",
-      "nodes": 12
+      "nodes": 11
     },
     {
       "id": "aria-progressbar-name",
@@ -237,7 +147,7 @@
     },
     {
       "id": "aria-prohibited-attr",
-      "nodes": 29
+      "nodes": 30
     },
     {
       "id": "aria-required-attr",
@@ -257,23 +167,23 @@
     },
     {
       "id": "aria-valid-attr-value",
-      "nodes": 29
+      "nodes": 30
     },
     {
       "id": "aria-valid-attr",
-      "nodes": 29
+      "nodes": 30
     },
     {
       "id": "avoid-inline-spacing",
-      "nodes": 4
+      "nodes": 3
     },
     {
       "id": "button-name",
-      "nodes": 17
+      "nodes": 18
     },
     {
       "id": "color-contrast",
-      "nodes": 12
+      "nodes": 15
     },
     {
       "id": "document-title",
@@ -297,7 +207,7 @@
     },
     {
       "id": "nested-interactive",
-      "nodes": 24
+      "nodes": 25
     },
     {
       "id": "role-img-alt",

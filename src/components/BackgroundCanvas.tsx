@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { FALLBACK_GRADIENTS } from '../data/backgroundPresets';
 import { useLayoutStore } from '../stores/useLayoutStore';
+import { backgroundScrimOpacity, imageLuminance } from '../utils/backgroundContrast';
 
 export const BackgroundCanvas: React.FC = () => {
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
@@ -36,6 +37,29 @@ export const BackgroundCanvas: React.FC = () => {
         }
       : presets.find((p) => p.id === activePresetId) || presets[0];
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [sample, setSample] = useState<{ url: string; luminance: number } | null>(null);
+  const sampleUrl = preset?.category === 'video' ? preset.fallbackUrl : preset?.url;
+
+  useEffect(() => {
+    if (!sampleUrl || (!sampleUrl.startsWith('http') && !sampleUrl.startsWith('/'))) return;
+    let active = true;
+    const image = new Image();
+    // A separate CORS sample preserves display of custom images without CORS support.
+    image.crossOrigin = 'anonymous';
+    image.onload = () => {
+      if (!active) return;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 24; canvas.height = 24;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        if (!context) return;
+        context.drawImage(image, 0, 0, 24, 24);
+        setSample({ url: sampleUrl, luminance: imageLuminance(context.getImageData(0, 0, 24, 24).data) });
+      } catch { /* Unknown image: keep the conservative scrim and local text surfaces. */ }
+    };
+    image.src = sampleUrl;
+    return () => { active = false; image.onload = null; };
+  }, [sampleUrl]);
 
   // Lắng nghe chính sách prefers-reduced-motion của hệ điều hành
   useEffect(() => {
@@ -197,8 +221,11 @@ export const BackgroundCanvas: React.FC = () => {
       {/* 4. Lớp phủ tối (Overlay) điều chỉnh tương phản */}
       <div
         data-testid="background-overlay"
-        className="absolute inset-0 bg-slate-950 transition-opacity duration-300"
-        style={{ opacity: overlayOpacity / 100 }}
+        className="absolute inset-0 bg-[#09090b] transition-opacity duration-300"
+        style={{ opacity: isSolid ? 0 : backgroundScrimOpacity(
+          sample?.url === sampleUrl ? sample.luminance : activePresetId === 'deep-space' ? .04 : .5,
+          brightnessLevel, overlayOpacity
+        ) }}
       />
     </div>
   );

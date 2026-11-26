@@ -13,10 +13,6 @@ import {
   Zap,
   Star,
   Leaf,
-  Video,
-  FileText,
-  Calendar,
-  BarChart3,
   CreditCard
 } from 'lucide-react';
 import { useRouter } from '../../../services/router';
@@ -325,94 +321,9 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
         )}
       </div>
 
-      {/* 1.5. LỐI VÀO TIỆN ÍCH MỞ RỘNG (Quick Mobile Navigation Grid) */}
-      <div className="space-y-2">
-        <div className="text-[11px] font-semibold text-zinc-400 px-1">
-          Tiện ích không gian & học tập
-        </div>
-        <div data-testid="mobile-settings-shortcuts-grid" className="grid grid-cols-3 gap-2">
-          {/* Meet / Rooms */}
-          <button
-            type="button"
-            data-testid="mobile-settings-entry-rooms"
-            onClick={() => router.navigate('/rooms')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
-          >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
-              <Video className="w-4 h-4 stroke-[1.5]" />
-            </div>
-            <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white leading-tight text-center w-full">
-              Meet
-            </span>
-          </button>
-
-          {/* Ghi chú */}
-          <button
-            type="button"
-            data-testid="mobile-settings-entry-notes"
-            onClick={() => {
-              const layoutState = useLayoutStore.getState();
-              if (layoutState.navigateMobileWidget) {
-                layoutState.navigateMobileWidget('notes');
-              }
-              router.navigate('/app');
-            }}
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
-          >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
-              <FileText className="w-4 h-4 stroke-[1.5]" />
-            </div>
-            <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white leading-tight text-center w-full">
-              Ghi chú
-            </span>
-          </button>
-
-          {/* Lịch */}
-          <button
-            type="button"
-            data-testid="mobile-settings-entry-calendar"
-            onClick={() => router.navigate('/calendar')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
-          >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
-              <Calendar className="w-4 h-4 stroke-[1.5]" />
-            </div>
-            <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white leading-tight text-center w-full">
-              Lịch
-            </span>
-          </button>
-
-          {/* Thống kê */}
-          <button
-            type="button"
-            data-testid="mobile-settings-entry-dashboard"
-            onClick={() => router.navigate('/dashboard')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
-          >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
-              <BarChart3 className="w-4 h-4 stroke-[1.5]" />
-            </div>
-            <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white leading-tight text-center w-full">
-              Thống kê
-            </span>
-          </button>
-
-          {/* Nạp điểm / Gói cước */}
-          <button
-            type="button"
-            data-testid="mobile-settings-entry-billing"
-            onClick={() => router.navigate('/billing')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/20 active:scale-95 transition cursor-pointer text-center group"
-          >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-zinc-300 group-hover:text-white mb-1 transition">
-              <CreditCard className="w-4 h-4 stroke-[1.5]" />
-            </div>
-            <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white leading-tight text-center w-full">
-              Gói cước
-            </span>
-          </button>
-        </div>
-      </div>
+      <button type="button" onClick={() => router.navigate('/billing')} className="pomo-glass w-full rounded-2xl p-4 flex items-center gap-3 text-sm text-white">
+        <CreditCard size={18} strokeWidth={1.5} /> Gói cước
+      </button>
 
       {/* 2. TIMER CYCLE STEPPERS (3 INDEPENDENT ROWS) */}
       <div className="space-y-2">
