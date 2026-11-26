@@ -1,0 +1,36 @@
+{
+  "verifiedAt": "2026-11-26T00:25:30.469Z",
+  "local": {
+    "version": "8.1.1",
+    "versionCode": 82,
+    "bytes": 8869402,
+    "sha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
+    "apkSizeMb": 8.46
+  },
+  "production": [
+    {
+      "domain": "pomofocus-workspace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.0",
+      "versionCode": 81,
+      "apkBytes": 8911113,
+      "apkSha256": "fb7f3b693ae82148120452074497e180444ecee5fc87810b9f4558aa1e585267",
+      "entryMatches": false,
+      "matches": false
+    },
+    {
+      "domain": "pomofocus-workplace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.1",
+      "versionCode": 82,
+      "apkBytes": 8869402,
+      "apkSha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
+      "entryMatches": false,
+      "matches": false
+    }
+  ]
+}

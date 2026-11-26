@@ -70,4 +70,6 @@ npm run build:apk exit 0; Gradle assembleDebug BUILD SUCCESSFUL. APK 8.1.1/code 
 
 ## Production
 
-Chưa triển khai; sẽ ghi URL deployment và kiểm tra HTTP/version/hash APK trên cả hai alias sau push.
+Source commit 69ab163 đã push origin/master. Vercel deployment dpl_GwcXRdcc5jehxSNdyiihtznG7S5i READY: https://pomodoro-workspace-7592c9e93-axis-be33.vercel.app. Cả pomofocus-workspace.vercel.app và pomofocus-workplace.vercel.app đã xác minh lúc 07:26 ngày 26/11/2026 (Asia/Saigon): trang chủ, version.json, APK và bundle entry đều HTTP 200; version 8.1.1/code 82, APK 8,869,402 bytes và SHA-256 khớp local. Cả hai trả cùng bundle /assets/index-CsnU8e7U.js, đối chiếu đúng entry của log build Vercel.
+
+Alias workspace ban đầu vẫn trỏ deployment cũ 8.1.0 dù HTTP 200; đã gán sang deployment mới và kiểm lại toàn bộ. Bằng chứng trước/sau trong production-before-alias.json và production-verification.json. Bundle local và cloud có tên hash khác nhau, vì vậy kiểm tra production dựa trên output build Vercel thay vì ép tên file local.

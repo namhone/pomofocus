@@ -1,0 +1,42 @@
+{
+  "verifiedAt": "2026-11-26T00:26:37.967Z",
+  "local": {
+    "version": "8.1.1",
+    "versionCode": 82,
+    "bytes": 8869402,
+    "sha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
+    "apkSizeMb": 8.46
+  },
+  "production": [
+    {
+      "domain": "pomofocus-workspace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.1",
+      "versionCode": 82,
+      "apkBytes": 8869402,
+      "apkSha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
+      "deployedEntry": "/assets/index-CsnU8e7U.js",
+      "entryMatches": true,
+      "entryStatus": 200,
+      "entrySha256": "a82fce1c17ba520a7656ceadbf5f653e0a112fb9244158d351790d2911c1fe04",
+      "matches": true
+    },
+    {
+      "domain": "pomofocus-workplace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.1",
+      "versionCode": 82,
+      "apkBytes": 8869402,
+      "apkSha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
+      "deployedEntry": "/assets/index-CsnU8e7U.js",
+      "entryMatches": true,
+      "entryStatus": 200,
+      "entrySha256": "a82fce1c17ba520a7656ceadbf5f653e0a112fb9244158d351790d2911c1fe04",
+      "matches": true
+    }
+  ]
+}
