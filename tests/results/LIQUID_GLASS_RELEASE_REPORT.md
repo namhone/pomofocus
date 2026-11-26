@@ -40,4 +40,8 @@ assembleDebug 8.1.2/code83, com.pomofocus.workspace. AAPT đọc đúng version;
 
 ## Production
 
-Đang chuẩn bị commit/push/deploy và kiểm HTTP/hash hai alias. Chưa coi build local là production.
+Source/APK commit 5b6e830 đã push origin/master. Vercel production READY: dpl_FLJjGTtk8v7VoNZ6wfNVZMZ5TAqe, https://pomodoro-workspace-2uevc1q6e-axis-be33.vercel.app. Workplace auto alias, workspace đã trỏ bổ sung bằng CLI scope axis-be33.
+
+Xác minh 18:31:08 26/11/26 (Asia/Ho_Chi_Minh): cả https://pomofocus-workspace.vercel.app và https://pomofocus-workplace.vercel.app trả HTTP200 cho trang chủ, version.json, APK và bundle /assets/index-BoJrQORW.js. Hash bundle hai alias cùng 8fefdcc17e5be6e74aca6e445d2d9ae03bddccf394b2566fa2b7a580f7738983; APK 8.1.2/code83 đúng 8,836,362 bytes và hash đã ghi ở trên. Bằng chứng artifacts/phase4b/production-verification.json, vercel-deploy.log và artifacts/liquid-glass/vercel-alias.log.
+
+Bổ sung kiểm chứng focus bàn phím trong Eco: ca mobile riêng pass, không cần sửa CSS hay build lại APK. Đã thêm assertion này vào suite để giữ A11y khi tắt glow.

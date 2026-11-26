@@ -66,6 +66,13 @@ test('Focus: visual depth, real timer controls, Eco and safe area', async ({ pag
   await workspace.eco(true); await expect(aura).toHaveCount(0);
   const primary = page.getByRole('button', { name: mobile ? 'Bắt đầu đếm giờ' : 'Tiếp tục phiên tập trung', exact: true });
   await expect(primary).toHaveCSS('box-shadow', 'none');
+  await primary.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+  await expect(primary).toBeFocused();
+  await expect.poll(() => primary.evaluate(element => {
+    const style = getComputedStyle(element);
+    return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));
+  })).toBe(true);
+  await primary.blur();
   await workspace.eco(false); await expect(aura).toBeVisible();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(aura).toBeHidden(); await expect(primary).toHaveCSS('box-shadow', 'none');

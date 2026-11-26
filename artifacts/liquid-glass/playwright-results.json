@@ -122,12 +122,12 @@
                 {
                   "workerIndex": 0,
                   "status": "passed",
-                  "duration": 11953,
+                  "duration": 9091,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:31:57.290Z",
+                  "startTime": "2026-11-26T11:30:38.276Z",
                   "attachments": []
                 }
               ],
@@ -154,12 +154,12 @@
                 {
                   "workerIndex": 0,
                   "status": "passed",
-                  "duration": 14668,
+                  "duration": 5154,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:32:11.015Z",
+                  "startTime": "2026-11-26T11:30:48.609Z",
                   "attachments": []
                 }
               ],
@@ -168,7 +168,7 @@
           ],
           "id": "2343872df80cab5be60a-0502119aeb2a2b84c0e4",
           "file": "hierarchy.spec.ts",
-          "line": 77,
+          "line": 84,
           "column": 1
         },
         {
@@ -186,12 +186,12 @@
                 {
                   "workerIndex": 1,
                   "status": "passed",
-                  "duration": 12125,
+                  "duration": 8141,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:32:55.428Z",
+                  "startTime": "2026-11-26T11:31:00.041Z",
                   "attachments": []
                 }
               ],
@@ -218,12 +218,12 @@
                 {
                   "workerIndex": 1,
                   "status": "passed",
-                  "duration": 6268,
+                  "duration": 5689,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:33:09.185Z",
+                  "startTime": "2026-11-26T11:31:08.815Z",
                   "attachments": []
                 }
               ],
@@ -232,7 +232,7 @@
           ],
           "id": "2343872df80cab5be60a-fae9f2d3082109ab0663",
           "file": "hierarchy.spec.ts",
-          "line": 77,
+          "line": 84,
           "column": 1
         },
         {
@@ -250,12 +250,12 @@
                 {
                   "workerIndex": 2,
                   "status": "passed",
-                  "duration": 7519,
+                  "duration": 5104,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:33:23.709Z",
+                  "startTime": "2026-11-26T11:31:19.211Z",
                   "attachments": []
                 }
               ],
@@ -282,12 +282,12 @@
                 {
                   "workerIndex": 2,
                   "status": "passed",
-                  "duration": 5096,
+                  "duration": 3826,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:33:32.593Z",
+                  "startTime": "2026-11-26T11:31:24.775Z",
                   "attachments": []
                 }
               ],
@@ -296,7 +296,7 @@
           ],
           "id": "2343872df80cab5be60a-56dc22cbe41b0f1970fc",
           "file": "hierarchy.spec.ts",
-          "line": 77,
+          "line": 84,
           "column": 1
         },
         {
@@ -314,12 +314,12 @@
                 {
                   "workerIndex": 3,
                   "status": "passed",
-                  "duration": 8474,
+                  "duration": 4506,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:33:42.526Z",
+                  "startTime": "2026-11-26T11:31:33.402Z",
                   "attachments": []
                 }
               ],
@@ -346,12 +346,12 @@
                 {
                   "workerIndex": 3,
                   "status": "passed",
-                  "duration": 4793,
+                  "duration": 3573,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T08:33:53.410Z",
+                  "startTime": "2026-11-26T11:31:38.332Z",
                   "attachments": []
                 }
               ],
@@ -360,7 +360,7 @@
           ],
           "id": "2343872df80cab5be60a-f1f465da8e40e0dd9bf9",
           "file": "hierarchy.spec.ts",
-          "line": 77,
+          "line": 84,
           "column": 1
         }
       ]
@@ -368,8 +368,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-26T08:31:44.586Z",
-    "duration": 140294.334,
+    "startTime": "2026-11-26T11:30:26.940Z",
+    "duration": 77839.30600000001,
     "expected": 8,
     "skipped": 0,
     "unexpected": 0,
