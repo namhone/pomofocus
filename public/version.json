@@ -2,10 +2,10 @@
   "version": "8.1.4",
   "minSupportedVersion": "7.0.0",
   "minVersion": "7.0.0",
-  "releaseDate": "2026-11-26",
+  "releaseDate": "2026-11-27",
   "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk",
-  "apkSizeMb": 9.8,
-  "checksumSha256": "1754dc26d765aa034b8635fc1a5718b7a25fc2700de1ef2ae1e73b2cd268a476",
+  "apkSizeMb": 9.53,
+  "checksumSha256": "3841b61e2f31a57b31173bbfe027d36e2ab68f4cee01abb76b26ffd5f927ae39",
   "releaseNotes": "Nền rõ hơn, mặt kính thống nhất và tiện ích dễ mở hơn.",
   "changelog": [
     "Cài đặt trên thanh đầu, Meet và ghi chú trong Tiện ích",

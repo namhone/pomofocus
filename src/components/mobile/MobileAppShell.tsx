@@ -433,7 +433,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
         data-testid="mobile-top-header"
         role="banner"
         className={`min-h-[48px] h-[calc(48px+env(safe-area-inset-top,0px))] pt-safe w-full flex items-center justify-between px-3.5 ${
-          isEcoMode ? 'bg-zinc-950/95' : 'bg-zinc-950/80 backdrop-blur-xl'
+          isEcoMode ? 'bg-[#09090b]/95' : 'bg-[#09090b]/60 backdrop-blur-xl'
         } border-b border-white/10 z-20 shrink-0`}
       >
         {/* Left: Official PomoFocus Logo & Wordmark (Zero ads, zero redundant badges) */}
@@ -453,7 +453,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             type="button"
             data-testid="mobile-header-credits-pill"
             onClick={() => openTopupModal()}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-900/90 border border-white/10 hover:border-white/20 text-xs font-mono font-medium text-zinc-200 transition active:scale-95 cursor-pointer shadow-sm"
+            className="pomo-glass flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-mono font-medium text-zinc-200 transition active:scale-95 cursor-pointer"
             title="Số dư điểm AI"
             aria-label={`Số dư AI: ${aiCreditsBalance} điểm`}
           >
@@ -461,17 +461,17 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             <span className="font-bold text-white tabular-nums">{aiCreditsBalance}</span>
           </button>
 
-          {/* PiP button: Only display when NOT running inside Android APK */}
+          {/* PiP button: Hidden on narrow mobile screens (<640px) and inside Android APK */}
           {!isNativeCapacitor && !isNativeApiRuntime() && (
             <button
               type="button"
               data-testid="mobile-pip-btn"
               onClick={handleTriggerPip}
-              className="w-7 h-7 rounded-full bg-zinc-900/80 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+              className="hidden sm:flex w-8 h-8 rounded-full pomo-glass text-zinc-300 hover:text-white items-center justify-center transition active:scale-95 cursor-pointer"
               title="Đồng hồ nổi (picture-in-picture)"
               aria-label="Đồng hồ nổi"
             >
-              <PictureInPicture2 className="w-3.5 h-3.5" />
+              <PictureInPicture2 className="w-4 h-4" />
             </button>
           )}
 
@@ -480,7 +480,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             type="button"
             data-testid="mobile-header-avatar-btn"
             onClick={() => setIsAuthSheetOpen(true)}
-            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/25 flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-zinc-200 shadow-sm"
+            className="w-8 h-8 rounded-full pomo-glass flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-zinc-200"
             title="Tài khoản & đồng bộ đám mây"
             aria-label="Tài khoản và đồng bộ đám mây"
           >
@@ -496,9 +496,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             aria-label="Cài đặt"
             aria-pressed={activeTab === 'settings'}
             onClick={() => handleSelectTab('settings')}
-            className="pomo-glass min-w-10 min-h-10 rounded-full flex items-center justify-center touch-manipulation active:scale-95"
+            className="pomo-glass w-8 h-8 rounded-full flex items-center justify-center text-zinc-200 hover:text-white touch-manipulation active:scale-95 cursor-pointer"
           >
-            <Settings size={18} strokeWidth={1.5} />
+            <Settings size={16} strokeWidth={1.5} />
           </button>
         </div>
       </header>

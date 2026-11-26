@@ -1,11 +1,11 @@
 {
-  "verifiedAt": "2026-11-26T12:55:06.435Z",
+  "verifiedAt": "2026-11-26T16:10:34.649Z",
   "local": {
-    "version": "8.1.3",
-    "versionCode": 84,
-    "bytes": 8872261,
-    "sha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
-    "apkSizeMb": 8.46
+    "version": "8.1.4",
+    "versionCode": 85,
+    "bytes": 10271146,
+    "sha256": "1754dc26d765aa034b8635fc1a5718b7a25fc2700de1ef2ae1e73b2cd268a476",
+    "apkSizeMb": 9.8
   },
   "production": [
     {
@@ -13,30 +13,30 @@
       "homeStatus": 200,
       "versionStatus": 200,
       "apkStatus": 200,
-      "version": "8.1.3",
-      "versionCode": 84,
-      "apkBytes": 8872261,
-      "apkSha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+      "version": "8.1.4",
+      "versionCode": 85,
+      "apkBytes": 10271146,
+      "apkSha256": "1754dc26d765aa034b8635fc1a5718b7a25fc2700de1ef2ae1e73b2cd268a476",
       "deployedEntry": "/assets/index-C94LvuYV.js",
-      "entryMatches": true,
+      "entryMatches": false,
       "entryStatus": 200,
-      "entrySha256": "363d24dfc079451df24ad1c30db603078d947fa0c62e025a5352280ff5e67a07",
-      "matches": true
+      "entrySha256": "f41b34ae1849e49eaf204257d5f203839eb0a92c40680348dab0e643db7564a4",
+      "matches": false
     },
     {
       "domain": "pomofocus-workplace.vercel.app",
       "homeStatus": 200,
       "versionStatus": 200,
       "apkStatus": 200,
-      "version": "8.1.3",
-      "versionCode": 84,
-      "apkBytes": 8872261,
-      "apkSha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+      "version": "8.1.4",
+      "versionCode": 85,
+      "apkBytes": 10271146,
+      "apkSha256": "1754dc26d765aa034b8635fc1a5718b7a25fc2700de1ef2ae1e73b2cd268a476",
       "deployedEntry": "/assets/index-C94LvuYV.js",
-      "entryMatches": true,
+      "entryMatches": false,
       "entryStatus": 200,
-      "entrySha256": "363d24dfc079451df24ad1c30db603078d947fa0c62e025a5352280ff5e67a07",
-      "matches": true
+      "entrySha256": "f41b34ae1849e49eaf204257d5f203839eb0a92c40680348dab0e643db7564a4",
+      "matches": false
     }
   ]
 }

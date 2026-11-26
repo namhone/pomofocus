@@ -88,12 +88,6 @@
                   ]
                 },
                 {
-                  "html": "<div class=\"pomo-glass relative isolate flex flex-col items-center justify-center rounded-[2rem] px-5 py-4\">",
-                  "target": [
-                    ".isolate"
-                  ]
-                },
-                {
                   "html": "<div data-testid=\"mobile-breathing-aura\" class=\"liquid-ambient absolute -inset-x-20 -inset-y-14 sm:-inset-x-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.04)_35%,transparent_72%)] pointer-events-none -z-10\" aria-hidden=\"true\" style=\"transform: translateZ(0px);\">",
                   "target": [
                     ".liquid-ambient"
@@ -119,7 +113,7 @@
   "passes": [
     {
       "id": "aria-allowed-attr",
-      "nodes": 30
+      "nodes": 29
     },
     {
       "id": "aria-command-name",
@@ -127,7 +121,7 @@
     },
     {
       "id": "aria-conditional-attr",
-      "nodes": 30
+      "nodes": 29
     },
     {
       "id": "aria-deprecated-role",
@@ -147,7 +141,7 @@
     },
     {
       "id": "aria-prohibited-attr",
-      "nodes": 30
+      "nodes": 29
     },
     {
       "id": "aria-required-attr",
@@ -167,11 +161,11 @@
     },
     {
       "id": "aria-valid-attr-value",
-      "nodes": 30
+      "nodes": 29
     },
     {
       "id": "aria-valid-attr",
-      "nodes": 30
+      "nodes": 29
     },
     {
       "id": "avoid-inline-spacing",
@@ -179,7 +173,7 @@
     },
     {
       "id": "button-name",
-      "nodes": 18
+      "nodes": 17
     },
     {
       "id": "color-contrast",
@@ -207,7 +201,7 @@
     },
     {
       "id": "nested-interactive",
-      "nodes": 25
+      "nodes": 24
     },
     {
       "id": "role-img-alt",

@@ -1022,8 +1022,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             title="Chế độ kỷ luật: rời app quá 5 giây sẽ hủy hiệp hiện tại"
             className={`pomo-glass h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation ${
               isStrictMode
-                ? 'border-white/20 bg-white/10 text-white'
-                : 'border-white/5 bg-zinc-900/65 text-zinc-400 hover:text-zinc-200'
+                ? 'pomo-glass-selected text-white'
+                : 'text-zinc-300 hover:text-white'
             }`}
           >
             {isStrictMode ? (
@@ -1074,7 +1074,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       {/* 2. LAYER 2 (CENTER FOCUS CORE): Numerals, Breathing Aura, Thumb     */}
       {/* ------------------------------------------------------------------ */}
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative w-full z-10 py-4">
-        <div className="pomo-glass relative isolate flex flex-col items-center justify-center rounded-[2rem] px-5 py-4">
+        <div className="relative isolate flex flex-col items-center justify-center">
           {/* Breathing Aura */}
           {!isEcoMode && (
             <div

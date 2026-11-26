@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+#Requires -Version 5.1
 [CmdletBinding()]
 param(
     [string]$Serial,
@@ -25,7 +25,10 @@ function Invoke-Adb {
     $startInfo.CreateNoWindow = $true
     $startInfo.RedirectStandardOutput = $true
     $startInfo.RedirectStandardError = $true
-    foreach ($argument in ($script:selector + $Arguments)) { $startInfo.ArgumentList.Add($argument) }
+    $escapedArgs = ($script:selector + $Arguments) | ForEach-Object {
+        if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
+    }
+    $startInfo.Arguments = $escapedArgs -join ' '
     $process = [Diagnostics.Process]::new()
     $process.StartInfo = $startInfo
     try {
@@ -47,9 +50,11 @@ try {
         $command = Get-Command adb -ErrorAction SilentlyContinue
         if ($command) { $AdbPath = $command.Source }
         else {
+            $androidHome = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { 'D:/Android/Sdk' }
+            $androidSdkRoot = if ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { 'D:/Android/Sdk' }
             $candidates = @(
-                (Join-Path ($env:ANDROID_HOME ?? 'D:/Android/Sdk') 'platform-tools/adb.exe'),
-                (Join-Path ($env:ANDROID_SDK_ROOT ?? 'D:/Android/Sdk') 'platform-tools/adb.exe'),
+                (Join-Path $androidHome 'platform-tools/adb.exe'),
+                (Join-Path $androidSdkRoot 'platform-tools/adb.exe'),
                 (Join-Path $env:LOCALAPPDATA 'Android/Sdk/platform-tools/adb.exe')
             )
             $AdbPath = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1

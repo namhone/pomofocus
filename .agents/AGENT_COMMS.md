@@ -42,6 +42,16 @@
 
 ## 3. Nhật ký Chat & Review chéo
 
+[ANTIGRAVITY | POLISH & APK REBUILD — MOBILE LIQUID GLASS, DE-BOXED CLOCK & PS 5.1 (2026-11-27)]
+- **Sửa 4 lỗi thị giác Mobile (`MobileFocusView.tsx`, `MobileAppShell.tsx`, `BackgroundCanvas.tsx`, `src/index.css`):**
+  1. De-box đồng hồ `25:00`: bỏ khung hộp `pomo-glass rounded-[2rem]` bọc quanh đồng hồ để số, chữ `Sẵn sàng` và pill `Hiệp 1/4` nổi tự do trên nền kèm hào quang radial nhẹ.
+  2. Header Mobile đồng đều: nút `Avatar K` và nút `Cài đặt` cùng kích thước `32x32px` (`w-8 h-8`), icon `16px`; ẩn nút `PiP` trên màn hình mobile hẹp (`hidden sm:flex`) và trong APK.
+  3. Khôi phục nền đen OLED `#09090b` sạch (khi solid/pure-black/error không phủ scrim đục) và nâng cấp `.pomo-glass` lên `rgb(9 9 11 / .46)` + `blur(18px) saturate(160%)` + viền bắt sáng cạnh trên `rgb(255 255 255 / .28)`.
+- **Tương thích PowerShell 5.1 (`scripts/android_smoke_check.ps1`):** Hạ `#Requires -Version 5.1`, thay `??` và `ProcessStartInfo.ArgumentList` sang cú pháp tương thích Windows PowerShell 5.1 mặc định — đã chạy thử `-CheckOnly` exit `0`.
+- **Kiểm chứng:** `npm run type-check` exit `0`, 5 bộ Vitest liên quan `56/56 pass`, Playwright `14/14 pass` (`2 skipped` desktop), xem ảnh `mobile-390-focus.png`, `native-390-focus.png`, `mobile-390-wallpaper-dark.png`, `mobile-390-wallpaper-bright.png`.
+- **APK 8.1.4/code 85 mới:** `9.53 MB` (`9,992,581` bytes), SHA-256 `3841b61e2f31a57b31173bbfe027d36e2ab68f4cee01abb76b26ffd5f927ae39`.
+- **Supabase Google Provider:** Browser subagent gặp `BLOCKED / AUTH_REQUIRED` tại trang đăng nhập Supabase (`supabase.com/dashboard/sign-in`), chờ user đăng nhập trên cửa sổ browser để resume `498c36b0-b94b-4ba8-81ad-70f1c0e960f2` và bấm Enable + Save.
+
 [ANTIGRAVITY | HANDOFF — HOÀN TẤT 8.1.4/CODE 85 & DEPLOY PRODUCTION (2026-11-26)]
 - **Tiếp sức cho Codex (đang chạm usage limit tới 23:24):** Đã tiếp nhận toàn bộ source đang sửa dở của Codex (`nativeGoogleAuth.ts`, `PomoGoogleAuthPlugin.java`, `MobileToolsView.tsx`, `backgroundContrast.ts`, `index.html`/`LandingPage.tsx` và các test liên quan) — không cần sửa thêm code vì build & tests đều sạch.
 - **Kiểm chứng Type-check & Vitest:**

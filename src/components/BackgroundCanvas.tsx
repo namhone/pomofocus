@@ -222,7 +222,7 @@ export const BackgroundCanvas: React.FC = () => {
       <div
         data-testid="background-overlay"
         className="absolute inset-0 bg-[#09090b] transition-opacity duration-300"
-        style={{ opacity: isSolid ? 0 : backgroundScrimOpacity(
+        style={{ opacity: isSolid || isPureBlack || hasError ? 0 : backgroundScrimOpacity(
           sample?.url === sampleUrl ? sample.luminance : activePresetId === 'deep-space' ? .04 : .5,
           brightnessLevel, overlayOpacity
         ) }}

@@ -5,11 +5,11 @@
   "passes": [
     {
       "id": "aria-allowed-attr",
-      "nodes": 11
+      "nodes": 10
     },
     {
       "id": "aria-conditional-attr",
-      "nodes": 11
+      "nodes": 10
     },
     {
       "id": "aria-deprecated-role",
@@ -25,7 +25,7 @@
     },
     {
       "id": "aria-prohibited-attr",
-      "nodes": 11
+      "nodes": 10
     },
     {
       "id": "aria-required-attr",
@@ -45,11 +45,11 @@
     },
     {
       "id": "aria-valid-attr-value",
-      "nodes": 11
+      "nodes": 10
     },
     {
       "id": "aria-valid-attr",
-      "nodes": 11
+      "nodes": 10
     },
     {
       "id": "avoid-inline-spacing",
@@ -57,7 +57,7 @@
     },
     {
       "id": "button-name",
-      "nodes": 13
+      "nodes": 12
     },
     {
       "id": "color-contrast",
@@ -89,7 +89,7 @@
     },
     {
       "id": "nested-interactive",
-      "nodes": 14
+      "nodes": 13
     }
   ]
 }
