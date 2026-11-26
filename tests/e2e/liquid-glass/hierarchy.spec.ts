@@ -51,8 +51,10 @@ test('Focus: visual depth, real timer controls, Eco and safe area', async ({ pag
   await expect(timer).toBeVisible(); await expect(timer).toHaveAttribute('aria-live', 'off');
   const aura = page.getByTestId(mobile ? 'mobile-breathing-aura' : 'timer-ambient-glow');
   await expect(aura).toBeVisible(); await expect(aura).toHaveAttribute('aria-hidden', 'true');
-  await page.getByRole('button', { name: mobile ? 'Bắt đầu đếm giờ' : 'Bắt đầu phiên tập trung', exact: true }).click();
-  await page.getByRole('button', { name: mobile ? 'Tạm dừng đồng hồ' : 'Tạm dừng phiên tập trung', exact: true }).click();
+  const play = page.getByRole('button', { name: mobile ? 'Bắt đầu đếm giờ' : 'Bắt đầu phiên tập trung', exact: true });
+  if (mobile) await play.tap(); else await play.click();
+  const pause = page.getByRole('button', { name: mobile ? 'Tạm dừng đồng hồ' : 'Tạm dừng phiên tập trung', exact: true });
+  if (mobile) await pause.tap(); else await pause.click();
   const status = page.getByTestId(mobile ? 'mobile-phase-announcement' : 'timer-phase-announcement');
   await expect(status).toContainText('Tạm dừng');
   if (mobile) {
@@ -70,8 +72,9 @@ test('Focus: visual depth, real timer controls, Eco and safe area', async ({ pag
   await expect(primary).toBeFocused();
   await expect.poll(() => primary.evaluate(element => {
     const style = getComputedStyle(element);
-    return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));
+    return parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor);
   })).toBe(true);
+  await page.screenshot({ path: `artifacts/liquid-glass/${info.project.name}-eco-focus.png` });
   await primary.blur();
   await workspace.eco(false); await expect(aura).toBeVisible();
   await page.emulateMedia({ reducedMotion: 'reduce' });

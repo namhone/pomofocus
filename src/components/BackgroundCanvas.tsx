@@ -87,7 +87,7 @@ export const BackgroundCanvas: React.FC = () => {
 
   const effectiveBlurLevel = isEcoMode ? 0 : blurLevel;
   const filterStyle: React.CSSProperties = {
-    filter: `blur(${effectiveBlurLevel}px) brightness(${brightnessLevel}%)`,
+    filter: effectiveBlurLevel === 0 && brightnessLevel === 100 ? 'none' : `blur(${effectiveBlurLevel}px) brightness(${brightnessLevel}%)`,
     transform: effectiveBlurLevel > 0 ? 'scale(1.04)' : 'none',
     transition: 'filter 0.3s ease, transform 0.3s ease'
   };

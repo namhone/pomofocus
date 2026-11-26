@@ -1,0 +1,79 @@
+{
+  "unitTests": 93,
+  "unitPassed": 93,
+  "unitFailed": 0,
+  "touchBeforePassed": 5,
+  "touchBeforeFailed": 2,
+  "typeCheckExit": 0,
+  "webBuildExit": 0,
+  "apkBuildExit": 0,
+  "usb84": "blocked: no authorized device",
+  "testFiles": [
+    "androidSmokeScript.test.ts",
+    "authEpochContract.test.ts",
+    "avatarIdentityContract.test.tsx",
+    "founderEntitlementContract.test.ts",
+    "m4MobileUiAndFocusLogic.test.tsx",
+    "milestone4OfflineAndBuild.test.tsx",
+    "mobileTouchRegression.test.tsx",
+    "phase4bPresentation.test.tsx",
+    "startupCurtainRegression.test.ts"
+  ],
+  "holdWithoutClickBeforeFailed": 1,
+  "suiteCounts": [
+    {
+      "passed": 11,
+      "failed": 0,
+      "file": "androidSmokeScript.test.ts"
+    },
+    {
+      "passed": 5,
+      "failed": 0,
+      "file": "authEpochContract.test.ts"
+    },
+    {
+      "passed": 12,
+      "failed": 0,
+      "file": "avatarIdentityContract.test.tsx"
+    },
+    {
+      "passed": 17,
+      "failed": 0,
+      "file": "founderEntitlementContract.test.ts"
+    },
+    {
+      "passed": 12,
+      "failed": 0,
+      "file": "m4MobileUiAndFocusLogic.test.tsx"
+    },
+    {
+      "passed": 16,
+      "failed": 0,
+      "file": "milestone4OfflineAndBuild.test.tsx"
+    },
+    {
+      "passed": 8,
+      "failed": 0,
+      "file": "mobileTouchRegression.test.tsx"
+    },
+    {
+      "passed": 9,
+      "failed": 0,
+      "file": "phase4bPresentation.test.tsx"
+    },
+    {
+      "passed": 3,
+      "failed": 0,
+      "file": "startupCurtainRegression.test.ts"
+    }
+  ],
+  "browser": {
+    "uiUniquePassed": 8,
+    "uiFullRunArtifactIoErrors": 2,
+    "a11yPassed": 5,
+    "uiFullRunPassed": 6,
+    "notes": "No assertion changes for artifact I/O recheck; initial focus failures fixed by CSS outline.",
+    "targetedRecheckPassed": 2
+  },
+  "checkedAt": "2026-11-26T12:51:58.6570814Z"
+}

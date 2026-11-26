@@ -1,0 +1,186 @@
+{
+  "config": {
+    "configFile": "D:\\FileCuaNam\\Web'\\Pomodoro\\playwright.liquid-glass.config.ts",
+    "rootDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/liquid-glass/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1366",
+        "name": "desktop-1366",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "native-390",
+        "name": "native-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5198 --strictPort",
+      "url": "http://127.0.0.1:5198",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "hierarchy.spec.ts",
+      "file": "hierarchy.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 5751,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:51:08.030Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-56dc22cbe41b0f1970fc",
+          "file": "hierarchy.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 4170,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:51:18.966Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-f1f465da8e40e0dd9bf9",
+          "file": "hierarchy.spec.ts",
+          "line": 87,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-26T12:51:02.832Z",
+    "duration": 21956.779,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

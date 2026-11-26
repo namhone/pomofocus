@@ -1,0 +1,438 @@
+{
+  "config": {
+    "configFile": "D:\\FileCuaNam\\Web'\\Pomodoro\\playwright.liquid-glass.config.ts",
+    "rootDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/liquid-glass/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1366",
+        "name": "desktop-1366",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/liquid-glass",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "native-390",
+        "name": "native-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/liquid-glass",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5198 --strictPort",
+      "url": "http://127.0.0.1:5198",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "hierarchy.spec.ts",
+      "file": "hierarchy.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "failed",
+                  "duration": 30055,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts:73:3",
+                    "location": {
+                      "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                      "column": 3,
+                      "line": 73
+                    },
+                    "snippet": "  71 |   await primary.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');\n  72 |   await expect(primary).toBeFocused();\n> 73 |   await expect.poll(() => primary.evaluate(element => {\n     |   ^\n  74 |     const style = getComputedStyle(element);\n  75 |     return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));\n  76 |   })).toBe(true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                        "column": 3,
+                        "line": 73
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n\n  71 |   await primary.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');\n  72 |   await expect(primary).toBeFocused();\n> 73 |   await expect.poll(() => primary.evaluate(element => {\n     |   ^\n  74 |     const style = getComputedStyle(element);\n  75 |     return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));\n  76 |   })).toBe(true);\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts:73:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:36:59.385Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\test-results\\liquid-glass\\hierarchy-Focus-visual-dep-20259--controls-Eco-and-safe-area-desktop-1366\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                    "column": 3,
+                    "line": 73
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-002883e66edb3ec22228",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 8912,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:37:55.156Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-0502119aeb2a2b84c0e4",
+          "file": "hierarchy.spec.ts",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 11318,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:38:23.536Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-7385dba9e5ab244ba52d",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 10194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:38:35.777Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-fae9f2d3082109ab0663",
+          "file": "hierarchy.spec.ts",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 6435,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:38:54.637Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-a6716c0c07486d67167e",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 5482,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:39:02.279Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-56dc22cbe41b0f1970fc",
+          "file": "hierarchy.spec.ts",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "Focus: visual depth, real timer controls, Eco and safe area",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "status": "failed",
+                  "duration": 22750,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts:73:3",
+                    "location": {
+                      "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                      "column": 3,
+                      "line": 73
+                    },
+                    "snippet": "  71 |   await primary.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');\n  72 |   await expect(primary).toBeFocused();\n> 73 |   await expect.poll(() => primary.evaluate(element => {\n     |   ^\n  74 |     const style = getComputedStyle(element);\n  75 |     return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));\n  76 |   })).toBe(true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                        "column": 3,
+                        "line": 73
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n\n  71 |   await primary.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');\n  72 |   await expect(primary).toBeFocused();\n> 73 |   await expect.poll(() => primary.evaluate(element => {\n     |   ^\n  74 |     const style = getComputedStyle(element);\n  75 |     return style.boxShadow !== 'none' || (parseFloat(style.outlineWidth) >= 2 && !['transparent', 'rgba(0, 0, 0, 0)'].includes(style.outlineColor));\n  76 |   })).toBe(true);\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts:73:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:39:14.283Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\test-results\\liquid-glass\\hierarchy-Focus-visual-dep-20259--controls-Eco-and-safe-area-native-390\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\liquid-glass\\hierarchy.spec.ts",
+                    "column": 3,
+                    "line": 73
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-250b405e0068e44e09ff",
+          "file": "hierarchy.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "status": "passed",
+                  "duration": 4893,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T12:39:39.821Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2343872df80cab5be60a-f1f465da8e40e0dd9bf9",
+          "file": "hierarchy.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-26T12:36:53.426Z",
+    "duration": 173306.227,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

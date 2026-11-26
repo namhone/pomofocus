@@ -98,6 +98,34 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        requestWebViewDraw();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) requestWebViewDraw();
+    }
+
+    private void requestWebViewDraw() {
+        WebView webView = getBridge() != null ? getBridge().getWebView() : null;
+        if (webView == null) return;
+        webView.post(() -> {
+            if (!webView.isAttachedToWindow()) return;
+            webView.requestLayout();
+            // Submit the current DOM to the restored Android surface without reloading state.
+            webView.postVisualStateCallback(System.nanoTime(), new WebView.VisualStateCallback() {
+                @Override
+                public void onComplete(long requestId) {
+                    webView.postInvalidateOnAnimation();
+                }
+            });
+        });
+    }
+
+    @Override
     protected void load() {
         WebView webView = findViewById(com.getcapacitor.android.R.id.webview);
         if (webView != null) {

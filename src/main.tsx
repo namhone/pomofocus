@@ -4,17 +4,25 @@ import App from './App.tsx';
 import { RouterProvider } from './services/router.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import { registerSW } from 'virtual:pwa-register';
+import { isNativeApiRuntime } from './utils/apiConfig';
 import './index.css';
 import 'katex/dist/katex.min.css';
 
 // Tự động kiểm tra và cập nhật Service Worker ngay lập tức để người dùng luôn nhận bản mới nhất
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator && !isNativeApiRuntime()) {
   registerSW({
     immediate: true,
     onNeedRefresh() {
       window.location.reload();
     }
   });
+}
+
+// APK assets are versioned by Android, not a service worker left by an older APK.
+if (isNativeApiRuntime() && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (const registration of registrations) void registration.unregister();
+  }).catch(() => {});
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

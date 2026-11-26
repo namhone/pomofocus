@@ -247,21 +247,41 @@
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Zero-FOUT Splash Curtain Dismissal Script -->
-    <script>
+    <script id="pomo-startup-guard">
       (function() {
+        var root = document.getElementById('root');
+        var observer;
+        var deadline;
         function dismissCurtain() {
           var curtain = document.getElementById('pomo-splash-curtain');
-          if (curtain && !curtain.classList.contains('loaded')) {
-            curtain.classList.add('loaded');
+          if (curtain) curtain.remove();
+          if (observer) observer.disconnect();
+          clearTimeout(deadline);
+        }
+        function checkReady() {
+          if (root && root.childElementCount) dismissCurtain();
+        }
+        observer = new MutationObserver(checkReady);
+        if (root) observer.observe(root, { childList: true });
+        deadline = setTimeout(function() {
+          if (root && !root.childElementCount) {
+            var panel = document.createElement('div');
+            panel.setAttribute('role', 'alert');
+            panel.setAttribute('data-testid', 'boot-recovery');
+            panel.style.cssText = 'min-height:100dvh;display:grid;place-content:center;gap:16px;padding:24px;background:#09090b;color:#f4f4f5;text-align:center';
+            var message = document.createElement('p');
+            message.textContent = 'Không thể mở không gian lúc này. Vui lòng thử lại.';
+            var retry = document.createElement('button');
+            retry.textContent = 'Thử mở lại';
+            retry.style.cssText = 'padding:12px 20px;border:1px solid #52525b;border-radius:24px;background:#fff;color:#09090b';
+            retry.onclick = function() { window.location.reload(); };
+            panel.appendChild(message);
+            panel.appendChild(retry);
+            root.appendChild(panel);
           }
-        }
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-          setTimeout(dismissCurtain, 100);
-        } else {
-          window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(dismissCurtain, 100);
-          });
-        }
+          dismissCurtain();
+        }, 1800);
+        checkReady();
       })();
     </script>
   </body>

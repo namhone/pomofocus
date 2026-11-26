@@ -149,6 +149,12 @@
   }
 
   /* Miễn trừ focus-ring toàn cục cho các input/textarea trong Liquid Glass Capsule có class no-focus-ring */
+  /* Eco/reduced motion remove glow shadows; keyboard focus must stay visible. */
+  .liquid-glow:focus-visible {
+    outline: 2px solid #e4e4e7 !important;
+    outline-offset: 3px;
+  }
+
   input.no-focus-ring:focus-visible,
   textarea.no-focus-ring:focus-visible,
   .no-focus-ring:focus-visible {

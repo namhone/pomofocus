@@ -168,10 +168,6 @@
       "nodes": 1
     },
     {
-      "id": "aria-hidden-focus",
-      "nodes": 1
-    },
-    {
       "id": "aria-prohibited-attr",
       "nodes": 3
     },

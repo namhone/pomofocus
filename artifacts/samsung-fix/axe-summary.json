@@ -1,0 +1,34 @@
+[
+  {
+    "file": "axe-desktop-1366-focus.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-desktop-1366-rooms-guest.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-desktop-1440-focus.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-desktop-1440-rooms-guest.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-mobile-390-focus.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-mobile-390-rooms-guest.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-native-390-focus.json",
+    "violations": 0
+  },
+  {
+    "file": "axe-native-390-rooms-guest.json",
+    "violations": 0
+  }
+]

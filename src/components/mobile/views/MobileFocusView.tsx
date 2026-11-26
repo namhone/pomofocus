@@ -442,13 +442,13 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
 
   const handleActionPointerDown = () => {
     suppressNextClickRef.current = false;
+    holdToStartCompletedRef.current = false;
     if (status === 'running') {
       // While running, standard tap pauses immediately
       return;
     }
 
     holdToStartStartRef.current = Date.now();
-    holdToStartCompletedRef.current = false;
     setHoldToStartProgress(0);
 
     if (holdToStartIntervalRef.current) clearInterval(holdToStartIntervalRef.current);
@@ -489,42 +489,21 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
     }, 20);
   };
 
-  const handleActionPointerUp = () => {
-    if (status === 'running') return;
-
-    if (holdToStartIntervalRef.current) {
-      clearInterval(holdToStartIntervalRef.current);
-      holdToStartIntervalRef.current = null;
-    }
-    setHoldToStartProgress(0);
-
-    if (holdToStartCompletedRef.current) {
-      holdToStartCompletedRef.current = false;
-      holdToStartStartRef.current = null;
-      suppressNextClickRef.current = true;
-      return;
-    }
-
-    if (holdToStartStartRef.current) {
-      const elapsed = Date.now() - holdToStartStartRef.current;
-      holdToStartStartRef.current = null;
-      suppressNextClickRef.current = true; // Always suppress following browser click event from pointer interactions!
-      // Normal 1-tap accessible trigger (< 300ms)
-      if (elapsed < 300) {
-        handleTogglePlay();
-      }
-      // If between 300ms and 800ms, user aborted hold early -> do nothing!
-    }
-  };
-
-  const handleActionPointerCancel = () => {
+  const clearActionHold = () => {
     if (holdToStartIntervalRef.current) {
       clearInterval(holdToStartIntervalRef.current);
       holdToStartIntervalRef.current = null;
     }
     holdToStartStartRef.current = null;
-    holdToStartCompletedRef.current = false;
     setHoldToStartProgress(0);
+  };
+
+  // Tap is handled only by click. Touch emits pointerleave before its click.
+  const handleActionPointerUp = clearActionHold;
+  const handleActionPointerLeave = clearActionHold;
+  const handleActionPointerCancel = () => {
+    clearActionHold();
+    holdToStartCompletedRef.current = false;
     suppressNextClickRef.current = true;
   };
 
@@ -1265,7 +1244,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onClick={handleActionClick}
               onPointerDown={handleActionPointerDown}
               onPointerUp={handleActionPointerUp}
-              onPointerLeave={handleActionPointerCancel}
+              onPointerLeave={handleActionPointerLeave}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
               className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold liquid-glow shadow-[0_4px_28px_rgba(255,255,255,0.14),inset_0_1px_0_rgba(255,255,255,0.7)] active:scale-[0.96] transition-all touch-manipulation cursor-pointer"

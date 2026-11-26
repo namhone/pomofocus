@@ -277,7 +277,17 @@ export const App: React.FC = () => {
     };
 
     // 1. Kiểm tra session hiện tại khi vừa nạp trang
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let active = true;
+    let authRevision = 0;
+    let sessionDeadline: ReturnType<typeof setTimeout>;
+    const initialSession = Promise.race([
+      supabase.auth.getSession(),
+      new Promise<never>((_, reject) => {
+        sessionDeadline = setTimeout(() => reject(new Error('Initial session lookup timed out')), 1800);
+      })
+    ]);
+    initialSession.then(({ data: { session } }) => {
+      if (!active || authRevision !== 0) return;
       if (session?.user) {
         useAuthStore.getState().syncUserFromSupabase(session.user);
         checkAndRedirectOAuth();
@@ -287,10 +297,14 @@ export const App: React.FC = () => {
           useAuthStore.getState().loadUserFromCloud(currentUser.id);
         }
       }
-    });
+    }).catch(() => {
+      // Render remains available offline; later Auth events remain authoritative.
+    }).finally(() => clearTimeout(sessionDeadline));
 
     // 2. Lắng nghe sự kiện chuyển hướng từ Google OAuth
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      authRevision++;
+      if (!active) return;
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
         useAuthStore.getState().syncUserFromSupabase(session.user);
         checkAndRedirectOAuth();
@@ -299,7 +313,7 @@ export const App: React.FC = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => { active = false; clearTimeout(sessionDeadline); subscription.unsubscribe(); };
   }, []);
 
   // Dọn dẹp & Khôi phục tiêu đề trang tĩnh hoặc tiêu đề đếm ngược Pomodoro khi đổi tuyến đường

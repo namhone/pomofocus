@@ -1,16 +1,16 @@
 {
-  "version": "8.1.2",
+  "version": "8.1.3",
   "minSupportedVersion": "7.0.0",
   "minVersion": "7.0.0",
   "releaseDate": "2026-11-26",
   "downloadUrl": "https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk",
-  "apkSizeMb": 8.43,
-  "checksumSha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
-  "releaseNotes": "Đồng hồ nổi bật hơn, phòng học gọn hơn; cải thiện đăng nhập và đồng bộ ảnh đại diện.",
+  "apkSizeMb": 8.46,
+  "checksumSha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+  "releaseNotes": "Cải thiện nút phát/tạm dừng trên màn hình cảm ứng và khôi phục hiển thị khi mở lại ứng dụng.",
   "changelog": [
-    "Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực",
-    "Bảng trắng nhóm (Shared Whiteboard) lưu vết nét vẽ bền vững",
-    "Khóa chạm bỏ túi (Pocket Lock) và cử chỉ giữ 800ms để bắt đầu học sâu"
+    "Chạm phát/tạm dừng chính xác hơn, giữ để bắt đầu vẫn hoạt động",
+    "Cải thiện khởi động và hiển thị sau khi quay lại ứng dụng",
+    "Hiển thị nút thử lại nếu ứng dụng chưa khởi động được"
   ],
-  "versionCode": 83
+  "versionCode": 84
 }

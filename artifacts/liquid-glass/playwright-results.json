@@ -108,166 +108,6 @@
       "line": 0,
       "specs": [
         {
-          "title": "Focus: visual depth, real timer controls, Eco and safe area",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop-1366",
-              "projectName": "desktop-1366",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "status": "passed",
-                  "duration": 9091,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:30:38.276Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-002883e66edb3ec22228",
-          "file": "hierarchy.spec.ts",
-          "line": 48,
-          "column": 1
-        },
-        {
-          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop-1366",
-              "projectName": "desktop-1366",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "status": "passed",
-                  "duration": 5154,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:30:48.609Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-0502119aeb2a2b84c0e4",
-          "file": "hierarchy.spec.ts",
-          "line": 84,
-          "column": 1
-        },
-        {
-          "title": "Focus: visual depth, real timer controls, Eco and safe area",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop-1440",
-              "projectName": "desktop-1440",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "status": "passed",
-                  "duration": 8141,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:31:00.041Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-7385dba9e5ab244ba52d",
-          "file": "hierarchy.spec.ts",
-          "line": 48,
-          "column": 1
-        },
-        {
-          "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop-1440",
-              "projectName": "desktop-1440",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "status": "passed",
-                  "duration": 5689,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:31:08.815Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-fae9f2d3082109ab0663",
-          "file": "hierarchy.spec.ts",
-          "line": 84,
-          "column": 1
-        },
-        {
-          "title": "Focus: visual depth, real timer controls, Eco and safe area",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "mobile-390",
-              "projectName": "mobile-390",
-              "results": [
-                {
-                  "workerIndex": 2,
-                  "status": "passed",
-                  "duration": 5104,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:31:19.211Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-a6716c0c07486d67167e",
-          "file": "hierarchy.spec.ts",
-          "line": 48,
-          "column": 1
-        },
-        {
           "title": "Meet: single-line subtitle, visible CTA and retained advanced room code",
           "ok": true,
           "tags": [],
@@ -280,14 +120,14 @@
               "projectName": "mobile-390",
               "results": [
                 {
-                  "workerIndex": 2,
+                  "workerIndex": 0,
                   "status": "passed",
-                  "duration": 3826,
+                  "duration": 5751,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T11:31:24.775Z",
+                  "startTime": "2026-11-26T12:51:08.030Z",
                   "attachments": []
                 }
               ],
@@ -296,39 +136,7 @@
           ],
           "id": "2343872df80cab5be60a-56dc22cbe41b0f1970fc",
           "file": "hierarchy.spec.ts",
-          "line": 84,
-          "column": 1
-        },
-        {
-          "title": "Focus: visual depth, real timer controls, Eco and safe area",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 90000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "native-390",
-              "projectName": "native-390",
-              "results": [
-                {
-                  "workerIndex": 3,
-                  "status": "passed",
-                  "duration": 4506,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-26T11:31:33.402Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "2343872df80cab5be60a-250b405e0068e44e09ff",
-          "file": "hierarchy.spec.ts",
-          "line": 48,
+          "line": 87,
           "column": 1
         },
         {
@@ -344,14 +152,14 @@
               "projectName": "native-390",
               "results": [
                 {
-                  "workerIndex": 3,
+                  "workerIndex": 1,
                   "status": "passed",
-                  "duration": 3573,
+                  "duration": 4170,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-26T11:31:38.332Z",
+                  "startTime": "2026-11-26T12:51:18.966Z",
                   "attachments": []
                 }
               ],
@@ -360,7 +168,7 @@
           ],
           "id": "2343872df80cab5be60a-f1f465da8e40e0dd9bf9",
           "file": "hierarchy.spec.ts",
-          "line": 84,
+          "line": 87,
           "column": 1
         }
       ]
@@ -368,9 +176,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-26T11:30:26.940Z",
-    "duration": 77839.30600000001,
-    "expected": 8,
+    "startTime": "2026-11-26T12:51:02.832Z",
+    "duration": 21956.779,
+    "expected": 2,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
