@@ -1,6 +1,6 @@
 # Samsung — sửa cảm ứng và khởi động, 26/11/2026
 
-Trạng thái: source/build/Chrome đã kiểm chứng, APK 8.1.3/code84; chờ production. Chưa nghiệm thu lại Samsung vì ADB không còn thiết bị được cấp quyền.
+Trạng thái: source/build/Chrome và production đã kiểm chứng, APK 8.1.3/code84. Chưa nghiệm thu lại Samsung vì ADB không còn thiết bị được cấp quyền.
 
 ## Bằng chứng và sửa đổi
 
@@ -48,4 +48,6 @@ Journey dùng tap ADB theo bounds accessibility: 3 cold starts, Play/Pause/Play 
 
 ## Production
 
-Chờ gates cuối và xác minh hai alias; cập nhật bằng chứng sau deploy. Không dùng kết quả production cũ để nghiệm thu bản84.
+Source/APK commit `62cb037` đã push origin/master. Deployment `pomodoro-workspace-39qvn5pwt-axis-be33.vercel.app` READY; workspace được gán alias bổ sung, workplace alias tự động. Lúc 19:55 ngày 26/11/2026 (UTC+7), cả hai domain home/version/APK/bundle HTTP200; cùng `/assets/index-C94LvuYV.js` (SHA256 `363d24dfc079451df24ad1c30db603078d947fa0c62e025a5352280ff5e67a07`) và binary84 khớp checksum ở trên. Xem artifacts/samsung-fix/production-verification.json.
+
+Phần còn lại duy nhất trong yêu cầu nghiệm thu là cài/tap/khóa-mở màn hình/resume/logcat84 trên Samsung thật. ADB kiểm lại cuối vẫn không có thiết bị; không đánh dấu lỗi đen màn hình đã được giải quyết hoàn toàn.

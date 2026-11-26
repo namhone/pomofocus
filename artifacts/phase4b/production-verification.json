@@ -1,11 +1,11 @@
 {
-  "verifiedAt": "2026-11-26T11:31:08.291Z",
+  "verifiedAt": "2026-11-26T12:55:06.435Z",
   "local": {
-    "version": "8.1.2",
-    "versionCode": 83,
-    "bytes": 8836362,
-    "sha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
-    "apkSizeMb": 8.43
+    "version": "8.1.3",
+    "versionCode": 84,
+    "bytes": 8872261,
+    "sha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+    "apkSizeMb": 8.46
   },
   "production": [
     {
@@ -13,14 +13,14 @@
       "homeStatus": 200,
       "versionStatus": 200,
       "apkStatus": 200,
-      "version": "8.1.2",
-      "versionCode": 83,
-      "apkBytes": 8836362,
-      "apkSha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
-      "deployedEntry": "/assets/index-BoJrQORW.js",
+      "version": "8.1.3",
+      "versionCode": 84,
+      "apkBytes": 8872261,
+      "apkSha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+      "deployedEntry": "/assets/index-C94LvuYV.js",
       "entryMatches": true,
       "entryStatus": 200,
-      "entrySha256": "8fefdcc17e5be6e74aca6e445d2d9ae03bddccf394b2566fa2b7a580f7738983",
+      "entrySha256": "363d24dfc079451df24ad1c30db603078d947fa0c62e025a5352280ff5e67a07",
       "matches": true
     },
     {
@@ -28,14 +28,14 @@
       "homeStatus": 200,
       "versionStatus": 200,
       "apkStatus": 200,
-      "version": "8.1.2",
-      "versionCode": 83,
-      "apkBytes": 8836362,
-      "apkSha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
-      "deployedEntry": "/assets/index-BoJrQORW.js",
+      "version": "8.1.3",
+      "versionCode": 84,
+      "apkBytes": 8872261,
+      "apkSha256": "6a7f3858f16a930ca62545c84bfaeda98e2655e4238ebd72d649555168900fcd",
+      "deployedEntry": "/assets/index-C94LvuYV.js",
       "entryMatches": true,
       "entryStatus": 200,
-      "entrySha256": "8fefdcc17e5be6e74aca6e445d2d9ae03bddccf394b2566fa2b7a580f7738983",
+      "entrySha256": "363d24dfc079451df24ad1c30db603078d947fa0c62e025a5352280ff5e67a07",
       "matches": true
     }
   ]

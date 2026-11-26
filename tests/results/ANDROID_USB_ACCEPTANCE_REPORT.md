@@ -1,5 +1,7 @@
 # Kiểm chứng Samsung USB — 26/11/2026
 
+Đây là baseline APK 8.1.2/code83. Bản sửa 8.1.3/code84 được ghi tại SAMSUNG_TOUCH_STARTUP_FIX_REPORT.md; chưa có nghiệm thu USB84 vì thiết bị đã ngắt kết nối.
+
 **Kết luận: APK chưa đạt nghiệm thu cảm ứng.** Cài đặt/startup/callback route pass; nút Pause bị nuốt khi chạm thật.
 
 ## Môi trường và kiểm tra đã chạy
