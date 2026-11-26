@@ -1,0 +1,18 @@
+[WebServer] (node:15480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:15092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  1 [native-390] › ui.spec.ts:71:1 › workspace: bright background, notes controls, header and AI coexist
+  ok 2 [native-390] › ui.spec.ts:106:1 › mobile: native safe area, navigation and empty chat (9.0s)
+  ok 3 [native-390] › ui.spec.ts:127:1 › Meet: header fits, controls work and media releases (5.9s)
+  -  4 [native-390] › ui.spec.ts:141:1 › gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable
+
+  Slow test file: [native-390] › ui.spec.ts (16.5s)
+  Consider splitting slow test files to speed up parallel execution
+  2 skipped
+  2 passed (27.8s)

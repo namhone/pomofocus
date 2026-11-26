@@ -1,3 +1,5 @@
+import { UiLabel } from '../../common/UiSymbol';
+import { UiSymbol } from '../../common/UiSymbol';
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import {
   Clock,
@@ -246,16 +248,16 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
           <div className="shrink-0">
             {isOwner ? (
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1.5">
-                <Crown className="w-3.5 h-3.5 stroke-[1.5] text-amber-300 inline" aria-hidden="true" />
-                <span className="sr-only">👑</span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm flex items-center gap-1.5">
+                <Crown className="w-3.5 h-3.5 stroke-[1.5] text-zinc-300 inline" aria-hidden="true" />
+                <span className="sr-only"><UiSymbol name="👑" /></span>
                 <span>Founder VIP</span>
               </span>
             ) : isVip ? (
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 stroke-[1.5] text-emerald-300 fill-emerald-300/30 inline" aria-hidden="true" />
-                <span className="sr-only">⭐</span>
-                <span>{planLabel || 'Pro VIP'}</span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 stroke-[1.5] text-zinc-300 fill-zinc-300/30 inline" aria-hidden="true" />
+                <span className="sr-only"><UiSymbol name="⭐" /></span>
+                <span><UiLabel text={planLabel || 'Pro VIP'} /></span>
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-white/10">
@@ -415,7 +417,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
       {/* 2. TIMER CYCLE STEPPERS (3 INDEPENDENT ROWS) */}
       <div className="space-y-2">
         <div className="text-[11px] font-semibold text-zinc-400 px-1">
-          Thời lượng Pomodoro & số hiệp
+          Thời lượng pomodoro & số hiệp
         </div>
 
         {/* Focus Stepper (1-120 min) */}
@@ -428,7 +430,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           max={120}
           step={1}
           unit="phút"
-          icon={<Clock className="w-4 h-4 text-emerald-400" aria-hidden="true" />}
+          icon={<Clock className="w-4 h-4 text-zinc-300" aria-hidden="true" />}
           onChange={handleFocusChange}
         />
 
@@ -442,7 +444,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           max={60}
           step={1}
           unit="phút"
-          icon={<Coffee className="w-4 h-4 text-emerald-400" aria-hidden="true" />}
+          icon={<Coffee className="w-4 h-4 text-zinc-300" aria-hidden="true" />}
           onChange={handleShortBreakChange}
         />
 
@@ -456,7 +458,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           max={60}
           step={1}
           unit="phút"
-          icon={<Moon className="w-4 h-4 text-emerald-400" aria-hidden="true" />}
+          icon={<Moon className="w-4 h-4 text-zinc-300" aria-hidden="true" />}
           onChange={handleLongBreakChange}
         />
       </div>
@@ -497,7 +499,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium text-zinc-200">
                 {masterVolume > 0 ? (
-                  <Volume2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                  <Volume2 className="w-4 h-4 text-zinc-300" aria-hidden="true" />
                 ) : (
                   <VolumeX className="w-4 h-4 text-zinc-400" aria-hidden="true" />
                 )}
@@ -515,7 +517,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
               max="100"
               value={Math.round(masterVolume * 100)}
               onChange={(e) => setMasterVolume(Number(e.target.value) / 100)}
-              className="w-full accent-emerald-500 bg-zinc-800 rounded-lg h-2 cursor-pointer touch-manipulation"
+              className="w-full accent-zinc-500 bg-zinc-800 rounded-lg h-2 cursor-pointer touch-manipulation"
               aria-label="Âm lượng chính"
             />
           </div>
@@ -527,7 +529,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
                 htmlFor="mobile-chime-select"
                 className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
               >
-                <Bell className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <Bell className="w-3.5 h-3.5 text-zinc-300" aria-hidden="true" />
                 <span>Chuông báo kết thúc hiệp</span>
               </label>
 
@@ -537,12 +539,12 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
                 aria-pressed={isPreviewingChime}
                 aria-label={isPreviewingChime ? 'Đang phát chuông nghe thử' : 'Nghe thử chuông'}
                 onClick={handlePreviewChime}
-                className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[11px] text-zinc-300 hover:text-zinc-300 font-semibold px-2 py-0.5 rounded-lg bg-zinc-700/10 border border-zinc-500/20 active:scale-95 transition-all cursor-pointer"
               >
                 {isPreviewingChime && (
                   <span
                     data-testid="mobile-settings-preview-indicator"
-                    className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"
+                    className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse shrink-0"
                     aria-hidden="true"
                   />
                 )}
@@ -564,7 +566,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
                 useAudioStore.getState().stopChime();
                 setSelectedChime(e.target.value as ChimeSoundType);
               }}
-              className="w-full bg-zinc-800/90 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-emerald-400/50 transition-all cursor-pointer"
+              className="w-full bg-zinc-800/90 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-zinc-400/50 transition-all cursor-pointer"
             >
               {ALARM_CHIMES.map((chime) => (
                 <option
@@ -591,7 +593,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
           <div className="flex-1 mr-3">
             <div className="text-sm font-medium text-zinc-200 flex items-center gap-1.5">
               <Leaf className="w-4 h-4 stroke-[1.5] text-zinc-400 shrink-0" />
-              <span>Chế độ Eco</span>
+              <span>Chế độ eco</span>
             </div>
             <div className="text-xs text-zinc-400 mt-0.5">
               Giảm hiệu ứng đồ họa và quầng thở để tiết kiệm pin trên điện thoại
@@ -610,7 +612,7 @@ export const MobileSettingsView: React.FC<MobileSettingsViewProps> = ({
 
         {/* Offline persistence micro-copy */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400 pt-1 pb-0.5 text-center">
-          <Lock className="w-3 h-3 text-emerald-400/80 shrink-0" aria-hidden="true" />
+          <Lock className="w-3 h-3 text-zinc-300/80 shrink-0" aria-hidden="true" />
           <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
         </div>
 

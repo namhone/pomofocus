@@ -86,20 +86,20 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
       {/* Header Info */}
       <div className="pb-3 border-b border-white/[0.08] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
-            <CalendarIcon size={16} strokeWidth={1.75} />
+          <div className="p-1.5 rounded-lg bg-zinc-700/15 text-zinc-300 border border-zinc-500/25">
+            <CalendarIcon size={16} strokeWidth={1.5} />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="font-medium text-white text-xs">Lịch Biểu & Sự Kiện</h3>
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/25">
+              <h3 className="font-medium text-white text-xs">Lịch biểu & sự kiện</h3>
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-zinc-700/15 text-zinc-300 border border-zinc-500/25">
                 Sắp ra mắt
               </span>
             </div>
             <p className="text-[10px] text-neutral-400">Time-blocking từ 06:00 đến 23:00</p>
           </div>
         </div>
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-700/10 text-zinc-300 border border-zinc-500/20">
           Hôm nay ({todayStr})
         </span>
       </div>
@@ -124,7 +124,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                 !hourBlock ? 'cursor-pointer hover:bg-white/[0.04]' : ''
               } ${
                 isCurrent
-                  ? 'bg-indigo-950/30 border-indigo-500/40'
+                  ? 'bg-zinc-950/30 border-zinc-500/40'
                   : hourBlock
                   ? 'bg-black/25 border-white/10'
                   : 'bg-white/[0.02] border-white/[0.04] hover:border-white/[0.08]'
@@ -135,9 +135,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                   <span
                     className={`font-mono text-xs w-12 shrink-0 ${
                       isCurrent
-                        ? 'text-indigo-300 font-bold'
+                        ? 'text-zinc-300 font-bold'
                         : isPast
-                        ? 'text-neutral-500'
+                        ? 'text-zinc-400'
                         : 'text-neutral-400'
                     }`}
                   >
@@ -154,16 +154,16 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                         onClick={() => handleToggleComplete(hourBlock)}
                         className={`w-4 h-4 rounded flex items-center justify-center transition cursor-pointer shrink-0 ${
                           hourBlock.completed
-                            ? 'bg-emerald-600 text-white'
+                            ? 'bg-zinc-700 text-white'
                             : 'border border-neutral-600 bg-neutral-800'
                         }`}
                       >
-                        {hourBlock.completed && <Check size={11} strokeWidth={2.5} />}
+                        {hourBlock.completed && <Check size={11} strokeWidth={1.5} />}
                       </button>
                       <div className="min-w-0 flex-1">
                         <span
                           className={`text-xs truncate block ${
-                            hourBlock.completed ? 'line-through text-neutral-500' : 'text-neutral-200'
+                            hourBlock.completed ? 'line-through text-zinc-400' : 'text-neutral-200'
                           }`}
                         >
                           {hourBlock.title}
@@ -193,7 +193,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                           onChange={(e) => setSelectedTaskId(e.target.value)}
                           className="text-[10px] bg-black/40 border border-white/15 rounded px-1.5 py-1 text-neutral-300 max-w-[90px] truncate"
                         >
-                          <option value="">Gắn Task</option>
+                          <option value="">Gắn task</option>
                           {tasks.map((t) => (
                             <option key={t.id} value={t.id}>
                               {t.title}
@@ -204,7 +204,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                       <button
                         type="button"
                         onClick={() => handleAddBlock(hour)}
-                        className="text-[10px] px-2 py-0.5 rounded bg-indigo-600 text-white font-medium"
+                        className="text-[10px] px-2 py-0.5 rounded bg-zinc-700 text-white font-medium"
                       >
                         Lưu
                       </button>
@@ -212,9 +212,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                   ) : (
                     <span
                       data-testid={`calendar-empty-slot-${hour}`}
-                      className="text-[11px] text-neutral-500 italic hover:text-neutral-300 transition-colors"
+                      className="text-[11px] text-zinc-400 italic hover:text-neutral-300 transition-colors"
                     >
-                      Trống (Nhấp để thêm)
+                      Trống (nhấp để thêm)
                     </span>
                   )}
                 </div>
@@ -227,8 +227,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                         <button
                           type="button"
                           onClick={() => setLinkedTask(hourBlock.taskId!, hourBlock.title)}
-                          title="Gắn vào Pomodoro Timer"
-                          className="p-1 rounded text-neutral-400 hover:text-indigo-300 hover:bg-white/5 transition"
+                          title="Gắn vào pomodoro timer"
+                          className="p-1 rounded text-neutral-400 hover:text-zinc-300 hover:bg-white/5 transition"
                         >
                           <ArrowRight size={13} />
                         </button>
@@ -236,7 +236,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteBlock(hourBlock.id)}
-                        className="p-1 rounded text-neutral-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                        className="p-1 rounded text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -249,7 +249,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = () => {
                           setSelectedHour(hour);
                           setNewTitle('');
                         }}
-                        className="p-1 rounded text-neutral-500 hover:text-neutral-300 hover:bg-white/5 transition"
+                        className="p-1 rounded text-zinc-400 hover:text-neutral-300 hover:bg-white/5 transition"
                         title="Thêm kế hoạch vào khung giờ"
                       >
                         <Plus size={13} />

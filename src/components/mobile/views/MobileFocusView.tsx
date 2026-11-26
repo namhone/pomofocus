@@ -1,3 +1,4 @@
+import { UiSymbol } from '../../common/UiSymbol';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -736,15 +737,15 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         >
           {/* Top Status */}
           <div className="flex items-center gap-2 pt-4 text-zinc-400 text-xs">
-            <Lock className="w-4 h-4 text-emerald-400" />
+            <Lock className="w-4 h-4 text-zinc-300" />
             <span>Đã bật khóa chống chạm nhầm</span>
           </div>
 
           {/* Center Glowing Lock Art */}
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_24px_rgba(16,185,129,0.25)]">
-                <Lock className="w-9 h-9 text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
+              <div className="w-20 h-20 rounded-full bg-zinc-700/10 border border-zinc-500/30 flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.25)]">
+                <Lock className="w-9 h-9 text-zinc-300 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
               </div>
             </div>
             <div>
@@ -769,15 +770,15 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               {/* Animated Progress Bar */}
               <div
                 data-testid="mobile-pocket-unlock-progress"
-                className="absolute left-0 top-0 bottom-0 bg-emerald-500 transition-all duration-75 pointer-events-none opacity-80"
+                className="absolute left-0 top-0 bottom-0 bg-zinc-700 transition-all duration-75 pointer-events-none opacity-80"
                 style={{ width: `${unlockHoldProgress}%` }}
               />
               <span className="relative z-10 flex items-center gap-2 drop-shadow font-bold text-white">
-                <LockOpen className="w-4 h-4 text-emerald-400" />
+                <LockOpen className="w-4 h-4 text-zinc-300" />
                 <span>Nhấn giữ để mở khóa</span>
               </span>
             </button>
-            <span className="text-[11px] text-zinc-500">Giữ 1.5 giây để mở lại màn hình</span>
+            <span className="text-[11px] text-zinc-400">Giữ 1.5 giây để mở lại màn hình</span>
           </div>
         </div>,
         document.body
@@ -841,7 +842,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
 
         {/* Action Row: Full-width Quick Task Bar Capsule (Bug #17) */}
         <div className="w-full max-w-sm relative">
-          <div className="w-full h-10 px-2.5 bg-zinc-900/65 border border-white/10 rounded-full flex items-center justify-between gap-2 shadow-sm backdrop-blur-md hover:border-emerald-500/30 transition-colors">
+          <div className="w-full h-10 px-2.5 bg-zinc-900/65 border border-white/10 rounded-full flex items-center justify-between gap-2 shadow-sm backdrop-blur-md hover:border-zinc-500/30 transition-colors">
             {/* Left Quick Complete Circle */}
             {linkedTaskId && linkedTask ? (
               <button
@@ -852,15 +853,15 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                 title={isLinkedTaskCompleted ? 'Đánh dấu chưa xong' : 'Xong ngay (1 chạm)'}
                 className={`w-6 h-6 min-w-[24px] rounded-full border flex items-center justify-center shrink-0 transition-all cursor-pointer touch-manipulation ${
                   isLinkedTaskCompleted || isJadeBursting
-                    ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
-                    : 'border-zinc-400/70 hover:border-emerald-400 text-transparent hover:text-emerald-400/60 bg-white/5'
+                    ? 'bg-zinc-700 border-zinc-400 text-white animate-jade-burst'
+                    : 'border-zinc-400/70 hover:border-zinc-400 text-transparent hover:text-zinc-300/60 bg-white/5'
                 }`}
               >
-                <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
+                <Check className="w-3.5 h-3.5 stroke-[1.5]" aria-hidden="true" />
               </button>
             ) : (
               <span className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                <Target className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+                <Target className="w-3.5 h-3.5 text-zinc-300 shrink-0" aria-hidden="true" />
               </span>
             )}
 
@@ -884,8 +885,8 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               </span>
               <span className="inline-flex items-center gap-1 shrink-0">
                 {linkedTask && (
-                  <span className="text-[11px] font-mono text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded-full">
-                    {linkedTask.completedPomodoros}/{linkedTask.estimatedPomodoros} 🍅
+                  <span className="text-[11px] font-mono text-zinc-300 bg-zinc-700/15 px-1.5 py-0.5 rounded-full">
+                    {linkedTask.completedPomodoros}/{linkedTask.estimatedPomodoros} <UiSymbol name="🍅" />
                   </span>
                 )}
                 <ChevronDown
@@ -952,13 +953,13 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                         value={quickTaskTitle}
                         onChange={(e) => setQuickTaskTitle(e.target.value)}
                         placeholder="Nhập tên mục tiêu phiên này..."
-                        className="flex-1 bg-zinc-900 border border-white/15 focus:border-emerald-400/60 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 outline-none transition"
+                        className="flex-1 bg-zinc-900 border border-white/15 focus:border-zinc-400/60 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-400 outline-none transition"
                       />
                       <button
                         type="submit"
                         data-testid="mobile-quick-task-submit-btn"
                         disabled={!quickTaskTitle.trim()}
-                        className="px-3 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-semibold rounded-xl text-xs flex items-center gap-1 transition active:scale-95 cursor-pointer shrink-0"
+                        className="px-3 py-2 bg-zinc-700 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs flex items-center gap-1 transition active:scale-95 cursor-pointer shrink-0"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Thêm</span>
@@ -980,7 +981,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                       >
                         <span className="truncate flex-1">{t.title}</span>
                         <span className="text-[10px] font-mono text-zinc-400 shrink-0">
-                          {t.completedPomodoros}/{t.estimatedPomodoros} 🍅
+                          {t.completedPomodoros}/{t.estimatedPomodoros} <UiSymbol name="🍅" />
                         </span>
                         {t.id === linkedTaskId && <Check className="w-3.5 h-3.5 text-zinc-200 shrink-0" />}
                       </button>
@@ -996,13 +997,13 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                         value={quickTaskTitle}
                         onChange={(e) => setQuickTaskTitle(e.target.value)}
                         placeholder="+ Thêm nhanh mục tiêu..."
-                        className="flex-1 bg-zinc-900/60 border border-white/10 focus:border-emerald-400/60 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 outline-none transition"
+                        className="flex-1 bg-zinc-900/60 border border-white/10 focus:border-zinc-400/60 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-400 outline-none transition"
                       />
                       <button
                         type="submit"
                         data-testid="mobile-quick-task-submit-existing-btn"
                         disabled={!quickTaskTitle.trim()}
-                        className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 disabled:opacity-30 rounded-xl cursor-pointer transition shrink-0"
+                        className="p-1.5 bg-zinc-700/20 hover:bg-zinc-700/30 text-zinc-300 disabled:opacity-30 rounded-xl cursor-pointer transition shrink-0"
                         title="Thêm công việc"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -1037,7 +1038,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             data-testid="mobile-strict-mode-toggle"
             aria-pressed={isStrictMode}
             onClick={handleToggleStrictMode}
-            title="Chế độ Kỷ luật: Rời app quá 5 giây sẽ hủy hiệp hiện tại"
+            title="Chế độ kỷ luật: rời app quá 5 giây sẽ hủy hiệp hiện tại"
             className={`h-8 px-3 rounded-full border backdrop-blur-md flex items-center gap-1.5 text-[11px] font-medium transition-all cursor-pointer active:scale-95 touch-manipulation ${
               isStrictMode
                 ? 'border-white/20 bg-white/10 text-white'
@@ -1057,11 +1058,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             type="button"
             data-testid="mobile-pocket-lock-btn"
             onClick={handleEngagePocketLock}
-            title="Khóa màn hình bỏ túi (Pocket Lock)"
+            title="Khóa màn hình bỏ túi (pocket lock)"
             aria-label="Khóa màn hình bỏ túi"
-            className="h-8 px-3 rounded-full border border-white/10 bg-zinc-900/65 hover:border-emerald-400/40 text-zinc-300 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer backdrop-blur-md"
+            className="h-8 px-3 rounded-full border border-white/10 bg-zinc-900/65 hover:border-zinc-400/40 text-zinc-300 hover:text-white flex items-center gap-1.5 text-[11px] font-semibold transition active:scale-95 cursor-pointer backdrop-blur-md"
           >
-            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+            <Lock className="w-3.5 h-3.5 text-zinc-300" />
             <span>Khóa</span>
           </button>
         </div>
@@ -1070,17 +1071,17 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         {strictViolationMsg && (
           <div
             data-testid="mobile-strict-violation-banner"
-            className="w-full max-w-sm px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-400/30 backdrop-blur-md flex items-center justify-between gap-2 text-[11px] text-amber-200 shadow-md"
+            className="w-full max-w-sm px-3 py-1.5 rounded-xl bg-zinc-700/15 border border-zinc-400/30 backdrop-blur-md flex items-center justify-between gap-2 text-[11px] text-zinc-200 shadow-md"
           >
             <div className="flex items-center gap-1.5 min-w-0">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
+              <AlertTriangle className="w-3.5 h-3.5 text-zinc-300 shrink-0" aria-hidden="true" />
               <span className="truncate">{strictViolationMsg}</span>
             </div>
             <button
               type="button"
               onClick={() => setStrictViolationMsg(null)}
               aria-label="Đóng thông báo kỷ luật"
-              className="text-amber-300 hover:text-white p-0.5 rounded shrink-0 cursor-pointer"
+              className="text-zinc-300 hover:text-white p-0.5 rounded shrink-0 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -1097,7 +1098,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           {status === 'running' && (
             <div
               data-testid="mobile-breathing-aura"
-              className="absolute -inset-10 sm:-inset-16 rounded-full animate-pulse bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 via-teal-400/10 to-transparent blur-3xl pointer-events-none -z-10"
+              className="absolute -inset-10 sm:-inset-16 rounded-full animate-pulse bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-700/20 via-zinc-700/10 to-transparent blur-3xl pointer-events-none -z-10"
               style={{ transform: 'translateZ(0)' }}
               aria-hidden="true"
             />
@@ -1108,7 +1109,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             data-testid="mobile-monumental-timer"
             aria-live="polite"
             style={{ textShadow: '0 4px 20px rgba(0,0,0,0.88)' }}
-            className="font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)] select-none text-center"
+            className="font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)] select-none text-center"
           >
             {timeDisplay}
           </div>
@@ -1135,13 +1136,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           <div
             data-testid="mobile-session-progress-bar"
             role="progressbar"
+            aria-label="Tiến độ phiên tập trung"
             aria-valuenow={Math.round(progressPercent)}
             aria-valuemin={0}
             aria-valuemax={100}
             className="w-48 sm:w-64 h-1 bg-zinc-800/80 rounded-full overflow-hidden mt-3 shadow-inner shrink-0"
           >
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 transition-all duration-300 rounded-full"
+              className="h-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -1159,6 +1161,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             </span>
             <div
               data-testid="mobile-cycle-dots"
+              role="group"
               aria-label={`Hiệp ${currentRound} trên ${totalRounds}`}
               className="flex items-center gap-1.5"
             >
@@ -1171,13 +1174,14 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                   <span
                     key={idx}
                     data-testid={`mobile-cycle-dot-${roundNum}`}
+                    role="img"
                     data-round={roundNum}
                     data-state={isPast ? 'completed' : isCurrent ? 'active' : 'upcoming'}
                     className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                       isPast
-                        ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
+                        ? 'bg-zinc-700 shadow-[0_0_6px_rgba(255,255,255,0.5)]'
                         : isCurrent
-                        ? 'bg-transparent border-2 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)] animate-pulse'
+                        ? 'bg-transparent border-2 border-zinc-400 shadow-[0_0_8px_rgba(255,255,255,0.4)] animate-pulse'
                         : 'bg-zinc-800 border border-white/10'
                     }`}
                     aria-label={`Hiệp ${roundNum}: ${isPast ? 'Đã hoàn thành' : isCurrent ? 'Đang diễn ra' : 'Chưa diễn ra'}`}
@@ -1232,7 +1236,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               aria-label="Đặt lại hiệp này"
               className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
             >
-              <RotateCcw className="w-4 h-4 stroke-[2]" aria-hidden="true" />
+              <RotateCcw className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
             </button>
           </div>
 
@@ -1242,7 +1246,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             {holdToStartProgress > 0 && (
               <div
                 data-testid="mobile-hold-to-start-indicator"
-                className="absolute -inset-1.5 rounded-full border-2 border-emerald-400 pointer-events-none transition-all duration-75"
+                className="absolute -inset-1.5 rounded-full border-2 border-zinc-400 pointer-events-none transition-all duration-75"
                 style={{
                   opacity: holdToStartProgress / 100,
                   transform: `scale(${1 + (holdToStartProgress / 100) * 0.1})`,
@@ -1278,7 +1282,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-label="Bỏ qua hiệp này"
             className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-full bg-zinc-800/80 backdrop-blur-md border border-white/10 text-zinc-200 active:scale-95 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-all touch-manipulation cursor-pointer shadow-md"
           >
-            <SkipForward className="w-4 h-4 stroke-[2]" aria-hidden="true" />
+            <SkipForward className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -1320,7 +1324,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                   data-testid={`mobile-flow-hour-${hour}`}
                   data-active={isActive ? 'true' : 'false'}
                   className={`h-1 flex-1 rounded-full transition-colors ${
-                    isActive ? 'bg-emerald-400' : 'bg-zinc-800'
+                    isActive ? 'bg-zinc-700' : 'bg-zinc-800'
                   }`}
                 />
               );
@@ -1335,7 +1339,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             <div
               key={d.dateKey}
               data-testid={`mobile-weekly-bar-${d.dateKey}`}
-              className={`w-full rounded-t ${d.isToday ? 'bg-emerald-400' : 'bg-zinc-800'}`}
+              className={`w-full rounded-t ${d.isToday ? 'bg-zinc-700' : 'bg-zinc-800'}`}
             />
           ))}
         </div>
@@ -1358,7 +1362,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-white">Nhật ký tập trung hôm nay</h3>
                 <p className="text-[11px] font-sans text-zinc-400">
-                  {todaySessions.length} phiên · Tổng cộng {flowHours}g {flowMins}p
+                  {todaySessions.length} phiên · tổng cộng {flowHours}g {flowMins}p
                 </p>
               </div>
               <button
@@ -1372,7 +1376,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             </div>
 
             {todaySessions.length === 0 ? (
-              <div className="py-8 text-center text-xs text-zinc-500">
+              <div className="py-8 text-center text-xs text-zinc-400">
                 Chưa có phiên tập trung nào được ghi nhận hôm nay.
               </div>
             ) : (

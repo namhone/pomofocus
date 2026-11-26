@@ -1,0 +1,75 @@
+[WebServer] (node:18868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:17928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [desktop-1366] › ui.spec.ts:69:1 › workspace: bright background, notes controls, header and AI coexist (13.7s)
+  -  2 [desktop-1366] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat
+  ok 3 [desktop-1366] › ui.spec.ts:125:1 › Meet: header fits, controls work and media releases (6.5s)
+  ok 4 [desktop-1366] › ui.spec.ts:139:1 › gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable (11.0s)
+(node:15160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 5 [desktop-1440] › ui.spec.ts:69:1 › workspace: bright background, notes controls, header and AI coexist (8.4s)
+  -  6 [desktop-1440] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat
+  ok 7 [desktop-1440] › ui.spec.ts:125:1 › Meet: header fits, controls work and media releases (5.3s)
+  ok 8 [desktop-1440] › ui.spec.ts:139:1 › gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable (12.5s)
+(node:18916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  9 [mobile-390] › ui.spec.ts:69:1 › workspace: bright background, notes controls, header and AI coexist
+  ok 10 [mobile-390] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat (9.7s)
+  ok 11 [mobile-390] › ui.spec.ts:125:1 › Meet: header fits, controls work and media releases (7.0s)
+  -  12 [mobile-390] › ui.spec.ts:139:1 › gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable
+(node:13788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  13 [native-390] › ui.spec.ts:69:1 › workspace: bright background, notes controls, header and AI coexist
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+  x  14 [native-390] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat (11.3s)
+(node:16612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 15 [native-390] › ui.spec.ts:125:1 › Meet: header fits, controls work and media releases (6.6s)
+  -  16 [native-390] › ui.spec.ts:139:1 › gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable
+
+
+  1) [native-390] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat ─────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      118 |   await expect(page.getByRole('button', { name: 'Gửi tin nhắn', exact: true })).toBeEnabled();
+      119 |   expect((await input.boundingBox())!.y + (await input.boundingBox())!.height).toBeLessThanOrEqual(844 - 36);
+    > 120 |   if (info.project.name.startsWith('native')) expect(await page.evaluate(() => (window as any).Capacitor.isNativePlatform())).toBe(true);
+          |                                                                                                                               ^
+      121 |   await noOverflow(page); await audit(page, info.project.name + '-ai');
+      122 |   await page.screenshot({ path: `artifacts/phase4b/${info.project.name}-ai.png` });
+      123 | });
+        at D:\FileCuaNam\Web'\Pomodoro\tests\e2e\phase4b\ui.spec.ts:120:127
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase4b\ui-mobile-native-safe-area-navigation-and-empty-chat-native-390\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop-1366] › ui.spec.ts (31.8s)
+  Slow test file: [desktop-1440] › ui.spec.ts (26.7s)
+  Slow test file: [mobile-390] › ui.spec.ts (18.7s)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    [native-390] › ui.spec.ts:104:1 › mobile: native safe area, navigation and empty chat ──────────
+  6 skipped
+  9 passed (2.5m)

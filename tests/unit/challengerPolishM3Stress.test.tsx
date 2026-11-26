@@ -48,26 +48,26 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
       render(<SpacesWidget />);
       const presetsGrid = screen.getByTestId('presets-grid');
       expect(presetsGrid).toBeDefined();
-      expect(presetsGrid.className).toContain('grid-cols-2');
-      expect(presetsGrid.className).toContain('sm:grid-cols-3');
-      expect(presetsGrid.className).toContain('md:grid-cols-4');
+      expect(presetsGrid.className).toContain('auto-fill');
+      expect(presetsGrid.className).toContain('minmax');
+      expect(presetsGrid.className).toContain('132px');
     });
 
     it('wallpaper grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4)', () => {
       const { container } = render(<SpacesWidget />);
       // Filter out video to view wallpaper grid
-      const allFilter = screen.getByTestId('filter-cat-all');
-      fireEvent.click(allFilter);
+      const allFilter = screen.getByRole('combobox', { name: 'Danh mục hình nền' });
+      fireEvent.change(allFilter, { target: { value: 'all' } });
       // The wallpaper grid container
       const grids = container.querySelectorAll('.grid');
       const wallpaperGrid = Array.from(grids).find((g) =>
-        g.className.includes('grid-cols-2 sm:grid-cols-3 md:grid-cols-4') &&
+        g.className.includes('auto-fill') &&
         g.getAttribute('data-testid') !== 'presets-grid'
       );
       expect(wallpaperGrid).toBeDefined();
-      expect(wallpaperGrid?.className).toContain('grid-cols-2');
-      expect(wallpaperGrid?.className).toContain('sm:grid-cols-3');
-      expect(wallpaperGrid?.className).toContain('md:grid-cols-4');
+      expect(wallpaperGrid?.className).toContain('auto-fill');
+      expect(wallpaperGrid?.className).toContain('minmax');
+      expect(wallpaperGrid?.className).toContain('132px');
     });
   });
 
@@ -107,7 +107,7 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
 
     it('searching in SpacesWidget UI updates results and does not crash when results are 0', () => {
       render(<SpacesWidget />);
-      const searchInput = screen.getByPlaceholderText('Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)');
+      const searchInput = screen.getByLabelText('Tìm hình nền');
       expect(searchInput).toBeDefined();
 
       // Search for something with 0 matches
@@ -163,8 +163,8 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
 
     it('filter by video category renders video presets in presets-grid', () => {
       render(<SpacesWidget />);
-      const videoTab = screen.getByTestId('filter-cat-video');
-      fireEvent.click(videoTab);
+      const videoTab = screen.getByRole('combobox', { name: 'Danh mục hình nền' });
+      fireEvent.change(videoTab, { target: { value: 'video' } });
 
       const cyberpunkCard = screen.getByTestId('preset-card-flower-timelapse');
       expect(cyberpunkCard).toBeDefined();
@@ -222,16 +222,16 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
       const presetsBtn = screen.getByTestId('dock-btn-presets');
       fireEvent.click(presetsBtn);
 
-      expect(screen.getByText('Eco Mode siêu nhẹ')).toBeDefined();
+      expect(screen.getByText('Eco mode siêu nhẹ')).toBeDefined();
       const ecoBtn = screen.getByTestId('quick-dock-eco-toggle');
-      expect(ecoBtn.textContent).toMatch(/^(Bật|Tắt)$/);
+      expect(ecoBtn.textContent).toMatch(/^(Bật|Tắt)$/i);
       expect(ecoBtn.textContent).not.toBe('BẬT');
       expect(ecoBtn.textContent).not.toBe('TẮT');
     });
 
     it('SettingsView Eco Mode section uses Lucide Leaf and Sentence Case', () => {
       render(<SettingsView />);
-      expect(screen.getByText('Chế độ siêu nhẹ (Eco Mode)')).toBeDefined();
+      expect(screen.getByText('Chế độ siêu nhẹ (eco mode)')).toBeDefined();
       const toggleEcoBtn = screen.getByTestId('setting-toggle-eco-mode');
       expect(toggleEcoBtn.textContent).toMatch(/^(Đang bật|Tắt)$/);
       expect(toggleEcoBtn.textContent).not.toContain('🍃');
@@ -242,9 +242,9 @@ describe('Adversarial Challenger Suite: Milestone 3 Polish', () => {
     it('SharedFooter column headers are in Sentence Case without uppercase CSS classes', () => {
       const { container } = render(<SharedFooter />);
       const allText = container.textContent || '';
-      expect(allText).toContain('Liên Hệ Trực Tiếp');
-      expect(allText).toContain('Sản Phẩm & Không Gian');
-      expect(allText).toContain('Hỗ Trợ & Điều Khoản');
+      expect(allText).toContain('Liên hệ trực tiếp');
+      expect(allText).toContain('Sản phẩm & không gian');
+      expect(allText).toContain('Hỗ trợ & điều khoản');
 
       // Assert no element in SharedFooter uses uppercase class
       const uppercaseElements = container.querySelectorAll('.uppercase');

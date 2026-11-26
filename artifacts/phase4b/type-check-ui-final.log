@@ -1,0 +1,12 @@
+
+> immersive-pomodoro-workspace@1.0.0 type-check
+> tsc --noEmit
+
+src/components/common/UiSymbol.tsx(21,22): error TS2550: Property 'replaceAll' does not exist on type 'string'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2021' or later.
+src/components/common/UiSymbol.tsx(22,69): error TS7006: Parameter 'part' implicitly has an 'any' type.
+src/components/common/UiSymbol.tsx(22,75): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/MobileMoreDrawer.tsx(145,21): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/components/MoMoPaymentModal.tsx(490,25): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/components/PlatformHeader.tsx(561,19): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/components/PlatformHeader.tsx(587,23): error TS2322: Type 'Element' is not assignable to type 'string'.
+src/components/PlatformHeader.tsx(867,19): error TS2322: Type 'Element' is not assignable to type 'string'.

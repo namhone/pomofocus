@@ -1,0 +1,13 @@
+src\components\AccountSecurityView.tsx: Google OAuth 2.0
+src\components\AccountSecurityView.tsx: Google OAuth
+src\components\AccountSecurityView.tsx: Google Authenticator
+src\components\AccountSecurityView.tsx: Microsoft Authenticator
+src\components\AdminCouponManager.tsx: Owner Only
+src\components\AudioWidget.tsx: Offline Audio
+src\components\AuthView.tsx: Cấu hình Google OAuth
+src\components\landing\WebDownloadHub.tsx: Thiết bị iOS hỗ trợ cài đặt pwa trực tiếp từ trình duyệt safari
+src\components\LegalViews.tsx: Khi người dùng đăng ký qua email hoặc Google OAuth, chúng tôi chỉ lưu trữ thông tin tối thiểu: họ tên hiển thị, địa chỉ email, ảnh đại diện và vai trò
+src\components\MobileMoreDrawer.tsx: Media Lofi
+src\components\PomoFocusLogo.tsx: Study Workspace
+src\components\PrivacyDataView.tsx: Client Encrypted
+src\components\StudyRoomView.tsx: Lofi Girl

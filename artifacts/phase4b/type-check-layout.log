@@ -1,0 +1,9 @@
+
+> immersive-pomodoro-workspace@1.0.0 type-check
+> tsc --noEmit
+
+src/components/common/UiSymbol.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/DockBar.tsx(18,3): error TS6133: 'Zap' is declared but its value is never read.
+src/components/PlatformHeader.tsx(5,1): error TS6133: 'usePwaInstallStore' is declared but its value is never read.
+src/components/StudyRoomView.tsx(4093,21): error TS2322: Type 'Element' is not assignable to type 'Key | null | undefined'.
+src/components/StudyRoomView.tsx(4296,21): error TS2322: Type 'Element' is not assignable to type 'Key | null | undefined'.

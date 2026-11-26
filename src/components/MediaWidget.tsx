@@ -340,17 +340,17 @@ export const MediaWidget: React.FC = () => {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-zinc-400 bg-zinc-950">
-            <Film size={32} className="text-zinc-600 mb-2 stroke-[1.5]" />
-            <h3 className="text-sm font-semibold text-zinc-200 mb-1">Trình Phát Media YouTube</h3>
+            <Film size={32} className="text-zinc-400 mb-2 stroke-[1.5]" />
+            <h3 className="text-sm font-semibold text-zinc-200 mb-1">Trình phát media YouTube</h3>
             <p className="text-xs text-zinc-400 max-w-xs mb-3">
-              Chưa có trạm hoặc danh sách nào đang phát. Bấm &quot;Đổi trạm&quot; để chọn nhạc lofi hoặc dán link YouTube.
+              Chưa có trạm hoặc danh sách nào đang phát. Bấm &quot;đổi trạm&quot; để chọn nhạc lofi hoặc dán link YouTube.
             </p>
             <button
               type="button"
               onClick={() => setShowPicker(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/30 transition cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 text-xs font-semibold hover:bg-zinc-700/30 transition cursor-pointer"
             >
-              Chọn Trạm Phát
+              Chọn trạm phát
             </button>
           </div>
         )}
@@ -374,13 +374,13 @@ export const MediaWidget: React.FC = () => {
           type="text"
           value={inputUrl}
           onChange={(e) => setInputUrl(e.target.value)}
-          placeholder="Dán link YouTube hoặc Video ID (11 ký tự)..."
-          className="bg-white/5 border border-white/10 rounded-xl px-3 py-1 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 flex-1 transition"
+          placeholder="Dán link YouTube hoặc video id (11 ký tự)..."
+          className="bg-white/5 border border-white/10 rounded-xl px-3 py-1 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500/50 flex-1 transition"
         />
         <button
           data-testid="btn-apply-direct-media"
           type="submit"
-          className="liquid-glass-btn text-xs px-3 py-1 rounded-xl font-medium shrink-0 cursor-pointer text-emerald-300 border border-emerald-500/30 bg-emerald-500/15 hover:bg-emerald-500/25 active:scale-95 transition"
+          className="liquid-glass-btn text-xs px-3 py-1 rounded-xl font-medium shrink-0 cursor-pointer text-zinc-300 border border-zinc-500/30 bg-zinc-700/15 hover:bg-zinc-700/25 active:scale-95 transition"
         >
           Phát
         </button>
@@ -390,7 +390,7 @@ export const MediaWidget: React.FC = () => {
       <div className="min-h-11 py-1 px-3 flex flex-wrap items-center justify-between border-t border-white/5 bg-zinc-950/95 shrink-0 gap-2">
         {/* Bên trái: Thông tin trạm / Mix / Playlist */}
         <div className="flex items-center gap-1.5 min-w-0 max-w-[38%]">
-          <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
+          <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? 'bg-zinc-700 animate-pulse' : 'bg-zinc-500'}`} />
           <span className="text-[11px] font-medium text-zinc-200 truncate" title={videoTitle || matchedFavorite?.name || currentStation.name}>
             {videoTitle || matchedFavorite?.name || currentStation.name}
           </span>
@@ -434,8 +434,8 @@ export const MediaWidget: React.FC = () => {
             type="button"
             data-testid="btn-toggle-media-picker"
             onClick={() => setShowPicker(!showPicker)}
-            className="px-2 py-1 text-xs text-emerald-400 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-800/60 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
-            title="Đổi trạm hoặc phát Playlist yêu thích"
+            className="px-2 py-1 text-xs text-zinc-300 bg-zinc-950/50 hover:bg-zinc-900/60 border border-zinc-800/60 rounded-lg transition active:scale-95 flex items-center gap-1 cursor-pointer"
+            title="Đổi trạm hoặc phát playlist yêu thích"
           >
             <ListMusic size={12} />
             <span>Đổi trạm</span>
@@ -490,8 +490,8 @@ export const MediaWidget: React.FC = () => {
           {/* Header */}
           <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 shrink-0">
             <span className="text-xs font-semibold text-neutral-200 flex items-center gap-1.5">
-              <ListMusic size={13} className="text-indigo-400" />
-              Chọn Trạm YouTube, Playlist & Mix Cá Nhân
+              <ListMusic size={13} className="text-zinc-300" />
+              Chọn trạm YouTube, playlist & mix cá nhân
             </span>
             <button
               type="button"
@@ -519,9 +519,9 @@ export const MediaWidget: React.FC = () => {
               type="text"
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="Dán link Video, Video ID (11 ký tự), Playlist hoặc Mix..."
+              placeholder="Dán link video, video id (11 ký tự), playlist hoặc mix..."
               data-testid="input-media-url"
-              className="flex-1 min-w-0 bg-neutral-900 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
+              className="flex-1 min-w-0 bg-neutral-900 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
             />
             <button
               type="submit"
@@ -541,9 +541,9 @@ export const MediaWidget: React.FC = () => {
             {/* 1-TOUCH FAVORITE PLAYLISTS SECTION */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-semibold text-indigo-300 flex items-center gap-1">
+                <span className="text-[11px] font-semibold text-zinc-300 flex items-center gap-1">
                   <Bookmark size={11} />
-                  Playlist & Mix Ruột Của Bạn (1-Chạm)
+                  Playlist & mix ruột của bạn (1-chạm)
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -555,7 +555,7 @@ export const MediaWidget: React.FC = () => {
                       }
                     }}
                     data-testid="btn-toggle-add-fav"
-                    className="text-[10px] text-indigo-400 hover:text-indigo-200 font-medium flex items-center gap-0.5 cursor-pointer"
+                    className="text-[10px] text-zinc-300 hover:text-zinc-200 font-medium flex items-center gap-0.5 cursor-pointer"
                   >
                     <Plus size={11} /> {showAddFav ? 'Thu gọn' : 'Thêm Playlist'}
                   </button>
@@ -563,7 +563,7 @@ export const MediaWidget: React.FC = () => {
                     type="button"
                     onClick={handleResetFavorites}
                     title="Khôi phục playlist mặc định"
-                    className="text-neutral-500 hover:text-neutral-300 p-0.5 rounded cursor-pointer"
+                    className="text-zinc-400 hover:text-neutral-300 p-0.5 rounded cursor-pointer"
                   >
                     <RotateCcw size={10} />
                   </button>
@@ -575,16 +575,16 @@ export const MediaWidget: React.FC = () => {
                 <form
                   onSubmit={handleAddFavorite}
                   data-testid="form-add-fav-playlist"
-                  className="p-2 mb-2 rounded-lg bg-indigo-950/30 border border-indigo-700/40 space-y-1.5"
+                  className="p-2 mb-2 rounded-lg bg-zinc-950/30 border border-zinc-700/40 space-y-1.5"
                 >
                   <div className="flex items-center gap-1.5">
                     <input
                       type="text"
                       value={newFavName}
                       onChange={(e) => setNewFavName(e.target.value)}
-                      placeholder="Tên playlist (VD: Lofi Chill Học Đêm, Mix EDM)"
+                      placeholder="Tên playlist (vd: Lofi chill học đêm, mix edm)"
                       data-testid="input-fav-playlist-name"
-                      className="flex-1 min-w-0 bg-neutral-900 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
+                      className="flex-1 min-w-0 bg-neutral-900 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
                     />
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -594,12 +594,12 @@ export const MediaWidget: React.FC = () => {
                       onChange={(e) => setNewFavUrl(e.target.value)}
                       placeholder="Link YouTube (hoặc để trống lấy link đang phát)"
                       data-testid="input-fav-playlist-url"
-                      className="flex-1 min-w-0 bg-neutral-900 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-indigo-400"
+                      className="flex-1 min-w-0 bg-neutral-900 border border-white/10 rounded px-2 py-1 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
                     />
                     <button
                       type="submit"
                       data-testid="btn-save-fav-playlist"
-                      className="px-2.5 py-1 rounded text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer shrink-0"
+                      className="px-2.5 py-1 rounded text-xs font-medium bg-zinc-700 hover:bg-zinc-700 text-white transition cursor-pointer shrink-0"
                     >
                       Lưu
                     </button>
@@ -621,30 +621,30 @@ export const MediaWidget: React.FC = () => {
                       data-testid={`fav-playlist-item-${fav.id}`}
                       className={`w-full group px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition cursor-pointer border ${
                         isCurrent
-                          ? 'bg-indigo-950/60 border-indigo-500/50 text-indigo-100 font-medium'
+                          ? 'bg-zinc-950/60 border-zinc-500/50 text-zinc-100 font-medium'
                           : 'bg-neutral-900/60 border-white/5 text-neutral-300 hover:bg-white/10 hover:text-white'
                       }`}
                       onClick={() => handleApplyUrl(fav.url)}
                     >
                       <div className="flex items-center gap-1.5 min-w-0">
                         {isFavMix ? (
-                          <Sparkles size={12} className={isCurrent ? 'text-amber-400' : 'text-neutral-500'} />
+                          <Sparkles size={12} className={isCurrent ? 'text-zinc-300' : 'text-zinc-400'} />
                         ) : (
-                          <ListMusic size={12} className={isCurrent ? 'text-indigo-400' : 'text-neutral-500'} />
+                          <ListMusic size={12} className={isCurrent ? 'text-zinc-300' : 'text-zinc-400'} />
                         )}
                         <span className="truncate">{fav.name}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
                         {isCurrent && (
-                          <Check size={12} className="text-emerald-400" />
+                          <Check size={12} className="text-zinc-300" />
                         )}
                         <button
                           type="button"
                           data-testid={`btn-delete-fav-${fav.id}`}
                           onClick={(e) => handleDeleteFavorite(fav.id, e)}
                           title="Xóa khỏi danh sách yêu thích"
-                          className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-rose-400 p-0.5 transition cursor-pointer"
+                          className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-rose-400 p-0.5 transition cursor-pointer"
                         >
                           <Trash2 size={11} />
                         </button>
@@ -658,7 +658,7 @@ export const MediaWidget: React.FC = () => {
             {/* PRESET STATIONS SECTION */}
             <div>
               <span className="text-[11px] font-semibold text-neutral-400 mb-1.5 block">
-                Trạm Live Gợi Ý (Video 24/7):
+                Trạm live gợi ý (video 24/7):
               </span>
               <div className="space-y-1">
                 {PRESET_STATIONS.map((station) => {
@@ -676,9 +676,9 @@ export const MediaWidget: React.FC = () => {
                     >
                       <span className="truncate pr-2">{station.name}</span>
                       {isCurrent ? (
-                        <Check size={12} className="text-emerald-400 shrink-0" />
+                        <Check size={12} className="text-zinc-300 shrink-0" />
                       ) : (
-                        <ExternalLink size={11} className="text-neutral-500 shrink-0" />
+                        <ExternalLink size={11} className="text-zinc-400 shrink-0" />
                       )}
                     </button>
                   );

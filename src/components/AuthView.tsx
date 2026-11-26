@@ -1,3 +1,4 @@
+import { UiLabel } from './common/UiSymbol';
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
@@ -323,7 +324,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
           >
             <ArrowLeft size={14} />
-            <span>Vào Không Gian</span>
+            <span>Vào không gian</span>
           </button>
           
         </div>
@@ -339,13 +340,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         {oauthGuidanceError && (
           <div
             data-testid="google-oauth-guidance-alert"
-            className="mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-200 shadow-lg backdrop-blur-md"
+            className="mb-4 rounded-2xl bg-zinc-700/10 border border-zinc-500/30 p-3.5 text-xs text-zinc-200 shadow-lg backdrop-blur-md"
           >
             <div className="flex items-start gap-2.5">
-              <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
+              <AlertCircle size={18} className="text-zinc-300 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-amber-300 mb-1">Cấu hình Google OAuth</div>
-                <p className="leading-relaxed text-[11px] text-amber-200/90">{oauthGuidanceError}</p>
+                <div className="font-semibold text-zinc-300 mb-1">Hướng dẫn đăng nhập Google</div>
+                <p className="leading-relaxed text-[11px] text-zinc-200/90">{oauthGuidanceError}</p>
                 <div className="mt-2.5 flex items-center gap-2">
                   <button
                     type="button"
@@ -353,9 +354,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       setMode('login');
                       setOauthGuidanceError(null);
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-medium text-[11px] transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-zinc-700/20 hover:bg-zinc-700/30 text-zinc-200 font-medium text-[11px] transition cursor-pointer"
                   >
-                    Dùng Email &amp; Mật Khẩu
+                    Dùng email &amp; mật khẩu
                   </button>
                   <button
                     type="button"
@@ -378,7 +379,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         )}
 
         {successMsg && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-3 text-xs text-emerald-300">
+          <div className="mb-4 flex items-center gap-2 rounded-xl bg-zinc-700/15 border border-zinc-500/30 p-3 text-xs text-zinc-300">
             <CheckCircle2 size={15} className="shrink-0" />
             <span>{successMsg}</span>
           </div>
@@ -386,15 +387,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
 
         {requires2Fa && pending2FaUser ? (
           <div className="flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 shadow-lg shadow-emerald-500/10">
+            <div className="w-14 h-14 rounded-2xl bg-zinc-700/10 border border-zinc-500/30 flex items-center justify-center text-zinc-300 mb-4 shadow-lg shadow-zinc-500/10">
               <ShieldCheck size={28} />
             </div>
 
             <h2 className="text-lg font-bold text-white mb-1.5">
-              Xác Thực 2 Bước (2FA)
+              Xác thực 2 bước (2fa)
             </h2>
             <p className="text-xs text-neutral-400 max-w-xs mb-5">
-              Tài khoản <span className="font-semibold text-white">{pending2FaUser.email}</span> đã được bảo vệ bằng 2FA. Nhập mã 6 chữ số từ app Authenticator hoặc mã dự phòng:
+              Tài khoản <span className="font-semibold text-white">{pending2FaUser.email}</span> đã được bảo vệ bằng 2fa. Nhập mã 6 chữ số từ app authenticator hoặc mã dự phòng:
             </p>
 
             {totpError && (
@@ -417,7 +418,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                   }}
                   placeholder="000000"
                   maxLength={10}
-                  className="w-full text-center font-mono text-2xl tracking-[0.35em] font-bold py-3 px-4 rounded-xl bg-white/5 border border-emerald-500/40 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30 text-white placeholder-neutral-600 outline-none transition-all"
+                  className="w-full text-center font-mono text-2xl tracking-[0.35em] font-bold py-3 px-4 rounded-xl bg-white/5 border border-zinc-500/40 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-500/30 text-white placeholder-zinc-400 outline-none transition-all"
                 />
               </div>
 
@@ -552,8 +553,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       required
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Ví dụ: Hoàng Nam"
-                      className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                      placeholder="Ví dụ: hoàng nam"
+                      className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
                     />
                   </div>
                 </div>
@@ -561,7 +562,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
 
               <div>
                 <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                  Địa chỉ Email
+                  Địa chỉ email
                 </label>
                 <div className="relative">
                   <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
@@ -571,7 +572,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tenban@domain.com"
-                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
                   />
                 </div>
               </div>
@@ -593,7 +594,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                         setForgotStep('request');
                         setForgotMsg(null);
                       }}
-                      className="text-[11px] text-neutral-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                      className="text-[11px] text-neutral-400 hover:text-zinc-300 transition-colors cursor-pointer"
                     >
                       Quên mật khẩu?
                     </button>
@@ -607,7 +608,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Ít nhất 6 ký tự"
-                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
                   />
                 </div>
               </div>
@@ -631,7 +632,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
         {user && (
           <div className="mt-3.5 text-center">
             <span className="text-[11px] text-neutral-400">
-              Đang đăng nhập: <strong className="text-white">{user.displayName}</strong> ({user.plan})
+              Đang đăng nhập: <strong className="text-white"><UiLabel text={user.displayName} /></strong> ({user.plan})
             </span>
           </div>
         )}
@@ -659,12 +660,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
             </button>
 
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-9 h-9 rounded-xl bg-zinc-700/10 border border-zinc-500/30 flex items-center justify-center text-zinc-300">
                 <KeyRound size={18} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Đặt Lại Mật Khẩu</h3>
-                <p className="text-[11px] text-neutral-400">Xác minh mã 6 số gửi qua Email</p>
+                <h3 className="text-sm font-bold text-white">Đặt lại mật khẩu</h3>
+                <p className="text-[11px] text-neutral-400">Xác minh mã 6 số gửi qua email</p>
               </div>
             </div>
 
@@ -672,7 +673,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               <div
                 className={`mb-4 flex items-start gap-2 rounded-xl p-3 text-xs border ${
                   forgotMsg.type === 'success'
-                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                    ? 'bg-zinc-700/15 border-zinc-500/30 text-zinc-300'
                     : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
                 }`}
               >
@@ -689,7 +690,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               <form onSubmit={handleRequestForgotOtp} className="space-y-3.5">
                 <div>
                   <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                    Nhập Email tài khoản của bạn:
+                    Nhập email tài khoản của bạn:
                   </label>
                   <div className="relative">
                     <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
@@ -701,7 +702,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="tenban@domain.com"
-                      className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                      className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
                     />
                   </div>
                 </div>
@@ -710,7 +711,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                   type="submit"
                   disabled={isSendingForgotOtp}
                   data-testid="btn-submit-send-otp"
-                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isSendingForgotOtp ? (
                     <>
@@ -718,7 +719,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       <span>Đang gửi mã...</span>
                     </>
                   ) : (
-                    <span>Gửi Mã Xác Minh 6 Số Về Email</span>
+                    <span>Gửi mã xác minh 6 số về email</span>
                   )}
                 </button>
               </form>
@@ -726,7 +727,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
               <form onSubmit={handleVerifyForgotOtp} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                    Mã OTP 6 số từ Email ({forgotEmail}):
+                    Mã otp 6 số từ email ({forgotEmail}):
                   </label>
                   <input
                     type="text"
@@ -737,13 +738,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     value={forgotOtp}
                     onChange={(e) => setForgotOtp(e.target.value.replace(/\s+/g, ''))}
                     placeholder="123456"
-                    className="w-full text-center font-mono text-lg font-bold tracking-widest rounded-xl bg-white/5 border border-emerald-500/40 px-3 py-2 text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full text-center font-mono text-lg font-bold tracking-widest rounded-xl bg-white/5 border border-zinc-500/40 px-3 py-2 text-white focus:outline-none focus:border-zinc-400"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                    Mật khẩu mới (Tối thiểu 6 ký tự):
+                    Mật khẩu mới (tối thiểu 6 ký tự):
                   </label>
                   <input
                     type="password"
@@ -752,7 +753,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                     value={forgotNewPassword}
                     onChange={(e) => setForgotNewPassword(e.target.value)}
                     placeholder="Mật khẩu mới an toàn..."
-                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-400"
                   />
                 </div>
 
@@ -760,7 +761,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                   type="submit"
                   disabled={isSendingForgotOtp}
                   data-testid="btn-submit-reset-password"
-                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2"
+                  className="w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2"
                 >
                   {isSendingForgotOtp ? (
                     <>
@@ -768,7 +769,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       <span>Đang cập nhật...</span>
                     </>
                   ) : (
-                    <span>Xác Nhận & Đặt Lại Mật Khẩu</span>
+                    <span>Xác nhận & đặt lại mật khẩu</span>
                   )}
                 </button>
 

@@ -1,0 +1,14 @@
+[WebServer] (node:1020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:18912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist (54.7s)
+
+  Slow test file: [desktop-1366] › ui.spec.ts (54.7s)
+  Consider splitting slow test files to speed up parallel execution
+  1 passed (1.4m)

@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, Zap, CheckCircle2, Copy, ShieldCheck, QrCode, Loader2, Sparkles, RefreshCw, Clock, History, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
@@ -186,8 +187,8 @@ const VietQrDisplay = React.memo<VietQrDisplayProps>(({ qrUrl, isLoading, orderC
     <div className="p-2 bg-white rounded-xl shrink-0 shadow-md min-w-[140px] min-h-[140px] flex items-center justify-center relative">
       {(isLoading || !qrUrl || (!imageLoaded && !hasError)) && (
         <div className="absolute inset-0 bg-white/95 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-xl z-10 space-y-1">
-          <Loader2 size={22} className="animate-spin text-zinc-600" />
-          <span className="text-[9px] text-zinc-500 font-medium">Đang tải mã VietQR...</span>
+          <Loader2 size={22} className="animate-spin text-zinc-400" />
+          <span className="text-[9px] text-zinc-400 font-medium">Đang tải mã VietQR...</span>
         </div>
       )}
       {!hasError && qrUrl ? (
@@ -210,10 +211,10 @@ const VietQrDisplay = React.memo<VietQrDisplayProps>(({ qrUrl, isLoading, orderC
         />
       ) : (
         <div className="w-32 h-32 flex flex-col items-center justify-center text-center p-2 text-zinc-900 bg-zinc-100 rounded">
-          <QrCode size={28} className="text-zinc-600 mb-1" />
+          <QrCode size={28} className="text-zinc-400 mb-1" />
           <span className="text-[10px] font-bold text-zinc-800">VPBank (SePay VA)</span>
-          <span className="text-[11px] font-mono font-black text-emerald-700">AGBSPTJE34IA3A8SAAX</span>
-          <span className="text-[9px] text-zinc-600 mt-1">Quét mã bằng App Ngân Hàng</span>
+          <span className="text-[11px] font-mono font-black text-zinc-700">AGBSPTJE34IA3A8SAAX</span>
+          <span className="text-[9px] text-zinc-400 mt-1">Quét mã bằng app ngân hàng</span>
         </div>
       )}
     </div>
@@ -566,12 +567,12 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
         className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
       >
         <div className="relative z-[101] w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 text-center text-white space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="w-12 h-12 mx-auto rounded-full bg-zinc-700/10 border border-zinc-500/20 flex items-center justify-center text-zinc-300">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold">Đăng nhập để Nạp Năng Lượng ⚡</h3>
+          <h3 className="text-base font-bold">Đăng nhập để nạp năng lượng <UiSymbol name="⚡" /></h3>
           <p className="text-xs text-zinc-400 leading-relaxed">
-            Vui lòng đăng nhập tài khoản trước khi nạp để đảm bảo số dư ⚡ được lưu trữ vĩnh viễn trên đám mây và đồng bộ đa thiết bị an toàn.
+            Vui lòng đăng nhập tài khoản trước khi nạp để đảm bảo số dư <UiSymbol name="⚡" /> được lưu trữ vĩnh viễn trên đám mây và đồng bộ đa thiết bị an toàn.
           </p>
           <div className="pt-2 flex flex-col gap-2">
             <button
@@ -582,16 +583,16 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                 const authBtn = document.querySelector('[data-testid="mobile-header-avatar-btn"]');
                 if (authBtn) (authBtn as HTMLElement).click();
               }}
-              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs tracking-wide transition shadow-lg shadow-emerald-500/20 active:scale-98 cursor-pointer"
+              className="w-full py-3 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs tracking-wide transition shadow-lg shadow-zinc-500/20 active:scale-98 cursor-pointer"
             >
-              Đăng Nhập Ngay
+              Đăng nhập ngay
             </button>
             <button
               type="button"
               onClick={onClose}
               className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium text-xs transition cursor-pointer"
             >
-              Để Sau
+              Để sau
             </button>
           </div>
         </div>
@@ -635,17 +636,17 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
         {/* Header */}
         <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-              <Zap size={20} className="fill-amber-400" />
+            <div className="p-2 rounded-xl bg-zinc-700/10 border border-zinc-500/30 text-zinc-300">
+              <Zap size={20} className="fill-zinc-400" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                Nạp Thêm AI Credits ⚡
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  Hiện có: {aiCreditsBalance}⚡
+                Nạp thêm AI credits <UiSymbol name="⚡" />
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
+                  Hiện có: {aiCreditsBalance}<UiSymbol name="⚡" />
                 </span>
               </h3>
-              <p className="text-xs text-zinc-400">Hệ thống xử lý tự động • Đơn hàng có hiệu lực trong 15 phút</p>
+              <p className="text-xs text-zinc-400">Hệ thống xử lý tự động • đơn hàng có hiệu lực trong 15 phút</p>
             </div>
           </div>
           <button
@@ -665,12 +666,12 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
             onClick={() => setActiveTab('topup')}
             className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'topup'
-                ? 'border-amber-500 text-amber-400'
+                ? 'border-zinc-500 text-zinc-300'
                 : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <Zap size={14} />
-            Nạp Điểm
+            Nạp điểm
           </button>
           <button
             type="button"
@@ -681,12 +682,12 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
             }}
             className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'history'
-                ? 'border-amber-500 text-amber-400'
+                ? 'border-zinc-500 text-zinc-300'
                 : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <History size={14} />
-            Lịch Sử Giao Dịch
+            Lịch sử giao dịch
           </button>
         </div>
 
@@ -695,16 +696,16 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
           {paymentCompleted ? (
             /* TRẠNG THÁI THÀNH CÔNG HOÀN TOÀN */
             <div className="text-center py-8 space-y-4 animate-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
+              <div className="w-16 h-16 mx-auto rounded-full bg-zinc-700/20 border border-zinc-500/40 flex items-center justify-center text-zinc-300 shadow-xl shadow-zinc-500/20">
                 <CheckCircle2 size={36} />
               </div>
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white">Thanh Toán Thành Công!</h4>
+                <h4 className="text-lg font-bold text-white">Thanh toán thành công!</h4>
                 <p className="text-xs text-zinc-400">
-                  Đã cộng thành công <strong className="text-amber-400 font-bold">+{completedCredits} ⚡</strong> vào tài khoản của bạn.
+                  Đã cộng thành công <strong className="text-zinc-300 font-bold">+{completedCredits} <UiSymbol name="⚡" /></strong> vào tài khoản của bạn.
                 </p>
-                <p className="text-[11px] text-emerald-400 font-medium pt-1">
-                  Số dư hiện tại: <strong className="font-bold">{aiCreditsBalance} ⚡</strong>
+                <p className="text-[11px] text-zinc-300 font-medium pt-1">
+                  Số dư hiện tại: <strong className="font-bold">{aiCreditsBalance} <UiSymbol name="⚡" /></strong>
                 </p>
               </div>
 
@@ -713,9 +714,9 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                   type="button"
                   onClick={onClose}
                   data-testid="ai-credits-success-done-btn"
-                  className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs tracking-wide transition shadow-lg shadow-emerald-500/20 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs tracking-wide transition shadow-lg shadow-zinc-500/20 cursor-pointer"
                 >
-                  Xong & Tiếp Tục Học Tập
+                  Xong & tiếp tục học tập
                 </button>
               </div>
             </div>
@@ -737,13 +738,13 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
 
               {isLoadingHistory ? (
                 <div className="py-8 flex flex-col items-center justify-center space-y-2 text-zinc-400 text-xs">
-                  <Loader2 size={24} className="animate-spin text-amber-500" />
+                  <Loader2 size={24} className="animate-spin text-zinc-300" />
                   <span>Đang tải lịch sử giao dịch...</span>
                 </div>
               ) : orderHistory.length === 0 ? (
-                <div className="py-8 text-center text-zinc-500 text-xs space-y-1 border border-dashed border-zinc-800 rounded-xl">
+                <div className="py-8 text-center text-zinc-400 text-xs space-y-1 border border-dashed border-zinc-800 rounded-xl">
                   <p>Bạn chưa có đơn nạp tiền nào gần đây.</p>
-                  <p className="text-[10px] text-zinc-600">Khi bạn tạo đơn nạp, thông tin sẽ được lưu vết tại đây.</p>
+                  <p className="text-[10px] text-zinc-400">Khi bạn tạo đơn nạp, thông tin sẽ được lưu vết tại đây.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -754,21 +755,21 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                     >
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-amber-400">{item.orderCode}</span>
+                          <span className="font-mono font-bold text-zinc-300">{item.orderCode}</span>
                           <span
                             className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
                               item.status === 'completed'
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30'
                                 : item.status === 'expired'
                                 ? 'bg-zinc-800 text-zinc-400'
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                : 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30'
                             }`}
                           >
                             {item.status === 'completed' ? 'Đã thanh toán' : item.status === 'expired' ? 'Hết hạn' : 'Đang chờ'}
                           </span>
                         </div>
                         <div className="text-[11px] text-zinc-400">
-                          {item.amount?.toLocaleString('vi-VN')}đ • +{item.creditsToAdd}⚡ •{' '}
+                          {item.amount?.toLocaleString('vi-VN')}đ • +{item.creditsToAdd}<UiSymbol name="⚡" /> •{' '}
                           {item.createdAt ? new Date(item.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : ''}
                         </div>
                       </div>
@@ -777,7 +778,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                         <button
                           type="button"
                           onClick={() => handleResumePendingOrder(item)}
-                          className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition"
+                          className="px-2.5 py-1 rounded-lg bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 hover:bg-zinc-700/30 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition"
                         >
                           Xem QR <ArrowRight size={12} />
                         </button>
@@ -792,15 +793,15 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
             <>
               {/* Thông báo phục hồi từ cache */}
               {isOrderFromCache && (
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-zinc-700/10 border border-zinc-500/30 text-zinc-300 text-xs flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="shrink-0 text-emerald-400" />
+                    <CheckCircle2 size={14} className="shrink-0 text-zinc-300" />
                     <span>Đã khôi phục đơn hàng đang chờ thanh toán gần nhất</span>
                   </div>
                   <button
                     type="button"
                     onClick={handleCancelAndCreateNew}
-                    className="text-[11px] underline text-emerald-400 hover:text-emerald-200 cursor-pointer"
+                    className="text-[11px] underline text-zinc-300 hover:text-zinc-200 cursor-pointer"
                   >
                     Tạo đơn mới
                   </button>
@@ -826,7 +827,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                         }}
                         className={`relative p-3 rounded-xl border text-left transition cursor-pointer ${
                           isSelected
-                            ? 'border-amber-500/80 bg-amber-500/10 text-white shadow-lg shadow-amber-500/10'
+                            ? 'border-zinc-500/80 bg-zinc-700/10 text-white shadow-lg shadow-zinc-500/10'
                             : 'border-zinc-800 bg-zinc-950/50 hover:border-zinc-700 text-zinc-300'
                         }`}
                       >
@@ -835,11 +836,11 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                             HOT
                           </span>
                         )}
-                        <div className="text-sm font-bold flex items-center gap-1 text-amber-400">
+                        <div className="text-sm font-bold flex items-center gap-1 text-zinc-300">
                           {preset.label}
                         </div>
                         <div className="text-xs font-semibold text-white mt-1">{preset.formattedPrice}</div>
-                        <div className="text-[10px] text-emerald-400 mt-0.5">
+                        <div className="text-[10px] text-zinc-300 mt-0.5">
                           {preset.discountPercent > 0 ? `-${preset.discountPercent}%` : 'Chuẩn'}
                         </div>
                       </button>
@@ -851,7 +852,7 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
               {/* Slider tùy chỉnh */}
               <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800/80 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-medium">Số điểm ⚡ cần nạp:</span>
+                  <span className="text-xs text-zinc-400 font-medium">Số điểm <UiSymbol name="⚡" /> cần nạp:</span>
                   <div className="flex items-center gap-1.5">
                     <input
                       type="number"
@@ -864,9 +865,9 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                         if (isOrderFromCache) setIsOrderFromCache(false);
                       }}
                       data-testid="ai-credits-input"
-                      className="w-20 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-sm font-bold text-amber-400 text-right focus:outline-none focus:border-amber-500"
+                      className="w-20 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-sm font-bold text-zinc-300 text-right focus:outline-none focus:border-zinc-500"
                     />
-                    <span className="text-xs text-zinc-400">⚡</span>
+                    <span className="text-xs text-zinc-400"><UiSymbol name="⚡" /></span>
                   </div>
                 </div>
 
@@ -881,26 +882,26 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                     if (isOrderFromCache) setIsOrderFromCache(false);
                   }}
                   data-testid="ai-credits-slider"
-                  className="w-full accent-amber-500 cursor-pointer"
+                  className="w-full accent-zinc-500 cursor-pointer"
                 />
 
                 {/* Tính toán giá & chiết khấu */}
                 <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-zinc-500">Giá thanh toán:</span>
+                    <span className="text-zinc-400">Giá thanh toán:</span>
                     {discountPercent > 0 && (
-                      <span className="line-through text-zinc-500 text-[11px]" data-testid="ai-original-price">
+                      <span className="line-through text-zinc-400 text-[11px]" data-testid="ai-original-price">
                         {originalPrice.toLocaleString('vi-VN')}đ
                       </span>
                     )}
-                    <span className="text-base font-bold text-emerald-400" data-testid="ai-final-price">
+                    <span className="text-base font-bold text-zinc-300" data-testid="ai-final-price">
                       {finalPrice.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
                   {discountBadge && (
                     <span
                       data-testid="ai-discount-badge"
-                      className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-[11px]"
+                      className="px-2 py-0.5 rounded-md bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 font-bold text-[11px]"
                     >
                       {discountBadge}
                     </span>
@@ -918,51 +919,51 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                 />
                 <div className="space-y-1.5 text-xs text-zinc-300 flex-1 w-full">
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Ngân hàng:</span>
-                    <span className="font-semibold text-white">VPBank (Ngân hàng Việt Nam Thịnh Vượng)</span>
+                    <span className="text-zinc-400">Ngân hàng:</span>
+                    <span className="font-semibold text-white">VPBank (ngân hàng việt nam thịnh vượng)</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Số tài khoản:</span>
+                    <span className="text-zinc-400">Số tài khoản:</span>
                     <button
                       type="button"
                       onClick={handleCopyAccount}
-                      className="font-mono font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+                      className="font-mono font-bold text-zinc-300 hover:text-zinc-300 flex items-center gap-1 cursor-pointer"
                       title="Sao chép số tài khoản"
                     >
                       AGBSPTJE34IA3A8SAAX
-                      {copiedAccount ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                      {copiedAccount ? <CheckCircle2 size={12} className="text-zinc-300" /> : <Copy size={12} />}
                     </button>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Chủ tài khoản:</span>
+                    <span className="text-zinc-400">Chủ tài khoản:</span>
                     <span className="font-semibold text-white">HO NGOC BAO NAM</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Số tiền:</span>
+                    <span className="text-zinc-400">Số tiền:</span>
                     <button
                       type="button"
                       onClick={handleCopyAmount}
-                      className="font-mono font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                      className="font-mono font-bold text-zinc-300 hover:text-zinc-300 flex items-center gap-1 cursor-pointer"
                       title="Sao chép số tiền"
                     >
                       {finalPrice.toLocaleString('vi-VN')}đ
-                      {copiedAmount ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                      {copiedAmount ? <CheckCircle2 size={12} className="text-zinc-300" /> : <Copy size={12} />}
                     </button>
                   </div>
                   <div className="flex justify-between items-center pt-1 border-t border-zinc-800">
-                    <span className="text-zinc-500">Nội dung CK:</span>
+                    <span className="text-zinc-400">Nội dung chuyển khoản:</span>
                     <button
                       type="button"
                       onClick={handleCopyMemo}
                       data-testid="ai-copy-memo-btn"
-                      className="font-mono font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40"
+                      className="font-mono font-bold text-zinc-300 hover:text-zinc-300 flex items-center gap-1 cursor-pointer bg-zinc-950/40 px-2 py-0.5 rounded border border-zinc-800/40"
                       title="Bấm để sao chép cú pháp chuyển khoản"
                     >
                       {displayMemo || 'Đang tạo mã...'}
-                      {copiedMemo ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                      {copiedMemo ? <CheckCircle2 size={12} className="text-zinc-300" /> : <Copy size={12} />}
                     </button>
                   </div>
-                  <div className="flex justify-between items-center text-[11px] text-zinc-500">
+                  <div className="flex justify-between items-center text-[11px] text-zinc-400">
                     <span>Hết hạn trong:</span>
                     <OrderCountdownTimer expiresAt={orderExpiresAt} onExpire={handleExpireOrder} />
                   </div>
@@ -970,24 +971,24 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
               </div>
 
               {/* Thông báo độ trễ ngân hàng */}
-              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 flex items-start gap-2.5">
-                <Clock size={16} className="text-blue-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-zinc-700/10 border border-zinc-500/20 text-xs text-zinc-300 flex items-start gap-2.5">
+                <Clock size={16} className="text-zinc-300 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <div className="font-semibold text-blue-200">Xác nhận tự động SePay: 3 – 10 giây</div>
+                  <div className="font-semibold text-zinc-200">Xác nhận tự động SePay: 3 – 10 giây</div>
                   <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    Sau khi chuyển khoản, cổng SePay tự động ghi nhận và cộng credits trong 3 – 10 giây. Đơn hàng được lưu tự động, bạn có thể tải lại trang (F5) mà không lo mất dấu đơn.
+                    Sau khi chuyển khoản, cổng SePay tự động ghi nhận và cộng credits trong 3 – 10 giây. Đơn hàng được lưu tự động, bạn có thể tải lại trang (f5) mà không lo mất dấu đơn.
                   </p>
                 </div>
               </div>
 
               {/* Bảo mật đơn hàng Base36 */}
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-300">
-                  <ShieldCheck size={14} className="text-amber-400 shrink-0" />
-                  <span>Mã đơn hàng 7 ký tự bảo mật (Base36)</span>
+              <div className="p-3 rounded-xl bg-zinc-700/10 border border-zinc-500/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-300">
+                  <ShieldCheck size={14} className="text-zinc-300 shrink-0" />
+                  <span>Mã đơn hàng của bạn </span>
                 </div>
                 <p className="text-[11px] text-zinc-300 leading-relaxed">
-                  Vui lòng chuyển khoản chính xác <strong>Số tiền: {finalPrice.toLocaleString('vi-VN')}đ</strong> và <strong>Nội dung CK: {displayMemo || orderCode}</strong> để hệ thống tự động nhận diện và cộng ⚡ tức thì.
+                  Vui lòng chuyển khoản chính xác <strong>Số tiền: {finalPrice.toLocaleString('vi-VN')}đ</strong> và <strong>Nội dung ck: {displayMemo || orderCode}</strong> để hệ thống tự động nhận diện và cộng <UiSymbol name="⚡" /> tức thì.
                 </p>
               </div>
 
@@ -1000,13 +1001,13 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
                   data-testid="ai-check-status-btn"
                   className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <RefreshCw size={14} className={isCheckingStatus ? 'animate-spin text-amber-400' : ''} />
+                  <RefreshCw size={14} className={isCheckingStatus ? 'animate-spin text-zinc-300' : ''} />
                   {isCheckingStatus ? 'Đang kiểm tra giao dịch...' : 'Tôi Đã Chuyển Khoản • Kiểm Tra Ngay'}
                 </button>
 
                 {checkStatusFeedback && (
-                  <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
-                    <AlertCircle size={14} className="shrink-0 text-amber-400" />
+                  <div className="p-2.5 rounded-lg bg-zinc-700/10 border border-zinc-500/20 text-zinc-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+                    <AlertCircle size={14} className="shrink-0 text-zinc-300" />
                     <span className="leading-snug text-[11px]">{checkStatusFeedback}</span>
                   </div>
                 )}

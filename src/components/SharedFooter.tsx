@@ -38,70 +38,70 @@ export const SharedFooter: React.FC = () => {
 
   const productLinks = [
     {
-      label: 'Không Gian Làm Việc',
+      label: 'Không gian làm việc',
       path: '/app',
-      icon: <Clock size={13} className="text-emerald-400 shrink-0" />
+      icon: <Clock size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Phòng Học Nhóm Live',
+      label: 'Phòng học nhóm live',
       path: '/rooms',
-      icon: <Users size={13} className="text-sky-400 shrink-0" />
+      icon: <Users size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Lịch Biểu Time-Block',
+      label: 'Lịch biểu time-block',
       path: '/calendar',
-      icon: <Calendar size={13} className="text-amber-400 shrink-0" />
+      icon: <Calendar size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Bảng Giá & Gói PRO',
+      label: 'Bảng giá & gói PRO',
       path: '/billing',
-      icon: <Sparkles size={13} className="text-purple-400 shrink-0" />
+      icon: <Sparkles size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Thống Kê Tập Trung',
+      label: 'Thống kê tập trung',
       path: '/dashboard',
       icon: <BarChart3 size={13} className="text-rose-400 shrink-0" />
     },
     {
-      label: 'Tải App Android (APK)',
+      label: 'Tải app Android (APK)',
       path: '/download',
-      icon: <Download size={13} className="text-emerald-400 shrink-0" />
+      icon: <Download size={13} className="text-zinc-300 shrink-0" />
     }
   ];
 
   const supportLinks = [
     {
-      label: 'Gửi Phản Hồi & Ý Kiến',
+      label: 'Gửi phản hồi & ý kiến',
       path: '/contact',
-      icon: <MessageSquare size={13} className="text-emerald-400 shrink-0" />
+      icon: <MessageSquare size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Trung Tâm Trợ Giúp',
+      label: 'Trung tâm trợ giúp',
       path: '/help',
-      icon: <HelpCircle size={13} className="text-sky-400 shrink-0" />
+      icon: <HelpCircle size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Hồ Sơ & Ảnh Đại Diện',
+      label: 'Hồ sơ & ảnh đại diện',
       path: '/profile',
-      icon: <User size={13} className="text-amber-400 shrink-0" />
+      icon: <User size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Bảo Mật & Phiên Đăng Nhập',
+      label: 'Bảo mật & phiên đăng nhập',
       path: '/account/security',
-      icon: <ShieldCheck size={13} className="text-emerald-400 shrink-0" />
+      icon: <ShieldCheck size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Quyền Riêng Tư & Dữ Liệu',
+      label: 'Quyền riêng tư & dữ liệu',
       path: '/privacy-data',
-      icon: <Lock size={13} className="text-indigo-400 shrink-0" />
+      icon: <Lock size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Điều Khoản Sử Dụng',
+      label: 'Điều khoản sử dụng',
       path: '/terms',
-      icon: <FileText size={13} className="text-teal-400 shrink-0" />
+      icon: <FileText size={13} className="text-zinc-300 shrink-0" />
     },
     {
-      label: 'Chính Sách Bảo Mật',
+      label: 'Chính sách bảo mật',
       path: '/privacy',
       icon: <Shield size={13} className="text-rose-400 shrink-0" />
     }
@@ -125,18 +125,18 @@ export const SharedFooter: React.FC = () => {
               <PomoFocusLogo size={26} showWordmark={true} wordmarkClassName="text-sm font-bold text-white" />
             </button>
             <p className="text-[11px] text-zinc-400 leading-relaxed text-pretty">
-              Không gian học tập &amp; làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
+              Không gian học tập &amp; làm việc sâu theo chu kỳ pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
             </p>
           </div>
 
           {/* Col 2: Kênh Liên Hệ Trực Tiếp */}
           <div className="space-y-2.5 md:col-span-1">
             <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
-              <MessageSquare size={13} className="text-emerald-400 shrink-0" />
-              <span className="whitespace-nowrap">Liên Hệ Trực Tiếp</span>
+              <MessageSquare size={13} className="text-zinc-300 shrink-0" />
+              <span className="whitespace-nowrap">Liên hệ trực tiếp</span>
             </div>
             <p className="text-[11px] text-zinc-400 text-pretty">
-              Phát triển bởi <strong className="text-zinc-200 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam</strong>. Sẵn sàng lắng nghe phản hồi &amp; hỗ trợ kỹ&nbsp;thuật:
+              Phát triển bởi <strong className="text-zinc-200 font-medium whitespace-nowrap">Hồ ngọc bảo nam</strong>. Sẵn sàng lắng nghe phản hồi &amp; hỗ trợ kỹ&nbsp;thuật:
             </p>
 
             {/* Email quick item - Compact & Balanced */}
@@ -156,7 +156,7 @@ export const SharedFooter: React.FC = () => {
                 title="Sao chép email"
                 aria-label="Sao chép vào bộ nhớ tạm"
               >
-                {copiedEmail ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                {copiedEmail ? <Check size={12} className="text-zinc-300" /> : <Copy size={12} />}
               </button>
             </div>
 
@@ -169,7 +169,7 @@ export const SharedFooter: React.FC = () => {
                 title="Cổng hỗ trợ & gửi góp ý"
               >
                 <HelpCircle size={12} className="text-zinc-400 shrink-0" />
-                <span>Cổng Hỗ Trợ 24/7</span>
+                <span>Cổng hỗ trợ 24/7</span>
               </button>
               <button
                 type="button"
@@ -178,7 +178,7 @@ export const SharedFooter: React.FC = () => {
                 title="Đến trang hỗ trợ"
                 aria-label="Đến trang hỗ trợ"
               >
-                <MessageSquare size={12} className="text-emerald-400" />
+                <MessageSquare size={12} className="text-zinc-300" />
               </button>
             </div>
           </div>
@@ -186,8 +186,8 @@ export const SharedFooter: React.FC = () => {
           {/* Col 3: Tính Năng Sản Phẩm (2-Column Grid on Mobile, Clean List on Desktop) */}
           <div className="space-y-2.5">
             <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
-              <Sparkles size={13} className="text-emerald-400" />
-              <span>Sản Phẩm & Không Gian</span>
+              <Sparkles size={13} className="text-zinc-300" />
+              <span>Sản phẩm & không gian</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:block md:space-y-2 text-[11px]">
               {productLinks.map((item) => (
@@ -207,8 +207,8 @@ export const SharedFooter: React.FC = () => {
           {/* Col 4: Hỗ Trợ & Pháp Lý (2-Column Grid on Mobile, Clean List on Desktop) */}
           <div className="space-y-2.5">
             <div className="font-semibold text-white text-[11px] flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-emerald-400" />
-              <span>Hỗ Trợ & Điều Khoản</span>
+              <ShieldCheck size={13} className="text-zinc-300" />
+              <span>Hỗ trợ & điều khoản</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:block md:space-y-2 text-[11px]">
               {supportLinks.map((item) => (
@@ -230,7 +230,7 @@ export const SharedFooter: React.FC = () => {
         <div className="pt-4 sm:pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-zinc-400">
           <div className="flex items-center gap-1 text-center sm:text-left flex-wrap justify-center sm:justify-start">
             <span>© 2026 PomoFocus. Bản quyền phát triển bởi</span>
-            <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam.</span>
+            <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ ngọc bảo nam.</span>
           </div>
           <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 whitespace-nowrap">
             <span className="text-zinc-400">Bản quyền thuộc PomoFocus</span>

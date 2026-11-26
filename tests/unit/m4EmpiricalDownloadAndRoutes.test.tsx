@@ -1,3 +1,4 @@
+import release from '../../src/config/apkRelease.json';
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
@@ -64,9 +65,9 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
     });
 
     it('1.3 exports accurate APK constants: 8.70 MB and version v8.1', () => {
-      expect(CURRENT_APK_VERSION).toBe('v8.1');
-      expect(APK_SIZE_MB).toBe(8.7);
-      expect(APK_SIZE_LABEL).toBe('8.70 MB');
+      expect(CURRENT_APK_VERSION).toBe(`v${release.version}`);
+      expect(APK_SIZE_MB).toBe(release.apkSizeMb);
+      expect(APK_SIZE_LABEL).toBe(`${release.apkSizeMb.toFixed(2)} MB`);
       expect(PUBLIC_APK_URL).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
     });
 
@@ -77,7 +78,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
         </RouterProvider>
       );
 
-      expect(screen.getAllByText(/8\.70 MB/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(new RegExp(APK_SIZE_LABEL.replace('.', '\\.'))).length).toBeGreaterThanOrEqual(1);
       expect(screen.queryByText(/12(\.0)? MB/i)).toBeNull();
       expect(screen.queryByText(/15(\.0)? MB/i)).toBeNull();
     });
@@ -139,7 +140,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       const icons = badgesContainer?.querySelectorAll('svg');
       expect(icons?.length).toBe(3);
       icons?.forEach((icon) => {
-        expect(icon.getAttribute('class')).toContain('text-emerald-400');
+        expect(icon.getAttribute('class')).toContain('text-zinc-400');
       });
     });
 

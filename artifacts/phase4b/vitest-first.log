@@ -1,0 +1,908 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+
+ ✓ tests/unit/audioRemediationPhase3.test.ts (27 tests) 4883ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 1: ChimeSynthesizer ADSR, Low-Pass Filter, Harmonics & Click-Free Stop > tất cả 10 loại chuông đều dùng BiquadFilterNode lowpass, ADSR mượt và tổng peak <= 0.75 1218ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 1: ChimeSynthesizer ADSR, Low-Pass Filter, Harmonics & Click-Free Stop > synthSciFi kết nối modulator -> modGain -> carrier.frequency đúng chuẩn 566ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 1: ChimeSynthesizer ADSR, Low-Pass Filter, Harmonics & Click-Free Stop > stopCurrentChime() thực hiện linearRampToValueAtTime(0) 30ms trước khi stop & disconnect ở 35ms 369ms
+   ✓ Audio & SFX Remediation Phase 3 > Feature 2: soundEffects.ts Debounce/Mutex, Chime Race & UI Call Sites > TimerWidget gọi đúng SFX cho Start, Pause, Resume, Reset, Skip và chuyển tab 1301ms
+ ❯ tests/unit/v81MeetRoomsAndWhiteboard.test.tsx (23 tests | 1 failed) 4806ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > keeps cursor cleanup ticking during continuous updates without closing the shared channel 354ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > stops a camera grant that resolves after room unmount 324ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.4: Changing phase (shortBreak / longBreak / work) broadcasts room-timer-sync with action: PHASE_CHANGE 321ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.5: Whiteboard mini timer pill controls also trigger broadcast on toggle and reset 358ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.3: Receiving PHASE_CHANGE updates phase pills and resets seconds to phase duration 315ms
+   × PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.5: UI renders synchronization badge in both video grid and whiteboard views 257ms
+     → expected 'Đồng bộ nhóm Nhóm' to contain 'Đồng bộ nhóm ⏱️'
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.2: Switching between Video Grid and Whiteboard preserves drawing strokes without loss 348ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.3: Unmounting and reopening StudyRoomView restores strokes faithfully from durable storage 348ms
+ ✓ tests/unit/milestone3NotificationsAndAudio.test.tsx (19 tests) 1198ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 14: Audio Ducking & Overlap Prevention > 14.4 AudioWidget cleans up chime preview when switching tabs away from chime 325ms
+   ✓ Milestone 3: Background Notifications, WakeLock & Audio Engine Hardening > Feature 15: Mixer "Tắt tất cả" button & AudioContext Suspension > 15.2 MobileAppShell renders "Tắt tất cả" button in mixer when tracks are active and triggers stopAllTracks 517ms
+ ❯ tests/unit/v75DownloadShowcase.test.tsx (16 tests | 3 failed) 4149ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.1 renders perspective 1200px stage and preserve-3d phone mockup frame 604ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.2 tilts 3D phone frame smoothly on mouse move and resets on mouse leave 408ms
+   × PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.3 displays accurate ~8.0 MB or 8.70 MB APK size and unified pomofocus brand logo 986ms
+     → Unable to find an element with the text: /8\.(0|70) MB/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"[39m
+      [33mdata-testid[39m=[32m"download-hub-container"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+   × PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →" 779ms
+     → Unable to find an element with the text: /Đếm giờ chính xác ngay cả khi tắt màn hình/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"[39m
+      [33mdata-testid[39m=[32m"download-hub-container"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+   × PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.1 WebDownloadHub includes Play Protect external install micro-hint 311ms
+     → expected 'Nếu máy hiện cảnh báo nguồn ngoài, ch…' to contain 'Nếu máy hiện cảnh báo nguồn ngoài, ch…'
+ ❯ tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx (15 tests | 2 failed) 4956ms
+   × Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 2. PlatformHeader Polish on 1366x768 & Duplicate Button Elimination (Bugs 6, 7) > Relaxes username truncation max-w constraint from max-w-[85px] to max-w-[130px] xl:max-w-[160px] 1043ms
+     → expected 'text-xs font-medium truncate hidden m…' to contain 'max-w-[130px]'
+   ✓ Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 2. PlatformHeader Polish on 1366x768 & Duplicate Button Elimination (Bugs 6, 7) > Uses responsive padding px-4 xl:px-5 and nav gap-1 xl:gap-1.5 for 1366x768 compatibility 770ms
+   ✓ Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 3. ProfileView Avatar, Badge, and Technical Jargon Cleanup (Bugs 8, 9, 10) > Renders UserAvatar with circular rounded-full geometry and effectiveBadge in Sentence Case 490ms
+   ✓ Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 3. ProfileView Avatar, Badge, and Technical Jargon Cleanup (Bugs 8, 9, 10) > Eliminates technical jargon, decorative emojis and uses monochrome checkboxes 1253ms
+   × Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 5. AI Companion Drawer Layout & Icon Polish (Bugs 12, 13) > Renders monochrome Sparkles icon in drawer header 178ms
+     → expected 'fixed inset-0 z-30 bg-black/50 backdr…' to contain '2xl:hidden'
+ ❯ tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx (13 tests | 2 failed) 5465ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 1. Tab AI: Suggestion Chips, Single Error Bubble & Retry > 1.1 Renders clean suggestion chips without emoji 💡 or "ôn thi đại học" 669ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 1. Tab AI: Suggestion Chips, Single Error Bubble & Retry > 1.2 Renders assistant messages with legal disclosure "Nội dung do AI tạo (Luật 134/2025/QH15)" and select-text 584ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 1. Tab AI: Suggestion Chips, Single Error Bubble & Retry > 1.3 Only displays a single error banner on network failure and allows retry without duplicating prompts 3165ms
+   × Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.2 AiCreditsTopupModal has 7-day refund guarantee note according to consumer law 142ms
+     → Unable to find an element with the text: /Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"[39m
+      [33mdata-testid[39m=[32m"ai-credits-topup-modal"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"relative z-[101] w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"[39m
+      [36m>[39m
+    ...
+   × Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.3 MoMoPaymentModal has 7-day refund guarantee note according to consumer law 21ms
+     → Unable to find an element with the text: /Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"[39m
+      [33mdata-testid[39m=[32m"momo-payment-modal"[39m
+      [33mstyle[39m=[32m"z-index: 100;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"relative z-[101] w-full max-w-sm rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_...
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx (21 tests | 7 failed) 8881ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > root container enforces fluid width (w-full min-w-0 max-h-[80vh]) and does not restrict to max-w-[420px] 966ms
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > presets grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 316ms
+     → expected 'grid grid-cols-[repeat(auto-fill,minm…' to contain 'grid-cols-2'
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > wallpaper grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 1215ms
+     → Unable to find an element by: [data-testid="filter-cat-all"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 2: Adversarial Search & Wallpaper Query Stress Tests > searching in SpacesWidget UI updates results and does not crash when results are 0 363ms
+     → Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > filter by video category renders video presets in presets-grid 315ms
+     → Unable to find an element by: [data-testid="filter-cat-video"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > switching between wallpapers and audio tabs works without crashing or orphaned state 414ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > toggling adjustments view and clicking "Xem kho hình nền" switches back to wallpapers view 1387ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > reset background button clears active preset and resets to default (deep-space) 2026ms
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > DockBar Eco Mode toggle uses Lucide Leaf and Sentence Case labels (Bật / Tắt) 145ms
+     → Unable to find an element with the text: Eco Mode siêu nhẹ. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<nav[39m
+      [33maria-label[39m=[32m"Thanh điều khiển không gian làm việc"[39m
+      [33mclass[39m=[32m"fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center overflow-visible rounded-2xl border dock border-white/10 bg-[rgba(14,17,25,0.78)] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 opacity-100 translate-y-0 hover:opacit...
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > SettingsView Eco Mode section uses Lucide Leaf and Sentence Case 358ms
+     → Unable to find an element with the text: Chế độ siêu nhẹ (Eco Mode). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"[39m
+      [33mdata-testid[39m=[32m"settings-view"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] bg-[#09090b]/95 backdrop-blur-xl px-4 xl:px-5 flex items-ce...
+   × Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > SharedFooter column headers are in Sentence Case without uppercase CSS classes 98ms
+     → expected 'PomoFocusKhông gian học tập & làm việ…' to contain 'Liên Hệ Trực Tiếp'
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > StudyRoomLobby room badges use Sentence Case and no ALL CAPS 365ms
+ ✓ tests/unit/tasksAndNotes.test.ts (13 tests) 337ms
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx (17 tests | 5 failed) 3286ms
+   × Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > SpacesWidget renders all required testids matching Playwright specs 1536ms
+     → Unable to find an element with the text: Thư Viện Không Gian. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Clicking adjustments toggle opens bg-adjustments-panel with slider-overlay 309ms
+   × Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to anime-ghibli category renders "Chuyến tàu trên mặt nước" card matching E2E selector 379ms
+     → Unable to find an element by: [data-testid="filter-cat-anime-ghibli"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Search filtering works robustly and case-insensitively 364ms
+     → Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to video category displays only video presets and hides deep-space 414ms
+     → Unable to find an element by: [data-testid="filter-cat-video"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 3: Global Sentence Case & Elimination of ALL CAPS > SharedFooter column headers are Sentence Case without uppercase class 139ms
+     → Unable to find an element with the text: Liên Hệ Trực Tiếp. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<footer[39m
+      [33mclass[39m=[32m"w-full border-t border-zinc-800/80 bg-[#09090b] text-zinc-400 text-xs py-6 px-4 sm:py-8 sm:px-6 md:py-10 md:px-12 mt-auto select-none pb-safe"[39m
+      [33mdata-testid[39m=[32m"shared-footer"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"max-w-6xl mx-auto space-y-6 sm:space-y-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid grid-cols-1 md:grid-c...
+ ❯ tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx (16 tests | 2 failed) 5850ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > SpacesWidget renders with responsive container classes (w-full min-w-0 max-h-[80vh]) 3212ms
+   × Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Search input has updated placeholder matching spec: "Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)" 502ms
+     → Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"[39m
+      [33mdata-testid[39m=[32m"spaces-widget"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex-1 py-1.5 r...
+   × Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Presets grid renders with responsive 2-to-4 column grid classes (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 395ms
+     → expected 'grid grid-cols-[repeat(auto-fill,minm…' to contain 'grid-cols-2'
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Presets grid excludes solid and pure-black presets from thumbnail cards 331ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Curated badge on preset cards displays Sentence Case "Tuyển chọn" 537ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Wallpaper button displays Sentence Case label "Xem kho hình nền" in effects view 519ms
+ ❯ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx (13 tests | 3 failed) 11882ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.1 complies with State Singularity (<= 1 header tag) 2852ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.2 PlatformHeader on /download hides internal nav links, credits HUD, login button, and header workspace button 1284ms
+   × Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.3 exports accurate APK constants: 8.70 MB and version v8.1 92ms
+     → expected 8.5 to be 8.7 // Object.is equality
+   × Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.4 renders accurate 8.70 MB file size in download cards without legacy 12MB/15MB 1594ms
+     → Unable to find an element with the text: /8\.70 MB/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"[39m
+      [33mdata-testid[39m=[32m"download-hub-container"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.5 adheres to Sentence Case and removes Liquid Zen text from download hub 321ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.6 3D phone mockup inner display reflects V8.1 Monochrome specifications (avatar K, 50 · K, 3 thumb controls, 0 phiên) 706ms
+   × Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.7 unifies the colors of 3 feature highlight icons to text-emerald-400 401ms
+     → expected 'lucide lucide-shield-check w-4 h-4 te…' to contain 'text-emerald-400'
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.8 central download button enforces exact attributes and download link 474ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.9 clipboard copy button copies PUBLIC_APK_URL and provides immediate feedback 614ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.1 /download, /downloads, and /apk aliases all render WebDownloadHub 935ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.2 Desktop workspace /app renders workspace-root on desktop viewport 1107ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.4 founder whitelist accounts get VIP status on billing route 1445ms
+ ✓ tests/unit/phase4aLogicAndCatalog.test.tsx (10 tests) 1548ms
+   ✓ Phase 4A layout safeguards > mobile widget captures taps under a pointer-disabled workspace (collapsed=false) 359ms
+   ✓ Phase 4A layout safeguards > mini pill play, pause and expand dispatch to their owners 471ms
+ ✓ tests/unit/phase3RealtimeAdapter.test.ts (6 tests) 84ms
+ ✓ tests/unit/mobileBottomNavAndHeaderFlow.test.ts (12 tests) 24ms
+ ✓ tests/unit/phase3WorkspaceRealtime.test.ts (4 tests) 136ms
+ ✓ tests/unit/guestHeaderAndGoogleGuidance.test.tsx (5 tests) 19ms
+ ✓ tests/unit/phase3HardwareCleanup.test.tsx (3 tests) 131ms
+ ✓ tests/unit/phase3SubmissionGuards.test.tsx (2 tests) 1985ms
+   ✓ Phase 3 submit locks > coalesces rapid task submissions until the pending write resolves, then accepts another 1108ms
+   ✓ Phase 3 submit locks > locks room creation across repeated submits and releases the lock after a service failure 873ms
+ ✓ tests/unit/phase4aProfileIme.test.tsx (2 tests) 1237ms
+   ✓ Profile avatar URL composing Enter > does not upload until Enter finishes composition ({"isComposing":true}) 853ms
+   ✓ Profile avatar URL composing Enter > does not upload until Enter finishes composition ({"keyCode":229}) 381ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/challenger2Milestone3Stress.test.tsx > Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > SpacesWidget renders all required testids matching Playwright specs
+TestingLibraryElementError: Unable to find an element with the text: Thư Viện Không Gian. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx:112:21
+    110|       // Root and header
+    111|       expect(screen.getByTestId('spaces-widget')).toBeDefined();
+    112|       expect(screen.getByText('Thư Viện Không Gian')).toBeDefined();
+       |                     ^
+    113| 
+    114|       // Controls
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯
+
+ FAIL  tests/unit/challenger2Milestone3Stress.test.tsx > Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to anime-ghibli category renders "Chuyến tàu trên mặt nước" card matching E2E selector
+TestingLibraryElementError: Unable to find an element by: [data-testid="filter-cat-anime-ghibli"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx:145:31
+    143|       const { container } = render(<SpacesWidget />);
+    144| 
+    145|       const animeTab = screen.getByTestId('filter-cat-anime-ghibli');
+       |                               ^
+    146|       fireEvent.click(animeTab);
+    147| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯
+
+ FAIL  tests/unit/challenger2Milestone3Stress.test.tsx > Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Search filtering works robustly and case-insensitively
+TestingLibraryElementError: Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx:164:34
+    162|       const { container } = render(<SpacesWidget />);
+    163| 
+    164|       const searchInput = screen.getByPlaceholderText('Tìm không gian …
+       |                                  ^
+    165| 
+    166|       // Upper-case query
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯
+
+ FAIL  tests/unit/challenger2Milestone3Stress.test.tsx > Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Switching to video category displays only video presets and hides deep-space
+TestingLibraryElementError: Unable to find an element by: [data-testid="filter-cat-video"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx:187:31
+    185|       render(<SpacesWidget />);
+    186| 
+    187|       const videoTab = screen.getByTestId('filter-cat-video');
+       |                               ^
+    188|       fireEvent.click(videoTab);
+    189| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯
+
+ FAIL  tests/unit/challenger2Milestone3Stress.test.tsx > Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 3: Global Sentence Case & Elimination of ALL CAPS > SharedFooter column headers are Sentence Case without uppercase class
+TestingLibraryElementError: Unable to find an element with the text: Liên Hệ Trực Tiếp. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <footer
+      class="w-full border-t border-zinc-800/80 bg-[#09090b] text-zinc-400 text-xs py-6 px-4 sm:py-8 sm:px-6 md:py-10 md:px-12 mt-auto select-none pb-safe"
+      data-testid="shared-footer"
+    >
+      <div
+        class="max-w-6xl mx-auto space-y-6 sm:space-y-8"
+      >
+        <div
+          class="grid grid-cols-1 md:grid-c...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challenger2Milestone3Stress.test.tsx:205:21
+    203|     it('SharedFooter column headers are Sentence Case without uppercas…
+    204|       const { container } = render(<SharedFooter />);
+    205|       expect(screen.getByText('Liên Hệ Trực Tiếp')).toBeDefined();
+       |                     ^
+    206|       expect(screen.getByText('Sản Phẩm & Không Gian')).toBeDefined();
+    207|       expect(screen.getByText('Hỗ Trợ & Điều Khoản')).toBeDefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > presets grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4)
+AssertionError: expected 'grid grid-cols-[repeat(auto-fill,minm…' to contain 'grid-cols-2'
+
+Expected: "grid-cols-2"
+Received: "grid grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))] gap-2"
+
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:51:37
+     49|       const presetsGrid = screen.getByTestId('presets-grid');
+     50|       expect(presetsGrid).toBeDefined();
+     51|       expect(presetsGrid.className).toContain('grid-cols-2');
+       |                                     ^
+     52|       expect(presetsGrid.className).toContain('sm:grid-cols-3');
+     53|       expect(presetsGrid.className).toContain('md:grid-cols-4');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > wallpaper grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4)
+TestingLibraryElementError: Unable to find an element by: [data-testid="filter-cat-all"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:59:32
+     57|       const { container } = render(<SpacesWidget />);
+     58|       // Filter out video to view wallpaper grid
+     59|       const allFilter = screen.getByTestId('filter-cat-all');
+       |                                ^
+     60|       fireEvent.click(allFilter);
+     61|       // The wallpaper grid container
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 2: Adversarial Search & Wallpaper Query Stress Tests > searching in SpacesWidget UI updates results and does not crash when results are 0
+TestingLibraryElementError: Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:110:34
+    108|     it('searching in SpacesWidget UI updates results and does not cras…
+    109|       render(<SpacesWidget />);
+    110|       const searchInput = screen.getByPlaceholderText('Tìm không gian …
+       |                                  ^
+    111|       expect(searchInput).toBeDefined();
+    112| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > filter by video category renders video presets in presets-grid
+TestingLibraryElementError: Unable to find an element by: [data-testid="filter-cat-video"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:166:31
+    164|     it('filter by video category renders video presets in presets-grid…
+    165|       render(<SpacesWidget />);
+    166|       const videoTab = screen.getByTestId('filter-cat-video');
+       |                               ^
+    167|       fireEvent.click(videoTab);
+    168| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > DockBar Eco Mode toggle uses Lucide Leaf and Sentence Case labels (Bật / Tắt)
+TestingLibraryElementError: Unable to find an element with the text: Eco Mode siêu nhẹ. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <nav
+      aria-label="Thanh điều khiển không gian làm việc"
+      class="fixed z-30 flex max-h-[90vh] max-w-[95vw] items-center overflow-visible rounded-2xl border dock border-white/10 bg-[rgba(14,17,25,0.78)] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl backdrop-saturate-[190%] select-none transition-all duration-300 opacity-100 translate-y-0 hover:opacit...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:225:21
+    223|       fireEvent.click(presetsBtn);
+    224| 
+    225|       expect(screen.getByText('Eco Mode siêu nhẹ')).toBeDefined();
+       |                     ^
+    226|       const ecoBtn = screen.getByTestId('quick-dock-eco-toggle');
+    227|       expect(ecoBtn.textContent).toMatch(/^(Bật|Tắt)$/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > SettingsView Eco Mode section uses Lucide Leaf and Sentence Case
+TestingLibraryElementError: Unable to find an element with the text: Chế độ siêu nhẹ (Eco Mode). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+      data-testid="settings-view"
+    >
+      <header
+        class="sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] bg-[#09090b]/95 backdrop-blur-xl px-4 xl:px-5 flex items-ce...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:234:21
+    232|     it('SettingsView Eco Mode section uses Lucide Leaf and Sentence Ca…
+    233|       render(<SettingsView />);
+    234|       expect(screen.getByText('Chế độ siêu nhẹ (Eco Mode)')).toBeDefin…
+       |                     ^
+    235|       const toggleEcoBtn = screen.getByTestId('setting-toggle-eco-mode…
+    236|       expect(toggleEcoBtn.textContent).toMatch(/^(Đang bật|Tắt)$/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/25]⎯
+
+ FAIL  tests/unit/challengerPolishM3Stress.test.tsx > Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > SharedFooter column headers are in Sentence Case without uppercase CSS classes
+AssertionError: expected 'PomoFocusKhông gian học tập & làm việ…' to contain 'Liên Hệ Trực Tiếp'
+
+Expected: "Liên Hệ Trực Tiếp"
+Received: "PomoFocusKhông gian học tập & làm việc sâu theo chu kỳ pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực tuyến.Liên hệ trực tiếpPhát triển bởi Hồ ngọc bảo nam. Sẵn sàng lắng nghe phản hồi & hỗ trợ kỹ thuật:support@pomofocus.vnCổng hỗ trợ 24/7Sản phẩm & không gianKhông gian làm việcPhòng học nhóm liveLịch biểu time-blockBảng giá & gói PROThống kê tập trungTải app Android (APK)Hỗ trợ & điều khoảnGửi phản hồi & ý kiếnTrung tâm trợ giúpHồ sơ & ảnh đại diệnBảo mật & phiên đăng nhậpQuyền riêng tư & dữ liệuĐiều khoản sử dụngChính sách bảo mật© 2026 PomoFocus. Bản quyền phát triển bởiHồ ngọc bảo nam.Bản quyền thuộc PomoFocus"
+
+ ❯ tests/unit/challengerPolishM3Stress.test.tsx:245:23
+    243|       const { container } = render(<SharedFooter />);
+    244|       const allText = container.textContent || '';
+    245|       expect(allText).toContain('Liên Hệ Trực Tiếp');
+       |                       ^
+    246|       expect(allText).toContain('Sản Phẩm & Không Gian');
+    247|       expect(allText).toContain('Hỗ Trợ & Điều Khoản');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/25]⎯
+
+ FAIL  tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx > Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.2 AiCreditsTopupModal has 7-day refund guarantee note according to consumer law
+TestingLibraryElementError: Unable to find an element with the text: /Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      data-testid="ai-credits-topup-modal"
+    >
+      <div
+        class="relative z-[101] w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+    ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx:304:21
+    302|       );
+    303| 
+    304|       expect(screen.getByText(/Cam kết hoàn tiền 100% trong 07 ngày nế…
+       |                     ^
+    305|     });
+    306| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/25]⎯
+
+ FAIL  tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx > Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.3 MoMoPaymentModal has 7-day refund guarantee note according to consumer law
+TestingLibraryElementError: Unable to find an element with the text: /Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+      data-testid="momo-payment-modal"
+      style="z-index: 100;"
+    >
+      <div
+        class="relative z-[101] w-full max-w-sm rounded-3xl border border-white/[0.1] bg-zinc-950/92 backdrop-blur-2xl text-zinc-100 shadow-[inset_0_...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx:317:21
+    315|       );
+    316| 
+    317|       expect(screen.getByText(/Cam kết hoàn tiền 100% trong 07 ngày nế…
+       |                     ^
+    318|     });
+    319|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/25]⎯
+
+ FAIL  tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx > Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.3 exports accurate APK constants: 8.70 MB and version v8.1
+AssertionError: expected 8.5 to be 8.7 // Object.is equality
+
+- Expected
++ Received
+
+- 8.7
++ 8.5
+
+ ❯ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx:68:27
+     66|     it('1.3 exports accurate APK constants: 8.70 MB and version v8.1',…
+     67|       expect(CURRENT_APK_VERSION).toBe('v8.1');
+     68|       expect(APK_SIZE_MB).toBe(8.7);
+       |                           ^
+     69|       expect(APK_SIZE_LABEL).toBe('8.70 MB');
+     70|       expect(PUBLIC_APK_URL).toBe('https://pomofocus-workspace.vercel.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/25]⎯
+
+ FAIL  tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx > Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.4 renders accurate 8.70 MB file size in download cards without legacy 12MB/15MB
+TestingLibraryElementError: Unable to find an element with the text: /8\.70 MB/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"
+      data-testid="download-hub-container"
+    >
+      <div
+        aria-hidden="true"
+        class="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx:80:21
+     78|       );
+     79| 
+     80|       expect(screen.getAllByText(/8\.70 MB/i).length).toBeGreaterThanO…
+       |                     ^
+     81|       expect(screen.queryByText(/12(\.0)? MB/i)).toBeNull();
+     82|       expect(screen.queryByText(/15(\.0)? MB/i)).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/25]⎯
+
+ FAIL  tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx > Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.7 unifies the colors of 3 feature highlight icons to text-emerald-400
+AssertionError: expected 'lucide lucide-shield-check w-4 h-4 te…' to contain 'text-emerald-400'
+
+Expected: "text-emerald-400"
+Received: "lucide lucide-shield-check w-4 h-4 text-zinc-400 mb-0.5"
+
+ ❯ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx:142:44
+    140|       expect(icons?.length).toBe(3);
+    141|       icons?.forEach((icon) => {
+    142|         expect(icon.getAttribute('class')).toContain('text-emerald-400…
+       |                                            ^
+    143|       });
+    144|     });
+ ❯ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx:141:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/25]⎯
+
+ FAIL  tests/unit/v75DownloadShowcase.test.tsx > PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.3 displays accurate ~8.0 MB or 8.70 MB APK size and unified pomofocus brand logo
+TestingLibraryElementError: Unable to find an element with the text: /8\.(0|70) MB/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"
+      data-testid="download-hub-container"
+    >
+      <div
+        aria-hidden="true"
+        class="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ tests/unit/v75DownloadShowcase.test.tsx:255:21
+    253|       );
+    254| 
+    255|       expect(screen.getAllByText(/8\.(0|70) MB/i).length).toBeGreaterT…
+       |                     ^
+    256|       expect(screen.queryByText(/18\.4 MB/i)).toBeNull();
+    257|       expect(screen.getAllByText(/pomofocus/i).length).toBeGreaterThan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/25]⎯
+
+ FAIL  tests/unit/v75DownloadShowcase.test.tsx > PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →"
+TestingLibraryElementError: Unable to find an element with the text: /Đếm giờ chính xác ngay cả khi tắt màn hình/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"
+      data-testid="download-hub-container"
+    >
+      <div
+        aria-hidden="true"
+        class="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-b from-zinc-500/12 via-zinc-500/...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/v75DownloadShowcase.test.tsx:344:21
+    342|       expect(screen.getByText(/Tập trung sâu\./i)).toBeDefined();
+    343|       expect(screen.getByText(/Trôi chảy từng khoảnh khắc\./i)).toBeDe…
+    344|       expect(screen.getByText(/Đếm giờ chính xác ngay cả khi tắt màn h…
+       |                     ^
+    345|       expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
+    346|       expect(screen.getByTestId('central-apk-download-btn').textConten…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/25]⎯
+
+ FAIL  tests/unit/v75DownloadShowcase.test.tsx > PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.1 WebDownloadHub includes Play Protect external install micro-hint
+AssertionError: expected 'Nếu máy hiện cảnh báo nguồn ngoài, ch…' to contain 'Nếu máy hiện cảnh báo nguồn ngoài, ch…'
+
+Expected: "Nếu máy hiện cảnh báo nguồn ngoài, chọn 'Vẫn cài đặt' để trải nghiệm bản thử nghiệm nội bộ."
+Received: "Nếu máy hiện cảnh báo nguồn ngoài, chọn 'vẫn cài đặt' để trải nghiệm bản thử nghiệm nội bộ."
+
+ ❯ tests/unit/v75DownloadShowcase.test.tsx:390:32
+    388| 
+    389|       const hint = screen.getByTestId('play-protect-micro-hint');
+    390|       expect(hint.textContent).toContain("Nếu máy hiện cảnh báo nguồn …
+       |                                ^
+    391|     });
+    392| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/25]⎯
+
+ FAIL  tests/unit/v81MeetRoomsAndWhiteboard.test.tsx > PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.5: UI renders synchronization badge in both video grid and whiteboard views
+AssertionError: expected 'Đồng bộ nhóm Nhóm' to contain 'Đồng bộ nhóm ⏱️'
+
+Expected: "Đồng bộ nhóm ⏱️"
+Received: "Đồng bộ nhóm Nhóm"
+
+ ❯ tests/unit/v81MeetRoomsAndWhiteboard.test.tsx:620:37
+    618|       const syncBadge = await screen.findByTestId('room-timer-sync-bad…
+    619|       expect(syncBadge).toBeDefined();
+    620|       expect(syncBadge.textContent).toContain('Đồng bộ nhóm ⏱️');
+       |                                     ^
+    621| 
+    622|       // Switch to Whiteboard view
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/25]⎯
+
+ FAIL  tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx > Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 2. PlatformHeader Polish on 1366x768 & Duplicate Button Elimination (Bugs 6, 7) > Relaxes username truncation max-w constraint from max-w-[85px] to max-w-[130px] xl:max-w-[160px]
+AssertionError: expected 'text-xs font-medium truncate hidden m…' to contain 'max-w-[130px]'
+
+Expected: "max-w-[130px]"
+Received: "text-xs font-medium truncate hidden md:inline-block max-w-[160px] sm:max-w-[200px] md:max-w-[220px] xl:max-w-[260px]"
+
+ ❯ tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx:164:41
+    162|       expect(userDisplayName).toBeDefined();
+    163|       expect(userDisplayName.textContent).toBe('Nguyễn Văn Nam');
+    164|       expect(userDisplayName.className).toContain('max-w-[130px]');
+       |                                         ^
+    165|       expect(userDisplayName.className).toContain('xl:max-w-[160px]');
+    166|       expect(userDisplayName.className).not.toContain('max-w-[85px]');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/25]⎯
+
+ FAIL  tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx > Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 5. AI Companion Drawer Layout & Icon Polish (Bugs 12, 13) > Renders monochrome Sparkles icon in drawer header
+AssertionError: expected 'fixed inset-0 z-30 bg-black/50 backdr…' to contain '2xl:hidden'
+
+Expected: "2xl:hidden"
+Received: "fixed inset-0 z-30 bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden opacity-0 pointer-events-none"
+
+ ❯ tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx:336:34
+    334|       // Backdrop has 2xl:hidden
+    335|       const backdrop = screen.getByTestId('ai-backdrop');
+    336|       expect(backdrop.className).toContain('2xl:hidden');
+       |                                  ^
+    337|       expect(backdrop.className).not.toContain('sm:hidden');
+    338|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/25]⎯
+
+ FAIL  tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx > Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Search input has updated placeholder matching spec: "Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)"
+TestingLibraryElementError: Unable to find an element with the placeholder text of: Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
+      data-testid="spaces-widget"
+    >
+      <div
+        class="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2"
+      >
+        <button
+          class="flex-1 py-1.5 r...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx:42:34
+     40|     it('Search input has updated placeholder matching spec: "Tìm không…
+     41|       render(<SpacesWidget />);
+     42|       const searchInput = screen.getByPlaceholderText('Tìm không gian …
+       |                                  ^
+     43|       expect(searchInput).toBeDefined();
+     44|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/25]⎯
+
+ FAIL  tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx > Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Presets grid renders with responsive 2-to-4 column grid classes (grid-cols-2 sm:grid-cols-3 md:grid-cols-4)
+AssertionError: expected 'grid grid-cols-[repeat(auto-fill,minm…' to contain 'grid-cols-2'
+
+Expected: "grid-cols-2"
+Received: "grid grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))] gap-2"
+
+ ❯ tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx:50:30
+     48|       const grid = screen.getByTestId('presets-grid');
+     49|       expect(grid).toBeDefined();
+     50|       expect(grid.className).toContain('grid-cols-2');
+       |                              ^
+     51|       expect(grid.className).toContain('sm:grid-cols-3');
+     52|       expect(grid.className).toContain('md:grid-cols-4');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/25]⎯
+
+ Test Files  8 failed | 11 passed (19)
+      Tests  25 failed | 212 passed (237)
+   Start at  02:04:32
+   Duration  132.11s (transform 15.87s, setup 0ms, collect 54.38s, tests 60.86s, environment 86.62s, prepare 11.72s)
+

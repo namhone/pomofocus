@@ -1,0 +1,2316 @@
+{
+  "url": "http://127.0.0.1:5194/app",
+  "timestamp": "2026-11-26T00:19:39.162Z",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-white font-bold tracking-tight inline-block text-xs font-bold text-white tracking-tight\">PomoFocus</span>",
+          "target": [
+            ".inline-block"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"header-nav-app\" class=\"flex items-center gap-1.5 px-2 xl:px-2.5 py-1 rounded-full transition cursor-pointer shrink-0 whitespace-nowrap text-[11px] bg-zinc-800/80 text-white font-medium shadow-sm border border-zinc-700/50\">",
+                  "target": [
+                    ".bg-zinc-800\\/80"
+                  ]
+                },
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Không gian</span>",
+          "target": [
+            ".bg-zinc-800\\/80 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Bảng giá</span>",
+          "target": [
+            "button[data-testid=\"header-nav-billing\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Phòng học</span>",
+          "target": [
+            "button[data-testid=\"header-nav-rooms\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Lịch biểu</span>",
+          "target": [
+            "button[data-testid=\"header-nav-calendar\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Thống kê</span>",
+          "target": [
+            "button[data-testid=\"header-nav-dashboard\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tải app</span>",
+          "target": [
+            "button[data-testid=\"header-nav-download\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Trợ giúp</span>",
+          "target": [
+            "button[data-testid=\"header-nav-help\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header data-testid=\"platform-unified-header\" class=\"fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto \">",
+                  "target": [
+                    "header"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Liên hệ</span>",
+          "target": [
+            "button[data-testid=\"header-nav-contact\"] > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.8pt (13px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-drag-handle=\"true\" class=\"relative z-20 h-9 px-3 flex items-center justify-between gap-2 border-b border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] cursor-grab active:cursor-grabbing touch-none select-none shrink-0 transition-colors\" title=\"Kéo để di chuyển widget\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 class=\"text-[13px] font-medium text-neutral-200 tracking-tight\">Đồng hồ Pomodoro</h2>",
+          "target": [
+            ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab > .min-w-0.gap-2 > .text-\\[13px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span data-testid=\"round-indicator\" class=\"rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300 min-h-[24px] inline-flex items-center\">Hiệp 1 / 4</span>",
+                  "target": [
+                    ".bg-white\\/\\[0\\.06\\]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"round-indicator\" class=\"rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300 min-h-[24px] inline-flex items-center\">Hiệp 1 / 4</span>",
+          "target": [
+            ".bg-white\\/\\[0\\.06\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"status-indicator\" class=\"font-medium text-[10px] text-neutral-300\">Chờ bắt đầu</span>",
+          "target": [
+            "span[data-testid=\"status-indicator\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button data-testid=\"tab-pomodoro\" class=\"flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 liquid-glass-btn liquid-glass-btn-rose text-zinc-200 font-medium shadow-xs disabled:cursor-not-allowed disabled:opacity-50\">",
+                  "target": [
+                    ".liquid-glass-btn-rose"
+                  ]
+                },
+                {
+                  "html": "<div class=\"flex flex-nowrap overflow-x-auto scrollbar-none gap-1 p-1 rounded-2xl bg-black/25 border border-white/5 mb-2 min-h-[30px] items-stretch select-none\">",
+                  "target": [
+                    ".overflow-x-auto"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button data-testid=\"tab-pomodoro\" class=\"flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 liquid-glass-btn liquid-glass-btn-rose text-zinc-200 font-medium shadow-xs disabled:cursor-not-allowed disabled:opacity-50\">",
+          "target": [
+            ".liquid-glass-btn-rose"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex flex-nowrap overflow-x-auto scrollbar-none gap-1 p-1 rounded-2xl bg-black/25 border border-white/5 mb-2 min-h-[30px] items-stretch select-none\">",
+                  "target": [
+                    ".overflow-x-auto"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button data-testid=\"tab-short_break\" class=\"flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 text-neutral-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-50\">",
+          "target": [
+            "button[data-testid=\"tab-short_break\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex flex-nowrap overflow-x-auto scrollbar-none gap-1 p-1 rounded-2xl bg-black/25 border border-white/5 mb-2 min-h-[30px] items-stretch select-none\">",
+                  "target": [
+                    ".overflow-x-auto"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button data-testid=\"tab-long_break\" class=\"flex-1 rounded-full text-[11px] font-medium transition-all duration-150 cursor-pointer flex items-center justify-center min-h-[28px] px-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 whitespace-nowrap shrink-0 text-neutral-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-50\">",
+          "target": [
+            "button[data-testid=\"tab-long_break\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "36.0pt (48px)",
+                "fontWeight": "bold",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div data-testid=\"timer-display\" class=\"font-mono tabular-nums text-4xl sm:text-5xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]\">25:00</div>",
+          "target": [
+            ".tabular-nums"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tiến độ ngày</span>",
+          "target": [
+            ".mb-0\\.5 > span:nth-child(1)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"daily-progress-text\" class=\"font-mono text-neutral-300\">0/8</span>",
+          "target": [
+            "span[data-testid=\"daily-progress-text\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button data-testid=\"timer-start-btn\" title=\"Bắt đầu phiên tập trung\" aria-label=\"Bắt đầu phiên tập trung\" class=\"liquid-glass-btn h-11 px-6 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer\">",
+                  "target": [
+                    ".px-6"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-timer\" aria-label=\"Đồng hồ Pomodoro\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-visible h-auto min-h-fit transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 76px; width: 320px; height: auto; min-height: 320px; max-height: 520px; z-index: 10; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    ".shadow-\\[0_8px_32px_0_rgba\\(0\\,0\\,0\\,0\\.37\\)\\,inset_0_1px_1px_0_rgba\\(255\\,255\\,255\\,0\\.22\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"font-medium text-sm tracking-wide text-white whitespace-nowrap\">Bắt đầu</span>",
+          "target": [
+            ".tracking-wide"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.8pt (13px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-drag-handle=\"true\" class=\"relative z-20 h-9 px-3 flex items-center justify-between gap-2 border-b border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] cursor-grab active:cursor-grabbing touch-none select-none shrink-0 transition-colors\" title=\"Kéo để di chuyển widget\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 class=\"text-[13px] font-medium text-neutral-200 tracking-tight\">Danh sách công việc</h2>",
+          "target": [
+            "section[data-testid=\"widget-container-tasks\"] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab > .min-w-0.gap-2 > .text-\\[13px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"truncate\">Hôm nay: 0 phiên • 0 phút</span>",
+          "target": [
+            ".truncate.text-neutral-300.min-w-0 > .truncate"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" class=\"text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 shrink-0 whitespace-nowrap\">+ Dự án</button>",
+                  "target": [
+                    ".focus-visible\\:ring-zinc-400.min-h-\\[28px\\].text-neutral-300"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" class=\"text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer min-h-[28px] inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 shrink-0 whitespace-nowrap\">+ Dự án</button>",
+          "target": [
+            ".focus-visible\\:ring-zinc-400.min-h-\\[28px\\].text-neutral-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<label for=\"filter-project\" class=\"text-neutral-400 text-[10px] shrink-0\">Dự án:</label>",
+          "target": [
+            "label"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<select id=\"filter-project\" data-testid=\"filter-project-select\" class=\"w-full min-w-0 bg-black/40 border border-white/15 rounded-lg px-2 py-0.5 text-neutral-200 text-[11px] focus:outline-none cursor-pointer h-7 focus-visible:ring-1 focus-visible:ring-white/40 truncate\">",
+                  "target": [
+                    "#filter-project"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<select id=\"filter-project\" data-testid=\"filter-project-select\" class=\"w-full min-w-0 bg-black/40 border border-white/15 rounded-lg px-2 py-0.5 text-neutral-200 text-[11px] focus:outline-none cursor-pointer h-7 focus-visible:ring-1 focus-visible:ring-white/40 truncate\">",
+          "target": [
+            "#filter-project"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"filter-status-all\" class=\"px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 liquid-glass-btn-active bg-zinc-700/20 text-zinc-300 font-semibold\">",
+                  "target": [
+                    ".liquid-glass-btn-active"
+                  ]
+                },
+                {
+                  "html": "<div class=\"flex rounded-xl bg-black/30 p-1 border border-white/10 gap-1 shrink-0 flex-nowrap\">",
+                  "target": [
+                    ".bg-black\\/30"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"filter-status-all\" class=\"px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 liquid-glass-btn-active bg-zinc-700/20 text-zinc-300 font-semibold\">",
+          "target": [
+            ".liquid-glass-btn-active"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex rounded-xl bg-black/30 p-1 border border-white/10 gap-1 shrink-0 flex-nowrap\">",
+                  "target": [
+                    ".bg-black\\/30"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"filter-status-todo\" class=\"px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 text-neutral-400 hover:text-white\">",
+          "target": [
+            "button[data-testid=\"filter-status-todo\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex rounded-xl bg-black/30 p-1 border border-white/10 gap-1 shrink-0 flex-nowrap\">",
+                  "target": [
+                    ".bg-black\\/30"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"filter-status-completed\" class=\"px-2 py-0.5 rounded text-[10px] font-medium transition cursor-pointer h-6 flex items-center justify-center whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 text-neutral-400 hover:text-white\">",
+          "target": [
+            "button[data-testid=\"filter-status-completed\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<input data-testid=\"input-new-task\" aria-label=\"Công việc mới\" type=\"text\" placeholder=\"Thêm công việc mới cần làm...\" class=\"w-full text-xs px-2 py-1.5 rounded-lg bg-black/25 border border-white/5 text-white placeholder-zinc-400 focus:outline-none focus:border-white/20\" value=\"\">",
+                  "target": [
+                    ".focus\\:border-white\\/20"
+                  ]
+                },
+                {
+                  "html": "<form class=\"rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0\">",
+                  "target": [
+                    ".border-white\\/12"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<input data-testid=\"input-new-task\" aria-label=\"Công việc mới\" type=\"text\" placeholder=\"Thêm công việc mới cần làm...\" class=\"w-full text-xs px-2 py-1.5 rounded-lg bg-black/25 border border-white/5 text-white placeholder-zinc-400 focus:outline-none focus:border-white/20\" value=\"\">",
+          "target": [
+            ".focus\\:border-white\\/20"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"priority-btn-p1\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"priority-btn-p1\"]"
+                  ]
+                },
+                {
+                  "html": "<form class=\"rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0\">",
+                  "target": [
+                    ".border-white\\/12"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"priority-btn-p1\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20\">",
+          "target": [
+            "button[data-testid=\"priority-btn-p1\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"priority-btn-p2\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-zinc-700/20 text-zinc-300 border-zinc-500/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]\">",
+                  "target": [
+                    ".shadow-\\[0_0_12px_rgba\\(245\\,158\\,11\\,0\\.25\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<form class=\"rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0\">",
+                  "target": [
+                    ".border-white\\/12"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"priority-btn-p2\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-zinc-700/20 text-zinc-300 border-zinc-500/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]\">",
+          "target": [
+            ".shadow-\\[0_0_12px_rgba\\(245\\,158\\,11\\,0\\.25\\)\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"priority-btn-p3\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"priority-btn-p3\"]"
+                  ]
+                },
+                {
+                  "html": "<form class=\"rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0\">",
+                  "target": [
+                    ".border-white\\/12"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" data-testid=\"priority-btn-p3\" class=\"px-2 py-0.5 rounded-xl border text-[9px] normal-case font-bold transition cursor-pointer active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 bg-white/5 border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20\">",
+          "target": [
+            "button[data-testid=\"priority-btn-p3\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-xl p-0.5 h-7 shrink-0 flex-nowrap\">",
+                  "target": [
+                    ".gap-0\\.5"
+                  ]
+                },
+                {
+                  "html": "<form class=\"rounded-xl border border-white/12 bg-white/[0.03] backdrop-blur-sm p-2 focus-within:border-white/30 transition-colors shadow-sm mb-2 space-y-1.5 shrink-0\">",
+                  "target": [
+                    ".border-white\\/12"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<input data-testid=\"input-estimated-pomodoros\" type=\"number\" inputmode=\"numeric\" enterkeyhint=\"done\" min=\"1\" max=\"20\" aria-label=\"Số pomodoro dự kiến\" class=\"w-6 text-center bg-transparent text-white text-xs font-mono font-semibold focus:outline-none [-moz-appearance:textfield] [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none\" value=\"2\">",
+          "target": [
+            ".\\[-moz-appearance\\:textfield\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-tasks\" aria-label=\"Danh sách công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 555px; top: 76px; width: 320px; height: 320px; z-index: 11; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-tasks\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div data-testid=\"tasks-empty-state\" class=\"py-8 text-center text-xs text-neutral-400\">Chưa có công việc. Nhập việc cần làm ở trên để bắt đầu!</div>",
+          "target": [
+            ".py-8"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.8pt (13px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-drag-handle=\"true\" class=\"relative z-20 h-9 px-3 flex items-center justify-between gap-2 border-b border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] cursor-grab active:cursor-grabbing touch-none select-none shrink-0 transition-colors\" title=\"Kéo để di chuyển widget\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-notes\"] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-notes\" aria-label=\"Ghi chú công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 412px; width: 330px; height: 376px; z-index: 24; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-notes\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 class=\"text-[13px] font-medium text-neutral-200 tracking-tight\">Ghi chú công việc</h2>",
+          "target": [
+            "section[data-testid=\"widget-container-notes\"] > .z-20.hover\\:bg-white\\/\\[0\\.04\\].cursor-grab > .min-w-0.gap-2 > .text-\\[13px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"btn-new-note\" aria-label=\"Thêm ghi chú\" title=\"Thêm ghi chú\" class=\"shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white disabled:opacity-40 !w-auto gap-1 bg-white/10 px-2 text-xs text-white\">",
+                  "target": [
+                    ".\\!w-auto"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-notes\" aria-label=\"Ghi chú công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 412px; width: 330px; height: 376px; z-index: 24; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-notes\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Thêm</span>",
+          "target": [
+            ".\\!w-auto > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-notes\" aria-label=\"Ghi chú công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 412px; width: 330px; height: 376px; z-index: 24; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-notes\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<input data-testid=\"input-note-title\" aria-label=\"Tiêu đề ghi chú\" placeholder=\"Tiêu đề ghi chú\" class=\"w-full min-w-0 rounded-lg border border-white/[0.06] bg-transparent px-2 py-1.5 text-sm font-medium text-white placeholder-zinc-400\" value=\"Ghi chú mới\">",
+          "target": [
+            "input[data-testid=\"input-note-title\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "elmPartiallyObscured",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<textarea data-testid=\"textarea-note-content\" aria-label=\"Nội dung ghi chú\" placeholder=\"Viết ghi chú của bạn...\" class=\"min-h-0 w-full flex-1 resize-none rounded-xl border border-white/[0.06] p-3 text-sm leading-relaxed placeholder-zinc-400 bg-zinc-900 text-zinc-100\">",
+                  "target": [
+                    "textarea[data-testid=\"textarea-note-content\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<textarea data-testid=\"textarea-note-content\" aria-label=\"Nội dung ghi chú\" placeholder=\"Viết ghi chú của bạn...\" class=\"min-h-0 w-full flex-1 resize-none rounded-xl border border-white/[0.06] p-3 text-sm leading-relaxed placeholder-zinc-400 bg-zinc-900 text-zinc-100\">",
+          "target": [
+            "textarea[data-testid=\"textarea-note-content\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-notes\" aria-label=\"Ghi chú công việc\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 219px; top: 412px; width: 330px; height: 376px; z-index: 24; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section[data-testid=\"widget-container-notes\"]"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"note-save-status\" role=\"status\" class=\"inline-flex items-center gap-1\">",
+          "target": [
+            "span[data-testid=\"note-save-status\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>13 từ</span>",
+          "target": [
+            ".justify-between.text-\\[11px\\].text-zinc-300 > span:nth-child(2)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-2.5\">",
+                  "target": [
+                    ".h-14"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 class=\"text-xs sm:text-sm font-bold text-white tracking-tight truncate\" title=\"AI Study Companion\">Trợ lý học tập AI</h2>",
+          "target": [
+            ".sm\\:text-sm"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"ai-credits-topup-btn\" class=\"flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-zinc-200 hover:bg-white/15 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0\" title=\"Bấm để nạp thêm AI credits (chiết khấu tới 40%)\">",
+                  "target": [
+                    "button[data-testid=\"ai-credits-topup-btn\"]"
+                  ]
+                },
+                {
+                  "html": "<div class=\"h-14 px-3 sm:px-4 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 shrink-0 gap-2.5\">",
+                  "target": [
+                    ".h-14"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"ai-credits-badge\">50</span>",
+          "target": [
+            "span[data-testid=\"ai-credits-badge\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs\">",
+                  "target": [
+                    ".max-w-\\[85\\%\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"mb-2 last:mb-0 leading-relaxed text-zinc-200\">Chào bạn. Tôi có thể giúp gì cho buổi học hôm nay?</p>",
+          "target": [
+            ".last\\:mb-0"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs\">",
+                  "target": [
+                    ".max-w-\\[85\\%\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px]\">Sao chép</span>",
+          "target": [
+            "button[title=\"Sao chép câu trả lời\"] > .text-\\[10px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs\">",
+                  "target": [
+                    ".max-w-\\[85\\%\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] flex items-center gap-1\">",
+          "target": [
+            ".text-\\[10px\\].gap-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs\">",
+                  "target": [
+                    ".max-w-\\[85\\%\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"inline-flex items-center gap-1 text-zinc-400\">",
+          "target": [
+            ".inline-flex.gap-1.text-zinc-400"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" class=\"px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5\">",
+                  "target": [
+                    ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(1)"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Giải bài tập</span>",
+          "target": [
+            ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(1) > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" class=\"px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5\">",
+                  "target": [
+                    ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(2)"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tóm tắt</span>",
+          "target": [
+            ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(2) > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" class=\"px-2.5 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800/80 text-zinc-300 hover:text-white text-[11px] transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5\">",
+                  "target": [
+                    ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(3)"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tạo trắc nghiệm</span>",
+          "target": [
+            ".px-2\\.5.border-zinc-800\\/80.bg-zinc-900\\/80:nth-child(3) > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<form class=\"w-full flex items-center gap-2 bg-zinc-900/80 border border-white/10 focus-within:border-white/25 focus-within:ring-1 focus-within:ring-white/10 rounded-2xl px-3 py-1.5 shadow-xl transition-all duration-200\">",
+                  "target": [
+                    ".focus-within\\:border-white\\/25"
+                  ]
+                },
+                {
+                  "html": "<div class=\"relative z-10 p-3 pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]\">",
+                  "target": [
+                    ".pb-\\[calc\\(1rem\\+max\\(env\\(safe-area-inset-bottom\\,0px\\)\\,var\\(--sab-native\\,0px\\)\\)\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<textarea rows=\"1\" data-testid=\"ai-prompt-input\" aria-label=\"Câu hỏi cho trợ lý AI\" enterkeyhint=\"send\" placeholder=\"Nhập câu hỏi bài tập, khái niệm cần giải thích... (Shift+Enter để xuống dòng)\" class=\"no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-400 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-none\" style=\"height: 32px;\">",
+          "target": [
+            ".no-focus-ring"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"relative z-10 p-3 pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]\">",
+                  "target": [
+                    ".pb-\\[calc\\(1rem\\+max\\(env\\(safe-area-inset-bottom\\,0px\\)\\,var\\(--sab-native\\,0px\\)\\)\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"flex items-center gap-1\">",
+          "target": [
+            ".font-mono.justify-between.text-\\[11px\\] > .gap-1:nth-child(1)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"relative z-10 p-3 pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]\">",
+                  "target": [
+                    ".pb-\\[calc\\(1rem\\+max\\(env\\(safe-area-inset-bottom\\,0px\\)\\,var\\(--sab-native\\,0px\\)\\)\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"flex items-center gap-1 text-zinc-300\"><span class=\"w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse\"></span>Phản hồi tức thì</span>",
+          "target": [
+            ".font-mono.justify-between.text-\\[11px\\] > .gap-1.text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.1pt (9.5px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"relative z-10 p-3 pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]\">",
+                  "target": [
+                    ".pb-\\[calc\\(1rem\\+max\\(env\\(safe-area-inset-bottom\\,0px\\)\\,var\\(--sab-native\\,0px\\)\\)\\)\\]"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"ai-companion-drawer\" aria-hidden=\"false\" class=\"fixed top-14 sm:top-16 bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform translate-x-0 opacity-100 pointer-events-auto\">",
+                  "target": [
+                    ".sm\\:top-16"
+                  ]
+                },
+                {
+                  "html": "<img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200h100v100H0z%22%2F%3E%3C%2Fsvg%3E\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9.5px] text-zinc-400/80 text-center font-sans\">Phản hồi AI mang tính tham khảo học tập (Luật 134/2025/QH15), vui lòng đối chiếu giáo trình chính thống.</p>",
+          "target": [
+            ".text-\\[9\\.5px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 60
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 60
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 2
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 6
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 60
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 2
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 2
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 60
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 60
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 6
+    },
+    {
+      "id": "button-name",
+      "nodes": 81
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 3
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "duplicate-id-aria",
+      "nodes": 1
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "nodes": 7
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "label",
+      "nodes": 5
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 84
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "nodes": 1
+    },
+    {
+      "id": "select-name",
+      "nodes": 2
+    }
+  ]
+}

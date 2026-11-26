@@ -109,17 +109,17 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
 
       // Root and header
       expect(screen.getByTestId('spaces-widget')).toBeDefined();
-      expect(screen.getByText('Thư Viện Không Gian')).toBeDefined();
+      expect(screen.getByText('Thư viện không gian')).toBeDefined();
 
       // Controls
       expect(screen.getByTestId('btn-toggle-adjustments')).toBeDefined();
       expect(screen.getByTestId('btn-reset-bg')).toBeDefined();
 
       // Category filter buttons
-      expect(screen.getByTestId('filter-cat-all')).toBeDefined();
-      expect(screen.getByTestId('filter-cat-video')).toBeDefined();
+      expect(screen.getByRole('combobox', { name: 'Danh mục hình nền' })).toBeDefined();
+      expect(screen.getByRole('combobox', { name: 'Danh mục hình nền' })).toBeDefined();
       for (const cat of WALLPAPER_CATEGORIES.filter((c) => c.id !== 'all')) {
-        expect(screen.getByTestId(`filter-cat-${cat.id}`)).toBeDefined();
+        expect(screen.getByRole('option', { name: cat.label })).toBeDefined();
       }
 
       // Default presets grid
@@ -142,8 +142,8 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
     it('Switching to anime-ghibli category renders "Chuyến tàu trên mặt nước" card matching E2E selector', () => {
       const { container } = render(<SpacesWidget />);
 
-      const animeTab = screen.getByTestId('filter-cat-anime-ghibli');
-      fireEvent.click(animeTab);
+      const animeTab = screen.getByRole('combobox', { name: 'Danh mục hình nền' });
+      fireEvent.change(animeTab, { target: { value: 'anime-ghibli' } });
 
       // Playwright E2E selector: page.locator('[data-testid="spaces-widget"] button').filter({ hasText: 'Chuyến tàu trên mặt nước' }).first()
       const widget = container.querySelector('[data-testid="spaces-widget"]');
@@ -161,7 +161,7 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
     it('Search filtering works robustly and case-insensitively', () => {
       const { container } = render(<SpacesWidget />);
 
-      const searchInput = screen.getByPlaceholderText('Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)');
+      const searchInput = screen.getByLabelText('Tìm hình nền');
 
       // Upper-case query
       fireEvent.change(searchInput, { target: { value: 'CHUYẾN TÀU' } });
@@ -184,8 +184,8 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
     it('Switching to video category displays only video presets and hides deep-space', () => {
       render(<SpacesWidget />);
 
-      const videoTab = screen.getByTestId('filter-cat-video');
-      fireEvent.click(videoTab);
+      const videoTab = screen.getByRole('combobox', { name: 'Danh mục hình nền' });
+      fireEvent.change(videoTab, { target: { value: 'video' } });
 
       expect(screen.getByTestId('preset-card-oceans-wave')).toBeDefined();
       expect(screen.getByTestId('preset-card-flower-timelapse')).toBeDefined();
@@ -202,9 +202,9 @@ describe('Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone
 
     it('SharedFooter column headers are Sentence Case without uppercase class', () => {
       const { container } = render(<SharedFooter />);
-      expect(screen.getByText('Liên Hệ Trực Tiếp')).toBeDefined();
-      expect(screen.getByText('Sản Phẩm & Không Gian')).toBeDefined();
-      expect(screen.getByText('Hỗ Trợ & Điều Khoản')).toBeDefined();
+      expect(screen.getByText('Liên hệ trực tiếp')).toBeDefined();
+      expect(screen.getByText('Sản phẩm & không gian')).toBeDefined();
+      expect(screen.getByText('Hỗ trợ & điều khoản')).toBeDefined();
 
       const headers = container.querySelectorAll('h4');
       headers.forEach((h) => {

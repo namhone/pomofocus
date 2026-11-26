@@ -1,0 +1,24 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+
+ ✓ tests/unit/v75DownloadShowcase.test.tsx (16 tests) 6908ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.1 renders perspective 1200px stage and preserve-3d phone mockup frame 2143ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.2 tilts 3D phone frame smoothly on mouse move and resets on mouse leave 1332ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.3 displays accurate ~8.0 MB or 8.70 MB APK size and unified pomofocus brand logo 501ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →" 699ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.3 MobileFocusView exposes natural tooltips and LiquidUpdateBanner uses refined update heading 715ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.1 WebDownloadHub includes Play Protect external install micro-hint 310ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.2 MainActivity.java binds OnBackPressedCallback + PomoNativeBack JavascriptInterface and MobileAppShell syncs back eligibility 315ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.3 Native Capacitor APK launches on /app MobileAppShell instead of marketing LandingPage when pathname is / 306ms
+ ✓ tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx (13 tests) 2327ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 1. Tab AI: Suggestion Chips, Single Error Bubble & Retry > 1.1 Renders clean suggestion chips without emoji 💡 or "ôn thi đại học" 644ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.3 MoMoPaymentModal displays its existing refund note for an authenticated checkout 333ms
+ ✓ tests/unit/phase4bPresentation.test.tsx (9 tests) 2228ms
+   ✓ Phase 4B presentation guarantees > renders legacy reactions as named SVG symbols without raw emoji text 559ms
+   ✓ Notes single-toolbar editing > keeps add, edit, preview, tone and delete operable while saving real content 1514ms
+
+ Test Files  3 passed (3)
+      Tests  38 passed (38)
+   Start at  06:35:21
+   Duration  64.90s (transform 11.78s, setup 0ms, collect 28.94s, tests 11.46s, environment 14.38s, prepare 1.43s)
+

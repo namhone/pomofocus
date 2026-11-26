@@ -617,7 +617,7 @@ describe('PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whit
       // Badge in Grid view
       const syncBadge = await screen.findByTestId('room-timer-sync-badge');
       expect(syncBadge).toBeDefined();
-      expect(syncBadge.textContent).toContain('Đồng bộ nhóm ⏱️');
+      expect(syncBadge.textContent).toContain('Đồng bộ nhóm');
 
       // Switch to Whiteboard view
       const wbTabBtn = screen.getByTestId('btn-switch-whiteboard');
@@ -628,7 +628,7 @@ describe('PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whit
       // Mini badge in Whiteboard view
       const miniBadge = await screen.findByTestId('room-timer-mini-sync-badge');
       expect(miniBadge).toBeDefined();
-      expect(miniBadge.textContent).toContain('Đồng bộ nhóm ⏱️');
+      expect(miniBadge.textContent).toContain('Đồng bộ nhóm');
     });
   });
 

@@ -1,0 +1,59 @@
+[WebServer] (node:3168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:6212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist (1.8m)
+(node:9628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [desktop-1440] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist (1.1m)
+(node:7848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile-390] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+(node:6652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  4 [native-390] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+
+
+  1) [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m80[39m
+    Received:    [31m70.5[39m
+
+    Call Log:
+    - Test timeout of 90000ms exceeded
+
+      70 |   await expect.poll(async () => { const n = await workspace.notes.boundingBox(), a = await drawer.boundingBox(); return !!n && !!a && n.x + n.width <= a.x; }).toBe(true);
+      71 |   await expect(page.getByRole('textbox', { name: 'Nội dung ghi chú' })).toBeVisible();
+    > 72 |   await expect.poll(async () => (await page.getByRole('textbox', { name: 'Nội dung ghi chú' }).boundingBox())?.height || 0).toBeGreaterThanOrEqual(80);
+         |   ^
+      73 |   await page.getByRole('textbox', { name: 'Câu hỏi cho trợ lý AI' }).fill('Kiểm tra vùng nhập');
+      74 |   await page.keyboard.press('Tab');
+      75 |   await expect(page.getByRole('button', { name: 'Gửi câu hỏi', exact: true })).toBeFocused();
+        at D:\FileCuaNam\Web'\Pomodoro\tests\e2e\phase4b\ui.spec.ts:72:3
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase4b\ui-workspace-bright-backgr-a0033-trols-header-and-AI-coexist-desktop-1366\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop-1366] › ui.spec.ts (1.8m)
+  Slow test file: [desktop-1440] › ui.spec.ts (1.1m)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 
+  2 skipped
+  1 passed (7.1m)

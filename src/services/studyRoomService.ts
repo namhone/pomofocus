@@ -79,11 +79,11 @@ export const PUBLIC_FREE_PODS = Array.from({ length: 10 }, (_, i) => {
 
 export const ROOM_CATEGORIES = [
   { id: 'tech', label: 'Lập trình & CNTT', icon: '💻' },
-  { id: 'exam', label: 'Ôn thi Học thuật', icon: '📚' },
+  { id: 'exam', label: 'Ôn thi học thuật', icon: '📚' },
   { id: 'lang', label: 'Ngoại ngữ (IELTS/JLPT)', icon: '🎯' },
-  { id: 'cafe', label: 'Tiệm Cafe Yên Tĩnh', icon: '☕' },
-  { id: 'design', label: 'Thiết kế & Sáng tạo', icon: '🎨' },
-  { id: 'work', label: 'Làm việc Tập trung', icon: '💼' }
+  { id: 'cafe', label: 'Tiệm cà phê yên tĩnh', icon: '☕' },
+  { id: 'design', label: 'Thiết kế & sáng tạo', icon: '🎨' },
+  { id: 'work', label: 'Làm việc tập trung', icon: '💼' }
 ];
 
 export interface SubscriptionEligibilityResult {

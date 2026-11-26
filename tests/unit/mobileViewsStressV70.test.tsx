@@ -113,7 +113,7 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
 
       // Must display Founder VIP badge
       expect(card.textContent).toContain('Founder VIP');
-      expect(card.textContent).toContain('👑');
+      expect(card.querySelector('svg')).not.toBeNull();
 
       // Zero-Tolerance Playbook rule: strictly 0 upgrade banners
       expect(card.textContent).not.toContain('Nâng cấp để mở khóa');
@@ -178,8 +178,8 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
       render(<MobileSettingsView />);
 
       const card = screen.getByTestId('mobile-user-status-card');
-      expect(card.textContent).toContain('PRO YEARLY');
-      expect(card.textContent).toContain('⭐');
+      expect(card.textContent).toContain('Pro năm');
+      expect(card.querySelector('svg')).not.toBeNull();
       expect(screen.queryByText(/Nâng cấp để mở khóa/i)).toBeNull();
     });
 

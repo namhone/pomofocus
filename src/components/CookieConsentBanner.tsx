@@ -74,21 +74,21 @@ export const CookieConsentBanner: React.FC = () => {
         <div className="flex-1 space-y-1.5 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <h4 className="text-xs font-semibold text-white tracking-wide">
-              Bảo Vệ Dữ Liệu & Quyền Riêng Tư
+              Bảo vệ dữ liệu & quyền riêng tư
             </h4>
             <button
               type="button"
               data-testid="consent-close-btn"
               onClick={handleClose}
               aria-label="Đóng thông báo (không đồng ý)"
-              className="text-zinc-500 hover:text-white p-0.5 transition cursor-pointer"
+              className="text-zinc-400 hover:text-white p-0.5 transition cursor-pointer"
             >
               <X size={14} />
             </button>
           </div>
 
           <p className="text-[11px] text-zinc-400 leading-relaxed">
-            PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (IndexedDB/LocalStorage) theo kiến trúc Local-First, tuân thủ Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.
+            PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (bộ nhớ trên thiết bị) để bạn có thể tiếp tục làm việc khi mất mạng, tuân thủ luật bảo vệ dữ liệu cá nhân 91/2025/QH15 và nghị định 356/2025/nđ-cp.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1.5">
@@ -98,7 +98,7 @@ export const CookieConsentBanner: React.FC = () => {
               onClick={handleAccept}
               className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
             >
-              Đồng ý & Tiếp tục
+              Đồng ý & tiếp tục
             </button>
             <button
               type="button"

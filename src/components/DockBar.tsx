@@ -15,7 +15,6 @@ import {
   LayoutGrid,
   Film,
   Sparkles,
-  Zap,
   Leaf
 } from 'lucide-react';
 import { useLayoutStore } from '../stores/useLayoutStore';
@@ -177,19 +176,19 @@ export const DockBar: React.FC = () => {
     {
       id: 'tasks',
       label: 'Công việc',
-      icon: <CheckSquare size={16} strokeWidth={1.75} />,
+      icon: <CheckSquare size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-tasks'
     },
     {
       id: 'notes',
       label: 'Ghi chú',
-      icon: <FileText size={16} strokeWidth={1.75} />,
+      icon: <FileText size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-notes'
     },
     {
       id: 'calendar',
       label: 'Lịch biểu',
-      icon: <Calendar size={16} strokeWidth={1.75} />,
+      icon: <Calendar size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-calendar'
     }
   ];
@@ -204,19 +203,19 @@ export const DockBar: React.FC = () => {
     {
       id: 'spaces',
       label: 'Nền',
-      icon: <Palette size={16} strokeWidth={1.75} />,
+      icon: <Palette size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-spaces'
     },
     {
       id: 'sounds',
       label: 'Âm thanh',
-      icon: <Volume2 size={16} strokeWidth={1.75} />,
+      icon: <Volume2 size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-sounds'
     },
     {
       id: 'media',
       label: 'Media',
-      icon: <Film size={16} strokeWidth={1.75} />,
+      icon: <Film size={16} strokeWidth={1.5} />,
       testId: 'dock-btn-media'
     }
   ];
@@ -306,13 +305,13 @@ export const DockBar: React.FC = () => {
         className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
-        title="Nhóm Tập trung"
+        title="Nhóm tập trung"
       >
         {/* Nút Đồng hồ Pomodoro */}
         {renderDockButton({
           id: 'timer',
           label: 'Đồng hồ',
-          icon: <Clock size={16} strokeWidth={1.75} />,
+          icon: <Clock size={16} strokeWidth={1.5} />,
           testId: 'dock-btn-timer'
         })}
 
@@ -330,10 +329,10 @@ export const DockBar: React.FC = () => {
           aria-label="Chế độ tập trung"
           aria-pressed={isFocusMode}
         >
-          <Target size={16} strokeWidth={1.75} className={isFocusMode ? 'text-amber-300' : 'text-zinc-300'} />
+          <Target size={16} strokeWidth={1.5} className={isFocusMode ? 'text-zinc-300' : 'text-zinc-300'} />
           <span className="dock__tooltip">{isFocusMode ? 'Tắt Focus Mode' : 'Bật Focus Mode'}</span>
           {isFocusMode && (
-            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-zinc-700 shadow-[0_0_4px_rgba(251,191,36,0.7)]" />
           )}
         </button>
 
@@ -348,13 +347,13 @@ export const DockBar: React.FC = () => {
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
           title={isZenMode ? "Tắt chế độ Zen (Phím Z)" : "Bật chế độ Zen (Phím Z)"}
-          aria-label="Chế độ Zen (Phím Z)"
+          aria-label="Chế độ zen (phím z)"
           aria-pressed={isZenMode}
         >
           {isZenMode ? (
-            <Minimize2 size={16} strokeWidth={1.75} className="shrink-0" />
+            <Minimize2 size={16} strokeWidth={1.5} className="shrink-0" />
           ) : (
-            <Maximize2 size={16} strokeWidth={1.75} className="shrink-0" />
+            <Maximize2 size={16} strokeWidth={1.5} className="shrink-0" />
           )}
           <span className="dock__tooltip">{isZenMode ? "Tắt chế độ Zen (Z)" : "Bật chế độ Zen (Z)"}</span>
           {isZenMode && (
@@ -372,7 +371,7 @@ export const DockBar: React.FC = () => {
         className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
-        title="Nhóm Kế hoạch"
+        title="Nhóm kế hoạch"
       >
         {planButtons.map(renderDockButton)}
       </div>
@@ -386,7 +385,7 @@ export const DockBar: React.FC = () => {
         className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
-        title="Nhóm Không gian & Âm thanh"
+        title="Nhóm không gian & âm thanh"
       >
         {atmosphereButtons.map(renderDockButton)}
       </div>
@@ -400,29 +399,27 @@ export const DockBar: React.FC = () => {
         className={`flex items-center gap-1 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] relative ${
           isVertical ? 'flex-col' : 'flex-row'
         }`}
-        title="Nhóm Trợ lý AI & Bố cục"
+        title="Nhóm trợ lý AI & bố cục"
       >
         {/* Nút 1: Trợ lý AI Study Companion */}
         <button
           type="button"
           data-testid="dock-btn-ai"
           onClick={() => toggleAi()}
-          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+          className={`dock__item relative flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
             isAiOpen
-              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50 shadow-sm'
-              : 'text-cyan-400/90 hover:text-cyan-300 hover:bg-cyan-500/10'
+              ? 'bg-zinc-700/25 text-zinc-300 border border-zinc-500/50 shadow-sm'
+              : 'text-zinc-300/90 hover:text-zinc-300 hover:bg-zinc-700/10'
           }`}
-          title="Trợ lý Học tập AI Companion"
-          aria-label="Mở Trợ lý AI Companion"
+          title="Trợ lý học tập AI companion"
+          aria-label="Mở trợ lý AI companion"
           aria-pressed={isAiOpen}
         >
           <Sparkles size={16} strokeWidth={1.5} />
-          <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-white text-[8px] font-bold text-zinc-950 font-mono shadow-xs">
-            <Zap size={8} className="stroke-[2]" />
-          </span>
-          <span className="dock__tooltip">Trợ lý AI Companion</span>
+
+          <span className="dock__tooltip">Trợ lý AI companion</span>
           {isAiOpen && (
-            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-zinc-700 shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
           )}
         </button>
 
@@ -436,14 +433,14 @@ export const DockBar: React.FC = () => {
               ? 'bg-white/15 text-white border border-white/10 shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/10'
           }`}
-          title="Cài đặt & Bố cục (Vị trí, mật độ, reset)"
-          aria-label="Cài đặt & Bố cục"
+          title="Cài đặt & bố cục (vị trí, mật độ, reset)"
+          aria-label="Cài đặt & bố cục"
           aria-expanded={showQuickDockMenu}
         >
-          <Sliders size={16} strokeWidth={1.75} />
-          <span className="dock__tooltip">Cài đặt & Bố cục</span>
+          <Sliders size={16} strokeWidth={1.5} />
+          <span className="dock__tooltip">Cài đặt & bố cục</span>
           {(showQuickDockMenu || settingsOpen) && (
-            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.7)]" />
+            <span className="dock__dot absolute -bottom-0.5 w-1 h-1 rounded-full bg-zinc-700 shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
           )}
         </button>
       </div>
@@ -465,8 +462,8 @@ export const DockBar: React.FC = () => {
           {/* Header Popover */}
           <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
             <span className="font-semibold text-white text-[11px] flex items-center gap-1.5">
-              <Sliders size={13} className="text-emerald-400" />
-              Cài đặt & Bố cục
+              <Sliders size={13} className="text-zinc-300" />
+              Cài đặt & bố cục
             </span>
             <button
               type="button"
@@ -489,7 +486,7 @@ export const DockBar: React.FC = () => {
             className="w-full py-1.5 px-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 text-white font-medium text-xs flex items-center justify-between border border-white/10 transition cursor-pointer"
           >
             <span className="flex items-center gap-1.5">
-              <Sliders size={13} className="text-emerald-400" />
+              <Sliders size={13} className="text-zinc-300" />
               <span>{settingsOpen ? 'Đóng cửa sổ Cài đặt' : 'Mở cửa sổ Cài đặt'}</span>
             </span>
             <span className="text-[10px] text-neutral-400 font-mono">
@@ -501,8 +498,8 @@ export const DockBar: React.FC = () => {
           <div className="pt-1.5 border-t border-white/10">
             <div className="flex items-center justify-between mb-1">
               <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
-                <Move size={11} className="text-cyan-400" />
-                Vị trí thanh Dock
+                <Move size={11} className="text-zinc-300" />
+                Vị trí thanh dock
               </span>
               <button
                 type="button"
@@ -531,7 +528,7 @@ export const DockBar: React.FC = () => {
                   }}
                   className={`py-1 px-1 rounded-lg text-center font-medium text-[10px] transition cursor-pointer border ${
                     dockPosition === pos.id
-                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold shadow-xs'
+                      ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 font-semibold shadow-xs'
                       : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
                   }`}
                 >
@@ -555,7 +552,7 @@ export const DockBar: React.FC = () => {
           {/* Phân mục 2: [ ⊞ ] Mật độ hiển thị */}
           <div className="pt-1.5 border-t border-white/10 flex items-center justify-between">
             <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
-              <LayoutGrid size={11} className="text-indigo-400" />
+              <LayoutGrid size={11} className="text-zinc-300" />
               Mật độ hiển thị
             </span>
             <button
@@ -564,7 +561,7 @@ export const DockBar: React.FC = () => {
               onClick={toggleDensity}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition cursor-pointer border ${
                 density === 'compact'
-                  ? 'bg-indigo-500/25 text-indigo-300 border-indigo-500/40'
+                  ? 'bg-zinc-700/25 text-zinc-300 border-zinc-500/40'
                   : 'bg-white/5 text-neutral-300 border-white/10 hover:text-white'
               }`}
             >
@@ -576,7 +573,7 @@ export const DockBar: React.FC = () => {
           <div className="pt-1.5 border-t border-white/10 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-neutral-300 text-[10px]">
-                Kích thước thanh Dock
+                Kích thước thanh dock
               </span>
             </div>
             <div className="grid grid-cols-3 gap-1">
@@ -592,7 +589,7 @@ export const DockBar: React.FC = () => {
                   onClick={() => setDockSize(sz.id as any)}
                   className={`py-1 px-1 rounded-lg text-center font-medium text-[9px] transition cursor-pointer border ${
                     dockSize === sz.id
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-semibold'
+                      ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 font-semibold'
                       : 'bg-white/5 text-neutral-300 hover:bg-white/10 border-white/5'
                   }`}
                 >
@@ -604,7 +601,7 @@ export const DockBar: React.FC = () => {
             <div className="pt-1 flex items-center justify-between">
               <span className="font-semibold text-neutral-300 text-[10px] flex items-center gap-1.5">
                 <Leaf size={14} strokeWidth={1.5} className="text-zinc-400 shrink-0" />
-                <span>Eco Mode siêu nhẹ</span>
+                <span>Eco mode siêu nhẹ</span>
               </span>
               <button
                 type="button"
@@ -612,7 +609,7 @@ export const DockBar: React.FC = () => {
                 onClick={() => setEcoMode(!isEcoMode)}
                 className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition cursor-pointer border ${
                   isEcoMode
-                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-500/50'
+                    ? 'bg-zinc-700/30 text-zinc-300 border-zinc-500/50'
                     : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
                 }`}
               >
@@ -634,7 +631,7 @@ export const DockBar: React.FC = () => {
               title="Khôi phục vị trí mặc định của toàn bộ cửa sổ"
               aria-label="Khôi phục bố cục mặc định"
             >
-              <RotateCcw size={12} strokeWidth={1.75} />
+              <RotateCcw size={12} strokeWidth={1.5} />
               <span>Đặt lại bố cục ban đầu</span>
             </button>
             {/* Alias test-id buttons for automated test suites */}

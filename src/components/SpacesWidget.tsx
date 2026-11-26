@@ -18,10 +18,6 @@ import {
   ChevronUp,
   Music,
   Lock,
-  Coffee,
-  Building2,
-  Monitor,
-  Trees
 } from 'lucide-react';
 import { useBackgroundStore } from '../stores/useBackgroundStore';
 import { useRouter } from '../services/router';
@@ -310,7 +306,7 @@ export const SpacesWidget: React.FC = () => {
   return (
     <div
       data-testid="spaces-widget"
-      className="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700"
+      className="flex h-full w-full min-w-0 max-h-[80vh] flex-col text-slate-100 p-2 select-none overflow-hidden"
     >
             {/* 2 Tab chuyển đổi rõ ràng ở đầu: [ 🖼️ Hình Nền ] | [ 🎵 Âm Thanh & Chuông ] */}
       <div className="flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2">
@@ -325,7 +321,7 @@ export const SpacesWidget: React.FC = () => {
           }`}
         >
           <ImageIcon size={13} strokeWidth={1.5} className="shrink-0" />
-          <span className="whitespace-nowrap">Hình Nền</span>
+          <span className="whitespace-nowrap">Hình nền</span>
         </button>
         <button
           type="button"
@@ -338,7 +334,7 @@ export const SpacesWidget: React.FC = () => {
           }`}
         >
           <Music size={13} strokeWidth={1.5} className="shrink-0" />
-          <span className="whitespace-nowrap">Âm Thanh & Chuông</span>
+          <span className="whitespace-nowrap">Âm thanh & chuông</span>
         </button>
       </div>
 
@@ -349,14 +345,14 @@ export const SpacesWidget: React.FC = () => {
       ) : (
         <>
       {/* Header Info & Actions */}
-      <div className="pb-2 border-b border-white/[0.08] space-y-2 shrink-0">
+      <div className="pb-1 border-b border-white/[0.06] space-y-1 shrink-0">
         <div className="flex items-center justify-between flex-nowrap shrink-0">
           <div className="flex items-center gap-1.5 min-w-0">
-            <div className="p-1 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 shrink-0">
-              <Palette size={14} strokeWidth={1.75} />
+            <div className="p-1 rounded-md bg-zinc-700/15 text-zinc-300 border border-zinc-500/25 shrink-0">
+              <Palette size={14} strokeWidth={1.5} />
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-white text-xs truncate">Thư Viện Không Gian</h3>
+              <h3 className="font-semibold text-white text-xs truncate">Thư viện không gian</h3>
               <p className="text-[10px] text-neutral-400 truncate">Không gian nền</p>
             </div>
           </div>
@@ -368,22 +364,22 @@ export const SpacesWidget: React.FC = () => {
               onClick={() => setActiveTab(activeTab === 'effects' ? 'wallpapers' : 'effects')}
               className={`p-1.5 rounded-lg text-xs flex items-center justify-center transition-colors cursor-pointer min-w-[28px] min-h-[28px] border ${
                 activeTab === 'effects'
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                  ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40'
                   : 'bg-white/[0.04] text-neutral-300 hover:text-white border-white/[0.06]'
               }`}
-              title="Tinh chỉnh hiệu ứng nền (Blur, Brightness, Overlay)"
+              title="Tinh chỉnh hiệu ứng nền (blur, brightness, overlay)"
             >
-              <Sliders size={13} strokeWidth={1.75} />
+              <Sliders size={13} strokeWidth={1.5} />
             </button>
 
             <button
               type="button"
               data-testid="btn-reset-bg"
               onClick={handleResetBackground}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-amber-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-zinc-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
               title="Khôi phục nền mặc định"
             >
-              <RotateCcw size={13} strokeWidth={1.75} />
+              <RotateCcw size={13} strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -392,7 +388,7 @@ export const SpacesWidget: React.FC = () => {
         {(hasError || useStaticFallback) && (
           <div
             data-testid="bg-fallback-indicator"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px]"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-700/10 border border-zinc-500/30 text-zinc-300 text-[11px]"
           >
             <AlertCircle size={13} className="shrink-0" />
             <span>Đang kích hoạt nền tĩnh an toàn</span>
@@ -400,33 +396,7 @@ export const SpacesWidget: React.FC = () => {
         )}
 
         {/* 2 Tab Chính: [Kho Hình Nền] & [Hiệu Ứng & Ánh Sáng] */}
-        <div className="flex flex-nowrap shrink-0 rounded-lg bg-black/40 p-0.5 border border-white/10 text-xs gap-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('wallpapers')}
-            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
-              activeTab === 'wallpapers'
-                ? 'bg-white/15 text-white shadow-xs font-semibold'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <Palette size={12} className="shrink-0" />
-            <span className="whitespace-nowrap">Kho Hình Nền</span>
-            <span className="sr-only">Thư viện Tuyển Chọn</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('effects')}
-            className={`flex-1 py-1 rounded-md font-medium transition cursor-pointer min-h-[28px] flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 ${
-              activeTab === 'effects'
-                ? 'bg-white/15 text-white shadow-xs font-semibold'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <Sliders size={12} className="shrink-0" />
-            <span className="whitespace-nowrap">Hiệu Ứng & Ánh Sáng</span>
-          </button>
-        </div>
+
       </div>
 
       {/* ========================================================= */}
@@ -435,16 +405,16 @@ export const SpacesWidget: React.FC = () => {
       {activeTab === 'wallpapers' && (
         <div className="flex-1 flex flex-col min-h-0 pt-2 space-y-2 overflow-hidden">
           {/* Hàng chọn nhanh Màu Đơn Sắc Chuẩn Zen (Pure Solid Colors) */}
-          <div className="bg-black/40 p-2 rounded-xl border border-white/5 space-y-1.5 shrink-0">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="font-semibold text-neutral-300">Đơn Sắc Chuẩn Zen (Pure Flat)</span>
-              <span className="text-[10px] text-neutral-500">100% không ảnh tĩnh tâm</span>
+          <div className="bg-black/40 p-1.5 rounded-xl border border-white/[0.06] space-y-1 shrink-0">
+            <div className="hidden">
+              <span className="font-semibold text-neutral-300">Đơn sắc chuẩn zen (pure flat)</span>
+              <span className="text-[10px] text-zinc-400">100% không ảnh tĩnh tâm</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'zen-pure-black', label: 'Đen Tuyền', color: '#09090b' },
-                { id: 'zen-deep-graphite', label: 'Than Chì', color: '#18181b' },
-                { id: 'zen-night-blue', label: 'Xanh Đêm', color: '#0b132b' }
+                { id: 'zen-pure-black', label: 'Đen tuyền', color: '#09090b' },
+                { id: 'zen-deep-graphite', label: 'Than chì', color: '#18181b' },
+                { id: 'zen-night-blue', label: 'Xanh đêm', color: '#0b132b' }
               ].map((zen) => {
                 const isSelected = activePresetId === zen.id;
                 return (
@@ -453,16 +423,16 @@ export const SpacesWidget: React.FC = () => {
                     type="button"
                     data-testid={`zen-color-${zen.id}`}
                     onClick={() => handleSelectPreset(zen.id)}
-                    className={`h-9 rounded-lg border flex items-center justify-center gap-1.5 px-2 transition-all cursor-pointer ${
+                    className={`h-7 rounded-lg border flex items-center justify-center gap-1.5 px-2 transition-all cursor-pointer ${
                       isSelected
-                        ? 'ring-2 ring-cyan-400 border-white/40 scale-[1.02]'
+                        ? 'ring-2 ring-zinc-400 border-white/40 scale-[1.02]'
                         : 'border-white/10 hover:border-white/20'
                     }`}
                     style={{ backgroundColor: zen.color }}
-                    title={`${zen.label} (${zen.color})`}
+                    title={zen.label}
                   >
                     <span className="text-[10px] font-medium text-zinc-300 drop-shadow-sm">{zen.label}</span>
-                    {isSelected && <Check size={11} className="text-cyan-400" strokeWidth={3} />}
+                    {isSelected && <Check size={11} className="text-zinc-300" strokeWidth={1.5} />}
                   </button>
                 );
               })}
@@ -471,91 +441,28 @@ export const SpacesWidget: React.FC = () => {
 
           {/* Thanh tìm kiếm */}
           <div className="relative shrink-0">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500" />
+            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
+              aria-label="Tìm hình nền"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)"
-              className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
+              placeholder="Tìm không gian nền (Lofi, anime, Tokyo, minimalist...)"
+              className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500/50"
             />
           </div>
 
           {/* Bộ lọc Danh mục 5 Gu Thẩm Mỹ Pinterest + All + Video */}
-          <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1 shrink-0 scrollbar-none text-[10px]">
-            {/* Nút All (data-testid cho E2E) */}
-            <button
-              type="button"
-              data-testid="filter-cat-all"
-              onClick={() => handleCategorySelect('all')}
-              className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
-                selectedCategory === 'all'
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                  : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
-              }`}
-            >
-              <Sparkles size={12} strokeWidth={1.5} className="shrink-0" />
-              <span>Tất cả</span>
-            </button>
-
-            {WALLPAPER_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
-              const renderCategoryIcon = (id: string) => {
-                switch (id) {
-                  case 'lofi-study':
-                    return <Coffee size={12} strokeWidth={1.5} className="shrink-0" />;
-                  case 'anime-ghibli':
-                    return <Palette size={12} strokeWidth={1.5} className="shrink-0" />;
-                  case 'cyberpunk-tokyo':
-                    return <Building2 size={12} strokeWidth={1.5} className="shrink-0" />;
-                  case 'minimalist-desk':
-                    return <Monitor size={12} strokeWidth={1.5} className="shrink-0" />;
-                  case 'nature-zen':
-                    return <Trees size={12} strokeWidth={1.5} className="shrink-0" />;
-                  default:
-                    return <Sparkles size={12} strokeWidth={1.5} className="shrink-0" />;
-                }
-              };
-
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  data-testid={`filter-cat-${cat.id}`}
-                  onClick={() => handleCategorySelect(cat.id as WallpaperCategory)}
-                  className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === cat.id
-                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                      : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
-                  }`}
-                >
-                  {renderCategoryIcon(cat.id)}
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-
-            {/* Video Motion Preset Filter (data-testid cho E2E) */}
-            <button
-              type="button"
-              data-testid="filter-cat-video"
-              onClick={() => handleCategorySelect('video')}
-              className={`px-2 py-1 rounded-md shrink-0 border transition-colors cursor-pointer flex items-center gap-1 ${
-                selectedCategory === 'video'
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                  : 'bg-white/[0.03] text-neutral-400 hover:text-white border-white/[0.06]'
-              }`}
-            >
-              <Video size={10} className="text-sky-400" />
-              <span>Chuyển Động (Video)</span>
-            </button>
-          </div>
-
+          <select aria-label="Danh mục hình nền" value={selectedCategory} onChange={event => handleCategorySelect(event.target.value as WallpaperCategory | 'video')} className="w-full min-w-0 shrink-0 rounded-lg border border-white/[0.06] bg-zinc-900 px-2 py-1.5 text-xs text-zinc-100">
+            {WALLPAPER_CATEGORIES.map(category => <option key={category.id} value={category.id}>{category.label}</option>)}
+            <option value="video">Chuyển động</option>
+          </select>
 
           {/* Lưới Ảnh Thumbnail (responsive 2-4 cột bo góc, hover mượt) */}
-          <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-0.5">
             {/* 1. Nhóm Video Presets khi filter === 'video' hoặc 'all' (chỉ khi không tìm kiếm) */}
             {(selectedCategory === 'video' || (selectedCategory === 'all' && !searchQuery.trim())) && (
-              <div data-testid="presets-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 [grid-template-columns:repeat(auto-fill,minmax(140px,1fr))] gap-2">
+              <div data-testid="presets-grid" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))] gap-2">
                 {BACKGROUND_PRESETS.filter((p) =>
                   (selectedCategory === 'video'
                     ? p.category === 'video'
@@ -569,9 +476,9 @@ export const SpacesWidget: React.FC = () => {
                       type="button"
                       data-testid={`preset-card-${preset.id}`}
                       onClick={() => handleSelectPreset(preset.id)}
-                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 ${
                         isSelected
-                          ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
+                          ? 'border-zinc-500 bg-zinc-950/30 shadow-md ring-1 ring-zinc-500/50'
                           : 'border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20'
                       }`}
                     >
@@ -591,25 +498,25 @@ export const SpacesWidget: React.FC = () => {
                         <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1">
                           {preset.category === 'video' ? (
                             <>
-                              <Video size={8} className="text-sky-400" /> Video
+                              <Video size={8} className="text-zinc-300" /> Video
                             </>
                           ) : (
                             <>
-                              <ImageIcon size={8} className="text-emerald-400" /> Tuyển chọn
+                              <ImageIcon size={8} className="text-zinc-300" /> Tuyển chọn
                             </>
                           )}
                         </span>
                         {isSelected && (
-                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow">
-                            <Check size={11} strokeWidth={3} />
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-zinc-700 text-white flex items-center justify-center shadow">
+                            <Check size={11} strokeWidth={1.5} />
                           </span>
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300">
+                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300">
                           {preset.title}
                         </h4>
-                        <p className="text-[9px] text-neutral-500 truncate">{preset.author}</p>
+                        <p className="text-[9px] text-zinc-400 truncate">{preset.author}</p>
                       </div>
                     </button>
                   );
@@ -619,7 +526,7 @@ export const SpacesWidget: React.FC = () => {
 
             {/* 2. Nhóm Hình Nền Tuyển Chọn Pinterest */}
             {selectedCategory !== 'video' && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 [grid-template-columns:repeat(auto-fill,minmax(140px,1fr))] gap-2">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))] gap-2">
                 {loadedWallpapers.map((item) => {
                   const isItemPro = item.category === 'cyberpunk-tokyo';
                   const isLocked = !isPro && isItemPro;
@@ -638,9 +545,9 @@ export const SpacesWidget: React.FC = () => {
                           setCustomBackground(item.fullUrl, 'image');
                         }
                       }}
-                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                      className={`group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 ${
                         isSelected
-                          ? 'border-cyan-500 bg-cyan-950/30 shadow-md ring-1 ring-cyan-500/50'
+                          ? 'border-zinc-500 bg-zinc-950/30 shadow-md ring-1 ring-zinc-500/50'
                           : 'border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20'
                       }`}
                       title={isLocked ? `${item.title} (Gói PRO)` : item.title}
@@ -662,22 +569,22 @@ export const SpacesWidget: React.FC = () => {
                           {item.category.replace('-', ' ')}
                         </span>
                         {isLocked && (
-                          <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-amber-400 text-neutral-950 font-black text-[8px] uppercase tracking-wider shadow">
+                          <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-zinc-700 text-white font-black text-[8px] normal-case tracking-wider shadow">
                             PRO
                           </span>
                         )}
                         {isSelected && !isLocked && (
-                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shadow">
-                            <Check size={11} strokeWidth={3} />
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-zinc-700 text-white flex items-center justify-center shadow">
+                            <Check size={11} strokeWidth={1.5} />
                           </span>
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-cyan-300 flex items-center">
+                        <h4 className="text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300 flex items-center">
                           {isLocked && <Lock size={11} strokeWidth={1.5} className="inline mr-1 text-zinc-400 shrink-0" />}
                           <span className="truncate">{item.title}</span>
                         </h4>
-                        <p className="text-[9px] text-neutral-500 truncate">{item.author}</p>
+                        <p className="text-[9px] text-zinc-400 truncate">{item.author}</p>
                       </div>
                     </button>
                   );
@@ -706,7 +613,7 @@ export const SpacesWidget: React.FC = () => {
               onClick={() => setShowUploadDrawer(!showUploadDrawer)}
               className="w-full py-1 text-[11px] text-neutral-400 hover:text-neutral-200 flex items-center justify-between cursor-pointer"
             >
-              <span>Tải ảnh từ máy / Dán URL tùy chỉnh</span>
+              <span>Tải ảnh từ máy / dán URL tùy chỉnh</span>
               {showUploadDrawer ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
 
@@ -718,7 +625,7 @@ export const SpacesWidget: React.FC = () => {
                     htmlFor="bg-file-input"
                     className="flex-1 py-1.5 px-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-center text-[11px] text-neutral-200 cursor-pointer transition flex items-center justify-center gap-1.5"
                   >
-                    <Upload size={12} className="text-cyan-400" />
+                    <Upload size={12} className="text-zinc-300" />
                     <span>Chọn tệp tin từ máy ({savedUploads.length})</span>
                   </label>
                   <input
@@ -753,14 +660,14 @@ export const SpacesWidget: React.FC = () => {
                         setCustomInputUrl(e.target.value);
                         setUrlError(null);
                       }}
-                      className="flex-1 min-w-0 bg-[#0e0e10] border border-white/[0.08] rounded-md px-2 py-1 text-[11px] text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-500/50"
+                      className="flex-1 min-w-0 bg-[#0e0e10] border border-white/[0.08] rounded-md px-2 py-1 text-[11px] text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500/50"
                     />
 
                     <button
                       type="submit"
                       data-testid="btn-apply-custom-bg"
                       disabled={!customInputUrl.trim()}
-                      className="px-2.5 py-1 rounded-md bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 text-slate-950 font-semibold text-[11px] transition cursor-pointer disabled:cursor-not-allowed"
+                      className="px-2.5 py-1 rounded-md bg-zinc-700 hover:bg-zinc-700 disabled:opacity-40 text-white font-semibold text-[11px] transition cursor-pointer disabled:cursor-not-allowed"
                     >
                       Dán
                     </button>
@@ -785,7 +692,7 @@ export const SpacesWidget: React.FC = () => {
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-neutral-300 font-medium">Độ mờ hậu cảnh</span>
-                <span className="text-cyan-400 font-mono font-semibold">{blurLevel}px</span>
+                <span className="text-zinc-300 font-mono font-semibold">{blurLevel}px</span>
               </div>
               <input
                 type="range"
@@ -794,16 +701,16 @@ export const SpacesWidget: React.FC = () => {
                 value={blurLevel}
                 data-testid="slider-blur"
                 onChange={(e) => setBlur(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+                className="w-full accent-zinc-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
               />
-              <p className="text-[10px] text-neutral-500">Làm mờ ảnh nền giúp các thẻ widget nổi bật, dễ đọc hơn.</p>
+              <p className="text-[10px] text-zinc-400">Làm mờ ảnh nền giúp các thẻ widget nổi bật, dễ đọc hơn.</p>
             </div>
 
             {/* Độ sáng nền */}
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-neutral-300 font-medium">Độ sáng nền</span>
-                <span className="text-cyan-400 font-mono font-semibold">{brightnessLevel}%</span>
+                <span className="text-zinc-300 font-mono font-semibold">{brightnessLevel}%</span>
               </div>
               <input
                 type="range"
@@ -812,16 +719,16 @@ export const SpacesWidget: React.FC = () => {
                 value={brightnessLevel}
                 data-testid="slider-brightness"
                 onChange={(e) => setBrightness(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+                className="w-full accent-zinc-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
               />
-              <p className="text-[10px] text-neutral-500">Tăng giảm độ chói sáng của hình nền từ 50% đến 150%.</p>
+              <p className="text-[10px] text-zinc-400">Tăng giảm độ chói sáng của hình nền từ 50% đến 150%.</p>
             </div>
 
             {/* Lớp phủ tối */}
             <div className="space-y-1.5 bg-black/25 p-2.5 rounded-xl border border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-neutral-300 font-medium">Lớp phủ tối</span>
-                <span className="text-cyan-400 font-mono font-semibold">{overlayOpacity}%</span>
+                <span className="text-zinc-300 font-mono font-semibold">{overlayOpacity}%</span>
               </div>
               <input
                 type="range"
@@ -830,9 +737,9 @@ export const SpacesWidget: React.FC = () => {
                 value={overlayOpacity}
                 data-testid="slider-overlay"
                 onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
+                className="w-full accent-zinc-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg"
               />
-              <p className="text-[10px] text-neutral-500">Phủ màn đen trong suốt để tăng tối đa độ tương phản chữ.</p>
+              <p className="text-[10px] text-zinc-400">Phủ màn đen trong suốt để tăng tối đa độ tương phản chữ.</p>
             </div>
 
             {/* Hiệu ứng hạt môi trường */}
@@ -853,7 +760,7 @@ export const SpacesWidget: React.FC = () => {
                     onClick={() => setAmbientEffect(id as AmbientEffectType)}
                     className={`py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-1 border cursor-pointer transition-colors ${
                       ambientEffect === id
-                        ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300 font-semibold'
+                        ? 'bg-zinc-700/20 border-zinc-500/40 text-zinc-300 font-semibold'
                         : 'bg-white/[0.03] border-white/[0.06] text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -870,7 +777,7 @@ export const SpacesWidget: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('wallpapers')}
-              className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition cursor-pointer"
+              className="w-full py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-semibold text-xs transition cursor-pointer"
             >
               Xem kho hình nền
             </button>

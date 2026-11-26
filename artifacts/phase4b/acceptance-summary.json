@@ -1,0 +1,178 @@
+{
+  "verifiedAt": "2026-11-26T00:22:48.986Z",
+  "typeCheckExit": 0,
+  "webBuildExit": 0,
+  "apkBuildExit": 0,
+  "vitest": {
+    "files": 27,
+    "tests": 347,
+    "passed": 347,
+    "failed": 0,
+    "includesRecordedReruns": true
+  },
+  "browser": {
+    "passed": 10,
+    "skipped": 6,
+    "failed": 0,
+    "cases": [
+      {
+        "project": "desktop-1366",
+        "title": "workspace: bright background, notes controls, header and AI coexist",
+        "status": "passed",
+        "duration": 13731
+      },
+      {
+        "project": "desktop-1366",
+        "title": "mobile: native safe area, navigation and empty chat",
+        "status": "skipped",
+        "duration": 595
+      },
+      {
+        "project": "desktop-1366",
+        "title": "Meet: header fits, controls work and media releases",
+        "status": "passed",
+        "duration": 6521
+      },
+      {
+        "project": "desktop-1366",
+        "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+        "status": "passed",
+        "duration": 10977
+      },
+      {
+        "project": "desktop-1440",
+        "title": "workspace: bright background, notes controls, header and AI coexist",
+        "status": "passed",
+        "duration": 8388
+      },
+      {
+        "project": "desktop-1440",
+        "title": "mobile: native safe area, navigation and empty chat",
+        "status": "skipped",
+        "duration": 476
+      },
+      {
+        "project": "desktop-1440",
+        "title": "Meet: header fits, controls work and media releases",
+        "status": "passed",
+        "duration": 5312
+      },
+      {
+        "project": "desktop-1440",
+        "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+        "status": "passed",
+        "duration": 12490
+      },
+      {
+        "project": "mobile-390",
+        "title": "workspace: bright background, notes controls, header and AI coexist",
+        "status": "skipped",
+        "duration": 1288
+      },
+      {
+        "project": "mobile-390",
+        "title": "mobile: native safe area, navigation and empty chat",
+        "status": "passed",
+        "duration": 9748
+      },
+      {
+        "project": "mobile-390",
+        "title": "Meet: header fits, controls work and media releases",
+        "status": "passed",
+        "duration": 7027
+      },
+      {
+        "project": "mobile-390",
+        "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+        "status": "skipped",
+        "duration": 589
+      },
+      {
+        "project": "native-390",
+        "title": "workspace: bright background, notes controls, header and AI coexist",
+        "status": "skipped",
+        "duration": 1049
+      },
+      {
+        "project": "native-390",
+        "title": "mobile: native safe area, navigation and empty chat",
+        "status": "passed",
+        "duration": 9036
+      },
+      {
+        "project": "native-390",
+        "title": "Meet: header fits, controls work and media releases",
+        "status": "passed",
+        "duration": 5889
+      },
+      {
+        "project": "native-390",
+        "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+        "status": "skipped",
+        "duration": 538
+      }
+    ],
+    "axe": [
+      {
+        "file": "axe-desktop-1366-gallery.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-desktop-1366-meet.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-desktop-1366-workspace.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-desktop-1440-gallery.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-desktop-1440-meet.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-desktop-1440-workspace.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-mobile-390-ai.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-mobile-390-bright-focus.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-mobile-390-meet.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-native-390-ai.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-native-390-bright-focus.json",
+        "violations": 0
+      },
+      {
+        "file": "axe-native-390-meet.json",
+        "violations": 0
+      }
+    ]
+  },
+  "apk": {
+    "version": "8.1.1",
+    "versionCode": 82,
+    "bytes": 8869402,
+    "sizeMb": 8.46,
+    "sha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2"
+  },
+  "adb": {
+    "devices": [],
+    "installed": false,
+    "reason": "adb devices -l returned no attached device at release check"
+  }
+}

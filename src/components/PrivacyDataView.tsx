@@ -54,7 +54,7 @@ export const PrivacyDataView: React.FC = () => {
       ]);
       setStats({ tasks, notes, sessions, projects, planner });
     } catch (err) {
-      console.warn('Lỗi kiểm tra cơ sở dữ liệu IndexedDB:', err);
+      console.warn('Lỗi kiểm tra cơ sở dữ liệu bộ nhớ trên thiết bị:', err);
     }
   };
 
@@ -167,8 +167,8 @@ export const PrivacyDataView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Quyền Riêng Tư & Dữ Liệu"
-      subtitle="Client Encrypted"
+      title="Quyền riêng tư & dữ liệu"
+      subtitle="Bạn kiểm soát"
       backTestId="back-to-workspace-btn"
       onBack={() => router.navigate('/app')}
       className="selection:bg-white selection:text-black"
@@ -190,9 +190,9 @@ export const PrivacyDataView: React.FC = () => {
               <span>Quay lại không gian học</span>
             </button>
 
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+            <div className="flex items-center gap-1.5 text-xs text-zinc-300">
               <ShieldCheck size={14} />
-              <span className="whitespace-nowrap font-medium text-[11px] sm:text-xs">Client Encrypted</span>
+              <span className="whitespace-nowrap font-medium text-[11px] sm:text-xs">Bạn kiểm soát</span>
             </div>
           </div>
         )}
@@ -239,11 +239,11 @@ export const PrivacyDataView: React.FC = () => {
           <div className="flex items-center gap-2">
             <Database size={22} className="text-white shrink-0" />
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Quản Lý Dữ Liệu & Quyền Riêng Tư
+              Quản lý dữ liệu & quyền riêng tư
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            PomoFocus tuân thủ triết lý <strong>Local-First</strong>: Mọi công việc, ghi chú và lịch sử tập trung được lưu trữ trực tiếp trên thiết bị của bạn qua IndexedDB.
+            Công việc, ghi chú và lịch sử tập trung được lưu an toàn trên thiết bị. Khi đăng nhập, dữ liệu được đồng bộ cùng tài khoản của bạn.
           </p>
         </div>
 
@@ -252,12 +252,12 @@ export const PrivacyDataView: React.FC = () => {
           <div
             className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 shadow-sm ${
               toastMessage.type === 'success'
-                ? 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300'
+                ? 'border-zinc-500/30 bg-zinc-950/40 text-zinc-300'
                 : 'border-rose-500/30 bg-rose-950/40 text-rose-300'
             }`}
           >
             {toastMessage.type === 'success' ? (
-              <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
+              <CheckCircle2 size={16} className="shrink-0 text-zinc-300" />
             ) : (
               <AlertTriangle size={16} className="shrink-0 text-rose-400" />
             )}
@@ -269,8 +269,8 @@ export const PrivacyDataView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <HardDrive size={16} className="text-sky-400 shrink-0" />
-              <span>Dung Lượng Cơ Sở Dữ Liệu IndexedDB</span>
+              <HardDrive size={16} className="text-zinc-300 shrink-0" />
+              <span>Dung lượng đã lưu trên thiết bị</span>
             </h2>
             <button
               type="button"
@@ -284,8 +284,8 @@ export const PrivacyDataView: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Nhiệm vụ (Tasks)</span>
-                <ListTodo size={14} className="text-sky-400" />
+                <span>Nhiệm vụ (tasks)</span>
+                <ListTodo size={14} className="text-zinc-300" />
               </div>
               <div className="text-xl font-bold text-white font-mono" data-testid="count-tasks">
                 {stats.tasks}
@@ -294,8 +294,8 @@ export const PrivacyDataView: React.FC = () => {
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Ghi chú (Notes)</span>
-                <FileText size={14} className="text-amber-400" />
+                <span>Ghi chú (notes)</span>
+                <FileText size={14} className="text-zinc-300" />
               </div>
               <div className="text-xl font-bold text-white font-mono" data-testid="count-notes">
                 {stats.notes}
@@ -304,7 +304,7 @@ export const PrivacyDataView: React.FC = () => {
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Phiên học (Sessions)</span>
+                <span>Phiên học (sessions)</span>
                 <Clock size={14} className="text-rose-400" />
               </div>
               <div className="text-xl font-bold text-white font-mono" data-testid="count-sessions">
@@ -314,8 +314,8 @@ export const PrivacyDataView: React.FC = () => {
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Lịch biểu (Planner)</span>
-                <Calendar size={14} className="text-emerald-400" />
+                <span>Lịch biểu (planner)</span>
+                <Calendar size={14} className="text-zinc-300" />
               </div>
               <div className="text-xl font-bold text-white font-mono" data-testid="count-planner">
                 {stats.planner}
@@ -324,8 +324,8 @@ export const PrivacyDataView: React.FC = () => {
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Dự án (Projects)</span>
-                <HardDrive size={14} className="text-purple-400" />
+                <span>Dự án (projects)</span>
+                <HardDrive size={14} className="text-zinc-300" />
               </div>
               <div className="text-xl font-bold text-white font-mono" data-testid="count-projects">
                 {stats.projects}
@@ -338,8 +338,8 @@ export const PrivacyDataView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div>
             <h2 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-              <Download size={16} className="text-emerald-400 shrink-0" />
-              <span>Xuất Dữ Liệu Cá Nhân (Data Portability)</span>
+              <Download size={16} className="text-zinc-300 shrink-0" />
+              <span>Xuất dữ liệu cá nhân (data portability)</span>
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
               Tải xuống toàn bộ dữ liệu của bạn dưới định dạng tệp tin JSON tiêu chuẩn. Bạn hoàn toàn làm chủ dữ liệu của mình.
@@ -365,7 +365,7 @@ export const PrivacyDataView: React.FC = () => {
           <div>
             <h2 className="text-sm font-semibold text-rose-300 mb-1 flex items-center gap-2">
               <Trash2 size={16} className="text-rose-400 shrink-0" />
-              <span>Xóa Toàn Bộ Dữ Liệu Trên Thiết Bị</span>
+              <span>Xóa toàn bộ dữ liệu trên thiết bị</span>
             </h2>
             <p className="text-xs text-rose-300/80 leading-relaxed">
               Hành động này sẽ xóa vĩnh viễn toàn bộ công việc, ghi chú, lịch sử phiên học và cài đặt cá nhân lưu trên trình duyệt này. Thao tác không thể hoàn tác.
@@ -380,7 +380,7 @@ export const PrivacyDataView: React.FC = () => {
               className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow"
             >
               <Trash2 size={14} />
-              <span>Xóa Sạch Dữ Liệu Cục Bộ</span>
+              <span>Xóa sạch dữ liệu cục bộ</span>
             </button>
           </div>
         </div>
@@ -396,7 +396,7 @@ export const PrivacyDataView: React.FC = () => {
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
                 <AlertTriangle size={16} />
-                <span>Xác Nhận Xóa Dữ Liệu</span>
+                <span>Xác nhận xóa dữ liệu</span>
               </div>
               <button
                 type="button"

@@ -219,7 +219,7 @@ export const DashboardView: React.FC = () => {
           recentSessions
         });
       } catch (err) {
-        console.warn('Lỗi đọc dữ liệu thống kê từ IndexedDB:', err);
+        console.warn('Lỗi đọc dữ liệu thống kê từ bộ nhớ trên thiết bị:', err);
       }
     }
 
@@ -244,7 +244,7 @@ export const DashboardView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Thống Kê Năng Suất"
+      title="Thống kê năng suất"
       subtitle="Lịch sử phiên & chuỗi ngày học"
       onBack={() => router.navigate('/app')}
       className="selection:bg-white selection:text-black"
@@ -259,11 +259,11 @@ export const DashboardView: React.FC = () => {
             <div className="flex items-center gap-2.5">
               <BarChart3 size={24} className="text-white shrink-0" />
               <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Thống Kê Năng Suất Học Tập
+                Thống kê năng suất học tập
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-zinc-400">
-              Tổng quan thời gian tập trung và chuỗi ngày rèn luyện thói quen Pomodoro của bạn.
+              Tổng quan thời gian tập trung và chuỗi ngày rèn luyện thói quen pomodoro của bạn.
             </p>
           </div>
 
@@ -273,7 +273,7 @@ export const DashboardView: React.FC = () => {
             className="self-start sm:self-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shadow whitespace-nowrap"
           >
             <Layout size={13} />
-            <span>Mở Không Gian Học</span>
+            <span>Mở không gian học</span>
           </button>
         </div>
 
@@ -281,47 +281,47 @@ export const DashboardView: React.FC = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
           <div className="p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px]">Tổng Giờ Tập Trung</span>
+              <span className="text-[11px]">Tổng giờ tập trung</span>
               <Clock size={16} className="text-rose-400 shrink-0" />
             </div>
             <div className="text-xl sm:text-2xl font-extrabold text-white font-mono" data-testid="metric-total-minutes">
               {stats ? formatHours(stats.totalFocusMinutes) : '...'}
             </div>
-            <div className="text-[10px] text-zinc-500">Chu kỳ 25 phút chuẩn</div>
+            <div className="text-[10px] text-zinc-400">Chu kỳ 25 phút chuẩn</div>
           </div>
 
           <div className="p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px]">Chuỗi Ngày (Streak)</span>
-              <Flame size={16} className="text-amber-400 shrink-0" />
+              <span className="text-[11px]">Chuỗi ngày (streak)</span>
+              <Flame size={16} className="text-zinc-300 shrink-0" />
             </div>
-            <div className="text-xl sm:text-2xl font-extrabold text-amber-300 font-mono flex items-baseline gap-1" data-testid="metric-streak-days">
+            <div className="text-xl sm:text-2xl font-extrabold text-zinc-300 font-mono flex items-baseline gap-1" data-testid="metric-streak-days">
               <span>{stats?.currentStreakDays ?? 0}</span>
               <span className="text-xs font-normal text-zinc-400">ngày</span>
             </div>
-            <div className="text-[10px] text-zinc-500">Duy trì học mỗi ngày</div>
+            <div className="text-[10px] text-zinc-400">Duy trì học mỗi ngày</div>
           </div>
 
           <div className="p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px]">Số Hiệp Hôm Nay</span>
-              <TrendingUp size={16} className="text-emerald-400 shrink-0" />
+              <span className="text-[11px]">Số hiệp hôm nay</span>
+              <TrendingUp size={16} className="text-zinc-300 shrink-0" />
             </div>
             <div className="text-xl sm:text-2xl font-extrabold text-white font-mono" data-testid="metric-sessions-today">
               {stats?.sessionsToday ?? 0}
             </div>
-            <div className="text-[10px] text-zinc-500">Tuần này: {stats?.sessionsThisWeek ?? 0} hiệp</div>
+            <div className="text-[10px] text-zinc-400">Tuần này: {stats?.sessionsThisWeek ?? 0} hiệp</div>
           </div>
 
           <div className="p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between text-zinc-400">
-              <span className="text-[11px]">Nhiệm Vụ Đã Xong</span>
-              <CheckCircle2 size={16} className="text-sky-400 shrink-0" />
+              <span className="text-[11px]">Nhiệm vụ đã xong</span>
+              <CheckCircle2 size={16} className="text-zinc-300 shrink-0" />
             </div>
             <div className="text-xl sm:text-2xl font-extrabold text-white font-mono" data-testid="metric-tasks-completed">
               {stats?.completedTasks ?? 0}
             </div>
-            <div className="text-[10px] text-zinc-500">Còn lại: {stats?.pendingTasks ?? 0} việc</div>
+            <div className="text-[10px] text-zinc-400">Còn lại: {stats?.pendingTasks ?? 0} việc</div>
           </div>
         </div>
 
@@ -333,8 +333,8 @@ export const DashboardView: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm sm:text-base font-semibold text-zinc-100 flex items-center gap-2">
-                <TrendingUp size={16} className="text-emerald-400 shrink-0" />
-                <span>Xu Hướng Tập Trung</span>
+                <TrendingUp size={16} className="text-zinc-300 shrink-0" />
+                <span>Xu hướng tập trung</span>
               </h3>
               <p className="text-xs text-zinc-400 mt-0.5">
                 {activeFilter === 'month'
@@ -353,7 +353,7 @@ export const DashboardView: React.FC = () => {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
                     activeFilter === filter
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold'
+                      ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 font-semibold'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
@@ -370,7 +370,7 @@ export const DashboardView: React.FC = () => {
                 <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
                   {/* Tooltip khi hover */}
                   <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none bg-zinc-950 border border-zinc-700 text-xs px-2.5 py-1 rounded-lg shadow-xl z-20 whitespace-nowrap">
-                    <span className="font-semibold text-emerald-400">{item.minutes} phút</span>
+                    <span className="font-semibold text-zinc-300">{item.minutes} phút</span>
                     <span className="text-zinc-400 ml-1.5 font-mono">({item.sessions} hiệp)</span>
                   </div>
 
@@ -380,8 +380,8 @@ export const DashboardView: React.FC = () => {
                       style={{ height: `${heightPercent}%` }}
                       className={`w-full rounded-t-md transition-all duration-500 ${
                         item.isToday
-                          ? 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                          : 'bg-gradient-to-t from-zinc-700 to-zinc-500 group-hover:from-emerald-700 group-hover:to-emerald-500'
+                          ? 'bg-gradient-to-t from-zinc-700 to-zinc-700 shadow-[0_0_12px_rgba(255,255,255,0.3)]'
+                          : 'bg-gradient-to-t from-zinc-700 to-zinc-500 group-hover:from-zinc-700 group-hover:to-zinc-700'
                       }`}
                     />
                   </div>
@@ -389,7 +389,7 @@ export const DashboardView: React.FC = () => {
                   {/* Nhãn thứ / ngày */}
                   <span
                     className={`text-[11px] font-medium ${
-                      item.isToday ? 'text-emerald-400 font-bold' : 'text-zinc-400'
+                      item.isToday ? 'text-zinc-300 font-bold' : 'text-zinc-400'
                     }`}
                   >
                     {item.label}
@@ -405,9 +405,9 @@ export const DashboardView: React.FC = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <Calendar size={16} className="text-zinc-400 shrink-0" />
-              <span>Nhật Ký Các Phiên Tập Trung Gần Nhất</span>
+              <span>Nhật ký các phiên tập trung gần nhất</span>
             </h2>
-            <span className="text-[11px] font-mono text-zinc-500">
+            <span className="text-[11px] font-mono text-zinc-400">
               Tổng {stats?.totalSessions ?? 0} phiên
             </span>
           </div>
@@ -417,10 +417,10 @@ export const DashboardView: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-zinc-800 text-zinc-400 text-[11px]">
-                    <th className="pb-2.5 font-medium">Thời Gian</th>
+                    <th className="pb-2.5 font-medium">Thời gian</th>
                     <th className="pb-2.5 font-medium">Loại</th>
                     <th className="pb-2.5 font-medium">Thời lượng</th>
-                    <th className="pb-2.5 font-medium">Nhiệm Vụ Liên Kết</th>
+                    <th className="pb-2.5 font-medium">Nhiệm vụ liên kết</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/60 font-mono text-[11px]">
@@ -439,7 +439,7 @@ export const DashboardView: React.FC = () => {
                           className={`px-2 py-0.5 rounded text-[10px] font-sans font-medium whitespace-nowrap ${
                             s.phase === 'pomodoro'
                               ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30'
                           }`}
                         >
                           {s.phase === 'pomodoro' ? 'Tập trung' : 'Nghỉ ngơi'}
@@ -448,14 +448,14 @@ export const DashboardView: React.FC = () => {
                       <td className="py-2.5 text-zinc-300 whitespace-nowrap">
                         {s.durationMinutes} phút
                       </td>
-                      <td className="py-2.5 text-zinc-500">
+                      <td className="py-2.5 text-zinc-400">
                         {s.taskId ? (
                           <span className="text-zinc-300 flex items-center gap-1 font-sans">
                             <ListTodo size={12} className="text-zinc-400 shrink-0" />
                             <span className="truncate max-w-[200px]">Nhiệm vụ #{s.taskId.slice(-4)}</span>
                           </span>
                         ) : (
-                          <span className="text-zinc-600 font-sans italic">Tự do</span>
+                          <span className="text-zinc-400 font-sans italic">Tự do</span>
                         )}
                       </td>
                     </tr>
@@ -465,11 +465,11 @@ export const DashboardView: React.FC = () => {
             </div>
           ) : (
             <div className="py-12 text-center space-y-3">
-              <Clock size={32} className="mx-auto text-zinc-600" />
+              <Clock size={32} className="mx-auto text-zinc-400" />
               <div className="space-y-1">
                 <p className="text-sm font-medium text-zinc-300">Chưa có phiên tập trung nào</p>
-                <p className="text-xs text-zinc-500">
-                  Hãy bắt đầu phiên Pomodoro đầu tiên để lưu nhật ký và theo dõi tiến độ.
+                <p className="text-xs text-zinc-400">
+                  Hãy bắt đầu phiên pomodoro đầu tiên để lưu nhật ký và theo dõi tiến độ.
                 </p>
               </div>
               <button
@@ -478,7 +478,7 @@ export const DashboardView: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition cursor-pointer"
               >
                 <Play size={12} fill="currentColor" />
-                <span>Bắt Đầu Ngay</span>
+                <span>Bắt đầu ngay</span>
               </button>
             </div>
           )}

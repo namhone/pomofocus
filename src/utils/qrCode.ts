@@ -460,7 +460,7 @@ export function generateValidQrCodeSvg(text: string, options?: QrCodeOptions): s
   const rawSize = options?.size ?? 256;
   const size = Math.max(32, Math.min(1024, rawSize));
   const margin = Math.max(0, options?.margin ?? 4);
-  const color = options?.color ?? '#10b981';
+  const color = options?.color ?? '#a1a1aa';
   const bgColor = options?.bgColor ?? '#09090b';
 
   const matrix = generateQrMatrix(text);

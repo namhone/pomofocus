@@ -4,6 +4,7 @@ import { useTimerStore } from '../stores/useTimerStore';
 import { TimerPhase } from '../types/timer';
 import { haptics } from '../utils/haptics';
 import { soundEffects } from '../services/soundEffects';
+import { useAiStore } from '../stores/useAiStore';
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -19,6 +20,7 @@ export interface TimerWidgetProps {
 export const TimerWidget: React.FC<TimerWidgetProps> = ({
   isEmbeddedInZen = false
 }) => {
+  const aiOpen = useAiStore(state => state.isOpen);
   const phase = useTimerStore((state) => state.phase);
   const status = useTimerStore((state) => state.status);
   const currentRound = useTimerStore((state) => state.currentRound);
@@ -67,19 +69,19 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
       case 'pomodoro':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-rose text-rose-200 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-rose text-zinc-200 font-medium shadow-xs',
           label: 'Tập trung'
         };
       case 'short_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-emerald text-emerald-200 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-focus text-zinc-200 font-medium shadow-xs',
           label: 'Nghỉ ngắn'
         };
       case 'long_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-sky text-sky-200 font-medium shadow-xs',
+          activeTab: 'liquid-glass-btn liquid-glass-btn-sky text-zinc-200 font-medium shadow-xs',
           label: 'Nghỉ dài'
         };
     }
@@ -117,7 +119,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             className="mb-2.5 flex items-center justify-between rounded-lg bg-white/[0.06] border border-white/12 px-2.5 py-1 text-xs text-neutral-200"
           >
             <div className="flex items-center gap-1.5 truncate">
-              <Target size={13} className="text-amber-400 shrink-0" />
+              <Target size={13} className="text-zinc-300 shrink-0" />
               <span className="font-medium truncate text-[11px]">Đang làm: {linkedTaskTitle}</span>
             </div>
             <button
@@ -183,11 +185,11 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               const isPaused = status === 'paused';
               let dotClass = 'bg-white/15';
               if (isCompleted) {
-                dotClass = 'bg-rose-500';
+                dotClass = 'bg-zinc-500';
               } else if (isCurrent && isRunning) {
-                dotClass = 'bg-rose-400 animate-pulse';
+                dotClass = 'bg-zinc-400 animate-pulse';
               } else if (isCurrent && isPaused) {
-                dotClass = 'bg-rose-400/70';
+                dotClass = 'bg-zinc-400/70';
               }
               return (
                 <div
@@ -212,7 +214,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           <div className="w-full h-1 bg-white/[0.08] rounded-full overflow-hidden">
             <div
               data-testid="daily-progress-bar"
-              className="h-full bg-rose-600 rounded-full transition-all duration-300"
+              className="h-full bg-zinc-600 rounded-full transition-all duration-300"
               style={{
                 width: `${Math.min(100, (dailyProgress / (settings.roundsBeforeLongBreak * 2)) * 100)}%`
               }}
@@ -249,7 +251,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-amber-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-zinc-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
             >
               <Pause size={16} fill="currentColor" className="-translate-y-[0.5px]" />
               <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tạm dừng</span>
@@ -266,7 +268,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-emerald h-11 px-6 rounded-2xl border border-emerald-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="liquid-glass-btn liquid-glass-btn-focus h-11 px-6 rounded-2xl border border-zinc-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
             >
               <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
               <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tiếp tục</span>
@@ -298,7 +300,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             aria-label={`Bắt đầu lại chu kỳ (Hiệp 1/${settings.roundsBeforeLongBreak})`}
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 hover:border-white/25 text-zinc-300 hover:text-white flex items-center justify-center transition-all duration-150 shrink-0 shadow-sm backdrop-blur-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-rose-400" />
+            <RefreshCw size={20} className="w-5 h-5 -translate-y-[0.5px] text-zinc-400" />
           </button>
 
           <button
@@ -322,10 +324,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             data-testid="timer-celebration-toast"
             role="status"
             aria-live="polite"
-            className="w-full mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs shadow-lg backdrop-blur-md animate-in fade-in duration-300"
+            className="w-full mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-zinc-700/20 border border-zinc-500/40 text-zinc-300 text-xs shadow-lg backdrop-blur-md animate-in fade-in duration-300"
           >
             <div className="flex items-center gap-1.5 font-medium truncate">
-              <Sparkles size={13} className="text-amber-300 shrink-0" />
+              <Sparkles size={13} className="text-zinc-300 shrink-0" />
               <span className="truncate">{celebrationToast}</span>
             </div>
             <button
@@ -344,7 +346,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
         )}
 
         {/* Quick Settings Panel (chỉ hiển thị ở Workspace thường, ẩn trong Zen Mode) */}
-        {!isEmbeddedInZen && (
+        {!isEmbeddedInZen && !aiOpen && (
           <div className="mt-2 border-t border-white/[0.08] pt-1.5 pb-0.5 text-xs text-neutral-300 space-y-1">
             <div className="flex items-center justify-between">
               <span className="font-medium text-neutral-200 text-[10.5px] flex items-center gap-1.5">
@@ -364,66 +366,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
-              <div>
-                <label htmlFor="input-pomodoro-min" className="block mb-0.5 text-[10px] text-neutral-400">
-                  Tập trung
-                </label>
-                <input
-                  id="input-pomodoro-min"
-                  data-testid="input-pomodoro-min"
-                  type="number"
-                  inputMode="numeric"
-                  enterKeyHint="next"
-                  min="1"
-                  max="120"
-                  aria-label="Thời gian tập trung (phút)"
-                  value={settings.pomodoroMinutes}
-                  disabled={status !== 'idle'}
-                  onChange={(e) => updateSettings({ pomodoroMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:border-rose-500/70 focus:bg-white/[0.08] transition-colors disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
-                />
-              </div>
-              <div>
-                <label htmlFor="input-short-min" className="block mb-0.5 text-[10px] text-neutral-400">
-                  Nghỉ ngắn
-                </label>
-                <input
-                  id="input-short-min"
-                  data-testid="input-short-min"
-                  type="number"
-                  inputMode="numeric"
-                  enterKeyHint="next"
-                  min="1"
-                  max="60"
-                  aria-label="Thời gian nghỉ ngắn (phút)"
-                  value={settings.shortBreakMinutes}
-                  disabled={status !== 'idle'}
-                  onChange={(e) => updateSettings({ shortBreakMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:border-emerald-500/70 focus:bg-white/[0.08] transition-colors disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
-                />
-              </div>
-              <div>
-                <label htmlFor="input-long-min" className="block mb-0.5 text-[10px] text-neutral-400">
-                  Nghỉ dài
-                </label>
-                <input
-                  id="input-long-min"
-                  data-testid="input-long-min"
-                  type="number"
-                  inputMode="numeric"
-                  enterKeyHint="done"
-                  min="1"
-                  max="60"
-                  aria-label="Thời gian nghỉ dài (phút)"
-                  value={settings.longBreakMinutes}
-                  disabled={status !== 'idle'}
-                  onChange={(e) => updateSettings({ longBreakMinutes: Number(e.target.value) || 1 })}
-                  className="no-focus-ring w-full rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-center text-xs text-white focus:outline-none focus:border-sky-500/70 focus:bg-white/[0.08] transition-colors disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
-                />
-              </div>
-            </div>
-
+            <p className="text-[11px] text-zinc-300">Thời lượng phiên học được điều chỉnh trong Cài đặt.</p>
             <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2.5 cursor-pointer select-none group py-0.5">
                 <div className="relative flex items-center justify-center">
@@ -448,7 +391,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
                   >
                     {/* Dấu tick SVG sắc nét đen tương phản cao khi checked */}
                     <svg
-                      className={`w-3.5 h-3.5 stroke-[2.5] text-zinc-950 transition-all duration-150 transform ${
+                      className={`w-3.5 h-3.5 stroke-[1.5] text-zinc-950 transition-all duration-150 transform ${
                         settings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
                       }`}
                       viewBox="0 0 14 10"

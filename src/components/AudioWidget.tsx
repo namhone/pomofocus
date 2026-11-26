@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Volume2,
@@ -111,17 +112,17 @@ export const AudioWidget: React.FC = () => {
       {isAudioBlocked && (
         <div
           data-testid="audio-blocked-warning"
-          className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-2 flex-nowrap shrink-0"
+          className="mb-3 p-2.5 rounded-xl bg-zinc-700/15 border border-zinc-500/30 text-zinc-200 text-xs flex items-center justify-between gap-2 flex-nowrap shrink-0"
         >
           <div className="flex items-center gap-2">
-            <AlertTriangle size={15} className="text-amber-400 shrink-0" />
+            <AlertTriangle size={15} className="text-zinc-300 shrink-0" />
             <span>Trình duyệt đang chặn âm thanh tự động</span>
           </div>
           <button
             type="button"
             data-testid="btn-resume-audio"
             onClick={resumeAudioContext}
-            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-[11px] transition cursor-pointer shrink-0 whitespace-nowrap"
+            className="px-2.5 py-1 rounded-lg bg-zinc-700 hover:bg-zinc-700 text-white font-semibold text-[11px] transition cursor-pointer shrink-0 whitespace-nowrap"
           >
             Kích hoạt
           </button>
@@ -133,18 +134,18 @@ export const AudioWidget: React.FC = () => {
         <div className="flex items-center justify-between mb-2 flex-nowrap shrink-0">
           <div className="flex items-center gap-2">
             <label htmlFor="master-volume-slider" className="text-xs font-medium text-neutral-300">
-              Âm Lượng Tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
+              Âm lượng tổng: {settings.isMuted ? 'Tắt' : `${Math.round(settings.masterVolume * 100)}%`}
             </label>
             {activePlayingCount > 0 && !settings.isMuted && (
               <div
                 data-testid="audio-equalizer-wave"
-                className="flex items-end gap-0.5 h-3.5 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30"
+                className="flex items-end gap-0.5 h-3.5 px-1.5 py-0.5 rounded-full bg-zinc-700/15 border border-zinc-500/30"
                 title={`${activePlayingCount} âm thanh đang phát`}
               >
-                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-1.5" />
-                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-3.5" />
-                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2" />
-                <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2.5" />
+                <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-1.5" />
+                <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-3.5" />
+                <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-2" />
+                <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-2.5" />
               </div>
             )}
           </div>
@@ -206,7 +207,7 @@ export const AudioWidget: React.FC = () => {
           }`}
         >
           <Bell size={13} />
-          <span>Chuông Báo</span>
+          <span>Chuông báo</span>
         </button>
 
         <button
@@ -225,9 +226,9 @@ export const AudioWidget: React.FC = () => {
           }`}
         >
           <Waves size={13} />
-          <span>Âm Thanh Nền</span>
+          <span>Âm thanh nền</span>
           {activePlayingCount > 0 && (
-            <span className="w-4 h-4 text-[10px] rounded-full bg-emerald-500 text-neutral-950 font-bold flex items-center justify-center">
+            <span className="w-4 h-4 text-[10px] rounded-full bg-zinc-700 text-white font-bold flex items-center justify-center">
               {activePlayingCount}
             </span>
           )}
@@ -311,12 +312,12 @@ export const AudioWidget: React.FC = () => {
               {activePlayingCount > 0 && (
                 <div
                   data-testid="audio-equalizer-wave-ambient"
-                  className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 shrink-0"
+                  className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-full bg-zinc-700/15 border border-zinc-500/30 shrink-0"
                   title={`${activePlayingCount} âm thanh đang phát`}
                 >
-                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-1.5" />
-                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-3" />
-                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2" />
+                  <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-1.5" />
+                  <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-3" />
+                  <span className="w-0.5 bg-zinc-700 rounded-full animate-pulse h-2" />
                 </div>
               )}
             </div>
@@ -362,7 +363,7 @@ export const AudioWidget: React.FC = () => {
                   <span className="whitespace-nowrap">{tab.label}</span>
                   <span className="text-[10px] text-neutral-400 font-mono">({tab.count})</span>
                   {activeCountInCat > 0 && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
                   )}
                 </button>
               );
@@ -403,17 +404,17 @@ export const AudioWidget: React.FC = () => {
                         {track.badge ? (
                           <span className={`px-1.5 py-0.2 text-[9px] font-medium rounded border shrink-0 ${
                             track.category === 'binaural'
-                              ? 'bg-purple-500/15 text-purple-300 border-purple-500/25'
+                              ? 'bg-zinc-700/15 text-zinc-300 border-zinc-500/25'
                               : track.category === 'noise'
-                              ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/25'
+                              ? 'bg-zinc-700/15 text-zinc-300 border-zinc-500/25'
                               : track.category === 'nature'
-                              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25'
-                              : 'bg-amber-500/15 text-amber-300 border-amber-500/25'
+                              ? 'bg-zinc-700/15 text-zinc-300 border-zinc-500/25'
+                              : 'bg-zinc-700/15 text-zinc-300 border-zinc-500/25'
                           }`}>
                             {track.badge}
                           </span>
                         ) : track.category === 'binaural' ? (
-                          <span className="px-1.5 py-0.2 text-[9px] rounded bg-purple-500/15 text-purple-300 border border-purple-500/25 shrink-0">
+                          <span className="px-1.5 py-0.2 text-[9px] rounded bg-zinc-700/15 text-zinc-300 border border-zinc-500/25 shrink-0">
                             Binaural
                           </span>
                         ) : null}
@@ -440,7 +441,7 @@ export const AudioWidget: React.FC = () => {
                     />
                     <span
                       className={`text-[10px] font-mono shrink-0 w-7 text-right ${
-                        track.isPlaying ? 'text-zinc-300 font-medium' : 'text-zinc-600'
+                        track.isPlaying ? 'text-zinc-300 font-medium' : 'text-zinc-400'
                       }`}
                     >
                       {Math.round(track.volume * 100)}%
@@ -452,9 +453,9 @@ export const AudioWidget: React.FC = () => {
           </div>
 
           {/* Medical Disclaimer for Binaural Beats */}
-          <div className="p-2.5 rounded-xl bg-purple-950/20 border border-purple-500/20 text-[10px] text-purple-300/90 leading-relaxed">
-            <span className="font-semibold block text-purple-200 mb-0.5">
-              ⚠️ Lưu ý y tế (Medical Disclaimer):
+          <div className="p-2.5 rounded-xl bg-zinc-950/20 border border-zinc-500/20 text-[10px] text-zinc-300/90 leading-relaxed">
+            <span className="font-semibold block text-zinc-200 mb-0.5">
+              <UiSymbol name="⚠️" /> Lưu ý y tế :
             </span>
             Âm thanh mô phỏng nhịp âm hai tai hỗ trợ thư giãn và tập trung — không phải thiết bị y tế; hiệu quả hỗ trợ tập trung hoặc cải thiện giấc ngủ chưa được chứng minh lâm sàng và không được bảo đảm bởi tính năng này, không có tác dụng thay thế chẩn đoán hay điều trị y khoa.
           </div>
@@ -475,7 +476,7 @@ export const AudioWidget: React.FC = () => {
           <RotateCcw size={12} className="shrink-0" />
           <span className="whitespace-nowrap">Đặt lại mặc định</span>
         </button>
-        <span className="text-[10px] text-neutral-500 font-medium shrink-0 whitespace-nowrap">Offline Audio</span>
+        <span className="text-[10px] text-zinc-400 font-medium shrink-0 whitespace-nowrap">Âm thanh ngoại tuyến</span>
       </div>
     </div>
   );

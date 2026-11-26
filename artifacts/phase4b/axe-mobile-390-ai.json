@@ -1,0 +1,152 @@
+{
+  "url": "http://127.0.0.1:5194/app",
+  "timestamp": "2026-11-26T00:20:19.753Z",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "elmPartiallyObscured",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<textarea rows=\"1\" enterkeyhint=\"send\" placeholder=\"Nhắn cho trợ lý...\" aria-label=\"Câu hỏi cho trợ lý AI\" class=\"flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-white placeholder-zinc-400 text-xs focus:outline-none focus:border-white/25 transition resize-none max-h-32 overflow-y-auto leading-relaxed\" style=\"height: 40px;\">",
+                  "target": [
+                    "textarea"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<textarea rows=\"1\" enterkeyhint=\"send\" placeholder=\"Nhắn cho trợ lý...\" aria-label=\"Câu hỏi cho trợ lý AI\" class=\"flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-white placeholder-zinc-400 text-xs focus:outline-none focus:border-white/25 transition resize-none max-h-32 overflow-y-auto leading-relaxed\" style=\"height: 40px;\">",
+          "target": [
+            "textarea"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 13
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 13
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 7
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 5
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 13
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 7
+    },
+    {
+      "id": "aria-required-children",
+      "nodes": 1
+    },
+    {
+      "id": "aria-required-parent",
+      "nodes": 5
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 7
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 13
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 13
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 4
+    },
+    {
+      "id": "button-name",
+      "nodes": 15
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 14
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "nodes": 1
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "image-alt",
+      "nodes": 1
+    },
+    {
+      "id": "label",
+      "nodes": 1
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 16
+    }
+  ]
+}

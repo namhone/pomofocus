@@ -27,11 +27,12 @@ import { sanitizeSvg } from '../../utils/sanitize';
 import { useDeviceDetection } from '../../hooks/useDeviceDetection';
 import { generateValidQrCodeSvg, copyToClipboard } from '../../utils/qrCode';
 import { useRouter } from '../../services/router';
+import release from '../../config/apkRelease.json';
 
 export const PUBLIC_APK_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk';
-export const CURRENT_APK_VERSION = 'v8.1';
-export const APK_SIZE_MB = 8.5;
-export const APK_SIZE_LABEL = '8.5 MB';
+export const CURRENT_APK_VERSION = `v${release.version}`;
+export const APK_SIZE_MB = release.apkSizeMb;
+export const APK_SIZE_LABEL = `${APK_SIZE_MB.toFixed(2)} MB`;
 
 interface TiltState {
   rotateX: number;
@@ -155,11 +156,11 @@ export const WebDownloadHub: React.FC = () => {
     {
       title: 'Giữ sáng khi tập trung',
       subtitle: 'Giữ sáng khi thiết bị hỗ trợ',
-      desc: 'Tùy chọn giữ màn hình sáng trong lúc tập trung trên thiết bị hỗ trợ. Tắt khi không cần để giảm sử dụng pin.',
+      desc: 'Tùy chọn giữ màn hình sáng trong lúc tập trung trên thiết bị hỗ trợ. tắt khi không cần để giảm sử dụng pin.',
       icon: BatteryCharging,
       gradient: 'from-zinc-500/20 to-zinc-500/10',
       border: 'border-zinc-500/30',
-      badge: 'Thân thiện OLED',
+      badge: 'Thân thiện oled',
     },
     {
       title: 'Phản hồi khi chạm',
@@ -182,7 +183,7 @@ export const WebDownloadHub: React.FC = () => {
     {
       title: 'Học tập khi ngoại tuyến',
       subtitle: 'Hoạt động offline & riêng tư',
-      desc: 'Đếm giờ và xem dữ liệu đã lưu khi ngoại tuyến. Cần kết nối mạng để đồng bộ và dùng các tính năng trực tuyến.',
+      desc: 'Đếm giờ và xem dữ liệu đã lưu khi ngoại tuyến. cần kết nối mạng để đồng bộ và dùng các tính năng trực tuyến.',
       icon: ShieldCheck,
       gradient: 'from-zinc-500/20 to-zinc-500/10',
       border: 'border-zinc-500/30',
@@ -223,7 +224,7 @@ export const WebDownloadHub: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-2.5 sm:mb-3">
           <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/30 text-zinc-400 text-xs font-semibold mb-2.5 shadow-[0_0_20px_rgba(255,255,255,0.15)] animate-fade-in">
             <PomoFocusLogo size={16} withContainer={false} />
-            <span>pomofocus · Ứng dụng Android APK độc lập v8.1</span>
+            <span>PomoFocus · ứng dụng Android APK độc lập {CURRENT_APK_VERSION}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-ping" />
           </div>
 
@@ -235,7 +236,7 @@ export const WebDownloadHub: React.FC = () => {
           </h1>
 
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Ứng dụng Pomodoro dành cho Android. Theo dõi phiên tập trung bằng mốc thời gian, quản lý công việc và đồng bộ khi có kết nối mạng.
+            Ứng dụng pomodoro dành cho Android. Theo dõi phiên tập trung bằng mốc thời gian, quản lý công việc và đồng bộ khi có kết nối mạng.
           </p>
         </div>
 
@@ -248,7 +249,7 @@ export const WebDownloadHub: React.FC = () => {
                 <div className="flex items-center gap-2.5">
                   <PomoFocusLogo size={28} />
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold tracking-tight text-white">pomofocus</span>
+                    <span className="text-sm font-bold tracking-tight text-white">PomoFocus</span>
                     <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-400">
                       Bản phát hành chính thức {CURRENT_APK_VERSION}
                     </span>
@@ -265,7 +266,7 @@ export const WebDownloadHub: React.FC = () => {
                 </h2>
                 <p className="text-xs text-zinc-300 leading-relaxed">
                   Cài đặt trực tiếp file APK sạch, nguyên bản. Đồng bộ dữ liệu tức thì qua đám mây
-                  với tài khoản PomoFocus Web của bạn.
+                  với tài khoản PomoFocus web của bạn.
                 </p>
               </div>
 
@@ -280,11 +281,11 @@ export const WebDownloadHub: React.FC = () => {
                     className="w-full h-14 sm:h-16 min-h-[56px] px-6 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_32px_rgba(255,255,255,0.45)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
                   >
                     <Download className="w-5 h-5 text-current stroke-[1.5]" />
-                    <span>Tải PomoFocus APK (v8.1)</span>
+                    <span>Tải PomoFocus APK ({CURRENT_APK_VERSION})</span>
                   </a>
 
                   <div className="text-center md:text-left text-[11px] text-zinc-400 font-medium">
-                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · Miễn phí tải xuống
+                    Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · miễn phí tải xuống
                   </div>
 
                   {/* Play Protect micro-hint */}
@@ -300,19 +301,19 @@ export const WebDownloadHub: React.FC = () => {
                     {isAndroid ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
                         <CheckCircle2 className="w-4 h-4" />
-                        Phát hiện bạn đang dùng Android · Chạm nút trên để tải và cài đặt ngay
+                        Phát hiện bạn đang dùng Android · chạm nút trên để tải và cài đặt ngay
                       </span>
                     ) : isDesktop ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400">
                         <QrCode className="w-4 h-4 text-zinc-400" />
-                        Bạn đang ở Desktop · Quét mã QR bên cạnh để cài ngay trên điện thoại
+                        Bạn đang ở desktop · quét mã QR bên cạnh để cài ngay trên điện thoại
                       </span>
                     ) : isIOS ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400/90">
-                        Thiết bị iOS hỗ trợ cài đặt PWA trực tiếp từ trình duyệt Safari
+                        Trên iOS, bạn có thể thêm PomoFocus vào màn hình chính từ Safari
                       </span>
                     ) : (
-                      <span>Hỗ trợ mọi thiết bị Android tiêu chuẩn (ARM64 / x86_64)</span>
+                      <span>Hỗ trợ mọi thiết bị Android tiêu chuẩn (arm64 / x86_64)</span>
                     )}
                   </div>
                 </div>
@@ -364,7 +365,7 @@ export const WebDownloadHub: React.FC = () => {
                 <div className="flex flex-col items-center">
                   <BatteryCharging className="w-4 h-4 text-zinc-400 mb-0.5" />
                   <span className="text-[11px] font-semibold text-zinc-200">Tiết kiệm pin</span>
-                  <span className="text-[10px] text-zinc-400">Tối ưu màn hình OLED</span>
+                  <span className="text-[10px] text-zinc-400">Nền đen dịu mắt</span>
                 </div>
               </div>
             </div>
@@ -377,7 +378,7 @@ export const WebDownloadHub: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-[11px] font-medium text-zinc-400">Muốn dùng ngay trên trình duyệt?</div>
-                  <div className="text-xs font-semibold text-white">Trải nghiệm không gian làm việc Web</div>
+                  <div className="text-xs font-semibold text-white">Trải nghiệm không gian làm việc web</div>
                 </div>
               </div>
               <button
@@ -448,7 +449,7 @@ export const WebDownloadHub: React.FC = () => {
                   <div className="flex items-center justify-between w-full px-0.5 z-10">
                     <div className="flex items-center gap-1.5">
                       <PomoFocusLogo size={16} />
-                      <span className="text-xs font-bold tracking-tight text-white">pomofocus</span>
+                      <span className="text-xs font-bold tracking-tight text-white">PomoFocus</span>
                       <span className="sr-only">Đồng hồ tập trung</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -566,7 +567,7 @@ export const WebDownloadHub: React.FC = () => {
 
               <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
                 <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Rê chuột hoặc chạm nghiêng khung máy để trải nghiệm 3D Titanium Glass</span>
+                <span>Rê chuột hoặc chạm nghiêng khung máy để trải nghiệm 3d titanium glass</span>
               </div>
             </div>
           </div>
@@ -576,7 +577,7 @@ export const WebDownloadHub: React.FC = () => {
         <div className="mt-8 sm:mt-12">
           <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
             <h3 className="text-xs font-mono font-bold tracking-widest text-zinc-400 mb-3">
-              Công nghệ cốt lõi v8.1
+              Điểm nổi bật {CURRENT_APK_VERSION}
             </h3>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
               Tối ưu từng khoảnh khắc trên điện thoại của bạn

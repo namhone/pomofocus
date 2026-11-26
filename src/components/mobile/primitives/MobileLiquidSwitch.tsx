@@ -15,7 +15,7 @@ export interface MobileLiquidSwitchProps {
  * MobileLiquidSwitch Primitive (Liquid Zen Architecture v7.0)
  *
  * - Apple-standard fluid switch (w-12 h-7, rounded-full).
- * - Active (ON) state: bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 with ambient glow shadow-[0_0_12px_rgba(52,211,153,0.45)].
+ * - Active (ON) state: neutral zinc and white, with a visible monochrome focus ring.
  * - Inactive (OFF) state: bg-zinc-800 border border-white/10.
  * - Thumb (knob): Smooth white circle (w-5 h-5, bg-white rounded-full shadow-md) with CSS spring/cubic-bezier transform transition (translate-x-0 to translate-x-5).
  * - Accessibility: role="switch", aria-checked={checked}, keyboard toggle support (Enter and Space keys).

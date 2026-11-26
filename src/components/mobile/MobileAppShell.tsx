@@ -1,3 +1,4 @@
+import { UiSymbol } from '../common/UiSymbol';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Edit3,
@@ -33,6 +34,7 @@ import { useAiStore } from '../../stores/useAiStore';
 import { useTaskStore } from '../../stores/useTaskStore';
 import { haptics } from '../../utils/haptics';
 import { useBackgroundStore } from '../../stores/useBackgroundStore';
+import { widgetScrimOpacity } from '../../utils/widgetPresentation';
 import { useAudioStore } from '../../stores/useAudioStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNoteStore } from '../../stores/useNoteStore';
@@ -85,6 +87,10 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
 
   const storeTab = useLayoutStore((s) => s.activeMobileTab);
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
+  const mobileScrim = useBackgroundStore(state => {
+    const hasImage = state.activePresetId === 'custom' || state.presets.find(preset => preset.id === state.activePresetId)?.category !== 'solid';
+    return hasImage ? widgetScrimOpacity(true, state.brightnessLevel, 0) : 0;
+  });
   const user = useAuthStore((s) => s.user);
   const isTopupModalOpen = useAiStore((s) => s.isTopupModalOpen);
   const openTopupModal = useAiStore((s) => s.openTopupModal);
@@ -366,7 +372,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
           const timeFormatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
           const phaseName = s.phase === 'pomodoro' ? 'TẬP TRUNG' : s.phase === 'short_break' ? 'NGHỈ NGẮN' : 'NGHỈ DÀI';
           const statusText = s.status === 'running' ? '● Đang chạy' : s.status === 'paused' ? '❚❚ Tạm dừng' : '○ Sẵn sàng';
-          const statusColor = s.status === 'running' ? '#34d399' : s.status === 'paused' ? '#fbbf24' : '#a1a1aa';
+          const statusColor = s.status === 'running' ? '#d4d4d8' : s.status === 'paused' ? '#fbbf24' : '#a1a1aa';
 
           rootDiv.innerHTML = `
             <div style="font-size:12px;font-weight:600;color:${statusColor};letter-spacing:0.05em;margin-bottom:4px;">${phaseName} · ${statusText}</div>
@@ -393,9 +399,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
   const statusDotClasses = useMemo(() => {
     switch (timerStatus) {
       case 'running':
-        return 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse';
+        return 'bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse';
       case 'paused':
-        return 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]';
+        return 'bg-zinc-700 shadow-[0_0_8px_rgba(251,191,36,0.8)]';
       case 'idle':
       default:
         return 'bg-zinc-500';
@@ -414,6 +420,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
     >
       {/* Dynamic Background & Ambient Particle Canvas (z-0 / z-[1]) */}
       <BackgroundCanvas />
+      <div data-testid="mobile-readable-scrim" aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]" style={{ backgroundColor: `rgba(9, 9, 11, ${mobileScrim})` }} />
       <AmbientOverlay />
 
       {/* Background Audio Host for mobile chime/ambient playback */}
@@ -464,7 +471,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
               data-testid="mobile-pip-btn"
               onClick={handleTriggerPip}
               className="w-7 h-7 rounded-full bg-zinc-900/80 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
-              title="Đồng hồ nổi (Picture-in-Picture)"
+              title="Đồng hồ nổi (picture-in-picture)"
               aria-label="Đồng hồ nổi"
             >
               <PictureInPicture2 className="w-3.5 h-3.5" />
@@ -477,8 +484,8 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
             data-testid="mobile-header-avatar-btn"
             onClick={() => setIsAuthSheetOpen(true)}
             className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/25 flex items-center justify-center overflow-hidden transition active:scale-95 cursor-pointer text-xs font-bold text-zinc-200 shadow-sm"
-            title="Tài khoản & Đồng bộ đám mây"
-            aria-label="Tài khoản và Đồng bộ đám mây"
+            title="Tài khoản & đồng bộ đám mây"
+            aria-label="Tài khoản và đồng bộ đám mây"
           >
             <UserAvatar
               user={user}
@@ -494,7 +501,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({ className = '' }
       {isInAppPipOpen && (
         <div
           data-testid="mobile-in-app-pip-pill"
-          className="fixed top-[calc(4rem+env(safe-area-inset-top,0px))] right-4 z-50 flex items-center gap-3 px-3 py-1.5 bg-zinc-900/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-xl shadow-black/50 text-white font-mono text-xs"
+          className="fixed top-[calc(4rem+env(safe-area-inset-top,0px))] right-4 z-50 flex items-center gap-3 px-3 py-1.5 bg-zinc-900/95 backdrop-blur-md border border-zinc-500/40 rounded-2xl shadow-xl shadow-black/50 text-white font-mono text-xs"
         >
           <div className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${statusDotClasses}`} />
@@ -657,7 +664,7 @@ const NavTabButton: React.FC<NavTabButtonProps> = ({
         {id === 'spaces' && isSoundPlaying && (
           <span
             data-testid="spaces-sound-playing-dot"
-            className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
+            className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse"
             title="Đang phát âm thanh"
           />
         )}
@@ -847,7 +854,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-white flex items-center gap-2">
-          <CheckSquare className="w-4 h-4 text-emerald-400" />
+          <CheckSquare className="w-4 h-4 text-zinc-300" />
           <span>Danh sách công việc</span>
         </h2>
         <div className="flex items-center gap-2">
@@ -903,7 +910,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
           value={inputTitle}
           onChange={(e) => setInputTitle(e.target.value)}
           placeholder="Việc cần làm..."
-          className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-emerald-400/60 transition"
+          className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-white/10 text-white placeholder-zinc-400 text-xs focus:outline-none focus:border-zinc-400/60 transition"
         />
         <button
           type="submit"
@@ -935,16 +942,16 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
 
       {/* Task Edit Modal */}
       {editingTaskId && (
-        <div className="p-3 rounded-xl bg-zinc-900 border border-emerald-500/30 space-y-2.5">
+        <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-500/30 space-y-2.5">
           <div className="text-xs font-semibold text-zinc-200">Sửa công việc</div>
           <input
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-white/10 text-xs text-white outline-none focus:border-emerald-400"
+            className="w-full px-3 py-1.5 rounded-lg bg-zinc-950 border border-white/10 text-xs text-white outline-none focus:border-zinc-400"
           />
           <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-400">Số Pomodoro dự kiến:</span>
+            <span className="text-zinc-400">Số pomodoro dự kiến:</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -953,7 +960,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
               >
                 -
               </button>
-              <span className="font-mono text-emerald-400 font-bold">{editEstimatedPomos} 🍅</span>
+              <span className="font-mono text-zinc-300 font-bold">{editEstimatedPomos} <UiSymbol name="🍅" /></span>
               <button
                 type="button"
                 onClick={() => setEditEstimatedPomos((p) => Math.min(20, p + 1))}
@@ -974,7 +981,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             <button
               type="button"
               onClick={handleSaveEdit}
-              className="px-3 py-1 rounded-lg text-xs bg-emerald-500 text-zinc-950 font-bold cursor-pointer"
+              className="px-3 py-1 rounded-lg text-xs bg-zinc-700 text-white font-bold cursor-pointer"
             >
               Lưu
             </button>
@@ -989,7 +996,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
             data-testid="mobile-tasks-empty-state"
             className="py-12 flex flex-col items-center justify-center text-center px-4"
           >
-            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 mb-2.5">
+            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-400 mb-2.5">
               <CheckSquare className="w-5 h-5 stroke-[1.5]" />
             </div>
             <p className="text-xs font-medium text-zinc-400">
@@ -1025,7 +1032,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                 }}
                 className={`rounded-xl bg-zinc-900/60 border transition ${
                   isLinked
-                    ? 'border-emerald-500/50 shadow-[0_0_12px_rgba(52,211,153,0.1)]'
+                    ? 'border-zinc-500/50 shadow-[0_0_12px_rgba(255,255,255,0.1)]'
                     : 'border-white/5 hover:border-white/10'
                 }`}
               >
@@ -1037,17 +1044,17 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                       onClick={() => toggleTaskComplete(task.id)}
                       className={`w-5 h-5 rounded-md border flex items-center justify-center transition active:scale-95 cursor-pointer shrink-0 ${
                         isCompleted
-                          ? 'bg-emerald-500 border-emerald-400 text-zinc-950 animate-jade-burst'
+                          ? 'bg-zinc-700 border-zinc-400 text-white animate-jade-burst'
                           : 'border-zinc-700 bg-zinc-800/80 text-transparent hover:border-zinc-500'
                       }`}
                       aria-label={isCompleted ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
                     >
-                      {isCompleted && <Check className="w-3.5 h-3.5 stroke-[3] animate-draw-tick" />}
+                      {isCompleted && <Check className="w-3.5 h-3.5 stroke-[1.5] animate-draw-tick" />}
                     </button>
                     <span
                       onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
                       className={`text-xs truncate cursor-pointer select-none flex-1 ${
-                        isCompleted ? 'line-through text-zinc-500' : 'text-zinc-100 font-medium'
+                        isCompleted ? 'line-through text-zinc-400' : 'text-zinc-100 font-medium'
                       }`}
                     >
                       {task.title}
@@ -1057,7 +1064,7 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                   <div className="flex items-center gap-1.5 shrink-0">
                     {/* Pomodoro Progress Badge */}
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-white/5">
-                      {task.completedPomodoros || 0}/{task.estimatedPomodoros || 1} 🍅
+                      {task.completedPomodoros || 0}/{task.estimatedPomodoros || 1} <UiSymbol name="🍅" />
                     </span>
 
                     {/* Target Link Button: Disabled if completed */}
@@ -1071,9 +1078,9 @@ const MobileTasksSubView: React.FC<{ onGoToFocus: () => void }> = ({ onGoToFocus
                       }}
                       className={`p-1.5 rounded-lg transition cursor-pointer flex items-center justify-center ${
                         isCompleted
-                          ? 'opacity-30 cursor-not-allowed bg-zinc-800/50 text-zinc-500'
+                          ? 'opacity-30 cursor-not-allowed bg-zinc-800/50 text-zinc-400'
                           : isLinked
-                          ? 'bg-emerald-500 text-zinc-950 font-bold'
+                          ? 'bg-zinc-700 text-white font-bold'
                           : 'bg-zinc-800 text-zinc-400 hover:text-white'
                       }`}
                       title={isCompleted ? 'Không thể gắn việc đã xong' : isLinked ? 'Đang gắn đồng hồ' : 'Gắn với đồng hồ Pomodoro'}
@@ -1237,9 +1244,9 @@ const MobileSpacesSubView: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             {spacesSubTab === 'bg' ? (
-              <Palette className="w-5 h-5 text-emerald-400" />
+              <Palette className="w-5 h-5 text-zinc-300" />
             ) : (
-              <Headphones className="w-5 h-5 text-emerald-400" />
+              <Headphones className="w-5 h-5 text-zinc-300" />
             )}
             <span>Không gian làm việc</span>
           </h2>
@@ -1270,7 +1277,7 @@ const MobileSpacesSubView: React.FC = () => {
             className={`px-2.5 py-1.5 rounded-xl border text-xs flex items-center gap-1 transition shrink-0 ${
               activeTracksCount > 0
                 ? 'bg-rose-500/15 border-rose-400/30 text-rose-300 hover:text-white active:scale-95 cursor-pointer'
-                : 'bg-zinc-900/50 border-white/10 text-zinc-500 cursor-not-allowed'
+                : 'bg-zinc-900/50 border-white/10 text-zinc-400 cursor-not-allowed'
             }`}
             title="Tắt toàn bộ âm thanh đang phát"
           >
@@ -1283,7 +1290,7 @@ const MobileSpacesSubView: React.FC = () => {
       {/* Sub-Tabs Switcher: [ Nền & Hiệu ứng ] | [ Mixer Âm thanh ] */}
       <div
         role="tablist"
-        aria-label="Phân mục Không gian"
+        aria-label="Phân mục không gian"
         className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-zinc-900/75 backdrop-blur-md border border-white/10 shadow-md"
       >
         <button
@@ -1294,12 +1301,12 @@ const MobileSpacesSubView: React.FC = () => {
           onClick={() => setSpacesSubTab('bg')}
           className={`h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer touch-manipulation ${
             spacesSubTab === 'bg'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm'
+              ? 'bg-zinc-700 text-white shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/5'
           }`}
         >
           <Layers className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Nền & Hiệu ứng</span>
+          <span>Nền & hiệu ứng</span>
         </button>
 
         <button
@@ -1310,19 +1317,19 @@ const MobileSpacesSubView: React.FC = () => {
           onClick={() => setSpacesSubTab('audio')}
           className={`h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer touch-manipulation ${
             spacesSubTab === 'audio'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm'
+              ? 'bg-zinc-700 text-white shadow-sm'
               : 'text-zinc-300 hover:text-white hover:bg-white/5'
           }`}
         >
           <Volume2 className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Mixer Âm thanh</span>
+          <span>Mixer âm thanh</span>
           {activeTracksCount > 0 && (
             <span
               data-testid="mobile-mixer-active-badge"
               className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold font-mono ${
                 spacesSubTab === 'audio'
-                  ? 'bg-zinc-950 text-emerald-400'
-                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+                  ? 'bg-zinc-950 text-zinc-300'
+                  : 'bg-zinc-700/20 text-zinc-300 border border-zinc-400/30'
               }`}
             >
               {activeTracksCount}
@@ -1344,16 +1351,16 @@ const MobileSpacesSubView: React.FC = () => {
               }}
               className={`w-full min-h-[48px] py-2.5 rounded-2xl border px-4 flex items-center justify-between text-xs font-bold transition active:scale-[0.98] cursor-pointer shadow-md backdrop-blur-md gap-2 ${
                 activePresetId === 'pure-black'
-                  ? 'bg-zinc-900 border-emerald-400 text-emerald-300 ring-2 ring-emerald-400/20 shadow-emerald-500/10'
+                  ? 'bg-zinc-900 border-zinc-400 text-zinc-300 ring-2 ring-zinc-400/20 shadow-zinc-500/10'
                   : 'bg-zinc-950/80 border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <span className="w-3.5 h-3.5 rounded-full bg-[#09090b] border border-white/20 shrink-0 shadow-sm" />
-                <span>Tắt nền (Pure Zen Black)</span>
+                <span>Tắt nền (màu đen sâu)</span>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
-                OLED #09090b
+              <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-white/5 text-zinc-300 border border-white/[0.06]">
+                Zen
               </span>
             </button>
           </div>
@@ -1392,7 +1399,7 @@ const MobileSpacesSubView: React.FC = () => {
                   onClick={() => selectPreset(preset.id)}
                   className={`relative rounded-2xl overflow-hidden border p-3 flex flex-col items-start text-left transition active:scale-95 cursor-pointer backdrop-blur-md ${
                     isActive
-                      ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/35 shadow-lg shadow-emerald-500/10'
+                      ? 'border-zinc-400 ring-2 ring-zinc-400/20 bg-zinc-950/35 shadow-lg shadow-zinc-500/10'
                       : 'border-white/10 bg-zinc-900/55 hover:border-white/20'
                   }`}
                 >
@@ -1412,7 +1419,7 @@ const MobileSpacesSubView: React.FC = () => {
                       />
                     )}
                     {isActive && (
-                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold">
+                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-zinc-700 text-white text-[10px] font-bold">
                         Đang chọn
                       </div>
                     )}
@@ -1427,8 +1434,8 @@ const MobileSpacesSubView: React.FC = () => {
           {/* Bundled Offline Anime & Ghibli Collection */}
           <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-zinc-100">Tranh nền Anime & Studio Ghibli</h3>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <h3 className="text-sm font-semibold text-zinc-100">Tranh nền anime & studio Ghibli</h3>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-700/15 text-zinc-300 border border-zinc-500/30">
                 Dùng offline
               </span>
             </div>
@@ -1444,7 +1451,7 @@ const MobileSpacesSubView: React.FC = () => {
                     onClick={() => setCustomBackground(localUrl, 'image')}
                     className={`relative rounded-xl overflow-hidden border p-2 flex flex-col text-left transition active:scale-95 cursor-pointer ${
                       isActive
-                        ? 'border-emerald-400 ring-2 ring-emerald-400/20 bg-emerald-950/30'
+                        ? 'border-zinc-400 ring-2 ring-zinc-400/20 bg-zinc-950/30'
                         : 'border-white/10 bg-zinc-950/40 hover:border-white/20'
                     }`}
                   >
@@ -1456,7 +1463,7 @@ const MobileSpacesSubView: React.FC = () => {
                         loading="lazy"
                       />
                       {isActive && (
-                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-zinc-950 text-[9px] font-bold">
+                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-zinc-700 text-white text-[9px] font-bold">
                           Đang chọn
                         </div>
                       )}
@@ -1472,7 +1479,7 @@ const MobileSpacesSubView: React.FC = () => {
           {/* Ambient Visual Effects */}
           <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3">
             <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-zinc-300" />
               <span>Hiệu ứng môi trường</span>
             </h3>
             <div className="grid grid-cols-3 gap-2">
@@ -1489,7 +1496,7 @@ const MobileSpacesSubView: React.FC = () => {
                   onClick={() => setAmbientEffect(item.id as any)}
                   className={`py-2 px-3 rounded-xl text-xs font-medium transition cursor-pointer ${
                     ambientEffect === item.id
-                      ? 'bg-emerald-500 text-zinc-950 font-bold'
+                      ? 'bg-zinc-700 text-white font-bold'
                       : 'bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700'
                   }`}
                 >
@@ -1502,13 +1509,13 @@ const MobileSpacesSubView: React.FC = () => {
           {/* Fine-Tuning Sliders */}
           <div className="p-4 rounded-2xl bg-zinc-900/55 backdrop-blur-md border border-white/10 space-y-3.5">
             <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-emerald-400" />
+              <Sliders className="w-4 h-4 text-zinc-300" />
               <span>Tinh chỉnh ánh sáng & độ mờ</span>
             </h3>
             <label className="block space-y-1">
               <div className="flex justify-between text-xs text-zinc-300">
                 <span>Làm mờ nền</span>
-                <span className="font-mono text-emerald-400">{blurLevel}px</span>
+                <span className="font-mono text-zinc-300">{blurLevel}px</span>
               </div>
               <input
                 type="range"
@@ -1516,13 +1523,13 @@ const MobileSpacesSubView: React.FC = () => {
                 max={20}
                 value={blurLevel}
                 onChange={(e) => setBlur(Number(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer"
+                className="w-full accent-zinc-400 cursor-pointer"
               />
             </label>
             <label className="block space-y-1">
               <div className="flex justify-between text-xs text-zinc-300">
                 <span>Độ sáng hình nền</span>
-                <span className="font-mono text-emerald-400">{brightnessLevel}%</span>
+                <span className="font-mono text-zinc-300">{brightnessLevel}%</span>
               </div>
               <input
                 type="range"
@@ -1530,13 +1537,13 @@ const MobileSpacesSubView: React.FC = () => {
                 max={150}
                 value={brightnessLevel}
                 onChange={(e) => setBrightness(Number(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer"
+                className="w-full accent-zinc-400 cursor-pointer"
               />
             </label>
             <label className="block space-y-1">
               <div className="flex justify-between text-xs text-zinc-300">
                 <span>Lớp phủ tối</span>
-                <span className="font-mono text-emerald-400">{overlayOpacity}%</span>
+                <span className="font-mono text-zinc-300">{overlayOpacity}%</span>
               </div>
               <input
                 type="range"
@@ -1544,7 +1551,7 @@ const MobileSpacesSubView: React.FC = () => {
                 max={80}
                 value={overlayOpacity}
                 onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer"
+                className="w-full accent-zinc-400 cursor-pointer"
               />
             </label>
           </div>
@@ -1555,8 +1562,8 @@ const MobileSpacesSubView: React.FC = () => {
           <div className="p-3.5 rounded-2xl bg-zinc-900/65 backdrop-blur-md border border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
-                <Volume2 className="w-4 h-4 text-emerald-400" />
-                <span>Âm lượng tổng (Master)</span>
+                <Volume2 className="w-4 h-4 text-zinc-300" />
+                <span>Âm lượng tổng (master)</span>
               </span>
               <div className="flex items-center gap-2">
                 {activeTracksCount > 0 && (
@@ -1569,7 +1576,7 @@ const MobileSpacesSubView: React.FC = () => {
                     Tắt tất cả ({activeTracksCount})
                   </button>
                 )}
-                <span className="font-mono text-emerald-400">
+                <span className="font-mono text-zinc-300">
                   {isMasterMuted ? 'Tắt' : `${Math.round(masterVolume * 100)}%`}
                 </span>
               </div>
@@ -1582,7 +1589,7 @@ const MobileSpacesSubView: React.FC = () => {
               value={Math.round(masterVolume * 100)}
               onChange={(e) => setMasterVolume(Number(e.target.value) / 100)}
               aria-label="Âm lượng tổng"
-              className="w-full accent-emerald-400 cursor-pointer"
+              className="w-full accent-zinc-400 cursor-pointer"
             />
           </div>
 
@@ -1602,7 +1609,7 @@ const MobileSpacesSubView: React.FC = () => {
                 onClick={() => setAudioCategory(tab.id)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer shrink-0 ${
                   audioCategory === tab.id
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-semibold'
+                    ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-400/40 font-semibold'
                     : 'bg-zinc-900/60 text-zinc-400 border border-white/10 hover:text-zinc-200'
                 }`}
               >
@@ -1619,7 +1626,7 @@ const MobileSpacesSubView: React.FC = () => {
                 data-testid={`mobile-mixer-track-${track.id}`}
                 className={`p-3 rounded-2xl border backdrop-blur-md transition-all ${
                   track.isPlaying
-                    ? 'bg-emerald-950/35 border-emerald-400/45 shadow-md shadow-emerald-500/10'
+                    ? 'bg-zinc-950/35 border-zinc-400/45 shadow-md shadow-zinc-500/10'
                     : 'bg-zinc-900/60 border-white/10'
                 }`}
               >
@@ -1634,7 +1641,7 @@ const MobileSpacesSubView: React.FC = () => {
                     <span
                       className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                         track.isPlaying
-                          ? 'bg-emerald-500 text-zinc-950'
+                          ? 'bg-zinc-700 text-white'
                           : 'bg-white/5 text-zinc-300'
                       }`}
                     >
@@ -1648,7 +1655,7 @@ const MobileSpacesSubView: React.FC = () => {
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-semibold text-white truncate">{track.name}</span>
                         {track.badge && (
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-700/20 text-zinc-300 border border-zinc-400/30 shrink-0">
                             {track.badge}
                           </span>
                         )}
@@ -1679,7 +1686,7 @@ const MobileSpacesSubView: React.FC = () => {
                     </button>
                     <span
                       className={`text-[11px] font-mono shrink-0 w-9 text-right transition-colors ${
-                        track.isPlaying ? 'text-emerald-300 font-bold' : 'text-zinc-600'
+                        track.isPlaying ? 'text-zinc-300 font-bold' : 'text-zinc-400'
                       }`}
                     >
                       {Math.round(track.volume * 100)}%
@@ -1698,7 +1705,7 @@ const MobileSpacesSubView: React.FC = () => {
                   aria-label={`Âm lượng ${track.name}`}
                   className={`w-full h-[3px] rounded-full transition-opacity ${
                     track.isPlaying
-                      ? 'accent-emerald-400 opacity-100 cursor-pointer'
+                      ? 'accent-zinc-400 opacity-100 cursor-pointer'
                       : 'accent-zinc-700 opacity-30 cursor-not-allowed'
                   }`}
                 />
@@ -1789,7 +1796,7 @@ const MobileAiSubView: React.FC = () => {
       {/* Header bar (Clean, zero duplicate credits, action buttons) */}
       <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between bg-zinc-900/60 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
-          <Bot className="w-4 h-4 text-emerald-400" />
+          <Bot className="w-4 h-4 text-zinc-300" />
           <span className="font-bold text-white text-xs sm:text-sm">Trợ lý học tập AI</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -1829,7 +1836,7 @@ const MobileAiSubView: React.FC = () => {
             type="button"
             data-testid="mobile-ai-clear-history-btn"
             onClick={handleClearHistory}
-            disabled={messages.length === 0}
+            disabled={messages.length <= 1 && sessions.length === 0}
             className="p-1 rounded-lg bg-zinc-800/80 hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
             title="Xóa lịch sử trò chuyện"
             aria-label="Xóa lịch sử trò chuyện"
@@ -1847,7 +1854,7 @@ const MobileAiSubView: React.FC = () => {
         >
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
             <div className="flex items-center gap-2 text-sm font-bold text-white">
-              <History className="w-4 h-4 text-emerald-400" />
+              <History className="w-4 h-4 text-zinc-300" />
               <span>Lịch sử trò chuyện</span>
             </div>
             <button
@@ -1862,7 +1869,7 @@ const MobileAiSubView: React.FC = () => {
 
           <div className="flex-1 overflow-y-auto py-3 space-y-2">
             {(!sessions || sessions.length === 0) ? (
-              <div className="text-xs text-zinc-500 text-center py-8">
+              <div className="text-xs text-zinc-400 text-center py-8">
                 Chưa có phiên trò chuyện nào được lưu.
               </div>
             ) : (
@@ -1880,7 +1887,7 @@ const MobileAiSubView: React.FC = () => {
                     <div className="text-xs font-semibold text-zinc-200 truncate">
                       {sess.title || 'Cuộc trò chuyện'}
                     </div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">
+                    <div className="text-[10px] text-zinc-400 mt-0.5">
                       {new Date(sess.createdAt).toLocaleDateString('vi-VN')} {new Date(sess.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -1890,7 +1897,7 @@ const MobileAiSubView: React.FC = () => {
                       e.stopPropagation();
                       deleteSession(sess.id);
                     }}
-                    className="p-1.5 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
+                    className="p-1.5 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
                     title="Xóa phiên này"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -1962,8 +1969,8 @@ const MobileAiSubView: React.FC = () => {
                       <FormattedAiMessage content={m.content} />
                     </React.Suspense>
                     {/* Minh bạch AI theo Luật 134/2025/QH15 */}
-                    <div className="pt-1.5 border-t border-white/[0.06] text-[10px] text-zinc-500 flex items-center gap-1 font-mono">
-                      <Sparkles className="w-2.5 h-2.5 text-emerald-400 shrink-0 stroke-[1.5]" />
+                    <div className="pt-1.5 border-t border-white/[0.06] text-[10px] text-zinc-400 flex flex-wrap items-center gap-1 font-sans">
+                      <Sparkles className="w-2.5 h-2.5 text-zinc-300 shrink-0 stroke-[1.5]" />
                       <span>Nội dung do AI tạo (Luật 134/2025/QH15)</span>
                     </div>
                   </>
@@ -2009,7 +2016,7 @@ const MobileAiSubView: React.FC = () => {
 
         {isLoading && !isStreaming && (
           <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse" />
             <span>AI đang suy nghĩ...</span>
           </div>
         )}
@@ -2028,7 +2035,7 @@ const MobileAiSubView: React.FC = () => {
       </div>
 
       {/* Input Bar: Textarea tự co giãn nhiều dòng + Nút gửi Monochrome 90-10 */}
-      <div className="p-3 border-t border-white/[0.06] bg-zinc-950/90 backdrop-blur-xl pb-4 shrink-0">
+      <div className="p-3 border-t border-white/[0.06] bg-zinc-950/90 backdrop-blur-xl pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -2044,7 +2051,8 @@ const MobileAiSubView: React.FC = () => {
             onKeyDown={handleKeyDown}
             enterKeyHint="send"
             placeholder="Nhắn cho trợ lý..."
-            className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/25 transition resize-none max-h-32 overflow-y-auto leading-relaxed"
+            aria-label="Câu hỏi cho trợ lý AI"
+            className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-white placeholder-zinc-400 text-xs focus:outline-none focus:border-white/25 transition resize-none max-h-32 overflow-y-auto leading-relaxed"
           />
           <button
             type="submit"

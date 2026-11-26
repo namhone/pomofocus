@@ -300,7 +300,7 @@ export class SyncQueueService {
             id: recordId,
             user_id: userId,
             name: payload.name || 'Untitled Project',
-            color_hex: payload.colorHex || '#10b981',
+            color_hex: payload.colorHex || '#a1a1aa',
             created_at: payload.createdAt
               ? new Date(payload.createdAt).toISOString()
               : new Date().toISOString(),

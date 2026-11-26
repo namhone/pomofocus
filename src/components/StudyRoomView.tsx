@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -174,7 +175,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
       }}
       className={`relative aspect-video rounded-2xl bg-zinc-900/90 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
         isPeerSpeaking
-          ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
+          ? 'border-2 border-zinc-400 ring-2 ring-zinc-400 shadow-[0_0_20px_rgba(255,255,255,0.45)]'
           : 'border border-zinc-800 ring-1 ring-white/5'
       } ${canAdmin ? 'cursor-pointer hover:border-zinc-600 transition' : ''}`}
       title={canAdmin ? 'Bấm để quản trị thành viên (Tặng PRO, Tắt mic, Mời ra)' : undefined}
@@ -196,7 +197,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
               {peer.name || 'Bạn học'}
             </div>
             <div className="text-[10px] text-zinc-400 flex items-center justify-center gap-1 mt-0.5">
-              <VideoOff size={11} className="text-zinc-600" />
+              <VideoOff size={11} className="text-zinc-400" />
               <span>Camera tắt</span>
             </div>
           </div>
@@ -213,7 +214,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
           <span className="font-semibold text-white truncate">{peer.name}</span>
           {isLadyBoss(peer.userId) || isLadyBoss(peer.name) ? (
             <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-200 font-bold border border-zinc-700 flex items-center gap-0.5 shadow-sm">
-              👑 Nóc Nhà PRO
+              <UiSymbol name="👑" /> Nóc nhà PRO
             </span>
           ) : (
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-medium border border-zinc-700">
@@ -222,7 +223,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
           )}
           {peer.deviceLabel && (
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800/90 text-zinc-300 font-medium border border-zinc-700/60">
-              {peer.deviceType === 'mobile' || peer.deviceLabel.includes('Điện thoại') ? '📱' : '💻'} {peer.deviceLabel}
+              <UiSymbol name={peer.deviceType === 'mobile' || peer.deviceLabel.includes('Điện thoại') ? '📱' : '💻'} /> {peer.deviceLabel}
             </span>
           )}
         </div>
@@ -231,7 +232,7 @@ const RemotePeerTile: React.FC<RemotePeerTileProps> = React.memo(({
             className={`p-1 rounded transition-colors ${
               peer.isMicOn !== false
                 ? isPeerSpeaking
-                  ? 'bg-emerald-500 text-neutral-950 animate-pulse'
+                  ? 'bg-zinc-700 text-white animate-pulse'
                   : 'bg-zinc-800 text-white'
                 : 'bg-rose-500/80 text-white'
             }`}
@@ -2806,8 +2807,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
   if (isResolvingRoom) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
-        <div className="w-10 h-10 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin mb-4" />
-        <div className="text-xs font-semibold text-neutral-300">Đang đồng bộ dữ liệu phòng học từ Cloud...</div>
+        <div className="w-10 h-10 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin mb-4" />
+        <div className="text-xs font-semibold text-neutral-300">Đang đồng bộ dữ liệu phòng học từ cloud...</div>
       </div>
     );
   }
@@ -2817,14 +2818,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       return (
         <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0e121a] to-neutral-950 text-white select-none">
           <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-neutral-900/90 p-8 shadow-2xl backdrop-blur-2xl text-center">
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-700/15 border border-zinc-500/30 flex items-center justify-center text-zinc-300 mx-auto mb-4">
               <Lock size={32} />
             </div>
             <h2 className="text-xl font-extrabold text-white mb-2">
-              Phòng Học Có Mật Khẩu (PIN)
+              Phòng học có mật khẩu (pin)
             </h2>
             <p className="text-xs text-neutral-300 leading-relaxed mb-5">
-              Phòng <strong>{accessResult.room?.title || `#${roomId}`}</strong> yêu cầu mật khẩu PIN do chủ phòng cấp để tham gia.
+              Phòng <strong>{accessResult.room?.title || `#${roomId}`}</strong> yêu cầu mật khẩu pin do chủ phòng cấp để tham gia.
             </p>
 
             {passcodeError && (
@@ -2856,16 +2857,16 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   setPasscodeInputValue(e.target.value);
                   setPasscodeError(null);
                 }}
-                placeholder="Nhập mã PIN..."
-                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm font-mono text-center tracking-widest text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400"
+                placeholder="Nhập mã pin..."
+                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm font-mono text-center tracking-widest text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
               />
 
               <button
                 type="submit"
                 data-testid="btn-submit-passcode-view"
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer"
               >
-                Xác Nhận PIN &amp; Vào Phòng
+                Xác nhận pin &amp; vào phòng
               </button>
 
               <button
@@ -2873,7 +2874,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={() => router.navigate('/rooms')}
                 className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
               >
-                Về Sảnh Phòng Học
+                Về sảnh phòng học
               </button>
             </form>
           </div>
@@ -2889,7 +2890,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           </div>
 
           <div className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-mono text-neutral-400 mb-3">
-            MÃ LỖI: {accessResult.code}
+            Mã lỗi: {accessResult.code}
           </div>
 
           <h2 className="text-xl font-extrabold text-white mb-2">
@@ -2911,17 +2912,17 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               <button
                 type="button"
                 onClick={() => router.navigate('/login')}
-                className="w-full py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-full bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
               >
-                <span>Đăng Nhập Tài Khoản</span>
+                <span>Đăng nhập tài khoản</span>
               </button>
             ) : accessResult.code === 'INSUFFICIENT_PERMISSIONS' ? (
               <button
                 type="button"
                 onClick={() => router.navigate('/billing')}
-                className="w-full py-2.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-neutral-950 font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-full bg-zinc-700/20 border border-zinc-500/30 text-zinc-300 hover:bg-zinc-700 hover:text-white font-bold text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
               >
-                <span>Nâng Cấp Gói PRO (Mở Khóa Toàn Bộ)</span>
+                <span>Nâng cấp gói PRO (mở khóa toàn bộ)</span>
               </button>
             ) : null}
 
@@ -2929,10 +2930,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               type="button"
               data-testid="room-not-found-create-btn"
               onClick={() => router.navigate('/rooms')}
-              className="w-full py-2.5 px-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-4 rounded-full bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-lg shadow-zinc-500/20 active:scale-95 flex items-center justify-center gap-1.5"
             >
               <Plus size={15} />
-              <span>➕ Tạo Phòng Mới</span>
+              <span><UiSymbol name="➕" /> Tạo phòng mới</span>
             </button>
 
             <button
@@ -2942,7 +2943,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               className="w-full py-2.5 px-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-xs transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 backdrop-blur-sm"
             >
               <LogOut size={15} />
-              <span>🚪 Về Không Gian Cá Nhân</span>
+              <span><UiSymbol name="🚪" /> Về không gian cá nhân</span>
             </button>
           </div>
         </div>
@@ -2973,7 +2974,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               {/* Badge vai trò */}
               {isLadyBoss(user?.email) ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold shadow-sm">
-                  👑 Nóc nhà Pro
+                  <UiSymbol name="👑" /> Nóc nhà Pro
                 </span>
               ) : userRole === 'host' ? (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-[10px] font-bold">
@@ -3002,7 +3003,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               >
                 <Radio size={12} className="animate-pulse" />
                 <span>#{roomId}</span>
-                {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                {copiedCode ? <Check size={12} className="text-zinc-300" /> : <Copy size={12} />}
               </button>
             </div>
           </div>
@@ -3035,7 +3036,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   testId="prejoin-preview-avatar"
                 />
                 <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
-                  <VideoOff size={14} className="text-zinc-500" />
+                  <VideoOff size={14} className="text-zinc-400" />
                   <span>Camera đang tắt</span>
                 </div>
               </div>
@@ -3093,7 +3094,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
           {/* Mic level meter */}
           <div className="mb-4 flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5">
-            <Mic size={15} className={micEnabled ? 'text-zinc-200' : 'text-neutral-500'} />
+            <Mic size={15} className={micEnabled ? 'text-zinc-200' : 'text-zinc-400'} />
             <div className="flex-1">
               <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
                 <div
@@ -3110,7 +3111,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           {/* Name Input */}
           <div className="mb-5">
             <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-              Tên hiển thị của bạn {!user && <span className="text-amber-400 font-normal">(Chưa đăng nhập)</span>}
+              Tên hiển thị của bạn {!user && <span className="text-zinc-300 font-normal">(Chưa đăng nhập)</span>}
             </label>
             <input
               type="text"
@@ -3139,8 +3140,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-white/10 p-5 sm:p-6 text-white shadow-2xl max-h-[88vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <Sliders size={18} className="text-emerald-400" />
-                  <h3 className="font-bold text-sm">Cài Đặt Camera, Micro & Chất Lượng</h3>
+                  <Sliders size={18} className="text-zinc-300" />
+                  <h3 className="font-bold text-sm">Cài đặt camera, micro & chất lượng</h3>
                 </div>
                 <button
                   type="button"
@@ -3157,7 +3158,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   <select
                     value={selectedAudioDevice}
                     onChange={(e) => setSelectedAudioDevice(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-zinc-400"
                   >
                     {audioDevices.length > 0 ? (
                       audioDevices.map((d) => (
@@ -3176,7 +3177,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   <select
                     value={selectedVideoDevice}
                     onChange={(e) => setSelectedVideoDevice(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-zinc-400"
                   >
                     {videoDevices.length > 0 ? (
                       videoDevices.map((d) => (
@@ -3193,8 +3194,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 {/* Chất lượng Video & Khóa Bitrate WebRTC */}
                 <div>
                   <label className="block text-neutral-400 mb-1.5 flex items-center justify-between">
-                    <span>Độ Phân Giải & Khóa Bitrate WebRTC</span>
-                    <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                    <span>Chất lượng video</span>
+                    <span className="text-[10px] text-zinc-300 font-mono font-bold">
                       {VIDEO_QUALITY_PROFILES[videoQuality].bitrateKbps} kbps
                     </span>
                   </label>
@@ -3214,13 +3215,13 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           }}
                           className={`p-2.5 rounded-xl border text-left transition flex flex-col cursor-pointer ${
                             isSelected
-                              ? 'bg-emerald-500/15 border-emerald-400/80 text-white shadow-sm'
+                              ? 'bg-zinc-700/15 border-zinc-400/80 text-white shadow-sm'
                               : 'bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-xs">{prof.label}</span>
-                            {isSelected && <Check size={13} className="text-emerald-400" />}
+                            {isSelected && <Check size={13} className="text-zinc-300" />}
                           </div>
                           <span className="text-[10px] text-neutral-400 mt-0.5">{prof.sublabel}</span>
                         </button>
@@ -3231,7 +3232,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
                 {/* Tùy chọn lọc âm thanh học nhóm */}
                 <div className="pt-2 border-t border-white/10 space-y-2">
-                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối Ưu Âm Thanh Học Nhóm</span>
+                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối ưu âm thanh học nhóm</span>
                   <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
                     <div>
                       <div className="font-medium text-white">Khử tiếng ồn xung quanh</div>
@@ -3241,19 +3242,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       type="checkbox"
                       checked={noiseSuppression}
                       onChange={(e) => setNoiseSuppression(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                      className="w-4 h-4 rounded text-zinc-300 accent-zinc-500 cursor-pointer"
                     />
                   </label>
                   <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
                     <div>
-                      <div className="font-medium text-white">Chống tiếng vang (Echo Cancellation)</div>
+                      <div className="font-medium text-white">Chống tiếng vang (echo cancellation)</div>
                       <div className="text-[10px] text-neutral-400">Tránh bị lặp tiếng khi bạn học mở loa ngoài</div>
                     </div>
                     <input
                       type="checkbox"
                       checked={echoCancellation}
                       onChange={(e) => setEchoCancellation(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                      className="w-4 h-4 rounded text-zinc-300 accent-zinc-500 cursor-pointer"
                     />
                   </label>
                 </div>
@@ -3262,9 +3263,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsDeviceModalOpen(false)}
-                className="mt-6 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                className="mt-6 w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer"
               >
-                Lưu Cài Đặt
+                Lưu cài đặt
               </button>
             </div>
           </div>
@@ -3280,7 +3281,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
     <div className="h-screen w-screen bg-[#0a0d13] text-white flex flex-col select-none overflow-hidden relative">
       {/* Toast thông báo tính năng Voice/Video P2P Beta */}
       {betaNotice && (
-        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-amber-500/95 text-neutral-950 font-semibold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-fade-in border border-amber-400 max-w-sm text-center">
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-zinc-700/95 text-neutral-950 font-semibold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-fade-in border border-zinc-400 max-w-sm text-center">
           <Sparkles size={15} className="shrink-0 text-neutral-900" />
           <span>{betaNotice}</span>
         </div>
@@ -3298,7 +3299,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               animation: `floatUp ${r.duration || 2.2}s cubic-bezier(0.2, 0.8, 0.2, 1) ${r.delay || 0}s forwards`
             }}
           >
-            {r.emoji}
+            <UiSymbol name={r.emoji} />
           </div>
         ))}
       </div>
@@ -3313,32 +3314,32 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
       {/* Heart Rain Notification Banner */}
       {heartRainSender && (
-        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500/95 via-rose-500/95 to-purple-500/95 text-white font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2 border border-pink-300/40 animate-bounce backdrop-blur-md">
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-gradient-to-r from-zinc-700/95 via-rose-500/95 to-zinc-700/95 text-white font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2 border border-zinc-300/40 animate-bounce backdrop-blur-md">
           <Heart size={16} className="text-white fill-white animate-pulse" />
           <span>{heartRainSender} vừa thả cơn mưa tim ngập tràn yêu thương!</span>
-          <Sparkles size={16} className="text-yellow-200" />
+          <Sparkles size={16} className="text-zinc-200" />
         </div>
       )}
 
       {/* Lời chào ngọt ngào độc quyền khi mở app/phòng cho Nóc Nhà */}
       {showLadyBossToast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] sm:w-auto p-4 rounded-2xl bg-gradient-to-r from-pink-900/95 via-purple-900/95 to-rose-900/95 text-white shadow-2xl border border-pink-400/40 backdrop-blur-xl flex items-start gap-3">
-          <div className="w-9 h-9 rounded-full bg-pink-500/30 border border-pink-300/50 flex items-center justify-center text-lg shrink-0">
-            👑
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] sm:w-auto p-4 rounded-2xl bg-gradient-to-r from-zinc-900/95 via-zinc-900/95 to-rose-900/95 text-white shadow-2xl border border-zinc-400/40 backdrop-blur-xl flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-zinc-700/30 border border-zinc-300/50 flex items-center justify-center text-lg shrink-0">
+            <UiSymbol name="👑" />
           </div>
           <div className="flex-1">
-            <h5 className="font-bold text-pink-200 text-xs sm:text-sm flex items-center gap-1.5">
-              <span>Chào mừng Nóc Nhà của Sếp vào bàn học!</span>
-              <Sparkles size={13} className="text-yellow-300" />
+            <h5 className="font-bold text-zinc-200 text-xs sm:text-sm flex items-center gap-1.5">
+              <span>Chào mừng nóc nhà của sếp vào bàn học!</span>
+              <Sparkles size={13} className="text-zinc-300" />
             </h5>
-            <p className="text-[11px] sm:text-xs text-pink-100/90 leading-relaxed mt-0.5">
-              Chúc Chị một ngày học tập và làm việc thật rạng rỡ, ngập tràn niềm vui và năng lượng nha! 🌸💖✨
+            <p className="text-[11px] sm:text-xs text-zinc-100/90 leading-relaxed mt-0.5">
+              Chúc chị một ngày học tập và làm việc thật rạng rỡ, ngập tràn niềm vui và năng lượng nha! <UiSymbol name="🌸" /><UiSymbol name="💖" /><UiSymbol name="✨" />
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowLadyBossToast(false)}
-            className="p-1 rounded-lg text-pink-300 hover:text-white hover:bg-white/10 shrink-0 cursor-pointer"
+            className="p-1 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 shrink-0 cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -3350,22 +3351,22 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
         <aside
           aria-label="Cảnh báo hết hạn phòng"
           data-testid="free-room-warning-banner"
-          className="sticky top-0 z-50 w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 text-white shadow-lg border-b border-orange-400/30 px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm"
+          className="sticky top-0 z-50 w-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 text-white shadow-lg border-b border-zinc-400/30 px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <AlertTriangle size={18} className="text-yellow-200 shrink-0" />
+            <AlertTriangle size={18} className="text-zinc-200 shrink-0" />
             <span className="font-semibold truncate">
-              Phòng học Free sẽ đóng sau <span className="font-mono font-bold bg-black/30 px-2 py-0.5 rounded text-yellow-200">[{formatCountdown(remainingFreeSeconds)}]</span>. Nâng cấp PRO để học không giới hạn!
+              Phòng học Free sẽ đóng sau <span className="font-mono font-bold bg-black/30 px-2 py-0.5 rounded text-zinc-200">[{formatCountdown(remainingFreeSeconds)}]</span>. Nâng cấp PRO để học không giới hạn!
             </span>
           </div>
           <button
             type="button"
             data-testid="btn-upgrade-pro-banner"
             onClick={() => router.navigate('/billing')}
-            className="shrink-0 px-3.5 py-1.5 rounded-lg bg-white text-orange-700 hover:bg-neutral-100 font-bold text-xs shadow-md transition cursor-pointer active:scale-95 flex items-center gap-1.5"
+            className="shrink-0 px-3.5 py-1.5 rounded-lg bg-white text-zinc-700 hover:bg-neutral-100 font-bold text-xs shadow-md transition cursor-pointer active:scale-95 flex items-center gap-1.5"
           >
-            <Sparkles size={14} className="text-amber-500" />
-            <span>Nâng Cấp PRO</span>
+            <Sparkles size={14} className="text-zinc-300" />
+            <span>Nâng cấp PRO</span>
           </button>
         </aside>
       )}
@@ -3376,7 +3377,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           data-testid="peer-join-toast"
           className="fixed top-16 right-4 z-50 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-zinc-800 shadow-2xl text-xs text-zinc-200 flex items-center gap-2.5 animate-in slide-in-from-top duration-300 backdrop-blur-md pointer-events-none"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse shrink-0" />
           <span className="font-medium">{peerJoinToast}</span>
         </div>
       )}
@@ -3385,7 +3386,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       {!(activeTab === 'whiteboard' && isWhiteboardFullscreen) && (
         <header className="border-b border-white/10 bg-neutral-900/80 backdrop-blur-md shrink-0 z-20">
           {/* Top Bar tối đa 3 cụm 1 dòng whitespace-nowrap */}
-          <div className="h-13 sm:h-14 px-3 sm:px-6 flex items-center justify-between gap-2 whitespace-nowrap">
+          <div className="meet-header-flow min-h-14 px-3 py-2 sm:px-6 flex flex-wrap items-center justify-between gap-2">
             {/* Cụm 1 (Trái): [ ← Tên phòng ] */}
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <button
@@ -3410,25 +3411,25 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
               {/* Mobile Info Cluster (matches header .md:hidden for Playwright tests) */}
               <div className="flex md:hidden items-center gap-1.5 shrink-0">
-                <Radio size={13} className="text-emerald-400 animate-pulse shrink-0" />
+                <Radio size={13} className="text-zinc-300 animate-pulse shrink-0" />
                 <button
                   type="button"
                   onClick={handleCopyRoomId}
-                  className="font-bold text-xs truncate max-w-[95px] text-white hover:text-emerald-300 flex items-center gap-1"
+                  className="font-bold text-xs truncate max-w-[95px] text-white hover:text-zinc-300 flex items-center gap-1"
                   title="Bấm để sao chép mã"
                 >
                   <span>#{roomId}</span>
-                  {copiedCode && <Check size={11} className="text-emerald-400 shrink-0" />}
+                  {copiedCode && <Check size={11} className="text-zinc-300 shrink-0" />}
                 </button>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 shrink-0 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>LIVE</span>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-zinc-700/20 text-zinc-300 shrink-0 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+                  <span>Trực tiếp</span>
                 </span>
               </div>
 
               {/* Desktop Info Cluster */}
               <div className="hidden md:flex items-center gap-2">
-                <Radio size={16} className="text-emerald-400 animate-pulse shrink-0" />
+                <Radio size={16} className="text-zinc-300 animate-pulse shrink-0" />
                 <span className="text-sm font-bold truncate max-w-[160px] sm:max-w-[240px]" title={room?.title || `#${roomId}`}>
                   {room?.title || `#${roomId}`}
                 </span>
@@ -3446,30 +3447,30 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     <Pencil size={12} />
                   </button>
                 )}
-                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] text-amber-300 font-bold uppercase tracking-wider shrink-0">
-                  BETA
+                <span className="px-1.5 py-0.5 rounded bg-zinc-700/20 border border-zinc-500/30 text-[9px] text-zinc-300 font-bold normal-case tracking-wider shrink-0">
+                  Beta
                 </span>
 
                 {/* Badge Vai trò */}
                 {isMasterAdmin(user?.email) ? (
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[10px] text-amber-300 font-extrabold flex items-center gap-1 shadow-sm">
-                    👑 MASTER ADMIN
+                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-700/20 border border-zinc-500/40 text-[10px] text-zinc-300 font-extrabold flex items-center gap-1 shadow-sm">
+                    <UiSymbol name="👑" /> Quản trị viên
                   </span>
                 ) : isLadyBoss(user?.email) ? (
                   <span className="px-2.5 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-200 font-bold flex items-center gap-1 shadow-sm">
-                    👑 NÓC NHÀ PRO
+                    <UiSymbol name="👑" /> Thành viên đặc biệt
                   </span>
                 ) : userRole === 'host' ? (
                   <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-200 font-bold">
-                    CHỦ PHÒNG
+                    Chủ phòng
                   </span>
                 ) : userRole === 'member' ? (
                   <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-300 font-bold">
-                    THÀNH VIÊN PRO
+                    Thành viên Pro
                   </span>
                 ) : (
                   <span className="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] text-zinc-400 font-bold">
-                    KHÁCH MỜI FREE
+                    Khách mời
                   </span>
                 )}
 
@@ -3480,7 +3481,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer border border-white/5"
                   title="Sao chép mã phòng"
                 >
-                  {copiedCode ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  {copiedCode ? <Check size={12} className="text-zinc-300" /> : <Copy size={12} />}
                   <span>{copiedCode ? 'Đã sao chép mã' : 'Sao chép mã'}</span>
                 </button>
               </div>
@@ -3505,9 +3506,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   className={`px-2 sm:px-3 py-1 rounded-md transition cursor-pointer ${
                     activeTab === 'grid' ? 'bg-white/15 text-white font-semibold' : 'text-neutral-400 hover:text-white'
                   }`}
-                  title="Lưới Video"
+                  title="Lưới video"
                 >
-                  <span className="hidden sm:inline">Lưới Video</span>
+                  <span className="hidden sm:inline">Lưới video</span>
                   <Video size={13} className="sm:hidden" />
                 </button>
                 <button
@@ -3519,13 +3520,13 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       ? 'bg-white/15 text-white font-semibold'
                       : 'text-neutral-400 hover:text-white'
                   }`}
-                  title="Bảng Vẽ Chung"
+                  title="Bảng vẽ chung"
                 >
                   <Palette size={13} />
-                  <span className="hidden sm:inline">Bảng Vẽ Chung</span>
+                  <span className="hidden sm:inline">Bảng vẽ chung</span>
                   {whiteboardDrawerInfo.isDrawing && activeTab !== 'whiteboard' && (
-                    <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-normal">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="flex items-center gap-1 text-[10px] text-zinc-300 font-normal">
+                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-ping" />
                       <span className="hidden lg:inline">{whiteboardDrawerInfo.name || 'Bạn học'} đang vẽ</span>
                     </span>
                   )}
@@ -3538,34 +3539,34 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   className="sr-only"
                   aria-hidden="true"
                 >
-                  Bảng Vẽ
+                  Bảng vẽ
                 </button>
               </div>
 
               {/* Group Pomodoro Timer Pill - ĐỒNG NHẤT TOP BAR CẢ GRID LẪN WHITEBOARD */}
               <div
                 data-testid="whiteboard-mini-timer-pill"
-                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-xl bg-neutral-900 border border-emerald-500/30 text-white shadow-md select-none shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-xl bg-neutral-900 border border-zinc-500/30 text-white shadow-md select-none shrink-0"
               >
                 <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-bold tabular-nums">
                   <span
                     className={`w-2 h-2 rounded-full ${
-                      isRoomRunning ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'
+                      isRoomRunning ? 'bg-zinc-700 animate-pulse' : 'bg-neutral-500'
                     }`}
                   />
                   <span>{formatTimer(roomRemainingSeconds)}</span>
                 </div>
                 <div
                   data-testid="room-timer-sync-badge"
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 select-none"
-                  title="Đồng bộ nhóm ⏱️"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 select-none"
+                  title="Đồng bộ nhóm "
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                  <span className="hidden sm:inline">Đồng bộ nhóm ⏱️</span>
-                  <span className="sm:hidden">Sync</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+                  <span className="hidden sm:inline">Đồng bộ nhóm <UiSymbol name="⏱️" /></span>
+                  <span className="sm:hidden">Nhóm</span>
                 </div>
                 {/* Mini badge alias for whiteboard tests */}
-                <div data-testid="room-timer-mini-sync-badge" className="hidden">Đồng bộ nhóm ⏱️</div>
+                <div data-testid="room-timer-mini-sync-badge" className="hidden">Đồng bộ nhóm <UiSymbol name="⏱️" /></div>
 
                 {/* Phase Selectors on Desktop */}
                 <div className="hidden sm:flex items-center gap-0.5 bg-black/40 p-0.5 rounded-lg border border-white/5 text-[10px]">
@@ -3574,7 +3575,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     data-testid="room-timer-phase-work"
                     onClick={() => handlePhaseChange('work')}
                     className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                      roomPhase === 'work' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-neutral-400 hover:text-white'
+                      roomPhase === 'work' ? 'bg-zinc-700/20 text-zinc-300 font-bold' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     Học
@@ -3584,7 +3585,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     data-testid="room-timer-phase-shortBreak"
                     onClick={() => handlePhaseChange('shortBreak')}
                     className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                      roomPhase === 'shortBreak' ? 'bg-sky-500/20 text-sky-300 font-bold' : 'text-neutral-400 hover:text-white'
+                      roomPhase === 'shortBreak' ? 'bg-zinc-700/20 text-zinc-300 font-bold' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     Nghỉ ngắn
@@ -3594,7 +3595,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     data-testid="room-timer-phase-longBreak"
                     onClick={() => handlePhaseChange('longBreak')}
                     className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
-                      roomPhase === 'longBreak' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-neutral-400 hover:text-white'
+                      roomPhase === 'longBreak' ? 'bg-zinc-700/20 text-zinc-300 font-bold' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     Nghỉ dài
@@ -3607,8 +3608,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   onClick={handleToggleRoomTimer}
                   className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer ${
                     isRoomRunning
-                      ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30'
-                      : 'bg-emerald-500 text-neutral-950 hover:bg-emerald-400'
+                      ? 'bg-zinc-700/20 text-zinc-300 hover:bg-zinc-700/30 border border-zinc-500/30'
+                      : 'bg-zinc-700 text-white hover:bg-zinc-700'
                   }`}
                   title={isRoomRunning ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
                 >
@@ -3652,10 +3653,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 type="button"
                 data-testid="btn-copy-invite-link"
                 onClick={handleCopyInviteLink}
-                className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs text-emerald-300 transition cursor-pointer font-medium"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-zinc-700/15 hover:bg-zinc-700/25 border border-zinc-500/30 text-xs text-zinc-300 transition cursor-pointer font-medium"
                 title="Sao chép link mời bạn học"
               >
-                {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                {copiedLink ? <Check size={14} className="text-zinc-300" /> : <Copy size={14} />}
                 <span>{copiedLink ? 'Đã chép link!' : 'Mời'}</span>
               </button>
               <button
@@ -3665,7 +3666,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 className="sm:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 transition cursor-pointer shrink-0"
                 title="Sao chép link mời bạn"
               >
-                {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                {copiedLink ? <Check size={14} className="text-zinc-300" /> : <Copy size={14} />}
               </button>
 
               {/* Nút Quản Trị Phòng (Host Controls) */}
@@ -3678,11 +3679,11 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     setEditRoomPasscode(room?.passcode || '');
                     setIsHostControlsModalOpen(true);
                   }}
-                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-xs text-emerald-300 font-semibold transition cursor-pointer shadow-sm active:scale-95"
-                  title="Bảng Quản Trị Phòng (Host Controls)"
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-700/20 hover:bg-zinc-700/30 border border-zinc-500/40 text-xs text-zinc-300 font-semibold transition cursor-pointer shadow-sm active:scale-95"
+                  title="Bảng quản trị phòng (host controls)"
                 >
-                  <ShieldCheck size={14} className="text-emerald-400" />
-                  <span className="hidden xl:inline">Quản Trị</span>
+                  <ShieldCheck size={14} className="text-zinc-300" />
+                  <span className="hidden xl:inline">Quản trị</span>
                 </button>
               )}
 
@@ -3710,7 +3711,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 className="flex items-center gap-1 text-xs text-neutral-300 hover:text-white px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
                 title="Xem danh sách thành viên trong phòng"
               >
-                <Users size={13} className="text-emerald-400" />
+                <Users size={13} className="text-zinc-300" />
                 <span>{otherParticipants.length + 1}</span>
               </button>
             </div>
@@ -3721,17 +3722,17 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           <div className="bg-zinc-950/90 border-t border-white/5 px-4 py-1.5 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 overflow-hidden">
               {room.roomCategory && (
-                <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-semibold uppercase shrink-0">
-                  {ROOM_CATEGORIES.find((c) => c.id === room.roomCategory)?.icon || '📚'}{' '}
+                <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-semibold normal-case shrink-0">
+                  <UiSymbol name={ROOM_CATEGORIES.find((c) => c.id === room.roomCategory)?.icon || '📚'} />{' '}
                   {ROOM_CATEGORIES.find((c) => c.id === room.roomCategory)?.label || room.roomCategory}
                 </span>
               )}
               <span className="text-zinc-200 truncate font-medium text-[11px] sm:text-xs">
-                🎯 {room.roomGoal}
+                <UiSymbol name="🎯" /> {room.roomGoal}
               </span>
             </div>
             {room.passcode && (
-              <span className="text-[10px] text-amber-400 flex items-center gap-1 shrink-0 font-mono ml-2">
+              <span className="text-[10px] text-zinc-300 flex items-center gap-1 shrink-0 font-mono ml-2">
                 <Lock size={10} /> PIN
               </span>
             )}
@@ -3754,14 +3755,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
           {/* Screen Share Stage (if active) */}
           {isScreenSharing && (
-            <div className="mb-4 relative rounded-2xl bg-black border border-emerald-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] landscape:max-h-[75vh] flex flex-col items-center justify-center">
+            <div className="mb-4 relative rounded-2xl bg-black border border-zinc-500/40 overflow-hidden shadow-2xl aspect-video max-h-[50vh] landscape:max-h-[75vh] flex flex-col items-center justify-center">
               <video
                 ref={attachScreenVideo}
                 autoPlay
                 playsInline
                 className="w-full h-full object-contain"
               />
-              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-emerald-500/90 text-neutral-950 text-xs font-bold flex items-center gap-1.5 shadow-md">
+              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-zinc-700/90 text-neutral-950 text-xs font-bold flex items-center gap-1.5 shadow-md">
                 <Monitor size={14} />
                 <span>Màn hình đang chia sẻ trực tiếp</span>
               </div>
@@ -3791,8 +3792,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     data-testid="local-video-tile"
                     className={`relative aspect-video rounded-2xl bg-neutral-900/90 overflow-hidden flex flex-col items-center justify-center shadow-lg group transition-all duration-200 ${
                       isLocalSpeaking
-                        ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.45)]'
-                        : 'border border-emerald-500/40 ring-1 ring-emerald-500/20'
+                        ? 'border-2 border-zinc-400 ring-2 ring-zinc-400 shadow-[0_0_20px_rgba(255,255,255,0.45)]'
+                        : 'border border-zinc-500/40 ring-1 ring-zinc-500/20'
                     }`}
                   >
                     {cameraEnabled ? (
@@ -3809,7 +3810,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           user={user}
                           name={participantName}
                           size="xl"
-                          ring="border-2 border-emerald-400 shadow-md"
+                          ring="border-2 border-zinc-400 shadow-md"
                           alt={`${participantName} (Bạn)`}
                           testId="local-preview-avatar"
                         />
@@ -3822,18 +3823,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       <div className="flex items-center gap-1.5 truncate">
                         <span className="font-semibold text-white truncate">{participantName} (Bạn)</span>
                         {isLadyBoss(user?.email) ? (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/30 text-pink-300 font-bold border border-pink-500/40 flex items-center gap-0.5 shadow-sm">
-                            👑 Nóc Nhà PRO
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-700/30 text-zinc-300 font-bold border border-zinc-500/40 flex items-center gap-0.5 shadow-sm">
+                            <UiSymbol name="👑" /> Nóc nhà PRO
                           </span>
                         ) : (
-                          <span className="text-[9px] px-1 rounded bg-emerald-500/30 text-emerald-300">
+                          <span className="text-[9px] px-1 rounded bg-zinc-700/30 text-zinc-300">
                             {userRole === 'host' ? 'Host' : userRole === 'guest' ? 'Free' : 'Pro'}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {isHandRaised && (
-                          <span className="p-1 rounded bg-amber-500 text-neutral-950">
+                          <span className="p-1 rounded bg-zinc-700 text-white">
                             <Hand size={11} />
                           </span>
                         )}
@@ -3841,7 +3842,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           className={`p-1 rounded transition-colors ${
                             micEnabled
                               ? isLocalSpeaking
-                                ? 'bg-emerald-500 text-neutral-950 animate-pulse'
+                                ? 'bg-zinc-700 text-white animate-pulse'
                                 : 'bg-white/10 text-white'
                               : 'bg-rose-500/80 text-white'
                           }`}
@@ -3873,7 +3874,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       data-testid="mobile-peers-overflow-pill"
                       className="relative aspect-video rounded-2xl bg-zinc-900/90 border border-zinc-800 flex flex-col items-center justify-center p-3 text-center shadow-lg"
                     >
-                      <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm mb-1 border border-emerald-500/30">
+                      <div className="w-10 h-10 rounded-full bg-zinc-700/20 text-zinc-300 font-bold flex items-center justify-center text-sm mb-1 border border-zinc-500/30">
                         +{sortedOtherParticipants.length - 3}
                       </div>
                       <span className="text-[11px] text-zinc-300 font-medium">bạn học khác</span>
@@ -3888,14 +3889,14 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   </div>
                   <h4 className="text-xs font-semibold text-white mb-1">Đang chờ bạn học tham gia...</h4>
                   <p className="text-[11px] text-neutral-400 max-w-xs leading-relaxed mb-3">
-                    Sao chép mã phòng <code className="text-emerald-400 font-mono">#{roomId}</code> hoặc gửi liên kết mời để cùng học nhóm trực tuyến.
+                    Sao chép mã phòng <code className="text-zinc-300 font-mono">#{roomId}</code> hoặc gửi liên kết mời để cùng học nhóm trực tuyến.
                   </p>
                   <button
                     type="button"
                     onClick={handleCopyInviteLink}
                     className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
                   >
-                    {copiedLink ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                    {copiedLink ? <Check size={12} className="text-zinc-300" /> : <Copy size={12} />}
                     <span>{copiedLink ? 'Đã sao chép link' : 'Sao chép link mời'}</span>
                   </button>
                 </div>
@@ -3927,7 +3928,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       }
                 }
                 className={`flex items-center gap-2 select-none pointer-events-auto p-1.5 rounded-2xl bg-zinc-950/90 backdrop-blur-md border border-zinc-800 shadow-[0_16px_40px_rgba(0,0,0,0.7)] transition-shadow ${
-                  isDraggingWbCamera ? 'cursor-grabbing ring-2 ring-emerald-400' : 'cursor-grab'
+                  isDraggingWbCamera ? 'cursor-grabbing ring-2 ring-zinc-400' : 'cursor-grab'
                 }`}
                 onPointerDown={handleWbCameraPointerDown}
                 onPointerMove={handleWbCameraPointerMove}
@@ -3942,8 +3943,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   className="px-2.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/60 text-white text-[11px] font-semibold backdrop-blur-md shadow-lg flex items-center gap-1.5 transition cursor-pointer shrink-0"
                   title={isWhiteboardVideoExpanded ? 'Thu nhỏ Camera' : 'Hiện Camera thành viên (Kéo thả để di chuyển)'}
                 >
-                  <GripHorizontal size={13} className="text-zinc-500 shrink-0" />
-                  <Video size={13} className="text-emerald-400 shrink-0" />
+                  <GripHorizontal size={13} className="text-zinc-400 shrink-0" />
+                  <Video size={13} className="text-zinc-300 shrink-0" />
                   <span className="font-mono">{sortedOtherParticipants.length + 1}</span>
                   {isWhiteboardVideoExpanded ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
                 </button>
@@ -3957,8 +3958,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                         <div
                           className={`relative w-36 h-22 sm:w-40 sm:h-24 rounded-xl bg-black/95 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl transition-all duration-200 ${
                             isLocalSpeaking
-                              ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.45)]'
-                              : 'border border-emerald-500/50'
+                              ? 'border-2 border-zinc-400 ring-2 ring-zinc-400 shadow-[0_0_16px_rgba(255,255,255,0.45)]'
+                              : 'border border-zinc-500/50'
                           }`}
                         >
                           {cameraEnabled ? (
@@ -3971,7 +3972,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                             />
                           ) : (
                             <div className="flex items-center gap-1 text-neutral-400">
-                              <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-xs font-bold text-emerald-300">
+                              <div className="w-8 h-8 rounded-full bg-zinc-700/20 border border-zinc-400 flex items-center justify-center text-xs font-bold text-zinc-300">
                                 {participantName.charAt(0).toUpperCase()}
                               </div>
                             </div>
@@ -3984,8 +3985,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                               className={`p-0.5 rounded ${
                                 micEnabled
                                   ? isLocalSpeaking
-                                    ? 'text-emerald-300 animate-pulse'
-                                    : 'text-emerald-400'
+                                    ? 'text-zinc-300 animate-pulse'
+                                    : 'text-zinc-300'
                                   : 'text-rose-400'
                               }`}
                             >
@@ -4010,7 +4011,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           key={`strip-${peer.id}`}
                           className={`relative w-36 h-22 sm:w-40 sm:h-24 rounded-xl bg-black/95 overflow-hidden flex flex-col items-center justify-center shrink-0 shadow-2xl transition-all duration-200 ${
                             isPeerSpeaking
-                              ? 'border-2 border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.45)]'
+                              ? 'border-2 border-zinc-400 ring-2 ring-zinc-400 shadow-[0_0_16px_rgba(255,255,255,0.45)]'
                               : 'border border-zinc-700/60'
                           }`}
                         >
@@ -4036,8 +4037,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                               className={`p-0.5 rounded ${
                                 peer.isMicOn !== false
                                   ? isPeerSpeaking
-                                    ? 'text-emerald-300 animate-pulse'
-                                    : 'text-emerald-400'
+                                    ? 'text-zinc-300 animate-pulse'
+                                    : 'text-zinc-300'
                                   : 'text-rose-400'
                               }`}
                             >
@@ -4081,7 +4082,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             {/* 1. Header cố định */}
             <div className="h-14 shrink-0 border-b border-zinc-800 px-4 flex items-center justify-between bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs text-zinc-100 tracking-wide uppercase">Trò chuyện nhóm</span>
+                <span className="font-semibold text-xs text-zinc-100 tracking-wide normal-case">Trò chuyện nhóm</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono">
                   {messages.length}
                 </span>
@@ -4094,7 +4095,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     onClick={() => handleTriggerReaction(emoji)}
                     className="p-1 rounded hover:bg-zinc-800 text-xs transition active:scale-125 cursor-pointer"
                   >
-                    {emoji}
+                    <UiSymbol name={emoji} />
                   </button>
                 ))}
                 <button
@@ -4150,7 +4151,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 }}
                 enterKeyHint="send"
                 placeholder="Nhắn tin trong phòng..."
-                className="flex-1 rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition"
+                className="flex-1 rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-500 transition"
               />
               <button
                 type="submit"
@@ -4200,7 +4201,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             }}
             className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               !canManage && room?.settings?.allow_mic === false
-                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                ? 'bg-neutral-800 text-zinc-400 cursor-not-allowed opacity-60'
                 : micEnabled
                 ? 'bg-white/10 hover:bg-white/20 text-white'
                 : 'bg-rose-500 text-white'
@@ -4247,9 +4248,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             }}
             className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
               !canManage && room?.settings?.allow_screen_share === false
-                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                ? 'bg-neutral-800 text-zinc-400 cursor-not-allowed opacity-60'
                 : isScreenSharing
-                ? 'bg-emerald-500 text-neutral-950 font-bold'
+                ? 'bg-zinc-700 text-white font-bold'
                 : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={
@@ -4269,7 +4270,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             data-testid="btn-room-hand"
             onClick={() => setIsHandRaised(!isHandRaised)}
             className={`flex-1 min-w-0 max-w-[42px] h-9 sm:h-10 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center shrink-0 ${
-              isHandRaised ? 'bg-amber-500 text-neutral-950 font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
+              isHandRaised ? 'bg-zinc-700 text-white font-bold shadow-lg' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
             title={isHandRaised ? 'Hạ tay xuống' : 'Giơ tay phát biểu'}
             aria-label="Giơ tay phát biểu"
@@ -4300,7 +4301,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     }}
                     className="p-1.5 rounded-lg hover:bg-white/10 text-lg transition active:scale-125 cursor-pointer"
                   >
-                    {emoji}
+                    <UiSymbol name={emoji} />
                   </button>
                 ))}
               </div>
@@ -4336,13 +4337,13 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             type="button"
             data-testid="btn-room-ai"
             onClick={() => useAiStore.getState().toggleOpen()}
-            className="hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer items-center justify-center shrink-0 relative"
-            title="Mở Trợ lý AI Companion"
-            aria-label="Mở Trợ lý AI Companion"
+            className="hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl bg-zinc-700/20 hover:bg-zinc-700/30 text-zinc-300 border border-zinc-500/40 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] cursor-pointer items-center justify-center shrink-0 relative"
+            title="Mở trợ lý AI companion"
+            aria-label="Mở trợ lý AI companion"
           >
             <Sparkles size={18} />
-            <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-amber-400 text-neutral-950 shadow-xs">
-              <Zap size={10} strokeWidth={2} className="text-neutral-950" />
+            <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-zinc-700 text-white shadow-xs">
+              <Zap size={10} strokeWidth={1.5} className="text-neutral-950" />
             </span>
           </button>
 
@@ -4368,7 +4369,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             className={`hidden md:flex flex-1 min-w-0 max-w-[48px] h-11 md:w-11 md:h-11 md:flex-initial rounded-xl transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer items-center justify-center shrink-0 ${
               isYouTubeWidgetOpen ? 'bg-rose-500/30 border border-rose-400 text-rose-300' : 'bg-white/10 hover:bg-white/20 text-white'
             }`}
-            title="YouTube Lofi Beats (Phát cùng nhau)"
+            title="YouTube Lofi beats (phát cùng nhau)"
           >
             <Music size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
@@ -4394,8 +4395,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <Settings size={18} className="text-emerald-400" />
-                <h3 className="font-bold text-sm">Cài Đặt Camera, Micro & Phòng Học</h3>
+                <Settings size={18} className="text-zinc-300" />
+                <h3 className="font-bold text-sm">Cài đặt camera, micro & phòng học</h3>
               </div>
               <button
                 type="button"
@@ -4418,7 +4419,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   activeSettingsTab === 'av' ? 'bg-white/20 text-white font-bold' : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Thiết Bị AV & Bitrate
+                Camera và micro
               </button>
               <button
                 type="button"
@@ -4429,7 +4430,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 }`}
               >
                 <Lock size={12} />
-                <span>Quản Trị & Mời Khách Free</span>
+                <span>Quản trị & mời khách Free</span>
               </button>
             </div>
 
@@ -4441,7 +4442,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   <select
                     value={selectedAudioDevice}
                     onChange={(e) => setSelectedAudioDevice(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-zinc-400"
                   >
                     {audioDevices.length > 0 ? (
                       audioDevices.map((d) => (
@@ -4460,7 +4461,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   <select
                     value={selectedVideoDevice}
                     onChange={(e) => setSelectedVideoDevice(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full p-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-zinc-400"
                   >
                     {videoDevices.length > 0 ? (
                       videoDevices.map((d) => (
@@ -4477,8 +4478,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 {/* Chất lượng Video & Khóa Bitrate WebRTC */}
                 <div>
                   <label className="block text-neutral-400 mb-1.5 flex items-center justify-between">
-                    <span>Độ Phân Giải & Khóa Bitrate WebRTC</span>
-                    <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                    <span>Chất lượng video</span>
+                    <span className="text-[10px] text-zinc-300 font-mono font-bold">
                       {VIDEO_QUALITY_PROFILES[videoQuality].bitrateKbps} kbps
                     </span>
                   </label>
@@ -4498,13 +4499,13 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           }}
                           className={`p-2.5 rounded-xl border text-left transition flex flex-col cursor-pointer ${
                             isSelected
-                              ? 'bg-emerald-500/15 border-emerald-400/80 text-white shadow-sm'
+                              ? 'bg-zinc-700/15 border-zinc-400/80 text-white shadow-sm'
                               : 'bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-xs">{prof.label}</span>
-                            {isSelected && <Check size={13} className="text-emerald-400" />}
+                            {isSelected && <Check size={13} className="text-zinc-300" />}
                           </div>
                           <span className="text-[10px] text-neutral-400 mt-0.5">{prof.sublabel}</span>
                         </button>
@@ -4515,7 +4516,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
                 {/* Tùy chọn lọc âm thanh học nhóm */}
                 <div className="pt-2 border-t border-white/10 space-y-2">
-                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối Ưu Âm Thanh Học Nhóm</span>
+                  <span className="block text-neutral-400 text-[11px] font-semibold">Tối ưu âm thanh học nhóm</span>
                   <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
                     <div>
                       <div className="font-medium text-white">Khử tiếng ồn xung quanh</div>
@@ -4525,19 +4526,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       type="checkbox"
                       checked={noiseSuppression}
                       onChange={(e) => setNoiseSuppression(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                      className="w-4 h-4 rounded text-zinc-300 accent-zinc-500 cursor-pointer"
                     />
                   </label>
                   <label className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition">
                     <div>
-                      <div className="font-medium text-white">Chống tiếng vang (Echo Cancellation)</div>
+                      <div className="font-medium text-white">Chống tiếng vang (echo cancellation)</div>
                       <div className="text-[10px] text-neutral-400">Tránh bị lặp tiếng khi bạn học mở loa ngoài</div>
                     </div>
                     <input
                       type="checkbox"
                       checked={echoCancellation}
                       onChange={(e) => setEchoCancellation(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
+                      className="w-4 h-4 rounded text-zinc-300 accent-zinc-500 cursor-pointer"
                     />
                   </label>
                 </div>
@@ -4545,9 +4546,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsDeviceModalOpen(false)}
-                  className="mt-6 w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                  className="mt-6 w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer"
                 >
-                  Lưu Cài Đặt
+                  Lưu cài đặt
                 </button>
               </div>
             )}
@@ -4557,7 +4558,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               <div className="space-y-4 text-xs">
                 {/* Thông báo thao tác quản trị */}
                 {adminNotice && (
-                  <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] flex items-center gap-1.5">
+                  <div className="p-2.5 rounded-xl bg-zinc-700/15 border border-zinc-500/30 text-zinc-300 text-[11px] flex items-center gap-1.5">
                     <Check size={14} className="shrink-0" />
                     <span>{adminNotice}</span>
                   </div>
@@ -4569,16 +4570,16 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     {/* Hộp Trạng thái Quyền hạn Thuê bao Backend */}
                     <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-neutral-300 text-xs">Điều kiện Thuê bao Trả phí:</span>
+                        <span className="font-semibold text-neutral-300 text-xs">Điều kiện thuê bao trả phí:</span>
                         {eligibility.eligible ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 flex items-center gap-1">
                             <ShieldCheck size={12} />
-                            ĐỦ ĐIỀU KIỆN (TỪ 3 THÁNG)
+                            Đủ điều kiện (từ 3 tháng)
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 flex items-center gap-1">
                             <Lock size={12} />
-                            CHƯA ĐỦ ĐIỀU KIỆN
+                            Chưa đủ điều kiện
                           </span>
                         )}
                       </div>
@@ -4607,19 +4608,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           onChange={(e) => handleToggleAllowFree(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed" />
+                        <div className="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-700 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed" />
                       </label>
                     </div>
 
                     {/* Quản lý Link Mời có Token */}
                     {room?.allowFreeGuests && (
-                      <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-3">
+                      <div className="p-3.5 rounded-xl bg-zinc-700/10 border border-zinc-500/25 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs text-emerald-300 flex items-center gap-1.5">
+                          <span className="font-bold text-xs text-zinc-300 flex items-center gap-1.5">
                             <Sparkles size={14} />
-                            Liên Kết Mời Phòng Học (Đang Mở)
+                            Liên kết mời phòng học (đang mở)
                           </span>
-                          <span className="text-[10px] font-mono text-emerald-400/80">Code #{roomId}</span>
+                          <span className="text-[10px] font-mono text-zinc-300/80">Code #{roomId}</span>
                         </div>
 
                         <div className="p-2 rounded-lg bg-black/40 border border-white/10 font-mono text-[10px] text-neutral-300 break-all select-all">
@@ -4631,7 +4632,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                             type="button"
                             data-testid="btn-copy-free-invite-link"
                             onClick={handleCopyInviteLink}
-                            className="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                            className="flex-1 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                           >
                             {copiedLink ? <Check size={14} /> : <Copy size={14} />}
                             <span>{copiedLink ? 'Đã Sao Chép Link' : 'Sao Chép Link Mời'}</span>
@@ -4646,7 +4647,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                             title="Tạo mới phiên mã token"
                           >
                             <RefreshCw size={13} className={regeneratingToken ? 'animate-spin' : ''} />
-                            <span>Làm Mới Link</span>
+                            <span>Làm mới link</span>
                           </button>
                         </div>
                         <div className="text-[10px] text-neutral-400">
@@ -4658,8 +4659,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     {/* Tùy Chỉnh Thông Tin & Tên Phòng Học */}
                     <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-3">
                       <div className="font-bold text-xs text-white flex items-center gap-1.5">
-                        <Sliders size={14} className="text-emerald-400" />
-                        <span>Tùy Chỉnh &amp; Đổi Tên Phòng Học</span>
+                        <Sliders size={14} className="text-zinc-300" />
+                        <span>Tùy chỉnh &amp; đổi tên phòng học</span>
                       </div>
 
                       {/* 1. Tên phòng */}
@@ -4673,22 +4674,22 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           value={editingTitle}
                           onChange={(e) => setEditingTitle(e.target.value)}
                           placeholder="Nhập tên phòng học..."
-                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                         />
                       </div>
 
                       {/* 2. Mục tiêu buổi học */}
                       <div>
                         <label className="block text-[11px] font-medium text-neutral-300 mb-1">
-                          Mục tiêu buổi học (Hiển thị ghim đầu phòng)
+                          Mục tiêu buổi học (hiển thị ghim đầu phòng)
                         </label>
                         <input
                           type="text"
                           data-testid="input-update-room-goal"
                           value={editingGoal}
                           onChange={(e) => setEditingGoal(e.target.value)}
-                          placeholder="vd: Cùng giải đề JLPT N2, 25m học / 5m nghỉ..."
-                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                          placeholder="vd: cùng giải đề jlpt n2, 25m học / 5m nghỉ..."
+                          className="w-full px-3 py-2 rounded-xl bg-neutral-950 border border-white/10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                         />
                       </div>
 
@@ -4703,7 +4704,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                               onClick={() => setEditingCategory(cat.id)}
                               className={`px-2 py-1.5 rounded-lg text-left text-[11px] flex items-center gap-1.5 border transition cursor-pointer ${
                                 editingCategory === cat.id
-                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                                  ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 font-semibold'
                                   : 'bg-white/5 text-neutral-400 border-white/5 hover:text-white'
                               }`}
                             >
@@ -4718,7 +4719,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <label className="text-[11px] font-medium text-neutral-300">Mật khẩu PIN</label>
+                            <label className="text-[11px] font-medium text-neutral-300">Mật khẩu pin</label>
                             <span className="text-[9px] text-neutral-400">Trống = mở</span>
                           </div>
                           <input
@@ -4727,7 +4728,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                             value={editingPasscode}
                             onChange={(e) => setEditingPasscode(e.target.value)}
                             placeholder="vd: 1234"
-                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-zinc-500"
                           />
                         </div>
                         <div>
@@ -4735,7 +4736,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           <select
                             value={editingMaxParticipants}
                             onChange={(e) => setEditingMaxParticipants(parseInt(e.target.value, 10))}
-                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white focus:outline-none focus:border-zinc-500 cursor-pointer"
                           >
                             <option value={2}>2 người</option>
                             <option value={4}>4 người</option>
@@ -4754,27 +4755,27 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                             type="checkbox"
                             checked={editingSilentMode}
                             onChange={(e) => setEditingSilentMode(e.target.checked)}
-                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                            className="rounded bg-neutral-950 border-white/20 text-zinc-300 focus:ring-0"
                           />
-                          <span className="text-neutral-300">Siêu Tập Trung (Tự động tắt Micro khi tham gia)</span>
+                          <span className="text-neutral-300">Siêu tập trung (tự động tắt micro khi tham gia)</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={editingRequireCam}
                             onChange={(e) => setEditingRequireCam(e.target.checked)}
-                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                            className="rounded bg-neutral-950 border-white/20 text-zinc-300 focus:ring-0"
                           />
-                          <span className="text-neutral-300">Yêu cầu bật Camera (Study With Me)</span>
+                          <span className="text-neutral-300">Yêu cầu bật camera (study with me)</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={editingHostOnlyTimer}
                             onChange={(e) => setEditingHostOnlyTimer(e.target.checked)}
-                            className="rounded bg-neutral-950 border-white/20 text-emerald-500 focus:ring-0"
+                            className="rounded bg-neutral-950 border-white/20 text-zinc-300 focus:ring-0"
                           />
-                          <span className="text-neutral-300">Chỉ Chủ phòng điều khiển Pomodoro</span>
+                          <span className="text-neutral-300">Chỉ chủ phòng điều khiển pomodoro</span>
                         </label>
                       </div>
 
@@ -4782,9 +4783,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                         type="button"
                         data-testid="btn-save-room-customization"
                         onClick={handleSaveRoomCustomization}
-                        className="w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer"
+                        className="w-full py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer"
                       >
-                        Lưu Thay Đổi Phòng Học
+                        Lưu thay đổi phòng học
                       </button>
                     </div>
 
@@ -4801,7 +4802,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           onClick={handleCloseRoom}
                           className="px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white font-bold text-xs transition cursor-pointer"
                         >
-                          Đóng Phòng
+                          Đóng phòng
                         </button>
                       </div>
 
@@ -4819,7 +4820,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           onClick={() => setIsConfirmDeleteModalOpen(true)}
                           className="px-3.5 py-1.5 rounded-xl bg-rose-600/30 border border-rose-600/50 text-rose-200 hover:bg-rose-600 hover:text-white font-bold text-xs transition cursor-pointer"
                         >
-                          Xóa Vĩnh Viễn
+                          Xóa vĩnh viễn
                         </button>
                       </div>
                     </div>
@@ -4838,7 +4839,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-neutral-400">Vai trò của bạn:</span>
-                        <span className="font-bold text-emerald-400">
+                        <span className="font-bold text-zinc-300">
                           {userRole === 'member' ? 'Thành viên PRO' : 'Khách mời Free'}
                         </span>
                       </div>
@@ -4847,19 +4848,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     <div className="p-3 rounded-xl bg-neutral-800/50 border border-white/5 text-[11px] text-neutral-400 flex items-start gap-2">
                       <Info size={14} className="text-neutral-400 shrink-0 mt-0.5" />
                       <span>
-                        Chỉ Chủ phòng mới có quyền quản trị cài đặt phòng, bật/tắt quyền mời khách Free và đóng phòng học.
+                        Chỉ chủ phòng mới có quyền quản trị cài đặt phòng, bật/tắt quyền mời khách Free và đóng phòng học.
                       </span>
                     </div>
 
                     {userRole === 'guest' && (
-                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 flex items-center justify-between">
+                      <div className="p-3 rounded-xl bg-zinc-700/10 border border-zinc-500/20 text-[11px] text-zinc-300 flex items-center justify-between">
                         <span>Bạn muốn tự tạo phòng và lưu trữ lịch sử học tập?</span>
                         <button
                           type="button"
                           onClick={() => router.navigate('/billing')}
-                          className="px-2.5 py-1 rounded-lg bg-amber-500 text-neutral-950 font-bold text-[10px] shrink-0 ml-2"
+                          className="px-2.5 py-1 rounded-lg bg-zinc-700 text-white font-bold text-[10px] shrink-0 ml-2"
                         >
-                          Nâng Cấp PRO
+                          Nâng cấp PRO
                         </button>
                       </div>
                     )}
@@ -4888,7 +4889,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           >
             <div className="flex items-center gap-2 text-xs font-bold text-white">
               <Music size={14} className="text-rose-400" />
-              <span>YouTube Lofi Beats (Đồng Bộ Nhóm)</span>
+              <span>YouTube Lofi beats (đồng bộ nhóm)</span>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -4908,7 +4909,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 type="text"
                 value={youtubeInputUrl}
                 onChange={(e) => setYoutubeInputUrl(e.target.value)}
-                placeholder="Dán link hoặc Video ID YouTube..."
+                placeholder="Dán link hoặc video id YouTube..."
                 className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[11px] text-white focus:outline-none focus:border-rose-400"
               />
               <button
@@ -4926,21 +4927,21 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={() => switchYouTubeVideo('rFZHOHl-L8A')}
                 className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
               >
-                ☕ Lofi Girl
+                <UiSymbol name="☕" /> Lofi Girl
               </button>
               <button
                 type="button"
                 onClick={() => switchYouTubeVideo('4xDzrJKXOOY')}
                 className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
               >
-                🌆 Synthwave
+                <UiSymbol name="🌆" /> Synthwave
               </button>
               <button
                 type="button"
                 onClick={() => switchYouTubeVideo('h2zkV-l_TbY')}
                 className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-neutral-200 cursor-pointer"
               >
-                🌧️ Cafe Mưa
+                <UiSymbol name="🌧️" /> Cafe mưa
               </button>
             </div>
           </div>
@@ -4969,7 +4970,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-white/15 p-5 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-base shadow">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-700 to-zinc-700 flex items-center justify-center text-white font-bold text-base shadow">
                   {(selectedMemberForAdmin.name || 'K').charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -4989,35 +4990,35 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="text-[11px] font-semibold text-neutral-400">Đặc Quyền Quản Trị</div>
+              <div className="text-[11px] font-semibold text-neutral-400">Đặc quyền quản trị</div>
 
               {/* Tặng PRO */}
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                <div className="text-[11px] font-medium text-amber-300 flex items-center gap-1.5">
+                <div className="text-[11px] font-medium text-zinc-300 flex items-center gap-1.5">
                   <Gift size={13} />
-                  <span>Tặng Gói PRO Ngay Lập Tức</span>
+                  <span>Tặng gói PRO ngay lập tức</span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleGiveawayPro(selectedMemberForAdmin, 1)}
-                    className="py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 font-semibold text-[11px] transition cursor-pointer"
+                    className="py-1.5 px-2 rounded-lg bg-zinc-700/20 hover:bg-zinc-700/30 text-zinc-200 border border-zinc-500/30 font-semibold text-[11px] transition cursor-pointer"
                   >
-                    1 Tháng
+                    1 tháng
                   </button>
                   <button
                     type="button"
                     onClick={() => handleGiveawayPro(selectedMemberForAdmin, 12)}
-                    className="py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 font-semibold text-[11px] transition cursor-pointer"
+                    className="py-1.5 px-2 rounded-lg bg-zinc-700/20 hover:bg-zinc-700/30 text-zinc-200 border border-zinc-500/30 font-semibold text-[11px] transition cursor-pointer"
                   >
-                    1 Năm
+                    1 năm
                   </button>
                   <button
                     type="button"
                     onClick={() => handleGiveawayPro(selectedMemberForAdmin, 999)}
-                    className="py-1.5 px-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-neutral-950 font-bold text-[11px] shadow transition cursor-pointer"
+                    className="py-1.5 px-2 rounded-lg bg-gradient-to-r from-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-700 text-neutral-950 font-bold text-[11px] shadow transition cursor-pointer"
                   >
-                    Trọn Đời
+                    Trọn đời
                   </button>
                 </div>
               </div>
@@ -5028,8 +5029,8 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={() => handleForceMute(selectedMemberForAdmin)}
                 className="w-full p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 text-neutral-200 transition cursor-pointer"
               >
-                <MicOff size={14} className="text-amber-400" />
-                <span>Tắt Micro Bắt Buộc (Force Mute)</span>
+                <MicOff size={14} className="text-zinc-300" />
+                <span>Tắt micro bắt buộc (force mute)</span>
               </button>
 
               {/* Mời ra khỏi phòng */}
@@ -5039,7 +5040,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 className="w-full p-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 flex items-center gap-2 text-rose-300 font-semibold transition cursor-pointer"
               >
                 <UserX size={14} className="text-rose-400" />
-                <span>Mời Ra Khỏi Phòng (Kick &amp; Ban)</span>
+                <span>Mời ra khỏi phòng (kick &amp; ban)</span>
               </button>
             </div>
           </div>
@@ -5060,19 +5061,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-9 h-9 rounded-xl bg-zinc-700/15 border border-zinc-500/30 flex items-center justify-center text-zinc-300">
                   <ShieldCheck size={20} />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>Quản Trị Phòng Học</span>
+                    <span>Quản trị phòng học</span>
                     {isMaster ? (
-                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[10px] text-amber-300 font-extrabold">
-                        👑 MASTER OVERRIDE
+                      <span className="px-2 py-0.5 rounded-full bg-zinc-700/20 border border-zinc-500/40 text-[10px] text-zinc-300 font-extrabold">
+                        <UiSymbol name="👑" /> Quyền quản trị
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-[10px] text-emerald-300 font-bold">
-                        CHỦ PHÒNG
+                      <span className="px-2 py-0.5 rounded-full bg-zinc-700/20 text-[10px] text-zinc-300 font-bold">
+                        Chủ phòng
                       </span>
                     )}
                   </h3>
@@ -5095,19 +5096,19 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
             {/* 1. CÔNG TẮC AN TOÀN (TOGGLES) */}
             <div className="space-y-2.5">
-              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Sliders size={13} className="text-emerald-400" />
-                <span>Công Tắc An Toàn (Host Toggles)</span>
+              <h4 className="text-xs font-bold text-neutral-300 normal-case tracking-wider flex items-center gap-1.5">
+                <Sliders size={13} className="text-zinc-300" />
+                <span>Công tắc an toàn (host toggles)</span>
               </h4>
 
               {/* Toggle 1: Cho phép bật Mic */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${room?.settings?.allow_mic !== false ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}`}>
+                  <div className={`p-2 rounded-xl ${room?.settings?.allow_mic !== false ? 'bg-zinc-700/15 text-zinc-300' : 'bg-rose-500/15 text-rose-400'}`}>
                     <Mic size={16} />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-white">Cho phép bật Micro</div>
+                    <div className="text-xs font-semibold text-white">Cho phép bật micro</div>
                     <div className="text-[11px] text-neutral-400">
                       {room?.settings?.allow_mic !== false
                         ? 'Thành viên được tự do bật mic'
@@ -5120,7 +5121,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   data-testid="toggle-host-allow-mic"
                   onClick={() => handleToggleRoomSetting('allow_mic', !(room?.settings?.allow_mic !== false))}
                   className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-                    room?.settings?.allow_mic !== false ? 'bg-emerald-500' : 'bg-neutral-700'
+                    room?.settings?.allow_mic !== false ? 'bg-zinc-700' : 'bg-neutral-700'
                   }`}
                 >
                   <div
@@ -5134,11 +5135,11 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               {/* Toggle 2: Cho phép Chia sẻ màn hình */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${room?.settings?.allow_screen_share !== false ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}`}>
+                  <div className={`p-2 rounded-xl ${room?.settings?.allow_screen_share !== false ? 'bg-zinc-700/15 text-zinc-300' : 'bg-rose-500/15 text-rose-400'}`}>
                     <Monitor size={16} />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-white">Cho phép Chia sẻ màn hình</div>
+                    <div className="text-xs font-semibold text-white">Cho phép chia sẻ màn hình</div>
                     <div className="text-[11px] text-neutral-400">
                       {room?.settings?.allow_screen_share !== false
                         ? 'Thành viên được chia sẻ màn hình'
@@ -5151,7 +5152,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   data-testid="toggle-host-allow-screen"
                   onClick={() => handleToggleRoomSetting('allow_screen_share', !(room?.settings?.allow_screen_share !== false))}
                   className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-                    room?.settings?.allow_screen_share !== false ? 'bg-emerald-500' : 'bg-neutral-700'
+                    room?.settings?.allow_screen_share !== false ? 'bg-zinc-700' : 'bg-neutral-700'
                   }`}
                 >
                   <div
@@ -5165,11 +5166,11 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               {/* Toggle 3: Khóa phòng (Lock Room) */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${room?.settings?.is_locked ? 'bg-amber-500/15 text-amber-400' : 'bg-white/10 text-neutral-400'}`}>
+                  <div className={`p-2 rounded-xl ${room?.settings?.is_locked ? 'bg-zinc-700/15 text-zinc-300' : 'bg-white/10 text-neutral-400'}`}>
                     <Lock size={16} />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-white">Khóa phòng (Lock Room)</div>
+                    <div className="text-xs font-semibold text-white">Khóa phòng (lock room)</div>
                     <div className="text-[11px] text-neutral-400">
                       {room?.settings?.is_locked
                         ? 'Phòng đang khóa: Không cho người mới vào'
@@ -5182,7 +5183,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   data-testid="toggle-host-lock-room"
                   onClick={() => handleToggleRoomSetting('is_locked', !room?.settings?.is_locked)}
                   className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-                    room?.settings?.is_locked ? 'bg-amber-500' : 'bg-neutral-700'
+                    room?.settings?.is_locked ? 'bg-zinc-700' : 'bg-neutral-700'
                   }`}
                 >
                   <div
@@ -5196,10 +5197,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
             {/* 2. DANH SÁCH THÀNH VIÊN ĐANG ONLINE */}
             <div className="space-y-2 pt-2 border-t border-white/10">
-              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center justify-between">
+              <h4 className="text-xs font-bold text-neutral-300 normal-case tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <Users size={13} className="text-emerald-400" />
-                  <span>Thành Viên Trong Phòng ({otherParticipants.length + 1})</span>
+                  <Users size={13} className="text-zinc-300" />
+                  <span>Thành viên trong phòng ({otherParticipants.length + 1})</span>
                 </span>
                 <span className="text-[10px] text-neutral-400 font-normal">
                   Bấm nút nóng để can thiệp
@@ -5236,7 +5237,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                           type="button"
                           data-testid={`btn-host-mute-${peer.id}`}
                           onClick={() => handleForceMute(peer)}
-                          className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-lg bg-zinc-700/15 hover:bg-zinc-700/25 border border-zinc-500/30 text-zinc-300 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
                           title="Tắt mic bắt buộc"
                         >
                           <MicOff size={12} />
@@ -5262,9 +5263,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
 
             {/* 3. CÀI ĐẶT & XÓA PHÒNG VĨNH VIỄN */}
             <div className="space-y-3 pt-2 border-t border-white/10">
-              <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Settings size={13} className="text-emerald-400" />
-                <span>Cài Đặt Phòng Học</span>
+              <h4 className="text-xs font-bold text-neutral-300 normal-case tracking-wider flex items-center gap-1.5">
+                <Settings size={13} className="text-zinc-300" />
+                <span>Cài đặt phòng học</span>
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -5275,17 +5276,17 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                     value={editRoomTitle}
                     onChange={(e) => setEditRoomTitle(e.target.value)}
                     placeholder={room?.title || 'Tên phòng...'}
-                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-neutral-400 mb-1">Mật khẩu PIN (để trống nếu mở)</label>
+                  <label className="block text-[10px] text-neutral-400 mb-1">Mật khẩu pin (để trống nếu mở)</label>
                   <input
                     type="text"
                     value={editRoomPasscode}
                     onChange={(e) => setEditRoomPasscode(e.target.value)}
                     placeholder={room?.passcode || 'Không mật khẩu'}
-                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-neutral-500 font-mono focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-1.5 rounded-lg bg-neutral-950 border border-white/10 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500"
                   />
                 </div>
               </div>
@@ -5295,10 +5296,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   type="button"
                   data-testid="btn-host-save-details"
                   onClick={handleSaveRoomDetails}
-                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 px-3 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
                 >
                   <Check size={13} />
-                  <span>Lưu Thông Tin Phòng</span>
+                  <span>Lưu thông tin phòng</span>
                 </button>
 
                 <button
@@ -5308,7 +5309,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                   className="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-semibold text-xs transition cursor-pointer active:scale-95 flex items-center gap-1"
                 >
                   <Trash2 size={13} />
-                  <span>Xóa Phòng Vĩnh Viễn</span>
+                  <span>Xóa phòng vĩnh viễn</span>
                 </button>
               </div>
             </div>
@@ -5328,7 +5329,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
               <AlertTriangle size={24} />
             </div>
             <div>
-              <h4 className="text-base font-bold text-white">Xác Nhận Xóa Phòng Vĩnh Viễn?</h4>
+              <h4 className="text-base font-bold text-white">Xác nhận xóa phòng vĩnh viễn?</h4>
               <p className="text-xs text-neutral-400 mt-1">
                 Hành động này sẽ giải phóng liên kết phòng và xóa toàn bộ dữ liệu phiên học. Không thể hoàn tác.
               </p>
@@ -5351,7 +5352,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 }}
                 className="flex-1 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs transition cursor-pointer shadow-lg active:scale-95"
               >
-                Xóa Vĩnh Viễn
+                Xóa vĩnh viễn
               </button>
             </div>
           </div>
@@ -5366,18 +5367,18 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
           aria-labelledby="free-room-expired-title"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
         >
-          <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-amber-500/30 p-6 shadow-2xl text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+          <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-zinc-500/30 p-6 shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-full bg-zinc-700/20 border border-zinc-500/40 flex items-center justify-center text-zinc-300">
               <Clock size={28} />
             </div>
             <div>
               <h3 id="free-room-expired-title" className="text-lg font-bold text-white mb-1">
-                Đã Hết Thời Gian Học Tập!
+                Đã hết thời gian học tập!
               </h3>
               <p className="text-xs text-neutral-300 leading-relaxed">
                 {expiredReason}{' '}
                 Bạn sẽ được tự động đưa ra sảnh sau{' '}
-                <span className="text-amber-400 font-bold font-mono text-sm">[{graceCountdown}s...]</span>
+                <span className="text-zinc-300 font-bold font-mono text-sm">[{graceCountdown}s...]</span>
               </p>
             </div>
             <div className="flex flex-col gap-2 pt-2">
@@ -5385,10 +5386,10 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 type="button"
                 data-testid="btn-modal-upgrade-pro"
                 onClick={() => router.navigate('/billing')}
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20"
+                className="w-full py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-zinc-500/20"
               >
                 <Sparkles size={15} />
-                <span>Nâng Cấp PRO Để Học Không Giới Hạn</span>
+                <span>Nâng cấp PRO để học không giới hạn</span>
               </button>
               <button
                 type="button"
@@ -5396,7 +5397,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={() => router.navigate('/rooms')}
                 className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition cursor-pointer"
               >
-                Rời Phòng Ngay ({graceCountdown}s)
+                Rời phòng ngay ({graceCountdown}s)
               </button>
             </div>
           </div>
@@ -5409,7 +5410,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
             <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
               <Trash2 size={24} />
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Xác Nhận Xóa Phòng Vĩnh Viễn</h3>
+            <h3 className="text-base font-bold text-white mb-2">Xác nhận xóa phòng vĩnh viễn</h3>
             <p className="text-xs text-zinc-300 mb-5 leading-relaxed">
               Bạn có chắc chắn muốn xóa vĩnh viễn phòng <strong>{room?.title || `#${roomId}`}</strong>? Mọi người trong phòng sẽ bị ngắt kết nối và phòng sẽ bị gỡ bỏ hoàn toàn khỏi hệ thống.
             </p>
@@ -5419,7 +5420,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={() => setIsConfirmDeleteModalOpen(false)}
                 className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
               >
-                Hủy Bỏ
+                Hủy bỏ
               </button>
               <button
                 type="button"
@@ -5427,7 +5428,7 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
                 onClick={handleConfirmDeleteRoomInView}
                 className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition cursor-pointer shadow-lg shadow-rose-950/50"
               >
-                Xóa Vĩnh Viễn
+                Xóa vĩnh viễn
               </button>
             </div>
           </div>

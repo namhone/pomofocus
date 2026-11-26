@@ -1,0 +1,5 @@
+
+> immersive-pomodoro-workspace@1.0.0 type-check
+> tsc --noEmit
+
+src/components/SpacesWidget.tsx(499,32): error TS2304: Cannot find name 'Video'.

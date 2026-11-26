@@ -122,7 +122,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const fallbackSvg = useMemo(() => {
     if (isGuest && !name) {
       // Unauthenticated / Guest: bold 'K' over emerald gradient
-      return generateInitialsAvatarSvg('Khách', pxSize, 'K', ['#10b981', '#047857']);
+      return generateInitialsAvatarSvg('Khách', pxSize, 'K', ['#3f3f46', '#3f3f46']);
     }
     return generateInitialsAvatarSvg(effectiveDisplayName || 'Khách', pxSize);
   }, [isGuest, name, effectiveDisplayName, pxSize]);
@@ -143,7 +143,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // Ring classes
   const ringClasses = useMemo(() => {
     if (typeof ring === 'string') return ring;
-    if (ring === true) return 'ring-2 ring-emerald-500/40';
+    if (ring === true) return 'ring-2 ring-zinc-500/40';
     return '';
   }, [ring]);
 
@@ -183,7 +183,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {showStatusDot && (
         <span
           data-testid={`${testId}-status-dot`}
-          className={`absolute bottom-0 right-0 rounded-full bg-emerald-500 ring-2 ring-zinc-950 pointer-events-none ${
+          className={`absolute bottom-0 right-0 rounded-full bg-zinc-700 ring-2 ring-zinc-950 pointer-events-none ${
             pxSize <= 28 ? 'w-2 h-2' : 'w-2.5 h-2.5'
           }`}
         />

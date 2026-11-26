@@ -34,7 +34,7 @@ export const NotFoundPage: React.FC = () => {
   return (
     <div
       data-testid="not-found-page"
-      className="relative min-h-screen w-full bg-[#050608] text-zinc-100 font-sans antialiased flex flex-col justify-between selection:bg-emerald-500/30 selection:text-emerald-200 select-none overflow-hidden"
+      className="relative min-h-screen w-full bg-[#09090b] text-zinc-100 font-sans antialiased flex flex-col justify-between selection:bg-zinc-500/30 selection:text-zinc-200 select-none overflow-hidden"
     >
       {/* 1. Hình nền Không Gian Sâu / Anime Đêm Sao */}
       <div
@@ -47,8 +47,8 @@ export const NotFoundPage: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-[#060810]/75 to-black/90 backdrop-blur-sm pointer-events-none" />
 
       {/* Tinh vân lấp lánh trang trí nền */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 left-1/3 w-[450px] h-[250px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-zinc-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/3 left-1/3 w-[450px] h-[250px] bg-zinc-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header tối giản */}
       <header className="relative z-10 px-4 sm:px-8 py-5 flex items-center justify-between">
@@ -73,7 +73,7 @@ export const NotFoundPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[11px] font-mono text-zinc-400">
-          <Compass size={12} className="text-emerald-400" />
+          <Compass size={12} className="text-zinc-400" />
           <span>Tọa độ không xác định</span>
         </div>
       </header>
@@ -82,9 +82,9 @@ export const NotFoundPage: React.FC = () => {
       <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6">
         <div className="max-w-lg w-full p-6 sm:p-10 rounded-3xl border border-white/10 bg-zinc-950/70 backdrop-blur-2xl text-center shadow-2xl space-y-6">
           {/* Badge Trạng thái */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-mono font-medium tracking-wide">
-            <Sparkles size={13} className="text-emerald-400 animate-pulse" />
-            <span>LỖI 404 · VŨ TRỤ KHÔNG TỒN TẠI</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-xs font-mono font-medium tracking-wide">
+            <Sparkles size={13} className="text-zinc-400 animate-pulse" />
+            <span>Lỗi 404 · Không tìm thấy trang</span>
           </div>
 
           {/* Con số 404 lớn phát sáng gradient */}
@@ -100,7 +100,7 @@ export const NotFoundPage: React.FC = () => {
           {/* Thông điệp Zen tĩnh lặng */}
           <div className="space-y-3">
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              Bạn Đang Lạc Lối Giữa Không Gian...
+              Bạn đang lạc lối giữa không gian...
             </h1>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
               Đường dẫn này không tồn tại hoặc đã được di chuyển sang một vũ trụ khác.
@@ -114,10 +114,10 @@ export const NotFoundPage: React.FC = () => {
               type="button"
               data-testid="404-btn-back-workspace"
               onClick={() => router.navigate('/app')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-lg shadow-emerald-500/20 transition-all duration-200 active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-lg shadow-zinc-500/20 transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Clock size={16} />
-              <span>Quay Về Bàn Học Ngay</span>
+              <span>Quay về bàn học</span>
             </button>
 
             <button
@@ -127,15 +127,15 @@ export const NotFoundPage: React.FC = () => {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white font-medium text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-sm"
             >
               <Home size={16} />
-              <span>Về Trang Chủ</span>
+              <span>Về trang chủ</span>
             </button>
           </div>
         </div>
       </main>
 
       {/* Footer mờ nhẹ */}
-      <footer className="relative z-10 py-4 text-center text-[11px] text-zinc-500 font-mono">
-        <span>PomoFocus Workspace · Không gian học tập Zen-First</span>
+      <footer className="relative z-10 py-4 text-center text-[11px] text-zinc-400 font-sans">
+        <span>PomoFocus Workspace · Không gian học tập tập trung</span>
       </footer>
     </div>
   );

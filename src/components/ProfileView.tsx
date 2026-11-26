@@ -1,3 +1,4 @@
+import { UiLabel } from './common/UiSymbol';
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
@@ -80,13 +81,13 @@ export const ProfileView: React.FC = () => {
   if (!isAuthenticated || !user) {
     return (
       <MobileSubViewLayout
-        title="Hồ Sơ Cá Nhân"
+        title="Hồ sơ cá nhân"
         subtitle="Yêu cầu đăng nhập"
         onBack={() => router.navigate('/app')}
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Yêu Cầu Đăng Nhập</h1>
+            <h1 className="text-xl font-bold text-white">Yêu cầu đăng nhập</h1>
             <p className="text-xs text-zinc-400 leading-relaxed">
               Bạn cần đăng nhập tài khoản để xem và quản lý hồ sơ cá nhân cũng như cập nhật ảnh đại diện.
             </p>
@@ -96,14 +97,14 @@ export const ProfileView: React.FC = () => {
                 onClick={() => router.navigate('/login')}
                 className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-xs transition hover:bg-zinc-200 cursor-pointer"
               >
-                Đăng Nhập Ngay
+                Đăng nhập ngay
               </button>
               <button
                 type="button"
                 onClick={() => router.navigate('/app')}
                 className="w-full py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white text-xs transition cursor-pointer"
               >
-                Vào Không Gian Làm Việc
+                Vào không gian làm việc
               </button>
             </div>
           </div>
@@ -285,7 +286,7 @@ export const ProfileView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Hồ Sơ Cá Nhân"
+      title="Hồ sơ cá nhân"
       subtitle={user.email}
       backTestId="back-to-workspace-btn"
       onBack={() => router.navigate('/app')}
@@ -359,8 +360,8 @@ export const ProfileView: React.FC = () => {
 
         {/* Status Toast */}
         {saveStatus && (
-          <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in">
-            <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
+          <div className="p-3.5 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in">
+            <CheckCircle2 size={16} className="shrink-0 text-zinc-300" />
             <span className="font-medium">{saveStatus}</span>
           </div>
         )}
@@ -408,7 +409,7 @@ export const ProfileView: React.FC = () => {
               <div className="min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight truncate" data-testid="profile-display-name">
-                    {user.displayName}
+                    <UiLabel text={user.displayName} />
                   </h1>
                   {user.username && (
                     <span className="text-xs font-mono text-zinc-400 font-medium" data-testid="profile-handle">
@@ -425,8 +426,8 @@ export const ProfileView: React.FC = () => {
 
                 {/* Bio / Focus Goal if available */}
                 {(user.focusGoal || user.bio) && (
-                  <div className="text-xs text-emerald-300/90 font-medium flex items-center gap-1.5 truncate">
-                    <Target size={12} className="text-emerald-400 shrink-0" />
+                  <div className="text-xs text-zinc-300/90 font-medium flex items-center gap-1.5 truncate">
+                    <Target size={12} className="text-zinc-300 shrink-0" />
                     <span className="truncate">{user.focusGoal || user.bio}</span>
                   </div>
                 )}
@@ -466,7 +467,7 @@ export const ProfileView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                    Tên Hiển Thị (Display Name)
+                    Tên hiển thị (display name)
                   </label>
                   <input
                     type="text"
@@ -482,7 +483,7 @@ export const ProfileView: React.FC = () => {
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1">
                     <AtSign size={13} className="text-zinc-400" />
-                    <span>Định Danh Duy Nhất (Handle / Tag)</span>
+                    <span>Định danh duy nhất (handle / tag)</span>
                   </label>
                   <input
                     type="text"
@@ -498,7 +499,7 @@ export const ProfileView: React.FC = () => {
               {/* Tiểu sử / Mục tiêu học tập */}
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1">
-                  <Target size={13} className="text-emerald-400" />
+                  <Target size={13} className="text-zinc-300" />
                   <span>Mục tiêu hoặc tiểu sử</span>
                 </label>
                 <input
@@ -507,7 +508,7 @@ export const ProfileView: React.FC = () => {
                   value={focusGoal}
                   onChange={(e) => setFocusGoal(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
-                  placeholder="Ví dụ: Đạt IELTS 8.0, hoàn thành đồ án, ôn thi..."
+                  placeholder="Ví dụ: đạt ielts 8.0, hoàn thành đồ án, ôn thi..."
                   maxLength={100}
                 />
               </div>
@@ -536,18 +537,18 @@ export const ProfileView: React.FC = () => {
 
                 {/* Banner trạng thái đang xử lý nén / tải ảnh */}
                 {isProcessingAvatar && (
-                  <div className="p-3 rounded-xl border border-blue-500/30 bg-blue-950/40 text-blue-300 text-xs flex items-center gap-2.5 animate-pulse">
-                    <Loader2 size={15} className="animate-spin text-blue-400 shrink-0" />
-                    <span>Đang cắt vuông 1:1, nén nhẹ tối ưu và lưu vào Supabase Cloud...</span>
+                  <div className="p-3 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2.5 animate-pulse">
+                    <Loader2 size={15} className="animate-spin text-zinc-300 shrink-0" />
+                    <span>Đang chuẩn bị và lưu ảnh đại diện...</span>
                   </div>
                 )}
 
                 {/* Badge thông báo tối ưu hóa thành công */}
                 {avatarOptimizationInfo && (
-                  <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-                    <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+                  <div className="p-3 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2 animate-in fade-in">
+                    <CheckCircle2 size={15} className="text-zinc-300 shrink-0" />
                     <span className="font-medium">
-                      ✓ Đã cắt vuông 1:1 • Nén còn {avatarOptimizationInfo.sizeKb} KB • {avatarOptimizationInfo.isCloud ? 'Supabase Storage CDN' : 'Supabase Cloud Profile'}
+                      ✓ Đã cắt vuông 1:1 • nén còn {avatarOptimizationInfo.sizeKb} KB • {avatarOptimizationInfo.isCloud ? 'Supabase Storage CDN' : 'Supabase Cloud Profile'}
                     </span>
                   </div>
                 )}
@@ -566,11 +567,11 @@ export const ProfileView: React.FC = () => {
                   <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/50 flex flex-col justify-between space-y-2.5">
                     <div>
                       <div className="text-xs font-medium text-white flex items-center gap-1.5 mb-1">
-                        <Upload size={13} className="text-emerald-400" />
-                        <span>Nguồn 1: Tải từ thiết bị</span>
+                        <Upload size={13} className="text-zinc-300" />
+                        <span>Nguồn 1: tải từ thiết bị</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 leading-relaxed">
-                        Hỗ trợ PNG, JPG, WebP. Tự động cắt vuông và nén dưới 50KB.
+                        Hỗ trợ png, jpg, webp. Tự động cắt vuông và nén dưới 50kb.
                       </div>
                     </div>
 
@@ -590,7 +591,7 @@ export const ProfileView: React.FC = () => {
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >
-                      <Upload size={13} className="text-emerald-400" />
+                      <Upload size={13} className="text-zinc-300" />
                       <span>{isProcessingAvatar ? 'Đang Xử Lý...' : 'Chọn Ảnh Từ Máy / Điện Thoại'}</span>
                     </button>
                   </div>
@@ -599,11 +600,11 @@ export const ProfileView: React.FC = () => {
                   <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/50 flex flex-col justify-between space-y-2.5">
                     <div>
                       <div className="text-xs font-medium text-white flex items-center gap-1.5 mb-1">
-                        <Globe size={13} className="text-blue-400" />
-                        <span>Nguồn 2: Dán URL ảnh mạng</span>
+                        <Globe size={13} className="text-zinc-300" />
+                        <span>Nguồn 2: dán URL ảnh mạng</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 leading-relaxed">
-                        Discord, Imgur, Facebook, Pinterest hoặc liên kết ảnh trực tiếp.
+                        Discord, imgur, Facebook, pinterest hoặc liên kết ảnh trực tiếp.
                       </div>
                     </div>
 
@@ -628,7 +629,7 @@ export const ProfileView: React.FC = () => {
                         data-testid="btn-apply-avatar-url"
                         disabled={!urlInput.trim() || isProcessingAvatar}
                         onClick={() => handleApplyUrlAvatar()}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white text-xs font-medium transition cursor-pointer shrink-0 whitespace-nowrap"
+                        className="px-3 py-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-700 disabled:bg-zinc-800 disabled:text-zinc-400 text-white text-xs font-medium transition cursor-pointer shrink-0 whitespace-nowrap"
                       >
                         {isProcessingAvatar ? 'Đang Tải...' : 'Áp Dụng'}
                       </button>
@@ -667,7 +668,7 @@ export const ProfileView: React.FC = () => {
                           {geo.name.split(' (')[0]}
                         </span>
                         {avatarUrl === geo.svgDataUri && (
-                          <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[8px]">
+                          <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-zinc-700 text-black flex items-center justify-center text-[8px]">
                             ✓
                           </div>
                         )}
@@ -688,7 +689,7 @@ export const ProfileView: React.FC = () => {
                     <div className="flex items-center gap-2.5">
                       <EyeOff size={15} className="text-zinc-400 shrink-0" />
                       <div>
-                        <div className="text-xs font-medium text-white">Ẩn địa chỉ Email trong phòng học</div>
+                        <div className="text-xs font-medium text-white">Ẩn địa chỉ email trong phòng học</div>
                         <div className="text-[11px] text-zinc-400">Các thành viên khác chỉ nhìn thấy tên hiển thị và định danh của bạn.</div>
                       </div>
                     </div>
@@ -745,11 +746,11 @@ export const ProfileView: React.FC = () => {
                   className="px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
                 >
                   {isSaving ? (
-                    <span>Đang Lưu...</span>
+                    <span>Đang lưu...</span>
                   ) : (
                     <>
                       <Save size={13} />
-                      <span>Lưu Hồ Sơ &amp; Cài Đặt</span>
+                      <span>Lưu hồ sơ &amp; cài đặt</span>
                     </>
                   )}
                 </button>
@@ -762,30 +763,30 @@ export const ProfileView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Sparkles size={16} className="text-amber-400" />
-              <span>Đặc Quyền Gói Dịch Vụ</span>
+              <Sparkles size={16} className="text-zinc-300" />
+              <span>Đặc quyền gói dịch vụ</span>
             </h2>
             <button
               type="button"
               onClick={() => router.navigate('/billing')}
               className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 transition cursor-pointer whitespace-nowrap"
             >
-              <span>Xem Bảng Giá</span>
+              <span>Xem bảng giá</span>
               <ExternalLink size={12} />
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
-              <div className="text-[11px] text-zinc-400">Trạng Thái Gói</div>
+              <div className="text-[11px] text-zinc-400">Trạng thái gói</div>
               <div className="font-semibold text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse" />
                 <span>{effectiveBadge}</span>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
-              <div className="text-[11px] text-zinc-400">Hạn Sử Dụng</div>
+              <div className="text-[11px] text-zinc-400">Hạn sử dụng</div>
               <div className="font-semibold text-white">{formattedExpiry}</div>
             </div>
           </div>
@@ -794,27 +795,27 @@ export const ProfileView: React.FC = () => {
             <div className="text-xs font-medium text-zinc-300">Tính năng đã kích hoạt:</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-400">
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
+                <Check size={14} className="text-zinc-300 shrink-0" />
                 <span>100+ bối cảnh tập trung</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
+                <Check size={14} className="text-zinc-300 shrink-0" />
                 <span>Âm thanh tự nhiên &amp; thư viện nhạc sống</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
-                <span>Phòng học trực tuyến WebRTC Video</span>
+                <Check size={14} className="text-zinc-300 shrink-0" />
+                <span>Phòng học trực tuyến</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
-                <span>Lịch biểu Time-blocking chuyên sâu</span>
+                <Check size={14} className="text-zinc-300 shrink-0" />
+                <span>Lịch biểu time-blocking chuyên sâu</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
+                <Check size={14} className="text-zinc-300 shrink-0" />
                 <span>Đồng bộ dữ liệu đám mây đa thiết bị</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-400 shrink-0" />
+                <Check size={14} className="text-zinc-300 shrink-0" />
                 <span>Tải lên video &amp; âm thanh cá nhân</span>
               </div>
             </div>

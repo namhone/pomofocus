@@ -333,7 +333,7 @@ describe('Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre
 
       // Backdrop has 2xl:hidden
       const backdrop = screen.getByTestId('ai-backdrop');
-      expect(backdrop.className).toContain('2xl:hidden');
+      expect(backdrop.className).toContain('lg:hidden');
       expect(backdrop.className).not.toContain('sm:hidden');
     });
   });

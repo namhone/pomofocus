@@ -1,0 +1,1922 @@
+{
+  "url": "http://127.0.0.1:5194/app",
+  "timestamp": "2026-11-26T00:19:23.151Z",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "messageKey": "nonBmp"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element content contains only non-text characters"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>∞</span>",
+          "target": [
+            ".hover\\:bg-zinc-700\\/20 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.8pt (13px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-drag-handle=\"true\" class=\"relative z-20 h-9 px-3 flex items-center justify-between gap-2 border-b border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] cursor-grab active:cursor-grabbing touch-none select-none shrink-0 transition-colors\" title=\"Kéo để di chuyển widget\">",
+                  "target": [
+                    ".z-20"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 class=\"text-[13px] font-medium text-neutral-200 tracking-tight\">Không gian nền</h2>",
+          "target": [
+            ".text-\\[13px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"spaces-tab-wallpapers\" class=\"flex-1 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5 text-xs whitespace-nowrap shrink-0 bg-white/20 text-white shadow-sm font-semibold\">",
+                  "target": [
+                    ".bg-white\\/20"
+                  ]
+                },
+                {
+                  "html": "<div class=\"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2\">",
+                  "target": [
+                    ".flex-nowrap.mb-2.bg-zinc-900\\/90"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"whitespace-nowrap\">Hình nền</span>",
+          "target": [
+            ".bg-white\\/20 > .whitespace-nowrap"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"flex flex-nowrap rounded-xl bg-zinc-900/90 p-1 border border-white/10 text-xs gap-1 shrink-0 mb-2\">",
+                  "target": [
+                    ".flex-nowrap.mb-2.bg-zinc-900\\/90"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"whitespace-nowrap\">Âm thanh &amp; chuông</span>",
+          "target": [
+            "button[data-testid=\"spaces-tab-audio\"] > .whitespace-nowrap"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h3 class=\"font-semibold text-white text-xs truncate\">Thư viện không gian</h3>",
+          "target": [
+            "h3"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[10px] text-neutral-400 truncate\">Không gian nền</p>",
+          "target": [
+            ".text-\\[10px\\].text-neutral-400"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] font-medium text-zinc-300 drop-shadow-sm\">Đen tuyền</span>",
+          "target": [
+            "button[data-testid=\"zen-color-zen-pure-black\"] > .drop-shadow-sm.text-\\[10px\\].text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] font-medium text-zinc-300 drop-shadow-sm\">Than chì</span>",
+          "target": [
+            "button[data-testid=\"zen-color-zen-deep-graphite\"] > .drop-shadow-sm.text-\\[10px\\].text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[10px] font-medium text-zinc-300 drop-shadow-sm\">Xanh đêm</span>",
+          "target": [
+            "button[data-testid=\"zen-color-zen-night-blue\"] > .drop-shadow-sm.text-\\[10px\\].text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-4\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-4\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Studio Ghibli (Arrietty)</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-4\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-5\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-5\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Studio Ghibli (Kiki’s Delivery Service)</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-5\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-6\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-6\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Makoto Shinkai (Your Name)</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-6\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-7\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-7\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Makoto Shinkai (Your Name)</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-7\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-8\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-08.webp\" alt=\"Vệt sao giữa trời đêm\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-8\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Vệt sao giữa trời đêm\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-8\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-8\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-8\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Vệt sao giữa trời đêm</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-8\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-8\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-8\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Makoto Shinkai (Your Name)</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-8\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-9\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-09.webp\" alt=\"Tokyo dưới trời xanh\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-9\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Tokyo dưới trời xanh\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-9\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-9\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-9\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Tokyo dưới trời xanh</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-9\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-9\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-9\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa anime trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-9\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-10\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-10.webp\" alt=\"Đường ray mùa hạ\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-10\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Đường ray mùa hạ\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-10\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-10\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-10\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Đường ray mùa hạ</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-10\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-10\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-10\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa anime trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-10\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-11\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-11.webp\" alt=\"Phòng ngủ Cyberpunk\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-11\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Phòng ngủ Cyberpunk\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-11\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-11\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-11\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Phòng ngủ Cyberpunk</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-11\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-11\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-11\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-11\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-cozy-lofi-room\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-zinc-500 bg-zinc-950/30 shadow-md ring-1 ring-zinc-500/50\">",
+                  "target": [
+                    ".border-zinc-500"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Góc học tập Lo-fi</h4>",
+          "target": [
+            ".border-zinc-500 > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-cozy-lofi-room\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-zinc-500 bg-zinc-950/30 shadow-md ring-1 ring-zinc-500/50\">",
+                  "target": [
+                    ".border-zinc-500"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa trong dự án</p>",
+          "target": [
+            ".border-zinc-500 > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-13\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-13.webp\" alt=\"Góc bếp Pixel\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-13\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Góc bếp Pixel\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-13\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-13\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-13\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Góc bếp Pixel</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-13\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-13\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-13\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-13\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-14\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-14.webp\" alt=\"Mây mùa hạ bên đường tàu\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-14\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Mây mùa hạ bên đường tàu\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-14\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-14\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-14\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Mây mùa hạ bên đường tàu</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-14\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-14\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-14\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa anime trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-14\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-15\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-15.webp\" alt=\"Phố đèn lồng\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-15\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Phố đèn lồng\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-15\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-15\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-15\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h4 class=\"text-[11px] font-medium text-neutral-200 truncate group-hover:text-zinc-300\">Phố đèn lồng</h4>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-15\"] > div:nth-child(2) > h4"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.8pt (9px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" data-testid=\"preset-card-wp-anime-ghibli-15\" class=\"group relative rounded-xl overflow-hidden border text-left transition-all p-1.5 flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 border-white/[0.08] bg-black/30 hover:bg-black/50 hover:border-white/20\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-15\"]"
+                  ]
+                },
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-[9px] text-zinc-400 truncate\">Minh họa trong dự án</p>",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-15\"] > div:nth-child(2) > .text-\\[9px\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-16\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-16.webp\" alt=\"Hẻm Neon đêm mưa\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-16\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Hẻm Neon đêm mưa\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-16\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-17\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-17.webp\" alt=\"Quán nhỏ dưới tán cây\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-17\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Quán nhỏ dưới tán cây\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-17\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-18\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-18.webp\" alt=\"Sao băng trên mặt hồ\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-anime-ghibli-18\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Sao băng trên mặt hồ\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-anime-ghibli-18\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "6.0pt (8px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-photo-1\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+                  ]
+                },
+                {
+                  "html": "<img src=\"https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&amp;fit=crop&amp;w=400&amp;q=60\" alt=\"Sổ tay bên laptop\" loading=\"lazy\" referrerpolicy=\"no-referrer\" class=\"w-full h-full object-cover group-hover:scale-105 transition-transform duration-300\">",
+                  "target": [
+                    "button[data-testid=\"preset-card-wp-photo-1\"] > .aspect-video.bg-neutral-900.mb-1 > .group-hover\\:scale-105[alt=\"Sổ tay bên laptop\"][loading=\"lazy\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-semibold backdrop-blur-md bg-black/70 text-neutral-300 border border-white/10 flex items-center gap-1\">",
+          "target": [
+            "button[data-testid=\"preset-card-wp-photo-1\"] > .aspect-video.bg-neutral-900.mb-1 > .bg-black\\/70.gap-1.left-1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section data-testid=\"widget-container-spaces\" aria-label=\"Không gian nền\" class=\"pointer-events-auto rounded-[20px] border-t border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)] border-b border-b-white/5 border-x border-x-white/10 flex flex-col overflow-hidden transition-[box-shadow,border-color] duration-150   \" style=\"position: absolute; left: 500px; top: 75px; width: 580px; height: 480px; z-index: 23; background-color: rgba(9, 9, 11, 0.92); backdrop-filter: blur(28px) saturate(180%);\">",
+                  "target": [
+                    "section"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"background-overlay\" class=\"absolute inset-0 bg-slate-950 transition-opacity duration-300\" style=\"opacity: 0.3;\"></div>",
+                  "target": [
+                    ".bg-slate-950"
+                  ]
+                },
+                {
+                  "html": "<img src=\"/backgrounds/anime/anime-12.webp\" alt=\"\" referrerpolicy=\"no-referrer\" data-testid=\"background-image-element\" class=\"absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700\" style=\"filter: blur(0px) brightness(100%); transform: none; transition: filter 0.3s, transform 0.3s;\">",
+                  "target": [
+                    ".object-center"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tải ảnh từ máy / dán URL tùy chỉnh</span>",
+          "target": [
+            ".hover\\:text-neutral-200 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 31
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 31
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 6
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 31
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 1
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 1
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 31
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 31
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 8
+    },
+    {
+      "id": "button-name",
+      "nodes": 93
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 5
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "nodes": 2
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "image-alt",
+      "nodes": 59
+    },
+    {
+      "id": "label",
+      "nodes": 1
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 159
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "nodes": 1
+    },
+    {
+      "id": "select-name",
+      "nodes": 1
+    }
+  ]
+}

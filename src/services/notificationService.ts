@@ -117,7 +117,7 @@ export class NotificationService {
               },
               channelId: this.CHANNEL_ID,
               smallIcon: 'ic_launcher',
-              iconColor: '#10b981'
+              iconColor: '#a1a1aa'
             }
           ]
         });
@@ -179,7 +179,7 @@ export class NotificationService {
               body: options?.body || '',
               channelId: this.CHANNEL_ID,
               smallIcon: 'ic_launcher',
-              iconColor: '#10b981'
+              iconColor: '#a1a1aa'
             }
           ]
         }).catch(() => {});

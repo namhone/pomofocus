@@ -141,7 +141,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
       {/* Left side: Category Icon pill, label/subtitle, stacked value + unit with 120Hz rolling digit morph */}
       <div className="flex items-center gap-2 min-w-0 flex-1 mr-1">
         {icon && (
-          <div className="w-7 h-7 rounded-xl bg-zinc-800/80 border border-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="w-7 h-7 rounded-xl bg-zinc-800/80 border border-white/10 flex items-center justify-center text-zinc-300 shrink-0">
             {icon}
           </div>
         )}
@@ -216,7 +216,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
           aria-label={`Giảm ${label}`}
           className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation cursor-pointer"
         >
-          <Minus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
+          <Minus className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
           <span className="sr-only">−</span>
         </button>
 
@@ -229,7 +229,7 @@ export const MobileStepperRow: React.FC<MobileStepperRowProps> = ({
           aria-label={`Tăng ${label}`}
           className="w-12 h-12 min-w-[48px] min-h-[48px] shrink-0 flex items-center justify-center rounded-xl bg-zinc-700/50 hover:bg-zinc-700 active:scale-95 text-white font-bold select-none transition-all disabled:opacity-40 disabled:pointer-events-none disabled:active:scale-100 touch-manipulation cursor-pointer"
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
+          <Plus className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
           <span className="sr-only">+</span>
         </button>
       </div>

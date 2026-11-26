@@ -1,3 +1,5 @@
+import { UiLabel } from './common/UiSymbol';
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
@@ -28,21 +30,21 @@ import { AdminCouponManager } from './AdminCouponManager';
 
 const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 'lifetime') => {
   if (val === false || val === '—' || val === '-') {
-    return <span className="text-zinc-600 font-light text-sm select-none">—</span>;
+    return <span className="text-zinc-400 font-light text-sm select-none">—</span>;
   }
 
   if (val === true || val === '✓') {
     return (
       <span className="flex items-center justify-center">
-        <Check className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
+        <Check className="w-4 h-4 text-zinc-300 stroke-[1.5]" />
       </span>
     );
   }
 
   if (typeof val === 'string' && val.includes('✓')) {
     return (
-      <span className="inline-flex items-center justify-center gap-1 text-[11px] font-medium text-amber-200">
-        <Check className="w-3.5 h-3.5 text-amber-400 stroke-[2.5] shrink-0" />
+      <span className="inline-flex items-center justify-center gap-1 text-[11px] font-medium text-zinc-200">
+        <Check className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5] shrink-0" />
         <span>{val.replace('✓', '').trim()}</span>
       </span>
     );
@@ -50,7 +52,7 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
 
   if (val === 'PRO') {
     return (
-      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
         PRO
       </span>
     );
@@ -58,9 +60,9 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
 
   if (typeof val === 'string' && val.includes('Founder VIP')) {
     return (
-      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-flex items-center gap-1 shadow-xs">
-        <Crown size={11} className="text-amber-400 shrink-0" />
-        <span>Founder VIP 👑</span>
+      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/40 inline-flex items-center gap-1 shadow-xs">
+        <Crown size={11} className="text-zinc-300 shrink-0" />
+        <span>Founder VIP <UiSymbol name="👑" /></span>
       </span>
     );
   }
@@ -73,9 +75,9 @@ const renderStreamlinedCell = (val: string | boolean, variant: 'free' | 'pro' | 
     <span
       className={
         variant === 'lifetime'
-          ? 'font-bold text-amber-300 text-xs font-mono'
+          ? 'font-bold text-zinc-300 text-xs font-mono'
           : variant === 'pro'
-          ? 'font-semibold text-indigo-200 text-xs font-mono'
+          ? 'font-semibold text-zinc-200 text-xs font-mono'
           : 'text-zinc-400 text-xs'
       }
     >
@@ -184,7 +186,7 @@ export const BillingView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Gói Cước & Quyền Lợi PRO"
+      title="Gói cước & quyền lợi PRO"
       subtitle="Bảng giá nâng cấp PomoFocus"
       backTestId="billing-back-btn"
       onBack={() => router.navigate('/app')}
@@ -204,23 +206,23 @@ export const BillingView: React.FC = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
             >
               <ArrowLeft size={14} />
-              <span>Quay lại Không Gian Học</span>
+              <span>Quay lại không gian học</span>
             </button>
           </div>
         )}
         {statusMessage && (
-          <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2.5 shadow-md">
-            <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
+          <div className="p-4 rounded-xl border border-zinc-500/40 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2.5 shadow-md">
+            <CheckCircle2 size={16} className="shrink-0 text-zinc-300" />
             <span className="font-medium">{statusMessage.text}</span>
           </div>
         )}
 
         {appliedDiscount && (
-          <div data-testid="active-discount-banner" className="p-3.5 px-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-xs flex items-center justify-between shadow-md">
+          <div data-testid="active-discount-banner" className="p-3.5 px-4 rounded-xl border border-zinc-500/50 bg-zinc-950/40 text-zinc-300 text-xs flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2">
-              <Sparkles size={16} className="text-emerald-400 shrink-0" />
+              <Sparkles size={16} className="text-zinc-300 shrink-0" />
               <span>
-                Đang kích hoạt mã ưu đãi <strong className="font-mono text-white bg-emerald-500/20 px-1.5 py-0.5 rounded">{appliedDiscount.code}</strong>: Giảm {appliedDiscount.percent}% toàn bộ bảng giá!
+                Đang kích hoạt mã ưu đãi <strong className="font-mono text-white bg-zinc-700/20 px-1.5 py-0.5 rounded">{appliedDiscount.code}</strong>: Giảm {appliedDiscount.percent}% toàn bộ bảng giá!
               </span>
             </div>
             <button
@@ -243,78 +245,78 @@ export const BillingView: React.FC = () => {
         {isUserLifetime ? (
           <div data-testid="billing-founder-card" className="w-full max-w-xl mx-auto space-y-8 animate-in fade-in duration-200 box-border">
             {/* Thẻ Hội Viên Danh Dự Kim Loại Đen */}
-            <div className="relative w-full max-w-xl mx-auto box-border px-4 sm:px-6 py-5 sm:py-7 rounded-2xl sm:rounded-3xl border-2 border-amber-400/50 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black shadow-2xl overflow-hidden">
+            <div className="relative w-full max-w-xl mx-auto box-border px-4 sm:px-6 py-5 sm:py-7 rounded-2xl sm:rounded-3xl border-2 border-zinc-400/50 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black shadow-2xl overflow-hidden">
               {/* Ánh sáng kim loại & vầng hào quang */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-              <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-700/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-zinc-700/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
 
               {/* Header của thẻ */}
               <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80 w-full min-w-0">
                 <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shadow-inner shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-zinc-700/15 border border-zinc-400/30 text-zinc-300 flex items-center justify-center shadow-inner shrink-0">
                     <Crown size={20} className="animate-pulse" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[11px] sm:text-xs font-mono text-amber-400 font-bold whitespace-nowrap">
+                      <span className="text-[11px] sm:text-xs font-mono text-zinc-300 font-bold whitespace-nowrap">
                         Founder VIP độc quyền
                       </span>
                       <span
                         data-testid="billing-pro-active-badge"
-                        className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/40"
                       >
-                        🟢 Đang Kích Hoạt Vĩnh Viễn
+                        <UiSymbol name="🟢" /> Đang kích hoạt vĩnh viễn
                       </span>
                     </div>
                     <h1 className="text-base sm:text-xl md:text-2xl font-extrabold text-white tracking-tight mt-1 break-words">
-                      Thành Viên PRO Trọn Đời (Lifetime Founder)
+                      Thành viên PRO trọn đời (lifetime Founder)
                     </h1>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800 self-start sm:self-auto">
-                  <Award size={14} className="text-amber-400" />
-                  <span>Hạn dùng: <strong>Vĩnh Viễn Trọn Đời</strong></span>
+                  <Award size={14} className="text-zinc-300" />
+                  <span>Hạn dùng: <strong>Vĩnh viễn trọn đời</strong></span>
                 </div>
               </div>
 
               {/* Thông tin định danh thành viên */}
               <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-b border-zinc-800/80 text-xs">
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-400">Chủ Sở Hữu Thẻ</div>
+                  <div className="text-[11px] text-zinc-400">Chủ sở hữu thẻ</div>
                   <div className="text-sm font-bold text-white truncate">{user?.displayName || 'Chủ Tài Khoản'}</div>
                   <div className="text-[11px] text-zinc-400 font-mono truncate">{user?.email}</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-400">Cấp Bậc Hội Viên</div>
-                  <div className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
-                    <Sparkles size={14} className="text-amber-400" />
-                    <span>{planLabel}</span>
+                  <div className="text-[11px] text-zinc-400">Cấp bậc hội viên</div>
+                  <div className="text-sm font-bold text-zinc-300 flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-zinc-300" />
+                    <span><UiLabel text={planLabel} /></span>
                   </div>
                   <div className="text-[11px] text-zinc-400">Đặc quyền tối cao mở khóa 100%</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-                  <div className="text-[11px] text-zinc-400">Mã Định Danh VIP</div>
+                  <div className="text-[11px] text-zinc-400">Mã định danh VIP</div>
                   <div className="text-sm font-mono font-bold text-zinc-200">
                     POMO-{(user?.id || 'FOUNDER').slice(0, 8).toUpperCase()}
                   </div>
-                  <div className="text-[11px] text-emerald-400">Bảo mật mã hóa xác thực</div>
+                  <div className="text-[11px] text-zinc-300">Bảo mật mã hóa xác thực</div>
                 </div>
               </div>
 
               {/* Danh sách 10 Đặc Quyền */}
               <div className="relative z-10 pt-6 space-y-4">
                 <div className="text-xs font-semibold text-zinc-300 flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-amber-400" />
+                  <ShieldCheck size={16} className="text-zinc-300" />
                   <span>Đặc quyền sở hữu Founder VIP</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Phòng học nhóm: Tối đa 50 người</span>
+                    <span className="text-zinc-200">Phòng học nhóm: tối đa 50 người</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
@@ -322,35 +324,35 @@ export const BillingView: React.FC = () => {
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Gia sư AI Companion: Sử dụng không giới hạn</span>
+                    <span className="text-zinc-200">Gia sư AI companion: sử dụng không giới hạn</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Bảng vẽ nhóm: Không giới hạn &amp; xuất ảnh HD</span>
+                    <span className="text-zinc-200">Bảng vẽ nhóm: không giới hạn &amp; xuất ảnh hd</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Đường dẫn phòng: Đặt URL cá nhân hóa theo tên</span>
+                    <span className="text-zinc-200">Đường dẫn phòng: đặt URL cá nhân hóa theo tên</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Kho tài nguyên: hình nền tinh tuyển &amp; YouTube Sync</span>
+                    <span className="text-zinc-200">Kho tài nguyên: hình nền tinh tuyển &amp; YouTube sync</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Đặc quyền quà tặng: Tặng 1 Giftcode PRO 3 tháng</span>
+                    <span className="text-zinc-200">Đặc quyền quà tặng: tặng 1 giftcode PRO 3 tháng</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Huy hiệu vinh danh: Founder VIP 👑 vĩnh viễn</span>
+                    <span className="text-zinc-200">Huy hiệu vinh danh: Founder VIP <UiSymbol name="👑" /> vĩnh viễn</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Quyền lợi tương lai: Mở khóa miễn phí mọi tính năng mới</span>
+                    <span className="text-zinc-200">Quyền lợi tương lai: mở khóa miễn phí mọi tính năng mới</span>
                   </div>
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
                     <Check size={14} className="text-zinc-200 shrink-0 mt-0.5" />
-                    <span className="text-zinc-200">Hỗ trợ kỹ thuật: Ưu tiên băng thông VIP cao nhất</span>
+                    <span className="text-zinc-200">Hỗ trợ kỹ thuật: ưu tiên băng thông VIP cao nhất</span>
                   </div>
                 </div>
               </div>
@@ -358,23 +360,23 @@ export const BillingView: React.FC = () => {
               {/* Lịch Sử Thanh Toán & Biên Lai VietQR - BỐ CỤC 2 HÀNG ĐỘC LẬP CHUẨN ZEN */}
               <div className="relative z-10 mt-8 pt-6 border-t border-zinc-800/80 space-y-4">
                 {/* Hàng 1: Hộp Biên lai VietQR chiếm 100% bề ngang */}
-                <div className="w-full p-3.5 sm:p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                <div className="w-full p-3.5 sm:p-4 rounded-xl bg-zinc-950/30 border border-zinc-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-700/10 text-zinc-300 flex items-center justify-center shrink-0 border border-zinc-500/20">
                       <Receipt size={18} />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
-                        <span>Biên Lai Quyết Toán: VietQR SePay 24/7 (VPBank)</span>
+                        <span>Biên lai quyết toán: VietQR SePay 24/7 (VPBank)</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
-                        Mã GD: VCB_LIFETIME_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫ • Kích hoạt vĩnh viễn
+                        Mã gd: vcb_lifetime_{user?.id?.slice(0, 8).toUpperCase() || 'FOUNDER'} • Số tiền: 799.000₫ • kích hoạt vĩnh viễn
                       </div>
                     </div>
                   </div>
                   <div className="shrink-0 self-end sm:self-center">
-                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold tracking-wide shadow-sm flex items-center gap-1">
-                      <span>✓</span> ĐÃ XÁC THỰC
+                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-zinc-700/20 text-zinc-300 border border-zinc-500/40 font-mono font-bold tracking-wide shadow-sm flex items-center gap-1">
+                      <span>✓</span> Đã xác thực
                     </span>
                   </div>
                 </div>
@@ -386,14 +388,14 @@ export const BillingView: React.FC = () => {
                     onClick={() => router.navigate('/profile')}
                     className="w-full py-2.5 px-4 rounded-xl border border-zinc-700/80 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-semibold transition cursor-pointer shadow-sm text-center flex items-center justify-center gap-2"
                   >
-                    <span>👤</span> Quản Lý Hồ Sơ
+                    <span><UiSymbol name="👤" /></span> Quản lý hồ sơ
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
-                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-400 hover:to-amber-400 text-zinc-950 text-xs font-bold transition cursor-pointer shadow-lg hover:shadow-emerald-500/20 text-center flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-700 text-zinc-950 text-xs font-bold transition cursor-pointer shadow-lg hover:shadow-zinc-500/20 text-center flex items-center justify-center gap-2"
                   >
-                    <span>🚀</span> Vào Không Gian Học
+                    <span><UiSymbol name="🚀" /></span> Vào không gian học
                   </button>
                 </div>
               </div>
@@ -406,32 +408,32 @@ export const BillingView: React.FC = () => {
           <div data-testid="billing-active-subscription" className="space-y-8 animate-in fade-in duration-200">
             {/* Header trạng thái */}
             <div className="text-center space-y-2">
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full inline-block">
+              <span className="text-[11px] font-mono text-zinc-300 bg-zinc-700/10 border border-zinc-500/20 px-3 py-1 rounded-full inline-block">
                 Gói đang hoạt động
               </span>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Quản Lý Thuê Bao PRO Của Bạn
+                Quản lý thuê bao PRO của bạn
               </h1>
               <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
-                Bạn đang sử dụng gói <strong>{planLabel}</strong>. Dưới đây là tình trạng thuê bao và các tùy chọn gia hạn hoặc nâng cấp lên Trọn Đời.
+                Bạn đang sử dụng gói <strong><UiLabel text={planLabel} /></strong>. Dưới đây là tình trạng thuê bao và các tùy chọn gia hạn hoặc nâng cấp lên trọn đời.
               </p>
             </div>
 
             {/* Thẻ hiển thị số ngày còn lại & ngày hết hạn */}
-            <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl relative overflow-hidden">
+            <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-zinc-500/30 bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 shadow-xl relative overflow-hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span
                       data-testid="billing-pro-active-badge"
-                      className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1.5"
+                      className="px-2.5 py-1 rounded-full text-xs font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/40 inline-flex items-center gap-1.5"
                     >
-                      <CheckCircle2 size={13} className="text-emerald-400" />
-                      <span>{planLabel} Đang Hoạt Động</span>
+                      <CheckCircle2 size={13} className="text-zinc-300" />
+                      <span><UiLabel text={planLabel} /> Đang hoạt động</span>
                     </span>
                   </div>
                   <div className="text-lg sm:text-xl font-bold text-white">
-                    Thời Hạn Còn Lại: <span className="text-emerald-400">{remainingDays} Ngày</span>
+                    Thời hạn còn lại: <span className="text-zinc-300">{remainingDays} Ngày</span>
                   </div>
                   <div className="text-xs text-zinc-400 font-mono">
                     Hết hạn vào: <strong>{expiryFormatted}</strong> (Hệ thống sẽ bảo toàn dữ liệu của bạn)
@@ -449,14 +451,14 @@ export const BillingView: React.FC = () => {
                     }}
                     className="px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer"
                   >
-                    Chuyển về Gói Cơ Bản
+                    Chuyển về gói cơ bản
                   </button>
                   <button
                     type="button"
                     onClick={() => router.navigate('/app')}
                     className="px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer"
                   >
-                    Vào Học Ngay
+                    Vào học ngay
                   </button>
                 </div>
               </div>
@@ -470,23 +472,23 @@ export const BillingView: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-zinc-400">Gia hạn thuê bao</span>
                     <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
-                      Cộng Dồn Ngày
+                      Cộng dồn ngày
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-white">Gia Hạn Thêm Thời Gian Học</h2>
+                    <h2 className="text-lg font-bold text-white">Gia hạn thêm thời gian học</h2>
                     <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
                       Cộng dồn thêm thời hạn vào ngày hết hạn hiện tại của bạn. Chọn gia hạn theo tháng hoặc năm tiết kiệm 34%.
                     </p>
                   </div>
                   <div className="space-y-2 pt-3 border-t border-zinc-800 text-xs">
                     <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800">
-                      <span className="text-zinc-300">Gia hạn thêm 1 Tháng:</span>
+                      <span className="text-zinc-300">Gia hạn thêm 1 tháng:</span>
                       <strong className="text-white font-mono">59.000₫</strong>
                     </div>
                     <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800">
-                      <span className="text-emerald-300">Gia hạn thêm 1 Năm (-34%):</span>
-                      <strong className="text-emerald-400 font-mono">468.000₫</strong>
+                      <span className="text-zinc-300">Gia hạn thêm 1 năm (-34%):</span>
+                      <strong className="text-zinc-300 font-mono">468.000₫</strong>
                     </div>
                   </div>
                 </div>
@@ -497,29 +499,29 @@ export const BillingView: React.FC = () => {
                     onClick={() => handleSelectPlanAndCheckout('monthly')}
                     className="py-2.5 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-white font-semibold transition cursor-pointer"
                   >
-                    +1 Tháng (59k)
+                    +1 tháng (59k)
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSelectPlanAndCheckout('yearly')}
-                    className="py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition cursor-pointer shadow-md"
+                    className="py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-black text-xs font-bold transition cursor-pointer shadow-md"
                   >
-                    +1 Năm (468k)
+                    +1 năm (468k)
                   </button>
                 </div>
               </div>
 
               {/* Lựa chọn 2: Nâng Cấp Lên Trọn Đời */}
-              <div className="p-6 sm:p-8 rounded-2xl border-2 border-amber-400/40 bg-zinc-900/80 flex flex-col justify-between space-y-6 shadow-2xl relative">
-                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-bold shadow">
+              <div className="p-6 sm:p-8 rounded-2xl border-2 border-zinc-400/40 bg-zinc-900/80 flex flex-col justify-between space-y-6 shadow-2xl relative">
+                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-zinc-700 text-black text-[10px] font-bold shadow">
                   Tiết kiệm tối đa
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-amber-400">Nâng cấp trọn đời</span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
-                      Khấu Trừ Ngày Cũ
+                    <span className="text-xs font-mono text-zinc-300">Nâng cấp trọn đời</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-zinc-700/20 text-zinc-300 border border-zinc-500/40 font-mono">
+                      Khấu trừ ngày cũ
                     </span>
                   </div>
 
@@ -529,26 +531,26 @@ export const BillingView: React.FC = () => {
                       <span className="text-xs text-zinc-400">/ một lần duy nhất</span>
                     </div>
                     <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
-                      Nâng cấp lên gói Founder VIP vĩnh viễn. Không bao giờ phải trả phí lại, mở khóa phòng 60 người, AI Study Companion không giới hạn và tặng 01 Giftcode 3 tháng.
+                      Nâng cấp lên gói Founder VIP vĩnh viễn. Không bao giờ phải trả phí lại, mở khóa phòng 60 người, AI study companion không giới hạn và tặng 01 giftcode 3 tháng.
                     </p>
                   </div>
 
                   <div className="space-y-2 pt-3 border-t border-zinc-800 text-xs">
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
-                      <span>Sức chứa phòng học: Lên đến 60 người</span>
+                      <span>Sức chứa phòng học: lên đến 60 người</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
-                      <span>Trợ lý AI Study: Sử dụng AI Study Companion không giới hạn</span>
+                      <span>Trợ lý AI study: sử dụng AI study companion không giới hạn</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
-                      <span>Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn</span>
+                      <span>Huy hiệu nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-200">
                       <Check size={14} className="text-zinc-200 shrink-0" />
-                      <span>Tặng 01 Giftcode PRO 3 tháng cho bạn cùng tiến</span>
+                      <span>Tặng 01 giftcode PRO 3 tháng cho bạn cùng tiến</span>
                     </div>
                   </div>
                 </div>
@@ -557,10 +559,10 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="btn-upgrade-lifetime"
                   onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                  className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
+                  className="w-full py-3 rounded-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-300 text-black text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
                 >
                   <Zap size={14} className="fill-black" />
-                  <span>Nâng Cấp Lên Trọn Đời Ngay (VietQR)</span>
+                  <span>Nâng cấp lên trọn đời ngay (VietQR)</span>
                 </button>
               </div>
             </div>
@@ -577,10 +579,10 @@ export const BillingView: React.FC = () => {
                 Đầu tư cho sự tập trung
               </span>
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Bảng Giá Dịch Vụ PomoFocus PRO
+                Bảng giá dịch vụ PomoFocus PRO
               </h1>
               <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-                Nâng tầm hiệu suất với phòng học Meet không giới hạn, Bảng vẽ chung thời gian thực, và kho âm thanh chất lượng cao.
+                Nâng tầm hiệu suất với phòng học meet không giới hạn, bảng vẽ chung thời gian thực, và kho âm thanh chất lượng cao.
               </p>
 
               {/* Billing Cycle Switch (2 chế độ: Tháng và Năm chuẩn Stripe/Linear) */}
@@ -608,7 +610,7 @@ export const BillingView: React.FC = () => {
                   }`}
                 >
                   <span>Thanh toán theo năm</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-700/20 text-zinc-300 font-bold">
                     Tiết kiệm 34%
                   </span>
                 </button>
@@ -635,38 +637,38 @@ export const BillingView: React.FC = () => {
                       <span className="text-xs text-zinc-400">/ vĩnh viễn</span>
                     </div>
                     <p className="text-[11px] text-zinc-400 mt-1 font-mono leading-tight">
-                      Miễn phí trọn đời • Không cần thẻ thanh toán
+                      Miễn phí trọn đời • không cần thẻ thanh toán
                     </p>
                   </div>
 
                   <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
                     <div className="flex items-start gap-2">
-                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-200 leading-snug font-medium">50⚡ AI Credits / tháng</span>
+                      <Zap size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug font-medium">50<UiSymbol name="⚡" /> AI credits / tháng</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Thời lượng phòng riêng: Tối đa 45 phút/phiên</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Thời lượng phòng riêng: tối đa 45 phút/phiên</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Sức chứa phòng học: Tối đa 6 người/phòng</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Sức chứa phòng học: tối đa 6 người/phòng</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Chất lượng phòng học: 480p Tiêu chuẩn</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Chất lượng phòng học: 480p tiêu chuẩn</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Kho âm thanh &amp; Hình nền: 5 âm thanh cơ bản &amp; 3 hình nền tĩnh</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Kho âm thanh &amp; hình nền: 5 âm thanh cơ bản &amp; 3 hình nền tĩnh</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Bảng vẽ Whiteboard: 1 trang nháp</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Bảng vẽ whiteboard: 1 trang nháp</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-300 leading-snug">Đường dẫn phòng học: Ngẫu nhiên dạng mã số</span>
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 leading-snug">Đường dẫn phòng học: ngẫu nhiên dạng mã số</span>
                     </div>
                   </div>
                 </div>
@@ -683,7 +685,7 @@ export const BillingView: React.FC = () => {
                     }}
                     className={`w-full py-3 rounded-full text-xs font-semibold transition cursor-pointer ${
                       !isPro
-                        ? 'bg-zinc-800/80 text-zinc-500 cursor-default border border-zinc-800'
+                        ? 'bg-zinc-800/80 text-zinc-400 cursor-default border border-zinc-800'
                         : 'border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800'
                     }`}
                   >
@@ -693,9 +695,9 @@ export const BillingView: React.FC = () => {
               </div>
 
               {/* THẺ 2: GÓI PRO (TÂM ĐIỂM - CHUYỂN ĐỔI THEO TOGGLE) */}
-              <div className="relative rounded-2xl border-2 border-indigo-500/70 bg-gradient-to-b from-indigo-950/40 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-indigo-500/10 ring-1 ring-indigo-500/30 scale-100 lg:scale-[1.02] z-10 transition-all">
+              <div className="relative rounded-2xl border-2 border-zinc-500/70 bg-gradient-to-b from-zinc-950/40 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-zinc-500/10 ring-1 ring-zinc-500/30 scale-100 lg:scale-[1.02] z-10 transition-all">
                 {/* Nhãn nổi bật */}
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] font-extrabold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-zinc-700 to-zinc-700 text-white text-[10px] font-extrabold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
                   <Flame size={12} className="fill-white" />
                   <span>Gói phổ biến nhất</span>
                 </div>
@@ -703,14 +705,14 @@ export const BillingView: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-mono text-indigo-300 font-bold block">
+                      <span className="text-xs font-mono text-zinc-300 font-bold block">
                         Gói PRO {cycle === 'monthly' ? 'Tháng' : 'Năm'}
                       </span>
                       <span className="text-[11px] text-zinc-400">
                         {cycle === 'monthly' ? 'Học tập cá nhân linh hoạt' : 'Gói khuyên dùng tiết kiệm'}
                       </span>
                     </div>
-                    <Flame size={18} className="text-indigo-400 shrink-0" />
+                    <Flame size={18} className="text-zinc-300 shrink-0" />
                   </div>
 
                   {/* Pricing */}
@@ -729,13 +731,13 @@ export const BillingView: React.FC = () => {
                         </span>
                       )}
                       {appliedDiscount && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-700/20 text-zinc-300">
                           -{appliedDiscount.percent}%
                         </span>
                       )}
                       <span className="text-xs text-zinc-400">/ tháng</span>
                     </div>
-                    <p className="text-[11px] text-indigo-300/90 mt-1 font-mono leading-tight">
+                    <p className="text-[11px] text-zinc-300/90 mt-1 font-mono leading-tight">
                       {appliedDiscount
                         ? (cycle === 'monthly'
                             ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(59000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ / tháng`
@@ -749,7 +751,7 @@ export const BillingView: React.FC = () => {
                   {/* Feature List */}
                   <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
                     <div className="flex items-start gap-2">
-                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <Zap size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-white leading-snug font-semibold">
                         {cycle === 'monthly'
                           ? '1.500⚡ AI Study Credits / tháng'
@@ -757,47 +759,47 @@ export const BillingView: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Thời lượng phòng riêng: <strong>Không giới hạn thời gian</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Sức chứa phòng học: <strong>Tối đa {cycle === 'monthly' ? '25' : '35'} người/phòng</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Chất lượng phòng học: <strong>{cycle === 'monthly' ? 'HD 720p mượt mà' : 'Full HD 1080p sắc nét'}</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Kho âm thanh &amp; <strong>hình nền tinh tuyển</strong> &amp; YouTube Sync
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Bảng vẽ Whiteboard: {cycle === 'monthly' ? 'Đầy đủ công cụ & Xuất PNG' : 'Đầy đủ công cụ & Xuất PDF đa trang'}
+                        Bảng vẽ whiteboard: {cycle === 'monthly' ? 'Đầy đủ công cụ & Xuất PNG' : 'Đầy đủ công cụ & Xuất PDF đa trang'}
                       </span>
                     </div>
                     {cycle !== 'monthly' && (
                       <>
                         <div className="flex items-start gap-2">
-                          <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                           <span className="text-zinc-200 leading-snug">
-                            Đường dẫn phòng học riêng: Đặt URL cố định theo nickname
+                            Đường dẫn phòng học riêng: đặt URL cố định theo nickname
                           </span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                           <span className="text-zinc-200 leading-snug">
-                            Ưu tiên băng thông máy chủ VIP &amp; Báo cáo 1 năm
+                            Ưu tiên băng thông máy chủ VIP &amp; báo cáo 1 năm
                           </span>
                         </div>
                       </>
@@ -823,13 +825,13 @@ export const BillingView: React.FC = () => {
               </div>
 
               {/* THẺ 3: GÓI TRỌN ĐỜI (FOUNDER VIP 👑 - CỐ ĐỊNH THANH TOÁN 1 LẦN) */}
-              <div className="relative rounded-2xl border-2 border-amber-500/50 bg-gradient-to-b from-amber-950/30 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-amber-500/10 ring-1 ring-amber-500/20 hover:border-amber-400/70 transition-all">
+              <div className="relative rounded-2xl border-2 border-zinc-500/50 bg-gradient-to-b from-zinc-950/30 via-zinc-900/90 to-zinc-950 p-6 flex flex-col justify-between shadow-2xl shadow-zinc-500/10 ring-1 ring-zinc-500/20 hover:border-zinc-400/70 transition-all">
                 {/* Nhãn nổi bật với data-testid="billing-cycle-lifetime" */}
                 <button
                   type="button"
                   data-testid="billing-cycle-lifetime"
                   onClick={() => setCycle('lifetime')}
-                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black text-[10px] font-black shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
+                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 text-black text-[10px] font-black shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
                 >
                   <Crown size={12} className="fill-black" />
                   <span>Founder VIP độc quyền</span>
@@ -838,12 +840,12 @@ export const BillingView: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-mono text-amber-400 font-bold block">
-                        Gói Trọn Đời
+                      <span className="text-xs font-mono text-zinc-300 font-bold block">
+                        Gói trọn đời
                       </span>
                       <span className="text-[11px] text-zinc-400">Lifetime Founder VIP</span>
                     </div>
-                    <Crown size={18} className="text-amber-400 shrink-0" />
+                    <Crown size={18} className="text-zinc-300 shrink-0" />
                   </div>
 
                   {/* Pricing */}
@@ -855,16 +857,16 @@ export const BillingView: React.FC = () => {
                           : '799.000₫'}
                       </span>
                       {appliedDiscount && (
-                        <span className="text-xs text-zinc-500 line-through">799.000₫</span>
+                        <span className="text-xs text-zinc-400 line-through">799.000₫</span>
                       )}
                       {appliedDiscount && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-700/20 text-zinc-300">
                           -{appliedDiscount.percent}%
                         </span>
                       )}
-                      <span className="text-xs text-amber-400/90 font-mono">/ một lần duy nhất</span>
+                      <span className="text-xs text-zinc-300/90 font-mono">/ một lần duy nhất</span>
                     </div>
-                    <p className="text-[11px] text-amber-300/80 mt-1 font-mono leading-tight">
+                    <p className="text-[11px] text-zinc-300/80 mt-1 font-mono leading-tight">
                       {appliedDiscount
                         ? `Đã áp dụng mã ${appliedDiscount.code}: ${Math.round(799000 * (100 - appliedDiscount.percent) / 100).toLocaleString('vi-VN')} VNĐ (Tiết kiệm ${appliedDiscount.percent}%)`
                         : 'Thanh toán 1 lần duy nhất • Sử dụng trọn đời'}
@@ -874,51 +876,51 @@ export const BillingView: React.FC = () => {
                   {/* Feature List */}
                   <div className="space-y-2.5 pt-4 border-t border-zinc-800/80 text-xs">
                     <div className="flex items-start gap-2">
-                      <Zap size={14} className="text-amber-400 shrink-0 mt-0.5" />
-                      <span className="text-amber-200 leading-snug font-semibold">
-                        1.000⚡ / tuần (Tự động nạp đầy lại mỗi thứ Hai vĩnh viễn)
+                      <Zap size={14} className="text-zinc-300 shrink-0 mt-0.5" />
+                      <span className="text-zinc-200 leading-snug font-semibold">
+                        1.000<UiSymbol name="⚡" /> / tuần (tự động nạp đầy lại mỗi thứ hai vĩnh viễn)
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Thời lượng phòng riêng: <strong>Không giới hạn thời gian</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Sức chứa phòng học: <strong>Lên đến 60 người</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Trợ lý AI Study: <strong>Sử dụng AI Study Companion không giới hạn</strong>
+                        Trợ lý AI study: <strong>Sử dụng AI study companion không giới hạn</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
                         Huy hiệu hồ sơ: <strong>Founder VIP mạ vàng độc quyền vĩnh viễn</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Đặc quyền cộng đồng: <strong>Tặng 01 Giftcode PRO 3 tháng</strong> cho bạn cùng tiến
+                        Đặc quyền cộng đồng: <strong>Tặng 01 giftcode PRO 3 tháng</strong> cho bạn cùng tiến
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                      <Sparkles size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Truy cập sớm: <strong>Early Access Labs 100% tính năng mới trọn đời</strong>
+                        Truy cập sớm: <strong>Early access labs 100% tính năng mới trọn đời</strong>
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                      <Check size={14} className="text-zinc-300 shrink-0 mt-0.5" />
                       <span className="text-zinc-200 leading-snug">
-                        Chất lượng phòng học: <strong>2K Ultra HD cao cấp nhất</strong>
+                        Chất lượng phòng học: <strong>2k ultra hd cao cấp nhất</strong>
                       </span>
                     </div>
                   </div>
@@ -930,10 +932,10 @@ export const BillingView: React.FC = () => {
                     type="button"
                     data-testid="btn-upgrade-lifetime"
                     onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                    className="w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-amber-500/20 active:scale-98"
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-zinc-500/20 active:scale-98"
                   >
                     <Crown size={14} className="fill-black" />
-                    <span>Sở Hữu Trọn Đời Founder (799k)</span>
+                    <span>Sở hữu trọn đời Founder (799k)</span>
                   </button>
                 </div>
               </div>
@@ -948,7 +950,7 @@ export const BillingView: React.FC = () => {
                 onClick={() => handleSimulateUpgrade(currentPlan.durationMonths)}
                 className="px-4 py-1.5 rounded-full border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
               >
-                Kích hoạt Giả lập ({cycle === 'yearly' ? '1 Năm' : cycle === 'lifetime' ? 'Trọn Đời' : '1 Tháng'})
+                Kích hoạt giả lập ({cycle === 'yearly' ? '1 Năm' : cycle === 'lifetime' ? 'Trọn Đời' : '1 Tháng'})
               </button>
             </div>
 
@@ -958,14 +960,14 @@ export const BillingView: React.FC = () => {
               className="pt-8 border-t border-zinc-800/80 space-y-6"
             >
               <div className="text-center space-y-3">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-full inline-block">
-                  MINH BẠCH &amp; ĐA CHIỀU
+                <span className="text-[10px] font-mono normal-case tracking-widest text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-full inline-block">
+                  Minh bạch &amp; đa chiều
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                  Bảng So Sánh Quyền Lợi Toàn Diện
+                  Bảng so sánh quyền lợi toàn diện
                 </h2>
                 <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
-                  So sánh chi tiết quyền lợi giữa gói Miễn Phí và các gói PRO Tháng, PRO Năm, PRO Trọn Đời của PomoFocus.
+                  So sánh chi tiết quyền lợi giữa gói miễn phí và các gói PRO tháng, PRO năm, PRO trọn đời của PomoFocus.
                 </p>
 
                 {/* Accordion Toggle Button */}
@@ -987,24 +989,24 @@ export const BillingView: React.FC = () => {
                 <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm shadow-xl scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
                   <table className="w-full text-left border-separate border-spacing-0 min-w-[680px] text-xs">
                     <thead>
-                      <tr className="bg-zinc-950/70 text-zinc-400 font-mono uppercase text-[11px]">
+                      <tr className="bg-zinc-950/70 text-zinc-400 font-mono normal-case text-[11px]">
                         <th className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-20 border-r border-b border-zinc-800 py-3.5 px-4 w-[34%] min-w-[200px] sm:min-w-[260px] text-zinc-300 font-semibold shadow-xs">
-                          Tính Năng Trọng Yếu
+                          Tính năng trọng yếu
                         </th>
                         <th className="py-3.5 px-3 w-[20%] min-w-[110px] text-center text-zinc-400 border-b border-zinc-800">
-                          Miễn Phí
+                          Miễn phí
                           <span className="text-[10px] text-zinc-400 font-normal block normal-case font-sans">0₫ / mãi mãi</span>
                         </th>
-                        <th className="py-3.5 px-3 w-[23%] min-w-[140px] text-center text-indigo-200 bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
-                          PRO (Tháng/Năm)
-                          <span className="text-[10px] text-indigo-400 font-semibold block normal-case font-sans">Từ 39.000₫ / tháng</span>
+                        <th className="py-3.5 px-3 w-[23%] min-w-[140px] text-center text-zinc-200 bg-zinc-700/[0.03] border-x border-b border-zinc-500/20">
+                          PRO (tháng/năm)
+                          <span className="text-[10px] text-zinc-300 font-semibold block normal-case font-sans">Từ 39.000₫ / tháng</span>
                         </th>
-                        <th className="py-3.5 px-3 w-[23%] min-w-[150px] text-center text-amber-200 bg-amber-500/[0.04] border-l border-b border-amber-500/25">
+                        <th className="py-3.5 px-3 w-[23%] min-w-[150px] text-center text-zinc-200 bg-zinc-700/[0.04] border-l border-b border-zinc-500/25">
                           <span className="inline-flex items-center gap-1 font-bold">
-                            <Crown size={12} className="text-amber-400" />
+                            <Crown size={12} className="text-zinc-300" />
                             FOUNDER VIP
                           </span>
-                          <span className="text-[10px] text-amber-400 font-bold block normal-case font-sans">Trọn Đời • 799.000₫</span>
+                          <span className="text-[10px] text-zinc-300 font-bold block normal-case font-sans">Trọn đời • 799.000₫</span>
                         </th>
                       </tr>
                     </thead>
@@ -1017,10 +1019,10 @@ export const BillingView: React.FC = () => {
                           <td className="sticky left-0 bg-[#0c0c0e] shadow-[2px_0_8px_rgba(0,0,0,0.7)] z-10 border-r border-b border-zinc-800/60 py-3.5 px-4 font-medium text-zinc-200 min-w-[200px] sm:min-w-[260px] shadow-xs">
                             <div className="flex items-center gap-1.5">
                               {item.id === 'vip_badge' && (
-                                <Crown size={13} className="text-amber-400 shrink-0" />
+                                <Crown size={13} className="text-zinc-300 shrink-0" />
                               )}
                               {item.id === 'ai_limit' && (
-                                <Zap size={13} className="text-cyan-400 shrink-0 fill-cyan-400" />
+                                <Zap size={13} className="text-zinc-300 shrink-0 fill-zinc-400" />
                               )}
                               <span>{item.name}</span>
                             </div>
@@ -1030,11 +1032,11 @@ export const BillingView: React.FC = () => {
                             {renderStreamlinedCell(item.free, 'free')}
                           </td>
 
-                          <td className="py-3.5 px-3 text-center bg-indigo-500/[0.03] border-x border-b border-indigo-500/20">
+                          <td className="py-3.5 px-3 text-center bg-zinc-700/[0.03] border-x border-b border-zinc-500/20">
                             {renderStreamlinedCell(item.pro, 'pro')}
                           </td>
 
-                          <td className="py-3.5 px-3 text-center bg-amber-500/[0.04] border-l border-b border-amber-500/25">
+                          <td className="py-3.5 px-3 text-center bg-zinc-700/[0.04] border-l border-b border-zinc-500/25">
                             {renderStreamlinedCell(item.lifetime, 'lifetime')}
                           </td>
                         </tr>
@@ -1058,35 +1060,35 @@ export const BillingView: React.FC = () => {
                             }}
                             className="px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-800 text-[11px] text-zinc-400 transition cursor-pointer"
                           >
-                            Bắt Đầu Free
+                            Bắt đầu Free
                           </button>
                         </td>
-                        <td className="py-3 px-3 text-center bg-indigo-500/[0.03] border-x border-indigo-500/20">
+                        <td className="py-3 px-3 text-center bg-zinc-700/[0.03] border-x border-zinc-500/20">
                           <div className="flex items-center justify-center gap-1.5 flex-wrap">
                             <button
                               type="button"
                               onClick={() => handleSelectPlanAndCheckout('monthly')}
                               className="px-2.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-[11px] text-white font-medium transition cursor-pointer"
                             >
-                              Gói Tháng (59k)
+                              Gói tháng (59k)
                             </button>
                             <button
                               type="button"
                               onClick={() => handleSelectPlanAndCheckout('yearly')}
-                              className="px-2.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
+                              className="px-2.5 py-1.5 rounded-full bg-zinc-700 hover:bg-zinc-700 text-[11px] text-white font-bold transition cursor-pointer shadow-xs"
                             >
-                              Gói Năm (-34%)
+                              Gói năm (-34%)
                             </button>
                           </div>
                         </td>
-                        <td className="py-3 px-3 text-center bg-amber-500/[0.04] border-l border-amber-500/25">
+                        <td className="py-3 px-3 text-center bg-zinc-700/[0.04] border-l border-zinc-500/25">
                           <button
                             type="button"
                             onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
+                            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-300 text-[11px] text-black font-black transition cursor-pointer shadow-md inline-flex items-center gap-1"
                           >
                             <Crown size={11} className="fill-black" />
-                            Sở Hữu Trọn Đời
+                            Sở hữu trọn đời
                           </button>
                         </td>
                       </tr>
@@ -1115,12 +1117,12 @@ export const BillingView: React.FC = () => {
               onClick={() => setBillingTab('credits')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 billingTab === 'credits'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
+                  ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
               }`}
             >
-              <Zap size={14} className="text-amber-400" />
-              <span>Nạp Lẻ AI Credits ⚡</span>
+              <Zap size={14} className="text-zinc-300" />
+              <span>Nạp lẻ AI credits <UiSymbol name="⚡" /></span>
             </button>
             <button
               type="button"
@@ -1128,12 +1130,12 @@ export const BillingView: React.FC = () => {
               onClick={() => setBillingTab('coupon')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 billingTab === 'coupon'
-                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
+                  ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
               }`}
             >
-              <Gift size={14} className="text-indigo-400" />
-              <span>Mã Ưu Đãi / Coupon</span>
+              <Gift size={14} className="text-zinc-300" />
+              <span>Mã ưu đãi / coupon</span>
             </button>
           </div>
 
@@ -1143,7 +1145,7 @@ export const BillingView: React.FC = () => {
               {isUserLifetime && !isLifetimeTopupExpanded ? (
                 <div className="text-center py-2 space-y-2.5 animate-in fade-in duration-200">
                   <p className="text-xs text-zinc-400">
-                    Tài khoản của bạn đã có đặc quyền hạn mức <strong className="text-amber-300 font-mono">1.000⚡/tuần</strong> của gói Trọn Đời.
+                    Tài khoản của bạn đã có đặc quyền hạn mức <strong className="text-zinc-300 font-mono">1.000<UiSymbol name="⚡" />/tuần</strong> của gói trọn đời.
                   </p>
                   <button
                     type="button"
@@ -1151,21 +1153,21 @@ export const BillingView: React.FC = () => {
                     onClick={() => setIsLifetimeTopupExpanded(true)}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-700 bg-zinc-950/70 hover:bg-zinc-800/80 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shadow-xs"
                   >
-                    <ChevronDown size={14} className="text-amber-400" />
-                    <span>Cần nạp thêm Credits cho dự án lớn?</span>
+                    <ChevronDown size={14} className="text-zinc-300" />
+                    <span>Cần nạp thêm credits cho dự án lớn?</span>
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="text-center space-y-1">
                     <h3 className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
-                      <span>Nạp Lẻ Điểm AI Study Credits</span>
-                      <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                        Không Hết Hạn
+                      <span>Nạp lẻ điểm AI study credits</span>
+                      <span className="text-[10px] font-mono text-zinc-300 bg-zinc-700/10 border border-zinc-500/20 px-2 py-0.5 rounded-full">
+                        Không hết hạn
                       </span>
                     </h3>
                     <p className="text-xs text-zinc-400">
-                      Cần thêm điểm hỏi bài tập gia sư Socratic? Nạp lẻ nhanh chóng qua VietQR SePay (VPBank 24/7), điểm cộng dồn vĩnh viễn vào tài khoản.
+                      Cần thêm điểm hỏi bài tập gia sư socratic? Nạp lẻ nhanh chóng qua VietQR SePay (VPBank 24/7), điểm cộng dồn vĩnh viễn vào tài khoản.
                     </p>
                   </div>
 
@@ -1175,24 +1177,24 @@ export const BillingView: React.FC = () => {
                         key={pack.id}
                         className={`p-3 rounded-xl border flex flex-col justify-between text-center relative transition hover:scale-[1.02] ${
                           pack.popular
-                            ? 'border-amber-500/50 bg-amber-500/[0.06] shadow-sm'
+                            ? 'border-zinc-500/50 bg-zinc-700/[0.06] shadow-sm'
                             : 'border-zinc-800 bg-zinc-950/60 hover:border-zinc-700'
                         }`}
                       >
                         {pack.popular && (
-                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-400 text-neutral-950 font-black text-[9px] uppercase tracking-wider shadow-xs">
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-zinc-700 text-white font-black text-[9px] normal-case tracking-wider shadow-xs">
                             Phổ biến
                           </span>
                         )}
                         <div className="space-y-1 pt-1">
-                          <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
-                            {pack.credits.toLocaleString()}⚡
+                          <div className="text-base sm:text-lg font-black text-zinc-300 font-mono">
+                            {pack.credits.toLocaleString()}<UiSymbol name="⚡" />
                           </div>
                           <div className="text-xs font-bold text-white">
                             {pack.formattedPrice}
                           </div>
                           {pack.discountPercent > 0 && (
-                            <span className="text-[9px] font-semibold text-emerald-400 block">
+                            <span className="text-[9px] font-semibold text-zinc-300 block">
                               Tiết kiệm {pack.discountPercent}%
                             </span>
                           )}
@@ -1202,9 +1204,9 @@ export const BillingView: React.FC = () => {
                           onClick={() => {
                             useAiStore.getState().openTopupModal(pack.credits);
                           }}
-                          className="mt-3 w-full py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition cursor-pointer shadow-xs"
+                          className="mt-3 w-full py-2 rounded-full bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >
-                          Nạp ⚡
+                          Nạp <UiSymbol name="⚡" />
                         </button>
                       </div>
                     ))}
@@ -1230,9 +1232,9 @@ export const BillingView: React.FC = () => {
           {billingTab === 'coupon' && (
             <div className="space-y-3 pt-1 text-center">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white">Kích Hoạt Mã Quà Tặng / Ưu Đãi</h3>
+                <h3 className="text-sm font-bold text-white">Kích hoạt mã quà tặng / ưu đãi</h3>
                 <p className="text-xs text-zinc-400">
-                  Nhập mã quà tặng từ sự kiện hoặc Chủ sở hữu để kích hoạt hoặc cộng dồn thời hạn PRO ngay.
+                  Nhập mã quà tặng từ sự kiện hoặc chủ sở hữu để kích hoạt hoặc cộng dồn thời hạn PRO ngay.
                 </p>
               </div>
               <form onSubmit={handleRedeemCoupon} className="flex items-center gap-2 max-w-md mx-auto pt-1">
@@ -1242,20 +1244,20 @@ export const BillingView: React.FC = () => {
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder="VD: PRO50, VIP7DAYS, BOSSSECRET..."
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs uppercase focus:outline-none focus:border-amber-400"
+                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-zinc-700 text-white font-mono text-xs normal-case focus:outline-none focus:border-zinc-400"
                 />
                 <button
                   type="submit"
                   data-testid="btn-redeem-coupon-universal"
-                  className="px-5 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer shrink-0"
+                  className="px-5 py-2 rounded-full bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shrink-0"
                 >
-                  Áp Dụng
+                  Áp dụng
                 </button>
               </form>
               {couponResult && (
                 <div
                   className={`text-xs font-medium flex items-center justify-center gap-1.5 pt-1 ${
-                    couponResult.success ? 'text-emerald-400' : 'text-rose-400'
+                    couponResult.success ? 'text-zinc-300' : 'text-rose-400'
                   }`}
                 >
                   {couponResult.success ? <Check size={13} /> : <AlertCircle size={13} />}

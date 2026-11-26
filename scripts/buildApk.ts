@@ -9,13 +9,13 @@ const __dirname = path.dirname(__filename);
 
 // Configuration constants
 export const JAVA_HOME = 'C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.19.10-hotspot';
-export const ANDROID_HOME = 'C:\\Users\\Nam\\AppData\\Local\\Android\\Sdk';
+export const ANDROID_HOME = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT || (fs.existsSync('D:/Android/Sdk') ? 'D:/Android/Sdk' : 'C:/Users/Nam/AppData/Local/Android/Sdk');
 export const PROJECT_ROOT = path.resolve(__dirname, '..');
 export const ANDROID_DIR = path.join(PROJECT_ROOT, 'android');
 export const LOCAL_PROPERTIES_PATH = path.join(ANDROID_DIR, 'local.properties');
 export const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 export const DOWNLOADS_DIR = path.join(PUBLIC_DIR, 'downloads');
-export const APP_VERSION = '8.1.0';
+export const APP_VERSION = '8.1.1';
 export const APK_FILENAME = 'PomoFocus-v8.1.apk';
 export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, APK_FILENAME);
 export const VERSION_JSON_PATH = path.join(PUBLIC_DIR, 'version.json');
@@ -31,17 +31,10 @@ export function ensureLocalProperties() {
   if (!fs.existsSync(ANDROID_DIR)) {
     return;
   }
-  const expectedContent = `## Generated local.properties\nsdk.dir=C:\\\\Users\\\\Nam\\\\AppData\\\\Local\\\\Android\\\\Sdk\n`;
-  if (!fs.existsSync(LOCAL_PROPERTIES_PATH)) {
-    fs.writeFileSync(LOCAL_PROPERTIES_PATH, expectedContent, 'utf-8');
-    console.log('[buildApk] Created android/local.properties');
-  } else {
-    const existing = fs.readFileSync(LOCAL_PROPERTIES_PATH, 'utf-8');
-    if (!existing.includes('sdk.dir')) {
-      fs.appendFileSync(LOCAL_PROPERTIES_PATH, `\nsdk.dir=C:\\\\Users\\\\Nam\\\\AppData\\\\Local\\\\Android\\\\Sdk\n`, 'utf-8');
-      console.log('[buildApk] Appended sdk.dir to android/local.properties');
-    }
-  }
+  const sdkLine = 'sdk.dir=' + ANDROID_HOME.replaceAll('\\', '/');
+  const existing = fs.existsSync(LOCAL_PROPERTIES_PATH) ? fs.readFileSync(LOCAL_PROPERTIES_PATH, 'utf-8') : '';
+  const content = /^sdk\.dir=.*$/m.test(existing) ? existing.replace(/^sdk\.dir=.*$/m, sdkLine) : existing + '\n' + sdkLine + '\n';
+  if (content !== existing) fs.writeFileSync(LOCAL_PROPERTIES_PATH, content, 'utf-8');
 }
 
 export function ensureCapacitorAndroid() {
@@ -61,6 +54,8 @@ export function syncCapacitorAndroid() {
   // Prevent recursive APK-inside-APK bloat: remove dist/downloads before syncing web assets into Android
   const distDownloadsDir = path.join(PROJECT_ROOT, 'dist', 'downloads');
   if (fs.existsSync(distDownloadsDir)) {
+    const relativeTarget = path.relative(PROJECT_ROOT, fs.realpathSync(distDownloadsDir));
+    if (relativeTarget.startsWith('..') || path.isAbsolute(relativeTarget)) throw new Error('APK exclusion escaped workspace');
     fs.rmSync(distDownloadsDir, { recursive: true, force: true });
     console.log('[buildApk] Excluded dist/downloads from Capacitor Android bundle to avoid recursive APK bloat.');
   }
@@ -112,15 +107,15 @@ export function copyAndHashApk() {
   }
 
   versionData.version = APP_VERSION;
-  versionData.versionCode = 81;
+  versionData.versionCode = 82;
   versionData.minSupportedVersion = versionData.minSupportedVersion || '7.0.0';
   versionData.minVersion = versionData.minVersion || '7.0.0';
-  versionData.releaseDate = new Date().toISOString().split('T')[0];
+  versionData.releaseDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
   versionData.downloadUrl = `https://pomofocus-workspace.vercel.app/downloads/${APK_FILENAME}`;
   versionData.apkSizeMb = sizeMb;
   versionData.checksumSha256 = sha256;
   versionData.releaseNotes =
-    'PomoFocus v8.1 Ultimate: Meet Web Rooms, Shared Whiteboard, Dexie v2 Offline Queue, Pocket Lock & Hold to Start.';
+    'Giao diện tối giản, dễ đọc trên nền sáng; phòng học gọn hơn và cải thiện độ ổn định.';
   versionData.changelog = [
     'Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực',
     'Bảng trắng nhóm (Shared Whiteboard) lưu vết nét vẽ bền vững',
@@ -128,6 +123,7 @@ export function copyAndHashApk() {
   ];
 
   fs.writeFileSync(VERSION_JSON_PATH, JSON.stringify(versionData, null, 2) + '\n', 'utf-8');
+  fs.writeFileSync(path.join(PROJECT_ROOT, 'src/config/apkRelease.json'), JSON.stringify({ version: APP_VERSION, apkSizeMb: sizeMb, checksumSha256: sha256 }, null, 2) + '\n', 'utf-8');
   console.log('[buildApk] Updated public/version.json successfully.');
 
   return { sizeMb, sha256, targetPath: TARGET_APK_PATH };

@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Sparkles,
@@ -22,6 +23,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { useAiStore, AiActionType, AI_CREDIT_COSTS, isOwnerAiUser } from '../stores/useAiStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 import { useNoteStore } from '../stores/useNoteStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { AiChatService, AiAttachmentInfo } from '../services/aiChatService';
@@ -29,6 +31,7 @@ import { AiCodeBlock, FormattedAiMessage } from './AiMessageMarkdown';
 import { copyToClipboard } from '../utils/clipboard';
 export { AiCodeBlock, FormattedAiMessage };
 export const AiCompanionWidget: React.FC = () => {
+  const isHeaderExpanded = useLayoutStore(s => s.isHeaderExpanded);
   const { user, isOwner: authIsOwner, isAdmin } = useAuthStore();
   const isOwner = Boolean(
     authIsOwner ||
@@ -97,7 +100,8 @@ export const AiCompanionWidget: React.FC = () => {
   // Focus ô nhập khi mở
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 150);
+      const focusTimer = setTimeout(() => inputRef.current?.focus(), 150);
+      return () => clearTimeout(focusTimer);
     }
   }, [isOpen]);
 
@@ -234,7 +238,7 @@ export const AiCompanionWidget: React.FC = () => {
       {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Backdrop cho < 2xl) */}
       <div
         data-testid="ai-backdrop"
-        className={`fixed inset-0 z-[75] bg-black/50 backdrop-blur-xs transition-opacity duration-300 2xl:hidden ${
+        className={`fixed inset-0 z-30 bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => toggleOpen(false)}
@@ -245,10 +249,10 @@ export const AiCompanionWidget: React.FC = () => {
       <div
         data-testid="ai-companion-drawer"
         aria-hidden={!isOpen}
-        className={`fixed top-0 bottom-0 right-0 z-[80] w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        className={`fixed ${isHeaderExpanded ? 'top-14 sm:top-16' : 'top-0'} bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
           isOpen
             ? 'translate-x-0 opacity-100 pointer-events-auto'
-            : 'translate-x-full opacity-0 pointer-events-none'
+            : 'translate-x-full opacity-0 pointer-events-none invisible'
         }`}
       >
       {/* 1. Header 1 Hàng Ngang Tinh Gọn (Tránh chèn ép, đảm bảo khoảng cách thông thoáng) */}
@@ -258,11 +262,11 @@ export const AiCompanionWidget: React.FC = () => {
             <div className="w-7 h-7 rounded-xl bg-zinc-800 border border-zinc-700/80 flex items-center justify-center text-white shadow-sm">
               <Sparkles size={14} className="text-zinc-200 stroke-[1.5]" />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-zinc-950 rounded-full" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-zinc-700 border border-zinc-950 rounded-full" />
           </div>
           <div className="min-w-0 flex-1 overflow-hidden">
             <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight truncate" title="AI Study Companion">
-              AI Study Companion
+              Trợ lý học tập AI
             </h2>
           </div>
         </div>
@@ -274,7 +278,7 @@ export const AiCompanionWidget: React.FC = () => {
             data-testid="ai-credits-topup-btn"
             onClick={() => openTopupModal()}
             className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-zinc-200 hover:bg-white/15 text-[11px] font-medium cursor-pointer transition-all select-none shrink-0"
-            title="Bấm để nạp thêm AI Credits (Chiết khấu tới 40%)"
+            title="Bấm để nạp thêm AI credits (chiết khấu tới 40%)"
           >
             <Zap size={11} className="text-zinc-300 stroke-[1.5] shrink-0" />
             <span className="font-mono text-[11px] font-semibold" data-testid="ai-hud-credits">
@@ -319,7 +323,8 @@ export const AiCompanionWidget: React.FC = () => {
             type="button"
             data-testid="ai-clear-chat-btn"
             onClick={clearChat}
-            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
+            disabled={messages.length <= 1 || isLoading || isStreaming}
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
             title="Làm mới cuộc trò chuyện"
             aria-label="Làm mới cuộc trò chuyện"
           >
@@ -348,7 +353,7 @@ export const AiCompanionWidget: React.FC = () => {
         >
           <div className="flex items-center justify-between pb-1.5 border-b border-zinc-800 text-xs font-semibold text-zinc-300">
             <span className="flex items-center gap-1.5">
-              <History size={13} className="text-cyan-400" />
+              <History size={13} className="text-zinc-300" />
               Lịch sử trò chuyện
             </span>
             <button
@@ -357,7 +362,7 @@ export const AiCompanionWidget: React.FC = () => {
                 createNewSession();
                 setShowHistoryDropdown(false);
               }}
-              className="text-[10px] text-cyan-400 hover:text-cyan-300 font-medium cursor-pointer"
+              className="text-[10px] text-zinc-300 hover:text-zinc-300 font-medium cursor-pointer"
             >
               + Tạo mới
             </button>
@@ -394,7 +399,7 @@ export const AiCompanionWidget: React.FC = () => {
                       e.stopPropagation();
                       deleteSession(sess.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
                     title="Xóa phiên này"
                   >
                     <Trash2 size={13} />
@@ -416,8 +421,8 @@ export const AiCompanionWidget: React.FC = () => {
                 <div className="max-w-[85%] rounded-2xl p-3.5 bg-zinc-800/80 border border-zinc-700/50 text-zinc-100 text-xs leading-relaxed shadow-sm">
                   {/* File đính kèm nếu có */}
                   {msg.attachmentName && (
-                    <div className="mb-2 bg-zinc-900/80 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-2 text-cyan-300">
-                      <FileCheck size={13} className="text-cyan-400 shrink-0" />
+                    <div className="mb-2 bg-zinc-900/80 border border-zinc-500/30 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-2 text-zinc-300">
+                      <FileCheck size={13} className="text-zinc-300 shrink-0" />
                       <span className="font-medium truncate max-w-[200px]">{msg.attachmentName}</span>
                       <span className="text-[10px] text-zinc-400 ml-auto">Đề cương đính kèm</span>
                     </div>
@@ -438,7 +443,7 @@ export const AiCompanionWidget: React.FC = () => {
 
           return (
             <div key={msg.id} className="flex gap-2.5 justify-start">
-              <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-full bg-zinc-950/80 border border-zinc-500/30 text-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
                 <Bot size={13} />
               </div>
 
@@ -483,8 +488,8 @@ export const AiCompanionWidget: React.FC = () => {
                         >
                           {copiedId === msg.id ? (
                             <>
-                              <Check size={11} className="text-emerald-400" />
-                              <span className="text-[10px] text-emerald-400">Đã chép</span>
+                              <Check size={11} className="text-zinc-300" />
+                              <span className="text-[10px] text-zinc-300">Đã chép</span>
                             </>
                           ) : (
                             <>
@@ -500,12 +505,12 @@ export const AiCompanionWidget: React.FC = () => {
                           data-testid="ai-insert-note-btn"
                           onClick={() => handleInsertToNote(msg.content, msg.id)}
                           className="flex items-center gap-1 px-2 py-0.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition cursor-pointer"
-                          title="Chèn nội dung giải đáp này vào Ghi chú đang mở"
+                          title="Chèn nội dung giải đáp này vào ghi chú đang mở"
                         >
                           {insertedNoteId === msg.id ? (
                             <>
-                              <Check size={11} className="text-emerald-400" />
-                              <span className="text-[10px] text-emerald-400">Đã chèn vào ghi chú</span>
+                              <Check size={11} className="text-zinc-300" />
+                              <span className="text-[10px] text-zinc-300">Đã chèn vào ghi chú</span>
                             </>
                           ) : (
                             <span className="text-[10px] flex items-center gap-1">
@@ -518,7 +523,7 @@ export const AiCompanionWidget: React.FC = () => {
 
                       {/* Minh bạch AI (Luật 134/2025/QH15 Điều 11 & NĐ 142/2026/NĐ-CP) */}
                       {msg.role === 'assistant' && (
-                        <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
+                        <div className="flex items-center gap-2 text-[10px] text-zinc-300 font-sans flex-wrap">
                           <span className="inline-flex items-center gap-1 text-zinc-400">
                             <Sparkles size={10} className="text-zinc-400 stroke-[1.5]" />
                             Nội dung do AI tạo (Luật 134/2025/QH15)
@@ -581,7 +586,7 @@ export const AiCompanionWidget: React.FC = () => {
         {/* Loading fallback nếu isLoading mà chưa có assistant message trong danh sách */}
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex gap-2.5 justify-start">
-            <div className="w-6 h-6 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-6 h-6 rounded-full bg-zinc-950/80 border border-zinc-500/30 text-zinc-300 flex items-center justify-center shrink-0 mt-0.5">
               <Bot size={13} />
             </div>
             <div className="max-w-[85%] rounded-2xl p-3.5 bg-zinc-900/40 border border-zinc-800/50 text-zinc-200 text-xs leading-relaxed shadow-xs">
@@ -589,7 +594,7 @@ export const AiCompanionWidget: React.FC = () => {
                 <span className="animate-pulse">●</span>
                 <span className="animate-pulse delay-100">●</span>
                 <span className="animate-pulse delay-200">●</span>
-                <span className="ml-1 text-zinc-500">Gia sư đang phân tích...</span>
+                <span className="ml-1 text-zinc-400">Gia sư đang phân tích...</span>
               </div>
             </div>
           </div>
@@ -606,9 +611,9 @@ export const AiCompanionWidget: React.FC = () => {
                   type="button"
                   data-testid="ai-error-billing-link"
                   onClick={() => openTopupModal()}
-                  className="font-bold underline text-amber-300 hover:text-amber-200 cursor-pointer block text-[11px]"
+                  className="font-bold underline text-zinc-300 hover:text-zinc-200 cursor-pointer block text-[11px]"
                 >
-                  Nạp thêm AI Credits ngay chỉ từ 19.000đ →
+                  Nạp thêm AI credits ngay chỉ từ 19.000đ →
                 </button>
               )}
             </div>
@@ -619,10 +624,10 @@ export const AiCompanionWidget: React.FC = () => {
         {pendingConfirmation && (
           <div
             data-testid="ai-confirmation-box"
-            className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border border-amber-500/30 text-xs shadow-lg space-y-2.5 animate-in fade-in"
+            className="p-3.5 rounded-2xl bg-gradient-to-r from-zinc-700/10 to-zinc-700/10 border border-zinc-500/30 text-xs shadow-lg space-y-2.5 animate-in fade-in"
           >
             <div className="flex items-start gap-2">
-              <Zap size={15} className="text-amber-400 shrink-0 mt-0.5" />
+              <Zap size={15} className="text-zinc-300 shrink-0 mt-0.5" />
               <div>
                 <div className="font-semibold text-zinc-100">
                   Xác nhận thực hiện tác vụ chuyên sâu
@@ -662,14 +667,14 @@ export const AiCompanionWidget: React.FC = () => {
       </div>
 
       {/* 4. Khung Nhập Liệu & Đính Kèm File (Liquid Glass Unified Capsule) */}
-      <div className="relative z-10 p-3 pb-4 bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      <div className="relative z-10 p-3 pb-[calc(1rem+max(env(safe-area-inset-bottom,0px),var(--sab-native,0px)))] bg-zinc-950/60 backdrop-blur-xl border-t border-white/5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         {/* File Preview Pill nếu có file được chọn */}
         {selectedFile && (
-          <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-emerald-500/40 flex items-center justify-between text-xs text-zinc-200">
+          <div className="mb-2 p-2 rounded-xl bg-zinc-900 border border-zinc-500/40 flex items-center justify-between text-xs text-zinc-200">
             <div className="flex items-center gap-2 truncate max-w-[340px]">
-              <Paperclip size={14} className="text-emerald-400 shrink-0" />
+              <Paperclip size={14} className="text-zinc-300 shrink-0" />
               <span className="font-medium truncate">{selectedFile.name}</span>
-              <span className="text-[10px] text-zinc-500">
+              <span className="text-[10px] text-zinc-400">
                 ({(selectedFile.size / 1024).toFixed(0)} KB)
               </span>
               <span className="px-1.5 py-0.2 rounded bg-white/10 text-zinc-200 text-[10px] font-bold">
@@ -690,7 +695,7 @@ export const AiCompanionWidget: React.FC = () => {
 
         {fileError && (
           <div className="mb-2 text-[11px] text-rose-400 px-1">
-            ⚠️ {fileError}
+            <UiSymbol name="⚠️" /> {fileError}
           </div>
         )}
 
@@ -736,11 +741,11 @@ export const AiCompanionWidget: React.FC = () => {
             data-testid="ai-attach-file-btn"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading || isProcessingFile}
-            title="Đính kèm đề cương / tài liệu ôn tập (.docx, .pdf, ảnh tối đa 10MB)"
+            title="Đính kèm đề cương / tài liệu ôn tập (.docx, .pdf, ảnh tối đa 10mb)"
             aria-label="Đính kèm đề cương / tài liệu ôn tập"
             className={`w-7 h-7 rounded-xl flex items-center justify-center transition active:scale-95 shrink-0 cursor-pointer ${
               selectedFile
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                ? 'bg-zinc-700/20 text-zinc-300 border border-zinc-500/40'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -752,6 +757,7 @@ export const AiCompanionWidget: React.FC = () => {
             ref={inputRef}
             rows={1}
             data-testid="ai-prompt-input"
+            aria-label="Câu hỏi cho trợ lý AI"
             enterKeyHint="send"
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
@@ -763,7 +769,7 @@ export const AiCompanionWidget: React.FC = () => {
                 ? `Yêu cầu phân tích "${selectedFile.name}"... (Shift+Enter xuống dòng)`
                 : 'Nhập câu hỏi bài tập, khái niệm cần giải thích... (Shift+Enter để xuống dòng)'
             }
-            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-500 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-none"
+            className="no-focus-ring flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 text-xs md:text-sm text-zinc-100 placeholder-zinc-400 py-1.5 px-1 leading-relaxed resize-none max-h-36 overflow-y-auto scrollbar-none"
           />
 
           {/* Nút Gửi Máy Bay Giấy Thông Minh */}
@@ -776,7 +782,7 @@ export const AiCompanionWidget: React.FC = () => {
             className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-150 active:scale-95 shrink-0 ${
               (inputPrompt.trim() || selectedFile) && !isLoading && !isProcessingFile
                 ? 'bg-white text-zinc-950 font-bold hover:bg-zinc-200 shadow-md cursor-pointer'
-                : 'text-zinc-600 bg-transparent cursor-not-allowed'
+                : 'text-zinc-400 bg-transparent cursor-not-allowed'
             }`}
           >
             <Send size={13} className="transform translate-x-px -translate-y-px" />
@@ -785,14 +791,14 @@ export const AiCompanionWidget: React.FC = () => {
 
         {/* Chân Trang: Thông tin năng lượng & Khuyến cáo học tập chuẩn Zen */}
         <div className="space-y-1 mt-2 px-1">
-          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500">
+          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
             <span className="flex items-center gap-1">1 <Zap size={10} className="stroke-[1.5] text-zinc-400" /> / câu hỏi</span>
-            <span className="flex items-center gap-1 text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="flex items-center gap-1 text-zinc-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse"></span>
               Phản hồi tức thì
             </span>
           </div>
-          <p className="text-[9.5px] text-zinc-500/80 text-center font-sans">
+          <p className="text-[9.5px] text-zinc-400/80 text-center font-sans">
             Phản hồi AI mang tính tham khảo học tập (Luật 134/2025/QH15), vui lòng đối chiếu giáo trình chính thống.
           </p>
         </div>

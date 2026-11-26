@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -307,17 +308,17 @@ export const StudyRoomLobby: React.FC = () => {
         {/* Hero Header (Monochrome Stealth) */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Phòng Học Nhóm WebRTC • Không Gian Tập Trung Trực Tuyến</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+            <span>Phòng học nhóm • không gian tập trung trực tuyến</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 flex items-center justify-center gap-2.5 flex-wrap">
-            <span>Học Cùng Bạn Bè Tại <span className="text-zinc-100">PomoFocus Meet</span></span>
-            <span className="px-2 py-0.5 text-[11px] font-bold tracking-wider rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 uppercase">
-              BETA
+            <span>Học cùng bạn bè tại <span className="text-zinc-100">PomoFocus Meet</span></span>
+            <span className="px-2 py-0.5 text-[11px] font-bold tracking-wider rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 normal-case">
+              Beta
             </span>
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Kết nối video trực tiếp, đồng bộ đồng hồ Pomodoro, chia sẻ màn hình và bảng vẽ chung.
+            Kết nối video trực tiếp, đồng bộ đồng hồ pomodoro, chia sẻ màn hình và bảng vẽ chung.
             Tạo phòng riêng hoặc tham gia bằng mã phòng có sẵn.
           </p>
         </div>
@@ -331,13 +332,13 @@ export const StudyRoomLobby: React.FC = () => {
                 <PlusCircle size={18} />
               </div>
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>Khởi Tạo Phòng Học Mới</span>
+                <span>Khởi tạo phòng học mới</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
                   Mã duy nhất
                 </span>
               </h2>
               <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
-                Tự động tạo mã phòng ngẫu nhiên và cấp quyền Chủ phòng (Host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.
+                Tự động tạo mã phòng ngẫu nhiên và cấp quyền chủ phòng (host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.
               </p>
 
               {errorMsg && (
@@ -349,7 +350,7 @@ export const StudyRoomLobby: React.FC = () => {
                       onClick={() => router.navigate('/billing')}
                       className="self-start px-3 py-1 rounded-lg bg-white text-black font-semibold text-[11px] hover:bg-zinc-200 transition cursor-pointer"
                     >
-                      Nâng Cấp Gói PRO Ngay
+                      Nâng cấp gói PRO ngay
                     </button>
                   )}
                 </div>
@@ -365,7 +366,7 @@ export const StudyRoomLobby: React.FC = () => {
                     value={roomTitle}
                     onChange={(e) => setRoomTitle(e.target.value)}
                     placeholder={`Phòng của ${user?.displayName || 'bạn'}...`}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600"
                   />
                 </div>
 
@@ -379,7 +380,7 @@ export const StudyRoomLobby: React.FC = () => {
                     value={roomSlug}
                     onChange={(e) => setRoomSlug(e.target.value)}
                     placeholder="vd: namho-focus-room (để trống tạo ngẫu nhiên)"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-emerald-500/50"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50"
                   />
                 </div>
 
@@ -391,8 +392,8 @@ export const StudyRoomLobby: React.FC = () => {
                   className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-300 hover:text-white transition cursor-pointer"
                 >
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Sliders size={13} className="text-emerald-400" />
-                    <span>Tùy chỉnh phòng họp chuyên sâu (PIN, Mục tiêu, Chế độ)</span>
+                    <Sliders size={13} className="text-zinc-300" />
+                    <span>Tùy chỉnh phòng họp chuyên sâu (pin, mục tiêu, chế độ)</span>
                   </span>
                   {showAdvancedCreate ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
@@ -401,13 +402,13 @@ export const StudyRoomLobby: React.FC = () => {
                   <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-3 text-xs animate-in fade-in duration-150">
                     {/* 1. Mục tiêu buổi học */}
                     <div>
-                      <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mục tiêu buổi học (Hiển thị ghim)</label>
+                      <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mục tiêu buổi học (hiển thị ghim)</label>
                       <input
                         type="text"
                         value={createGoal}
                         onChange={(e) => setCreateGoal(e.target.value)}
-                        placeholder="vd: Cùng ôn thi IELTS Reading, Sprint đồ án..."
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                        placeholder="vd: cùng ôn thi ielts reading, sprint đồ án..."
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                       />
                     </div>
 
@@ -422,11 +423,11 @@ export const StudyRoomLobby: React.FC = () => {
                             onClick={() => setCreateCategory(cat.id)}
                             className={`p-1.5 rounded-lg text-left text-[10px] flex items-center gap-1.5 border transition cursor-pointer ${
                               createCategory === cat.id
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                                ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 font-semibold'
                                 : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
                             }`}
                           >
-                            <span>{cat.icon}</span>
+                            <UiSymbol name={cat.icon} />
                             <span className="truncate">{cat.label}</span>
                           </button>
                         ))}
@@ -436,7 +437,7 @@ export const StudyRoomLobby: React.FC = () => {
                     {/* 3. Mật khẩu PIN & Sức chứa */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mật khẩu PIN</label>
+                        <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mật khẩu pin</label>
                         <input
                           type="text"
                           inputMode="numeric"
@@ -444,7 +445,7 @@ export const StudyRoomLobby: React.FC = () => {
                           value={createPasscode}
                           onChange={(e) => setCreatePasscode(e.target.value)}
                           placeholder="Để trống nếu mở"
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-emerald-500"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500"
                         />
                       </div>
                       <div>
@@ -452,7 +453,7 @@ export const StudyRoomLobby: React.FC = () => {
                         <select
                           value={createMaxCapacity}
                           onChange={(e) => setCreateMaxCapacity(parseInt(e.target.value, 10))}
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-zinc-500 cursor-pointer"
                         >
                           <option value={2}>2 người</option>
                           <option value={4}>4 người</option>
@@ -471,27 +472,27 @@ export const StudyRoomLobby: React.FC = () => {
                           type="checkbox"
                           checked={createSilentMode}
                           onChange={(e) => setCreateSilentMode(e.target.checked)}
-                          className="rounded bg-zinc-900 border-zinc-800 text-emerald-500 focus:ring-0"
+                          className="rounded bg-zinc-900 border-zinc-800 text-zinc-300 focus:ring-0"
                         />
-                        <span className="text-zinc-300">Siêu Tập Trung (Tự động tắt mic khi vào)</span>
+                        <span className="text-zinc-300">Siêu tập trung (tự động tắt mic khi vào)</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={createRequireCam}
                           onChange={(e) => setCreateRequireCam(e.target.checked)}
-                          className="rounded bg-zinc-900 border-zinc-800 text-emerald-500 focus:ring-0"
+                          className="rounded bg-zinc-900 border-zinc-800 text-zinc-300 focus:ring-0"
                         />
-                        <span className="text-zinc-300">Yêu cầu bật Camera (Study With Me)</span>
+                        <span className="text-zinc-300">Yêu cầu bật camera (study with me)</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={createHostOnlyTimer}
                           onChange={(e) => setCreateHostOnlyTimer(e.target.checked)}
-                          className="rounded bg-zinc-900 border-zinc-800 text-emerald-500 focus:ring-0"
+                          className="rounded bg-zinc-900 border-zinc-800 text-zinc-300 focus:ring-0"
                         />
-                        <span className="text-zinc-300">Chỉ Host điều khiển Pomodoro</span>
+                        <span className="text-zinc-300">Chỉ host điều khiển pomodoro</span>
                       </label>
                     </div>
                   </div>
@@ -504,7 +505,7 @@ export const StudyRoomLobby: React.FC = () => {
                     className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <LogIn size={15} />
-                    <span>Đăng Nhập Để Tạo Phòng</span>
+                    <span>Đăng nhập để tạo phòng</span>
                   </button>
                 ) : !isProUser ? (
                   <div className="space-y-2">
@@ -515,10 +516,10 @@ export const StudyRoomLobby: React.FC = () => {
                       className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                     >
                       <Video size={15} />
-                      <span>Tạo Phòng Học Free (45 phút)</span>
+                      <span>Tạo phòng học Free (45 phút)</span>
                     </button>
-                    <div className="text-[10px] text-center text-zinc-500">
-                      Tài khoản Free: Còn {Math.max(0, 3 - studyRoomService.getDailyPrivateRoomCount(user.id))}/3 lượt tạo hôm nay
+                    <div className="text-[10px] text-center text-zinc-400">
+                      Tài khoản Free: còn {Math.max(0, 3 - studyRoomService.getDailyPrivateRoomCount(user.id))}/3 lượt tạo hôm nay
                     </div>
                   </div>
                 ) : (
@@ -529,7 +530,7 @@ export const StudyRoomLobby: React.FC = () => {
                     className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                   >
                     <Video size={15} />
-                    <span>Tạo Phòng PRO Không Giới Hạn &amp; Lấy Mã</span>
+                    <span>Tạo phòng PRO không giới hạn &amp; lấy mã</span>
                   </button>
                 )}
               </form>
@@ -547,7 +548,7 @@ export const StudyRoomLobby: React.FC = () => {
                 <LogIn size={18} />
               </div>
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>Tham Gia Phòng Có Sẵn</span>
+                <span>Tham gia phòng có sẵn</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
                   Mã hoặc link
                 </span>
@@ -570,7 +571,7 @@ export const StudyRoomLobby: React.FC = () => {
                       setErrorMsg(null);
                     }}
                     placeholder="vd: pomo-a1b2-c3d4 hoặc dán toàn bộ link..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600"
                   />
                   {errorMsg && (
                     <p className="mt-1 text-[11px] text-rose-400">{errorMsg}</p>
@@ -582,7 +583,7 @@ export const StudyRoomLobby: React.FC = () => {
                   className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                 >
                   <ArrowRight size={15} />
-                  <span>Vào Phòng Học Ngay</span>
+                  <span>Vào phòng học ngay</span>
                 </button>
               </form>
             </div>
@@ -599,7 +600,7 @@ export const StudyRoomLobby: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Sparkles size={16} className="text-zinc-300" />
-                <h3 className="font-bold text-sm text-white">Phòng Học Công Khai</h3>
+                <h3 className="font-bold text-sm text-white">Phòng học công khai</h3>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
                   Miễn phí • 10 người
                 </span>
@@ -609,7 +610,7 @@ export const StudyRoomLobby: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
               <span>Đồng bộ sĩ số trực tiếp</span>
             </div>
           </div>
@@ -644,7 +645,7 @@ export const StudyRoomLobby: React.FC = () => {
                         </span>
                       ) : (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
                           Sẵn sàng
                         </span>
                       )}
@@ -675,10 +676,10 @@ export const StudyRoomLobby: React.FC = () => {
                           type="button"
                           disabled
                           data-testid={`btn-join-${pod.roomId}`}
-                          className="w-full py-2 px-3 rounded-lg bg-zinc-800/50 text-zinc-500 font-semibold text-xs cursor-not-allowed text-center border border-zinc-800"
-                          title="Phòng đã đạt giới hạn 10 người. Vui lòng chọn Pod khác còn chỗ."
+                          className="w-full py-2 px-3 rounded-lg bg-zinc-800/50 text-zinc-400 font-semibold text-xs cursor-not-allowed text-center border border-zinc-800"
+                          title="Phòng đã đạt giới hạn 10 người. vui lòng chọn pod khác còn chỗ."
                         >
-                          Đã Đầy (10/10)
+                          Đã đầy (10/10)
                         </button>
                       </div>
                     ) : (
@@ -689,7 +690,7 @@ export const StudyRoomLobby: React.FC = () => {
                         className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow"
                       >
                         <LogIn size={14} className="-translate-y-[0.5px]" />
-                        <span>Vào Học (1 Chạm)</span>
+                        <span>Vào học (1 chạm)</span>
                       </button>
                     )}
                   </div>
@@ -701,7 +702,7 @@ export const StudyRoomLobby: React.FC = () => {
 
         {/* Thông báo thao tác thành công (Toast) */}
         {deleteNotice && (
-          <div className="mb-6 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in slide-in-from-top-2">
+          <div className="mb-6 p-3 rounded-xl bg-zinc-700/15 border border-zinc-500/30 text-zinc-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in slide-in-from-top-2">
             <Check size={16} className="shrink-0" />
             <span>{deleteNotice}</span>
           </div>
@@ -712,9 +713,9 @@ export const StudyRoomLobby: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users size={16} className="text-zinc-300" />
-              <h3 className="font-bold text-sm text-white">Phòng Học Đang Hoạt Động ({activeRooms.length})</h3>
+              <h3 className="font-bold text-sm text-white">Phòng học đang hoạt động ({activeRooms.length})</h3>
             </div>
-            <span className="text-[11px] text-zinc-500">Cập nhật tức thời</span>
+            <span className="text-[11px] text-zinc-400">Cập nhật tức thời</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
@@ -736,7 +737,7 @@ export const StudyRoomLobby: React.FC = () => {
                   onClick={() => handleCardClick(r)}
                   className={`p-4 rounded-xl border transition cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
                     isMyRoom
-                      ? 'bg-zinc-900/90 border-emerald-500/30 hover:border-emerald-500/50 shadow-md'
+                      ? 'bg-zinc-900/90 border-zinc-500/30 hover:border-zinc-500/50 shadow-md'
                       : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700'
                   }`}
                 >
@@ -751,20 +752,20 @@ export const StudyRoomLobby: React.FC = () => {
 
                       <div className="flex items-center gap-1 shrink-0">
                         {isMyRoom && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold uppercase tracking-wider">
-                            CỦA BẠN
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 font-bold normal-case tracking-wider">
+                            Của bạn
                           </span>
                         )}
                         <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          LIVE
+                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+                          Trực tiếp
                         </span>
                       </div>
                     </div>
 
                     {r.roomGoal && (
                       <div className="mb-2.5 px-2 py-1 rounded-md bg-zinc-950/60 border border-zinc-800/80 text-[10px] text-zinc-300 truncate">
-                        🎯 {r.roomGoal}
+                        <UiSymbol name="🎯" /> {r.roomGoal}
                       </div>
                     )}
 
@@ -779,10 +780,10 @@ export const StudyRoomLobby: React.FC = () => {
                           className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition"
                           title="Sao chép mã phòng"
                         >
-                          {copiedId === r.roomId ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                          {copiedId === r.roomId ? <Check size={12} className="text-zinc-300" /> : <Copy size={12} />}
                         </button>
                         {r.passcode && (
-                          <span title="Phòng có mật khẩu PIN" className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] flex items-center gap-1 border border-amber-500/20 font-mono">
+                          <span title="Phòng có mật khẩu pin" className="px-1.5 py-0.5 rounded bg-zinc-700/10 text-zinc-300 text-[10px] flex items-center gap-1 border border-zinc-500/20 font-mono">
                             <Lock size={10} /> PIN
                           </span>
                         )}
@@ -796,7 +797,7 @@ export const StudyRoomLobby: React.FC = () => {
                             data-testid={`btn-edit-room-${r.roomId}`}
                             onClick={(e) => openEditRoomModal(r, e)}
                             className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition cursor-pointer"
-                            title="Tùy chỉnh & Đổi tên phòng"
+                            title="Tùy chỉnh & đổi tên phòng"
                           >
                             <Pencil size={12} />
                           </button>
@@ -821,7 +822,7 @@ export const StudyRoomLobby: React.FC = () => {
                     <span className="text-zinc-400">
                       {r.allowFreeGuests ? (
                         <span className="text-zinc-300 flex items-center gap-1">
-                          <Users size={12} /> Khách Free: Cho phép
+                          <Users size={12} /> Khách Free: cho phép
                         </span>
                       ) : (
                         <span className="text-zinc-400 flex items-center gap-1">
@@ -829,7 +830,7 @@ export const StudyRoomLobby: React.FC = () => {
                         </span>
                       )}
                     </span>
-                    <span className="text-zinc-500 font-mono">
+                    <span className="text-zinc-400 font-mono">
                       {participantCount > 0 ? `${participantCount}/${r.maxParticipants || 10} online` : 'Chưa có người'}
                     </span>
                   </div>
@@ -847,7 +848,7 @@ export const StudyRoomLobby: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
               <Trash2 size={24} />
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Xác Nhận Xóa Phòng Học</h3>
+            <h3 className="text-base font-bold text-white mb-2">Xác nhận xóa phòng học</h3>
             <p className="text-xs text-zinc-300 mb-5 leading-relaxed">
               Bạn có chắc chắn muốn xóa vĩnh viễn phòng <strong>{roomToDelete.title}</strong> (mã <code>#{roomToDelete.roomId}</code>)? Toàn bộ dữ liệu phiên học và người tham gia sẽ bị ngắt kết nối ngay lập tức.
             </p>
@@ -857,7 +858,7 @@ export const StudyRoomLobby: React.FC = () => {
                 onClick={() => setRoomToDelete(null)}
                 className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
               >
-                Hủy Bỏ
+                Hủy bỏ
               </button>
               <button
                 type="button"
@@ -865,7 +866,7 @@ export const StudyRoomLobby: React.FC = () => {
                 onClick={handleConfirmDeleteRoom}
                 className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition cursor-pointer shadow-lg shadow-rose-950/50"
               >
-                Xóa Vĩnh Viễn
+                Xóa vĩnh viễn
               </button>
             </div>
           </div>
@@ -878,8 +879,8 @@ export const StudyRoomLobby: React.FC = () => {
           <div className="w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2">
-                <Sliders size={18} className="text-emerald-400" />
-                <h3 className="font-bold text-sm">Tùy Chỉnh &amp; Đổi Tên Phòng Học</h3>
+                <Sliders size={18} className="text-zinc-300" />
+                <h3 className="font-bold text-sm">Tùy chỉnh &amp; đổi tên phòng học</h3>
               </div>
               <button
                 type="button"
@@ -906,22 +907,22 @@ export const StudyRoomLobby: React.FC = () => {
                   data-testid="edit-room-title-input"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                   required
                 />
               </div>
 
               <div>
                 <label className="block text-[11px] font-medium text-zinc-300 mb-1">
-                  Mục tiêu buổi học (Hiển thị ghim đầu phòng)
+                  Mục tiêu buổi học (hiển thị ghim đầu phòng)
                 </label>
                 <input
                   type="text"
                   data-testid="edit-room-goal-input"
                   value={editGoal}
                   onChange={(e) => setEditGoal(e.target.value)}
-                  placeholder="vd: Cùng ôn tập đề thi JLPT N2, 25m học / 5m nghỉ..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                  placeholder="vd: cùng ôn tập đề thi jlpt n2, 25m học / 5m nghỉ..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
@@ -935,11 +936,11 @@ export const StudyRoomLobby: React.FC = () => {
                       onClick={() => setEditCategory(cat.id)}
                       className={`px-2.5 py-2 rounded-xl text-left text-xs flex items-center gap-2 border transition cursor-pointer ${
                         editCategory === cat.id
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                          ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 font-semibold'
                           : 'bg-zinc-950/60 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700'
                       }`}
                     >
-                      <span>{cat.icon}</span>
+                      <UiSymbol name={cat.icon} />
                       <span className="truncate text-[11px]">{cat.label}</span>
                     </button>
                   ))}
@@ -949,8 +950,8 @@ export const StudyRoomLobby: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-medium text-zinc-300">Mật khẩu PIN</label>
-                    <span className="text-[10px] text-zinc-500">Để trống nếu mở tự do</span>
+                    <label className="text-[11px] font-medium text-zinc-300">Mật khẩu pin</label>
+                    <span className="text-[10px] text-zinc-400">Để trống nếu mở tự do</span>
                   </div>
                   <input
                     type="text"
@@ -958,7 +959,7 @@ export const StudyRoomLobby: React.FC = () => {
                     value={editPasscode}
                     onChange={(e) => setEditPasscode(e.target.value)}
                     placeholder="vd: 1234"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 font-mono"
                   />
                 </div>
 
@@ -967,12 +968,12 @@ export const StudyRoomLobby: React.FC = () => {
                   <select
                     value={editMaxCapacity}
                     onChange={(e) => setEditMaxCapacity(parseInt(e.target.value, 10))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-none focus:border-zinc-500 cursor-pointer"
                   >
-                    <option value={2}>2 người (Học đôi / 1:1)</option>
-                    <option value={4}>4 người (Nhóm nhỏ)</option>
+                    <option value={2}>2 người (học đôi / 1:1)</option>
+                    <option value={4}>4 người (nhóm nhỏ)</option>
                     <option value={6}>6 người</option>
-                    <option value={10}>10 người (Tiêu chuẩn)</option>
+                    <option value={10}>10 người (tiêu chuẩn)</option>
                     <option value={25}>25 người (PRO)</option>
                     <option value={50}>50 người (VIP)</option>
                   </select>
@@ -985,27 +986,27 @@ export const StudyRoomLobby: React.FC = () => {
                     type="checkbox"
                     checked={editSilentMode}
                     onChange={(e) => setEditSilentMode(e.target.checked)}
-                    className="rounded bg-zinc-950 border-zinc-800 text-emerald-500 focus:ring-0"
+                    className="rounded bg-zinc-950 border-zinc-800 text-zinc-300 focus:ring-0"
                   />
-                  <span className="text-zinc-300 text-[11px]">Chế độ Siêu Tập Trung (Tự động tắt Micro khi tham gia)</span>
+                  <span className="text-zinc-300 text-[11px]">Chế độ siêu tập trung (tự động tắt micro khi tham gia)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editRequireCam}
                     onChange={(e) => setEditRequireCam(e.target.checked)}
-                    className="rounded bg-zinc-950 border-zinc-800 text-emerald-500 focus:ring-0"
+                    className="rounded bg-zinc-950 border-zinc-800 text-zinc-300 focus:ring-0"
                   />
-                  <span className="text-zinc-300 text-[11px]">Yêu cầu bật Camera (Study With Me - Tạo áp lực tập trung)</span>
+                  <span className="text-zinc-300 text-[11px]">Yêu cầu bật camera (study with me - tạo áp lực tập trung)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editHostOnlyTimer}
                     onChange={(e) => setEditHostOnlyTimer(e.target.checked)}
-                    className="rounded bg-zinc-950 border-zinc-800 text-emerald-500 focus:ring-0"
+                    className="rounded bg-zinc-950 border-zinc-800 text-zinc-300 focus:ring-0"
                   />
-                  <span className="text-zinc-300 text-[11px]">Chỉ Chủ phòng được quyền Start/Pause đồng hồ Pomodoro</span>
+                  <span className="text-zinc-300 text-[11px]">Chỉ chủ phòng được quyền start/pause đồng hồ pomodoro</span>
                 </label>
               </div>
 
@@ -1015,14 +1016,14 @@ export const StudyRoomLobby: React.FC = () => {
                   onClick={() => setEditingRoom(null)}
                   className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
                 >
-                  Hủy Bỏ
+                  Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   data-testid="btn-save-edit-room"
-                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs font-bold transition cursor-pointer shadow-lg shadow-emerald-950/50"
+                  className="px-5 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white text-xs font-bold transition cursor-pointer shadow-lg shadow-zinc-950/50"
                 >
-                  Lưu Cài Đặt Phòng
+                  Lưu cài đặt phòng
                 </button>
               </div>
             </form>
@@ -1034,12 +1035,12 @@ export const StudyRoomLobby: React.FC = () => {
       {passcodeRoom && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-zinc-700/10 border border-zinc-500/20 text-zinc-300 flex items-center justify-center mb-4">
               <Lock size={24} />
             </div>
-            <h3 className="text-base font-bold text-white mb-1.5">Phòng Học Có Mật Khẩu (PIN)</h3>
+            <h3 className="text-base font-bold text-white mb-1.5">Phòng học có mật khẩu (pin)</h3>
             <p className="text-xs text-zinc-400 mb-4">
-              Phòng <strong>{passcodeRoom.title}</strong> yêu cầu mật khẩu để tham gia. Vui lòng nhập mã PIN do chủ phòng cung cấp:
+              Phòng <strong>{passcodeRoom.title}</strong> yêu cầu mật khẩu để tham gia. Vui lòng nhập mã pin do chủ phòng cung cấp:
             </p>
 
             {passcodeError && (
@@ -1058,8 +1059,8 @@ export const StudyRoomLobby: React.FC = () => {
                   setEnteredPasscode(e.target.value);
                   setPasscodeError(null);
                 }}
-                placeholder="Nhập mã PIN..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm font-mono text-center tracking-widest text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                placeholder="Nhập mã pin..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm font-mono text-center tracking-widest text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
               />
 
               <div className="flex items-center justify-end gap-2">
@@ -1072,14 +1073,14 @@ export const StudyRoomLobby: React.FC = () => {
                   }}
                   className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 transition cursor-pointer"
                 >
-                  Hủy Bỏ
+                  Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   data-testid="btn-submit-passcode"
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 text-xs font-bold transition cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white text-xs font-bold transition cursor-pointer"
                 >
-                  Vào Phòng
+                  Vào phòng
                 </button>
               </div>
             </form>

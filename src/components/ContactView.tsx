@@ -41,7 +41,7 @@ export const ContactView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Liên Hệ & Hỗ Trợ"
+      title="Liên hệ & hỗ trợ"
       subtitle="Hòm thư tiếp nhận 24/7"
       onBack={() => router.navigate('/app')}
       className="selection:bg-white selection:text-black"
@@ -52,14 +52,14 @@ export const ContactView: React.FC = () => {
       >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 text-xs font-medium">
-            <MessageSquare size={13} className="text-emerald-400" />
-            <span>Liên Hệ Trực Tiếp Đội Ngũ Phát Triển</span>
+            <MessageSquare size={13} className="text-zinc-300" />
+            <span>Liên hệ trực tiếp đội ngũ phát triển</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Chúng Tôi Luôn Lắng Nghe Bạn
+            Chúng tôi luôn lắng nghe bạn
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            Bạn có câu hỏi, ý kiến đóng góp tính năng hoặc cần hỗ trợ tài khoản PRO trong giai đoạn Demo Beta? Hãy liên hệ qua các kênh chính thức dưới đây.
+            Bạn có câu hỏi, ý kiến đóng góp tính năng hoặc cần hỗ trợ tài khoản PRO trong giai đoạn demo beta? Hãy liên hệ qua các kênh chính thức dưới đây.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export const ContactView: React.FC = () => {
                 <Mail size={20} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white mb-1">Hòm Thư Hỗ Trợ Kỹ Thuật</h3>
+                <h3 className="text-base font-bold text-white mb-1">Hòm thư hỗ trợ kỹ thuật</h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   Phản hồi trong vòng 24 giờ cho mọi yêu cầu, góp ý hoặc báo cáo bảo mật.
                 </p>
@@ -79,7 +79,7 @@ export const ContactView: React.FC = () => {
               <div className="p-3 rounded-xl bg-black/60 border border-zinc-800 flex items-center justify-between gap-2 font-mono text-xs text-zinc-200">
                 <a
                   href={`mailto:${emailContact}`}
-                  className="hover:text-emerald-400 transition truncate"
+                  className="hover:text-zinc-300 transition truncate"
                   title="Nhấn để gửi email"
                 >
                   {emailContact}
@@ -91,11 +91,11 @@ export const ContactView: React.FC = () => {
                   title="Sao chép email"
                   aria-label="Sao chép vào bộ nhớ tạm"
                 >
-                  {copiedEmail ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  {copiedEmail ? <Check size={14} className="text-zinc-300" /> : <Copy size={14} />}
                 </button>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center gap-2 text-[11px] text-zinc-500">
+            <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center gap-2 text-[11px] text-zinc-400">
               <Clock size={13} className="shrink-0" />
               <span>Tiếp nhận thư điện tử 24/7</span>
             </div>
@@ -105,21 +105,21 @@ export const ContactView: React.FC = () => {
           <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 flex flex-col justify-between hover:border-zinc-700 transition">
             <div className="space-y-4">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
-                <HelpCircle size={20} className="text-emerald-400" />
+                <HelpCircle size={20} className="text-zinc-300" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white mb-1">Cổng Trợ Giúp & Cộng Đồng</h3>
+                <h3 className="text-base font-bold text-white mb-1">Cổng trợ giúp & cộng đồng</h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   Gửi yêu cầu trực tiếp qua biểu mẫu bảo mật bên dưới để được ban quản trị hỗ trợ trong vòng 24 giờ.
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-black/60 border border-zinc-800 flex items-center justify-between gap-2 text-xs text-zinc-200">
-                <span className="text-emerald-400 font-medium">Hỗ trợ trực tuyến 24/7</span>
+                <span className="text-zinc-300 font-medium">Hỗ trợ trực tuyến 24/7</span>
                 <span className="text-zinc-400 text-[11px]">Phản hồi &lt; 24h</span>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center gap-2 text-[11px] text-zinc-500">
-              <ShieldCheck size={13} className="shrink-0 text-emerald-400" />
+            <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center gap-2 text-[11px] text-zinc-400">
+              <ShieldCheck size={13} className="shrink-0 text-zinc-300" />
               <span>Kênh hỗ trợ chính thức bảo mật</span>
             </div>
           </div>
@@ -128,18 +128,18 @@ export const ContactView: React.FC = () => {
         {/* Feedback Form */}
         <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 sm:p-8">
           <div className="mb-6 space-y-1">
-            <h2 className="text-lg font-bold text-white">Gửi Thông Điệp Trực Tuyến</h2>
+            <h2 className="text-lg font-bold text-white">Gửi thông điệp trực tuyến</h2>
             <p className="text-xs text-zinc-400">
               Điền thông tin của bạn vào biểu mẫu bên dưới, chúng tôi sẽ xử lý và liên hệ lại sớm nhất.
             </p>
           </div>
 
           {submitted ? (
-            <div className="p-6 rounded-xl border border-emerald-500/30 bg-emerald-950/30 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+            <div className="p-6 rounded-xl border border-zinc-500/30 bg-zinc-950/30 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center mx-auto">
                 <CheckCircle2 size={24} />
               </div>
-              <h3 className="text-base font-bold text-white">Cảm Ơn Bạn Đã Gửi Phản Hồi!</h3>
+              <h3 className="text-base font-bold text-white">Cảm ơn bạn đã gửi phản hồi!</h3>
               <p className="text-xs text-zinc-300 max-w-md mx-auto">
                 Chúng tôi đã nhận được thông điệp của bạn. Đội ngũ phát triển PomoFocus sẽ xem xét và phản hồi trong thời gian sớm nhất.
               </p>
@@ -156,20 +156,20 @@ export const ContactView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                    Họ và Tên *
+                    Họ và tên *
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Nguyễn Văn A"
+                    placeholder="Nguyễn văn a"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                    Địa chỉ Email *
+                    Địa chỉ email *
                   </label>
                   <input
                     type="email"
@@ -184,24 +184,24 @@ export const ContactView: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                  Chủ Đề
+                  Chủ đề
                 </label>
                 <select
                   value={formData.topic}
                   onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
                 >
-                  <option value="support">Hỗ trợ kỹ thuật & Lỗi ứng dụng</option>
-                  <option value="feature">Góp ý & Đề xuất tính năng mới</option>
-                  <option value="beta_pro">Kích hoạt & Gia hạn gói PRO Beta</option>
-                  <option value="cooperation">Hợp tác & Góp vốn phát triển</option>
+                  <option value="support">Hỗ trợ kỹ thuật & lỗi ứng dụng</option>
+                  <option value="feature">Góp ý & đề xuất tính năng mới</option>
+                  <option value="beta_pro">Kích hoạt & gia hạn gói PRO beta</option>
+                  <option value="cooperation">Hợp tác & góp vốn phát triển</option>
                   <option value="other">Chủ đề khác</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                  Nội Dung Tin Nhắn *
+                  Nội dung tin nhắn *
                 </label>
                 <textarea
                   required
@@ -219,7 +219,7 @@ export const ContactView: React.FC = () => {
                   className="px-6 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-2 cursor-pointer shadow-md"
                 >
                   <Send size={13} />
-                  <span>Gửi Thông Điệp</span>
+                  <span>Gửi thông điệp</span>
                 </button>
               </div>
             </form>

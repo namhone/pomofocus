@@ -96,8 +96,8 @@ export function getSubscriptionBadge(user?: {
     return {
       tier: 'founder',
       label: 'Founder VIP',
-      colorClass: 'text-amber-300 border-amber-400/40 bg-amber-400/20',
-      badgeClass: 'px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border border-amber-400/40 bg-amber-400/20 text-amber-300 shadow-sm',
+      colorClass: 'text-zinc-300 border-zinc-400/40 bg-zinc-400/20',
+      badgeClass: 'px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border border-zinc-400/40 bg-zinc-400/20 text-zinc-300 shadow-sm',
       icon: 'crown'
     };
   }
@@ -106,8 +106,8 @@ export function getSubscriptionBadge(user?: {
     return {
       tier: 'pro',
       label: 'Pro',
-      colorClass: 'text-emerald-300 border-emerald-500/30 bg-emerald-500/20',
-      badgeClass: 'px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border border-emerald-500/30 bg-emerald-500/20 text-emerald-300',
+      colorClass: 'text-zinc-300 border-zinc-500/30 bg-zinc-500/20',
+      badgeClass: 'px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border border-zinc-500/30 bg-zinc-500/20 text-zinc-300',
       icon: 'star'
     };
   }

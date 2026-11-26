@@ -1,0 +1,24 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+      Coverage enabled with v8
+
+ ✓ tests/unit/phase4bPresentation.test.tsx (9 tests) 1089ms
+   ✓ Notes single-toolbar editing > keeps add, edit, preview, tone and delete operable while saving real content 810ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  06:46:45
+   Duration  13.52s (transform 2.57s, setup 0ms, collect 5.20s, tests 1.09s, environment 3.66s, prepare 531ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   95.89 |    81.25 |   68.75 |   95.89 |                   
+ components        |     100 |    88.23 |   66.66 |     100 |                   
+  NotesWidget.tsx  |     100 |    88.23 |   66.66 |     100 | 15-16,26,40       
+ components/common |   84.21 |       50 |      50 |   84.21 |                   
+  UiSymbol.tsx     |   84.21 |       50 |      50 |   84.21 | 21-23             
+ utils             |     100 |    66.66 |     100 |     100 |                   
+  ...esentation.ts |     100 |    66.66 |     100 |     100 | 11-13,15-17       
+-------------------|---------|----------|---------|---------|-------------------

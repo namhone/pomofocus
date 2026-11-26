@@ -48,7 +48,7 @@ export class TaskCloudService {
             id: cp.id,
             userId,
             name: cp.name,
-            colorHex: cp.color_hex || '#10b981',
+            colorHex: cp.color_hex || '#a1a1aa',
             createdAt: new Date(cp.created_at).getTime(),
             updatedAt: cloudUpdatedAt,
             deletedAt: cloudDeletedAt,
@@ -170,7 +170,7 @@ export class TaskCloudService {
         id: project.id,
         user_id: userId,
         name: project.name,
-        color_hex: project.colorHex || '#10b981',
+        color_hex: project.colorHex || '#a1a1aa',
         created_at: new Date(project.createdAt).toISOString(),
         updated_at: project.updatedAt ? new Date(project.updatedAt).toISOString() : new Date().toISOString(),
         deleted_at: project.deletedAt ? new Date(project.deletedAt).toISOString() : null

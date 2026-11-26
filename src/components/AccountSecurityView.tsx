@@ -94,13 +94,13 @@ export const AccountSecurityView: React.FC = () => {
   if (!isAuthenticated || !user) {
     return (
       <MobileSubViewLayout
-        title="Bảo Mật Tài Khoản"
+        title="Bảo mật tài khoản"
         subtitle="Yêu cầu đăng nhập"
         onBack={() => router.navigate('/app')}
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Yêu Cầu Đăng Nhập</h1>
+            <h1 className="text-xl font-bold text-white">Yêu cầu đăng nhập</h1>
             <p className="text-xs text-zinc-400">
               Vui lòng đăng nhập để xem và quản lý thiết lập bảo mật tài khoản.
             </p>
@@ -109,7 +109,7 @@ export const AccountSecurityView: React.FC = () => {
               onClick={() => router.navigate('/login')}
               className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-xs cursor-pointer"
             >
-              Đăng Nhập Ngay
+              Đăng nhập ngay
             </button>
           </div>
         </div>
@@ -319,7 +319,7 @@ export const AccountSecurityView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Bảo Mật & Xác Thực"
+      title="Bảo mật & xác thực"
       subtitle={user?.email}
       backTestId="back-to-workspace-btn"
       onBack={() => router.navigate('/app')}
@@ -343,7 +343,7 @@ export const AccountSecurityView: React.FC = () => {
             </button>
 
             <span
-              className="text-[11px] sm:text-xs text-zinc-500 font-mono truncate max-w-[120px] sm:max-w-xs"
+              className="text-[11px] sm:text-xs text-zinc-400 font-mono truncate max-w-[120px] sm:max-w-xs"
               title={user.id}
             >
               ID: {user.id.slice(0, 10)}...
@@ -396,11 +396,11 @@ export const AccountSecurityView: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <Shield size={20} className="text-zinc-200 shrink-0" />
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              Trung Tâm Bảo Mật Tài Khoản
+              Trung tâm bảo mật tài khoản
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Quản lý phương thức đăng nhập và bảo mật 2 lớp (2FA).
+            Quản lý phương thức đăng nhập và bảo mật 2 lớp (2fa).
           </p>
         </div>
 
@@ -431,9 +431,9 @@ export const AccountSecurityView: React.FC = () => {
                 <QrCode size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-white">Xác Thực 2 Bước (Authenticator App / TOTP 2FA)</h2>
+                <h2 className="text-sm font-semibold text-white">Xác thực 2 bước (authenticator app / totp 2fa)</h2>
                 <div className="text-[11px] text-zinc-400">
-                  Chuẩn bảo mật quốc tế tương thích Google Authenticator, Microsoft Authenticator, Authy, Apple Keychain.
+                  Chuẩn bảo mật quốc tế tương thích Google authenticator, microsoft authenticator, authy, apple keychain.
                 </div>
               </div>
             </div>
@@ -462,7 +462,7 @@ export const AccountSecurityView: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
-                      <span>Ứng Dụng Xác Thực (RFC 6238 TOTP)</span>
+                      <span>Ứng dụng xác thực (rfc 6238 totp)</span>
                       <span className="border border-zinc-800 bg-zinc-900/80 text-zinc-300 text-[10px] px-2 py-0.5 rounded font-mono">
                         Mã 6 số / 30s
                       </span>
@@ -481,7 +481,7 @@ export const AccountSecurityView: React.FC = () => {
                       onClick={() => setShowBackupCodesModal(true)}
                       className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer whitespace-nowrap"
                     >
-                      Mã Dự Phòng ({savedBackupCodes.length})
+                      Mã dự phòng ({savedBackupCodes.length})
                     </button>
                   )}
                   <button
@@ -490,7 +490,7 @@ export const AccountSecurityView: React.FC = () => {
                     onClick={() => setShowDisable2FaModal(true)}
                     className="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer whitespace-nowrap"
                   >
-                    Tắt 2FA
+                    Tắt 2fa
                   </button>
                 </div>
               </div>
@@ -504,9 +504,9 @@ export const AccountSecurityView: React.FC = () => {
                   <Smartphone size={16} />
                 </div>
                 <div>
-                  <div className="font-semibold text-white">Chưa Thiết Lập Ứng Dụng Xác Thực 2 Bước</div>
+                  <div className="font-semibold text-white">Chưa thiết lập ứng dụng xác thực 2 bước</div>
                   <div className="text-[11px] text-zinc-400 mt-0.5">
-                    Quét mã QR bằng ứng dụng Google Authenticator trên điện thoại để bảo vệ tài khoản khỏi đánh cắp mật khẩu.
+                    Quét mã QR bằng ứng dụng Google authenticator trên điện thoại để bảo vệ tài khoản khỏi đánh cắp mật khẩu.
                   </div>
                 </div>
               </div>
@@ -518,7 +518,7 @@ export const AccountSecurityView: React.FC = () => {
                 className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition cursor-pointer shrink-0 shadow-sm whitespace-nowrap flex items-center gap-1.5"
               >
                 <QrCode size={14} />
-                <span>Bật 2FA Bằng Ứng Dụng</span>
+                <span>Bật 2fa bằng ứng dụng</span>
               </button>
             </div>
           )}
@@ -528,7 +528,7 @@ export const AccountSecurityView: React.FC = () => {
         {/* MỤC 2: PHƯƠNG THỨC XÁC THỰC ĐÃ LIÊN KẾT                                  */}
         {/* ========================================================================= */}
         <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
-          <h2 className="text-sm font-semibold text-white">Phương Thức Xác Thực Đã Liên Kết</h2>
+          <h2 className="text-sm font-semibold text-white">Phương thức xác thực đã liên kết</h2>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 text-xs gap-3">
@@ -537,7 +537,7 @@ export const AccountSecurityView: React.FC = () => {
                   G
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-white truncate">Google OAuth 2.0</div>
+                  <div className="font-semibold text-white truncate">Google</div>
                   <div className="text-[11px] text-zinc-400 truncate">
                     {isGoogleAccount
                       ? `Đã liên kết với Google ID (${user.googleId || 'Verified'})`
@@ -548,8 +548,8 @@ export const AccountSecurityView: React.FC = () => {
 
               {isGoogleAccount ? (
                 <span className="border border-zinc-800 bg-zinc-900/60 text-zinc-300 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-                  <span className="font-mono text-[10px] text-emerald-300 font-bold">ĐÃ KẾT NỐI</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[0_0_6px_rgba(255,255,255,0.6)]" />
+                  <span className="font-mono text-[10px] text-zinc-300 font-bold">Đã kết nối</span>
                 </span>
               ) : (
                 <button
@@ -571,7 +571,7 @@ export const AccountSecurityView: React.FC = () => {
                   <Key size={15} />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-white truncate">Mật Khẩu Cá Nhân</div>
+                  <div className="font-semibold text-white truncate">Mật khẩu cá nhân</div>
                   <div className="text-[11px] text-zinc-400 truncate">
                     {isGoogleAccount
                       ? 'Đăng nhập trực tiếp bằng Google (không dùng mật khẩu cục bộ)'
@@ -590,9 +590,9 @@ export const AccountSecurityView: React.FC = () => {
           </div>
 
           <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-2 leading-relaxed">
-            <Info size={14} className="text-zinc-500 shrink-0 mt-0.5" />
+            <Info size={14} className="text-zinc-400 shrink-0 mt-0.5" />
             <span>
-              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu an toàn kết hợp với mã xác thực 2 bước TOTP để bảo vệ dữ liệu tối đa.
+              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu an toàn kết hợp với mã xác thực 2 bước totp để bảo vệ dữ liệu tối đa.
             </span>
           </div>
         </div>
@@ -604,46 +604,46 @@ export const AccountSecurityView: React.FC = () => {
           <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Lock size={15} className="text-amber-400 shrink-0" />
-                <span>Thiết Lập Mật Khẩu Phụ Cho Tài Khoản Google</span>
+                <Lock size={15} className="text-zinc-300 shrink-0" />
+                <span>Thiết lập mật khẩu phụ cho tài khoản Google</span>
               </h2>
               {hasGooglePasswordSet && (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-mono self-start sm:self-auto">
+                <span className="px-2.5 py-0.5 rounded-full bg-zinc-700/10 border border-zinc-500/30 text-zinc-300 text-[10px] font-mono self-start sm:self-auto">
                   ✓ Đã có mật khẩu phụ
                 </span>
               )}
             </div>
 
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Bạn đang liên kết đăng nhập bằng <strong>Google OAuth</strong>. Thiết lập thêm mật khẩu phụ độc lập giúp bạn có thể đăng nhập trên máy tính công cộng bằng Email &amp; Mật khẩu mà không cần đăng nhập Google cá nhân.
+              Bạn đang liên kết đăng nhập bằng <strong>Google</strong>. Thiết lập thêm mật khẩu phụ độc lập giúp bạn có thể đăng nhập trên máy tính công cộng bằng email &amp; mật khẩu mà không cần đăng nhập Google cá nhân.
             </p>
 
             <form onSubmit={handleSetGoogleSecondaryPassword} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-zinc-300 font-medium mb-1.5">
-                    Mật Khẩu Mới (Tối thiểu 6 ký tự)
+                    Mật khẩu mới (tối thiểu 6 ký tự)
                   </label>
                   <input
                     type="password"
                     data-testid="input-google-secondary-password"
                     value={googleSecondaryPassword}
                     onChange={(e) => setGoogleSecondaryPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-emerald-400 transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
                     placeholder="Nhập mật khẩu phụ mới..."
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-zinc-300 font-medium mb-1.5">
-                    Xác Nhận Mật Khẩu Mới
+                    Xác nhận mật khẩu mới
                   </label>
                   <input
                     type="password"
                     data-testid="input-google-confirm-password"
                     value={googleConfirmPassword}
                     onChange={(e) => setGoogleConfirmPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-emerald-400 transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
                     placeholder="Nhập lại mật khẩu phụ..."
                     required
                   />
@@ -655,7 +655,7 @@ export const AccountSecurityView: React.FC = () => {
                   type="submit"
                   disabled={isSettingGooglePassword}
                   data-testid="btn-submit-google-secondary-password"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
                 >
                   {isSettingGooglePassword
                     ? 'Đang lưu...'
@@ -671,7 +671,7 @@ export const AccountSecurityView: React.FC = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-white flex items-center gap-2">
                 <Lock size={15} className="text-zinc-400 shrink-0" />
-                <span>Đổi Mật Khẩu Cá Nhân</span>
+                <span>Đổi mật khẩu cá nhân</span>
               </h2>
 
               <button
@@ -680,7 +680,7 @@ export const AccountSecurityView: React.FC = () => {
                   setShowEmailOtpMode(!showEmailOtpMode);
                   setStatusMessage(null);
                 }}
-                className="text-xs text-emerald-400 hover:underline cursor-pointer"
+                className="text-xs text-zinc-300 hover:underline cursor-pointer"
               >
                 {showEmailOtpMode ? '← Đổi bằng mật khẩu cũ' : 'Đổi nhanh qua mã OTP Email →'}
               </button>
@@ -703,7 +703,7 @@ export const AccountSecurityView: React.FC = () => {
 
                 <div>
                   <label className="block text-zinc-300 font-medium mb-1.5">
-                    Mã OTP 6 số từ Email
+                    Mã otp 6 số từ email
                   </label>
                   <input
                     type="text"
@@ -711,7 +711,7 @@ export const AccountSecurityView: React.FC = () => {
                     data-testid="input-email-otp"
                     value={emailOtpCode}
                     onChange={(e) => setEmailOtpCode(e.target.value.replace(/\s+/g, ''))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-500/40 bg-zinc-950 text-white font-mono text-center tracking-widest text-base font-bold focus:outline-none focus:border-emerald-400 transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-500/40 bg-zinc-950 text-white font-mono text-center tracking-widest text-base font-bold focus:outline-none focus:border-zinc-400 transition"
                     placeholder="123456"
                     required
                   />
@@ -720,7 +720,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-zinc-300 font-medium mb-1.5">
-                      Mật Khẩu Mới (Tối thiểu 6 ký tự)
+                      Mật khẩu mới (tối thiểu 6 ký tự)
                     </label>
                     <input
                       type="password"
@@ -734,7 +734,7 @@ export const AccountSecurityView: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-zinc-300 font-medium mb-1.5">
-                      Xác Nhận Mật Khẩu Mới
+                      Xác nhận mật khẩu mới
                     </label>
                     <input
                       type="password"
@@ -753,7 +753,7 @@ export const AccountSecurityView: React.FC = () => {
                     type="submit"
                     disabled={isChangingPass}
                     data-testid="btn-submit-change-password-otp"
-                    className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                    className="px-5 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
                   >
                     {isChangingPass ? 'Đang cập nhật...' : 'Xác Nhận & Đổi Mật Khẩu'}
                   </button>
@@ -764,7 +764,7 @@ export const AccountSecurityView: React.FC = () => {
               <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
                 <div>
                   <label className="block text-zinc-300 font-medium mb-1.5">
-                    Mật Khẩu Hiện Tại
+                    Mật khẩu hiện tại
                   </label>
                   <input
                     type="password"
@@ -780,7 +780,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-zinc-300 font-medium mb-1.5">
-                      Mật Khẩu Mới (Tối thiểu 6 ký tự)
+                      Mật khẩu mới (tối thiểu 6 ký tự)
                     </label>
                     <input
                       type="password"
@@ -794,7 +794,7 @@ export const AccountSecurityView: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-zinc-300 font-medium mb-1.5">
-                      Xác Nhận Mật Khẩu Mới
+                      Xác nhận mật khẩu mới
                     </label>
                     <input
                       type="password"
@@ -830,7 +830,7 @@ export const AccountSecurityView: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <Globe size={15} className="text-zinc-400 shrink-0" />
-              <span className="whitespace-nowrap">Quản Lý Phiên Đăng Nhập (Session Security)</span>
+              <span className="whitespace-nowrap">Quản lý phiên đăng nhập (session security)</span>
             </h2>
             <button
               type="button"
@@ -838,7 +838,7 @@ export const AccountSecurityView: React.FC = () => {
               className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto shrink-0"
             >
               <LogOut size={13} />
-              <span>Đăng Xuất Phiên Này</span>
+              <span>Đăng xuất phiên này</span>
             </button>
           </div>
 
@@ -849,7 +849,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
                   <span>Thiết bị đang sử dụng</span>
                   <span className="border border-zinc-800 bg-zinc-900/80 text-zinc-300 text-[10px] px-2 py-0.5 rounded font-mono">
-                    Phiên Hiện Tại
+                    Phiên hiện tại
                   </span>
                 </div>
                 <div
@@ -861,7 +861,7 @@ export const AccountSecurityView: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-[11px] text-zinc-500 font-mono sm:text-right shrink-0 whitespace-nowrap">
+            <div className="text-[11px] text-zinc-400 font-mono sm:text-right shrink-0 whitespace-nowrap">
               Phiên bảo mật cục bộ
             </div>
           </div>
@@ -889,15 +889,15 @@ export const AccountSecurityView: React.FC = () => {
         <div className="p-5 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/30 space-y-4">
           <div className="flex items-center gap-2 text-zinc-300">
             <AlertTriangle size={16} className="text-zinc-400" />
-            <h2 className="text-sm font-semibold text-white">Vùng Nguy Hiểm (Danger Zone)</h2>
+            <h2 className="text-sm font-semibold text-white">Vùng nguy hiểm (danger zone)</h2>
           </div>
 
           <p className="text-xs text-zinc-400 leading-relaxed">
-            Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống theo chuẩn quyền riêng tư GDPR.
+            Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống theo chuẩn quyền riêng tư gdpr.
           </p>
 
           <div className="pt-1 flex items-center justify-between flex-wrap gap-3">
-            <div className="text-xs text-zinc-500">
+            <div className="text-xs text-zinc-400">
               Hành động này không thể hoàn tác sau khi đã thực hiện.
             </div>
             <button
@@ -907,7 +907,7 @@ export const AccountSecurityView: React.FC = () => {
               className="px-4 py-2 rounded-xl border border-zinc-800 hover:border-rose-900/50 bg-zinc-900/60 hover:bg-rose-950/20 text-zinc-400 hover:text-rose-300 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
             >
               <Trash2 size={13} />
-              <span>Xóa Tài Khoản Vĩnh Viễn</span>
+              <span>Xóa tài khoản vĩnh viễn</span>
             </button>
           </div>
         </div>
@@ -922,7 +922,7 @@ export const AccountSecurityView: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-100">
                 <QrCode size={18} />
-                <span>Thiết Lập Xác Thực 2 Bước (Google Authenticator)</span>
+                <span>Thiết lập xác thực 2 bước (Google authenticator)</span>
               </div>
               <button
                 type="button"
@@ -946,7 +946,7 @@ export const AccountSecurityView: React.FC = () => {
             {/* Bước 1: Quét mã QR */}
             <div className="space-y-2 text-xs">
               <div className="font-semibold text-zinc-200">
-                Bước 1: Quét mã QR bằng ứng dụng Authenticator
+                Bước 1: quét mã QR bằng ứng dụng authenticator
               </div>
               <p className="text-zinc-400">
                 Mở ứng dụng <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong> hoặc <strong>Authy</strong> trên điện thoại và quét mã QR này:
@@ -955,7 +955,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div className="bg-white p-3 rounded-2xl inline-block shadow-md">
                   <img
                     src={totpSetupData.qrCodeUrl}
-                    alt="Mã QR TOTP"
+                    alt="Mã QR totp"
                     className="w-48 h-48 block"
                   />
                 </div>
@@ -965,10 +965,10 @@ export const AccountSecurityView: React.FC = () => {
             {/* Bước 2: Hoặc nhập mã thủ công */}
             <div className="space-y-2 text-xs border-t border-zinc-800 pt-3">
               <div className="font-semibold text-zinc-200">
-                Bước 2: Hoặc nhập mã khóa bí mật thủ công
+                Bước 2: hoặc nhập mã khóa bí mật thủ công
               </div>
               <p className="text-zinc-400">
-                Nếu camera không quét được, hãy chọn &quot;Nhập khóa thiết lập&quot; trên ứng dụng:
+                Nếu camera không quét được, hãy chọn &quot;nhập khóa thiết lập&quot; trên ứng dụng:
               </p>
               <div className="flex items-center gap-2 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
                 <code className="font-mono text-xs tracking-wider text-zinc-200 flex-1 select-all break-all">
@@ -989,7 +989,7 @@ export const AccountSecurityView: React.FC = () => {
             <div className="space-y-2 text-xs border-t border-zinc-800 pt-3">
               <div className="flex items-center justify-between">
                 <div className="font-semibold text-zinc-200">
-                  Mã Khôi Phục Dự Phòng (Lưu lại đề phòng mất điện thoại)
+                  Mã khôi phục dự phòng (lưu lại đề phòng mất điện thoại)
                 </div>
                 <button
                   type="button"
@@ -1013,7 +1013,7 @@ export const AccountSecurityView: React.FC = () => {
             <form onSubmit={handleConfirmTotpSetup} className="space-y-3 border-t border-zinc-800 pt-3">
               <div className="space-y-1">
                 <label className="block text-zinc-200 text-xs font-semibold">
-                  Bước 3: Nhập mã xác thực 6 chữ số từ app điện thoại
+                  Bước 3: nhập mã xác thực 6 chữ số từ app điện thoại
                 </label>
                 <input
                   type="text"
@@ -1034,7 +1034,7 @@ export const AccountSecurityView: React.FC = () => {
                   onClick={() => setShowTotpSetupModal(false)}
                   className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
                 >
-                  Hủy Bỏ
+                  Hủy bỏ
                 </button>
                 <button
                   type="submit"
@@ -1059,7 +1059,7 @@ export const AccountSecurityView: React.FC = () => {
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
                 <Key size={16} />
-                <span>Mã Dự Phòng Khôi Phục</span>
+                <span>Mã dự phòng khôi phục</span>
               </div>
               <button
                 type="button"
@@ -1112,11 +1112,11 @@ export const AccountSecurityView: React.FC = () => {
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
               <AlertTriangle size={16} className="text-zinc-400" />
-              <span>Tắt Xác Thực 2 Bước</span>
+              <span>Tắt xác thực 2 bước</span>
             </div>
 
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Bạn có chắc chắn muốn tắt tính năng Xác Thực 2 Bước? Tài khoản sẽ mất đi lớp bảo vệ bổ sung khi đăng nhập từ thiết bị lạ.
+              Bạn có chắc chắn muốn tắt tính năng xác thực 2 bước? Tài khoản sẽ mất đi lớp bảo vệ bổ sung khi đăng nhập từ thiết bị lạ.
             </p>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
@@ -1125,7 +1125,7 @@ export const AccountSecurityView: React.FC = () => {
                 onClick={() => setShowDisable2FaModal(false)}
                 className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
               >
-                Giữ Lại
+                Giữ lại
               </button>
               <button
                 type="button"
@@ -1150,7 +1150,7 @@ export const AccountSecurityView: React.FC = () => {
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
                 <AlertTriangle size={16} className="text-rose-400" />
-                <span>CẢNH BÁO: XÓA TÀI KHOẢN VĨNH VIỄN</span>
+                <span>Cảnh báo: xóa tài khoản vĩnh viễn</span>
               </div>
               <button
                 type="button"
@@ -1165,7 +1165,7 @@ export const AccountSecurityView: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Bạn đang chuẩn bị xóa tài khoản <strong>{user.email}</strong>. Mọi dữ liệu nhiệm vụ, ghi chú IndexedDB và phiên đăng nhập sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu.
+              Bạn đang chuẩn bị xóa tài khoản <strong>{user.email}</strong>. Mọi dữ liệu nhiệm vụ, ghi chú bộ nhớ trên thiết bị và phiên đăng nhập sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu.
             </p>
 
             <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs">
@@ -1179,7 +1179,7 @@ export const AccountSecurityView: React.FC = () => {
                 data-testid="input-confirm-delete-phrase"
                 value={deleteConfirmationText}
                 onChange={(e) => setDeleteConfirmationText(e.target.value)}
-                placeholder="Gõ 'XOA TAI KHOAN' vào đây..."
+                placeholder="Gõ 'xoa tai khoan' vào đây..."
                 className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs font-mono tracking-wider focus:outline-none focus:border-zinc-400 transition"
               />
             </div>
@@ -1193,7 +1193,7 @@ export const AccountSecurityView: React.FC = () => {
                 }}
                 className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition cursor-pointer"
               >
-                Hủy Bỏ
+                Hủy bỏ
               </button>
               <button
                 type="button"

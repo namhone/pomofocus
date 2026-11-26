@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useRef, useState } from 'react';
 import { sanitizeHtml } from '../utils/sanitize';
 import {
@@ -123,11 +124,11 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
                     onProjectToWhiteboard(editorRef.current.innerHTML);
                   }
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-medium transition cursor-pointer"
-                title="Chiếu đề cương lên Bảng vẽ để vẽ khoanh tròn"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-700/15 hover:bg-zinc-700/25 border border-zinc-500/30 text-zinc-300 text-xs font-medium transition cursor-pointer"
+                title="Chiếu đề cương lên bảng vẽ để vẽ khoanh tròn"
               >
                 <Share2 size={13} />
-                <span className="hidden sm:inline">Chiếu lên Bảng vẽ</span>
+                <span className="hidden sm:inline">Chiếu lên bảng vẽ</span>
               </button>
             )}
 
@@ -137,7 +138,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 transition cursor-pointer"
               title="Sao chép toàn bộ văn bản"
             >
-              {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+              {copied ? <Check size={14} className="text-zinc-300" /> : <Copy size={14} />}
             </button>
 
             <button
@@ -167,7 +168,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('bold')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 font-bold transition cursor-pointer"
-            title="In đậm (Bold)"
+            title="In đậm (bold)"
           >
             <Bold size={14} />
           </button>
@@ -175,7 +176,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('italic')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 italic transition cursor-pointer"
-            title="In nghiêng (Italic)"
+            title="In nghiêng (italic)"
           >
             <Italic size={14} />
           </button>
@@ -183,7 +184,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('underline')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 underline transition cursor-pointer"
-            title="Gạch chân (Underline)"
+            title="Gạch chân (underline)"
           >
             <Underline size={14} />
           </button>
@@ -194,8 +195,8 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
           <button
             type="button"
             onClick={() => applyHighlight('#fef08a')}
-            className="px-2 py-1 rounded-lg text-[11px] font-medium bg-amber-400/20 text-amber-200 border border-amber-400/30 hover:bg-amber-400/30 flex items-center gap-1 cursor-pointer"
-            title="Highlight Vàng pastel"
+            className="px-2 py-1 rounded-lg text-[11px] font-medium bg-zinc-700/20 text-zinc-200 border border-zinc-400/30 hover:bg-zinc-700/30 flex items-center gap-1 cursor-pointer"
+            title="Highlight vàng pastel"
           >
             <Highlighter size={12} />
             <span>Vàng</span>
@@ -203,7 +204,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
           <button
             type="button"
             onClick={() => applyHighlight('#93c5fd')}
-            className="px-2 py-1 rounded-lg text-[11px] font-medium bg-sky-400/20 text-sky-200 border border-sky-400/30 hover:bg-sky-400/30 flex items-center gap-1 cursor-pointer"
+            className="px-2 py-1 rounded-lg text-[11px] font-medium bg-zinc-700/20 text-zinc-200 border border-zinc-400/30 hover:bg-zinc-700/30 flex items-center gap-1 cursor-pointer"
             title="Highlight Xanh pastel"
           >
             <Highlighter size={12} />
@@ -224,7 +225,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('formatBlock', '<h1>')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
-            title="Tiêu đề H1"
+            title="Tiêu đề h1"
           >
             <Heading1 size={14} />
           </button>
@@ -232,7 +233,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('formatBlock', '<h2>')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
-            title="Tiêu đề H2"
+            title="Tiêu đề h2"
           >
             <Heading2 size={14} />
           </button>
@@ -240,7 +241,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('insertUnorderedList')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
-            title="Gạch đầu dòng (Bullet List)"
+            title="Gạch đầu dòng (bullet list)"
           >
             <List size={14} />
           </button>
@@ -248,7 +249,7 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
             type="button"
             onClick={() => formatText('insertOrderedList')}
             className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
-            title="Danh sách số (Numbered List)"
+            title="Danh sách số (numbered list)"
           >
             <ListOrdered size={14} />
           </button>
@@ -271,8 +272,8 @@ export const MinimalDocEditor: React.FC<MinimalDocEditorProps> = ({
 
         {/* Footer tip */}
         <div className="px-4 py-2 border-t border-zinc-800/80 bg-zinc-900/40 text-[11px] text-zinc-400 flex items-center justify-between">
-          <span>💡 Bạn có thể sửa chữ, dán câu hỏi thi, highlight kiến thức và xuất file về máy miễn phí.</span>
-          <span className="font-mono text-zinc-500">Auto-saved Locally</span>
+          <span><UiSymbol name="💡" /> Bạn có thể sửa chữ, dán câu hỏi thi, highlight kiến thức và xuất file về máy miễn phí.</span>
+          <span className="font-mono text-zinc-400">Auto-saved Locally</span>
         </div>
       </div>
     </div>

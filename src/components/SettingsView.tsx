@@ -145,32 +145,32 @@ export const SettingsView: React.FC = () => {
               onClick={() => router.navigate('/profile')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <User size={13} className="text-emerald-400" />
-              <span>Hồ Sơ Cá Nhân</span>
+              <User size={13} className="text-zinc-300" />
+              <span>Hồ sơ cá nhân</span>
             </button>
             <button
               type="button"
               onClick={() => router.navigate('/account/security')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Shield size={13} className="text-amber-400" />
-              <span>Bảo Mật</span>
+              <Shield size={13} className="text-zinc-300" />
+              <span>Bảo mật</span>
             </button>
             <button
               type="button"
               onClick={() => router.navigate('/billing')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <CreditCard size={13} className="text-cyan-400" />
-              <span>Gói Cước</span>
+              <CreditCard size={13} className="text-zinc-300" />
+              <span>Gói cước</span>
             </button>
             <button
               type="button"
               onClick={() => router.navigate('/privacy-data')}
               className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
             >
-              <Database size={13} className="text-sky-400" />
-              <span>Quyền Riêng Tư</span>
+              <Database size={13} className="text-zinc-300" />
+              <span>Quyền riêng tư</span>
             </button>
           </div>
 
@@ -180,7 +180,7 @@ export const SettingsView: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
           >
             <ArrowLeft size={13} />
-            <span className="hidden sm:inline">Vào Không Gian</span>
+            <span className="hidden sm:inline">Vào không gian</span>
           </button>
         </div>
 
@@ -193,14 +193,14 @@ export const SettingsView: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400">
-            Tùy biến thời lượng chu kỳ Pomodoro, âm thanh thông báo và phong cách giao diện của bạn.
+            Tùy biến thời lượng chu kỳ pomodoro, âm thanh thông báo và phong cách giao diện của bạn.
           </p>
         </div>
 
         {/* Toast */}
         {toastMessage && (
-          <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 text-xs flex items-center gap-2 shadow-sm">
-            <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
+          <div className="p-3.5 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2 shadow-sm">
+            <CheckCircle2 size={16} className="shrink-0 text-zinc-300" />
             <span className="font-medium">{toastMessage}</span>
           </div>
         )}
@@ -209,12 +209,12 @@ export const SettingsView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <Clock size={16} className="text-rose-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Chu Kỳ Thời Gian Pomodoro</h2>
+            <h2 className="text-sm font-semibold text-white">Chu kỳ thời gian pomodoro</h2>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
             <div>
-              <label className="block text-zinc-400 mb-1.5">Tập trung (Phút)</label>
+              <label className="block text-zinc-400 mb-1.5">Tập trung (phút)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -229,7 +229,7 @@ export const SettingsView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-zinc-400 mb-1.5">Nghỉ ngắn (Phút)</label>
+              <label className="block text-zinc-400 mb-1.5">Nghỉ ngắn (phút)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -244,7 +244,7 @@ export const SettingsView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-zinc-400 mb-1.5">Nghỉ dài (Phút)</label>
+              <label className="block text-zinc-400 mb-1.5">Nghỉ dài (phút)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -286,7 +286,7 @@ export const SettingsView: React.FC = () => {
               data-testid="toggle-auto-transition"
               onClick={handleToggleAutoTransition}
               className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
-                timerSettings.autoTransition ? 'bg-emerald-500' : 'bg-zinc-700'
+                timerSettings.autoTransition ? 'bg-zinc-700' : 'bg-zinc-700'
               }`}
             >
               <span
@@ -301,14 +301,14 @@ export const SettingsView: React.FC = () => {
         {/* Section 2: Audio Settings */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
-            <Volume2 size={16} className="text-sky-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Âm Lượng & Chuông Báo Hoàn Thành</h2>
+            <Volume2 size={16} className="text-zinc-300 shrink-0" />
+            <h2 className="text-sm font-semibold text-white">Âm lượng & chuông báo hoàn thành</h2>
           </div>
 
           <div className="space-y-4 text-xs">
             <div>
               <div className="flex justify-between text-zinc-400 mb-1.5">
-                <span>Âm lượng tổng (Master Volume)</span>
+                <span>Âm lượng tổng (master volume)</span>
                 <span className="font-mono text-white">{Math.round(masterVolume * 100)}%</span>
               </div>
               <input
@@ -335,12 +335,12 @@ export const SettingsView: React.FC = () => {
                     }}
                     className={`py-2 px-3 rounded-xl border text-xs transition cursor-pointer flex items-center justify-between ${
                       selectedChime === c.id
-                        ? 'border-emerald-400 bg-emerald-500/10 text-emerald-300 font-medium'
+                        ? 'border-zinc-400 bg-zinc-700/10 text-zinc-300 font-medium'
                         : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:text-white'
                     }`}
                   >
                     <span>{c.name}</span>
-                    {selectedChime === c.id && <Check size={12} className="text-emerald-400" />}
+                    {selectedChime === c.id && <Check size={12} className="text-zinc-300" />}
                   </button>
                 ))}
               </div>
@@ -351,13 +351,13 @@ export const SettingsView: React.FC = () => {
         {/* Section 3: Appearance & Layout */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
-            <Sliders size={16} className="text-amber-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Giao Diện & Vị Trí Cửa Sổ</h2>
+            <Sliders size={16} className="text-zinc-300 shrink-0" />
+            <h2 className="text-sm font-semibold text-white">Giao diện & vị trí cửa sổ</h2>
           </div>
 
           <div className="space-y-4 text-xs">
             <div>
-              <label className="block text-zinc-400 mb-2">Độ trong suốt khung kính (Glass Effect)</label>
+              <label className="block text-zinc-400 mb-2">Độ trong suốt khung kính (glass effect)</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['clear', 'balanced', 'high_contrast'] as const).map((preset) => (
                   <button
@@ -387,11 +387,11 @@ export const SettingsView: React.FC = () => {
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
               <div>
                 <div className="font-semibold text-white flex items-center gap-1.5">
-                  <Leaf size={14} strokeWidth={1.5} className="text-emerald-400 shrink-0" />
-                  <span>Chế độ siêu nhẹ (Eco Mode)</span>
+                  <Leaf size={14} strokeWidth={1.5} className="text-zinc-300 shrink-0" />
+                  <span>Chế độ siêu nhẹ (eco mode)</span>
                 </div>
                 <div className="text-[11px] text-zinc-400">
-                  Tắt hoàn toàn video nền động và hiệu ứng hạt canvas, chuyển kính mờ sang màu tối phẳng để tiết kiệm 100% GPU/CPU cho máy yếu.
+                  Tắt hoàn toàn video nền động và hiệu ứng hạt canvas, chuyển kính mờ sang màu tối phẳng để tiết kiệm 100% gpu/cpu cho máy yếu.
                 </div>
               </div>
               <button
@@ -403,7 +403,7 @@ export const SettingsView: React.FC = () => {
                 }}
                 className={`px-4 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer whitespace-nowrap self-start sm:self-auto ${
                   isEcoMode
-                    ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
+                    ? 'border-zinc-500 bg-zinc-700/20 text-zinc-300'
                     : 'border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
                 }`}
               >
@@ -425,7 +425,7 @@ export const SettingsView: React.FC = () => {
                 className="px-3.5 py-1.5 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap self-start sm:self-auto"
               >
                 <RotateCcw size={13} />
-                <span>Đặt Lại</span>
+                <span>Đặt lại</span>
               </button>
             </div>
           </div>
@@ -435,22 +435,22 @@ export const SettingsView: React.FC = () => {
         <div data-testid="section-privacy-settings" className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-zinc-800">
             <div className="flex items-center gap-2">
-              <Shield size={16} className="text-emerald-400 shrink-0" />
-              <h2 className="text-sm font-semibold text-white">Bảo Vệ Dữ Liệu &amp; Quyền Riêng Tư (PDPL)</h2>
+              <Shield size={16} className="text-zinc-300 shrink-0" />
+              <h2 className="text-sm font-semibold text-white">Bảo vệ dữ liệu &amp; quyền riêng tư (pdpl)</h2>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-zinc-400">Trạng thái:</span>
               {consentStatus === 'accepted' ? (
-                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  ĐÃ ĐỒNG Ý
+                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
+                  Đã đồng ý
                 </span>
               ) : consentStatus === 'declined' ? (
-                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  ĐÃ TỪ CHỐI
+                <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
+                  Đã từ chối
                 </span>
               ) : (
                 <span data-testid="consent-status-badge" className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">
-                  CHƯA THIẾT LẬP / ĐÃ RÚT LẠI
+                  Chưa thiết lập / đã rút lại
                 </span>
               )}
             </div>
@@ -458,7 +458,7 @@ export const SettingsView: React.FC = () => {
 
           <div className="space-y-4 text-xs">
             <p className="text-zinc-400 leading-relaxed text-[11px]">
-              Tuân thủ Điều 10 Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và Điều 5 Nghị định 356/2025/NĐ-CP: Chủ thể dữ liệu có toàn quyền rút lại sự đồng ý thu thập và xử lý dữ liệu bất kỳ lúc nào. Khi bạn rút lại sự đồng ý, toàn bộ cookie/storage chấp thuận sẽ được xóa và đặt lại trạng thái ban đầu.
+              Tuân thủ điều 10 luật bảo vệ dữ liệu cá nhân 91/2025/QH15 và điều 5 nghị định 356/2025/nđ-cp: chủ thể dữ liệu có toàn quyền rút lại sự đồng ý thu thập và xử lý dữ liệu bất kỳ lúc nào. Khi bạn rút lại sự đồng ý, toàn bộ cookie/storage chấp thuận sẽ được xóa và đặt lại trạng thái ban đầu.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
@@ -478,18 +478,18 @@ export const SettingsView: React.FC = () => {
                 className="px-3.5 py-2 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap self-start sm:self-auto"
               >
                 <RotateCcw size={13} />
-                <span>Rút Lại Sự Đồng Ý</span>
+                <span>Rút lại sự đồng ý</span>
               </button>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60">
               <div>
                 <div className="font-semibold text-white flex items-center gap-1.5">
-                  <Database size={14} className="text-sky-400 shrink-0" />
-                  <span>Quản lý dữ liệu cục bộ (GDPR / PDPL)</span>
+                  <Database size={14} className="text-zinc-300 shrink-0" />
+                  <span>Quản lý dữ liệu cục bộ (gdpr / pdpl)</span>
                 </div>
                 <div className="text-[11px] text-zinc-400 mt-0.5">
-                  Xuất dữ liệu dự phòng chuẩn JSON hoặc xóa sạch bộ nhớ IndexedDB cục bộ trên thiết bị
+                  Tải bản sao dữ liệu hoặc xóa dữ liệu trên thiết bị này
                 </div>
               </div>
               <button
@@ -498,7 +498,7 @@ export const SettingsView: React.FC = () => {
                 onClick={() => router.navigate('/privacy-data')}
                 className="px-3.5 py-1.5 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap self-start sm:self-auto"
               >
-                <span>Xem Chi Tiết</span>
+                <span>Xem chi tiết</span>
                 <span>→</span>
               </button>
             </div>
@@ -507,19 +507,19 @@ export const SettingsView: React.FC = () => {
 
         {/* Section 5: Owner Super-Powers & Coupon Management */}
         {(isOwner || isAdmin || user?.role === 'admin' || user?.role === 'founder' || (user as any)?.app_metadata?.role === 'admin') && (
-          <div data-testid="section-owner-superpowers" className="p-5 sm:p-7 rounded-2xl border border-amber-500/40 bg-amber-950/20 space-y-6 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-500/30">
+          <div data-testid="section-owner-superpowers" className="p-5 sm:p-7 rounded-2xl border border-zinc-500/40 bg-zinc-950/20 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-500/30">
               <div className="flex items-center gap-2.5">
-                <Shield size={20} className="text-amber-400 shrink-0" />
+                <Shield size={20} className="text-zinc-300 shrink-0" />
                 <div>
                   <h2 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>Quản Trị Hệ Thống &amp; Kho Coupon</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/30 text-amber-300 border border-amber-500/40">
-                      OWNER SUPER-POWERS
+                    <span>Quản trị hệ thống &amp; kho coupon</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-700/30 text-zinc-300 border border-zinc-500/40">
+                      Công cụ quản trị
                     </span>
                   </h2>
                   <p className="text-[11px] text-zinc-400">
-                    Đặc quyền tối cao của Chủ sở hữu: Dọn dẹp phòng trống và tạo mã ưu đãi cho học viên.
+                    Đặc quyền tối cao của chủ sở hữu: dọn dẹp phòng trống và tạo mã ưu đãi cho học viên.
                   </p>
                 </div>
               </div>
@@ -529,10 +529,10 @@ export const SettingsView: React.FC = () => {
                 type="button"
                 data-testid="btn-purge-zombie"
                 onClick={handlePurgeZombieSessions}
-                className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 self-start sm:self-auto shrink-0"
+                className="px-3.5 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-zinc-500/20 self-start sm:self-auto shrink-0"
               >
                 <RefreshCw size={13} />
-                <span>Dọn Dẹp Phiên Zombie</span>
+                <span>Dọn dẹp phiên zombie</span>
               </button>
             </div>
 

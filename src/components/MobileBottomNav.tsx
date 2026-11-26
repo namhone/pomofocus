@@ -208,7 +208,7 @@ export const MobileBottomNav: React.FC = () => {
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <span className="font-semibold text-neutral-200 flex items-center gap-2 text-sm">
-              <Sliders size={15} className="text-emerald-400" />
+              <Sliders size={15} className="text-zinc-300" />
               Tùy chọn hiển thị di động
             </span>
             <button
@@ -349,10 +349,10 @@ export const MobileBottomNav: React.FC = () => {
                 navigateMobileWidget('settings');
                 setShowQuickSettings(false);
               }}
-              className="w-full text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 active:scale-98 transition-all"
+              className="w-full text-xs text-zinc-300 hover:text-zinc-300 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-zinc-700/10 border border-zinc-500/20 active:scale-98 transition-all"
             >
               <Sliders size={13} />
-              <span>Xem toàn bộ Cài đặt Workspace</span>
+              <span>Xem toàn bộ cài đặt workspace</span>
             </button>
           </div>
         </div>
@@ -375,7 +375,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="dock-btn-timer"
-          aria-label="Đồng hồ Pomodoro tập trung"
+          aria-label="Đồng hồ pomodoro tập trung"
           aria-current={activeMobileTab === 'timer' ? 'page' : undefined}
           aria-pressed={widgets.timer?.isOpen ?? false}
           onClick={() => handleNavClick('timer')}
@@ -471,7 +471,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           type="button"
           data-testid="mobile-btn-ai"
-          aria-label="Trợ lý AI Companion"
+          aria-label="Trợ lý AI companion"
           aria-current={isAiOpen ? 'page' : undefined}
           aria-pressed={isAiOpen}
           onClick={() => {

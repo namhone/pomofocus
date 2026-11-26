@@ -1,0 +1,102 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+
+ ✓ tests/unit/v81MeetRoomsAndWhiteboard.test.tsx (23 tests) 6909ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > keeps cursor cleanup ticking during continuous updates without closing the shared channel 800ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > stops a camera grant that resolves after room unmount 582ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > releases the room AudioContext and keep-alive Worker URL on unmount 441ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.1: Clicking Start button broadcasts room-timer-sync with action: START 429ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.2: Clicking Pause button while running broadcasts room-timer-sync with action: PAUSE 330ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.4: Changing phase (shortBreak / longBreak / work) broadcasts room-timer-sync with action: PHASE_CHANGE 343ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 2. Group Synced Pomodoro: Broadcast Sending on Actions > 2.5: Whiteboard mini timer pill controls also trigger broadcast on toggle and reset 387ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.4: Receiving self broadcast echo is safely ignored without state oscillation 815ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 3. Group Synced Pomodoro: Broadcast Receiving & State Synchronization > 3.5: UI renders synchronization badge in both video grid and whiteboard views 336ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.2: Switching between Video Grid and Whiteboard preserves drawing strokes without loss 395ms
+   ✓ PomoFocus V8.1 Milestone 3: Meet Rooms Realtime Sync & Persistent Whiteboard > 4. Persistent Shared Whiteboard Across View Toggling > 4.3: Unmounting and reopening StudyRoomView restores strokes faithfully from durable storage 426ms
+ ❯ tests/unit/v75DownloadShowcase.test.tsx (16 tests | 1 failed) 5333ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.1 renders perspective 1200px stage and preserve-3d phone mockup frame 842ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.2 tilts 3D phone frame smoothly on mouse move and resets on mouse leave 1294ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 1. Interactive 3D Titanium Phone Mockup & Brand Sync > 1.3 displays accurate ~8.0 MB or 8.70 MB APK size and unified pomofocus brand logo 556ms
+   × PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →" 480ms
+     → expected 'Tải PomoFocus APK (v8.1)' to contain 'Tải PomoFocus APK (v8.1.1)'
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.1 WebDownloadHub includes Play Protect external install micro-hint 365ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.2 MainActivity.java binds OnBackPressedCallback + PomoNativeBack JavascriptInterface and MobileAppShell syncs back eligibility 718ms
+   ✓ PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) > 5.3 Native Capacitor APK launches on /app MobileAppShell instead of marketing LandingPage when pathname is / 614ms
+ ✓ tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx (15 tests) 2270ms
+   ✓ Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 2. PlatformHeader Polish on 1366x768 & Duplicate Button Elimination (Bugs 6, 7) > Does not render standalone duplicate pwa-install-btn on desktop header 627ms
+   ✓ Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish > 3. ProfileView Avatar, Badge, and Technical Jargon Cleanup (Bugs 8, 9, 10) > Renders UserAvatar with circular rounded-full geometry and effectiveBadge in Sentence Case 366ms
+ ✓ tests/unit/challengerPolishM3Stress.test.tsx (21 tests) 6194ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > root container enforces fluid width (w-full min-w-0 max-h-[80vh]) and does not restrict to max-w-[420px] 862ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > presets grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 375ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 1: SpacesWidget Layout, Resizing & Viewport Responsiveness > wallpaper grid implements responsive 2 to 4 column layout (grid-cols-2 sm:grid-cols-3 md:grid-cols-4) 1109ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 2: Adversarial Search & Wallpaper Query Stress Tests > searching in SpacesWidget UI updates results and does not crash when results are 0 567ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > photo presets exclude solid and zen-pure-black from thumbnail cards 397ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > zen flat color buttons exist separately and trigger selectPreset 347ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 3: Preset Filtering & Live Video Integrity > filter by video category renders video presets in presets-grid 300ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > switching between wallpapers and audio tabs works without crashing or orphaned state 394ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 4: Tab Interactions, Lucide Icons & Click Handlers > toggling adjustments view and clicking "Xem kho hình nền" switches back to wallpapers view 397ms
+   ✓ Adversarial Challenger Suite: Milestone 3 Polish > Challenge 5: Global Sentence Case & Elimination of ALL CAPS > StudyRoomLobby room badges use Sentence Case and no ALL CAPS 398ms
+ ❯ tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx (13 tests | 1 failed) 2010ms
+   ✓ Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 1. Tab AI: Suggestion Chips, Single Error Bubble & Retry > 1.1 Renders clean suggestion chips without emoji 💡 or "ôn thi đại học" 795ms
+   × Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.3 MoMoPaymentModal displays its existing refund note for an authenticated checkout 51ms
+     → Rendered more hooks than during the previous render.
+ ✓ tests/unit/challenger2Milestone3Stress.test.tsx (17 tests) 2471ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > SpacesWidget renders all required testids matching Playwright specs 1099ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Clicking adjustments toggle opens bg-adjustments-panel with slider-overlay 300ms
+   ✓ Empirical Challenger 2 — Adversarial Stress Test Suite for Milestone 3 > Vector 2: SpacesWidget E2E Selector & Interaction Robustness > Search filtering works robustly and case-insensitively 417ms
+ ✓ tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx (16 tests) 1889ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > SpacesWidget renders with responsive container classes (w-full min-w-0 max-h-[80vh]) 558ms
+   ✓ Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emoji Polish > 1. SpacesWidget Polish & Responsive Layout > Search input has updated placeholder matching spec: "Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)" 334ms
+ ✓ tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx (13 tests) 3859ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.1 complies with State Singularity (<= 1 header tag) 781ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 1. WebDownloadHub & Header Clean-up Contract > 1.4 renders accurate 8.70 MB file size in download cards without legacy 12MB/15MB 317ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.1 /download, /downloads, and /apk aliases all render WebDownloadHub 467ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.2 Desktop workspace /app renders workspace-root on desktop viewport 594ms
+   ✓ Milestone 4 Empirical Verification: /download Page & Web Routes Synchronization > 2. Web Route Synchronization & Responsive Breakpoints > 2.4 founder whitelist accounts get VIP status on billing route 623ms
+ ✓ tests/unit/phase4bPresentation.test.tsx (9 tests) 1010ms
+   ✓ Notes single-toolbar editing > keeps add, edit, preview, tone and delete operable while saving real content 771ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx > Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, Auth & Modals > 3. Auth Sheet, Topup & MoMo Modals: Contrast & 7-Day Refund > 3.3 MoMoPaymentModal displays its existing refund note for an authenticated checkout
+Error: Rendered more hooks than during the previous render.
+ ❯ updateWorkInProgressHook node_modules/react-dom/cjs/react-dom.development.js:15688:13
+ ❯ updateMemo node_modules/react-dom/cjs/react-dom.development.js:16412:14
+ ❯ Object.useMemo node_modules/react-dom/cjs/react-dom.development.js:17067:16
+ ❯ Object.useMemo node_modules/react/cjs/react.development.js:1650:21
+ ❯ MoMoPaymentModal src/components/MoMoPaymentModal.tsx:427:31
+    425| 
+    426|   const cleanMemo = order.memo.startsWith('POMO_') ? order.memo : `POM…
+    427|   const realVietQrUrl = React.useMemo(() => {
+       |                               ^
+    428|     if (!order?.memo || !order?.amount) return '';
+    429|     const memoToUse = order.memo.startsWith('POMO_') ? order.memo : `P…
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom.development.js:15486:18
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom.development.js:19617:20
+ ❯ beginWork node_modules/react-dom/cjs/react-dom.development.js:21640:16
+ ❯ beginWork$1 node_modules/react-dom/cjs/react-dom.development.js:27465:14
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom.development.js:26599:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/v75DownloadShowcase.test.tsx > PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest > 4. V7.5.1 Vietnamese Copywriting, Sentence Case & Glossary Polish > 4.1 WebDownloadHub renders Zen hero copy, clean separator spacing, CTA and "Mở bản web →"
+AssertionError: expected 'Tải PomoFocus APK (v8.1)' to contain 'Tải PomoFocus APK (v8.1.1)'
+
+Expected: "Tải PomoFocus APK (v8.1.1)"
+Received: "Tải PomoFocus APK (v8.1)"
+
+ ❯ tests/unit/v75DownloadShowcase.test.tsx:346:74
+    344|       expect(screen.getByText(/Theo dõi phiên tập trung bằng mốc thời …
+    345|       expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
+    346|       expect(screen.getByTestId('central-apk-download-btn').textConten…
+       |                                                                          ^
+    347|       expect(screen.getByText(new RegExp(`Dung lượng: ${APK_SIZE_LABEL…
+    348|       expect(screen.getAllByText('Mở bản web →').length).toBeGreaterTh…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed | 7 passed (9)
+      Tests  2 failed | 141 passed (143)
+   Start at  06:29:18
+   Duration  89.32s (transform 16.09s, setup 0ms, collect 72.33s, tests 31.95s, environment 40.94s, prepare 3.82s)
+

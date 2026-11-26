@@ -1,0 +1,14 @@
+Listing tests:
+  [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+  [desktop-1366] › ui.spec.ts:79:1 › mobile: native safe area, navigation and empty chat
+  [desktop-1366] › ui.spec.ts:95:1 › Meet: header fits, controls work and media releases
+  [desktop-1440] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+  [desktop-1440] › ui.spec.ts:79:1 › mobile: native safe area, navigation and empty chat
+  [desktop-1440] › ui.spec.ts:95:1 › Meet: header fits, controls work and media releases
+  [mobile-390] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+  [mobile-390] › ui.spec.ts:79:1 › mobile: native safe area, navigation and empty chat
+  [mobile-390] › ui.spec.ts:95:1 › Meet: header fits, controls work and media releases
+  [native-390] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist
+  [native-390] › ui.spec.ts:79:1 › mobile: native safe area, navigation and empty chat
+  [native-390] › ui.spec.ts:95:1 › Meet: header fits, controls work and media releases
+Total: 12 tests in 1 file

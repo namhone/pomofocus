@@ -1467,9 +1467,9 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           data-testid="btn-upload-material"
           onClick={() => fileInputRef.current?.click()}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer shrink-0 border border-white/10 whitespace-nowrap"
-          title="Tải lên tài liệu PDF, Word (.docx) hoặc Ảnh đề thi để cùng giải"
+          title="Tải lên tài liệu PDF, word (.docx) hoặc ảnh đề thi để cùng giải"
         >
-          <FileUp size={14} className="text-emerald-400 shrink-0" />
+          <FileUp size={14} className="text-zinc-300 shrink-0" />
           <span className="hidden sm:inline whitespace-nowrap">Tài liệu</span>
         </button>
 
@@ -1489,7 +1489,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Bút vẽ tự do (Pen)"
+            title="Bút vẽ tự do (pen)"
           >
             <Pen size={15} />
           </button>
@@ -1507,7 +1507,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Bút dạ quang (Highlighter)"
+            title="Bút dạ quang (highlighter)"
           >
             <Highlighter size={15} />
           </button>
@@ -1525,7 +1525,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Bút xóa che chữ cũ (Whiteout)"
+            title="Bút xóa che chữ cũ (whiteout)"
           >
             <Square size={15} className="fill-current" />
           </button>
@@ -1542,7 +1542,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Tẩy xóa nét vẽ (Eraser)"
+            title="Tẩy xóa nét vẽ (eraser)"
           >
             <Eraser size={15} />
           </button>
@@ -1559,7 +1559,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Đường thẳng (Line)"
+            title="Đường thẳng (line)"
           >
             <Minus size={15} />
           </button>
@@ -1576,7 +1576,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Mũi tên (Arrow)"
+            title="Mũi tên (arrow)"
           >
             <ArrowUpRight size={15} />
           </button>
@@ -1593,7 +1593,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Hình chữ nhật (Rectangle)"
+            title="Hình chữ nhật (rectangle)"
           >
             <Square size={15} />
           </button>
@@ -1610,7 +1610,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Hình tròn (Circle)"
+            title="Hình tròn (circle)"
           >
             <Circle size={15} />
           </button>
@@ -1627,7 +1627,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 ? 'bg-white text-black shadow-sm font-semibold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
-            title="Hộp văn bản (Text Tool)"
+            title="Hộp văn bản (text tool)"
           >
             <Type size={15} />
           </button>
@@ -1645,13 +1645,13 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                   ? 'bg-white text-black font-semibold border-white shadow-md'
                   : 'bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10'
               }`}
-              title="Tùy chỉnh Màu sắc & Độ dày nét vẽ"
+              title="Tùy chỉnh màu sắc & độ dày nét vẽ"
             >
               <span
                 className="w-3.5 h-3.5 rounded-full border border-white/40 block shadow-xs"
                 style={{ backgroundColor: currentColor }}
               />
-              <span className="hidden sm:inline text-xs font-medium">Nét & Màu</span>
+              <span className="hidden sm:inline text-xs font-medium">Nét & màu</span>
               <Sliders size={12} className="opacity-75" />
             </button>
 
@@ -1662,7 +1662,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-40 p-3 rounded-2xl bg-zinc-900/95 border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col gap-2.5 min-w-[210px]"
               >
                 <div>
-                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 normal-case tracking-wider">
                     Màu sắc
                   </div>
                   <div className="flex items-center gap-2">
@@ -1687,7 +1687,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 </div>
 
                 <div className="pt-2 border-t border-white/10">
-                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                  <div className="text-[10px] font-semibold text-zinc-400 mb-1.5 normal-case tracking-wider">
                     Độ dày nét
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -1728,7 +1728,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
             onClick={handleUndo}
             disabled={strokes.length === 0}
             className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Hoàn tác (Undo)"
+            title="Hoàn tác (undo)"
           >
             <RotateCcw size={14} />
           </button>
@@ -1739,7 +1739,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
             onClick={handleRedo}
             disabled={redoStack.length === 0}
             className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Làm lại (Redo)"
+            title="Làm lại (redo)"
           >
             <RotateCw size={14} />
           </button>
@@ -1775,7 +1775,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           className="absolute top-16 left-1/2 -translate-x-1/2 z-25 flex items-center flex-nowrap shrink-0 gap-2 p-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md text-xs text-white max-w-[calc(100vw-32px)]"
         >
           <div className="flex items-center gap-1.5 px-2 py-1 max-w-[200px] truncate">
-            <FileText size={13} className="text-emerald-400 shrink-0" />
+            <FileText size={13} className="text-zinc-300 shrink-0" />
             <span className="truncate font-medium">{material.name}</span>
           </div>
 
@@ -1785,9 +1785,9 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
               type="button"
               onClick={handleExtractPdfToEditor}
               className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center gap-1 transition cursor-pointer"
-              title="Trích xuất toàn bộ chữ vào Trình Soạn Thảo Đề Cương"
+              title="Trích xuất toàn bộ chữ vào trình soạn thảo đề cương"
             >
-              <FileEdit size={12} className="text-amber-300" />
+              <FileEdit size={12} className="text-zinc-300" />
               <span className="hidden md:inline">Trích xuất chữ</span>
             </button>
           )}
@@ -1827,9 +1827,9 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
       {activeDrawers.length > 0 && (
         <div
           data-testid="whiteboard-live-drawing-indicator"
-          className="absolute top-16 left-6 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/85 border border-emerald-500/40 text-emerald-300 text-xs shadow-2xl backdrop-blur-md animate-pulse"
+          className="absolute top-16 left-6 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-950/85 border border-zinc-500/40 text-zinc-300 text-xs shadow-2xl backdrop-blur-md animate-pulse"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <span className="w-2 h-2 rounded-full bg-zinc-700 animate-ping" />
           <span>
             <strong>{activeDrawers.join(', ')}</strong> đang vẽ trên bảng...
           </span>
@@ -1866,10 +1866,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                   ? 'bg-white text-black font-semibold'
                   : 'text-zinc-400 hover:text-white'
               }`}
-              title="Chế độ Quyển Sách mở 2 trang song song"
+              title="Chế độ quyển sách mở 2 trang song song"
             >
               <BookOpen size={13} />
-              <span>Quyển Sách</span>
+              <span>Quyển sách</span>
             </button>
           </div>
 
@@ -1898,12 +1898,12 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           <span className="font-mono text-xs px-2 select-none">
             {pdfViewMode === 'book' ? (
               <>
-                Trang <strong className="text-emerald-400">{bookLeftPage}</strong> -{' '}
-                <strong className="text-emerald-400">{bookRightPage}</strong> / {totalPdfPages}
+                Trang <strong className="text-zinc-300">{bookLeftPage}</strong> -{' '}
+                <strong className="text-zinc-300">{bookRightPage}</strong> / {totalPdfPages}
               </>
             ) : (
               <>
-                Trang <strong className="text-emerald-400">{currentPdfPage}</strong> / {totalPdfPages}
+                Trang <strong className="text-zinc-300">{currentPdfPage}</strong> / {totalPdfPages}
               </>
             )}
           </span>
@@ -1940,10 +1940,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           onClick={() => setIsPanMode(!isPanMode)}
           className={`p-2 rounded-xl transition cursor-pointer ${
             isPanMode || isSpacePressed
-              ? 'bg-emerald-500 text-black font-bold shadow-md'
+              ? 'bg-zinc-700 text-black font-bold shadow-md'
               : 'text-zinc-400 hover:text-white hover:bg-white/10'
           }`}
-          title="Kéo bảng (Space + Kéo)"
+          title="Kéo bảng (space + kéo)"
           aria-label="Kéo bảng vẽ"
         >
           <Move size={15} />
@@ -1957,7 +1957,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           onClick={() => handleZoom(0.85)}
           disabled={zoomScale <= 0.25}
           className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer disabled:opacity-30"
-          title="Thu nhỏ góc nhìn (Cuộn chuột xuống)"
+          title="Thu nhỏ góc nhìn (cuộn chuột xuống)"
         >
           <ZoomOut size={15} />
         </button>
@@ -1978,7 +1978,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
           onClick={() => handleZoom(1.15)}
           disabled={zoomScale >= 3.0}
           className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer disabled:opacity-30"
-          title="Phóng to góc nhìn (Cuộn chuột lên)"
+          title="Phóng to góc nhìn (cuộn chuột lên)"
         >
           <ZoomIn size={15} />
         </button>
@@ -2040,7 +2040,7 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
                 <MousePointer
                   size={16}
                   className="fill-current drop-shadow-md -rotate-45"
-                  style={{ color: cur.color || '#10b981' }}
+                  style={{ color: cur.color || '#a1a1aa' }}
                 />
                 <span
                   className="px-2 py-0.5 rounded-md text-[10px] font-semibold text-white shadow-lg whitespace-nowrap backdrop-blur-xs flex items-center gap-1"
@@ -2106,10 +2106,10 @@ export const WhiteboardView: React.FC<WhiteboardViewProps> = React.memo(({
               <FileUp size={22} />
             </div>
             <p className="text-xs text-zinc-300 font-medium">
-              Kéo thả file PDF, Word (.docx) hoặc Ảnh đề thi vào đây
+              Kéo thả file PDF, word (.docx) hoặc ảnh đề thi vào đây
             </p>
-            <p className="text-[10px] text-zinc-500 mt-0.5 hidden sm:block">
-              Lăn chuột để phóng to/thu nhỏ, giữ Space kéo bảng bay vô tận
+            <p className="text-[10px] text-zinc-400 mt-0.5 hidden sm:block">
+              Lăn chuột để phóng to/thu nhỏ, giữ space kéo bảng bay vô tận
             </p>
           </div>
         )}

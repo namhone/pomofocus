@@ -9,19 +9,19 @@ interface ShortcutRow {
 }
 
 const SHORTCUTS: ShortcutRow[] = [
-  { keys: ['Space'], label: 'Bắt đầu / Tạm dừng / Tiếp tục Pomodoro', category: 'timer' },
-  { keys: ['R'], label: 'Đặt lại (Reset) đồng hồ về mặc định', category: 'timer' },
-  { keys: ['S'], label: 'Bỏ qua (Skip) sang hiệp tiếp theo', category: 'timer' },
-  { keys: ['Z', 'H'], label: 'Bật / Tắt Zen Mode (tập trung toàn màn hình)', category: 'timer' },
-  { keys: ['Esc'], label: 'Đóng cửa sổ nổi / Thoát Zen Mode', category: 'navigation' },
-  { keys: ['1'], label: 'Bật / Tắt cửa sổ Đồng hồ Pomodoro', category: 'navigation' },
-  { keys: ['2'], label: 'Bật / Tắt cửa sổ Danh sách công việc (Tasks)', category: 'navigation' },
-  { keys: ['3'], label: 'Bật / Tắt cửa sổ Âm thanh thiên nhiên', category: 'navigation' },
-  { keys: ['4'], label: 'Bật / Tắt cửa sổ Sổ tay ghi chú (Notes)', category: 'navigation' },
-  { keys: ['Alt', 'T'], label: 'Sắp xếp cửa sổ dạng ngói (Tile Grid)', category: 'layout' },
-  { keys: ['Alt', 'C'], label: 'Xếp tầng các cửa sổ (Cascade)', category: 'layout' },
-  { keys: ['Alt', 'S'], label: 'Bật / Tắt hít lưới thông minh (Snap to Grid)', category: 'layout' },
-  { keys: ['?'], label: 'Mở / Đóng bảng tra cứu phím tắt này', category: 'navigation' }
+  { keys: ['Space'], label: 'Bắt đầu / tạm dừng / tiếp tục pomodoro', category: 'timer' },
+  { keys: ['R'], label: 'Đặt lại (reset) đồng hồ về mặc định', category: 'timer' },
+  { keys: ['S'], label: 'Bỏ qua (skip) sang hiệp tiếp theo', category: 'timer' },
+  { keys: ['Z', 'H'], label: 'Bật / tắt zen mode (tập trung toàn màn hình)', category: 'timer' },
+  { keys: ['Esc'], label: 'Đóng cửa sổ nổi / thoát zen mode', category: 'navigation' },
+  { keys: ['1'], label: 'Bật / tắt cửa sổ đồng hồ pomodoro', category: 'navigation' },
+  { keys: ['2'], label: 'Bật / tắt cửa sổ danh sách công việc (tasks)', category: 'navigation' },
+  { keys: ['3'], label: 'Bật / tắt cửa sổ âm thanh thiên nhiên', category: 'navigation' },
+  { keys: ['4'], label: 'Bật / tắt cửa sổ sổ tay ghi chú (notes)', category: 'navigation' },
+  { keys: ['Alt', 'T'], label: 'Sắp xếp cửa sổ dạng ngói (tile grid)', category: 'layout' },
+  { keys: ['Alt', 'C'], label: 'Xếp tầng các cửa sổ (cascade)', category: 'layout' },
+  { keys: ['Alt', 'S'], label: 'Bật / tắt hít lưới thông minh (snap to grid)', category: 'layout' },
+  { keys: ['?'], label: 'Mở / đóng bảng tra cứu phím tắt này', category: 'navigation' }
 ];
 
 export const KeyboardShortcutsModal: React.FC = () => {
@@ -59,13 +59,13 @@ export const KeyboardShortcutsModal: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-zinc-300">
               <Command size={16} />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-white flex items-center gap-1.5">
-                <span>Bảng Tra Cứu Phím Tắt</span>
-                <Sparkles size={13} className="text-amber-400" />
+                <span>Bảng tra cứu phím tắt</span>
+                <Sparkles size={13} className="text-zinc-300" />
               </h2>
               <p className="text-[11px] text-zinc-400">Điều khiển PomoFocus tốc độ cao không cần chuột</p>
             </div>

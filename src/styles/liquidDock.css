@@ -241,44 +241,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
-.liquid-glass-btn-active {
-  background: rgba(16, 185, 129, 0.2) !important;
-  color: #6ee7b7 !important;
-  border-color: rgba(52, 211, 153, 0.4) !important;
-  border-top-color: rgba(52, 211, 153, 0.6) !important;
-  box-shadow: 0 0 18px rgba(52, 211, 153, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-}
-
-.liquid-glass-btn-amber {
-  background: rgba(245, 158, 11, 0.2) !important;
-  color: #fde68a !important;
-  border-color: rgba(251, 191, 36, 0.4) !important;
-  border-top-color: rgba(251, 191, 36, 0.6) !important;
-  box-shadow: 0 0 18px rgba(251, 191, 36, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-}
-
-.liquid-glass-btn-emerald {
-  background: rgba(16, 185, 129, 0.25) !important;
-  color: #a7f3d0 !important;
-  border-color: rgba(52, 211, 153, 0.45) !important;
-  border-top-color: rgba(52, 211, 153, 0.7) !important;
-  box-shadow: 0 0 20px rgba(52, 211, 153, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
-}
-
-.liquid-glass-btn-rose {
-  background: rgba(244, 63, 94, 0.2) !important;
-  color: #fecdd3 !important;
-  border-color: rgba(251, 113, 133, 0.4) !important;
-  border-top-color: rgba(251, 113, 133, 0.6) !important;
-  box-shadow: 0 0 18px rgba(244, 63, 94, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-}
-
+.liquid-glass-btn-active,
+.liquid-glass-btn-focus,
+.liquid-glass-btn-amber,
+.liquid-glass-btn-rose,
 .liquid-glass-btn-sky {
-  background: rgba(14, 165, 233, 0.2) !important;
-  color: #bae6fd !important;
-  border-color: rgba(56, 189, 248, 0.4) !important;
-  border-top-color: rgba(56, 189, 248, 0.6) !important;
-  box-shadow: 0 0 18px rgba(14, 165, 233, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* Zen Mode Organic Breathing Animation */

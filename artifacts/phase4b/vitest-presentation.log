@@ -1,0 +1,29 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+      Coverage enabled with v8
+
+ ❯ tests/unit/phase4bPresentation.test.tsx (9 tests | 1 failed) 1578ms
+   × Phase 4B presentation guarantees > moves Notes outside the drawer without changing saved layout (1366×768) 17ms
+     → expected 700 to be less than or equal to 672
+   ✓ Phase 4B presentation guarantees > renders legacy reactions as named SVG symbols without raw emoji text 304ms
+   ✓ Notes single-toolbar editing > keeps add, edit, preview, tone and delete operable while saving real content 1243ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/phase4bPresentation.test.tsx > Phase 4B presentation guarantees > moves Notes outside the drawer without changing saved layout (1366×768)
+AssertionError: expected 700 to be less than or equal to 672
+ ❯ tests/unit/phase4bPresentation.test.tsx:34:34
+     32|     expect(note.x + note.width).toBeLessThanOrEqual(width - 420 - 24);
+     33|     expect(note.y).toBeGreaterThanOrEqual(widgets.tasks.y + widgets.ta…
+     34|     expect(note.y + note.height).toBeLessThanOrEqual(height - 96);
+       |                                  ^
+     35|     expect(widgets).toEqual(saved);
+     36|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  02:07:37
+   Duration  17.63s (transform 3.98s, setup 0ms, collect 6.30s, tests 1.58s, environment 4.38s, prepare 511ms)
+

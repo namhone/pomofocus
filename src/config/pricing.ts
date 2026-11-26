@@ -60,7 +60,7 @@ export const PRICING_PLANS: Record<PlanCycle, PricingPlan> = {
     label: 'Trọn đời (Lifetime Founder VIP)',
     description: 'Thanh toán một lần duy nhất, sở hữu toàn bộ đặc quyền cao cấp nhất vĩnh viễn và AI không giới hạn.',
     exclusiveFeature: {
-      title: '✨ Truy cập sớm toàn bộ tính năng mới (Early Access Labs)',
+      title: "Truy cập sớm toàn bộ tính năng mới",
       description: 'Được trải nghiệm và dùng thử trước toàn bộ các công cụ, tính năng và giao diện sắp cập nhật trước khi phát hành chính thức.'
     }
   }
@@ -89,20 +89,20 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     tagline: 'Dành cho cá nhân tự học tối giản',
     price: '0₫',
     period: '/ mãi mãi',
-    description: 'Trải nghiệm học tập cốt lõi với Pomodoro và không gian tối giản.',
+    description: "Trải nghiệm học tập cốt lõi với pomodoro và không gian tối giản.",
     features: [
-      'Trợ lý AI Study: 50⚡ AI Credits / tháng',
-      'Thời lượng phòng riêng: Tối đa 45 phút/phiên (Reset sau 5 phút nghỉ)',
-      'Chất lượng phòng học: 480p Tiêu chuẩn (Tối đa 6 người/phòng)',
-      'Kho âm thanh & Hình nền: 5 âm thanh cơ bản & 3 hình nền tĩnh',
-      'Bảng vẽ Whiteboard: 1 trang nháp (Không xuất file)',
-      'Đường dẫn phòng học: Ngẫu nhiên dạng mã số'
+      "Trợ lý AI study: 50 AI credits / tháng",
+      "Thời lượng phòng riêng: tối đa 45 phút/phiên (reset sau 5 phút nghỉ)",
+      "Chất lượng phòng học: 480p tiêu chuẩn (tối đa 6 người/phòng)",
+      "Kho âm thanh & hình nền: 5 âm thanh cơ bản & 3 hình nền tĩnh",
+      "Bảng vẽ whiteboard: 1 trang nháp (không xuất file)",
+      "Đường dẫn phòng học: ngẫu nhiên dạng mã số"
     ],
-    ctaLabel: 'Đang Sử Dụng'
+    ctaLabel: "Đang sử dụng"
   },
   {
     id: 'monthly',
-    name: 'Gói Tháng',
+    name: "Gói tháng",
     tagline: 'Học tập cá nhân',
     price: '59.000 VNĐ',
     period: '/ tháng',
@@ -110,57 +110,57 @@ export const SAAS_PRICING_TIERS: PricingTierDetail[] = [
     description: 'Dành cho người cần sự linh hoạt cao trong các kỳ ôn thi ngắn hạn.',
     cycleKey: 'monthly',
     features: [
-      'Thời lượng phòng riêng: Không giới hạn thời gian',
-      'Chất lượng phòng học: HD 720p mượt mà (Tối đa 25 người/phòng)',
-      'Kho âm thanh & Hình nền: Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
-      'Bảng vẽ Whiteboard: Đầy đủ công cụ & Xuất ảnh PNG',
-      'Trợ lý AI Study: 50 câu hỏi AI/tháng',
-      'Đường dẫn phòng học: Ngẫu nhiên dạng mã số'
+      "Thời lượng phòng riêng: không giới hạn thời gian",
+      "Chất lượng phòng học: hd 720p mượt mà (tối đa 25 người/phòng)",
+      "Kho âm thanh & hình nền: bộ sưu tập hình nền tinh tuyển & youtube sync",
+      "Bảng vẽ whiteboard: đầy đủ công cụ & xuất ảnh png",
+      "Trợ lý AI study: 50 câu hỏi AI/tháng",
+      "Đường dẫn phòng học: ngẫu nhiên dạng mã số"
     ],
-    ctaLabel: 'Chọn Gói Tháng'
+    ctaLabel: "Chọn gói tháng"
   },
   {
     id: 'yearly',
-    name: 'Gói Năm',
+    name: "Gói năm",
     tagline: 'Gói khuyên dùng',
     badge: 'Gói phổ biến nhất',
     price: '39.000 VNĐ',
     period: '/ tháng',
-    subPrice: 'Thanh toán 468.000 VNĐ / năm (Tiết kiệm ~34%)',
+    subPrice: "Thanh toán 468.000 VNĐ / năm (tiết kiệm ~34%)",
     description: 'Lựa chọn tối ưu nhất cho học sinh, sinh viên và người đi làm.',
     isPopular: true,
     cycleKey: 'yearly',
     features: [
-      'Đầy đủ quyền lợi Gói Tháng',
-      'Sức chứa phòng học: Tối đa 35 người/phòng',
-      'Trợ lý AI Study: 300 câu hỏi AI tóm tắt tài liệu/tháng',
-      'Đường dẫn phòng học riêng: Đặt URL cố định theo nickname cá nhân',
-      'Kết nối máy chủ: Ưu tiên băng thông đường truyền VIP (Giảm 50% độ trễ giờ cao điểm)',
-      'Bảng vẽ Whiteboard: Xuất file PDF tài liệu đa trang độ nét cao',
-      'Báo cáo phân tích: Xuất biểu đồ năng suất 1 năm (Excel / PDF)'
+      "Đầy đủ quyền lợi gói tháng",
+      "Sức chứa phòng học: tối đa 35 người/phòng",
+      "Trợ lý AI study: 300 câu hỏi AI tóm tắt tài liệu/tháng",
+      "Đường dẫn phòng học riêng: đặt url cố định theo nickname cá nhân",
+      "Kết nối máy chủ: ưu tiên băng thông đường truyền VIP (giảm 50% độ trễ giờ cao điểm)",
+      "Bảng vẽ whiteboard: xuất file pdf tài liệu đa trang độ nét cao",
+      "Báo cáo phân tích: xuất biểu đồ năng suất 1 năm (excel / pdf)"
     ],
-    ctaLabel: 'Chọn Gói Năm'
+    ctaLabel: "Chọn gói năm"
   },
   {
     id: 'lifetime',
-    name: 'Gói Trọn Đời',
+    name: "Gói trọn đời",
     tagline: 'Lifetime Founder VIP',
     badge: 'Founder VIP',
     price: '799.000 VNĐ',
     period: '/ một lần duy nhất',
-    subPrice: 'Sở hữu vĩnh viễn trọn đời • Không gia hạn',
+    subPrice: "Sở hữu vĩnh viễn trọn đời • không gia hạn",
     description: 'Khoản đầu tư duy nhất một lần cho toàn bộ sự nghiệp học tập.',
     isFounder: true,
     cycleKey: 'lifetime',
     features: [
       'Đầy đủ toàn bộ đặc quyền cao cấp nhất vĩnh viễn trọn đời',
-      'Sức chứa phòng học: Lên đến 60 người (Hỗ trợ dạy học / Workshop)',
-      'Trợ lý AI Study: Sử dụng AI Study Companion không giới hạn',
-      'Huy hiệu hồ sơ: Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn',
-      'Đặc quyền cộng đồng: Tặng 01 Giftcode PRO 3 tháng cho bạn cùng tiến',
-      'Cập nhật tương lai: Tự động mở khóa 100% tính năng mới trọn đời'
+      "Sức chứa phòng học: lên đến 60 người (hỗ trợ dạy học / workshop)",
+      "Trợ lý AI study: sử dụng AI study companion không giới hạn",
+      "Huy hiệu hồ sơ: huy hiệu nhà sáng lập (Founder VIP) vĩnh viễn",
+      "Đặc quyền cộng đồng: tặng 01 giftcode Pro 3 tháng cho bạn cùng tiến",
+      "Cập nhật tương lai: tự động mở khóa 100% tính năng mới trọn đời"
     ],
-    ctaLabel: 'Sở Hữu Trọn Đời'
+    ctaLabel: "Sở hữu trọn đời"
   }
 ];
 
@@ -190,7 +190,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     id: 'duration',
     feature: 'Thời hạn sử dụng',
     category: 'pricing',
-    free: 'Vĩnh viễn (Cơ bản)',
+    free: "Vĩnh viễn (cơ bản)",
     monthly: '30 ngày (cộng dồn)',
     yearly: '365 ngày (cộng dồn)',
     lifetime: 'Vĩnh viễn trọn đời',
@@ -200,7 +200,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     id: 'room_duration',
     feature: 'Thời lượng mỗi phiên phòng riêng',
     category: 'rooms',
-    free: 'Tối đa 45 phút/phiên (Reset sau 5 phút nghỉ)',
+    free: "Tối đa 45 phút/phiên (reset sau 5 phút nghỉ)",
     monthly: 'Không giới hạn thời gian',
     yearly: 'Không giới hạn thời gian',
     lifetime: 'Không giới hạn thời gian'
@@ -212,45 +212,45 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     free: 'Tối đa 6 người / phòng',
     monthly: 'Tối đa 25 người / phòng',
     yearly: 'Tối đa 35 người / phòng',
-    lifetime: 'Lên đến 60 người (Dạy học / Workshop)',
+    lifetime: "Lên đến 60 người (dạy học / workshop)",
     highlightLifetime: true
   },
   {
     id: 'webrtc_quality',
     feature: 'Chất lượng phòng học trực tuyến',
     category: 'rooms',
-    free: '480p Chuẩn',
-    monthly: 'HD 720p mượt mà',
-    yearly: 'HD 720p mượt mà',
-    lifetime: 'HD 720p cao cấp nhất'
+    free: "480p chuẩn",
+    monthly: "Hd 720p mượt mà",
+    yearly: "Hd 720p mượt mà",
+    lifetime: "Hd 720p cao cấp nhất"
   },
   {
     id: 'backgrounds_audio',
-    feature: 'Kho âm thanh & Hình nền',
+    feature: "Kho âm thanh & hình nền",
     category: 'tools',
     free: '5 âm thanh cơ bản & 3 hình nền tĩnh',
-    monthly: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
-    yearly: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync',
-    lifetime: 'Bộ sưu tập hình nền tinh tuyển & YouTube Sync'
+    monthly: "Bộ sưu tập hình nền tinh tuyển & youtube sync",
+    yearly: "Bộ sưu tập hình nền tinh tuyển & youtube sync",
+    lifetime: "Bộ sưu tập hình nền tinh tuyển & youtube sync"
   },
   {
     id: 'whiteboard',
-    feature: 'Bảng vẽ & Chú thích tài liệu',
+    feature: "Bảng vẽ & chú thích tài liệu",
     category: 'tools',
-    free: '1 trang nháp (Không xuất file)',
-    monthly: 'Đầy đủ công cụ & Xuất ảnh PNG',
-    yearly: 'Xuất file PDF tài liệu đa trang độ nét cao',
-    lifetime: 'Đầy đủ công cụ & Xuất PDF/PNG không giới hạn',
+    free: "1 trang nháp (không xuất file)",
+    monthly: "Đầy đủ công cụ & xuất ảnh png",
+    yearly: "Xuất file pdf tài liệu đa trang độ nét cao",
+    lifetime: "Đầy đủ công cụ & xuất pdf/png không giới hạn",
     highlightLifetime: true
   },
   {
     id: 'ai_assistant',
-    feature: 'Trợ lý AI Study',
+    feature: "Trợ lý AI study",
     category: 'tools',
-    free: '50⚡ AI Credits / tháng',
-    monthly: '1.500⚡ AI Credits / tháng',
-    yearly: '20.000⚡ AI Credits / năm',
-    lifetime: '1.000⚡ / tuần (Nạp lại vào Thứ Hai)',
+    free: "50 AI credits / tháng",
+    monthly: "1.500 AI credits / tháng",
+    yearly: "20.000 AI credits / năm",
+    lifetime: "1.000 / tuần (nạp lại vào thứ hai)",
     highlightLifetime: true
   },
   {
@@ -259,13 +259,13 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     category: 'rooms',
     free: 'Ngẫu nhiên dạng mã số',
     monthly: 'Ngẫu nhiên dạng mã số',
-    yearly: 'Đặt URL cố định theo nickname cá nhân',
-    lifetime: 'Đặt URL cố định VIP theo nickname cá nhân',
+    yearly: "Đặt url cố định theo nickname cá nhân",
+    lifetime: "Đặt url cố định VIP theo nickname cá nhân",
     highlightLifetime: true
   },
   {
     id: 'server_connection',
-    feature: 'Kết nối máy chủ & Băng thông',
+    feature: "Kết nối máy chủ & băng thông",
     category: 'rooms',
     free: 'Băng thông tiêu chuẩn',
     monthly: 'Băng thông tiêu chuẩn',
@@ -275,22 +275,22 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
   },
   {
     id: 'analytics',
-    feature: 'Thống kê năng suất & Báo cáo',
+    feature: "Thống kê năng suất & báo cáo",
     category: 'tools',
     free: '7 ngày gần nhất',
     monthly: '30 ngày chi tiết',
-    yearly: 'Xuất biểu đồ năng suất 1 năm (Excel / PDF)',
-    lifetime: 'Trọn đời & Phân tích chuyên sâu',
+    yearly: "Xuất biểu đồ năng suất 1 năm (excel / pdf)",
+    lifetime: "Trọn đời & phân tích chuyên sâu",
     highlightLifetime: true
   },
   {
     id: 'badge',
-    feature: 'Huy hiệu hồ sơ (Badge)',
+    feature: "Huy hiệu hồ sơ (badge)",
     category: 'privilege',
     free: 'Học viên chuẩn',
-    monthly: 'Huy hiệu PRO Tinh hoa',
-    yearly: 'Huy hiệu PRO Tinh hoa',
-    lifetime: 'Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn (PRO TRỌN ĐỜI mạ vàng)',
+    monthly: "Huy hiệu Pro tinh hoa",
+    yearly: "Huy hiệu Pro tinh hoa",
+    lifetime: "Huy hiệu nhà sáng lập (Founder VIP) vĩnh viễn (Pro trọn đời mạ vàng)",
     highlightLifetime: true
   },
   {
@@ -300,17 +300,17 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
     free: '❌',
     monthly: '❌',
     yearly: '❌',
-    lifetime: '🎁 Tặng 01 Giftcode PRO 3 tháng cho bạn cùng tiến',
+    lifetime: "Tặng 01 giftcode Pro 3 tháng cho bạn cùng tiến",
     highlightLifetime: true
   },
   {
     id: 'early_access',
-    feature: 'Truy cập sớm tính năng mới (Early Access)',
+    feature: "Truy cập sớm tính năng mới (early access)",
     category: 'privilege',
     free: '❌',
     monthly: '❌',
-    yearly: 'Ưu tiên Beta',
-    lifetime: '🚀 Độc quyền truy cập sớm nhất',
+    yearly: "Ưu tiên beta",
+    lifetime: "Độc quyền truy cập sớm nhất",
     highlightLifetime: true
   },
   {
@@ -325,7 +325,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
   },
   {
     id: 'public_pods',
-    feature: 'Phòng Public Pods (01-10)',
+    feature: "Phòng public pods (01-10)",
     category: 'rooms',
     free: 'Tối đa 90 phút / ngày',
     monthly: 'Không giới hạn',
@@ -334,7 +334,7 @@ export const COMPARISON_FEATURES: ComparisonFeatureItem[] = [
   },
   {
     id: 'private_rooms',
-    feature: 'Tạo phòng riêng (Private Room)',
+    feature: "Tạo phòng riêng (private room)",
     category: 'rooms',
     free: 'Tối đa 3 phòng / ngày',
     monthly: 'Không giới hạn',
@@ -356,17 +356,17 @@ export interface StreamlinedComparisonFeature {
 export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
   {
     id: 'core_tools',
-    name: 'Công cụ học tập cốt lõi (Pomodoro, Note, Task)',
+    name: "Công cụ học tập cốt lõi (pomodoro, note, task)",
     free: true,
     pro: true,
     lifetime: true
   },
   {
     id: 'ai_limit',
-    name: 'Hạn mức Trợ lý AI Companion',
-    free: '50⚡ (dùng thử)',
-    pro: '500⚡ / tuần',
-    lifetime: '1.000⚡ / tuần (vĩnh viễn)',
+    name: "Hạn mức trợ lý AI companion",
+    free: "50 (dùng thử)",
+    pro: "500 / tuần",
+    lifetime: "1.000 / tuần (vĩnh viễn)",
     highlightLifetime: true
   },
   {
@@ -393,7 +393,7 @@ export const STREAMLINED_COMPARISON_FEATURES: StreamlinedComparisonFeature[] = [
   },
   {
     id: 'vip_badge',
-    name: 'Huy hiệu Vinh danh & Đặc quyền Founder',
+    name: "Huy hiệu vinh danh & đặc quyền Founder",
     free: false,
     pro: 'PRO',
     lifetime: 'Founder VIP 👑',

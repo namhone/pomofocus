@@ -4,7 +4,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import fs from 'node:fs';
 import path from 'node:path';
 import { RouterProvider } from '../../src/services/router';
-import { WebDownloadHub, PUBLIC_APK_URL } from '../../src/components/landing/WebDownloadHub';
+import { WebDownloadHub, PUBLIC_APK_URL, APK_SIZE_LABEL, CURRENT_APK_VERSION } from '../../src/components/landing/WebDownloadHub';
 import { MobileSettingsView } from '../../src/components/mobile/views/MobileSettingsView';
 import { MobileFocusView } from '../../src/components/mobile/views/MobileFocusView';
 import { LiquidUpdateBanner } from '../../src/components/LiquidUpdateBanner';
@@ -252,7 +252,7 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
         </RouterProvider>
       );
 
-      expect(screen.getAllByText(/8\.(0|70) MB/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(new RegExp(APK_SIZE_LABEL.replace('.', '\\.'))).length).toBeGreaterThanOrEqual(1);
       expect(screen.queryByText(/18\.4 MB/i)).toBeNull();
       expect(screen.getAllByText(/pomofocus/i).length).toBeGreaterThanOrEqual(2);
       expect(screen.getByText('25:00')).toBeDefined();
@@ -341,10 +341,10 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
 
       expect(screen.getByText(/Tập trung sâu\./i)).toBeDefined();
       expect(screen.getByText(/Trôi chảy từng khoảnh khắc\./i)).toBeDefined();
-      expect(screen.getByText(/Đếm giờ chính xác ngay cả khi tắt màn hình/i)).toBeDefined();
+      expect(screen.getByText(/Theo dõi phiên tập trung bằng mốc thời gian/i)).toBeDefined();
       expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
-      expect(screen.getByTestId('central-apk-download-btn').textContent).toContain('Tải PomoFocus APK (v8.1)');
-      expect(screen.getByText(/Dung lượng: (~?8\.0 MB|8\.70 MB) · Android 9\.0\+ · Miễn phí hoàn toàn/)).toBeDefined();
+      expect(screen.getByTestId('central-apk-download-btn').textContent).toContain(`Tải PomoFocus APK (${CURRENT_APK_VERSION})`);
+      expect(screen.getByText(new RegExp(`Dung lượng: ${APK_SIZE_LABEL.replace('.', '\\.')} · Android 9\\.0\\+ · miễn phí tải xuống`, 'i'))).toBeDefined();
       expect(screen.getAllByText('Mở bản web →').length).toBeGreaterThanOrEqual(1);
     });
 

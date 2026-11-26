@@ -1,0 +1,41 @@
+[WebServer] (node:10280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist (1.0m)
+
+
+  1) [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m80[39m
+    Received:    [31m70.5[39m
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      70 |   await expect.poll(async () => { const n = await workspace.notes.boundingBox(), a = await drawer.boundingBox(); return !!n && !!a && n.x + n.width <= a.x; }).toBe(true);
+      71 |   await expect(page.getByRole('textbox', { name: 'Nội dung ghi chú' })).toBeVisible();
+    > 72 |   await expect.poll(async () => (await page.getByRole('textbox', { name: 'Nội dung ghi chú' }).boundingBox())?.height || 0).toBeGreaterThanOrEqual(80);
+         |   ^
+      73 |   await page.getByRole('textbox', { name: 'Câu hỏi cho trợ lý AI' }).fill('Kiểm tra vùng nhập');
+      74 |   await page.keyboard.press('Tab');
+      75 |   await expect(page.getByRole('button', { name: 'Gửi câu hỏi', exact: true })).toBeFocused();
+        at D:\FileCuaNam\Web'\Pomodoro\tests\e2e\phase4b\ui.spec.ts:72:3
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase4b\ui-workspace-bright-backgr-a0033-trols-header-and-AI-coexist-desktop-1366\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop-1366] › ui.spec.ts (1.0m)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 

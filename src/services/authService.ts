@@ -91,18 +91,18 @@ export const generateInitialsAvatarSvg = (
 
   // Bảng gradient màu sắc sống động, sang trọng theo ký tự
   const gradients: Array<[string, string]> = [
-    ['#10b981', '#047857'], // Ngọc bích emerald
-    ['#6366f1', '#4338ca'], // Chàm indigo
-    ['#8b5cf6', '#6d28d9'], // Tím violet
-    ['#06b6d4', '#0e7490'], // Cyan biển sâu
-    ['#f59e0b', '#b45309'], // Hổ phách amber
-    ['#ec4899', '#be185d'], // Hồng rose
-    ['#14b8a6', '#0f766e'], // Teal
-    ['#3b82f6', '#1d4ed8'], // Xanh blue
+    ['#3f3f46', '#3f3f46'], // Ngọc bích emerald
+    ['#3f3f46', '#18181b'], // Chàm indigo
+    ['#3f3f46', '#18181b'], // Tím violet
+    ['#3f3f46', '#18181b'], // Cyan biển sâu
+    ['#3f3f46', '#18181b'], // Hổ phách amber
+    ['#3f3f46', '#18181b'], // Hồng rose
+    ['#3f3f46', '#18181b'], // Teal
+    ['#3f3f46', '#18181b'], // Xanh blue
   ];
 
   const hash = initials.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  const [col1, col2] = customGradient || (initials === 'K' ? ['#10b981', '#047857'] : gradients[hash % gradients.length]);
+  const [col1, col2] = customGradient || (initials === 'K' ? ['#3f3f46', '#3f3f46'] : gradients[hash % gradients.length]);
   const radius = Math.round(size / 2);
   const fontSize = Math.round(size * 0.42);
 

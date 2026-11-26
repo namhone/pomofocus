@@ -1,3 +1,5 @@
+import { UiLabel } from './common/UiSymbol';
+import { UiSymbol } from './common/UiSymbol';
 import React, { useEffect, useRef } from 'react';
 import {
   FileText,
@@ -118,8 +120,8 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
 
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]" />
-            <h3 className="text-sm font-bold text-white tracking-tight">Tính Năng Mở Rộng</h3>
+            <span className="w-2 h-2 rounded-full bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+            <h3 className="text-sm font-bold text-white tracking-tight">Tính năng mở rộng</h3>
           </div>
           <button
             type="button"
@@ -149,7 +151,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                   />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-bold text-white truncate">{user.displayName}</div>
+                  <div className="text-xs font-bold text-white truncate"><UiLabel text={user.displayName} /></div>
                   <div className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</div>
                 </div>
               </div>
@@ -162,18 +164,18 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0"
               >
-                Hồ Sơ
+                Hồ sơ
               </button>
             </div>
           ) : (
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center font-bold text-xs shrink-0">
                   <User size={16} />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-white">Chưa đăng nhập</div>
-                  <div className="text-[10px] text-zinc-400">Chế độ khách · 50 ⚡</div>
+                  <div className="text-[10px] text-zinc-400">Chế độ khách · 50 <UiSymbol name="⚡" /></div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -184,9 +186,9 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                     router.navigate('/login');
                     onClose();
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm"
+                  className="px-3 py-1.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-black text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm"
                 >
-                  Đăng Nhập
+                  Đăng nhập
                 </button>
               </div>
             </div>
@@ -196,8 +198,8 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
         <div className="space-y-4">
           {/* 1. Nhóm Kế Hoạch & Học Tập */}
           <div>
-            <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">
-              Kế hoạch & Học tập
+            <div className="text-[11px] font-semibold text-zinc-400 normal-case tracking-wider mb-2 px-1">
+              Kế hoạch & học tập
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -209,7 +211,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/10 text-cyan-400 mb-2 group-hover:bg-cyan-500/20 transition">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-2 group-hover:bg-zinc-700/20 transition">
                   <FileText size={18} />
                 </div>
                 <span className="text-[11px] font-medium text-zinc-200 group-hover:text-white leading-tight">
@@ -226,7 +228,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-400 mb-2 group-hover:bg-emerald-500/20 transition">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-2 group-hover:bg-zinc-700/20 transition">
                   <Calendar size={18} />
                 </div>
                 <span className="text-[11px] font-medium text-zinc-200 group-hover:text-white leading-tight">
@@ -243,7 +245,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-400 mb-2 group-hover:bg-indigo-500/20 transition">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-2 group-hover:bg-zinc-700/20 transition">
                   <BarChart3 size={18} />
                 </div>
                 <span className="text-[11px] font-medium text-zinc-200 group-hover:text-white leading-tight">
@@ -255,7 +257,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
 
           {/* 2. Nhóm Tiện Ích Phòng Học */}
           <div>
-            <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">
+            <div className="text-[11px] font-semibold text-zinc-400 normal-case tracking-wider mb-2 px-1">
               Tiện ích phòng học
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -272,7 +274,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                   <Music size={16} />
                 </div>
                 <span className="text-[10px] font-medium text-zinc-200 group-hover:text-white leading-tight truncate w-full">
-                  Media Lofi
+                  Nhạc và video
                 </span>
               </button>
 
@@ -282,7 +284,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 onClick={handleToggleFullscreen}
                 className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/10 text-sky-400 mb-1.5 group-hover:bg-sky-500/20 transition">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-1.5 group-hover:bg-zinc-700/20 transition">
                   {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                 </div>
                 <span className="text-[10px] font-medium text-zinc-200 group-hover:text-white leading-tight truncate w-full">
@@ -300,7 +302,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-1.5 transition ${
-                  isZenMode ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20'
+                  isZenMode ? 'bg-zinc-700/20 text-zinc-300' : 'bg-zinc-700/10 text-zinc-300 group-hover:bg-zinc-700/20'
                 }`}>
                   <Sparkles size={16} />
                 </div>
@@ -322,7 +324,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-teal-500/10 text-teal-400 mb-1.5 group-hover:bg-teal-500/20 transition">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-1.5 group-hover:bg-zinc-700/20 transition">
                   <Sliders size={16} />
                 </div>
                 <span className="text-[10px] font-medium text-zinc-200 group-hover:text-white leading-tight truncate w-full">
@@ -334,8 +336,8 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
 
           {/* 3. Nhóm Hệ Thống & Tài Khoản */}
           <div>
-            <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">
-              Hệ thống & Tài khoản
+            <div className="text-[11px] font-semibold text-zinc-400 normal-case tracking-wider mb-2 px-1">
+              Hệ thống & tài khoản
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -347,7 +349,7 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 text-amber-400 mb-2 group-hover:bg-amber-500/20 transition">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-2 group-hover:bg-zinc-700/20 transition">
                   <Crown size={18} />
                 </div>
                 <span className="text-[11px] font-medium text-zinc-200 group-hover:text-white leading-tight">
@@ -364,11 +366,11 @@ export const MobileMoreDrawer: React.FC<MobileMoreDrawerProps> = ({
                 }}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 border border-white/[0.06] transition text-center cursor-pointer group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-yellow-500/10 text-yellow-400 mb-2 group-hover:bg-yellow-500/20 transition">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/10 text-zinc-300 mb-2 group-hover:bg-zinc-700/20 transition">
                   <Zap size={18} />
                 </div>
                 <span className="text-[11px] font-medium text-zinc-200 group-hover:text-white leading-tight">
-                  Nạp Credits
+                  Nạp credits
                 </span>
               </button>
 

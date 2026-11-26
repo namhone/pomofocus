@@ -11,12 +11,12 @@ import {
 } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: 'Space', desc: 'Bắt đầu / Tạm dừng Pomodoro' },
+  { key: 'Space', desc: 'Bắt đầu / tạm dừng pomodoro' },
   { key: 'R', desc: 'Đặt lại đồng hồ về ban đầu' },
   { key: 'S', desc: 'Bỏ qua và chuyển sang hiệp tiếp theo' },
-  { key: 'Z', desc: 'Bật / Tắt chế độ Zen Mode toàn màn hình' },
-  { key: 'Ctrl + K / Cmd + K', desc: 'Mở Bảng lệnh điều khiển nhanh' },
-  { key: 'Esc', desc: 'Đóng cửa sổ hoặc thoát Zen Mode' }
+  { key: 'Z', desc: 'Bật / tắt chế độ zen mode toàn màn hình' },
+  { key: 'Ctrl + K / Cmd + K', desc: 'Mở bảng lệnh điều khiển nhanh' },
+  { key: 'Esc', desc: 'Đóng cửa sổ hoặc thoát zen mode' }
 ];
 
 const FAQS = [
@@ -48,7 +48,7 @@ export const HelpView: React.FC = () => {
 
   return (
     <MobileSubViewLayout
-      title="Trung Tâm Trợ Giúp"
+      title="Trung tâm trợ giúp"
       subtitle="Phương pháp Pomodoro & phím tắt"
       onBack={() => router.navigate('/app')}
       className="selection:bg-white selection:text-black"
@@ -62,19 +62,19 @@ export const HelpView: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <BookOpen size={24} className="text-white shrink-0" />
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Trung Tâm Trợ Giúp PomoFocus
+              Trung tâm trợ giúp PomoFocus
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
-            Nắm vững phương pháp Pomodoro, phím tắt thao tác nhanh và cách khai thác tối đa không gian học tập.
+            Nắm vững phương pháp pomodoro, phím tắt thao tác nhanh và cách khai thác tối đa không gian học tập.
           </p>
         </div>
 
         {/* Keyboard Shortcuts */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
-            <Keyboard size={16} className="text-emerald-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Bảng Phím Tắt Tiện Lợi (Global Shortcuts)</h2>
+            <Keyboard size={16} className="text-zinc-300 shrink-0" />
+            <h2 className="text-sm font-semibold text-white">Bảng phím tắt tiện lợi (global shortcuts)</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
@@ -96,7 +96,7 @@ export const HelpView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <Clock size={16} className="text-rose-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Quy Trình Pomodoro Chuẩn Khoa Học</h2>
+            <h2 className="text-sm font-semibold text-white">Quy trình pomodoro chuẩn khoa học</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
@@ -104,39 +104,39 @@ export const HelpView: React.FC = () => {
               <span className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center font-bold text-[10px]">
                 1
               </span>
-              <div className="font-semibold text-white">Chọn Mục Tiêu</div>
+              <div className="font-semibold text-white">Chọn mục tiêu</div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Tạo một nhiệm vụ cụ thể từ danh sách Tasks và liên kết với đồng hồ.
+                Tạo một nhiệm vụ cụ thể từ danh sách tasks và liên kết với đồng hồ.
               </p>
             </div>
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1.5">
-              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-[10px]">
+              <span className="w-5 h-5 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center font-bold text-[10px]">
                 2
               </span>
-              <div className="font-semibold text-white">Tập Trung 25 Phút</div>
+              <div className="font-semibold text-white">Tập trung 25 phút</div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Bật âm thanh thiên nhiên hoặc chế độ Zen Mode để loại bỏ hoàn toàn phiền nhiễu.
+                Bật âm thanh thiên nhiên hoặc chế độ zen mode để loại bỏ hoàn toàn phiền nhiễu.
               </p>
             </div>
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-[10px]">
+              <span className="w-5 h-5 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center font-bold text-[10px]">
                 3
               </span>
-              <div className="font-semibold text-white">Nghỉ Ngắn 5 Phút</div>
+              <div className="font-semibold text-white">Nghỉ ngắn 5 phút</div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
                 Rời mắt khỏi màn hình, uống nước hoặc vận động nhẹ để não phục hồi năng lượng.
               </p>
             </div>
 
             <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1.5">
-              <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px]">
+              <span className="w-5 h-5 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center font-bold text-[10px]">
                 4
               </span>
-              <div className="font-semibold text-white">Nghỉ Dài 15-30 Phút</div>
+              <div className="font-semibold text-white">Nghỉ dài 15-30 phút</div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Sau mỗi 4 hiệp Pomodoro liên tiếp, dành 15-30 phút nghỉ ngơi sâu thư giãn.
+                Sau mỗi 4 hiệp pomodoro liên tiếp, dành 15-30 phút nghỉ ngơi sâu thư giãn.
               </p>
             </div>
           </div>
@@ -145,8 +145,8 @@ export const HelpView: React.FC = () => {
         {/* FAQs */}
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
-            <HelpCircle size={16} className="text-sky-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Câu Hỏi Thường Gặp (FAQ)</h2>
+            <HelpCircle size={16} className="text-zinc-300 shrink-0" />
+            <h2 className="text-sm font-semibold text-white">Câu hỏi thường gặp (faq)</h2>
           </div>
 
           <div className="space-y-2.5">

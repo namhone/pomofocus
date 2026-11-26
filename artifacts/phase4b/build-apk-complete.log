@@ -1,0 +1,395 @@
+
+> immersive-pomodoro-workspace@1.0.0 build:apk
+> tsx scripts/buildApk.ts
+
+=== PomoFocus v8.1: Android APK Build Pipeline ===
+[buildApk] Building web application assets (npm run build)...
+
+> immersive-pomodoro-workspace@1.0.0 build
+> tsc && vite build
+
+vite v5.4.14 building for production...
+transforming...
+[plugin:vite:resolve] [plugin vite:resolve] Module "node:crypto" has been externalized for browser compatibility, imported by "D:/FileCuaNam/Web'/Pomodoro/src/utils/crypto.ts". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 2055 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/utils/haptics.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/TasksWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/TimerWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/services/audioContextManager.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/ambientSynthesizer.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/chimeSynthesizer.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/soundEffects.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAudioStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/stores/useAudioStore.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/AudioWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/CollapsedWidgetCard.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/FloatingVideoPiP.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/GlobalAudioHost.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MediaWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/SettingsView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/views/MobileSettingsView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/soundEffects.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/userSettingsService.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/lib/supabase.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/googleAuthService.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/App.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AiCreditsTopupModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AuthView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MoMoPaymentModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomLobby.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/aiChatService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/avatarUploadService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/couponService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/noteCloudService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/profileService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/roomService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/studyRoomService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/syncQueueService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/taskCloudService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/services/profileService.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAudioStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAudioStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useLayoutStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/ProfileView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/avatarUploadService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/couponService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/totpService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/userSettingsService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAiStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/services/totpService.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/AccountSecurityView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/services/userSettingsService.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useLayoutStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/services/syncQueueService.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/taskCloudService.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/App.tsx, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useLayoutStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/App.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AccountSecurityView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AdminCouponManager.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AiCompanionWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AiCreditsTopupModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AuthView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/BillingView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/CollapsedWidgetCard.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MoMoPaymentModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MobileMoreDrawer.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/PlatformHeader.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/PrivacyDataView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/ProfileView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/SettingsView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/SettingsWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/SpacesWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomLobby.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/TwoFactorGateModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/common/UserAvatar.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/auth/MobileAuthBottomSheet.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/views/MobileSettingsView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/avatarUploadService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/couponService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useNoteStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTaskStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/stores/useNoteStore.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/AiCompanionWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/CollapsedWidgetCard.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/NotesWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAiStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/stores/useAiStore.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/services/authService.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/App.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AiCompanionWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/AiCreditsTopupModal.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/BillingView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/DockBar.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MobileBottomNav.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/MobileMoreDrawer.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/PlatformHeader.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/SettingsWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/StudyRoomView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/TimerWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/WidgetContainer.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/auth/MobileAuthBottomSheet.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/views/MobileSettingsView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/couponService.ts, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/stores/useTaskStore.ts is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useAuthStore.ts, D:/FileCuaNam/Web'/Pomodoro/src/stores/useTimerStore.ts but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/CalendarWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/CollapsedWidgetCard.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/TasksWidget.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/views/MobileFocusView.tsx, D:/FileCuaNam/Web'/Pomodoro/src/services/workspaceRealtimeService.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/FileCuaNam/Web'/Pomodoro/src/components/AmbientOverlay.tsx is dynamically imported by D:/FileCuaNam/Web'/Pomodoro/src/App.tsx but also statically imported by D:/FileCuaNam/Web'/Pomodoro/src/components/mobile/MobileAppShell.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/manifest.webmanifest                               0.46 kB
+dist/assets/KaTeX_Size3-Regular-CTq5MqoE.woff           4.42 kB
+dist/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2          4.93 kB
+dist/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2          5.21 kB
+dist/assets/KaTeX_Size1-Regular-mCD8mA8B.woff2          5.47 kB
+dist/assets/KaTeX_Size4-Regular-BF-4gkZK.woff           5.98 kB
+dist/assets/KaTeX_Size2-Regular-oD1tc_U0.woff           6.19 kB
+dist/assets/KaTeX_Size1-Regular-C195tn64.woff           6.50 kB
+dist/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2    6.91 kB
+dist/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2       6.91 kB
+dist/assets/KaTeX_Size3-Regular-DgpXs0kz.ttf            7.59 kB
+dist/assets/KaTeX_Caligraphic-Regular-CTRA-rTL.woff     7.66 kB
+dist/assets/KaTeX_Caligraphic-Bold-BEiXGLvX.woff        7.72 kB
+dist/assets/KaTeX_Script-Regular-D3wIWfF6.woff2         9.64 kB
+dist/assets/KaTeX_SansSerif-Regular-DDBCnlJ7.woff2     10.34 kB
+dist/assets/KaTeX_Size4-Regular-DWFBv043.ttf           10.36 kB
+dist/assets/KaTeX_Script-Regular-D5yQViql.woff         10.59 kB
+dist/assets/KaTeX_Fraktur-Regular-CTYiF6lA.woff2       11.32 kB
+dist/assets/KaTeX_Fraktur-Bold-CL6g_b3V.woff2          11.35 kB
+dist/assets/KaTeX_Size2-Regular-B7gKUWhC.ttf           11.51 kB
+dist/assets/KaTeX_SansSerif-Italic-C3H0VqGB.woff2      12.03 kB
+dist/index.html                                        12.15 kB │ gzip:   4.19 kB
+dist/assets/KaTeX_SansSerif-Bold-D1sUS0GD.woff2        12.22 kB
+dist/assets/KaTeX_Size1-Regular-Dbsnue_I.ttf           12.23 kB
+dist/assets/KaTeX_SansSerif-Regular-CS6fqUqJ.woff      12.32 kB
+dist/assets/KaTeX_Caligraphic-Regular-wX97UBjC.ttf     12.34 kB
+dist/assets/KaTeX_Caligraphic-Bold-ATXxdsX0.ttf        12.37 kB
+dist/assets/KaTeX_Fraktur-Regular-Dxdc4cR9.woff        13.21 kB
+dist/assets/KaTeX_Fraktur-Bold-BsDP51OF.woff           13.30 kB
+dist/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2    13.57 kB
+dist/assets/KaTeX_SansSerif-Italic-DN2j7dab.woff       14.11 kB
+dist/assets/KaTeX_SansSerif-Bold-DbIhKOiC.woff         14.41 kB
+dist/assets/KaTeX_Typewriter-Regular-C0xS9mPB.woff     16.03 kB
+dist/assets/KaTeX_Math-BoldItalic-CZnvNsCZ.woff2       16.40 kB
+dist/assets/KaTeX_Math-Italic-t53AETM-.woff2           16.44 kB
+dist/assets/KaTeX_Script-Regular-C5JkGWo-.ttf          16.65 kB
+dist/assets/KaTeX_Main-BoldItalic-DxDJ3AOS.woff2       16.78 kB
+dist/assets/KaTeX_Main-Italic-NWA7e6Wa.woff2           16.99 kB
+dist/assets/KaTeX_Math-BoldItalic-iY-2wyZ7.woff        18.67 kB
+dist/assets/KaTeX_Math-Italic-DA0__PXp.woff            18.75 kB
+dist/assets/KaTeX_Main-BoldItalic-SpSLRI95.woff        19.41 kB
+dist/assets/KaTeX_SansSerif-Regular-BNo7hRIc.ttf       19.44 kB
+dist/assets/KaTeX_Fraktur-Regular-CB_wures.ttf         19.57 kB
+dist/assets/KaTeX_Fraktur-Bold-BdnERNNW.ttf            19.58 kB
+dist/assets/KaTeX_Main-Italic-BMLOBm91.woff            19.68 kB
+dist/assets/KaTeX_SansSerif-Italic-YYjJ1zSn.ttf        22.36 kB
+dist/assets/KaTeX_SansSerif-Bold-CFMepnvq.ttf          24.50 kB
+dist/assets/KaTeX_Main-Bold-Cx986IdX.woff2             25.32 kB
+dist/assets/KaTeX_Main-Regular-B22Nviop.woff2          26.27 kB
+dist/assets/KaTeX_Typewriter-Regular-D3Ib7_Hf.ttf      27.56 kB
+dist/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2           28.08 kB
+dist/assets/KaTeX_Main-Bold-Jm3AIy58.woff              29.91 kB
+dist/assets/KaTeX_Main-Regular-Dr94JaBh.woff           30.77 kB
+dist/assets/KaTeX_Math-BoldItalic-B3XSjfu4.ttf         31.20 kB
+dist/assets/KaTeX_Math-Italic-flOr_0UB.ttf             31.31 kB
+dist/assets/KaTeX_Main-BoldItalic-DzxPMmG6.ttf         32.97 kB
+dist/assets/KaTeX_AMS-Regular-DMm9YOAa.woff            33.52 kB
+dist/assets/KaTeX_Main-Italic-3WenGoN9.ttf             33.58 kB
+dist/assets/KaTeX_Main-Bold-waoOVXN0.ttf               51.34 kB
+dist/assets/KaTeX_Main-Regular-ypZvNtVU.ttf            53.58 kB
+dist/assets/KaTeX_AMS-Regular-DRggAlZN.ttf             63.63 kB
+dist/assets/index-RnSLfQ-y.css                        164.60 kB │ gzip:  28.76 kB
+dist/assets/__vite-browser-external-BIHI7g3E.js         0.03 kB │ gzip:   0.05 kB
+dist/assets/web-R_G51PAQ.js                             1.08 kB │ gzip:   0.53 kB
+dist/assets/media-C66afFkF.js                           1.30 kB │ gzip:   0.58 kB
+dist/assets/ZenOverlay-DFB5qtc3.js                      2.85 kB │ gzip:   1.14 kB
+dist/assets/workbox-window.prod.es5-B9K5rw8f.js         5.72 kB │ gzip:   2.35 kB
+dist/assets/CalendarWidget-Ctujta00.js                  6.24 kB │ gzip:   2.35 kB
+dist/assets/NotesWidget-eflX5Stf.js                     7.38 kB │ gzip:   2.82 kB
+dist/assets/CommandPalette-OS5imMwe.js                 10.16 kB │ gzip:   4.01 kB
+dist/assets/DashboardView-oaYpJRhp.js                  12.15 kB │ gzip:   3.93 kB
+dist/assets/DedicatedCalendarView-Cb5O6Sy4.js          13.62 kB │ gzip:   3.96 kB
+dist/assets/AudioWidget-B2ar2SpS.js                    13.99 kB │ gzip:   3.80 kB
+dist/assets/TasksWidget-DlJJrVYR.js                    17.16 kB │ gzip:   4.81 kB
+dist/assets/DockBar-CeQmMHIF.js                        17.29 kB │ gzip:   4.66 kB
+dist/assets/SpacesWidget-CBfg3QFz.js                   19.23 kB │ gzip:   5.75 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+dist/assets/AiCompanionWidget-CW9Z4VsV.js              21.56 kB │ gzip:   6.29 kB
+dist/assets/SettingsWidget-Dhz7zEzL.js                 22.63 kB │ gzip:   5.02 kB
+dist/assets/MobileBottomNav-L-O0G2o7.js                25.72 kB │ gzip:   5.64 kB
+dist/assets/MediaWidget-BJ_OeQ8j.js                    33.08 kB │ gzip:  10.96 kB
+dist/assets/AiMessageMarkdown-aUpKDVYZ.js              48.59 kB │ gzip:  15.36 kB
+dist/assets/vendor-icons-C-FTiVY1.js                   74.25 kB │ gzip:  15.42 kB
+dist/assets/vendor-webrtc-BQiIrUJs.js                  94.03 kB │ gzip:  31.40 kB
+dist/assets/vendor-react-BguPhDaj.js                  133.93 kB │ gzip:  43.13 kB
+dist/assets/StudyRoomView-BY2McaJO.js                 195.39 kB │ gzip:  49.12 kB
+dist/assets/vendor-katex-BafklO8Z.js                  395.04 kB │ gzip: 119.99 kB
+dist/assets/index-CP4uKzwe.js                         993.53 kB │ gzip: 254.79 kB
+✓ built in 28.61s
+
+PWA v0.20.5
+Building src/sw.ts service worker ("es" format)...
+vite v5.4.14 building for production...
+transforming...
+✓ 92 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/sw.mjs  25.27 kB │ gzip: 8.31 kB
+✓ built in 1.25s
+
+PWA v0.20.5
+mode      injectManifest
+format:   es
+precache  110 entries (5924.29 KiB)
+files generated
+  dist/sw.js
+[buildApk] Excluded dist/downloads from Capacitor Android bundle to avoid recursive APK bloat.
+[buildApk] Syncing assets with Capacitor Android (npx cap sync android)...
+√ Copying web assets from dist to android\app\src\main\assets\public in 151.52ms
+√ Creating capacitor.config.json in android\app\src\main\assets in 3.66ms
+√ copy android in 287.74ms
+√ Updating Android plugins in 32.17ms
+[info] Found 2 Capacitor plugins for android:
+       @capacitor/haptics@8.0.2
+       @capacitor/status-bar@8.0.4
+√ update android in 217.00ms
+[info] Sync finished in 0.679s
+[buildApk] Compiling debug APK via Gradle Wrapper (gradlew.bat assembleDebug)...
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preDebugBuild UP-TO-DATE
+> Task :capacitor-android:writeDebugAarMetadata UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugBuild UP-TO-DATE
+> Task :capacitor-haptics:preBuild UP-TO-DATE
+> Task :capacitor-haptics:preDebugBuild UP-TO-DATE
+> Task :capacitor-haptics:writeDebugAarMetadata UP-TO-DATE
+> Task :capacitor-status-bar:preBuild UP-TO-DATE
+> Task :capacitor-status-bar:preDebugBuild UP-TO-DATE
+> Task :capacitor-status-bar:writeDebugAarMetadata UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeDebugAarMetadata
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :capacitor-android:processDebugNavigationResources UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:processDebugNavigationResources
+> Task :capacitor-haptics:processDebugNavigationResources UP-TO-DATE
+> Task :capacitor-status-bar:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :capacitor-android:generateDebugResValues UP-TO-DATE
+> Task :capacitor-android:generateDebugResources UP-TO-DATE
+> Task :capacitor-android:packageDebugResources UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:generateDebugResValues
+> Task :capacitor-cordova-android-plugins:generateDebugResources
+> Task :capacitor-cordova-android-plugins:packageDebugResources
+> Task :capacitor-haptics:generateDebugResValues UP-TO-DATE
+> Task :capacitor-haptics:generateDebugResources UP-TO-DATE
+> Task :capacitor-haptics:packageDebugResources UP-TO-DATE
+> Task :capacitor-status-bar:generateDebugResValues UP-TO-DATE
+> Task :capacitor-status-bar:generateDebugResources UP-TO-DATE
+> Task :capacitor-status-bar:packageDebugResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :capacitor-android:extractDeepLinksDebug UP-TO-DATE
+> Task :capacitor-android:processDebugManifest UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:extractDeepLinksDebug
+> Task :capacitor-haptics:extractDeepLinksDebug UP-TO-DATE
+> Task :capacitor-haptics:processDebugManifest UP-TO-DATE
+> Task :capacitor-status-bar:extractDeepLinksDebug UP-TO-DATE
+> Task :capacitor-status-bar:processDebugManifest UP-TO-DATE
+> Task :capacitor-android:compileDebugLibraryResources UP-TO-DATE
+> Task :capacitor-android:parseDebugLocalResources UP-TO-DATE
+> Task :capacitor-android:generateDebugRFile UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:processDebugManifest
+> Task :capacitor-cordova-android-plugins:compileDebugLibraryResources
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :capacitor-haptics:compileDebugLibraryResources UP-TO-DATE
+> Task :capacitor-haptics:parseDebugLocalResources UP-TO-DATE
+> Task :capacitor-haptics:generateDebugRFile UP-TO-DATE
+> Task :capacitor-status-bar:compileDebugLibraryResources UP-TO-DATE
+> Task :capacitor-status-bar:parseDebugLocalResources UP-TO-DATE
+> Task :capacitor-status-bar:generateDebugRFile UP-TO-DATE
+> Task :capacitor-android:javaPreCompileDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:parseDebugLocalResources
+> Task :capacitor-android:compileDebugJavaWithJavac UP-TO-DATE
+> Task :capacitor-android:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:generateDebugRFile
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebug
+> Task :app:processDebugResources UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:compileDebugJavaWithJavac NO-SOURCE
+> Task :capacitor-haptics:javaPreCompileDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarDebug
+> Task :capacitor-haptics:compileDebugJavaWithJavac UP-TO-DATE
+> Task :capacitor-haptics:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :capacitor-status-bar:javaPreCompileDebug UP-TO-DATE
+> Task :capacitor-status-bar:compileDebugJavaWithJavac UP-TO-DATE
+> Task :capacitor-status-bar:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :capacitor-android:mergeDebugShaders UP-TO-DATE
+> Task :capacitor-android:compileDebugShaders NO-SOURCE
+> Task :capacitor-android:generateDebugAssets UP-TO-DATE
+> Task :capacitor-android:mergeDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:compileDebugShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugAssets
+> Task :capacitor-haptics:mergeDebugShaders UP-TO-DATE
+> Task :capacitor-haptics:compileDebugShaders NO-SOURCE
+> Task :capacitor-haptics:generateDebugAssets UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugAssets UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugShaders UP-TO-DATE
+> Task :capacitor-status-bar:compileDebugShaders NO-SOURCE
+> Task :capacitor-status-bar:generateDebugAssets UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :capacitor-haptics:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :capacitor-status-bar:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :capacitor-android:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :capacitor-android:processDebugJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:processDebugJavaRes NO-SOURCE
+> Task :capacitor-haptics:processDebugJavaRes NO-SOURCE
+> Task :capacitor-status-bar:processDebugJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarDebug
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:compressDebugAssets
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :capacitor-haptics:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :capacitor-status-bar:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :capacitor-android:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToDirDebug
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :capacitor-android:mergeDebugJniLibFolders UP-TO-DATE
+> Task :capacitor-android:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-android:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugJniLibFolders
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-haptics:mergeDebugJniLibFolders UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectOnly
+> Task :capacitor-haptics:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugJniLibFolders UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-status-bar:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :capacitor-android:checkDebugAarMetadata UP-TO-DATE
+> Task :capacitor-android:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-android:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :capacitor-android:extractDebugAnnotations UP-TO-DATE
+> Task :capacitor-android:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :capacitor-android:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :capacitor-android:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :capacitor-android:prepareDebugArtProfile UP-TO-DATE
+> Task :capacitor-android:prepareLintJarForPublish UP-TO-DATE
+> Task :capacitor-android:mergeDebugJavaResource UP-TO-DATE
+> Task :capacitor-android:syncDebugLibJars UP-TO-DATE
+> Task :capacitor-android:bundleDebugAar UP-TO-DATE
+> Task :capacitor-android:assembleDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:checkDebugAarMetadata
+> Task :capacitor-cordova-android-plugins:extractDebugAnnotations
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:prepareDebugArtProfile UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:prepareLintJarForPublish UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugJavaResource
+> Task :capacitor-haptics:checkDebugAarMetadata UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:syncDebugLibJars
+> Task :capacitor-cordova-android-plugins:bundleDebugAar
+> Task :capacitor-cordova-android-plugins:assembleDebug
+> Task :capacitor-haptics:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-haptics:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :capacitor-haptics:extractDebugAnnotations UP-TO-DATE
+> Task :capacitor-haptics:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :capacitor-haptics:prepareDebugArtProfile UP-TO-DATE
+> Task :capacitor-haptics:prepareLintJarForPublish UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugJavaResource UP-TO-DATE
+> Task :capacitor-haptics:syncDebugLibJars UP-TO-DATE
+> Task :capacitor-haptics:bundleDebugAar UP-TO-DATE
+> Task :capacitor-haptics:assembleDebug UP-TO-DATE
+> Task :capacitor-status-bar:checkDebugAarMetadata UP-TO-DATE
+> Task :capacitor-status-bar:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-status-bar:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :capacitor-status-bar:extractDebugAnnotations UP-TO-DATE
+> Task :capacitor-status-bar:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :capacitor-status-bar:prepareDebugArtProfile UP-TO-DATE
+> Task :capacitor-status-bar:prepareLintJarForPublish UP-TO-DATE
+> Task :capacitor-status-bar:mergeDebugJavaResource UP-TO-DATE
+> Task :capacitor-status-bar:syncDebugLibJars UP-TO-DATE
+> Task :capacitor-status-bar:bundleDebugAar UP-TO-DATE
+> Task :capacitor-status-bar:assembleDebug UP-TO-DATE
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 13s
+153 actionable tasks: 27 executed, 126 up-to-date
+[buildApk] Copied APK to: D:\FileCuaNam\Web'\Pomodoro\public\downloads\PomoFocus-v8.1.apk
+[buildApk] APK Size: 8.72 MB (9144597 bytes)
+[buildApk] SHA-256: f05e565efa86c78eb297aa64ee65a940ff5695649a4a1c72e8d6ebaa1d64a16d
+[buildApk] Updated public/version.json successfully.
+[buildApk] Synchronized final APK and version.json into dist/ for web distribution.
+[buildApk] Checking connected Android devices via adb...
+[buildApk] No active Android devices/emulators connected. Skipping adb install.
+=== Build Succeeded! ===
+{
+  sizeMb: 8.72,
+  sha256: 'f05e565efa86c78eb297aa64ee65a940ff5695649a4a1c72e8d6ebaa1d64a16d',
+  targetPath: "D:\\FileCuaNam\\Web'\\Pomodoro\\public\\downloads\\PomoFocus-v8.1.apk"
+}

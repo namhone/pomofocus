@@ -1,0 +1,832 @@
+{
+  "config": {
+    "configFile": "D:\\FileCuaNam\\Web'\\Pomodoro\\playwright.phase4b.config.ts",
+    "rootDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/phase4b/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1366",
+        "name": "desktop-1366",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "native-390",
+        "name": "native-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5194 --strictPort",
+      "url": "http://127.0.0.1:5194",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "ui.spec.ts",
+      "file": "ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 15142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:12:11.485Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-32d821b5aa63ce11173a",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile tab layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "skipped",
+                  "duration": 661,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:12:28.171Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-60c9ccd3155a98b8fb7d",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 7699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:12:28.940Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-493266dfd7cde8d59f3d",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 12428,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:12:36.701Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-ca32d37fa1c3d1b6e5d6",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 11883,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:01.429Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-3eb63857791e77e3bcc7",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile tab layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "skipped",
+                  "duration": 691,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:14.939Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-d9e4a733f5be6fc15885",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 8039,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:15.681Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-78bc6264c86b4c9c69d6",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 10767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:23.801Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-47e3e07534dac22c06cd",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop workspace has its own layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "skipped",
+                  "duration": 1254,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:54.804Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-9c4c1ea18acb76441e69",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "failed",
+                  "duration": 4781,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at audit (D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:50:148)\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:108:3",
+                    "matcherResult": {
+                      "actual": [
+                        {
+                          "id": "aria-progressbar-name",
+                          "impact": "serious",
+                          "nodes": [
+                            {
+                              "target": [
+                                ".w-48"
+                              ],
+                              "summary": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "aria-prohibited-attr",
+                          "impact": "serious",
+                          "nodes": [
+                            {
+                              "target": [
+                                ".border-2"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-2\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-3\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-4\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            }
+                          ]
+                        }
+                      ],
+                      "expected": [],
+                      "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                      "name": "toEqual",
+                      "pass": false
+                    },
+                    "location": {
+                      "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                      "column": 148,
+                      "line": 50
+                    },
+                    "snippet": "  48 |   await fs.mkdir('artifacts/phase4b', { recursive: true });\n  49 |   await fs.writeFile(`artifacts/phase4b/axe-${name}.json`, JSON.stringify({ url: result.url, timestamp: result.timestamp, violations: result.violations, incomplete: result.incomplete, passes: result.passes.map(rule => ({ id: rule.id, nodes: rule.nodes.length })) }, null, 2));\n> 50 |   expect(result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => ({ target: n.target, summary: n.failureSummary })) }))).toEqual([]);\n     |                                                                                                                                                    ^\n  51 | }\n  52 | async function noOverflow(page: Page) {\n  53 |   await expect.poll(() => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth)).toBeLessThanOrEqual(0);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                        "column": 148,
+                        "line": 50
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  48 |   await fs.mkdir('artifacts/phase4b', { recursive: true });\n  49 |   await fs.writeFile(`artifacts/phase4b/axe-${name}.json`, JSON.stringify({ url: result.url, timestamp: result.timestamp, violations: result.violations, incomplete: result.incomplete, passes: result.passes.map(rule => ({ id: rule.id, nodes: rule.nodes.length })) }, null, 2));\n> 50 |   expect(result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => ({ target: n.target, summary: n.failureSummary })) }))).toEqual([]);\n     |                                                                                                                                                    ^\n  51 | }\n  52 | async function noOverflow(page: Page) {\n  53 |   await expect.poll(() => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth)).toBeLessThanOrEqual(0);\n    at audit (D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:50:148)\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:108:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:13:57.244Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\test-results\\phase4b\\ui-mobile-native-safe-area-navigation-and-empty-chat-mobile-390\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                    "column": 148,
+                    "line": 50
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-9aabbe3f0e86f67d48ec",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "passed",
+                  "duration": 6620,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:17.454Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-2dcca8a647be2b2419a5",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop resizable gallery"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "skipped",
+                  "duration": 580,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:25.283Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-4c6dbcafa457d0df2bdf",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop workspace has its own layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "status": "skipped",
+                  "duration": 910,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:35.095Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-b9223ee4d9622960a610",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "status": "failed",
+                  "duration": 3347,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at audit (D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:50:148)\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:108:3",
+                    "matcherResult": {
+                      "actual": [
+                        {
+                          "id": "aria-progressbar-name",
+                          "impact": "serious",
+                          "nodes": [
+                            {
+                              "target": [
+                                ".w-48"
+                              ],
+                              "summary": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "aria-prohibited-attr",
+                          "impact": "serious",
+                          "nodes": [
+                            {
+                              "target": [
+                                ".border-2"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-2\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-3\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            },
+                            {
+                              "target": [
+                                "span[data-testid=\"mobile-cycle-dot-4\"]"
+                              ],
+                              "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a span with no valid role attribute."
+                            }
+                          ]
+                        }
+                      ],
+                      "expected": [],
+                      "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                      "name": "toEqual",
+                      "pass": false
+                    },
+                    "location": {
+                      "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                      "column": 148,
+                      "line": 50
+                    },
+                    "snippet": "  48 |   await fs.mkdir('artifacts/phase4b', { recursive: true });\n  49 |   await fs.writeFile(`artifacts/phase4b/axe-${name}.json`, JSON.stringify({ url: result.url, timestamp: result.timestamp, violations: result.violations, incomplete: result.incomplete, passes: result.passes.map(rule => ({ id: rule.id, nodes: rule.nodes.length })) }, null, 2));\n> 50 |   expect(result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => ({ target: n.target, summary: n.failureSummary })) }))).toEqual([]);\n     |                                                                                                                                                    ^\n  51 | }\n  52 | async function noOverflow(page: Page) {\n  53 |   await expect.poll(() => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth)).toBeLessThanOrEqual(0);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                        "column": 148,
+                        "line": 50
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  48 |   await fs.mkdir('artifacts/phase4b', { recursive: true });\n  49 |   await fs.writeFile(`artifacts/phase4b/axe-${name}.json`, JSON.stringify({ url: result.url, timestamp: result.timestamp, violations: result.violations, incomplete: result.incomplete, passes: result.passes.map(rule => ({ id: rule.id, nodes: rule.nodes.length })) }, null, 2));\n> 50 |   expect(result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => ({ target: n.target, summary: n.failureSummary })) }))).toEqual([]);\n     |                                                                                                                                                    ^\n  51 | }\n  52 | async function noOverflow(page: Page) {\n  53 |   await expect.poll(() => page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth)).toBeLessThanOrEqual(0);\n    at audit (D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:50:148)\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:108:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 51\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-progressbar-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".w-48\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"aria-prohibited-attr\",\u001b[39m\n\u001b[31m+     \"impact\": \"serious\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".border-2\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-2\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-3\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"summary\": \"Fix all of the following:\u001b[39m\n\u001b[31m+   aria-label attribute cannot be used on a span with no valid role attribute.\",\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \"span[data-testid=\\\"mobile-cycle-dot-4\\\"]\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:36.434Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\test-results\\phase4b\\ui-mobile-native-safe-area-navigation-and-empty-chat-native-390\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                    "column": 148,
+                    "line": 50
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-c6340495b61cdc76f9bf",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "status": "passed",
+                  "duration": 5793,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:47.149Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-041aacf0a41995f3a79b",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop resizable gallery"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "status": "skipped",
+                  "duration": 674,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:14:53.500Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-ecbe1d07fe21c9760625",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-26T00:12:05.141Z",
+    "duration": 170906.061,
+    "expected": 8,
+    "skipped": 6,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

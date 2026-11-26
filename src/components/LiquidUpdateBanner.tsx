@@ -1,10 +1,11 @@
+import release from '../config/apkRelease.json';
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Download, X, ArrowUpRight } from 'lucide-react';
 import { isUpdateAvailable } from '../utils/versionCompare';
 import { resolveApiUrl, isNativeApiRuntime } from '../utils/apiConfig';
 import { safeParseJson } from '../utils/safeFetch';
 
-export const CURRENT_APP_VERSION = '8.1.0';
+export const CURRENT_APP_VERSION = release.version;
 export const DEFAULT_DOWNLOAD_URL = 'https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk';
 
 export interface LiquidUpdateBannerProps {
@@ -101,24 +102,24 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
       aria-label="Thông báo cập nhật ứng dụng"
       className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-96 z-40 select-none animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-zinc-950/90 backdrop-blur-2xl border border-emerald-500/30 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-white/10 text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-zinc-950/90 backdrop-blur-2xl border border-zinc-500/30 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(255,255,255,0.15)] ring-1 ring-white/10 text-white">
         {/* Subtle emerald breathing accent glow in corner */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-emerald-500/15 blur-2xl animate-pulse"
+          className="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-zinc-700/15 blur-2xl animate-pulse"
         />
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                <span className="text-xs font-semibold normal-case tracking-wider text-zinc-300">
                   Cập nhật mới
                 </span>
-                <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-emerald-300">
+                <span className="rounded-full bg-zinc-700/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-zinc-300">
                   v{targetVersion}
                 </span>
               </div>
@@ -143,7 +144,7 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
           <div className="mt-2.5 space-y-1 text-xs text-zinc-300/90 border-t border-white/5 pt-2">
             {changelog.slice(0, 3).map((item, idx) => (
               <div key={idx} className="flex items-start gap-1.5 leading-snug">
-                <span className="text-emerald-400 font-bold shrink-0">•</span>
+                <span className="text-zinc-300 font-bold shrink-0">•</span>
                 <span className="line-clamp-2">{formatChangelogItem(item)}</span>
               </div>
             ))}
@@ -180,7 +181,7 @@ export const LiquidUpdateBanner: React.FC<LiquidUpdateBannerProps> = ({
               }
             }}
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-zinc-950 font-semibold text-xs transition duration-200 shadow-[0_0_16px_rgba(16,185,129,0.35)] active:scale-95"
+            className="flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-gradient-to-r from-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-700 text-zinc-950 font-semibold text-xs transition duration-200 shadow-[0_0_16px_rgba(255,255,255,0.35)] active:scale-95"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Tải bản cập nhật</span>

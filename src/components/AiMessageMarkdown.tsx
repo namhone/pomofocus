@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -31,7 +32,7 @@ export const AiCodeBlock: React.FC<{ language?: string; codeString: string }> = 
   return (
     <div className="relative my-2.5 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950/90 shadow-md">
       <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-900/90 border-b border-zinc-800/80 text-[11px] text-zinc-400 font-mono">
-        <span className="uppercase text-[10px] font-bold text-cyan-400 tracking-wider">
+        <span className="normal-case text-[10px] font-bold text-zinc-300 tracking-wider">
           {language || 'code'}
         </span>
         <button
@@ -43,18 +44,18 @@ export const AiCodeBlock: React.FC<{ language?: string; codeString: string }> = 
         >
           {copied ? (
             <>
-              <Check size={11} className="text-emerald-400" />
-              <span className="text-emerald-400 font-sans">Đã chép</span>
+              <Check size={11} className="text-zinc-300" />
+              <span className="text-zinc-300 font-sans">Đã chép</span>
             </>
           ) : (
             <>
               <Copy size={11} />
-              <span className="font-sans">📋 Sao chép code</span>
+              <span className="font-sans"><UiSymbol name="📋" /> Sao chép code</span>
             </>
           )}
         </button>
       </div>
-      <pre className="p-3 overflow-x-auto text-xs font-mono text-emerald-300 leading-relaxed scrollbar-thin">
+      <pre className="p-3 overflow-x-auto text-xs font-mono text-zinc-300 leading-relaxed scrollbar-thin">
         <code>{codeString}</code>
       </pre>
     </div>
@@ -76,17 +77,17 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
           ul: ({ children }) => <ul className="list-disc pl-5 mb-2 space-y-1 text-zinc-200">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-5 mb-2 space-y-1 text-zinc-200">{children}</ol>,
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-          h1: ({ children }) => <h3 className="text-sm font-bold text-cyan-300 mt-2.5 mb-1">{children}</h3>,
-          h2: ({ children }) => <h3 className="text-sm font-bold text-cyan-300 mt-2 mb-1">{children}</h3>,
-          h3: ({ children }) => <h3 className="text-xs font-bold text-cyan-300 mt-2 mb-1">{children}</h3>,
-          h4: ({ children }) => <h4 className="text-xs font-semibold text-cyan-200 mt-1.5 mb-1">{children}</h4>,
+          h1: ({ children }) => <h3 className="text-sm font-bold text-zinc-300 mt-2.5 mb-1">{children}</h3>,
+          h2: ({ children }) => <h3 className="text-sm font-bold text-zinc-300 mt-2 mb-1">{children}</h3>,
+          h3: ({ children }) => <h3 className="text-xs font-bold text-zinc-300 mt-2 mb-1">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-xs font-semibold text-zinc-200 mt-1.5 mb-1">{children}</h4>,
           hr: () => <hr className="border-zinc-800 my-2" />,
           a: ({ href, children, ...props }: any) => (
             <a
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-cyan-400 underline hover:text-cyan-300 font-medium break-all"
+              className="text-zinc-300 underline hover:text-zinc-300 font-medium break-all"
               {...props}
             >
               {children}
@@ -99,7 +100,7 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
             return isBlock ? (
               <AiCodeBlock language={lang} codeString={String(children).replace(/\n$/, '')} />
             ) : (
-              <code className="bg-zinc-800/80 px-1.5 py-0.5 rounded text-[11px] font-mono text-pink-300 border border-zinc-700/50" {...props}>
+              <code className="bg-zinc-800/80 px-1.5 py-0.5 rounded text-[11px] font-mono text-zinc-300 border border-zinc-700/50" {...props}>
                 {children}
               </code>
             );
@@ -107,7 +108,7 @@ export const FormattedAiMessage: React.FC<{ content: string }> = ({ content }) =
           span: ({ className, children, ...props }: any) => {
             if (className?.includes('katex-display')) {
               return (
-                <div data-testid="ai-latex-block" className="my-2 p-2 rounded-xl bg-zinc-950/80 border border-cyan-500/30 overflow-x-auto text-center shadow-inner select-all">
+                <div data-testid="ai-latex-block" className="my-2 p-2 rounded-xl bg-zinc-950/80 border border-zinc-500/30 overflow-x-auto text-center shadow-inner select-all">
                   <span className={className} {...props}>{children}</span>
                 </div>
               );

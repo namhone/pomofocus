@@ -1,0 +1,149 @@
+[WebServer] (node:17032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:18440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error:   Failed to scan for dependencies from entries:
+[WebServer]   D:/FileCuaNam/Web'/Pomodoro/index.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/artifacts/phase3/browser-harness.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/artifacts/visual-audit/gallery.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/pomofocus-design-system/assets/design-system-showcase.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/android/build/reports/problems/problems-report.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/android/app/src/main/assets/public/index.html
+[WebServer] D:/FileCuaNam/Web'/Pomodoro/android/app/build/intermediates/assets/debug/mergeDebugAssets/public/index.html
+[WebServer] 
+[WebServer]   X [ERROR] ENOENT: no such file or directory, open 'D:\FileCuaNam\Web'\Pomodoro\node_modules\.vite\deps\react-dom_client.js' [plugin vite:dep-scan]
+[WebServer] 
+[WebServer]     node_modules/esbuild/lib/main.js:1275:21:
+[WebServer]       1275 │         let result = await callback({
+[WebServer]            ╵                      ^
+[WebServer] 
+[WebServer]     at async open (node:internal/fs/promises:640:25)
+[WebServer]     at async Object.readFile (node:internal/fs/promises:1287:14)
+[WebServer]     at async file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49870:24
+[WebServer]     at async requestCallbacks.on-load (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1275:22)
+[WebServer]     at async handleRequest (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:647:11)
+[WebServer] 
+[WebServer]   This error came from the "onLoad" callback registered here:
+[WebServer] 
+[WebServer]     node_modules/esbuild/lib/main.js:1150:20:
+[WebServer]       1150 │       let promise = setup({
+[WebServer]            ╵                     ^
+[WebServer] 
+[WebServer]     at setup (file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49867:13)
+[WebServer]     at handlePlugins (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1150:21)
+[WebServer]     at buildOrContextImpl (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:873:5)
+[WebServer]     at Object.buildOrContext (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:699:5)
+[WebServer]     at D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:2032:68
+[WebServer]     at new Promise (<anonymous>)
+[WebServer]     at Object.context (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:2032:27)
+[WebServer]     at Object.context (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1874:58)
+[WebServer]     at prepareEsbuildScanner (file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49575:24)
+[WebServer]     at async file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:50173:26
+[WebServer] 
+[WebServer]   The plugin "vite:dep-scan" was triggered by this import
+[WebServer] 
+[WebServer]     script:D:/FileCuaNam/Web'/Pomodoro/artifacts/phase3/browser-harness.html?id=0:3:21:
+[WebServer]       3 │ import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js';
+[WebServer]         ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[WebServer] 
+[WebServer] 
+[WebServer] X [ERROR] ENOENT: no such file or directory, open 'D:\FileCuaNam\Web'\Pomodoro\node_modules\.vite\deps\react.js' [plugin vite:dep-scan]
+[WebServer] 
+[WebServer]     node_modules/esbuild/lib/main.js:1275:21:
+[WebServer]       1275 │         let result = await callback({
+[WebServer]            ╵                      ^
+[WebServer] 
+[WebServer]     at async open (node:internal/fs/promises:640:25)
+[WebServer]     at async Object.readFile (node:internal/fs/promises:1287:14)
+[WebServer]     at async file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49870:24
+[WebServer]     at async requestCallbacks.on-load (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1275:22)
+[WebServer]     at async handleRequest (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:647:11)
+[WebServer] 
+[WebServer]   This error came from the "onLoad" callback registered here:
+[WebServer] 
+[WebServer]     node_modules/esbuild/lib/main.js:1150:20:
+[WebServer]       1150 │       let promise = setup({
+[WebServer]            ╵                     ^
+[WebServer] 
+[WebServer]     at setup (file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49867:13)
+[WebServer]     at handlePlugins (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1150:21)
+[WebServer]     at buildOrContextImpl (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:873:5)
+[WebServer]     at Object.buildOrContext (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:699:5)
+[WebServer]     at D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:2032:68
+[WebServer]     at new Promise (<anonymous>)
+[WebServer]     at Object.context (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:2032:27)
+[WebServer]     at Object.context (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1874:58)
+[WebServer]     at prepareEsbuildScanner (file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49575:24)
+[WebServer]     at async file:///D:/FileCuaNam/Web'/Pomodoro/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:50173:26
+[WebServer] 
+[WebServer]   The plugin "vite:dep-scan" was triggered by this import
+[WebServer] 
+[WebServer]     script:D:/FileCuaNam/Web'/Pomodoro/artifacts/phase3/browser-harness.html?id=0:2:18:
+[WebServer]       2 │ import React from '/node_modules/.vite/deps/react.js';
+[WebServer]         ╵                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[WebServer] 
+[WebServer] 
+[WebServer]     at failureErrorWithLog (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1472:15)
+[WebServer]     at D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:945:25
+[WebServer]     at runOnEndCallbacks (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:1315:45)
+[WebServer]     at buildResponseToResult (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:943:7)
+[WebServer]     at D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:955:9
+[WebServer]     at new Promise (<anonymous>)
+[WebServer]     at requestCallbacks.on-end (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:954:54)
+[WebServer]     at handleRequest (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:647:17)
+[WebServer]     at handleIncomingPacket (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:672:7)
+[WebServer]     at Socket.readFromStdout (D:\FileCuaNam\Web'\Pomodoro\node_modules\esbuild\lib\main.js:600:7)
+[WebServer]     at Socket.emit (node:events:509:28)
+[WebServer]     at addChunk (node:internal/streams/readable:563:12)
+[WebServer]     at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+[WebServer]     at Readable.push (node:internal/streams/readable:394:5)
+[WebServer]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[WebServer] Assets in public directory cannot be imported from JavaScript.
+[WebServer] If you intend to import that asset, put the file in the src directory, and use /src/version.json instead of /public/version.json.
+[WebServer] If you intend to use the URL of that asset, use /version.json?url.
+[WebServer] Assets in public directory cannot be imported from JavaScript.
+[WebServer] If you intend to import that asset, put the file in the src directory, and use /src/version.json instead of /public/version.json.
+[WebServer] If you intend to use the URL of that asset, use /version.json?url.
+  x  1 [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist (1.6m)
+
+
+  1) [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m
+
+    Locator: getByTestId('ai-companion-drawer')
+    Expected string: [32m"false"[39m
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toHaveAttribute with timeout 15000ms[22m
+    [2m  - waiting for getByTestId('ai-companion-drawer')[22m
+    [2m    - waiting for" http://127.0.0.1:5194/app" navigation to finish...[22m
+    [2m    - navigated to "http://127.0.0.1:5194/app"[22m
+
+
+      66 |   await page.getByRole('button', { name: /Mở trợ lý AI companion/i }).click();
+      67 |   const drawer = page.getByTestId('ai-companion-drawer');
+    > 68 |   await expect(drawer).toHaveAttribute('aria-hidden', 'false');
+         |                        ^
+      69 |   await expect(page.getByRole('button', { name: 'Làm mới cuộc trò chuyện' })).toBeDisabled();
+      70 |   await expect.poll(async () => { const n = await workspace.notes.boundingBox(), a = await drawer.boundingBox(); return !!n && !!a && n.x + n.width <= a.x; }).toBe(true);
+      71 |   await expect(page.getByRole('textbox', { name: 'Nội dung ghi chú' })).toBeVisible();
+        at D:\FileCuaNam\Web'\Pomodoro\tests\e2e\phase4b\ui.spec.ts:68:24
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase4b\ui-workspace-bright-backgr-a0033-trols-header-and-AI-coexist-desktop-1366\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop-1366] › ui.spec.ts (1.6m)
+  Consider splitting slow test files to speed up parallel execution
+  1 failed
+    [desktop-1366] › ui.spec.ts:53:1 › workspace: bright background, notes controls, header and AI coexist 

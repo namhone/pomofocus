@@ -27,7 +27,7 @@ export function triggerConfetti(durationMs = 3500): void {
 
   const colors = [
     '#ffffff', '#f43f5e', '#ec4899', '#8b5cf6',
-    '#3b82f6', '#10b981', '#f59e0b', '#fbbf24'
+    '#3b82f6', '#a1a1aa', '#f59e0b', '#fbbf24'
   ];
 
   interface Particle {

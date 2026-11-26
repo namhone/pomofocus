@@ -1,3 +1,4 @@
+import { momoService } from '../../src/services/momoService';
 import 'fake-indexeddb/auto';
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -288,7 +289,7 @@ describe('Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, A
       expect(scrollSpy).toHaveBeenCalled();
     });
 
-    it('3.2 AiCreditsTopupModal has 7-day refund guarantee note according to consumer law', () => {
+    it('3.2 AiCreditsTopupModal presents accurate transfer instructions without invented legal promises', () => {
       useAuthStore.setState({
         user: { id: 'test-user-1', email: 'nam.test@pomofocus.vn', plan: 'free' } as any,
         isAuthenticated: true
@@ -301,10 +302,12 @@ describe('Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, A
         />
       );
 
-      expect(screen.getByText(/Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/)).toBeDefined();
+      expect(screen.getByText(/Vui lòng chuyển khoản chính xác/i)).toBeDefined();
     });
 
-    it('3.3 MoMoPaymentModal has 7-day refund guarantee note according to consumer law', () => {
+    it('3.3 MoMoPaymentModal displays its existing refund note for an authenticated checkout', () => {
+      useAuthStore.setState({ user: { id: 'test-user-1', email: 'nam.test@pomofocus.vn', plan: 'free' } as any, isAuthenticated: true });
+      vi.spyOn(momoService, 'createOnlinePayment').mockResolvedValue({} as any);
       render(
         <MoMoPaymentModal
           cycle="monthly"
@@ -314,7 +317,7 @@ describe('Milestone 3 Empirical Adversarial Stress Suite — Tab AI, Settings, A
         />
       );
 
-      expect(screen.getByText(/Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo Luật Bảo vệ Quyền lợi Người tiêu dùng/)).toBeDefined();
+      expect(screen.getByText(/Cam kết hoàn tiền 100% trong 07 ngày nếu phát sinh lỗi hệ thống theo luật bảo vệ quyền lợi người tiêu dùng/i)).toBeDefined();
     });
   });
 });

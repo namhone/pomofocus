@@ -1,246 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { FileText, Plus, Trash2, Check, Clock, AlertCircle } from 'lucide-react';
+import { FileText, Plus, Trash2, Check, Clock, AlertCircle, Pencil, Eye, Circle } from 'lucide-react';
 import { useNoteStore } from '../stores/useNoteStore';
 import { renderSafeMarkdown } from '../utils/markdown';
 import { sanitizeHtml } from '../utils/sanitize';
 
 export const NotesWidget: React.FC = () => {
-  const {
-    notes,
-    activeNoteId,
-    saveStatus,
-    loadNotes,
-    createNote,
-    updateNoteContent,
-    saveNow,
-    deleteNote,
-    setActiveNoteId
-  } = useNoteStore();
-
+  const { notes, activeNoteId, saveStatus, loadNotes, createNote, updateNoteContent, saveNow, deleteNote, setActiveNoteId } = useNoteStore();
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
-  const [stickyColor, setStickyColor] = useState<'default' | 'butter' | 'mint' | 'sky' | 'lavender' | 'rose'>('default');
-
-  useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
-
-  const activeNote = notes.find((n) => n.id === activeNoteId);
-
-  const wordCount = activeNote?.contentMarkdown
-    ? activeNote.contentMarkdown.trim().split(/\s+/).filter(Boolean).length
-    : 0;
-
-  const stickyStyles = {
-    default: 'bg-black/35 backdrop-blur-sm border-white/12 text-neutral-200',
-    butter: 'bg-amber-950/30 backdrop-blur-sm border-amber-500/30 text-amber-100',
-    mint: 'bg-emerald-950/30 backdrop-blur-sm border-emerald-500/30 text-emerald-100',
-    sky: 'bg-sky-950/30 backdrop-blur-sm border-sky-500/30 text-sky-100',
-    lavender: 'bg-purple-950/30 backdrop-blur-sm border-purple-500/30 text-purple-100',
-    rose: 'bg-rose-950/30 backdrop-blur-sm border-rose-500/30 text-rose-100'
-  }[stickyColor];
-
-  const getStatusBadge = () => {
-    switch (saveStatus) {
-      case 'saved':
-        return (
-          <span
-            data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
-          >
-            <Check size={10} />
-            <span>Đã lưu</span>
-          </span>
-        );
-      case 'saving':
-        return (
-          <span
-            data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/25 animate-pulse inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
-          >
-            <Clock size={10} />
-            <span>Đang lưu...</span>
-          </span>
-        );
-      case 'error':
-        return (
-          <span
-            data-testid="note-save-status"
-            className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
-          >
-            <AlertCircle size={10} />
-            <span>Lỗi lưu</span>
-          </span>
-        );
-    }
-  };
+  const [tone, setTone] = useState(0);
+  useEffect(() => { loadNotes(); }, [loadNotes]);
+  const activeNote = notes.find(note => note.id === activeNoteId);
+  const wordCount = activeNote?.contentMarkdown.trim().split(/\s+/).filter(Boolean).length || 0;
+  const tones = ['bg-zinc-950 text-zinc-100', 'bg-zinc-900 text-zinc-100', 'bg-zinc-800 text-white'];
+  const statusLabel = saveStatus === 'saved' ? 'Đã lưu' : saveStatus === 'saving' ? 'Đang lưu' : 'Lỗi lưu';
+  const StatusIcon = saveStatus === 'saved' ? Check : saveStatus === 'saving' ? Clock : AlertCircle;
+  const control = 'shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white disabled:opacity-40';
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-3 select-none">
-      {/* Header bar: Switcher + Status + Nút Thêm */}
-      <div className="flex items-center justify-between pb-2 border-b border-white/[0.08] gap-2">
-        <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <FileText size={15} strokeWidth={1.75} className="text-neutral-400 shrink-0" />
-          {notes.length > 1 ? (
-            <select
-              value={activeNoteId || ''}
-              onChange={(e) => setActiveNoteId(e.target.value)}
-              className="bg-black/40 text-neutral-200 text-xs rounded-lg px-2 py-0.5 border border-white/10 focus:outline-none max-w-[150px] truncate cursor-pointer"
-            >
-              {notes.map((n, i) => (
-                <option key={n.id} value={n.id} className="bg-neutral-900 text-white">
-                  #{i + 1}: {n.title || 'Không tiêu đề'}
-                </option>
-              ))}
-            </select>
-          ) : (
-            null
-          )}
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          {getStatusBadge()}
-          <button
-            type="button"
-            data-testid="btn-new-note"
-            onClick={() => createNote('Ghi chú mới')}
-            className="text-[11px] px-3 py-1 rounded-full bg-white/12 hover:bg-white/20 text-white font-medium border border-white/10 transition cursor-pointer inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap"
-          >
-            <Plus size={12} strokeWidth={1.75} />
-            <span>Thêm</span>
-          </button>
-        </div>
+    <div className="flex h-full w-full min-w-0 flex-col p-2 text-zinc-100">
+      {/* One toolbar owns note selection, editing modes and note actions. */}
+      <div data-testid="note-toolbar" className="flex min-w-0 shrink-0 items-center gap-1 border-b border-white/[0.06] pb-2">
+        <FileText size={14} strokeWidth={1.5} className="shrink-0 text-zinc-300" aria-hidden="true" />
+        <select aria-label="Chọn ghi chú" value={activeNoteId || ''} onChange={event => setActiveNoteId(event.target.value)} className="min-w-0 flex-1 truncate rounded-lg border border-white/[0.06] bg-zinc-900 px-1 py-1.5 text-xs text-zinc-100">
+          {!activeNoteId && <option value="">Ghi chú</option>}
+          {notes.map(note => <option key={note.id} value={note.id}>{note.title || 'Không tiêu đề'}</option>)}
+        </select>
+        <button type="button" data-testid="tab-note-edit" aria-label="Soạn thảo" title="Soạn thảo" aria-pressed={activeTab === 'edit'} onClick={() => setActiveTab('edit')} className={`${control} ${activeTab === 'edit' ? 'bg-white/10 text-white' : ''}`}><Pencil size={14} strokeWidth={1.5} /></button>
+        <button type="button" data-testid="tab-note-preview" aria-label="Xem trước" title="Xem trước" aria-pressed={activeTab === 'preview'} onClick={() => setActiveTab('preview')} className={`${control} ${activeTab === 'preview' ? 'bg-white/10 text-white' : ''}`}><Eye size={14} strokeWidth={1.5} /></button>
+        <button type="button" aria-label="Đổi sắc độ ghi chú" title="Đổi sắc độ ghi chú" onClick={() => setTone(current => (current + 1) % tones.length)} className={control}><Circle size={14} strokeWidth={1.5} className={tone === 0 ? '' : 'fill-zinc-500'} /></button>
+        <button type="button" data-testid="btn-delete-note" aria-label="Xóa ghi chú" title="Xóa ghi chú" disabled={!activeNote} onClick={() => activeNote && deleteNote(activeNote.id)} className={control}><Trash2 size={14} strokeWidth={1.5} /></button>
+        <button type="button" data-testid="btn-new-note" aria-label="Thêm ghi chú" title="Thêm ghi chú" onClick={() => createNote('Ghi chú mới')} className={`${control} !w-auto gap-1 bg-white/10 px-2 text-xs text-white`}><Plus size={14} strokeWidth={1.5} /><span>Thêm</span></button>
       </div>
-
       {activeNote ? (
-        <div className="mt-2 flex-1 flex flex-col min-h-0 space-y-1.5">
-          {/* Note Title & Action Bar - DUY NHẤT 1 TIÊU ĐỀ, KHÔNG LẶP LẠI */}
-          <div className="flex items-center justify-between gap-2">
-            <input
-              data-testid="input-note-title"
-              type="text"
-              value={activeNote.title}
-              onChange={(e) =>
-                updateNoteContent(activeNote.id, activeNote.contentMarkdown, e.target.value)
-              }
-              onBlur={() => saveNow(activeNote.id)}
-              placeholder="Tiêu đề ghi chú..."
-              className="text-xs font-semibold bg-white/[0.04] border border-white/10 hover:border-white/20 focus:border-white/40 text-white focus:outline-none rounded-lg flex-1 min-w-0 px-2.5 py-1.5 transition-colors"
-            />
-
-            {/* Toggle Edit / Preview */}
-            <div className="flex items-center rounded-full bg-black/30 p-1 border border-white/10 text-[11px] gap-1 shrink-0">
-              <button
-                type="button"
-                data-testid="tab-note-edit"
-                onClick={() => setActiveTab('edit')}
-                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap ${
-                  activeTab === 'edit'
-                    ? 'bg-white/15 text-white shadow-sm'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                Soạn thảo
-              </button>
-              <button
-                type="button"
-                data-testid="tab-note-preview"
-                onClick={() => setActiveTab('preview')}
-                className={`px-3 py-1 rounded-full font-medium transition cursor-pointer min-h-[28px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 shrink-0 whitespace-nowrap ${
-                  activeTab === 'preview'
-                    ? 'bg-white/15 text-white shadow-sm'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                Xem trước
-              </button>
-            </div>
-
-            <button
-              type="button"
-              data-testid="btn-delete-note"
-              onClick={() => deleteNote(activeNote.id)}
-              title="Xóa ghi chú"
-              className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition text-xs cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 shrink-0"
-            >
-              <Trash2 size={13} strokeWidth={1.75} />
-            </button>
-          </div>
-
-          {/* Editor Mode */}
+        <div className="flex min-h-0 flex-1 flex-col gap-1.5 pt-1.5">
+          <input data-testid="input-note-title" aria-label="Tiêu đề ghi chú" value={activeNote.title} onChange={event => updateNoteContent(activeNote.id, activeNote.contentMarkdown, event.target.value)} onBlur={() => saveNow(activeNote.id)} placeholder="Tiêu đề ghi chú" className="w-full min-w-0 rounded-lg border border-white/[0.06] bg-transparent px-2 py-1.5 text-sm font-medium text-white placeholder-zinc-400" />
           {activeTab === 'edit' ? (
-            <div className="relative flex-1 flex flex-col min-h-0">
-              {/* Pastel Theme Color Bar */}
-              <div className="flex items-center justify-between pb-1 mb-1.5 border-b border-white/[0.04]">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-neutral-400">Màu Sticky:</span>
-                  {[
-                    { id: 'default', color: 'bg-neutral-600' },
-                    { id: 'butter', color: 'bg-amber-300' },
-                    { id: 'mint', color: 'bg-emerald-300' },
-                    { id: 'sky', color: 'bg-sky-300' },
-                    { id: 'lavender', color: 'bg-purple-300' },
-                    { id: 'rose', color: 'bg-rose-300' }
-                  ].map(({ id, color }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => setStickyColor(id as any)}
-                      className={`w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-lg hover:bg-white/5 cursor-pointer transition-colors ${
-                        stickyColor === id ? 'bg-white/10' : ''
-                      }`}
-                      title={`Màu ${id}`}
-                      aria-label={`Màu ${id}`}
-                    >
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full ${color} ${
-                          stickyColor === id ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-                <span className="font-mono text-[10px] text-neutral-400">{wordCount} từ</span>
-              </div>
-
-              <textarea
-                data-testid="textarea-note-content"
-                value={activeNote.contentMarkdown}
-                onChange={(e) =>
-                  updateNoteContent(activeNote.id, e.target.value, activeNote.title)
-                }
-                onBlur={() => saveNow(activeNote.id)}
-                placeholder="Nhập nội dung Markdown tại đây (hỗ trợ # header, **in đậm**, - checklist, [link](url))..."
-                className={`flex-1 w-full h-full min-h-[140px] bg-transparent text-sm text-zinc-100 placeholder-zinc-500 font-sans resize-none focus:outline-none leading-relaxed overflow-y-auto p-1 ${stickyStyles}`}
-              />
-              <button
-                type="button"
-                data-testid="btn-save-note"
-                onClick={() => saveNow(activeNote.id)}
-                className="sr-only"
-                aria-hidden="true"
-              >
-                Lưu ngay
-              </button>
-            </div>
+            <textarea data-testid="textarea-note-content" aria-label="Nội dung ghi chú" value={activeNote.contentMarkdown} onChange={event => updateNoteContent(activeNote.id, event.target.value, activeNote.title)} onBlur={() => saveNow(activeNote.id)} placeholder="Viết ghi chú của bạn..." className={`min-h-0 w-full flex-1 resize-none rounded-xl border border-white/[0.06] p-3 text-sm leading-relaxed placeholder-zinc-400 ${tones[tone]}`} />
           ) : (
-            /* Safe Preview Mode */
-            <div
-              data-testid="markdown-preview-container"
-              className={`flex-1 w-full h-full min-h-[140px] overflow-y-auto p-3.5 rounded-xl border text-xs transition-colors ${stickyStyles}`}
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(
-                  renderSafeMarkdown(activeNote.contentMarkdown) ||
-                  '<p class="text-xs text-neutral-500 italic">Nội dung ghi chú trống...</p>'
-                )
-              }}
-            />
+            <div data-testid="markdown-preview-container" aria-label="Bản xem trước ghi chú" className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-white/[0.06] p-3 text-sm ${tones[tone]}`} dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderSafeMarkdown(activeNote.contentMarkdown) || '<p>Nội dung ghi chú trống...</p>') }} />
           )}
+          <button type="button" data-testid="btn-save-note" onClick={() => saveNow(activeNote.id)} className="sr-only focus:not-sr-only">Lưu ngay</button>
+          <div className="flex shrink-0 items-center justify-between text-[11px] text-zinc-300">
+            <span data-testid="note-save-status" role="status" className="inline-flex items-center gap-1"><StatusIcon size={12} strokeWidth={1.5} />{statusLabel}</span>
+            <span>{wordCount} từ</span>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-10 text-xs text-neutral-500">
-          Chưa chọn ghi chú nào. Hãy tạo một ghi chú mới!
-        </div>
-      )}
+      ) : <p className="py-8 text-center text-xs text-zinc-300">Chưa có ghi chú. Chọn thêm để bắt đầu.</p>}
     </div>
   );
 };

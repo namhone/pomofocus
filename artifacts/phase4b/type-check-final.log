@@ -1,0 +1,4 @@
+
+> immersive-pomodoro-workspace@1.0.0 type-check
+> tsc --noEmit
+

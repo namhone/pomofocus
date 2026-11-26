@@ -4,6 +4,9 @@ import { WidgetId } from '../types/layout';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { useTimerStore } from '../stores/useTimerStore';
 import { CollapsedWidgetCard } from './CollapsedWidgetCard';
+import { useBackgroundStore } from '../stores/useBackgroundStore';
+import { useAiStore } from '../stores/useAiStore';
+import { notesBesideDrawer, widgetScrimOpacity } from '../utils/widgetPresentation';
 
 const CANONICAL_WIDGET_TITLES: Partial<Record<WidgetId, string>> = {
   settings: 'Cài đặt hệ thống',
@@ -22,7 +25,11 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   children,
   className = ''
 }) => {
-  const widget = useLayoutStore((state) => state.widgets[id]);
+  let widget = useLayoutStore((state) => state.widgets[id]);
+  const widgets = useLayoutStore((state) => state.widgets);
+  const aiOpen = useAiStore(state => state.isOpen);
+  const brightness = useBackgroundStore(state => state.brightnessLevel);
+  const hasImage = useBackgroundStore(state => state.activePresetId === 'custom' || state.presets.find(preset => preset.id === state.activePresetId)?.category !== 'solid');
   const displayTitle = CANONICAL_WIDGET_TITLES[id] || widget?.title || '';
   const isMobile = useLayoutStore((state) => state.isMobile);
   const isEcoMode = useLayoutStore((state) => state.isEcoMode);
@@ -61,6 +68,13 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   }, []);
 
   const isCompact = windowWidth < 1024;
+  const scrim = widgetScrimOpacity(hasImage, brightness, glassSettings.opacity);
+  if ((id === 'tasks' || id === 'timer') && aiOpen && !isCompact && widget) {
+    widget = { ...widget, height: Math.min(widget.height, 320) };
+  }
+  if (id === 'notes' && aiOpen && !isCompact && widget) {
+    widget = notesBesideDrawer(widget, widgets, windowWidth, window.innerHeight);
+  }
 
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -338,7 +352,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         data-testid={`widget-container-${id}`}
         aria-label={widget.title}
         style={{
-          backgroundColor: isEcoMode ? 'rgba(12, 12, 14, 0.96)' : `rgba(12, 15, 22, ${Math.min(0.60, glassSettings.opacity / 100)})`,
+          backgroundColor: isEcoMode ? 'rgba(12, 12, 14, 0.96)' : `rgba(9, 9, 11, ${scrim})`,
           backdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
           WebkitBackdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
           ...(glassSettings.preset === 'high_contrast'
@@ -367,7 +381,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 title="Toàn màn hình"
                 aria-label="Toàn màn hình"
               >
-                <Maximize size={13} strokeWidth={1.75} />
+                <Maximize size={13} strokeWidth={1.5} />
               </button>
             )}
             <button
@@ -411,7 +425,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       <section
         ref={containerRef}
         data-testid="widget-container-timer"
-        aria-label="Đồng hồ Pomodoro Mini"
+        aria-label="Đồng hồ pomodoro mini"
         onMouseDown={() => bringToFront('timer')}
         onPointerDown={handlePointerDownHeader}
         onPointerMove={handlePointerMoveHeader}
@@ -424,7 +438,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           width: '190px',
           height: '52px',
           zIndex: widget.zIndex,
-          backgroundColor: `rgba(12, 15, 22, ${Math.min(0.9, (glassSettings.opacity + 10) / 100)})`,
+          backgroundColor: `rgba(9, 9, 11, ${scrim})`,
           backdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
           WebkitBackdropFilter: `blur(${glassSettings.blur}px) saturate(180%)`,
           ...(glassSettings.preset === 'high_contrast'
@@ -440,7 +454,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           isDragging ? 'ring-2 ring-white/30 shadow-2xl' : ''
         } ${className}`}
       >
-        <h2 className="sr-only">Đồng hồ Pomodoro</h2>
+        <h2 className="sr-only">Đồng hồ pomodoro</h2>
 
         {/* Status indicator & Countdown */}
         <div className="flex items-center gap-2.5">
@@ -448,9 +462,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             data-testid="mini-timer-status-dot"
             className={`w-2 h-2 rounded-full transition-all ${
               timerStatus === 'running'
-                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse'
+                ? 'bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse'
                 : timerStatus === 'paused'
-                ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                ? 'bg-zinc-700 shadow-[0_0_8px_rgba(251,191,36,0.5)]'
                 : 'bg-zinc-500'
             }`}
             title={timerStatus === 'running' ? 'Đang chạy' : timerStatus === 'paused' ? 'Tạm dừng' : 'Chờ'}
@@ -498,10 +512,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               toggleMiniPill('timer');
             }}
             className="w-7 h-7 rounded-full bg-white/6 hover:bg-white/16 active:scale-95 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
-            title="Mở rộng cửa sổ Pomodoro"
-            aria-label="Mở rộng cửa sổ Pomodoro"
+            title="Mở rộng cửa sổ pomodoro"
+            aria-label="Mở rộng cửa sổ pomodoro"
           >
-            <Maximize2 size={12} strokeWidth={2} />
+            <Maximize2 size={12} strokeWidth={1.5} />
           </button>
         </div>
       </section>
@@ -540,7 +554,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         }}
         className={`pointer-events-auto cursor-pointer select-none bg-zinc-950/85 backdrop-blur-2xl border border-white/10 rounded-2xl p-2.5 shadow-2xl hover:border-white/25 transition-all duration-200 flex items-center justify-between gap-3 group ${
           !widget.isLocked ? 'cursor-grab active:cursor-grabbing touch-none' : ''
-        } ${isDragging ? 'ring-2 ring-emerald-400/40 shadow-emerald-950/40' : ''} ${className}`}
+        } ${isDragging ? 'ring-2 ring-zinc-400/40 shadow-zinc-950/40' : ''} ${className}`}
         title={`Bấm 1-chạm hoặc bấm ↗ để mở rộng ${widget.title}`}
       >
         <CollapsedWidgetCard id={id} isMobile={false} />
@@ -551,7 +565,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   let currentHeight = isMedia && isCollapsed ? mediaPipHeight : isCollapsed ? collapsedHeight : widget.height;
   if (id === 'timer' && !widget.isMiniPill && !isCollapsed) {
     currentWidth = Math.min(460, Math.max(300, currentWidth));
-    currentHeight = Math.min(520, Math.max(360, currentHeight));
+    currentHeight = Math.min(520, Math.max(aiOpen ? 300 : 360, currentHeight));
   }
 
   return (
@@ -571,8 +585,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         backgroundColor: isEcoMode
           ? 'rgba(12, 12, 14, 0.96)'
           : id === 'timer'
-          ? `rgba(10, 12, 18, ${Math.min(0.55, glassSettings.opacity / 100)})`
-          : `rgba(12, 15, 22, ${Math.min(0.50, Math.max(0.18, (glassSettings.opacity - 4) / 100))})`,
+          ? `rgba(9, 9, 11, ${scrim})`
+          : `rgba(9, 9, 11, ${scrim})`,
         backdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
         WebkitBackdropFilter: isEcoMode ? 'none' : `blur(${glassSettings.blur}px) saturate(180%)`,
         ...(glassSettings.preset === 'high_contrast'
@@ -591,7 +605,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
           ? 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.22)]'
           : 'border-t-white/25 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.18)]'
       } border-b border-b-white/5 border-x border-x-white/10 flex flex-col ${id === 'timer' ? 'overflow-visible h-auto min-h-fit' : 'overflow-hidden'} transition-[box-shadow,border-color] duration-150 ${
-        isDragging || isResizing ? 'ring-2 ring-emerald-300/45 shadow-2xl' : ''
+        isDragging || isResizing ? 'ring-2 ring-zinc-300/45 shadow-2xl' : ''
       } ${
         isLayoutEditMode ? 'outline outline-1 outline-dashed outline-white/25' : ''
       } ${className}`}
@@ -611,7 +625,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         title={widget.isLocked ? 'Widget đang khóa' : 'Kéo để di chuyển widget'}
       >
         <div className="flex min-w-0 items-center gap-2">
-          <GripHorizontal size={13} strokeWidth={1.75} className={`shrink-0 ${widget.isLocked ? 'text-neutral-600' : isLayoutEditMode ? 'text-emerald-300' : 'text-neutral-400'}`} />
+          <GripHorizontal size={13} strokeWidth={1.5} className={`shrink-0 ${widget.isLocked ? 'text-zinc-400' : isLayoutEditMode ? 'text-zinc-300' : 'text-neutral-400'}`} />
           <h2 className={`${density === 'compact' ? 'text-xs' : 'text-[13px]'} font-medium text-neutral-200 tracking-tight`}>
             {displayTitle}
           </h2>
@@ -624,7 +638,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               data-testid={`lock-widget-${id}`}
               onClick={() => setWidgetLocked(id, !widget.isLocked)}
               className={`flex min-h-8 min-w-8 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 ${
-                widget.isLocked ? 'text-amber-300 hover:bg-amber-500/10' : 'text-neutral-400 hover:bg-white/10 hover:text-white'
+                widget.isLocked ? 'text-zinc-300 hover:bg-zinc-700/10' : 'text-neutral-400 hover:bg-white/10 hover:text-white'
               }`}
               title={widget.isLocked ? 'Mở khóa widget' : 'Khóa vị trí và kích thước'}
               aria-label={widget.isLocked ? `Mở khóa ${widget.title}` : `Khóa ${widget.title}`}
@@ -644,10 +658,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
                 toggleMiniPill('timer');
               }}
               className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-[0.97] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
-              title="Thu nhỏ thành Mini Pill"
-              aria-label="Thu nhỏ thành Mini Pill"
+              title="Thu nhỏ thành mini pill"
+              aria-label="Thu nhỏ thành mini pill"
             >
-              <Minimize2 size={13} strokeWidth={1.75} />
+              <Minimize2 size={13} strokeWidth={1.5} />
             </button>
           )}
 
@@ -658,10 +672,10 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               data-testid="btn-media-fullscreen"
               onClick={handleToggleFullscreen}
               className="hit-slop-48 flex min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-8 items-center justify-center rounded-lg p-1 text-neutral-400 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/10 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 cursor-pointer"
-              title="Phóng to toàn màn hình (Fullscreen)"
+              title="Phóng to toàn màn hình (fullscreen)"
               aria-label="Toàn màn hình"
             >
-              <Maximize size={13} strokeWidth={1.75} />
+              <Maximize size={13} strokeWidth={1.5} />
             </button>
           )}
 
@@ -672,7 +686,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               e.stopPropagation();
               toggleCollapseWidget(id);
             }}
-            className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="w-6 h-6 sm:w-6 sm:h-6 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             title={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
             aria-label={isCollapsed ? 'Mở rộng cửa sổ' : 'Thu nhỏ cửa sổ'}
           >
@@ -682,7 +696,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
             type="button"
             data-testid={`close-widget-${id}`}
             onClick={() => closeWidget(id)}
-            className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="w-6 h-6 sm:w-6 sm:h-6 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             title={`Đóng ${displayTitle}`}
             aria-label={`Đóng ${displayTitle}`}
           >
@@ -705,7 +719,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         className={`relative min-h-0 flex-1 overflow-x-hidden overscroll-contain ${
           isCollapsed && !isMedia ? 'hidden' : 'flex flex-col'
         } ${
-          isMedia ? 'p-0 overflow-hidden' : density === 'compact' ? 'p-3' : 'p-3.5 sm:p-4'
+          isMedia ? 'p-0 overflow-hidden' : id === 'notes' || id === 'spaces' ? 'p-0' : density === 'compact' ? 'p-3' : 'p-3.5 sm:p-4'
         } ${
           id === 'timer'
             ? 'overflow-visible items-center justify-start w-full h-auto min-h-fit'
@@ -720,14 +734,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       {!isCollapsed && widget.resizable && !widget.isLocked && (
         <>
           {[
-            { direction: 'n', classes: 'left-3 right-3 top-0 h-2 -translate-y-1/2 cursor-n-resize' },
-            { direction: 's', classes: 'bottom-0 left-3 right-3 h-2 translate-y-1/2 cursor-s-resize' },
-            { direction: 'e', classes: 'right-0 top-3 bottom-3 w-2 translate-x-1/2 cursor-e-resize' },
-            { direction: 'w', classes: 'left-0 top-3 bottom-3 w-2 -translate-x-1/2 cursor-w-resize' },
-            { direction: 'ne', classes: 'right-0 top-0 h-4 w-4 translate-x-1/2 -translate-y-1/2 cursor-ne-resize' },
-            { direction: 'nw', classes: 'left-0 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-nw-resize' },
-            { direction: 'se', classes: 'bottom-0 right-0 h-5 w-5 translate-x-1/4 translate-y-1/4 cursor-se-resize' },
-            { direction: 'sw', classes: 'bottom-0 left-0 h-4 w-4 -translate-x-1/2 translate-y-1/2 cursor-sw-resize' }
+            { direction: 'n', classes: 'left-5 right-5 top-0 h-2 cursor-n-resize' },
+            { direction: 's', classes: 'bottom-0 left-5 right-5 h-2 cursor-s-resize' },
+            { direction: 'e', classes: 'right-0 top-5 bottom-5 w-2 cursor-e-resize' },
+            { direction: 'w', classes: 'left-0 top-5 bottom-5 w-2 cursor-w-resize' },
+            { direction: 'ne', classes: 'right-0 top-0 h-5 w-5 cursor-ne-resize' },
+            { direction: 'nw', classes: 'left-0 top-0 h-5 w-5 cursor-nw-resize' },
+            { direction: 'se', classes: 'bottom-0 right-0 h-5 w-5 cursor-se-resize' },
+            { direction: 'sw', classes: 'bottom-0 left-0 h-5 w-5 cursor-sw-resize' }
           ].map(({ direction, classes }) => (
             <button
               key={direction}
@@ -737,7 +751,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
               onPointerMove={handlePointerMoveResize}
               onPointerUp={handlePointerUpResize}
               onPointerCancel={handlePointerUpResize}
-              className={`absolute z-10 touch-none select-none rounded-sm bg-transparent transition-colors hover:bg-emerald-300/30 focus-visible:bg-emerald-300/30 ${
+              className={`absolute z-10 touch-none select-none rounded-sm bg-transparent transition-colors hover:bg-zinc-300/30 focus-visible:bg-zinc-300/30 ${
                 direction.length === 1 ? 'opacity-70 hover:opacity-100' : ''
               } ${classes}`}
               title={`Thay đổi kích thước từ cạnh ${direction.toUpperCase()}`}

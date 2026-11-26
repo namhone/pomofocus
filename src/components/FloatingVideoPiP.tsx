@@ -224,7 +224,7 @@ export const FloatingVideoPiP: React.FC = () => {
       >
         <div className="flex items-center gap-1.5 text-zinc-300 pointer-events-none">
           <GripHorizontal size={13} className="text-zinc-400 shrink-0" />
-          <span className="text-[10px] font-bold text-zinc-300 tracking-wider uppercase font-mono">PiP Video</span>
+          <span className="text-[10px] font-bold text-zinc-300 tracking-wider normal-case font-mono">PiP Video</span>
         </div>
 
         <div className="flex items-center gap-1">

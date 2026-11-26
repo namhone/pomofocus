@@ -197,21 +197,21 @@ export const CommandPalette: React.FC = () => {
       id: 'timer_reset',
       title: 'Đặt lại hiệp này',
       category: 'Đồng hồ',
-      icon: <RotateCcw size={15} className="text-amber-400" />,
+      icon: <RotateCcw size={15} className="text-zinc-300" />,
       action: () => reset()
     },
     {
       id: 'timer_skip',
       title: 'Bỏ qua hiệp này',
       category: 'Đồng hồ',
-      icon: <Clock size={15} className="text-indigo-400" />,
+      icon: <Clock size={15} className="text-zinc-300" />,
       action: () => skip()
     },
     {
       id: 'timer_mini_pill',
-      title: 'Chuyển đổi Mini Timer Pill (Thu nhỏ / Mở rộng)',
+      title: 'Chuyển đổi mini timer pill (thu nhỏ / mở rộng)',
       category: 'Đồng hồ',
-      icon: <Minimize2 size={15} className="text-emerald-400" />,
+      icon: <Minimize2 size={15} className="text-zinc-300" />,
       action: () => toggleMiniPill('timer')
     },
 
@@ -227,65 +227,65 @@ export const CommandPalette: React.FC = () => {
       id: 'toggle_tasks',
       title: `${widgets.tasks?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Công Việc`,
       category: 'Cửa sổ',
-      icon: <CheckSquare size={15} className="text-emerald-400" />,
+      icon: <CheckSquare size={15} className="text-zinc-300" />,
       action: () => toggleWidget('tasks')
     },
     {
       id: 'toggle_notes',
       title: `${widgets.notes?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Ghi Chú`,
       category: 'Cửa sổ',
-      icon: <FileText size={15} className="text-amber-400" />,
+      icon: <FileText size={15} className="text-zinc-300" />,
       action: () => toggleWidget('notes')
     },
     {
       id: 'toggle_calendar',
       title: `${widgets.calendar?.isOpen ? 'Ẩn' : 'Hiện'} cửa sổ Lịch Biểu Time-blocking`,
       category: 'Cửa sổ',
-      icon: <Calendar size={15} className="text-indigo-400" />,
+      icon: <Calendar size={15} className="text-zinc-300" />,
       action: () => toggleWidget('calendar')
     },
     {
       id: 'toggle_spaces',
       title: `${widgets.spaces?.isOpen ? 'Ẩn' : 'Hiện'} Thư Viện Không Gian`,
       category: 'Cửa sổ',
-      icon: <Palette size={15} className="text-cyan-400" />,
+      icon: <Palette size={15} className="text-zinc-300" />,
       action: () => toggleWidget('spaces')
     },
     {
       id: 'toggle_sounds',
       title: `${widgets.sounds?.isOpen ? 'Ẩn' : 'Hiện'} Âm Thanh Nền & Tiếng Mưa`,
       category: 'Cửa sổ',
-      icon: <Volume2 size={15} className="text-purple-400" />,
+      icon: <Volume2 size={15} className="text-zinc-300" />,
       action: () => toggleWidget('sounds')
     },
 
     // Presets & Modes
     {
       id: 'zen_mode',
-      title: 'Bật / Thoát Chế Độ Tập Trung Toàn Màn Hình',
+      title: 'Bật / thoát chế độ tập trung toàn màn hình',
       category: 'Chế độ',
-      icon: <Maximize2 size={15} className="text-emerald-400" />,
+      icon: <Maximize2 size={15} className="text-zinc-300" />,
       action: () => toggleZenMode()
     },
     {
       id: 'preset_deep_focus',
-      title: 'Bố cục: Tập trung sâu (Chỉ hiển thị Timer trung tâm)',
+      title: 'Bố cục: tập trung sâu (chỉ hiển thị timer trung tâm)',
       category: 'Bố cục',
       icon: <Layout size={15} className="text-rose-400" />,
       action: () => setLayoutPreset('deep_focus')
     },
     {
       id: 'preset_planning',
-      title: 'Bố cục: Planning (3 cột Công việc & Lịch)',
+      title: 'Bố cục: planning (3 cột công việc & lịch)',
       category: 'Bố cục',
-      icon: <Layout size={15} className="text-indigo-400" />,
+      icon: <Layout size={15} className="text-zinc-300" />,
       action: () => setLayoutPreset('planning')
     },
     {
       id: 'preset_default',
-      title: 'Bố cục mặc định & Đặt lại vị trí các cửa sổ',
+      title: 'Bố cục mặc định & đặt lại vị trí các cửa sổ',
       category: 'Bố cục',
-      icon: <RotateCcw size={15} className="text-amber-400" />,
+      icon: <RotateCcw size={15} className="text-zinc-300" />,
       action: () => resetLayout()
     },
 
@@ -294,16 +294,16 @@ export const CommandPalette: React.FC = () => {
       id: `theme_${color}`,
       title: `Đổi màu chủ đạo: ${color.toUpperCase()}`,
       category: 'Giao diện',
-      icon: <Sparkles size={15} className="text-amber-400" />,
+      icon: <Sparkles size={15} className="text-zinc-300" />,
       action: () => setThemeAccent(color)
     })),
 
     // Data Backup / Restore
     {
       id: 'backup_export',
-      title: 'Sao lưu không gian làm việc (Tải file JSON)',
+      title: 'Sao lưu không gian làm việc (tải file JSON)',
       category: 'Dữ Liệu',
-      icon: <Download size={15} className="text-sky-400" />,
+      icon: <Download size={15} className="text-zinc-300" />,
       action: () => handleExportWorkspace()
     }
   ];
@@ -363,8 +363,8 @@ export const CommandPalette: React.FC = () => {
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder="Gõ lệnh hoặc tìm kiếm (Timer, Zen, Bố cục, Ghi chú, Nền...)"
-            className="flex-1 bg-transparent text-sm text-white placeholder-neutral-500 focus:outline-none"
+            placeholder="Gõ lệnh hoặc tìm kiếm (timer, zen, bố cục, ghi chú, nền...)"
+            className="flex-1 bg-transparent text-sm text-white placeholder-zinc-400 focus:outline-none"
           />
           <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-neutral-400 font-mono">
             ESC
@@ -381,7 +381,7 @@ export const CommandPalette: React.FC = () => {
         {/* Command List */}
         <div className="max-h-80 overflow-y-auto p-2 space-y-1">
           {filteredCommands.length === 0 ? (
-            <p className="p-4 text-center text-xs text-neutral-500">
+            <p className="p-4 text-center text-xs text-zinc-400">
               Không tìm thấy lệnh nào phù hợp với &quot;{query}&quot;
             </p>
           ) : (

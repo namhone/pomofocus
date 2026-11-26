@@ -1,3 +1,4 @@
+import { UiSymbol } from '../../common/UiSymbol';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   X,
@@ -243,7 +244,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
         data-testid="mobile-auth-bottom-sheet"
         role="dialog"
         aria-modal="true"
-        aria-label="Tài khoản và Xác thực"
+        aria-label="Tài khoản và xác thực"
         className="fixed bottom-0 left-0 right-0 z-[60] w-full max-h-[92vh] overflow-y-auto bg-zinc-950/95 backdrop-blur-2xl border-t border-white/10 rounded-t-3xl shadow-2xl p-5 sm:p-6 text-zinc-100 animate-slide-up-fast"
       >
         {/* Swipe / Drag Indicator */}
@@ -252,8 +253,8 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
         {/* Header Bar */}
         <div className="flex items-center justify-between pb-3 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <span className="text-emerald-400 font-bold text-sm tracking-tight flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span className="text-zinc-300 font-bold text-sm tracking-tight flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-zinc-300" />
               <span>{isAuthenticated ? 'Hồ sơ người dùng' : 'Tài khoản & Đồng bộ'}</span>
             </span>
           </div>
@@ -275,7 +276,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
             data-testid="mobile-auth-feedback"
             className={`mt-3 p-3 rounded-xl text-xs font-medium border flex items-center gap-2 ${
               feedback.type === 'success'
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                ? 'bg-zinc-700/15 border-zinc-500/30 text-zinc-300'
                 : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
             }`}
           >
@@ -319,17 +320,17 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 {badgeInfo.tier === 'founder' ? (
                   <span
                     data-testid="mobile-auth-vip-badge"
-                    className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1"
+                    className="px-3 py-1 rounded-full text-xs font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm flex items-center gap-1"
                   >
-                    <Crown className="w-3.5 h-3.5 text-amber-400" />
+                    <Crown className="w-3.5 h-3.5 text-zinc-300" />
                     <span>Founder VIP</span>
                   </span>
                 ) : badgeInfo.tier === 'pro' ? (
                   <span
                     data-testid="mobile-auth-vip-badge"
-                    className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm flex items-center gap-1"
+                    className="px-3 py-1 rounded-full text-xs font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30 shadow-sm flex items-center gap-1"
                   >
-                    <Star className="w-3.5 h-3.5 text-emerald-400" />
+                    <Star className="w-3.5 h-3.5 text-zinc-300" />
                     <span>{badgeInfo.label}</span>
                   </span>
                 ) : (
@@ -357,7 +358,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 <div className="text-xl font-bold text-white font-mono tracking-tight">
                   {studyHours}g {studyMins}ph
                 </div>
-                <div className="text-[10px] text-zinc-500">Giờ học tích lũy</div>
+                <div className="text-[10px] text-zinc-400">Giờ học tích lũy</div>
               </div>
 
               {/* Card 2: Streak Days */}
@@ -369,10 +370,10 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   <Flame className="w-3.5 h-3.5 text-zinc-300 stroke-[1.5]" />
                   <span>Chuỗi ngày</span>
                 </div>
-                <div className="text-xl font-bold text-amber-300 font-mono tracking-tight">
+                <div className="text-xl font-bold text-zinc-300 font-mono tracking-tight">
                   {stats.streakDays} ngày
                 </div>
-                <div className="text-[10px] text-zinc-500">Kỷ luật liên tục</div>
+                <div className="text-[10px] text-zinc-400">Kỷ luật liên tục</div>
               </div>
 
               {/* Card 3: Completed Pomodoros */}
@@ -388,7 +389,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   <span>{stats.completedPomos}</span>
                   <Timer className="w-4 h-4 stroke-[1.5] text-zinc-400" />
                 </div>
-                <div className="text-[10px] text-zinc-500">Phiên hoàn tất</div>
+                <div className="text-[10px] text-zinc-400">Phiên hoàn tất</div>
               </div>
 
               {/* Card 4: Energy Balance */}
@@ -402,10 +403,10 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                 </div>
                 <div className="text-xl font-bold text-zinc-100 font-mono tracking-tight flex items-center gap-1.5">
                   <Zap className="w-4 h-4 stroke-[1.5] text-zinc-300" aria-hidden="true" />
-                  <span className="sr-only">⚡ </span>
+                  <span className="sr-only"><UiSymbol name="⚡" /> </span>
                   <span>{aiCreditsBalance}</span>
                 </div>
-                <div className="text-[10px] text-zinc-500">Số dư credits</div>
+                <div className="text-[10px] text-zinc-400">Số dư credits</div>
               </div>
             </div>
 
@@ -486,7 +487,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
             {/* Divider */}
             <div className="flex items-center gap-3 my-2">
               <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[11px] text-zinc-500 font-medium">
+              <span className="text-[11px] text-zinc-400 font-medium">
                 hoặc dùng email
               </span>
               <div className="h-px flex-1 bg-white/10" />
@@ -504,7 +505,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
                   placeholder="Nhập email của bạn"
                   autoComplete="email"
                   onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-white/30 transition"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder-zinc-400 text-xs focus:outline-none focus:border-white/30 transition"
                 />
               </div>
 
@@ -529,7 +530,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
               </button>
             </form>
 
-            <p className="text-center text-[10px] text-zinc-500 pt-1">
+            <p className="text-center text-[10px] text-zinc-400 pt-1">
               Không cần nhớ mật khẩu. Chúng tôi sẽ gửi một đường dẫn đăng nhập 1 chạm an toàn tới email của bạn.
             </p>
           </div>

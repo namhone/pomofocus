@@ -201,7 +201,7 @@ describe('Milestone M1 Challenger Adversarial Attack Suite: Deep Links, 404 & Bu
         );
       });
       // In terms, LegalViews renders
-      expect(screen.getByText('Điều Khoản Dịch Vụ')).toBeDefined();
+      expect(screen.getByText('Điều khoản dịch vụ')).toBeDefined();
 
       unmount();
     });
@@ -446,7 +446,7 @@ describe('Milestone M1 Challenger Adversarial Attack Suite: Deep Links, 404 & Bu
       // Assert whitespace-nowrap to prevent text wrapping across multiple lines
       expect(acceptBtn.className).toContain('whitespace-nowrap');
       expect(acceptBtn.className).toContain('shrink-0');
-      expect(acceptBtn.textContent).toBe('Đồng ý & Tiếp tục');
+      expect(acceptBtn.textContent).toBe('Đồng ý & tiếp tục');
 
       expect(declineBtn.className).toContain('whitespace-nowrap');
       expect(declineBtn.className).toContain('shrink-0');

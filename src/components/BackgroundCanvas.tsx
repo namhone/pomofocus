@@ -24,7 +24,7 @@ export const BackgroundCanvas: React.FC = () => {
     activePresetId === 'custom' && customUrl
       ? {
           id: 'custom',
-          title: 'Nền Tùy Chỉnh',
+          title: 'Nền tùy chỉnh',
           category: (customType || 'image') as 'image' | 'video',
           url: customUrl,
           fallbackUrl: 'deep-space',

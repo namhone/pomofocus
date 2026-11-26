@@ -1,0 +1,705 @@
+{
+  "config": {
+    "configFile": "D:\\FileCuaNam\\Web'\\Pomodoro\\playwright.phase4b.config.ts",
+    "rootDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/phase4b/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1366",
+        "name": "desktop-1366",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "desktop-1440",
+        "name": "desktop-1440",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-390",
+        "name": "mobile-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "D:/FileCuaNam/Web'/Pomodoro/test-results/phase4b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "native-390",
+        "name": "native-390",
+        "testDir": "D:/FileCuaNam/Web'/Pomodoro/tests/e2e/phase4b",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5194 --strictPort",
+      "url": "http://127.0.0.1:5194",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "ui.spec.ts",
+      "file": "ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 13731,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:18:52.502Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-32d821b5aa63ce11173a",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile tab layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "skipped",
+                  "duration": 595,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:07.648Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-60c9ccd3155a98b8fb7d",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 6521,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:08.270Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-493266dfd7cde8d59f3d",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1366",
+              "projectName": "desktop-1366",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 10977,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:14.824Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-ca32d37fa1c3d1b6e5d6",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 8388,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:31.878Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-3eb63857791e77e3bcc7",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Mobile tab layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "skipped",
+                  "duration": 476,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:41.222Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-d9e4a733f5be6fc15885",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 5312,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:41.717Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-78bc6264c86b4c9c69d6",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-1440",
+              "projectName": "desktop-1440",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 12490,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:19:47.052Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-47e3e07534dac22c06cd",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop workspace has its own layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "skipped",
+                  "duration": 1288,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:09.328Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-9c4c1ea18acb76441e69",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 9748,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:11.545Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-9aabbe3f0e86f67d48ec",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "passed",
+                  "duration": 7027,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:21.336Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-2dcca8a647be2b2419a5",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop resizable gallery"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-390",
+              "projectName": "mobile-390",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "status": "skipped",
+                  "duration": 589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:28.418Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-4c6dbcafa457d0df2bdf",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        },
+        {
+          "title": "workspace: bright background, notes controls, header and AI coexist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop workspace has its own layout"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "skipped",
+                  "duration": 1293,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:42.481Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-b9223ee4d9622960a610",
+          "file": "ui.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "mobile: native safe area, navigation and empty chat",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "status": "failed",
+                  "duration": 11270,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:120:127",
+                    "matcherResult": {
+                      "actual": false,
+                      "expected": true,
+                      "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                      "name": "toBe",
+                      "pass": false
+                    },
+                    "location": {
+                      "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                      "column": 127,
+                      "line": 120
+                    },
+                    "snippet": "  118 |   await expect(page.getByRole('button', { name: 'Gửi tin nhắn', exact: true })).toBeEnabled();\n  119 |   expect((await input.boundingBox())!.y + (await input.boundingBox())!.height).toBeLessThanOrEqual(844 - 36);\n> 120 |   if (info.project.name.startsWith('native')) expect(await page.evaluate(() => (window as any).Capacitor.isNativePlatform())).toBe(true);\n      |                                                                                                                               ^\n  121 |   await noOverflow(page); await audit(page, info.project.name + '-ai');\n  122 |   await page.screenshot({ path: `artifacts/phase4b/${info.project.name}-ai.png` });\n  123 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                        "column": 127,
+                        "line": 120
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  118 |   await expect(page.getByRole('button', { name: 'Gửi tin nhắn', exact: true })).toBeEnabled();\n  119 |   expect((await input.boundingBox())!.y + (await input.boundingBox())!.height).toBeLessThanOrEqual(844 - 36);\n> 120 |   if (info.project.name.startsWith('native')) expect(await page.evaluate(() => (window as any).Capacitor.isNativePlatform())).toBe(true);\n      |                                                                                                                               ^\n  121 |   await noOverflow(page); await audit(page, info.project.name + '-ai');\n  122 |   await page.screenshot({ path: `artifacts/phase4b/${info.project.name}-ai.png` });\n  123 | });\n    at D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts:120:127"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:20:44.832Z",
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\FileCuaNam\\Web'\\Pomodoro\\test-results\\phase4b\\ui-mobile-native-safe-area-navigation-and-empty-chat-native-390\\test-failed-1.png"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\FileCuaNam\\Web'\\Pomodoro\\tests\\e2e\\phase4b\\ui.spec.ts",
+                    "column": 127,
+                    "line": 120
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-c6340495b61cdc76f9bf",
+          "file": "ui.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "Meet: header fits, controls work and media releases",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "status": "passed",
+                  "duration": 6572,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:21:06.783Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-041aacf0a41995f3a79b",
+          "file": "ui.spec.ts",
+          "line": 125,
+          "column": 1
+        },
+        {
+          "title": "gallery: Founder has no upsell, wide grid fills the widget and Lo-fi remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop resizable gallery"
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "native-390",
+              "projectName": "native-390",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "status": "skipped",
+                  "duration": 880,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-26T00:21:14.282Z",
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d425444c687fa36b5882-ecbe1d07fe21c9760625",
+          "file": "ui.spec.ts",
+          "line": 139,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-26T00:18:48.020Z",
+    "duration": 151931.83099999998,
+    "expected": 9,
+    "skipped": 6,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

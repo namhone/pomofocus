@@ -130,10 +130,10 @@ export const SettingsWidget: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-200">
             <Clock size={13} className="text-zinc-300 stroke-[1.5]" />
-            <span>Thời lượng Pomodoro & số hiệp</span>
+            <span>Thời lượng pomodoro & số hiệp</span>
           </div>
           {saveFeedback ? (
-            <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 animate-fade-in">
+            <span className="text-[10px] text-zinc-300 font-medium flex items-center gap-1 animate-fade-in">
               <CheckCircle2 size={11} />
               Đã lưu
             </span>
@@ -172,7 +172,7 @@ export const SettingsWidget: React.FC = () => {
                   onChange={(e) => handleTimerChange({ pomodoroMinutes: Number(e.target.value) || 1 })}
                   className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
-                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+                <span className="text-[10px] text-zinc-400 font-normal leading-none pointer-events-none">phút</span>
               </div>
               <button
                 type="button"
@@ -215,7 +215,7 @@ export const SettingsWidget: React.FC = () => {
                   onChange={(e) => handleTimerChange({ shortBreakMinutes: Number(e.target.value) || 1 })}
                   className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
-                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+                <span className="text-[10px] text-zinc-400 font-normal leading-none pointer-events-none">phút</span>
               </div>
               <button
                 type="button"
@@ -258,7 +258,7 @@ export const SettingsWidget: React.FC = () => {
                   onChange={(e) => handleTimerChange({ longBreakMinutes: Number(e.target.value) || 1 })}
                   className="no-focus-ring w-full text-center bg-transparent font-mono text-sm font-semibold text-white tracking-tight focus:outline-none disabled:opacity-50 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none cursor-pointer"
                 />
-                <span className="text-[10px] text-zinc-500 font-normal leading-none pointer-events-none">phút</span>
+                <span className="text-[10px] text-zinc-400 font-normal leading-none pointer-events-none">phút</span>
               </div>
               <button
                 type="button"
@@ -295,7 +295,7 @@ export const SettingsWidget: React.FC = () => {
               >
                 {/* Dấu tick SVG sắc nét đen tương phản cao khi checked */}
                 <svg
-                  className={`w-3.5 h-3.5 stroke-[2.5] text-zinc-950 transition-all duration-150 transform ${
+                  className={`w-3.5 h-3.5 stroke-[1.5] text-zinc-950 transition-all duration-150 transform ${
                     timerSettings.autoTransition ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
                   }`}
                   viewBox="0 0 14 10"
@@ -327,16 +327,16 @@ export const SettingsWidget: React.FC = () => {
           aria-pressed={isLayoutEditMode}
           className={`flex min-h-10 w-full items-center justify-between rounded-xl border px-3 py-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
             isLayoutEditMode
-              ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-200 shadow-[0_0_12px_rgba(52,211,153,0.2)]'
+              ? 'border-zinc-400/40 bg-zinc-700/15 text-zinc-200 shadow-[0_0_12px_rgba(255,255,255,0.2)]'
               : 'border-white/10 bg-white/[0.04] text-neutral-200 hover:bg-white/10'
           }`}
         >
           <span className="flex items-center gap-2 text-xs font-medium">
-            <Move size={14} className={isLayoutEditMode ? 'text-emerald-400' : 'text-neutral-400'} />
+            <Move size={14} className={isLayoutEditMode ? 'text-zinc-300' : 'text-neutral-400'} />
             Chế độ chỉnh sửa bố cục
           </span>
           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-            isLayoutEditMode ? 'bg-emerald-400/25 text-emerald-200' : 'bg-white/10 text-neutral-400'
+            isLayoutEditMode ? 'bg-zinc-700/25 text-zinc-200' : 'bg-white/10 text-neutral-400'
           }`}>
             {isLayoutEditMode ? 'Đang bật' : 'Tắt'}
           </span>
@@ -444,9 +444,9 @@ export const SettingsWidget: React.FC = () => {
             data-testid="btn-tile-windows"
             onClick={() => tileWidgets()}
             className="flex min-h-[36px] items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/6 hover:bg-white/12 text-neutral-200 text-xs transition-all cursor-pointer border border-white/5"
-            title="Tự động xếp các cửa sổ mở song song (Alt+T)"
+            title="Tự động xếp các cửa sổ mở song song (alt+t)"
           >
-            <Grid size={13} className="text-sky-400" />
+            <Grid size={13} className="text-zinc-300" />
             <span>Xếp lưới</span>
           </button>
           <button
@@ -454,9 +454,9 @@ export const SettingsWidget: React.FC = () => {
             data-testid="btn-cascade-windows"
             onClick={() => cascadeWidgets()}
             className="flex min-h-[36px] items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/6 hover:bg-white/12 text-neutral-200 text-xs transition-all cursor-pointer border border-white/5"
-            title="Xếp so le các cửa sổ đang mở (Alt+C)"
+            title="Xếp so le các cửa sổ đang mở (alt+c)"
           >
-            <Layers size={13} className="text-amber-400" />
+            <Layers size={13} className="text-zinc-300" />
             <span>Xếp tầng</span>
           </button>
         </div>
@@ -471,7 +471,7 @@ export const SettingsWidget: React.FC = () => {
               ? 'bg-zinc-800 border-zinc-600 text-white'
               : 'bg-white/5 border-white/8 text-neutral-400 hover:text-neutral-200'
           }`}
-          title="Bật/Tắt chế độ Snap vào lưới 16px và cạnh lân cận"
+          title="Bật/tắt chế độ snap vào lưới 16px và cạnh lân cận"
         >
           <div className="flex items-center gap-2 text-xs">
             <Magnet size={13} className={snapEnabled ? 'text-zinc-200' : 'text-neutral-400'} />
@@ -487,7 +487,7 @@ export const SettingsWidget: React.FC = () => {
 
       {/* Section 3: Dock Position & Auto-Hide */}
       <div className="space-y-2 rounded-xl bg-black/25 p-3 border border-white/[0.08] hidden lg:block">
-        <span className="block text-[11px] font-medium text-neutral-200">Vị trí thanh công cụ DockBar</span>
+        <span className="block text-[11px] font-medium text-neutral-200">Vị trí thanh công cụ dockbar</span>
         <div className="grid grid-cols-4 gap-1.5">
           {dockPositions.map((position) => (
             <button
@@ -563,29 +563,29 @@ export const SettingsWidget: React.FC = () => {
             className="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/8 flex items-center gap-2 cursor-pointer transition-colors text-xs"
           >
             <Target size={13} className="text-rose-400" />
-            <span>Tập trung sâu (Chỉ hiển thị Timer)</span>
+            <span>Tập trung sâu (chỉ hiển thị timer)</span>
           </button>
           <button
             type="button"
             onClick={() => setLayoutPreset('planning')}
             className="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/8 flex items-center gap-2 cursor-pointer transition-colors text-xs"
           >
-            <Layout size={13} className="text-indigo-400" />
-            <span>Lập kế hoạch (Timer, Tasks, Notes)</span>
+            <Layout size={13} className="text-zinc-300" />
+            <span>Lập kế hoạch (timer, tasks, notes)</span>
           </button>
           <button
             type="button"
             onClick={() => setLayoutPreset('default')}
             className="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/8 flex items-center gap-2 cursor-pointer transition-colors text-xs"
           >
-            <RotateCcw size={13} className="text-amber-400" />
-            <span>Bố cục mặc định Workspace</span>
+            <RotateCcw size={13} className="text-zinc-300" />
+            <span>Bố cục mặc định workspace</span>
           </button>
         </div>
       </div>
 
       {/* Persistence Micro-copy */}
-      <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 py-0.5 text-center">
+      <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400 py-0.5 text-center">
         <Lock className="w-3 h-3 text-zinc-400 shrink-0" />
         <span>Dữ liệu được lưu an toàn trên máy của bạn (hoạt động offline)</span>
       </div>
@@ -613,7 +613,7 @@ export const SettingsWidget: React.FC = () => {
           title="Về trang chủ PomoFocus"
           aria-label="Về trang chủ PomoFocus"
         >
-          <Home className="w-3.5 h-3.5 text-teal-400" />
+          <Home className="w-3.5 h-3.5 text-zinc-300" />
           <span>Về trang chủ PomoFocus</span>
         </button>
       </div>

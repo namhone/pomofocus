@@ -42,7 +42,7 @@ export function renderSafeMarkdown(markdown: string): string {
     if (line.trim().startsWith('```')) {
       if (inCodeBlock) {
         htmlLines.push(
-          `<pre class="bg-slate-950/80 p-3 rounded-xl border border-white/10 text-xs overflow-x-auto text-emerald-400 font-mono my-2"><code>${codeBlockBuffer.join(
+          `<pre class="bg-slate-950/80 p-3 rounded-xl border border-white/10 text-xs overflow-x-auto text-zinc-300 font-mono my-2"><code>${codeBlockBuffer.join(
             '\n'
           )}</code></pre>`
         );
@@ -76,8 +76,8 @@ export function renderSafeMarkdown(markdown: string): string {
         htmlLines.push(
           `<li class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" disabled ${
             isChecked ? 'checked' : ''
-          } class="rounded border-slate-700 bg-slate-800 text-indigo-500"/><span class="${
-            isChecked ? 'line-through text-slate-500' : ''
+          } class="rounded border-slate-700 bg-slate-800 text-zinc-300"/><span class="${
+            isChecked ? 'line-through text-zinc-400' : ''
           }">${itemText}</span></li>`
         );
       }
@@ -121,7 +121,7 @@ export function renderSafeMarkdown(markdown: string): string {
     } else if (line.startsWith('&gt; ')) {
       // Blockquote
       htmlLines.push(
-        `<blockquote class="border-l-2 border-indigo-500 pl-3 my-2 text-xs text-slate-400 italic">${parseInlineMarkdown(
+        `<blockquote class="border-l-2 border-zinc-500 pl-3 my-2 text-xs text-slate-400 italic">${parseInlineMarkdown(
           line.substring(5)
         )}</blockquote>`
       );
@@ -144,7 +144,7 @@ export function renderSafeMarkdown(markdown: string): string {
 
   if (inCodeBlock && codeBlockBuffer.length > 0) {
     htmlLines.push(
-      `<pre class="bg-slate-950/80 p-3 rounded-xl border border-white/10 text-xs overflow-x-auto text-emerald-400 font-mono my-2"><code>${codeBlockBuffer.join(
+      `<pre class="bg-slate-950/80 p-3 rounded-xl border border-white/10 text-xs overflow-x-auto text-zinc-300 font-mono my-2"><code>${codeBlockBuffer.join(
         '\n'
       )}</code></pre>`
     );
@@ -162,7 +162,7 @@ function parseInlineMarkdown(text: string): string {
   // Inline Code: `code`
   result = result.replace(
     /`([^`]+)`/g,
-    '<code class="bg-slate-800 px-1.5 py-0.5 rounded text-[11px] text-amber-300 font-mono">$1</code>'
+    '<code class="bg-slate-800 px-1.5 py-0.5 rounded text-[11px] text-zinc-300 font-mono">$1</code>'
   );
 
   // Bold: **text** hoặc __text__
@@ -176,7 +176,7 @@ function parseInlineMarkdown(text: string): string {
   // Links: [text](url) với url được sanitize nghiêm ngặt
   result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, linkText, rawUrl) => {
     const cleanUrl = sanitizeUrl(rawUrl);
-    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">${linkText}</a>`;
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="text-zinc-300 hover:text-zinc-300 underline underline-offset-2">${linkText}</a>`;
   });
 
   return result;

@@ -1,3 +1,8 @@
+vi.mock('node:child_process', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  const execSync = vi.fn(() => 'List of devices attached\n');
+  return { ...actual, execSync, default: { ...actual, execSync } };
+});
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -359,7 +364,7 @@ describe('Milestone 4: Offline Assets, Memory, PWA Cache & Release APK Build', (
   // =========================================================================
   describe('Feature 22: Release APK Pipeline & ADB Detection', () => {
     it('declares APP_VERSION 8.1.0 and APK_FILENAME PomoFocus-v8.1.apk', () => {
-      expect(APP_VERSION).toBe('8.1.0');
+      expect(APP_VERSION).toBe('8.1.1');
       expect(APK_FILENAME).toBe('PomoFocus-v8.1.apk');
     });
 
@@ -380,8 +385,8 @@ describe('Milestone 4: Offline Assets, Memory, PWA Cache & Release APK Build', (
       expect(fs.existsSync(versionJsonPath)).toBe(true);
 
       const versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf-8'));
-      expect(versionData.version).toBe('8.1.0');
-      expect(versionData.versionCode).toBe(81);
+      expect(versionData.version).toBe('8.1.1');
+      expect(versionData.versionCode).toBe(82);
       expect(versionData.downloadUrl).toContain('PomoFocus-v8.1.apk');
       expect(versionData.checksumSha256).toBeDefined();
       expect(typeof versionData.apkSizeMb).toBe('number');

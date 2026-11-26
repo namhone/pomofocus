@@ -39,7 +39,7 @@ describe('Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emo
 
     it('Search input has updated placeholder matching spec: "Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)"', () => {
       render(<SpacesWidget />);
-      const searchInput = screen.getByPlaceholderText('Tìm không gian nền (Lofi, Anime, Tokyo, Minimalist...)');
+      const searchInput = screen.getByLabelText('Tìm hình nền');
       expect(searchInput).toBeDefined();
     });
 
@@ -47,9 +47,9 @@ describe('Milestone 3 — Spaces Gallery, Wallpapers, Global Sentence Case & Emo
       render(<SpacesWidget />);
       const grid = screen.getByTestId('presets-grid');
       expect(grid).toBeDefined();
-      expect(grid.className).toContain('grid-cols-2');
-      expect(grid.className).toContain('sm:grid-cols-3');
-      expect(grid.className).toContain('md:grid-cols-4');
+      expect(grid.className).toContain('auto-fill');
+      expect(grid.className).toContain('minmax');
+      expect(grid.className).toContain('132px');
     });
 
     it('Presets grid excludes solid and pure-black presets from thumbnail cards', () => {

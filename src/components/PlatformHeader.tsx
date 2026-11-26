@@ -1,8 +1,8 @@
+import { UiLabel } from './common/UiSymbol';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLayoutStore } from '../stores/useLayoutStore';
-import { usePwaInstallStore } from '../stores/usePwaInstallStore';
 import { useAiStore, isOwnerAiUser, getInitialGuestCredits } from '../stores/useAiStore';
 import { isOwnerEmail, isLadyBoss, isVipFriend, hasVipAccess } from '../services/authService';
 import { getSubscriptionBadge } from '../utils/userBadge';
@@ -50,7 +50,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
     isDownloadPageProp ??
     (currentPath === '/download' || currentPath === '/downloads' || currentPath === '/apk');
   const { user, isAuthenticated, logout, isPro, isLifetime } = useAuthStore();
-  const { canInstall, triggerInstall } = usePwaInstallStore();
+
   const isFocusDimmed = useLayoutStore((s) => s.isFocusDimmed);
   const aiCreditsBalance = useAiStore((s) => s.aiCreditsBalance);
   const isAiOpen = useAiStore((s) => s.isOpen);
@@ -58,7 +58,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
   const setHeaderExpanded = useLayoutStore((s) => s.setHeaderExpanded);
   const setMobileHeaderOpen = useLayoutStore((s) => s.setMobileHeaderOpen);
   const isEcoMode = useLayoutStore((s) => s.isEcoMode);
-  
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isGuestMenuOpen, setIsGuestMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -232,14 +232,14 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
   }, [isMobileMenuOpen, isUserDropdownOpen, isGuestMenuOpen]);
 
   const navItems = [
-    { path: '/app', label: 'Không Gian', icon: Layout, testId: 'header-nav-app' },
-    { path: '/billing', label: 'Bảng Giá', icon: CreditCard, testId: 'header-nav-billing' },
-    { path: '/rooms', label: 'Phòng Học', icon: Users, testId: 'header-nav-rooms' },
-    { path: '/calendar', label: 'Lịch Biểu', icon: Calendar, testId: 'header-nav-calendar' },
-    { path: '/dashboard', label: 'Thống Kê', icon: BarChart3, testId: 'header-nav-dashboard' },
-    { path: '/download', label: 'Tải App', icon: Download, testId: 'header-nav-download' },
-    { path: '/help', label: 'Trợ Giúp', icon: HelpCircle, testId: 'header-nav-help' },
-    { path: '/contact', label: 'Liên Hệ', icon: Mail, testId: 'header-nav-contact' }
+    { path: '/app', label: 'Không gian', icon: Layout, testId: 'header-nav-app' },
+    { path: '/billing', label: 'Bảng giá', icon: CreditCard, testId: 'header-nav-billing' },
+    { path: '/rooms', label: 'Phòng học', icon: Users, testId: 'header-nav-rooms' },
+    { path: '/calendar', label: 'Lịch biểu', icon: Calendar, testId: 'header-nav-calendar' },
+    { path: '/dashboard', label: 'Thống kê', icon: BarChart3, testId: 'header-nav-dashboard' },
+    { path: '/download', label: 'Tải app', icon: Download, testId: 'header-nav-download' },
+    { path: '/help', label: 'Trợ giúp', icon: HelpCircle, testId: 'header-nav-help' },
+    { path: '/contact', label: 'Liên hệ', icon: Mail, testId: 'header-nav-contact' }
   ];
 
   const handleNavigate = (path: string) => {
@@ -291,7 +291,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             isEcoMode ? 'bg-[#0c0c0e]/95' : 'bg-zinc-950/85 backdrop-blur-xl'
           } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
             isAiOpen
-              ? 'opacity-0 -translate-y-2 pointer-events-none scale-95'
+              ? 'opacity-0 -translate-y-2 pointer-events-none scale-95 invisible'
               : !isHeaderExpanded
                 ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
                 : 'opacity-0 -translate-y-2 pointer-events-none scale-90 hidden'
@@ -310,7 +310,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }}
             className="flex items-center justify-center shrink-0 cursor-pointer transition active:scale-95"
             title={isAuthenticated && user ? `${user.displayName || user.email} · Bấm để mở menu` : 'Khách · Bấm mở menu tiện ích'}
-            aria-label="Tài khoản và Menu"
+            aria-label="Tài khoản và menu"
           >
             <UserAvatar
               user={isAuthenticated ? user : null}
@@ -326,15 +326,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             type="button"
             data-testid="capsule-credits-btn"
             onClick={handleCreditsBadgeClick}
-            aria-label="Số dư AI Credits"
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
+            aria-label="Số dư AI credits"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/10 hover:bg-zinc-700/20 border border-zinc-500/20 text-zinc-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
             title={
               isVipOrOwner
                 ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ Không giới hạn'
                 : `Số dư AI: ${safeCreditsNum.toLocaleString('vi-VN')}⚡ · Bấm xem chi tiết AI Credits`
             }
           >
-            <Zap size={11} className="fill-amber-400 text-amber-400 shrink-0" />
+            <Zap size={11} className="fill-zinc-400 text-zinc-300 shrink-0" />
             <span>{capsuleCreditsLabel}</span>
           </button>
 
@@ -365,7 +365,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               }
             }}
             className="p-1 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white transition cursor-pointer shrink-0 active:scale-95"
-            title="Mở Cài đặt hệ thống (⚙️)"
+            title="Mở cài đặt hệ thống ()"
             aria-label="Cài đặt"
           >
             <Settings size={14} className="shrink-0" />
@@ -377,7 +377,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             data-testid="capsule-expand-btn"
             onClick={() => setHeaderExpanded(true)}
             className="flex items-center gap-1 pl-1 pr-1.5 py-0.5 rounded-full hover:bg-white/10 text-zinc-300 hover:text-white text-[11px] font-medium transition cursor-pointer shrink-0 active:scale-95"
-            title="Mở thanh Header đầy đủ"
+            title="Mở thanh header đầy đủ"
             aria-label="Mở menu"
           >
             <span className="hidden xs:inline">Menu</span>
@@ -398,7 +398,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               } border-b border-white/[0.08] px-4 xl:px-5 flex items-center justify-between select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
-                  : '-translate-y-full opacity-0 pointer-events-none'
+                  : '-translate-y-full opacity-0 pointer-events-none invisible'
               } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
             : `sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
@@ -423,8 +423,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             data-testid="header-plan-badge"
             className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[9px] font-mono font-medium tracking-wide border cursor-pointer transition shrink-0 whitespace-nowrap ${
               isLifetimeAccount
-                ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-sm'
-                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                ? 'border-zinc-500/40 bg-zinc-700/10 text-zinc-300 shadow-sm'
+                : 'border-zinc-500/30 bg-zinc-700/10 text-zinc-300'
             }`}
             title="Xem chi tiết gói dịch vụ"
           >
@@ -478,7 +478,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               onClick={togglePinHeader}
               className={`h-8 w-8 flex items-center justify-center rounded-full border transition cursor-pointer shrink-0 ${
                 isHeaderPinned
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30'
+                  ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/40 ring-1 ring-zinc-500/30'
                   : 'bg-zinc-900/80 text-zinc-400 hover:text-white border-white/10'
               }`}
               title={isHeaderPinned ? 'Bỏ ghim Header (Bật tự động ẩn)' : 'Ghim cố định Header'}
@@ -494,8 +494,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               data-testid="header-collapse-btn"
               onClick={() => setHeaderExpanded(false)}
               className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/15 text-[11px] font-medium transition cursor-pointer active:scale-95 shrink-0 shadow-sm"
-              title="Thu gọn Header thành viên nang"
-              aria-label="Thu gọn Header"
+              title="Thu gọn header thành viên nang"
+              aria-label="Thu gọn header"
             >
               <ChevronUp size={13} className="text-zinc-400 shrink-0" />
               <span className="hidden sm:inline">Thu gọn</span>
@@ -549,8 +549,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                     ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
                     : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
                 }`}
-                title="Tài khoản & Cài đặt"
-                aria-label="Tài khoản và Menu"
+                title="Tài khoản & cài đặt"
+                aria-label="Tài khoản và menu"
                 aria-expanded={isUserDropdownOpen}
                 aria-haspopup="menu"
               >
@@ -561,8 +561,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   alt={user.displayName}
                   testId="desktop-header-profile-avatar"
                 />
-                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[160px] sm:max-w-[200px] md:max-w-[220px] xl:max-w-[260px]">
-                  {user.displayName}
+                <span className="text-xs font-medium truncate hidden md:inline-block max-w-[130px] xl:max-w-[160px]">
+                  <UiLabel text={user.displayName} />
                 </span>
                 <ChevronDown
                   size={12}
@@ -589,7 +589,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                     />
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-white truncate">
-                        {user.displayName}
+                        <UiLabel text={user.displayName} />
                       </div>
                       <div className="text-[10px] text-zinc-400 font-mono truncate">
                         {user.email}
@@ -599,9 +599,9 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                       data-testid="header-user-badge"
                       className={`px-1.5 py-0.5 rounded-md text-[9px] font-semibold border shrink-0 ${
                         badgeInfo.tier === 'founder'
-                          ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                          ? 'bg-zinc-700/20 text-zinc-300 border-zinc-400/40'
                           : badgeInfo.tier === 'pro'
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          ? 'bg-zinc-700/20 text-zinc-300 border-zinc-500/30'
                           : 'bg-white/10 text-neutral-300 border-white/10'
                       }`}
                     >
@@ -612,57 +612,13 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   {/* Dropdown Options */}
                   <div className="space-y-0.5">
                     {/* Lối tắt điều hướng nhanh */}
-                    <button
-                      type="button"
-                      data-testid="header-user-home-btn"
-                      onClick={() => handleNavigate('/')}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Home size={14} className="text-teal-400 shrink-0" />
-                        <span className="font-medium">Trang Chủ (Giới thiệu)</span>
-                      </div>
-                      {currentPath === '/' && <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />}
-                    </button>
 
-                    <button
-                      type="button"
-                      data-testid="header-user-app-btn"
-                      onClick={() => handleNavigate('/app')}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Layout size={14} className="text-emerald-400 shrink-0" />
-                        <span className="font-medium">Không Gian Học</span>
-                      </div>
-                      {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-                    </button>
 
-                    <button
-                      type="button"
-                      data-testid="header-user-rooms-btn"
-                      onClick={() => handleNavigate('/rooms')}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Users size={14} className="text-indigo-400 shrink-0" />
-                        <span className="font-medium">Phòng Học Nhóm Live</span>
-                      </div>
-                      {currentPath === '/rooms' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
-                    </button>
 
-                    <button
-                      type="button"
-                      data-testid="header-user-billing-btn"
-                      onClick={() => handleNavigate('/billing')}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <CreditCard size={14} className="text-amber-400 shrink-0" />
-                        <span className="font-medium">Bảng Giá &amp; Gói Cước</span>
-                      </div>
-                      {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
-                    </button>
+
+
+
+
 
                     <div className="border-t border-white/10 my-1.5" />
 
@@ -673,7 +629,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
                       <User size={14} className="text-zinc-400 shrink-0" />
-                      <span className="font-medium">Hồ sơ cá nhân &amp; Avatar</span>
+                      <span className="font-medium">Hồ sơ cá nhân &amp; avatar</span>
                     </button>
 
                     <button
@@ -702,7 +658,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
                       <Shield size={14} className="text-zinc-400 shrink-0" />
-                      <span className="font-medium">Bảo mật &amp; Phiên đăng nhập</span>
+                      <span className="font-medium">Bảo mật &amp; phiên đăng nhập</span>
                     </button>
 
                     <button
@@ -712,26 +668,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-neutral-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left"
                     >
                       <Database size={14} className="text-zinc-400 shrink-0" />
-                      <span className="font-medium">Quyền riêng tư &amp; Dữ liệu</span>
+                      <span className="font-medium">Quyền riêng tư &amp; dữ liệu</span>
                     </button>
 
-                    {canInstall && (
-                      <button
-                        type="button"
-                        data-testid="header-user-install-pwa-btn"
-                        onClick={() => {
-                          setIsUserDropdownOpen(false);
-    setMobileHeaderOpen(false);
-    setHeaderExpanded(false);
-                          triggerInstall();
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-zinc-200 hover:text-white hover:bg-white/10 transition cursor-pointer text-left font-medium"
-                      >
-                        <Download size={14} className="text-zinc-400 shrink-0" />
-                        <span>Cài đặt ứng dụng (PWA)</span>
-                      </button>
-                    )}
-                  </div>
+                                      </div>
 
                   <div className="border-t border-white/10 my-1.5" />
 
@@ -760,10 +700,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               data-testid="header-login-btn"
               onClick={handleHeaderLoginClick}
               className="h-8 flex items-center gap-1.5 px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm active:scale-95"
-              title="Đăng nhập tài khoản hoặc Mở menu tiện ích"
+              title="Đăng nhập tài khoản hoặc mở menu tiện ích"
             >
-              <User size={13} className="text-emerald-400 shrink-0" />
-              <span>Đăng Nhập</span>
+              <User size={13} className="text-zinc-300 shrink-0" />
+              <span>Đăng nhập</span>
             </button>
           ))}
 
@@ -805,7 +745,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         data-testid="mobile-navigation-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label="Menu Điều Hướng"
+        aria-label="Menu điều hướng"
         className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-[60] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
@@ -828,10 +768,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Home size={16} className={currentPath === '/app' ? 'text-emerald-400' : 'text-zinc-400'} />
-              <span>Không Gian Học</span>
+              <Home size={16} className={currentPath === '/app' ? 'text-zinc-300' : 'text-zinc-400'} />
+              <span>Không gian học</span>
             </div>
-            {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+            {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
           </button>
 
           <button
@@ -848,10 +788,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Users size={16} className={currentPath.startsWith('/rooms') ? 'text-emerald-400' : 'text-zinc-400'} />
-              <span>Phòng Học Nhóm Live</span>
+              <Users size={16} className={currentPath.startsWith('/rooms') ? 'text-zinc-300' : 'text-zinc-400'} />
+              <span>Phòng học nhóm live</span>
             </div>
-            {currentPath.startsWith('/rooms') && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+            {currentPath.startsWith('/rooms') && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
           </button>
 
           <button
@@ -868,10 +808,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Calendar size={16} className={currentPath === '/calendar' ? 'text-emerald-400' : 'text-zinc-400'} />
-              <span>Lịch Biểu Pomodoro</span>
+              <Calendar size={16} className={currentPath === '/calendar' ? 'text-zinc-300' : 'text-zinc-400'} />
+              <span>Lịch biểu pomodoro</span>
             </div>
-            {currentPath === '/calendar' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+            {currentPath === '/calendar' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
           </button>
 
           <button
@@ -888,10 +828,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Gem size={16} className={currentPath === '/billing' ? 'text-emerald-400' : 'text-zinc-400'} />
-              <span>Bảng Giá & Nâng Cấp</span>
+              <Gem size={16} className={currentPath === '/billing' ? 'text-zinc-300' : 'text-zinc-400'} />
+              <span>Bảng giá & nâng cấp</span>
             </div>
-            {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+            {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
           </button>
 
           <button
@@ -908,10 +848,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Lock size={16} className={currentPath === '/account/security' ? 'text-emerald-400' : 'text-zinc-400'} />
-              <span>Trung Tâm Bảo Mật</span>
+              <Lock size={16} className={currentPath === '/account/security' ? 'text-zinc-300' : 'text-zinc-400'} />
+              <span>Trung tâm bảo mật</span>
             </div>
-            {currentPath === '/account/security' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+            {currentPath === '/account/security' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
           </button>
         </nav>
 
@@ -928,16 +868,16 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                   testId="drawer-user-avatar"
                 />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold text-white truncate">{user.displayName}</div>
+                  <div className="text-xs font-semibold text-white truncate"><UiLabel text={user.displayName} /></div>
                   <div className="text-[9px] text-zinc-400 font-mono truncate">{user.email}</div>
                 </div>
               </div>
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[8px] font-semibold border shrink-0 ${
                   isLifetimeAccount
-                    ? 'bg-zinc-950 text-amber-300 border-amber-400/40'
+                    ? 'bg-zinc-950 text-zinc-300 border-zinc-400/40'
                     : isProAccount
-                    ? 'bg-zinc-950 text-emerald-300 border-emerald-500/30'
+                    ? 'bg-zinc-950 text-zinc-300 border-zinc-500/30'
                     : 'bg-zinc-950 text-zinc-400 border-zinc-800'
                 }`}
               >
@@ -955,7 +895,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               className="w-full h-8 flex items-center justify-center gap-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition cursor-pointer active:scale-98"
             >
               <LogOut size={13} />
-              <span>Đăng Xuất</span>
+              <span>Đăng xuất</span>
             </button>
           </div>
         ) : (
@@ -971,7 +911,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-sm transition active:scale-98 shadow-md cursor-pointer"
             >
               <User size={15} className="shrink-0" />
-              <span>Đăng Nhập / Đăng Ký</span>
+              <span>Đăng nhập / đăng ký</span>
             </button>
           </div>
         )}
@@ -1033,9 +973,9 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           data-testid="logout-success-toast"
           role="status"
           aria-live="polite"
-          className="fixed bottom-5 right-5 z-80 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-emerald-500/30 text-emerald-300 text-xs shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-5 right-5 z-80 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900/95 border border-zinc-500/30 text-zinc-300 text-xs shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
-          <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+          <CheckCircle2 size={15} className="text-zinc-300 shrink-0" />
           <span className="font-medium text-white">Đã đăng xuất thành công.</span>
         </div>
       )}
@@ -1055,7 +995,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             data-testid="guest-quick-menu-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Tài khoản và Menu tiện ích khách"
+            aria-label="Tài khoản và menu tiện ích khách"
             className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-16 sm:right-6 sm:left-auto sm:w-84 z-[100] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-4 sm:p-5 flex flex-col gap-3 animate-in slide-in-from-bottom sm:slide-in-from-top-2 duration-200 select-none"
           >
             {/* Mobile Drag Indicator */}
@@ -1064,12 +1004,12 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-zinc-700/15 border border-zinc-500/30 text-zinc-300 flex items-center justify-center font-bold text-xs shrink-0">
                   <User size={16} />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>Chế độ Khách</span>
+                    <span>Chế độ khách</span>
                     <span className="px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 text-[10px] font-mono border border-white/10 inline-flex items-center gap-1">
                       <span>50</span>
                       <Zap size={9} className="stroke-[1.5] text-zinc-300" />
@@ -1101,15 +1041,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/20 text-emerald-300 group-hover:bg-emerald-500/30 transition shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/20 text-zinc-300 group-hover:bg-zinc-700/30 transition shrink-0">
                   <User size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white group-hover:text-emerald-300 transition">
-                    Đăng Nhập / Đăng Ký
+                  <div className="text-xs font-semibold text-white group-hover:text-zinc-300 transition">
+                    Đăng nhập / đăng ký
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
-                    Đồng bộ Cloud Supabase &amp; lưu dữ liệu vĩnh viễn
+                    Đồng bộ dữ liệu giữa các thiết bị
                   </div>
                 </div>
               </button>
@@ -1124,15 +1064,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/20 text-amber-300 group-hover:bg-amber-500/30 transition shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/20 text-zinc-300 group-hover:bg-zinc-700/30 transition shrink-0">
                   <CreditCard size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white group-hover:text-amber-300 transition">
-                    Bảng Giá PRO &amp; VIP
+                  <div className="text-xs font-semibold text-white group-hover:text-zinc-300 transition">
+                    Bảng giá PRO &amp; VIP
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
-                    Khám phá gói Hội viên, mở khóa tính năng cao cấp
+                    Khám phá gói hội viên, mở khóa tính năng cao cấp
                   </div>
                 </div>
               </button>
@@ -1155,11 +1095,11 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/20 text-cyan-300 group-hover:bg-cyan-500/30 transition shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/20 text-zinc-300 group-hover:bg-zinc-700/30 transition shrink-0">
                   <Settings size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white group-hover:text-cyan-300 transition">
+                  <div className="text-xs font-semibold text-white group-hover:text-zinc-300 transition">
                     Cài đặt giao diện
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
@@ -1178,15 +1118,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] active:scale-95 border border-white/10 transition cursor-pointer text-left group"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-500/20 text-indigo-300 group-hover:bg-indigo-500/30 transition shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-700/20 text-zinc-300 group-hover:bg-zinc-700/30 transition shrink-0">
                   <Home size={18} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white group-hover:text-indigo-300 transition">
+                  <div className="text-xs font-semibold text-white group-hover:text-zinc-300 transition">
                     Về trang chủ
                   </div>
                   <div className="text-[10px] text-zinc-400 leading-tight">
-                    Tìm hiểu tính năng, phương pháp Pomodoro &amp; cộng đồng
+                    Tìm hiểu tính năng, phương pháp pomodoro &amp; cộng đồng
                   </div>
                 </div>
               </button>

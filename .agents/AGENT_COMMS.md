@@ -4,6 +4,7 @@
 
 | Agent | File được sửa |
 | --- | --- |
+| Codex — Phase 4B (Nam giao 2026-11-26) | Toàn bộ UI còn lại, theme/CSS/layout/copy, test UI/WCAG/Playwright, metadata APK/build/deploy liên quan. Antigravity đã dừng. Giữ nguyên logic Audio/Realtime/WebRTC Phase 3 và safeguard Phase 4A. |
 | Codex — Phase 4A | `src/stores/useLayoutStore.ts`, `src/components/WidgetContainer.tsx`, `src/components/MediaWidget.tsx`, `src/components/BackgroundCanvas.tsx`, `src/components/ProfileView.tsx`, `src/components/mobile/primitives/MobileStepperRow.tsx`, `src/data/wallpapers.ts`, `src/data/backgroundPresets.ts`, `src/components/landing/WebDownloadHub.tsx`; unit test mới dành riêng cho các file này trong `tests/unit/` |
 | Codex — tiếp quản Phase 3 từ Antigravity (2026-11-26, theo chỉ thị Nam) | Toàn bộ Audio/SFX/WebRTC/Realtime Phase 3; `useAudioStore.ts`, `alarmSounds.ts`, `StudyRoomView.tsx`, `WebRTCConnectionManager.ts`, `supabase.ts`, `App.tsx`, `useTimerStore.ts`, `WhiteboardView.tsx`, `MobileBottomNav.tsx`, `TasksWidget.tsx`, `StudyRoomLobby.tsx`, các store chết `useMeetStore.ts`/`useRoomStore.ts`; test liên quan; copy BUG-55 tại SpacesWidget/pricing/BillingView. Antigravity đã dừng do hết credits. |
 | Chung | `.agents/AGENT_COMMS.md` — chỉ thêm nhật ký, giữ nguyên cập nhật bên kia |
@@ -12,10 +13,30 @@
 
 ## 2. Trạng thái & kế hoạch hiện tại
 
+- Codex Phase 4B: UI/build đã qua gates: type-check exit 0, 347 test/27 file pass sau các lượt chạy lại ghi rõ, Chrome 10 ca pass/6 skip theo viewport, 12 axe JSON 0 vi phạm. Web build và APK 8.1.1/code 82 exit 0; APK 8.46 MB (8,869,402 bytes), SHA-256 327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2. ADB không có thiết bị, chưa cài. Đang commit/push master và deploy hai alias; chưa tuyên bố production mới đã live. Báo cáo theo suite: docs/reports/PHASE4B_ACCEPTANCE_REPORT.md.
+
 - Codex: hoàn tất source Phase 3 tiếp quản và Phase 4A trong phạm vi Nam giao. Type-check cuối exit 0; kiểm chứng 340 test riêng biệt/29 suite liên quan sau chạy lại 1 suite timeout (chi tiết bên dưới). Browser camera/mic giả pass giải phóng tracks/DOM/Worker/VAD context; bằng chứng ở artifacts/phase3 và artifacts/phase4a. Chưa nghiệm thu APK phần cứng thật, hai phiên đăng nhập Cloud hoặc Founder thật; chưa tuyên bố toàn bộ UI Meet đạt playbook.
 - Antigravity: đã dừng do hết credits; Codex tiếp quản Phase 3 theo chỉ thị Nam. Cập nhật lịch sử bên dưới được giữ nguyên.
 
 ## 3. Nhật ký Chat & Review chéo
+
+[CODEX | PHASE 4B — RELEASE GATE] Native fixture đầu bị SDK nhận lại thành web; đã bổ sung androidBridge theo Capacitor core, chạy lại native 2 pass/2 skip. Kết quả cuối theo 16 ca: 10 pass/6 skip/0 fail; 12 axe JSON đều 0 vi phạm, fixture teardown xác nhận 0 pageerror, kiểm tra 0 tràn ngang. Lưu raw kết quả trước/sau và acceptance-summary.json, không gọi lượt ma trận lỗi fixture là pass. Type-check cuối exit 0; web/APK build exit 0. Aapt xác nhận com.pomofocus.workspace 8.1.1/code 82. Chưa thử NVDA/TalkBack, Founder thật hoặc Cloud hai máy; Founder fixture/unit pass không thay thế đăng nhập thật. Đang commit/push/deploy theo Nam, chưa ghi production thành công trước kiểm tra HTTP/hash.
+
+[CODEX | PHASE 4B — GATES] Kết quả gộp cuối Vitest: 347 test riêng biệt/27 file đều pass; 1 suite build phải chạy lại do mock child_process thiếu default export (không phải lỗi APK). Type-check exit 0. Chrome production đã pass Desktop 1366/1440 gồm resize gallery thật, Founder fixture không upsell, Header ghim/AI/Notes; Meet cũng pass các viewport đã chạy. Hai ca mobile bright-focus phát hiện progressbar thiếu tên và span nhãn thiếu role: đã thêm aria-label/role đúng, đang chờ lượt kiểm tra cuối. Resize gallery đã phát hiện góc resize bị clip bởi rounded overflow; sửa handle vào trong mép, kéo chuột thật đã pass cả 2 desktop. Đang chuẩn bị build APK cuối; chưa push/deploy.
+
+[CODEX | PHASE 4B — KIỂM CHỨNG TIẾP] Lượt 26 file Vitest trước đạt 311/313; 2 assertion còn ép emoji/PRO YEARLY đã đổi sang SVG/Pro năm, giữ kiểm tra Founder không thấy upsell. Đang chạy lại đủ nhóm. Đã sửa lỗi thứ tự Hook thật ở MoMoPaymentModal bằng biểu thức tạo URL thuần; VA/amount/memo/Realtime giữ nguyên. Giữ Header được ghim khi AI mở, drawer nằm dưới Header; Notes có vùng nhập và gallery auto-fill. Mobile có scrim tối trên ảnh sáng, footer AI có safe area. Đang build production để chạy Chrome 4 kích thước; chưa push/deploy. APK 8.1.1/code 82 đã build thành công ở lượt trước nhưng phải build lại sau UI cuối; chưa xác nhận cài ADB.
+
+### 2026-11-26 — Codex tiếp quản Phase 4B
+
+[CODEX | STATUS — KIỂM CHỨNG THỰC] Ma trận đầu 12 ca: 6 pass, 4 skip do tách desktop/mobile, 2 desktop fail. Các ca Meet cả 4 viewport và mobile/native AI đã pass axe, 0 pageerror. Desktop fail bắt được scroll area Tasks không focusable và vùng soạn Notes quá thấp; đã thêm region có tabIndex, bỏ double padding, thu gọn khoảng cách trong Notes, giữ nút + Thêm hiển thị. Đã đổi kiểm thử cuối sang Vite preview của bản build để tránh HMR trong lúc chạy và thêm kiểm tra control nằm trong viewport. Chưa coi các kết quả cũ là nghiệm thu source cuối.
+
+[CODEX | REVIEW — CHECKOUT] Unit test authenticated checkout phát hiện React “Rendered more hooks than during the previous render”: useMemo nằm sau early return khi order null. Đã bỏ hook, tính URL QR thuần với nguyên guard memo/amount và nguyên VA/nội dung/số tiền; không đổi giao thức thanh toán. Test đã pass sau sửa. Một test cũ ép lời hứa hoàn tiền không tồn tại ở topup được đổi sang kiểm tra hướng dẫn chuyển khoản thực có, không thêm cam kết pháp lý để chiều test. Test build cũ gọi ADB thật đã được mock child_process; cài thiết bị chỉ làm ở bước phát hành được Nam yêu cầu.
+
+[CODEX | BUILD] Type-check ES2020 đã về exit 0 sau bỏ replaceAll trong component. Web build đã pass. APK 8.1.1/code 82 lần đầu build thành công, 8.43 MB và hash được sinh thật; đang build lại source UI cuối để bao gồm fix checkout/Notes. SDK D:/Android/Sdk, Gradle 8.14.3 đã khởi tạo cache; Capacitor vẫn bundle local (không server.url). Lúc build đầu ADB không thấy thiết bị; sẽ kiểm tra lại trước bàn giao. Hai domain Nam chỉ định đã xác nhận là alias cùng project pomodoro-workspace; chưa push/deploy.
+
+[CODEX | STATUS] Đã đọc playbook và các BUG-30/31/32/35/52/58–70; tiếp quản toàn bộ UI theo Nam. Notes gộp toolbar, ba sắc độ zinc; Timer bỏ ba input chỉnh giờ trùng; avatar dropdown bỏ bốn link điều hướng trùng và PWA install; Dock bỏ badge AI thừa. Chuẩn hóa màu điều khiển, stroke Lucide 1.5, Sentence case và bỏ jargon ở các UI liên quan; biểu tượng/reaction giữ wire value cũ nhưng render Lucide. Widget có scrim 92% tối thiểu trên ảnh, tăng khi nền sáng hơn; Notes đổi vị trí trình bày khi AI mở, không ghi đè layout đã lưu. Meet header mobile tách hai hàng. AI footer desktop/native dùng safe inset và nút clear rỗng disabled. Đang chạy Vitest hồi quy, axe/Playwright. Chưa đánh dấu nghiệm thu hay deploy.
+
+[CODEX | BUILD PRECHECK] Vercel CLI đã đăng nhập; project hiện tại pomodoro-workspace có production URL pomofocus-workplace.vercel.app. Có một thiết bị ADB online. Phát hiện build script/local.properties dùng SDK C:/Users/Nam/... không tồn tại; SDK thật D:/Android/Sdk. Đang sửa chọn SDK theo environment/fallback để build, giữ Java 17 và isolation Capacitor (không server.url). Không ghi dữ liệu tài khoản thật trong fixture UI.
 
 ### 2026-11-26 — Codex tiếp quản Phase 3
 

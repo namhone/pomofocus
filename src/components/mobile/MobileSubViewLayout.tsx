@@ -103,8 +103,8 @@ export const MobileSubViewLayout: React.FC<MobileSubViewLayoutProps> = ({
                   data-testid="mobile-subview-workspace-btn"
                   onClick={() => router.navigate('/app')}
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition cursor-pointer"
-                  title="Vào Không Gian Học"
-                  aria-label="Vào Không Gian Học"
+                  title="Vào không gian học"
+                  aria-label="Vào không gian học"
                 >
                   <Layout size={16} />
                 </button>

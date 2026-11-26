@@ -1,3 +1,4 @@
+import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Ticket,
@@ -157,27 +158,27 @@ export const AdminCouponManager: React.FC = () => {
       case 'lifetime':
       case 'free_lifetime':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-            <Crown size={11} /> PRO TRỌN ĐỜI
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-700/10 text-zinc-300 border border-zinc-500/20">
+            <Crown size={11} /> PRO trọn đời
           </span>
         );
       case 'credits':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-            <Zap size={11} /> NẠP CREDITS ⚡
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-700/10 text-zinc-300 border border-zinc-500/20">
+            <Zap size={11} /> Nạp credits <UiSymbol name="⚡" />
           </span>
         );
       case 'free_days':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-            <Calendar size={11} /> NGÀY PRO
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-700/10 text-zinc-300 border border-zinc-500/20">
+            <Calendar size={11} /> Ngày PRO
           </span>
         );
       case 'discount_percent':
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-            <Percent size={11} /> GIẢM GIÁ %
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-700/10 text-zinc-300 border border-zinc-500/20">
+            <Percent size={11} /> Giảm giá %
           </span>
         );
     }
@@ -186,25 +187,25 @@ export const AdminCouponManager: React.FC = () => {
   return (
     <div
       data-testid="admin-coupon-manager"
-      className="p-5 sm:p-7 rounded-3xl border border-amber-500/30 bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 backdrop-blur-xl shadow-2xl space-y-6 max-w-4xl mx-auto w-full my-8 text-zinc-100"
+      className="p-5 sm:p-7 rounded-3xl border border-zinc-500/30 bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 backdrop-blur-xl shadow-2xl space-y-6 max-w-4xl mx-auto w-full my-8 text-zinc-100"
     >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-zinc-700/20 to-zinc-700/10 border border-zinc-500/30 flex items-center justify-center text-zinc-300 shadow-inner">
             <Ticket size={20} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-bold tracking-tight text-white">
-                Quản Trị Coupon Đám Mây (Dynamic Cloud Engine)
+                Quản trị coupon đám mây (dynamic cloud engine)
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40">
-                Owner Only 👑
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black normal-case tracking-wider bg-zinc-700/20 text-zinc-300 border border-zinc-500/40">
+                Công cụ quản trị <UiSymbol name="👑" />
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Phát hành mã tức thì lên Supabase Cloud (Zero-deploy), đếm lượt dùng nguyên tử & chống spam.
+              Phát hành mã dùng ngay, theo dõi lượt sử dụng và ngăn lạm dụng.
             </p>
           </div>
         </div>
@@ -215,23 +216,23 @@ export const AdminCouponManager: React.FC = () => {
           disabled={isLoading}
           className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700/60 transition disabled:opacity-50 self-start sm:self-auto"
         >
-          <RefreshCw size={13} className={isLoading ? 'animate-spin text-amber-400' : ''} />
+          <RefreshCw size={13} className={isLoading ? 'animate-spin text-zinc-300' : ''} />
           <span>{isLoading ? 'Đang đồng bộ...' : 'Làm mới'}</span>
         </button>
       </div>
 
       {/* Form Tạo Mã Nhanh */}
       <form onSubmit={handleCreateCoupon} className="space-y-4 bg-zinc-900/50 p-4 sm:p-5 rounded-2xl border border-zinc-800/80">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+        <div className="flex items-center gap-2 text-xs font-semibold normal-case tracking-wider text-zinc-300">
           <Sparkles size={14} />
-          <span>Tạo & Phát Hành Mã Khuyến Mãi Mới</span>
+          <span>Tạo & phát hành mã khuyến mãi mới</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* 1. Mã Coupon */}
           <div>
             <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
-              Mã Coupon <span className="text-rose-400">*</span>
+              Mã coupon <span className="text-rose-400">*</span>
             </label>
             <input
               type="text"
@@ -239,7 +240,7 @@ export const AdminCouponManager: React.FC = () => {
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="VD: EIU, TET2026..."
-              className="w-full px-3 py-2 text-xs font-mono font-bold uppercase rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition"
+              className="w-full px-3 py-2 text-xs font-mono font-bold normal-case rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 transition"
               required
             />
           </div>
@@ -247,7 +248,7 @@ export const AdminCouponManager: React.FC = () => {
           {/* 2. Loại Coupon */}
           <div>
             <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
-              Loại Quyền Lợi
+              Loại quyền lợi
             </label>
             <select
               data-testid="admin-select-coupon-type"
@@ -260,12 +261,12 @@ export const AdminCouponManager: React.FC = () => {
                 else if (newType === 'free_days' && value === 0) setValue(7);
                 else if (newType === 'credits' && value === 0) setValue(500);
               }}
-              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-zinc-200 focus:outline-none focus:border-amber-500 transition"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-zinc-200 focus:outline-none focus:border-zinc-500 transition"
             >
-              <option value="lifetime">Trọn Đời (PRO Lifetime 👑)</option>
-              <option value="credits">Nạp Điểm (AI Credits ⚡)</option>
-              <option value="free_days">Ngày PRO (Free Days)</option>
-              <option value="discount_percent">Giảm % Giá (Discount)</option>
+              <option value="lifetime">Trọn đời (PRO lifetime <UiSymbol name="👑" />)</option>
+              <option value="credits">Nạp điểm (AI credits <UiSymbol name="⚡" />)</option>
+              <option value="free_days">Ngày PRO (Free days)</option>
+              <option value="discount_percent">Giảm % giá (discount)</option>
             </select>
           </div>
 
@@ -289,23 +290,23 @@ export const AdminCouponManager: React.FC = () => {
               placeholder={type === 'credits' ? 'VD: 500' : 'VD: 30'}
               min={0}
               max={type === 'discount_percent' ? 100 : 100000}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition disabled:opacity-40"
+              className="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 transition disabled:opacity-40"
             />
           </div>
 
           {/* 4. Giới Hạn Lượt Dùng (Max Uses) */}
           <div>
             <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
-              Giới Hạn Lượt Dùng
+              Giới hạn lượt dùng
             </label>
             <input
               type="number"
               data-testid="admin-input-coupon-maxuses"
               value={maxUses}
               onChange={(e) => setMaxUses(e.target.value)}
-              placeholder="Trống = Vô hạn (∞)"
+              placeholder="Trống = vô hạn (∞)"
               min={1}
-              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 transition"
             />
           </div>
         </div>
@@ -318,8 +319,8 @@ export const AdminCouponManager: React.FC = () => {
               data-testid="admin-input-coupon-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Mô tả chiến dịch (VD: Tặng sinh viên trường EIU trải nghiệm PRO)..."
-              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-zinc-300 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition"
+              placeholder="Mô tả chiến dịch (vd: tặng sinh viên trường eiu trải nghiệm PRO)..."
+              className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-zinc-300 placeholder-zinc-400 focus:outline-none focus:border-zinc-500 transition"
             />
           </div>
 
@@ -327,14 +328,14 @@ export const AdminCouponManager: React.FC = () => {
             type="submit"
             data-testid="btn-create-cloud-coupon"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 shadow-lg shadow-amber-500/20 active:scale-98 transition disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-700 text-zinc-950 shadow-lg shadow-zinc-500/20 active:scale-98 transition disabled:opacity-50"
           >
             {isSubmitting ? (
               <RefreshCw size={14} className="animate-spin" />
             ) : (
               <Plus size={15} />
             )}
-            <span>Phát Hành Mã Lên Cloud Ngay</span>
+            <span>Phát hành mã lên cloud ngay</span>
           </button>
         </div>
 
@@ -343,7 +344,7 @@ export const AdminCouponManager: React.FC = () => {
           <div
             className={`flex items-center gap-2 text-xs font-medium p-3 rounded-xl border ${
               feedback.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                ? 'bg-zinc-700/10 border-zinc-500/30 text-zinc-300'
                 : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
             }`}
           >
@@ -356,9 +357,9 @@ export const AdminCouponManager: React.FC = () => {
       {/* Bảng Theo Dõi Trực Tiếp (Realtime Tracker Table) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 px-1">
-          <span>Danh Sách Mã Khuyến Mãi Trên Cloud ({coupons.length})</span>
-          <span className="flex items-center gap-1.5 text-[11px] text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Danh sách mã khuyến mãi trên cloud ({coupons.length})</span>
+          <span className="flex items-center gap-1.5 text-[11px] text-zinc-300">
+            <span className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse" />
             Đồng bộ đám mây realtime
           </span>
         </div>
@@ -398,7 +399,7 @@ export const AdminCouponManager: React.FC = () => {
                         className="p-1 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition"
                       >
                         {copiedCode === c.code ? (
-                          <Check size={12} className="text-emerald-400" />
+                          <Check size={12} className="text-zinc-300" />
                         ) : (
                           <Copy size={12} />
                         )}
@@ -406,15 +407,15 @@ export const AdminCouponManager: React.FC = () => {
                       {getTypeBadge(c.type)}
                       {isLocked ? (
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700">
-                          ĐÃ KHÓA
+                          Đã khóa
                         </span>
                       ) : isExhausted ? (
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                          HẾT LƯỢT
+                          Hết lượt
                         </span>
                       ) : (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          ĐANG CHẠY
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-700/20 text-zinc-300 border border-zinc-500/30">
+                          Đang chạy
                         </span>
                       )}
                     </div>
@@ -438,7 +439,7 @@ export const AdminCouponManager: React.FC = () => {
                     <div className="text-right">
                       <div className="text-xs font-semibold text-zinc-200">
                         Đã dùng{' '}
-                        <span className="text-amber-400 font-bold">{c.usedCount}</span> /{' '}
+                        <span className="text-zinc-300 font-bold">{c.usedCount}</span> /{' '}
                         <span>{isUnlimited ? '∞' : c.maxUses} lượt</span>
                       </div>
                       {!isUnlimited && (
@@ -448,8 +449,8 @@ export const AdminCouponManager: React.FC = () => {
                               isExhausted
                                 ? 'bg-rose-500'
                                 : percentage > 80
-                                ? 'bg-amber-500'
-                                : 'bg-emerald-500'
+                                ? 'bg-zinc-700'
+                                : 'bg-zinc-700'
                             }`}
                             style={{ width: `${percentage}%` }}
                           />
@@ -465,7 +466,7 @@ export const AdminCouponManager: React.FC = () => {
                         title="Chỉnh sửa số lượt dùng tối đa"
                         aria-label={`Chỉnh sửa số lượt mã ${c.code}`}
                         data-testid={`btn-edit-maxuses-${c.code}`}
-                        className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-400 hover:text-amber-300 hover:bg-amber-500/10 hover:border-amber-500/30 transition cursor-pointer"
+                        className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-700/10 hover:border-zinc-500/30 transition cursor-pointer"
                       >
                         <Edit2 size={13} />
                       </button>
@@ -476,7 +477,7 @@ export const AdminCouponManager: React.FC = () => {
                         title={c.isActive === false ? 'Mở khóa mã' : 'Khóa mã này'}
                         className={`p-1.5 rounded-lg border transition ${
                           c.isActive === false
-                            ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
+                            ? 'bg-zinc-700/10 border-zinc-500/30 text-zinc-300 hover:bg-zinc-700/20'
                             : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-400 hover:text-white hover:bg-zinc-800'
                         }`}
                       >
@@ -506,12 +507,12 @@ export const AdminCouponManager: React.FC = () => {
           data-testid="modal-edit-maxuses"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
         >
-          <div className="w-full max-w-sm p-5 rounded-2xl bg-zinc-950 border border-amber-500/40 shadow-2xl space-y-4">
+          <div className="w-full max-w-sm p-5 rounded-2xl bg-zinc-950 border border-zinc-500/40 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2">
-                <Edit2 size={16} className="text-amber-400" />
+                <Edit2 size={16} className="text-zinc-300" />
                 <h4 className="text-sm font-bold text-white">
-                  Sửa Lượt Dùng: <span className="font-mono text-amber-300">{editingCoupon.code}</span>
+                  Sửa lượt dùng: <span className="font-mono text-zinc-300">{editingCoupon.code}</span>
                 </h4>
               </div>
               <button
@@ -532,10 +533,10 @@ export const AdminCouponManager: React.FC = () => {
                 <input
                   type="number"
                   min={1}
-                  placeholder="Để trống = Không giới hạn (∞)"
+                  placeholder="Để trống = không giới hạn (∞)"
                   value={editMaxUsesInput}
                   onChange={(e) => setEditMaxUsesInput(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white font-mono text-sm focus:outline-none focus:border-amber-400"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white font-mono text-sm focus:outline-none focus:border-zinc-400"
                   autoFocus
                 />
               </div>
@@ -550,9 +551,9 @@ export const AdminCouponManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition cursor-pointer shadow-md"
+                  className="px-4 py-1.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-md"
                 >
-                  Lưu Lên Cloud
+                  Lưu lên cloud
                 </button>
               </div>
             </form>

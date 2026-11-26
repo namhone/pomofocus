@@ -1,0 +1,5 @@
+
+> immersive-pomodoro-workspace@1.0.0 type-check
+> tsc --noEmit
+
+src/components/common/UiSymbol.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
