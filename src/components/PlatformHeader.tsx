@@ -270,7 +270,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           data-testid="floating-header-capsule"
           aria-label="Thanh điều hướng thu gọn"
           style={{ top: 'calc(max(env(safe-area-inset-top, 0px), var(--sat-native, 0px)) + 0.75rem)' }}
-          className={`fixed right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full ${
+          className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} fixed right-4 sm:right-6 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full ${
             isEcoMode ? 'bg-[#0c0c0e]/95' : 'bg-zinc-950/85 backdrop-blur-xl'
           } border border-white/10 shadow-xl transition-all duration-300 ease-out select-none ${
             isAiOpen
@@ -310,7 +310,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             data-testid="capsule-credits-btn"
             onClick={handleCreditsBadgeClick}
             aria-label="Số dư AI credits"
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/10 hover:bg-zinc-700/20 border border-zinc-500/20 text-zinc-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 text-zinc-300 text-[11px] font-mono font-medium transition cursor-pointer shrink-0 active:scale-95"
             title={
               isVipOrOwner
                 ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ Không giới hạn'
@@ -374,7 +374,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
       {/* ========================================================================= */}
       <header
         data-testid="platform-unified-header"
-        className={`${
+        className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} ${
           isWorkspace
             ? `fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 ${
                 isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
@@ -494,7 +494,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 e.stopPropagation();
                 useAiStore.getState().toggleOpen();
               }}
-              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.03] hover:bg-white/[0.06] text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap"
               title={
                 isVipOrOwner
                   ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'

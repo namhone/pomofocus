@@ -1,4 +1,22 @@
 # POMOFOCUS DESIGN SYSTEM SPECIFICATION
+
+## Cập nhật Monochrome liquid glass — 26/11/2026
+
+Quy chuẩn Nam giao tại đây thay thế các accent màu trong bản v2.0 lịch sử bên dưới. Áp dụng nguyên tắc Apple về phân cấp và tiết chế cho React/WebView, không mô phỏng API hay quy ước điều hướng iOS.
+
+| Vai trò | Giá trị hiện hành |
+| --- | --- |
+| Nền | `#09090b` |
+| Card phụ / card chính | Trắng 2–4% / 4–6% trên nền tối; không blur lồng nhiều card |
+| Pill đang chọn | Gradient trắng 14% → 7%; viền 10%, cạnh trên 20% |
+| Specular rim | `inset 0 1px 0 rgb(255 255 255 / 0.08)` |
+| CTA chính | Trắng, chữ `#09090b`; phản hồi nhấn scale 0.96 |
+| Chữ chính / phụ | Trắng / zinc-400; kiểm chứng axe trên nền thực tế |
+| Ambient đồng hồ | Radial trắng 6% → trong suốt; tĩnh, không displacement/SVG filter |
+
+Chỉ các điều khiển nổi dùng backdrop blur. `.liquid-elevated` tạo lớp card bằng gradient/rim/shadow tĩnh. `.liquid-glass-screen.liquid-eco` tắt backdrop blur và glow CTA; `prefers-reduced-motion` hoặc `prefers-reduced-transparency` còn ẩn ambient, giữ nguyên outline A11y. Header credits dùng hairline 10%, không cạnh tranh với CTA. Lucide 1.5px, Sentence case, không emoji màu hoặc neon.
+
+Phần lịch sử dưới đây không được dùng để khôi phục palette emerald/amber/indigo/cyan.
 > **Phiên bản**: 2.0 (Linear & LifeAt Standard)  
 > **Triết lý**: Simplicity First (Karpathy Principle) & Zen-First Workspace (Deep Focus)
 

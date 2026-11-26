@@ -1,0 +1,8 @@
+Monochrome liquid glass — 2026-11-26
+Phạm vi: Focus mobile/desktop, Meet lobby, Header; giữ logic Auth/Wallet/Avatar/A11y ac43fbd.
+Đã cài apple-design và design-audit trong .agents/skills; nguồn/commit ghi tại skills-lock.json.
+Đã chỉnh phân cấp, specular rim, CTA trắng, caption Meet và progressive disclosure mã phòng.
+Đã qua type-check/build, 94/94 Vitest, Chrome 8/8 + A11y hồi quy 5/5; axe 0 vi phạm.
+APK 8.1.2/code83: 8.43 MB, signature và payload đã kiểm chứng; chưa có thiết bị ADB.
+Đang commit/push/deploy production; chưa xác nhận alias phục vụ bản mới.
+Kết quả kết thúc và production được ghi trong .agents/AGENT_COMMS.md.

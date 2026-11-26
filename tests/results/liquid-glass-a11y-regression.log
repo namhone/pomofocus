@@ -1,0 +1,18 @@
+[WebServer] (node:15304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:9816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 a11y.spec.ts:32:1 › 320px: header spacing, keyboard focus and forced colors (17.2s)
+  ok 2 a11y.spec.ts:65:3 › timer semantics and phase announcements 1366 (7.5s)
+  ok 3 a11y.spec.ts:65:3 › timer semantics and phase announcements 1440 (4.6s)
+  ok 4 a11y.spec.ts:65:3 › timer semantics and phase announcements 390 (5.2s)
+  ok 5 a11y.spec.ts:65:3 › timer semantics and phase announcements 390-native (2.3s)
+
+  Slow test file: a11y.spec.ts (36.8s)
+  Consider splitting slow test files to speed up parallel execution
+  5 passed (1.4m)

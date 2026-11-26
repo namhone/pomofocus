@@ -2,6 +2,7 @@ import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 import {
   studyRoomService,
   PUBLIC_FREE_PODS,
@@ -32,6 +33,7 @@ import {
 } from 'lucide-react';
 
 export const StudyRoomLobby: React.FC = () => {
+  const isEcoMode = useLayoutStore(state => state.isEcoMode);
   const router = useRouter();
   const { user: storeUser } = useAuthStore();
   const user = storeUser || (typeof window !== 'undefined' && window.localStorage
@@ -302,43 +304,36 @@ export const StudyRoomLobby: React.FC = () => {
       title="PomoFocus Meet"
       subtitle="Phòng học nhóm trực tuyến"
       onBack={() => router.navigate('/app')}
-      className="bg-zinc-950 text-zinc-100 selection:bg-zinc-800 selection:text-white"
+      className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} bg-zinc-950 text-zinc-100 selection:bg-zinc-800 selection:text-white`}
     >
-      <div className="w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col justify-start">
+      <div className="w-full max-w-5xl mx-auto px-4 py-5 sm:py-10 flex flex-col justify-start">
         {/* Hero Header (Monochrome Stealth) */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium mb-4">
+        <div className="text-center max-w-2xl mx-auto mb-5 sm:mb-9">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium mb-3 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
-            <span>Phòng học nhóm • không gian tập trung trực tuyến</span>
+            <span>Phòng học trực tuyến</span>
+            <span className="border-l border-white/10 pl-2 text-[10px] text-zinc-400">Beta</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 flex items-center justify-center gap-2.5 flex-wrap">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
             <span>Học cùng bạn bè tại <span className="text-zinc-100">PomoFocus Meet</span></span>
-            <span className="px-2 py-0.5 text-[11px] font-bold tracking-wider rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 normal-case">
-              Beta
-            </span>
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Kết nối video trực tiếp, đồng bộ đồng hồ pomodoro, chia sẻ màn hình và bảng vẽ chung.
-            Tạo phòng riêng hoặc tham gia bằng mã phòng có sẵn.
+            Cùng tập trung với video, đồng hồ và bảng vẽ chung.
+            Tạo phòng hoặc tham gia bằng mã mời.
           </p>
         </div>
 
         {/* Action Grid: Tạo phòng & Tham gia phòng (Monochrome Stealth) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
           {/* Box 1: Tạo phòng mới */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
+          <div className="liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
             <div>
-              <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-2.5">
-                <PlusCircle size={18} />
-              </div>
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
+                <PlusCircle size={18} strokeWidth={1.5} className="shrink-0 text-zinc-200" />
                 <span>Khởi tạo phòng học mới</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
-                  Mã duy nhất
-                </span>
               </h2>
               <p className="text-xs text-zinc-400 mb-3.5 leading-relaxed">
-                Tự động tạo mã phòng ngẫu nhiên và cấp quyền chủ phòng (host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.
+                Mời bạn bè và bắt đầu phiên học chung. Bạn quản lý thành viên và đồng hồ của phòng.
               </p>
 
               {errorMsg && (
@@ -358,11 +353,12 @@ export const StudyRoomLobby: React.FC = () => {
 
               <form onSubmit={handleCreateRoom} aria-busy={isSubmitting} className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-zinc-300 mb-1">
+                  <label htmlFor="create-room-title" className="block text-[11px] font-medium text-zinc-300 mb-1">
                     Tên phòng học (tùy chọn)
                   </label>
                   <input
                     type="text"
+                    id="create-room-title"
                     value={roomTitle}
                     onChange={(e) => setRoomTitle(e.target.value)}
                     placeholder={`Phòng của ${user?.displayName || 'bạn'}...`}
@@ -370,19 +366,7 @@ export const StudyRoomLobby: React.FC = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-medium text-zinc-300 mb-1">
-                    <span>Đặt tên phòng của bạn</span>
-                  </label>
-                  <input
-                    type="text"
-                    data-testid="input-room-slug"
-                    value={roomSlug}
-                    onChange={(e) => setRoomSlug(e.target.value)}
-                    placeholder="vd: namho-focus-room (để trống tạo ngẫu nhiên)"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50"
-                  />
-                </div>
+
 
                 {/* Nút bật/tắt Tùy chỉnh chuyên sâu */}
                 <button
@@ -393,13 +377,27 @@ export const StudyRoomLobby: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5 font-medium">
                     <Sliders size={13} className="text-zinc-300" />
-                    <span>Tùy chỉnh phòng họp chuyên sâu (pin, mục tiêu, chế độ)</span>
+                    <span>Tùy chỉnh phòng</span>
                   </span>
                   {showAdvancedCreate ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
 
                 {showAdvancedCreate && (
                   <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-3 text-xs animate-in fade-in duration-150">
+                    <div>
+                      <label htmlFor="create-room-slug" className="block text-[11px] font-medium text-zinc-300 mb-1">
+                        <span>Mã phòng (tùy chọn)</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="create-room-slug"
+                        data-testid="input-room-slug"
+                        value={roomSlug}
+                        onChange={(e) => setRoomSlug(e.target.value)}
+                        placeholder="vd: namho-focus-room (để trống tạo ngẫu nhiên)"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50"
+                      />
+                    </div>
                     {/* 1. Mục tiêu buổi học */}
                     <div>
                       <label className="block text-[10px] font-medium text-zinc-400 mb-1">Mục tiêu buổi học (hiển thị ghim)</label>
@@ -502,7 +500,7 @@ export const StudyRoomLobby: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => router.navigate('/login')}
-                    className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <LogIn size={15} />
                     <span>Đăng nhập để tạo phòng</span>
@@ -513,7 +511,7 @@ export const StudyRoomLobby: React.FC = () => {
                       type="submit"
                       data-testid="btn-create-room"
                       disabled={isSubmitting}
-                      className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                      className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                     >
                       <Video size={15} />
                       <span>Tạo phòng học Free (45 phút)</span>
@@ -527,7 +525,7 @@ export const StudyRoomLobby: React.FC = () => {
                     type="submit"
                     data-testid="btn-create-room"
                       disabled={isSubmitting}
-                    className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                    className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                   >
                     <Video size={15} />
                     <span>Tạo phòng PRO không giới hạn &amp; lấy mã</span>
@@ -580,7 +578,7 @@ export const StudyRoomLobby: React.FC = () => {
                 <button
                   type="submit"
                   data-testid="btn-join-room-code"
-                  className="w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                  className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
                 >
                   <ArrowRight size={15} />
                   <span>Vào phòng học ngay</span>
@@ -687,7 +685,7 @@ export const StudyRoomLobby: React.FC = () => {
                         type="button"
                         data-testid={`btn-join-${pod.roomId}`}
                         onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
-                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow"
+                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow"
                       >
                         <LogIn size={14} className="-translate-y-[0.5px]" />
                         <span>Vào học (1 chạm)</span>

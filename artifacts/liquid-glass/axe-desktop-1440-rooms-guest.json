@@ -1,0 +1,239 @@
+{
+  "url": "http://127.0.0.1:5198/rooms",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "bold",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Khởi tạo phòng học mới</span>",
+          "target": [
+            ".liquid-elevated > div:nth-child(1) > h2 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-xs text-zinc-400 mb-3.5 leading-relaxed\">Mời bạn bè và bắt đầu phiên học chung. Bạn quản lý thành viên và đồng hồ của phòng.</p>",
+          "target": [
+            ".liquid-elevated > div:nth-child(1) > .mb-3\\.5.leading-relaxed"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<label for=\"create-room-title\" class=\"block text-[11px] font-medium text-zinc-300 mb-1\">Tên phòng học (tùy chọn)</label>",
+          "target": [
+            "label[for=\"create-room-title\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Chủ sở hữu hoặc tài khoản PRO có thể mời khách tham gia miễn phí.</span>",
+          "target": [
+            ".liquid-elevated > .mt-4.pt-3.border-t > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 3
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 3
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 2
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 3
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 3
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 3
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 2
+    },
+    {
+      "id": "button-name",
+      "nodes": 42
+    },
+    {
+      "id": "bypass",
+      "nodes": 1
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 67
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "duplicate-id-aria",
+      "nodes": 1
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "nodes": 2
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "label",
+      "nodes": 2
+    },
+    {
+      "id": "link-name",
+      "nodes": 1
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 42
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "nodes": 1
+    }
+  ]
+}

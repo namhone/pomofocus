@@ -1,0 +1,14 @@
+{
+  "version": "8.1.2",
+  "package": "com.pomofocus.workspace",
+  "sha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
+  "signatureVerified": true,
+  "remoteUiUrl": false,
+  "ecoReducedMotionCss": true,
+  "nestedApkCount": 0,
+  "authWalletCode": true,
+  "avatarCode": true,
+  "checkedAt": "2026-11-26T08:30:49.2690592Z",
+  "versionCode": 83,
+  "bundledAssetsMatched": 26
+}

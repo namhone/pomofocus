@@ -15,7 +15,7 @@ export const ANDROID_DIR = path.join(PROJECT_ROOT, 'android');
 export const LOCAL_PROPERTIES_PATH = path.join(ANDROID_DIR, 'local.properties');
 export const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 export const DOWNLOADS_DIR = path.join(PUBLIC_DIR, 'downloads');
-export const APP_VERSION = '8.1.1';
+export const APP_VERSION = '8.1.2';
 export const APK_FILENAME = 'PomoFocus-v8.1.apk';
 export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, APK_FILENAME);
 export const VERSION_JSON_PATH = path.join(PUBLIC_DIR, 'version.json');
@@ -107,7 +107,7 @@ export function copyAndHashApk() {
   }
 
   versionData.version = APP_VERSION;
-  versionData.versionCode = 82;
+  versionData.versionCode = 83;
   versionData.minSupportedVersion = versionData.minSupportedVersion || '7.0.0';
   versionData.minVersion = versionData.minVersion || '7.0.0';
   versionData.releaseDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
@@ -115,7 +115,7 @@ export function copyAndHashApk() {
   versionData.apkSizeMb = sizeMb;
   versionData.checksumSha256 = sha256;
   versionData.releaseNotes =
-    'Giao diện tối giản, dễ đọc trên nền sáng; phòng học gọn hơn và cải thiện độ ổn định.';
+    'Đồng hồ nổi bật hơn, phòng học gọn hơn; cải thiện đăng nhập và đồng bộ ảnh đại diện.';
   versionData.changelog = [
     'Phòng học nhóm PomoFocus Meet (/rooms) với đồng bộ đồng hồ thời gian thực',
     'Bảng trắng nhóm (Shared Whiteboard) lưu vết nét vẽ bền vững',

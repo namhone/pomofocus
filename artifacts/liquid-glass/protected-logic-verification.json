@@ -1,0 +1,13 @@
+{
+  "baseline": "ac43fbd",
+  "diffEmpty": true,
+  "unchangedPaths": [
+    "api/ai/companion.ts",
+    "src/stores/useAuthStore.ts",
+    "src/services/authService.ts",
+    "src/services/profileService.ts",
+    "src/services/avatarUploadService.ts",
+    "src/components/common/UserAvatar.tsx",
+    "src/services/workspaceRealtimeService.ts"
+  ]
+}

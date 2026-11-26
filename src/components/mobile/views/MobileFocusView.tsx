@@ -18,6 +18,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useTimerStore } from '../../../stores/useTimerStore';
+import { useLayoutStore } from '../../../stores/useLayoutStore';
 import { useTaskStore } from '../../../stores/useTaskStore';
 import { db } from '../../../db';
 import { getVietnamTodayDateKey, VIETNAM_TIMEZONE } from '../../../utils/timezone';
@@ -84,6 +85,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   onSelectTask,
   onManageTasks,
 }) => {
+  const isEcoMode = useLayoutStore((s) => s.isEcoMode);
   const phase = useTimerStore((s) => s.phase);
   const status = useTimerStore((s) => s.status);
   const remainingMs = useTimerStore((s) => s.remainingMs);
@@ -717,7 +719,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
   return (
     <div
       data-testid="mobile-focus-view"
-      className={`w-full h-full flex flex-col justify-between items-center py-3 sm:py-5 px-4 select-none relative overflow-y-auto overflow-x-hidden bg-transparent pb-28 ${className}`}
+      className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} w-full h-full flex flex-col justify-between items-center py-3 sm:py-5 px-4 select-none relative overflow-y-auto overflow-x-hidden bg-transparent pb-28 ${className}`}
     >
       {/* ------------------------------------------------------------------ */}
       {/* Pocket Lock (🔒) Full-Screen Touch Interceptor via Portal (z-[70]) */}
@@ -802,7 +804,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('pomodoro')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'pomodoro'
-                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
+                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -817,7 +819,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('short_break')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'short_break'
-                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
+                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -832,7 +834,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             onClick={() => handleSetPhase('long_break')}
             className={`w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 ${
               phase === 'long_break'
-                ? 'bg-white/15 text-white font-semibold border border-white/20 shadow-sm'
+                ? 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]'
                 : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
           >
@@ -1093,12 +1095,12 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
       {/* 2. LAYER 2 (CENTER FOCUS CORE): Numerals, Breathing Aura, Thumb     */}
       {/* ------------------------------------------------------------------ */}
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center relative w-full z-10 py-4">
-        <div className="relative flex flex-col items-center justify-center drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
+        <div className="relative isolate flex flex-col items-center justify-center">
           {/* Breathing Aura */}
-          {status === 'running' && (
+          {!isEcoMode && (
             <div
               data-testid="mobile-breathing-aura"
-              className="absolute -inset-10 sm:-inset-16 rounded-full animate-pulse bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-700/20 via-zinc-700/10 to-transparent blur-3xl pointer-events-none -z-10"
+              className="liquid-ambient absolute -inset-x-20 -inset-y-14 sm:-inset-x-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.04)_35%,transparent_72%)] pointer-events-none -z-10"
               style={{ transform: 'translateZ(0)' }}
               aria-hidden="true"
             />
@@ -1143,10 +1145,10 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
             aria-valuenow={Math.round(progressPercent)}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="w-48 sm:w-64 h-1 bg-zinc-800/80 rounded-full overflow-hidden mt-3 shadow-inner shrink-0"
+            className="w-48 sm:w-64 h-0.5 bg-white/[0.10] rounded-full overflow-hidden mt-3 shrink-0"
           >
             <div
-              className="h-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 transition-all duration-300 rounded-full"
+              className="h-full bg-gradient-to-r from-zinc-400 to-white/90 transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -1154,11 +1156,11 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
           {/* Completed Cycle Dots & Round Indicator */}
           <div
             data-testid="mobile-cycle-status-pill"
-            className="flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-zinc-900/60 border border-white/10 backdrop-blur-md shadow-sm"
+            className="flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 border-t-white/20 backdrop-blur-md shadow-sm"
           >
             <span
               data-testid="mobile-cycle-round-label"
-              className="text-[11px] font-mono font-medium text-zinc-300"
+              className="text-[11px] font-mono font-medium text-white"
             >
               Hiệp {currentRound}/{totalRounds}
             </span>
@@ -1182,9 +1184,9 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                     data-state={isPast ? 'completed' : isCurrent ? 'active' : 'upcoming'}
                     className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                       isPast
-                        ? 'bg-zinc-700 shadow-[0_0_6px_rgba(255,255,255,0.5)]'
+                        ? 'bg-zinc-200'
                         : isCurrent
-                        ? 'bg-transparent border-2 border-zinc-400 shadow-[0_0_8px_rgba(255,255,255,0.4)] animate-pulse'
+                        ? 'bg-white/10 border-2 border-white'
                         : 'bg-zinc-800 border border-white/10'
                     }`}
                     aria-label={`Hiệp ${roundNum}: ${isPast ? 'Đã hoàn thành' : isCurrent ? 'Đang diễn ra' : 'Chưa diễn ra'}`}
@@ -1266,7 +1268,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
               onPointerLeave={handleActionPointerCancel}
               onPointerCancel={handleActionPointerCancel}
               aria-label={status === 'running' ? 'Tạm dừng đồng hồ' : 'Bắt đầu đếm giờ'}
-              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold shadow-lg shadow-white/10 active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="w-16 h-16 min-w-[64px] min-h-[64px] rounded-full flex items-center justify-center bg-white text-zinc-950 font-bold liquid-glow shadow-[0_4px_28px_rgba(255,255,255,0.14),inset_0_1px_0_rgba(255,255,255,0.7)] active:scale-[0.96] transition-all touch-manipulation cursor-pointer"
             >
               {status === 'running' ? (
                 <Pause className="w-6 h-6 fill-current stroke-current" aria-hidden="true" />
@@ -1298,13 +1300,13 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
         <div
           data-testid="mobile-daily-flow-strip"
           onClick={() => setIsSessionLogOpen(true)}
-          className="w-full rounded-2xl bg-zinc-900/60 border border-white/5 px-3.5 py-2 backdrop-blur-md flex flex-col gap-1.5 text-xs hover:border-white/10 transition-colors cursor-pointer"
+          className="liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer"
           role="button"
           tabIndex={0}
           aria-label="Xem nhật ký phiên hôm nay"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-sans text-zinc-400">Dòng chảy hôm nay</span>
+            <span className="text-[11px] font-sans text-zinc-300">Dòng chảy hôm nay</span>
             <span
               data-testid="mobile-daily-flow-summary"
               className="text-xs text-zinc-400 font-sans"
@@ -1327,7 +1329,7 @@ export const MobileFocusView: React.FC<MobileFocusViewProps> = ({
                   data-testid={`mobile-flow-hour-${hour}`}
                   data-active={isActive ? 'true' : 'false'}
                   className={`h-1 flex-1 rounded-full transition-colors ${
-                    isActive ? 'bg-zinc-700' : 'bg-zinc-800'
+                    isActive ? 'bg-zinc-200' : 'bg-white/[0.08]'
                   }`}
                 />
               );

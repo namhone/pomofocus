@@ -1,0 +1,34 @@
+[WebServer] (node:10564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:5100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [desktop-1366] › hierarchy.spec.ts:48:1 › Focus: visual depth, real timer controls, Eco and safe area (12.0s)
+  ok 2 [desktop-1366] › hierarchy.spec.ts:77:1 › Meet: single-line subtitle, visible CTA and retained advanced room code (14.7s)
+(node:18444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [desktop-1440] › hierarchy.spec.ts:48:1 › Focus: visual depth, real timer controls, Eco and safe area (12.1s)
+  ok 4 [desktop-1440] › hierarchy.spec.ts:77:1 › Meet: single-line subtitle, visible CTA and retained advanced room code (6.3s)
+(node:16388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 5 [mobile-390] › hierarchy.spec.ts:48:1 › Focus: visual depth, real timer controls, Eco and safe area (7.5s)
+  ok 6 [mobile-390] › hierarchy.spec.ts:77:1 › Meet: single-line subtitle, visible CTA and retained advanced room code (5.1s)
+(node:20092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 7 [native-390] › hierarchy.spec.ts:48:1 › Focus: visual depth, real timer controls, Eco and safe area (8.5s)
+  ok 8 [native-390] › hierarchy.spec.ts:77:1 › Meet: single-line subtitle, visible CTA and retained advanced room code (4.8s)
+
+  Slow test file: [desktop-1366] › hierarchy.spec.ts (26.6s)
+  Slow test file: [desktop-1440] › hierarchy.spec.ts (18.4s)
+  Consider splitting slow test files to speed up parallel execution
+  8 passed (2.3m)

@@ -13,7 +13,7 @@
     "orientationAngle": 0,
     "orientationType": "landscape-primary"
   },
-  "timestamp": "2026-11-26T07:49:32.253Z",
+  "timestamp": "2026-11-26T08:32:31.636Z",
   "url": "http://127.0.0.1:5194/rooms",
   "toolOptions": {
     "runOnly": {
@@ -256,21 +256,6 @@
       "description": "Ensure <dt> and <dd> elements are contained by a <dl>",
       "help": "<dt> and <dd> elements must be contained by a <dl>",
       "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/dlitem?application=playwright",
-      "nodes": []
-    },
-    {
-      "id": "duplicate-id-aria",
-      "impact": null,
-      "tags": [
-        "cat.parsing",
-        "wcag2a",
-        "wcag412",
-        "EN-301-549",
-        "EN-9.4.1.2"
-      ],
-      "description": "Ensure every id attribute value used in ARIA and in labels is unique",
-      "help": "IDs used in ARIA and labels must be unique",
-      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-aria?application=playwright",
       "nodes": []
     },
     {
@@ -785,7 +770,7 @@
           "impact": null,
           "html": "<form aria-busy=\"false\" class=\"space-y-3\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form"
+            ".liquid-elevated > div:nth-child(1) > form"
           ]
         },
         {
@@ -907,7 +892,7 @@
           "impact": null,
           "html": "<form aria-busy=\"false\" class=\"space-y-3\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form"
+            ".liquid-elevated > div:nth-child(1) > form"
           ]
         },
         {
@@ -1165,7 +1150,7 @@
           "impact": null,
           "html": "<form aria-busy=\"false\" class=\"space-y-3\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form"
+            ".liquid-elevated > div:nth-child(1) > form"
           ]
         },
         {
@@ -1395,7 +1380,7 @@
           "impact": null,
           "html": "<form aria-busy=\"false\" class=\"space-y-3\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form"
+            ".liquid-elevated > div:nth-child(1) > form"
           ]
         },
         {
@@ -1529,7 +1514,7 @@
           "impact": null,
           "html": "<form aria-busy=\"false\" class=\"space-y-3\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form"
+            ".liquid-elevated > div:nth-child(1) > form"
           ]
         },
         {
@@ -1676,9 +1661,9 @@
           ],
           "none": [],
           "impact": null,
-          "html": "<input type=\"text\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
+          "html": "<input type=\"text\" id=\"create-room-title\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
           "target": [
-            "input[placeholder=\"Phòng của bạn...\"]"
+            "#create-room-title"
           ]
         }
       ]
@@ -1747,7 +1732,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"header-ai-btn\" class=\"flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap\" title=\"Mở Trợ lý AI Companion (50⚡)\">",
+          "html": "<button type=\"button\" data-testid=\"header-ai-btn\" class=\"flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.03] hover:bg-white/[0.06] text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap\" title=\"Mở Trợ lý AI Companion (50⚡)\">",
           "target": [
             ".sm\\:px-3"
           ]
@@ -1941,9 +1926,9 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" class=\"w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer\">",
+          "html": "<button type=\"button\" class=\"w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form > .bg-white.text-black.hover\\:bg-zinc-200"
+            ".liquid-elevated > div:nth-child(1) > form > .text-zinc-950.liquid-glow.shadow-\\[0_4px_20px_rgba\\(255\\,255\\,255\\,0\\.10\\)\\]"
           ]
         },
         {
@@ -1959,7 +1944,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"submit\" data-testid=\"btn-join-room-code\" class=\"w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98\">",
+          "html": "<button type=\"submit\" data-testid=\"btn-join-room-code\" class=\"w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98\">",
           "target": [
             "button[type=\"submit\"]"
           ]
@@ -1977,7 +1962,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-01\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-01\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-01\"]"
           ]
@@ -1995,7 +1980,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-02\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-02\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-02\"]"
           ]
@@ -2013,7 +1998,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-03\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-03\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-03\"]"
           ]
@@ -2031,7 +2016,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-04\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-04\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-04\"]"
           ]
@@ -2049,7 +2034,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-05\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-05\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-05\"]"
           ]
@@ -2067,7 +2052,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-06\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-06\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-06\"]"
           ]
@@ -2085,7 +2070,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-07\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-07\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-07\"]"
           ]
@@ -2103,7 +2088,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-08\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-08\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-08\"]"
           ]
@@ -2121,7 +2106,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-09\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-09\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-09\"]"
           ]
@@ -2139,7 +2124,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-10\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-10\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-10\"]"
           ]
@@ -2498,21 +2483,21 @@
               "data": null,
               "relatedNodes": [
                 {
-                  "html": "<h1 class=\"text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 flex items-center justify-center gap-2.5 flex-wrap\">",
+                  "html": "<h1 class=\"text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2\"><span>Học cùng bạn bè tại <span class=\"text-zinc-100\">PomoFocus Meet</span></span></h1>",
                   "target": [
                     "h1"
                   ]
                 },
                 {
-                  "html": "<h2 class=\"text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2\"><span>Khởi tạo phòng học mới</span><span class=\"text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold\">Mã duy nhất</span></h2>",
+                  "html": "<h2 class=\"text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2\">",
                   "target": [
-                    ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > h2"
+                    ".liquid-elevated > div:nth-child(1) > h2"
                   ]
                 },
                 {
                   "html": "<h2 class=\"text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2\"><span>Tham gia phòng có sẵn</span><span class=\"text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold\">Mã hoặc link</span></h2>",
                   "target": [
-                    ".p-4.sm\\:p-5.shadow-xl:nth-child(2) > div:nth-child(1) > h2"
+                    ".shadow-xl > div:nth-child(1) > h2"
                   ]
                 },
                 {
@@ -2558,7 +2543,7 @@
     },
     {
       "id": "color-contrast",
-      "impact": null,
+      "impact": "serious",
       "tags": [
         "cat.color",
         "wcag2aa",
@@ -2604,15 +2589,15 @@
               "id": "color-contrast",
               "data": {
                 "fgColor": "#e4e4e7",
-                "bgColor": "#151517",
-                "contrastRatio": 14.37,
+                "bgColor": "#111113",
+                "contrastRatio": 14.86,
                 "fontSize": "8.3pt (11px)",
                 "fontWeight": "normal",
                 "expectedContrastRatio": "4.5:1"
               },
               "relatedNodes": [],
               "impact": "serious",
-              "message": "Element has sufficient color contrast of 14.37"
+              "message": "Element has sufficient color contrast of 14.86"
             }
           ],
           "all": [],
@@ -2620,7 +2605,7 @@
           "impact": null,
           "html": "<span class=\"font-mono text-zinc-200 font-semibold\">50 Credits</span>",
           "target": [
-            ".sm\\:px-3 > .text-zinc-200.font-mono.font-semibold"
+            ".sm\\:px-3 > .font-mono.text-zinc-200.font-semibold"
           ]
         },
         {
@@ -2656,7 +2641,7 @@
                 "fgColor": "#d4d4d8",
                 "bgColor": "#18181b",
                 "contrastRatio": 11.98,
-                "fontSize": "9.0pt (12px)",
+                "fontSize": "8.3pt (11px)",
                 "fontWeight": "normal",
                 "expectedContrastRatio": "4.5:1"
               },
@@ -2668,9 +2653,34 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<span>Phòng học nhóm • không gian tập trung trực tuyến</span>",
+          "html": "<span>Phòng học trực tuyến</span>",
           "target": [
             ".bg-zinc-900 > span:nth-child(2)"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#a1a1aa",
+                "bgColor": "#18181b",
+                "contrastRatio": 6.91,
+                "fontSize": "7.5pt (10px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 6.91"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span class=\"border-l border-white/10 pl-2 text-[10px] text-zinc-400\">Beta</span>",
+          "target": [
+            ".border-l"
           ]
         },
         {
@@ -2695,7 +2705,7 @@
           "impact": null,
           "html": "<span>Học cùng bạn bè tại <span class=\"text-zinc-100\">PomoFocus Meet</span></span>",
           "target": [
-            "h1 > span:nth-child(1)"
+            "h1 > span"
           ]
         },
         {
@@ -2720,32 +2730,7 @@
           "impact": null,
           "html": "<span class=\"text-zinc-100\">PomoFocus Meet</span>",
           "target": [
-            "span:nth-child(1) > .text-zinc-100"
-          ]
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "fgColor": "#d4d4d8",
-                "bgColor": "#27272a",
-                "contrastRatio": 10.07,
-                "fontSize": "8.3pt (11px)",
-                "fontWeight": "bold",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element has sufficient color contrast of 10.07"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": null,
-          "html": "<span class=\"px-2 py-0.5 text-[11px] font-bold tracking-wider rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 normal-case\">Beta</span>",
-          "target": [
-            ".tracking-wider"
+            "span > .text-zinc-100"
           ]
         },
         {
@@ -2768,109 +2753,9 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<p class=\"text-xs sm:text-sm text-zinc-400 leading-relaxed\">Kết nối video trực tiếp, đồng bộ đồng hồ pomodoro, chia sẻ màn hình và bảng vẽ chung. Tạo phòng riêng hoặc tham gia bằng mã phòng có sẵn.</p>",
+          "html": "<p class=\"text-xs sm:text-sm text-zinc-400 leading-relaxed\">Cùng tập trung với video, đồng hồ và bảng vẽ chung. Tạo phòng hoặc tham gia bằng mã mời.</p>",
           "target": [
             ".sm\\:text-sm"
-          ]
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "fgColor": "#ffffff",
-                "bgColor": "#131316",
-                "contrastRatio": 18.54,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "bold",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element has sufficient color contrast of 18.54"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": null,
-          "html": "<span>Khởi tạo phòng học mới</span>",
-          "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > h2 > span:nth-child(1)"
-          ]
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "fgColor": "#d4d4d8",
-                "bgColor": "#27272a",
-                "contrastRatio": 10.07,
-                "fontSize": "7.5pt (10px)",
-                "fontWeight": "normal",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element has sufficient color contrast of 10.07"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": null,
-          "html": "<span class=\"text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold\">Mã duy nhất</span>",
-          "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > h2 > .text-\\[10px\\].rounded.px-2"
-          ]
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "fgColor": "#a1a1aa",
-                "bgColor": "#131316",
-                "contrastRatio": 7.23,
-                "fontSize": "9.0pt (12px)",
-                "fontWeight": "normal",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element has sufficient color contrast of 7.23"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": null,
-          "html": "<p class=\"text-xs text-zinc-400 mb-3.5 leading-relaxed\">Tự động tạo mã phòng ngẫu nhiên và cấp quyền chủ phòng (host) để quản lý thành viên, bật quyền mời khách Free và điều khiển đồng hồ.</p>",
-          "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > .mb-3\\.5.leading-relaxed"
-          ]
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "fgColor": "#d4d4d8",
-                "bgColor": "#131316",
-                "contrastRatio": 12.54,
-                "fontSize": "8.3pt (11px)",
-                "fontWeight": "normal",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element has sufficient color contrast of 12.54"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": null,
-          "html": "<label class=\"block text-[11px] font-medium text-zinc-300 mb-1\">Tên phòng học (tùy chọn)</label>",
-          "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form > div:nth-child(1) > label"
           ]
         },
         {
@@ -2893,9 +2778,9 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<input type=\"text\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
+          "html": "<input type=\"text\" id=\"create-room-title\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
           "target": [
-            "input[placeholder=\"Phòng của bạn...\"]"
+            "#create-room-title"
           ]
         },
         {
@@ -2904,23 +2789,23 @@
               "id": "color-contrast",
               "data": {
                 "fgColor": "#d4d4d8",
-                "bgColor": "#131316",
-                "contrastRatio": 12.54,
+                "bgColor": "#09090b",
+                "contrastRatio": 13.46,
                 "fontSize": "8.3pt (11px)",
                 "fontWeight": "normal",
                 "expectedContrastRatio": "4.5:1"
               },
               "relatedNodes": [],
               "impact": "serious",
-              "message": "Element has sufficient color contrast of 12.54"
+              "message": "Element has sufficient color contrast of 13.46"
             }
           ],
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<span>Đặt tên phòng của bạn</span>",
+          "html": "<span>Tùy chỉnh phòng</span>",
           "target": [
-            "label > span"
+            ".py-2 > .font-medium.gap-1\\.5.items-center > span"
           ]
         },
         {
@@ -2928,19 +2813,24 @@
             {
               "id": "color-contrast",
               "data": {
-                "messageKey": "hidden"
+                "fgColor": "#09090b",
+                "bgColor": "#ffffff",
+                "contrastRatio": 19.89,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
               },
               "relatedNodes": [],
               "impact": "serious",
-              "message": "Element is hidden"
+              "message": "Element has sufficient color contrast of 19.89"
             }
           ],
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<input type=\"text\" data-testid=\"input-room-slug\" placeholder=\"vd: namho-focus-room (để trống tạo ngẫu nhiên)\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50\" value=\"\" style=\"\">",
+          "html": "<span>Đăng nhập để tạo phòng</span>",
           "target": [
-            ".focus\\:border-zinc-500\\/50"
+            ".liquid-elevated > div:nth-child(1) > form > .text-zinc-950.liquid-glow.shadow-\\[0_4px_20px_rgba\\(255\\,255\\,255\\,0\\.10\\)\\] > span"
           ]
         },
         {
@@ -3003,6 +2893,40 @@
       ]
     },
     {
+      "id": "duplicate-id-aria",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2"
+      ],
+      "description": "Ensure every id attribute value used in ARIA and in labels is unique",
+      "help": "IDs used in ARIA and labels must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-aria?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "duplicate-id-aria",
+              "data": "create-room-title",
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Document has no elements referenced with ARIA or labels that share the same id attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<input type=\"text\" id=\"create-room-title\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
+          "target": [
+            "#create-room-title"
+          ]
+        }
+      ]
+    },
+    {
       "id": "form-field-multiple-labels",
       "impact": null,
       "tags": [
@@ -3025,33 +2949,22 @@
             {
               "id": "multiple-label",
               "data": null,
-              "relatedNodes": [],
+              "relatedNodes": [
+                {
+                  "html": "<label for=\"create-room-title\" class=\"block text-[11px] font-medium text-zinc-300 mb-1\">Tên phòng học (tùy chọn)</label>",
+                  "target": [
+                    "label[for=\"create-room-title\"]"
+                  ]
+                }
+              ],
               "impact": "moderate",
               "message": "Form field does not have multiple label elements"
             }
           ],
           "impact": null,
-          "html": "<input type=\"text\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
+          "html": "<input type=\"text\" id=\"create-room-title\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
           "target": [
-            "input[placeholder=\"Phòng của bạn...\"]"
-          ]
-        },
-        {
-          "any": [],
-          "all": [],
-          "none": [
-            {
-              "id": "multiple-label",
-              "data": null,
-              "relatedNodes": [],
-              "impact": "moderate",
-              "message": "Form field does not have multiple label elements"
-            }
-          ],
-          "impact": null,
-          "html": "<input type=\"text\" data-testid=\"input-room-slug\" placeholder=\"vd: namho-focus-room (để trống tạo ngẫu nhiên)\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50\" value=\"\" style=\"\">",
-          "target": [
-            ".focus\\:border-zinc-500\\/50"
+            "#create-room-title"
           ]
         },
         {
@@ -3170,31 +3083,21 @@
         {
           "any": [
             {
-              "id": "non-empty-placeholder",
-              "data": null,
-              "relatedNodes": [],
+              "id": "explicit-label",
+              "data": {
+                "explicitLabel": "Tên phòng học (tùy chọn)"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<label for=\"create-room-title\" class=\"block text-[11px] font-medium text-zinc-300 mb-1\">Tên phòng học (tùy chọn)</label>",
+                  "target": [
+                    "label[for=\"create-room-title\"]"
+                  ]
+                }
+              ],
               "impact": "critical",
-              "message": "Element has a placeholder attribute"
-            }
-          ],
-          "all": [],
-          "none": [
-            {
-              "id": "hidden-explicit-label",
-              "data": null,
-              "relatedNodes": [],
-              "impact": "critical",
-              "message": "Form element has a visible explicit <label>"
-            }
-          ],
-          "impact": null,
-          "html": "<input type=\"text\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
-          "target": [
-            "input[placeholder=\"Phòng của bạn...\"]"
-          ]
-        },
-        {
-          "any": [
+              "message": "Element has an explicit <label>"
+            },
             {
               "id": "non-empty-placeholder",
               "data": null,
@@ -3214,9 +3117,9 @@
             }
           ],
           "impact": null,
-          "html": "<input type=\"text\" data-testid=\"input-room-slug\" placeholder=\"vd: namho-focus-room (để trống tạo ngẫu nhiên)\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50\" value=\"\" style=\"\">",
+          "html": "<input type=\"text\" id=\"create-room-title\" placeholder=\"Phòng của bạn...\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600\" value=\"\" style=\"\">",
           "target": [
-            ".focus\\:border-zinc-500\\/50"
+            "#create-room-title"
           ]
         },
         {
@@ -3385,7 +3288,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"header-ai-btn\" class=\"flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap\" title=\"Mở Trợ lý AI Companion (50⚡)\">",
+          "html": "<button type=\"button\" data-testid=\"header-ai-btn\" class=\"flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.03] hover:bg-white/[0.06] text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap\" title=\"Mở Trợ lý AI Companion (50⚡)\">",
           "target": [
             ".sm\\:px-3"
           ]
@@ -3565,9 +3468,9 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" class=\"w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer\">",
+          "html": "<button type=\"button\" class=\"w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer\">",
           "target": [
-            ".p-4.sm\\:p-5.shadow-xl:nth-child(1) > div:nth-child(1) > form > .bg-white.text-black.hover\\:bg-zinc-200"
+            ".liquid-elevated > div:nth-child(1) > form > .text-zinc-950.liquid-glow.shadow-\\[0_4px_20px_rgba\\(255\\,255\\,255\\,0\\.10\\)\\]"
           ]
         },
         {
@@ -3583,7 +3486,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"submit\" data-testid=\"btn-join-room-code\" class=\"w-full py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98\">",
+          "html": "<button type=\"submit\" data-testid=\"btn-join-room-code\" class=\"w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98\">",
           "target": [
             "button[type=\"submit\"]"
           ]
@@ -3601,7 +3504,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-01\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-01\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-01\"]"
           ]
@@ -3619,7 +3522,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-02\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-02\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-02\"]"
           ]
@@ -3637,7 +3540,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-03\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-03\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-03\"]"
           ]
@@ -3655,7 +3558,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-04\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-04\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-04\"]"
           ]
@@ -3673,7 +3576,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-05\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-05\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-05\"]"
           ]
@@ -3691,7 +3594,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-06\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-06\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-06\"]"
           ]
@@ -3709,7 +3612,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-07\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-07\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-07\"]"
           ]
@@ -3727,7 +3630,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-08\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-08\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-08\"]"
           ]
@@ -3745,7 +3648,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-09\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-09\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-09\"]"
           ]
@@ -3763,7 +3666,7 @@
           "all": [],
           "none": [],
           "impact": null,
-          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-10\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
+          "html": "<button type=\"button\" data-testid=\"btn-join-pod-free-10\" class=\"w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow\">",
           "target": [
             "button[data-testid=\"btn-join-pod-free-10\"]"
           ]
@@ -4115,6 +4018,154 @@
       ]
     }
   ],
-  "incomplete": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "bold",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Khởi tạo phòng học mới</span>",
+          "target": [
+            ".liquid-elevated > div:nth-child(1) > h2 > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"text-xs text-zinc-400 mb-3.5 leading-relaxed\">Mời bạn bè và bắt đầu phiên học chung. Bạn quản lý thành viên và đồng hồ của phòng.</p>",
+          "target": [
+            ".liquid-elevated > div:nth-child(1) > .mb-3\\.5.leading-relaxed"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<label for=\"create-room-title\" class=\"block text-[11px] font-medium text-zinc-300 mb-1\">Tên phòng học (tùy chọn)</label>",
+          "target": [
+            "label[for=\"create-room-title\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Chủ sở hữu hoặc tài khoản PRO có thể mời khách tham gia miễn phí.</span>",
+          "target": [
+            ".liquid-elevated > .mt-4.pt-3.border-t > span"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        }
+      ]
+    }
+  ],
   "violations": []
 }

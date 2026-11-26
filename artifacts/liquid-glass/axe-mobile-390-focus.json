@@ -1,0 +1,307 @@
+{
+  "url": "http://127.0.0.1:5198/app",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]\">",
+                  "target": [
+                    ".from-white\\/\\[0\\.14\\]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" data-testid=\"mobile-phase-pomodoro\" class=\"w-full text-center py-1.5 rounded-full text-xs font-semibold transition-all duration-200 touch-manipulation cursor-pointer active:scale-95 bg-gradient-to-b from-white/[0.14] to-white/[0.07] text-white font-semibold border border-white/10 border-t-white/20 shadow-[0_1px_8px_rgba(0,0,0,0.25)]\">",
+          "target": [
+            ".from-white\\/\\[0\\.14\\]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "45.0pt (60px)",
+                "fontWeight": "bold",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div data-testid=\"mobile-monumental-timer\" role=\"timer\" aria-label=\"Đồng hồ Pomodoro\" aria-live=\"off\" class=\"font-tabular-nums tabular-nums text-6xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)] select-none text-center\" style=\"text-shadow: rgba(0, 0, 0, 0.88) 0px 4px 20px;\">",
+          "target": [
+            ".font-tabular-nums"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>Tạm dừng</span>",
+          "target": [
+            ".drop-shadow-\\[0_1px_8px_rgba\\(0\\,0\\,0\\,0\\.9\\)\\] > span:nth-child(2)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-cycle-status-pill\" class=\"flex items-center gap-2.5 mt-4 sm:mt-5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 border-t-white/20 backdrop-blur-md shadow-sm\">",
+                  "target": [
+                    ".mt-4"
+                  ]
+                },
+                {
+                  "html": "<div data-testid=\"mobile-breathing-aura\" class=\"liquid-ambient absolute -inset-x-20 -inset-y-14 sm:-inset-x-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.04)_35%,transparent_72%)] pointer-events-none -z-10\" aria-hidden=\"true\" style=\"transform: translateZ(0px);\">",
+                  "target": [
+                    ".liquid-ambient"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"mobile-cycle-round-label\" class=\"text-[11px] font-mono font-medium text-white\">Hiệp 1/4</span>",
+          "target": [
+            "span[data-testid=\"mobile-cycle-round-label\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span class=\"text-[11px] font-sans text-zinc-300\">Dòng chảy hôm nay</span>",
+          "target": [
+            ".font-sans.text-\\[11px\\].text-zinc-300"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "9.0pt (12px)",
+                "fontWeight": "normal",
+                "messageKey": "bgGradient",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div data-testid=\"mobile-daily-flow-strip\" class=\"liquid-elevated w-full rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.02] border border-white/[0.08] border-t-white/[0.12] px-3.5 py-2 flex flex-col gap-1.5 text-xs hover:border-white/20 transition-colors cursor-pointer\" role=\"button\" tabindex=\"0\" aria-label=\"Xem nhật ký phiên hôm nay\">",
+                  "target": [
+                    ".liquid-elevated"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background gradient"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span data-testid=\"mobile-daily-flow-summary\" class=\"text-xs text-zinc-400 font-sans\">0g 0p · 0 phiên</span>",
+          "target": [
+            "span[data-testid=\"mobile-daily-flow-summary\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-command-name",
+      "nodes": 1
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 20
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 13
+    },
+    {
+      "id": "aria-progressbar-name",
+      "nodes": 1
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 29
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 20
+    },
+    {
+      "id": "aria-required-children",
+      "nodes": 2
+    },
+    {
+      "id": "aria-required-parent",
+      "nodes": 8
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 20
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 29
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 29
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 4
+    },
+    {
+      "id": "button-name",
+      "nodes": 17
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 12
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "image-alt",
+      "nodes": 1
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 24
+    },
+    {
+      "id": "role-img-alt",
+      "nodes": 4
+    }
+  ]
+}

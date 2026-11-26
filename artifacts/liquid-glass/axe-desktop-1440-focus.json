@@ -1,0 +1,201 @@
+{
+  "url": "http://127.0.0.1:5198/app",
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=playwright",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "36.0pt (48px)",
+                "fontWeight": "bold",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div data-testid=\"timer-display\" role=\"timer\" aria-label=\"Đồng hồ Pomodoro\" aria-live=\"off\" class=\"font-mono tabular-nums text-4xl sm:text-5xl font-bold tracking-tight text-white text-center w-full select-none drop-shadow-[0_4px_24px_rgba(255,255,255,0.18)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum'_1]\">",
+          "target": [
+            ".tabular-nums"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "elmPartiallyObscured",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<textarea data-testid=\"textarea-note-content\" aria-label=\"Nội dung ghi chú\" placeholder=\"Viết ghi chú của bạn...\" class=\"min-h-0 w-full flex-1 resize-none rounded-xl border border-white/[0.06] p-3 text-sm leading-relaxed placeholder-zinc-400 bg-zinc-950 text-zinc-100\">",
+                  "target": [
+                    "textarea[data-testid=\"textarea-note-content\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it's partially obscured by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<textarea data-testid=\"textarea-note-content\" aria-label=\"Nội dung ghi chú\" placeholder=\"Viết ghi chú của bạn...\" class=\"min-h-0 w-full flex-1 resize-none rounded-xl border border-white/[0.06] p-3 text-sm leading-relaxed placeholder-zinc-400 bg-zinc-950 text-zinc-100\">",
+          "target": [
+            "textarea[data-testid=\"textarea-note-content\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "8.3pt (11px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<span>53 từ</span>",
+          "target": [
+            ".justify-between.text-\\[11px\\].text-zinc-300 > span:nth-child(2)"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        }
+      ]
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "nodes": 69
+    },
+    {
+      "id": "aria-conditional-attr",
+      "nodes": 69
+    },
+    {
+      "id": "aria-deprecated-role",
+      "nodes": 5
+    },
+    {
+      "id": "aria-hidden-body",
+      "nodes": 1
+    },
+    {
+      "id": "aria-hidden-focus",
+      "nodes": 8
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "nodes": 69
+    },
+    {
+      "id": "aria-required-attr",
+      "nodes": 5
+    },
+    {
+      "id": "aria-roles",
+      "nodes": 5
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "nodes": 69
+    },
+    {
+      "id": "aria-valid-attr",
+      "nodes": 69
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "nodes": 7
+    },
+    {
+      "id": "button-name",
+      "nodes": 71
+    },
+    {
+      "id": "color-contrast",
+      "nodes": 33
+    },
+    {
+      "id": "document-title",
+      "nodes": 1
+    },
+    {
+      "id": "duplicate-id-aria",
+      "nodes": 1
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "nodes": 7
+    },
+    {
+      "id": "html-has-lang",
+      "nodes": 1
+    },
+    {
+      "id": "html-lang-valid",
+      "nodes": 1
+    },
+    {
+      "id": "image-alt",
+      "nodes": 1
+    },
+    {
+      "id": "label",
+      "nodes": 5
+    },
+    {
+      "id": "meta-viewport",
+      "nodes": 1
+    },
+    {
+      "id": "nested-interactive",
+      "nodes": 75
+    },
+    {
+      "id": "select-name",
+      "nodes": 2
+    }
+  ]
+}

@@ -364,6 +364,27 @@
 /* Phase 4B: consistent focus, quiet scrollbars and a two-row Meet header on phones. */
 :where(button, a, input, textarea, select, [tabindex]):focus-visible { outline: 2px solid #e4e4e7 !important; outline-offset: 3px; }
 .lucide { stroke-width: 1.5; }
+/* Static surface depth; expensive effects stay on the few floating controls. */
+.liquid-elevated {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 8px 24px rgb(0 0 0 / 0.2);
+}
+.liquid-eco,
+.liquid-eco * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.liquid-eco .liquid-glow { box-shadow: none !important; }
+.liquid-eco [role="timer"] { filter: none !important; text-shadow: none !important; }
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {
+  .liquid-glass-screen,
+  .liquid-glass-screen * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .liquid-glass-screen .liquid-ambient { display: none !important; }
+  .liquid-glass-screen .liquid-glow { box-shadow: none !important; transform: none !important; }
+  .liquid-glass-screen [role="timer"] { filter: none !important; text-shadow: none !important; }
+}
 @media (forced-colors: active) {
   html body :is(button, a, input, textarea, select, [tabindex]):focus-visible {
     outline: 2px solid Highlight !important;

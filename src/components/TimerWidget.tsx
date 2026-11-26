@@ -5,6 +5,7 @@ import { TimerPhase } from '../types/timer';
 import { haptics } from '../utils/haptics';
 import { soundEffects } from '../services/soundEffects';
 import { useAiStore } from '../stores/useAiStore';
+import { useLayoutStore } from '../stores/useLayoutStore';
 
 function formatTime(ms: number): string {
   const totalSeconds = Math.ceil(ms / 1000);
@@ -20,6 +21,7 @@ export interface TimerWidgetProps {
 export const TimerWidget: React.FC<TimerWidgetProps> = ({
   isEmbeddedInZen = false
 }) => {
+  const isEcoMode = useLayoutStore(state => state.isEcoMode);
   const aiOpen = useAiStore(state => state.isOpen);
   const phase = useTimerStore((state) => state.phase);
   const status = useTimerStore((state) => state.status);
@@ -69,19 +71,19 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
       case 'pomodoro':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-rose text-zinc-200 font-medium shadow-xs',
+          activeTab: 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] border border-white/10 border-t-white/20 text-white shadow-sm',
           label: 'Tập trung'
         };
       case 'short_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-focus text-zinc-200 font-medium shadow-xs',
+          activeTab: 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] border border-white/10 border-t-white/20 text-white shadow-sm',
           label: 'Nghỉ ngắn'
         };
       case 'long_break':
         return {
           bg: 'bg-white/[0.02] border-white/[0.08] text-white shadow-inner',
-          activeTab: 'liquid-glass-btn liquid-glass-btn-sky text-zinc-200 font-medium shadow-xs',
+          activeTab: 'bg-gradient-to-b from-white/[0.14] to-white/[0.07] border border-white/10 border-t-white/20 text-white shadow-sm',
           label: 'Nghỉ dài'
         };
     }
@@ -90,7 +92,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
   const currentPhaseStyle = getPhaseStyles(phase);
 
   return (
-    <div className={`flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
+    <div className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} flex w-full h-auto min-h-fit overflow-visible flex-col justify-between items-center select-none ${isEmbeddedInZen ? 'max-w-md' : 'max-w-full'}`}>
       <span role="status" aria-live="polite" aria-atomic="true" className="sr-only" data-testid="timer-phase-announcement">
         {currentPhaseStyle.label}. Hiệp {currentRound} / {settings.roundsBeforeLongBreak}. {status === 'running' ? 'Đang chạy' : status === 'paused' ? 'Tạm dừng' : 'Chờ bắt đầu'}
       </span>
@@ -101,7 +103,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
             <span data-testid="leader-indicator" className="sr-only">{isLeader ? 'Leader Tab' : 'Follower Tab'}</span>
             <span
               data-testid="round-indicator"
-              className="rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300 min-h-[24px] inline-flex items-center"
+              className="rounded-full bg-white/[0.06] border border-white/10 border-t-white/20 px-2 py-0.5 text-[10px] font-medium text-white min-h-[24px] inline-flex items-center"
             >
               Hiệp {currentRound} / {settings.roundsBeforeLongBreak}
             </span>
@@ -170,8 +172,9 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
 
         {/* Timer Display Area (Specular Highlight + Tabular Figures Không Rung) */}
         <div
-          className={`w-full flex flex-col items-center justify-center rounded-2xl border py-2 px-3 text-center transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg} ${status === 'running' ? 'animate-zen-breathe' : ''}`}
+          className={`relative isolate w-full flex flex-col items-center justify-center rounded-2xl border py-2 px-3 text-center transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ${currentPhaseStyle.bg} ${status === 'running' && !isEcoMode ? 'animate-zen-breathe' : ''}`}
         >
+          {!isEcoMode && <div aria-hidden="true" data-testid="timer-ambient-glow" className="liquid-ambient absolute inset-0 rounded-2xl pointer-events-none -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_72%)]" />}
           <div
             data-testid="timer-display"
             role="timer"
@@ -220,7 +223,7 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
           <div className="w-full h-1 bg-white/[0.08] rounded-full overflow-hidden">
             <div
               data-testid="daily-progress-bar"
-              className="h-full bg-zinc-600 rounded-full transition-all duration-300"
+              className="h-full bg-zinc-300 rounded-full transition-all duration-300"
               style={{
                 width: `${Math.min(100, (dailyProgress / (settings.roundsBeforeLongBreak * 2)) * 100)}%`
               }}
@@ -240,10 +243,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
-              className="liquid-glass-btn h-11 px-6 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Bắt đầu</span>
+              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Bắt đầu</span>
             </button>
           )}
 
@@ -257,10 +260,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-amber h-11 px-6 rounded-2xl border border-zinc-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
+              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Pause size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tạm dừng</span>
+              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Tạm dừng</span>
             </button>
           )}
 
@@ -274,10 +277,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
-              className="liquid-glass-btn liquid-glass-btn-focus h-11 px-6 rounded-2xl border border-zinc-400/20 shadow-md shadow-lg backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300"
+              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-medium text-sm tracking-wide text-white whitespace-nowrap">Tiếp tục</span>
+              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Tiếp tục</span>
             </button>
           )}
 
