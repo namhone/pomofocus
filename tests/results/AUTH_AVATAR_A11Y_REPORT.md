@@ -39,4 +39,6 @@ Các test contract chạy logic store/service/adapter thật với HTTP/WebSocke
 
 ## Production
 
-Đang chờ push/deploy và kiểm chứng HTTP/bundle hai alias; không coi build local là production đã cập nhật.
+Source commit `873f796` đã push `origin/master` (kèm commit contract `7bab27e`). `vercel --prod --yes --scope axis-be33` exit 0, deployment `dpl_6dshd2xbecnX2VFQSXoS1HV8V3EW` READY: https://pomodoro-workspace-ggp7p3bad-axis-be33.vercel.app. Lần deploy đầu không có scope trả Not authorized; whoami/project/team đọc được, retry với scope AXIS thành công, không cần đổi tài khoản.
+
+Vercel tự cập nhật workplace; alias workspace đã được trỏ thủ công về cùng deployment. Xác minh 2026-11-26 07:55:08 UTC (14:55 giờ Việt Nam): cả https://pomofocus-workspace.vercel.app và https://pomofocus-workplace.vercel.app trả HTTP 200 cho trang chủ, bundle mới `/assets/index-CsbtoCez.js`, version.json và APK. Hai bundle có SHA-256 giống nhau `ba8ea2b76a91b0b1cdc0d980770b202c808a0f10b9565866a43ae27900eced98`. APK vẫn 8,869,402 bytes/8.46 MB, SHA-256 `327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2`, metadata khớp. Bằng chứng: `artifacts/phase4b/production-verification.json`, `vercel-deploy.log`, `artifacts/auth-avatar/vercel-alias.log`.

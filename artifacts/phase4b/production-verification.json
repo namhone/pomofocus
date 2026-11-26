@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-11-26T05:41:42.019Z",
+  "verifiedAt": "2026-11-26T07:55:08.585Z",
   "local": {
     "version": "8.1.1",
     "versionCode": 82,
@@ -17,10 +17,10 @@
       "versionCode": 82,
       "apkBytes": 8869402,
       "apkSha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
-      "deployedEntry": "/assets/index-CsnU8e7U.js",
+      "deployedEntry": "/assets/index-CsbtoCez.js",
       "entryMatches": true,
       "entryStatus": 200,
-      "entrySha256": "a82fce1c17ba520a7656ceadbf5f653e0a112fb9244158d351790d2911c1fe04",
+      "entrySha256": "ba8ea2b76a91b0b1cdc0d980770b202c808a0f10b9565866a43ae27900eced98",
       "matches": true
     },
     {
@@ -32,10 +32,10 @@
       "versionCode": 82,
       "apkBytes": 8869402,
       "apkSha256": "327cb7f1b20754c24d7924952cd9fcf434938798491d77389a6c5d43645a03d2",
-      "deployedEntry": "/assets/index-CsnU8e7U.js",
+      "deployedEntry": "/assets/index-CsbtoCez.js",
       "entryMatches": true,
       "entryStatus": 200,
-      "entrySha256": "a82fce1c17ba520a7656ceadbf5f653e0a112fb9244158d351790d2911c1fe04",
+      "entrySha256": "ba8ea2b76a91b0b1cdc0d980770b202c808a0f10b9565866a43ae27900eced98",
       "matches": true
     }
   ]
