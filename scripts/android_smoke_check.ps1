@@ -86,7 +86,7 @@ try {
         $installed -notmatch ('versionCode=' + $metadata.versionCode + '(?:\s|$)')) { throw 'Installed package version/code does not match release metadata.' }
 
     # Use a time bookmark; never clear the phone's existing logcat or app data.
-    $since = Invoke-Adb -Arguments @('shell', 'date', '+%m-%d %H:%M:%S.000')
+    $since = Invoke-Adb -Arguments @('shell', 'date', '"+%m-%d %H:%M:%S.000"')
     [void](Invoke-Adb -Arguments @('shell', 'am', 'force-stop', $package))
     $launch = Invoke-Adb -Arguments @('shell', 'am', 'start', '-W', '-n', "$package/.MainActivity")
     if ($launch -match '(?im)^Error|Exception|Status:\s*(?!ok)\S+') { throw "Launch failed: $launch" }
@@ -109,14 +109,18 @@ try {
     $log | Set-Content -LiteralPath (Join-Path $outputDirectory 'logcat.txt') -Encoding utf8
     $launch | Set-Content -LiteralPath (Join-Path $outputDirectory 'launch.txt') -Encoding utf8
     $deepLink | Set-Content -LiteralPath (Join-Path $outputDirectory 'deep-link.txt') -Encoding utf8
-    $errors = @($log -split '\r?\n' | Where-Object { $_ -match 'FATAL EXCEPTION|Fatal signal|Uncaught (?:Error|TypeError|ReferenceError)|net::ERR_|WebView.*(?:error|fail)|AudioContext.*(?:error|failed|not allowed)|NotAllowedError|OAuth.*(?:error|fail|invalid)' })
+    # ART can fall back from a non-executable WebView image while the page renders normally.
+    # Keep this exact warning in evidence without masking app/Chromium failures.
+    $runtimeImageWarning = '\sW\s+\S+:\s+Loading .*/base\.odex non-executable as it requires an image which we failed to load$'
+    $warnings = @($log -split '\r?\n' | Where-Object { $_ -match $runtimeImageWarning })
+    $errors = @($log -split '\r?\n' | Where-Object { $_ -notmatch $runtimeImageWarning -and $_ -match 'FATAL EXCEPTION|Fatal signal|Uncaught (?:Error|TypeError|ReferenceError)|net::ERR_|WebView.*(?:error|fail)|AudioContext.*(?:error|failed|not allowed)|NotAllowedError|OAuth.*(?:error|fail|invalid)' })
     $finalProcessId = Invoke-Adb -Arguments @('shell', 'pidof', '-s', $package) -AllowFailure
     $passed = $finalProcessId -eq $appProcessId -and $errors.Count -eq 0
     [ordered]@{
         checkedAt = [DateTimeOffset]::Now.ToString('o'); serial = $Serial; manufacturer = $manufacturer; model = $model
         version = $metadata.version; versionCode = $metadata.versionCode; apkSizeMb = $size; sha256 = $hash
         install = 'pass'; launch = 'pass'; deepLinkRoute = 'pass'; realOAuthLogin = 'not tested'
-        observedSeconds = $ObserveSeconds; processStayedAlive = ($finalProcessId -eq $appProcessId); matchedErrors = $errors; passed = $passed
+        observedSeconds = $ObserveSeconds; processStayedAlive = ($finalProcessId -eq $appProcessId); matchedErrors = $errors; matchedWarnings = $warnings; passed = $passed
     } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $outputDirectory 'summary.json') -Encoding utf8
     if (-not $passed) { throw "Smoke FAIL: process changed/stopped or $($errors.Count) matching log errors. See $outputDirectory" }
     Write-Output "Smoke PASS: install, launch, callback route; app stayed alive for $ObserveSeconds seconds."

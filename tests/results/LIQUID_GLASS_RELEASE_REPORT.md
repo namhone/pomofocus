@@ -1,5 +1,7 @@
 # Monochrome liquid glass và APK 8.1.2 — 26/11/2026
 
+> Cập nhật kiểm chứng USB thật sau release: cài/startup/callback pass nhưng Pause cảm ứng fail; APK chưa đạt nghiệm thu phần cứng. Xem `ANDROID_USB_ACCEPTANCE_REPORT.md`. Các kết quả Chrome/native giả lập bên dưới giữ đúng lịch sử và không thay thế test Samsung.
+
 ## Kết quả
 
 Đã tinh chỉnh Focus và Meet trong phạm vi Nam duyệt; logic Auth/Wallet/Avatar giữ nguyên ac43fbd (git diff bảy file trong protected-logic-verification.json rỗng). Giữ role timer, live region riêng, focus outline và forced-colors; không sửa engine timer/audio/WebRTC hoặc SQL.

@@ -1,0 +1,72 @@
+{
+  "model": "SM-G998B",
+  "android": "15",
+  "webview": "158.0.8127.46",
+  "version": "8.1.2",
+  "versionCode": 83,
+  "apkSizeMb": 8.43,
+  "sha256": "67e6cc1448c353d530646b13bfe00ab7d6e70315ea73b47d39b16e59c9ca2d0a",
+  "startup": {
+    "install": "pass",
+    "launch": "pass",
+    "callbackRoute": "pass",
+    "observedSeconds": 30,
+    "processStayedAlive": true,
+    "matchedErrors": 0,
+    "artRuntimeImageWarnings": 1
+  },
+  "touch": {
+    "play": "pass",
+    "countdown": "pass",
+    "pause": "fail",
+    "mousePause": "pass",
+    "events": [
+      {
+        "type": "pointerdown",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      },
+      {
+        "type": "pointerup",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      },
+      {
+        "type": "pointerout",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      },
+      {
+        "type": "pointerleave",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      },
+      {
+        "type": "pointerleave",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      },
+      {
+        "type": "click",
+        "trusted": true,
+        "pointer": "touch",
+        "status": "running"
+      }
+    ],
+    "statusAfterTouch": "running"
+  },
+  "blankFrame": {
+    "observedOnce": true,
+    "domTimerPresent": true,
+    "recoveredDuringCdpInspection": true,
+    "cause": "not established"
+  },
+  "realOAuthLogin": "not tested",
+  "overallAccepted": false,
+  "cleanup": "timer paused; app force-stopped; temporary ADB forward removed"
+}

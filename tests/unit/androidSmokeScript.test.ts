@@ -47,4 +47,12 @@ describe.skipIf(process.platform !== 'win32' || !existsSync(compiler))('Android 
     if (scenario === 'startup-crash') expect(readFileSync(path.join(output, 'startup-crash.txt'), 'utf8')).toContain('com.pomofocus.workspace');
     else if (scenario !== 'route-fail') expect(JSON.parse(readFileSync(path.join(output, 'summary.json'), 'utf8')).passed).toBe(false);
   });
+  it('retains the exact WebView runtime image warning without reporting a rendered app as crashed', () => {
+    const { result, output } = run('runtime-image-warning');
+    expect(result.status, result.stdout + result.stderr).toBe(0);
+    const summary = JSON.parse(readFileSync(path.join(output, 'summary.json'), 'utf8'));
+    expect(summary).toMatchObject({ passed: true, matchedErrors: [] });
+    expect(summary.matchedWarnings).toHaveLength(1);
+    expect(readFileSync(path.join(output, 'logcat.txt'), 'utf8')).toContain('base.odex non-executable');
+  });
 });

@@ -21,7 +21,10 @@ class MockAdb {
         else if (command.Contains("dumpsys package")) Console.WriteLine("versionName=" + Environment.GetEnvironmentVariable("POMO_SMOKE_VERSION") + "\nversionCode=" + Environment.GetEnvironmentVariable("POMO_SMOKE_CODE"));
         else if (command.Contains("ro.product.manufacturer")) Console.WriteLine("TEST FIXTURE");
         else if (command.Contains("ro.product.model")) Console.WriteLine("Mock_Samsung");
-        else if (command.StartsWith("shell date")) Console.WriteLine("11-26 12:00:00.000");
+        else if (command.StartsWith("shell date")) {
+            if (!command.Contains("\"+%m-%d %H:%M:%S.000\"")) { Console.Error.WriteLine("date: Max 1 argument"); return 1; }
+            Console.WriteLine("11-26 12:00:00.000");
+        }
         else if (command.Contains("am force-stop")) {}
         else if (command.Contains("am start")) {
             if (scenario == "route-fail" && command.Contains("pomofocus://")) Console.WriteLine("Error: unable to resolve Intent");
@@ -32,6 +35,7 @@ class MockAdb {
             if (scenario == "crash" || scenario == "startup-crash") Console.WriteLine("FATAL EXCEPTION: main; Process: com.pomofocus.workspace");
             else if (scenario == "webview") Console.WriteLine("chromium: Uncaught TypeError: failed");
             else if (scenario == "audio") Console.WriteLine("AudioContext failed: NotAllowedError");
+            else if (scenario == "runtime-image-warning") Console.WriteLine("11-26 12:00:00.100 23456 23456 W focus.workspace: Loading /data/app/com.google.android.webview-test/oat/arm64/base.odex non-executable as it requires an image which we failed to load");
             else Console.WriteLine("Capacitor: started; access_token=fixture-secret https://example.test?code=fixture-code&state=ok");
         }
         else { Console.Error.WriteLine("Unexpected fake adb command: " + command); return 9; }
