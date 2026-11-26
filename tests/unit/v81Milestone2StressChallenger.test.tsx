@@ -105,8 +105,8 @@ describe('Milestone 2 Adversarial Stress Suite — Challenger 1', () => {
         displayName: 'Owner Upper'
       } as any;
       const dirtyState = computeDerivedPlanState(dirtyEmailUser);
-      expect(dirtyState.effectiveBadge).toBe('Founder VIP');
-      expect(dirtyState.isOwner).toBe(true);
+      expect(dirtyState.effectiveBadge).toBe('Pro hội viên');
+      expect(dirtyState.isOwner).toBe(false);
       expect(dirtyState.isPro).toBe(true);
     });
 
@@ -212,7 +212,7 @@ describe('Milestone 2 Adversarial Stress Suite — Challenger 1', () => {
 
       const backdrop = screen.getByTestId('ai-backdrop');
       expect(backdrop).toBeDefined();
-      expect(backdrop.className).toContain('2xl:hidden');
+      expect(backdrop.className).toContain('lg:hidden');
       expect(backdrop.className).toContain('fixed inset-0');
 
       // Closed state

@@ -182,7 +182,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const classList = downloadBtn.getAttribute('class') || '';
       expect(classList).toContain('h-16');
       expect(classList).toContain('min-h-[56px]');
-      expect(classList).toContain('shadow-[0_12px_32px_rgba(16,185,129,0.45)]');
+      expect(classList).toContain('shadow-[0_12px_32px_rgba(255,255,255,0.45)]');
     });
 
     it('WebDownloadHub renders phone mockup preview and dynamic QR code container', () => {
@@ -265,7 +265,7 @@ describe('Auditor Independent Forensic Suite: Milestone 2', () => {
       const raw = fs.readFileSync(versionJsonPath, 'utf8');
       const manifest = JSON.parse(raw);
 
-      expect(manifest.version).toBe('8.1.0');
+      expect(manifest.version).toBe(JSON.parse(fs.readFileSync('src/config/apkRelease.json', 'utf8')).version);
       expect(manifest.downloadUrl).toBe(PUBLIC_APK_URL);
       expect(manifest.minSupportedVersion).toBe('7.0.0');
       expect(manifest.minVersion).toBe('7.0.0');

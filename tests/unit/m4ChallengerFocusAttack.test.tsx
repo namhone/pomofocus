@@ -117,10 +117,10 @@ describe('Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots
 
         // Dot 1: Must be active (hollow pulsating ring), NEVER solid green
         expect(dot1.getAttribute('data-state')).toBe('active');
-        expect(dot1.className).toContain('animate-pulse');
-        expect(dot1.className).toContain('border-emerald-400');
-        expect(dot1.className).toContain('bg-transparent');
-        expect(dot1.className).not.toContain('bg-emerald-400');
+        expect(dot1.getAttribute('aria-label')).toBe('Hiệp 1: Đang diễn ra');
+        expect(dot1.className).toContain('border-white');
+        expect(dot1.className).toContain('bg-white/10');
+        expect(dot1.className).not.toContain('bg-zinc-200');
 
         // Dots 2..4: Must be upcoming (gray dots)
         expect(dot2.getAttribute('data-state')).toBe('upcoming');
@@ -178,13 +178,13 @@ describe('Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots
 
         // Dot 1: Completed
         expect(dot1.getAttribute('data-state')).toBe('completed');
-        expect(dot1.className).toContain('bg-emerald-400');
+        expect(dot1.className).toContain('bg-zinc-200');
 
         // Dot 2: Active
         expect(dot2.getAttribute('data-state')).toBe('active');
-        expect(dot2.className).toContain('border-emerald-400');
-        expect(dot2.className).toContain('bg-transparent');
-        expect(dot2.className).not.toContain('bg-emerald-400');
+        expect(dot2.className).toContain('border-white');
+        expect(dot2.className).toContain('bg-white/10');
+        expect(dot2.className).not.toContain('bg-zinc-200');
 
         // Dots 3 & 4: Upcoming
         expect(dot3.getAttribute('data-state')).toBe('upcoming');
@@ -223,14 +223,14 @@ describe('Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots
       const dot4 = screen.getByTestId('mobile-cycle-dot-4');
 
       expect(dot1.getAttribute('data-state')).toBe('completed');
-      expect(dot1.className).toContain('bg-emerald-400');
+      expect(dot1.className).toContain('bg-zinc-200');
 
       expect(dot2.getAttribute('data-state')).toBe('completed');
-      expect(dot2.className).toContain('bg-emerald-400');
+      expect(dot2.className).toContain('bg-zinc-200');
 
       expect(dot3.getAttribute('data-state')).toBe('active');
-      expect(dot3.className).toContain('border-emerald-400');
-      expect(dot3.className).toContain('bg-transparent');
+      expect(dot3.className).toContain('border-white');
+      expect(dot3.className).toContain('bg-white/10');
 
       expect(dot4.getAttribute('data-state')).toBe('upcoming');
       expect(dot4.className).toContain('bg-zinc-800');
@@ -270,9 +270,9 @@ describe('Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots
 
       // Dot 4 must be ACTIVE, NOT completed!
       expect(dot4.getAttribute('data-state')).toBe('active');
-      expect(dot4.className).toContain('border-emerald-400');
-      expect(dot4.className).toContain('bg-transparent');
-      expect(dot4.className).not.toContain('bg-emerald-400 shadow-');
+      expect(dot4.className).toContain('border-white');
+      expect(dot4.className).toContain('bg-white/10');
+      expect(dot4.className).not.toContain('bg-zinc-200 shadow-');
 
       const allDots = [dot1, dot2, dot3, dot4];
       const completedDots = allDots.filter((d) => d.getAttribute('data-state') === 'completed');

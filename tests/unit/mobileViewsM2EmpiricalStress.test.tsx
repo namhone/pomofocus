@@ -220,7 +220,7 @@ describe('Empirical Adversarial Stress Suite — Milestone 2 Mobile Views', () =
       expect(classes).toContain('font-bold');
       expect(classes).toContain('tracking-tighter');
       expect(classes).toContain('text-white');
-      expect(classes).toContain('drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)]');
+      expect(classes).toContain('drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)]');
     });
   });
 

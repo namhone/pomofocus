@@ -1,0 +1,28 @@
+{
+  "baseline": "7d430dc",
+  "mode": "jsdom SDK and network simulation; no connected Android device",
+  "passed": 2,
+  "failed": 2,
+  "cases": [
+    {
+      "name": "cancelled account picker clears loading without an error banner",
+      "status": "failed",
+      "failure": "AssertionError: expected <div …(2)>…(2)</div> to be null"
+    },
+    {
+      "name": "no Google account offers understandable Vietnamese and clears loading",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "name": "network loss during token exchange clears loading without creating a session",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "name": "expired session refreshes before being returned on foreground lookup",
+      "status": "failed",
+      "failure": "AssertionError: expected \"spy\" to be called at least once"
+    }
+  ]
+}

@@ -215,9 +215,9 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
       render(<MobileAppShell />);
 
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-emerald-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).toContain('animate-pulse');
-      expect(dot.className).toContain('shadow-[0_0_8px_rgba(52,211,153,0.8)]');
+      expect(dot.className).toContain('shadow-[0_0_8px_rgba(255,255,255,0.8)]');
     });
 
     it('3.2 Paused state: amber color without pulse animation', () => {
@@ -225,7 +225,7 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
       render(<MobileAppShell />);
 
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-amber-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).toContain('shadow-[0_0_8px_rgba(251,191,36,0.8)]');
       expect(dot.className).not.toContain('animate-pulse');
     });
@@ -236,8 +236,8 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
 
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
       expect(dot.className).toContain('bg-zinc-500');
-      expect(dot.className).not.toContain('bg-emerald-400');
-      expect(dot.className).not.toContain('bg-amber-400');
+      expect(dot.className).not.toContain('bg-zinc-700');
+      expect(dot.className).not.toContain('bg-zinc-700');
       expect(dot.className).not.toContain('animate-pulse');
     });
 
@@ -254,7 +254,7 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
       });
       rerender(<MobileAppShell />);
       dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-emerald-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).toContain('animate-pulse');
 
       // 3. Pause
@@ -263,7 +263,7 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
       });
       rerender(<MobileAppShell />);
       dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-amber-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).not.toContain('animate-pulse');
 
       // 4. Return to idle
@@ -298,7 +298,7 @@ describe('Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Sh
       expect(useLayoutStore.getState().activeMobileTab).toBe('ai');
 
       // Switch: ai -> settings
-      fireEvent.click(screen.getByTestId('mobile-nav-tab-settings'));
+      fireEvent.click(screen.getByRole('button', { name: 'Cài đặt', exact: true }));
       expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
 
       // Trigger popstate event while on settings

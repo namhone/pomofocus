@@ -21,11 +21,11 @@ describe('Milestone 2 - Virtual Keyboard, Input Attributes, IME & Native Plugins
   });
 
   describe('Feature 7: Virtual Keyboard & Input attributes (14 Inputs)', () => {
-    it('attaches inputMode="numeric" and enterKeyHint to TimerWidget inputs', () => {
-      render(<TimerWidget />);
-      const pomoInput = screen.getByTestId('input-pomodoro-min');
-      const shortInput = screen.getByTestId('input-short-min');
-      const longInput = screen.getByTestId('input-long-min');
+    it('keeps duration editing in Settings after removing duplicate Timer inputs', () => {
+      render(<SettingsWidget />);
+      const pomoInput = screen.getByTestId('settings-input-pomodoro-min');
+      const shortInput = screen.getByTestId('settings-input-short-min');
+      const longInput = screen.getByTestId('settings-input-long-min');
 
       expect(pomoInput.getAttribute('inputmode')).toBe('numeric');
       expect(pomoInput.getAttribute('enterkeyhint')).toBe('next');

@@ -237,8 +237,8 @@ describe('Adversarial Stress Test Suite — Milestone 1 Mobile Foundation', () =
       render(<MobileAppShell />);
       const shell = screen.getByTestId('mobile-app-shell');
       expect(shell).toBeDefined();
-      expect(shell.className).toContain('pt-safe');
-      expect(shell.className).toContain('pb-safe');
+      expect(screen.getByTestId('mobile-top-header').className).toContain('pt-safe');
+      expect(screen.getByTestId('mobile-bottom-nav').className).toContain('pb-safe');
     });
   });
 
@@ -266,7 +266,7 @@ describe('Adversarial Stress Test Suite — Milestone 1 Mobile Foundation', () =
 
       // Verify that the inner ErrorBoundary catches the crash
       expect(screen.getByTestId('error-boundary-fallback')).toBeDefined();
-      expect(screen.getByText('⚠️ Phút nghỉ ngắn ngoài dự kiến...')).toBeDefined();
+      expect(screen.getByText('Phút nghỉ ngắn ngoài dự kiến...')).toBeDefined();
 
       // Crucial: The parent app header is STILL intact and rendered!
       expect(screen.getByTestId('global-header')).toBeDefined();
@@ -315,20 +315,20 @@ describe('Adversarial Stress Test Suite — Milestone 1 Mobile Foundation', () =
 
       // Must have min-h-[48px] and h-auto, not fixed rigid h-12 without auto
       expect(topHeader.className).toContain('min-h-[48px]');
-      expect(topHeader.className).toContain('h-auto');
+      expect(topHeader.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
     });
 
     it('4.2 MobileAppShell bottom navigation uses min-height and break-words for tab labels', () => {
       render(<MobileAppShell />);
       const bottomNav = screen.getByTestId('mobile-bottom-nav');
       expect(bottomNav).toBeDefined();
-      expect(bottomNav.className).toContain('min-h-[64px]');
-      expect(bottomNav.className).toContain('h-auto');
+      expect(bottomNav.className).toContain('min-h-[56px]');
+      expect(bottomNav.className).toContain('pb-safe');
 
       // Verify tab labels have break-words and pb-safe
       const focusTab = screen.getByTestId('mobile-nav-tab-focus');
       expect(focusTab).toBeDefined();
-      const label = focusTab.querySelector('span');
+      const label = Array.from(focusTab.querySelectorAll('span')).find(span => span.textContent === 'Tập trung');
       expect(label?.className).toContain('break-words');
     });
 
@@ -340,7 +340,7 @@ describe('Adversarial Stress Test Suite — Milestone 1 Mobile Foundation', () =
       // The pill container must have flex-wrap to prevent horizontal blowout
       const pillContainer = pomodoroTab.parentElement;
       expect(pillContainer).toBeDefined();
-      expect(pillContainer?.className).toContain('flex-wrap');
+      expect(pillContainer?.className).toContain('grid-cols-3');
     });
 
     it('4.4 MobileAuthBottomSheet upgrade & logout buttons have flexible min-heights', () => {

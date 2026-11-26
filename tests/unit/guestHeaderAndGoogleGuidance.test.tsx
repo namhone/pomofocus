@@ -26,7 +26,7 @@ describe('Header Guest Quick Menu & Google OAuth Guidance Specifications', () =>
   });
 
   describe('1. Cố Định Redirect URI & Hướng Dẫn Cảnh Báo Google OAuth', () => {
-    it('googleAuthService.getGoogleOAuthRedirectUrl luôn khóa cứng redirectUri là origin gốc', () => {
+    it('googleAuthService.getGoogleOAuthRedirectUrl uses the canonical /app callback with Supabase redirect_to', () => {
       const originalLocation = window.location;
       delete (window as any).location;
       window.location = {
@@ -36,11 +36,11 @@ describe('Header Guest Quick Menu & Google OAuth Guidance Specifications', () =>
 
       // Kể cả khi truyền vào tham số redirectTo có đuôi /app, hệ thống vẫn ép về origin
       const urlWithApp = googleAuthService.getGoogleOAuthRedirectUrl('https://pomofocus-workspace.vercel.app/app');
-      expect(urlWithApp).toContain(`redirect_uri=${encodeURIComponent('https://pomofocus-workspace.vercel.app')}`);
-      expect(urlWithApp).not.toContain(encodeURIComponent('https://pomofocus-workspace.vercel.app/app'));
+      expect(urlWithApp).toContain(`redirect_to=${encodeURIComponent('https://pomofocus-workspace.vercel.app/app')}`);
+      expect(urlWithApp).not.toContain('redirect_uri=');
 
       const defaultUrl = googleAuthService.getGoogleOAuthRedirectUrl();
-      expect(defaultUrl).toContain(`redirect_uri=${encodeURIComponent('https://pomofocus-workspace.vercel.app')}`);
+      expect(defaultUrl).toContain(`redirect_to=${encodeURIComponent('https://pomofocus-workspace.vercel.app/app')}`);
 
       window.location = originalLocation;
     });

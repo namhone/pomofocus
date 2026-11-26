@@ -83,7 +83,8 @@ describe('Supabase Cloud Persistence & Multi-Device Sync Specification', () => {
     await useAuthStore.getState().loadUserFromCloud(mockUserId);
     const authUser = useAuthStore.getState().user;
     expect(authUser?.displayName).toBe('Nam Hồ');
-    expect(authUser?.badge).toBe('Founder VIP 👑');
+    expect(authUser?.badge).toBe('👑 PRO TRỌN ĐỜI');
+    expect(useAuthStore.getState().isOwner).toBe(false);
     expect(authUser?.credits).toBeGreaterThanOrEqual(1000);
     expect(useAiStore.getState().aiCreditsBalance).toBeGreaterThanOrEqual(1000);
   });

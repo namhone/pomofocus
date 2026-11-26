@@ -64,13 +64,13 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
 
         // Check that photo thumbnail grid has responsive auto-fill classes
         const photoGrid = Array.from(grids).find((g) =>
-          g.className.includes('grid-cols-2') && g.className.includes('auto-fill')
+          g.className.includes('auto-fill')
         );
         expect(photoGrid).toBeDefined();
-        expect(photoGrid?.className).toContain('grid-cols-2');
-        expect(photoGrid?.className).toContain('sm:grid-cols-3');
-        expect(photoGrid?.className).toContain('lg:grid-cols-4');
-        expect(photoGrid?.className).toContain('[grid-template-columns:repeat(auto-fill,minmax(140px,1fr))]');
+        expect(photoGrid?.className).toContain('grid');
+        expect(photoGrid?.className).not.toContain('max-w-[420px]');
+        expect(photoGrid?.className).toContain('min(100%,132px)');
+        expect(photoGrid?.className).toContain('grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))]');
         expect(photoGrid?.className).toContain('gap-2');
       });
     });
@@ -83,9 +83,9 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       );
 
       // Switch to video filter
-      const videoFilterBtn = screen.getByTestId('filter-cat-video');
+      const videoFilterBtn = screen.getByRole('combobox', { name: 'Danh mục hình nền' });
       await act(async () => {
-        fireEvent.click(videoFilterBtn);
+        fireEvent.change(videoFilterBtn, { target: { value: 'video' } });
       });
 
       // Find video preset cards
@@ -93,10 +93,10 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       expect(videoCard).toBeDefined();
 
       const gridContainer = videoCard.parentElement;
-      expect(gridContainer?.className).toContain('[grid-template-columns:repeat(auto-fill,minmax(140px,1fr))]');
-      expect(gridContainer?.className).toContain('grid-cols-2');
-      expect(gridContainer?.className).toContain('sm:grid-cols-3');
-      expect(gridContainer?.className).toContain('lg:grid-cols-4');
+      expect(gridContainer?.className).toContain('grid-cols-[repeat(auto-fill,minmax(min(100%,132px),1fr))]');
+      expect(gridContainer?.className).toContain('grid');
+      expect(gridContainer?.className).toContain('min(100%,132px)');
+      expect(gridContainer?.className).not.toContain('max-w-[420px]');
     });
 
     it('renders empty state gracefully without layout crash when searching nonexistent term', async () => {
@@ -197,7 +197,7 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       const zenPureBlackBtn = screen.getByTestId('zen-color-zen-pure-black');
       expect(zenPureBlackBtn).toBeDefined();
       expect(zenPureBlackBtn.style.backgroundColor).toBe('rgb(9, 9, 11)'); // #09090b
-      expect(zenPureBlackBtn.getAttribute('title')).toContain('#09090b');
+      expect(zenPureBlackBtn.getAttribute('title')).toBe('Đen tuyền');
     });
 
     it('clicking zen-pure-black selects zen-pure-black preset and highlights button with checkmark', () => {
@@ -216,7 +216,7 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       const zenPureBlackBtn = screen.getByTestId('zen-color-zen-pure-black');
 
       // Before click: not selected
-      expect(zenPureBlackBtn.className).not.toContain('ring-2 ring-cyan-400');
+      expect(zenPureBlackBtn.className).not.toContain('ring-2 ring-zinc-400');
 
       // Click button
       fireEvent.click(zenPureBlackBtn);
@@ -226,14 +226,14 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       expect(state.activePresetId).toBe('zen-pure-black');
       expect(state.customUrl).toBeNull();
 
-      // Re-render check: button receives ring-2 ring-cyan-400 and checkmark
-      expect(zenPureBlackBtn.className).toContain('ring-2 ring-cyan-400');
+      // Re-render check: button receives ring-2 ring-zinc-400 and checkmark
+      expect(zenPureBlackBtn.className).toContain('ring-2 ring-zinc-400');
       expect(zenPureBlackBtn.className).toContain('scale-[1.02]');
 
       // Checkmark icon rendered
       const checkIcon = zenPureBlackBtn.querySelector('svg');
       expect(checkIcon).toBeDefined();
-      expect(checkIcon?.classList.contains('text-cyan-400')).toBe(true);
+      expect(checkIcon?.classList.contains('text-zinc-300')).toBe(true);
     });
 
     it('stress test: clicking zen-pure-black when custom background blob/image is active completely purges it', () => {
@@ -265,20 +265,20 @@ describe('Challenger 2 Polish M1 — Empirical Stress Test Suite', () => {
       // 1. Click Graphite
       fireEvent.click(zenGraphiteBtn);
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-deep-graphite');
-      expect(zenGraphiteBtn.className).toContain('ring-2 ring-cyan-400');
-      expect(zenBlackBtn.className).not.toContain('ring-2 ring-cyan-400');
+      expect(zenGraphiteBtn.className).toContain('ring-2 ring-zinc-400');
+      expect(zenBlackBtn.className).not.toContain('ring-2 ring-zinc-400');
 
       // 2. Click Blue
       fireEvent.click(zenBlueBtn);
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-night-blue');
-      expect(zenBlueBtn.className).toContain('ring-2 ring-cyan-400');
-      expect(zenBlackBtn.className).not.toContain('ring-2 ring-cyan-400');
+      expect(zenBlueBtn.className).toContain('ring-2 ring-zinc-400');
+      expect(zenBlackBtn.className).not.toContain('ring-2 ring-zinc-400');
 
       // 3. Click Pure Black again
       fireEvent.click(zenBlackBtn);
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-pure-black');
-      expect(zenBlackBtn.className).toContain('ring-2 ring-cyan-400');
-      expect(zenBlueBtn.className).not.toContain('ring-2 ring-cyan-400');
+      expect(zenBlackBtn.className).toContain('ring-2 ring-zinc-400');
+      expect(zenBlueBtn.className).not.toContain('ring-2 ring-zinc-400');
     });
   });
 

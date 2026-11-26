@@ -168,6 +168,7 @@ describe('Milestone 2 Security, PII & XSS Sanitization Test Suite', () => {
         displayName: 'Founder',
         plan: 'lifetime',
         role: 'founder',
+        app_metadata: { role: 'founder' },
         createdAt: Date.now()
       };
 

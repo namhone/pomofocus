@@ -427,7 +427,7 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub &
       const mockup = screen.getByTestId('phone-mockup-preview');
       expect(mockup).not.toBeNull();
       expect(mockup.textContent).toContain('25:00');
-      expect(mockup.textContent).toContain('Anchor 120Hz');
+      expect(mockup.textContent).toContain('Đồng hồ tập trung');
 
       const qrContainer = screen.getByTestId('dynamic-qr-code');
       expect(qrContainer).not.toBeNull();

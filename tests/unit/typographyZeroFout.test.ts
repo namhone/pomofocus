@@ -36,7 +36,7 @@ describe('Milestone 1: Zero-FOUT & Typography Foundation (Adversarial Challenger
       expect(indexHtml).toContain('opacity: 0;');
       expect(indexHtml).toContain('visibility: hidden;');
       expect(indexHtml).toContain('.pomo-spinner {');
-      expect(indexHtml).toContain('border-top-color: #10b981;');
+      expect(indexHtml).toContain('border-top-color: #a1a1aa;');
       expect(indexHtml).toContain('@keyframes pomoSpin {');
     });
 
@@ -53,10 +53,11 @@ describe('Milestone 1: Zero-FOUT & Typography Foundation (Adversarial Challenger
     it('has an idempotent splash curtain dismissal script that gracefully handles fast/cached loads', () => {
       expect(indexHtml).toContain('function dismissCurtain()');
       expect(indexHtml).toContain("document.getElementById('pomo-splash-curtain')");
-      expect(indexHtml).toContain("curtain.classList.add('loaded')");
-      expect(indexHtml).toContain('DOMContentLoaded');
+      expect(indexHtml).toContain('if (curtain) curtain.remove();');
+      expect(indexHtml).toContain('new MutationObserver(checkReady)');
       // Verifies fallback for interactive or complete state
-      expect(indexHtml).toContain("document.readyState === 'interactive' || document.readyState === 'complete'");
+      expect(indexHtml).toContain('root && root.childElementCount');
+      expect(indexHtml).toContain('}, 1800)');
     });
   });
 

@@ -276,7 +276,7 @@ describe('V8.1 Milestone 2 — Empirical Challenger Adversarial Stress Suite', (
       vi.useRealTimers();
     });
 
-    it('2.4 Browser Event Sequence Simulation: Hold between 300ms and 799ms does not start timer even if browser fires click', () => {
+    it('2.4 Incomplete hold followed by an ordinary click still starts exactly once', () => {
       vi.useFakeTimers();
       render(<MobileFocusView />);
       const mainBtn = screen.getByTestId('mobile-timer-main-action');
@@ -293,8 +293,8 @@ describe('V8.1 Milestone 2 — Empirical Challenger Adversarial Stress Suite', (
       // In real browsers, pointerUp is immediately followed by a click event:
       fireEvent.click(mainBtn);
 
-      // Status must remain idle even after click!
-      expect(useTimerStore.getState().status).toBe('idle');
+      // A normal click remains actionable after an incomplete hold (Samsung pause regression).
+      expect(useTimerStore.getState().status).toBe('running');
 
       vi.useRealTimers();
     });

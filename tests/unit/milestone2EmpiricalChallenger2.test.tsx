@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import apkRelease from '../../src/config/apkRelease.json';
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
@@ -86,7 +87,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       const classList = downloadBtn.className;
 
       // Emerald breathing glow classes
-      expect(classList).toContain('shadow-[0_12px_32px_rgba(16,185,129,0.45)]');
+      expect(classList).toContain('shadow-[0_12px_32px_rgba(255,255,255,0.45)]');
       expect(classList).toContain('animate-pulse');
 
       // 56px+ touch target height
@@ -94,8 +95,8 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       expect(classList).toContain('min-h-[56px]');
 
       // Gradient background
-      expect(classList).toContain('bg-gradient-to-r');
-      expect(classList).toContain('from-emerald-500');
+      expect(classList).toContain('bg-zinc-100');
+      expect(classList).toContain('text-zinc-950');
     });
 
     it('1.3 displays Android-specific smart detection hint when user is on Android', () => {
@@ -113,7 +114,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       render(<WebDownloadHub />);
 
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
-      expect(downloadBtn.textContent).toContain('Tải PomoFocus APK (v8.1)');
+      expect(downloadBtn.textContent).toContain(`Tải PomoFocus APK (v${apkRelease.version})`);
     });
 
     it('1.5 rapid sequential clicks on download button maintain href and download integrity', () => {
@@ -151,7 +152,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
 
       // Monumental clock inside mockup
       expect(mockup.textContent).toContain('25:00');
-      expect(mockup.textContent).toContain('Anchor 120Hz');
+      expect(mockup.textContent).toContain('Đồng hồ tập trung');
 
       // Mode pills inside mockup
       expect(mockup.textContent).toContain('Tập trung');
@@ -248,7 +249,7 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
       render(<WebDownloadHub />);
 
       expect(
-        screen.getByText(/Thiết bị iOS hỗ trợ cài đặt PWA trực tiếp từ trình duyệt Safari/i)
+        screen.getByText(/Trên iOS, bạn có thể thêm PomoFocus vào màn hình chính từ Safari/i)
       ).toBeDefined();
     });
   });
@@ -484,9 +485,9 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
 
       const expectedBadges = [
         'Chạy nền ổn định',
-        'Thân thiện OLED',
-        '120Hz tự nhiên',
-        'Cố định 100dvh',
+        'Thân thiện oled',
+        'Phản hồi nhẹ',
+        'Vừa màn hình',
         'Bảo mật cao',
         'Chuyển động vi mô',
       ];
@@ -495,12 +496,12 @@ describe('Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite', 
         expect(screen.getAllByText(badge).length).toBeGreaterThanOrEqual(1);
       });
 
-      expect(screen.getByText('Anchor Timestamp Engine')).toBeDefined();
-      expect(screen.getByText('Screen Wake Lock API')).toBeDefined();
-      expect(screen.getByText('Haptics & Spring Physics')).toBeDefined();
-      expect(screen.getByText('Zero-Scroll-Chaining')).toBeDefined();
-      expect(screen.getByText('Offline First & Security')).toBeDefined();
-      expect(screen.getByText('Rolling Digit Morphing')).toBeDefined();
+      expect(screen.getByText('Đếm giờ theo mốc thời gian')).toBeDefined();
+      expect(screen.getByText('Giữ sáng khi tập trung')).toBeDefined();
+      expect(screen.getByText('Phản hồi khi chạm')).toBeDefined();
+      expect(screen.getByText('Không gian vừa màn hình')).toBeDefined();
+      expect(screen.getByText('Học tập khi ngoại tuyến')).toBeDefined();
+      expect(screen.getAllByText('Chuyển số nhẹ nhàng')).toHaveLength(2);
     });
 
     it('4.4 quick web access button navigates towards /app', () => {

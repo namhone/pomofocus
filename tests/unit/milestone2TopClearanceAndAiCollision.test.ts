@@ -71,7 +71,7 @@ describe('Milestone 2: Top Clearance (y=8px), Compact Home Nav, and AI Collision
         'utf-8'
       );
       expect(headerCode).toContain('data-testid="capsule-home-btn"');
-      expect(headerCode).toContain('data-testid="header-user-home-btn"');
+      expect(headerCode).not.toContain('data-testid="header-user-home-btn"');
       expect(headerCode).toContain('data-testid="guest-menu-home-btn"');
     });
 
@@ -93,14 +93,14 @@ describe('Milestone 2: Top Clearance (y=8px), Compact Home Nav, and AI Collision
   });
 
   describe('Feature 6: AI Companion Header Collision Resolution', () => {
-    it('AiCompanionWidget có drawer tại z-[80] top-0 và backdrop tại z-[75]', () => {
+    it('AI drawer respects header at z-40 with backdrop z-30', () => {
       const aiCode = fs.readFileSync(
         path.resolve(__dirname, '../../src/components/AiCompanionWidget.tsx'),
         'utf-8'
       );
-      expect(aiCode).toContain('z-[80]');
+      expect(aiCode).toContain('z-40');
       expect(aiCode).toContain('top-0');
-      expect(aiCode).toContain('z-[75]');
+      expect(aiCode).toContain('z-30');
     });
 
     it('PlatformHeader nhường không gian cho AI drawer khi isOpen === true', () => {

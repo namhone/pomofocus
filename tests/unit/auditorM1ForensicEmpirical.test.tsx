@@ -196,13 +196,13 @@ describe('Auditor Forensic Empirical Verification Suite — Milestone 1', () => 
     const shortBreakBtn = screen.getByTestId('mobile-phase-short_break');
 
     // Initial phase is pomodoro
-    expect(pomodoroBtn.className).toContain('animate-spring-bounce');
+    expect(pomodoroBtn.className).toContain('pomo-glass-selected');
 
     // Switch to short break
     fireEvent.click(shortBreakBtn);
     expect(vibrateSpy).toHaveBeenCalledWith(10);
     expect(useTimerStore.getState().phase).toBe('short_break');
-    expect(shortBreakBtn.className).toContain('animate-spring-bounce');
+    expect(shortBreakBtn.className).toContain('pomo-glass-selected');
   });
 
   // ---------------------------------------------------------------------------

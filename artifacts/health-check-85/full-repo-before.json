@@ -1,0 +1,2319 @@
+{
+  "sourceCommit": "7d430dc",
+  "command": "npx vitest run --maxWorkers=1 --minWorkers=1 --reporter=verbose --reporter=json",
+  "files": 198,
+  "passedFiles": 109,
+  "failedFiles": 89,
+  "passed": 2576,
+  "failed": 257,
+  "skipped": 0,
+  "todo": 0,
+  "success": false,
+  "results": [
+    {
+      "file": "src/scaffold.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/adversarialChallengerM0.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/adversarialFailFastStress.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/adversarialPaymentChallenge.test.ts",
+      "status": "passed",
+      "passed": 52,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/adversarialRlsChallenge.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/adversarialTasksAndWhiteboardM2.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/aiAdvancedFeatures.test.ts",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "AI Companion Advanced Upgrades: Streaming, 8192 Tokens, Multimodal & Tiered Topup 1. Công Thức Chiết Khấu Nạp Thêm AI Credits Lẻ ⚡ & Đồng Bộ Bảng Giá Gói chuẩn 3 (1.500⚡): Giá đúng 69.000đ, Tiết kiệm 28% 🔥 (Phổ biến)",
+          "reason": "AssertionError: expected 'Tiết kiệm 28%' to be 'Tiết kiệm 28% 🔥' // Object.is equality"
+        },
+        {
+          "title": "AI Companion Advanced Upgrades: Streaming, 8192 Tokens, Multimodal & Tiered Topup 1. Công Thức Chiết Khấu Nạp Thêm AI Credits Lẻ ⚡ & Đồng Bộ Bảng Giá Gói chuẩn 4 (4.000⚡): Giá đúng 149.000đ, Tiết kiệm 40% 👑",
+          "reason": "AssertionError: expected 'Tiết kiệm 40%' to be 'Tiết kiệm 40% 👑' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/aiGreetingIntent.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/aiStore.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/androidBackStackAndInsets.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/androidSmokeScript.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/apiRooms.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/apkArchitectureSeparation.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Milestone M1: APK Navigation Shell & 100% Web Isolation 3. Secondary Views (LegalViews) Mobile Fix 3.1 Return button in LegalViews does not have hidden sm:flex class",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Vào Không Gian. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to mak"
+        },
+        {
+          "title": "Milestone M1: APK Navigation Shell & 100% Web Isolation 4. NotFoundPage (BUG-11): Back Button, PomoNativeBack & Emojis 4.4 Action buttons do not contain raw emojis ⏱ and 🏠",
+          "reason": "AssertionError: expected 'Quay về bàn học' to contain 'Quay Về Bàn Học Ngay'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/architectureGuards.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/audioEngine.test.ts",
+      "status": "passed",
+      "passed": 21,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/audioRemediationPhase3.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/auditorM1ForensicEmpirical.test.tsx",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Auditor Forensic Empirical Verification Suite — Milestone 1 Forensic Check 4: MobileFocusView applies spring bounce and triggers haptics on mode switch",
+          "reason": "AssertionError: expected 'w-full text-center py-1.5 rounded-ful…' to contain 'animate-spring-bounce'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/auditorM2ForensicEmpirical.test.tsx",
+      "status": "failed",
+      "passed": 24,
+      "failed": [
+        {
+          "title": "Auditor Independent Forensic Suite: Milestone 2 4. UI & Architectural Invariants: State Singularity & Layer Hierarchy WebDownloadHub renders prominent 1-touch APK download button (56px, emerald glow, correct APK link)",
+          "reason": "AssertionError: expected 'w-full h-14 sm:h-16 min-h-[56px] px-6…' to contain 'shadow-[0_12px_32px_rgba(16,185,129,0…'"
+        },
+        {
+          "title": "Auditor Independent Forensic Suite: Milestone 2 5. Static Metadata & Public Contract Verification public/version.json exists, is valid JSON, and adheres to distribution contract",
+          "reason": "AssertionError: expected '8.1.4' to be '8.1.0' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/auditorM3ForensicEmpirical.test.tsx",
+      "status": "failed",
+      "passed": 18,
+      "failed": [
+        {
+          "title": "Auditor Independent Forensic Suite: Milestone 3 (Capacitor Android & Standalone APK) 2. Cryptographic Integrity & Version Manifest Attestation verifies public/version.json schema, semver, and canonical download URL",
+          "reason": "AssertionError: expected '8.1.4' to be '8.1.0' // Object.is equality"
+        },
+        {
+          "title": "Auditor Independent Forensic Suite: Milestone 3 (Capacitor Android & Standalone APK) 4. Capacitor Configuration & Android Native Structure confirms android/local.properties points to valid Android SDK",
+          "reason": "AssertionError: expected '## This file must *NOT* be checked in…' to contain 'AppData'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/authEpochContract.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/authSyncAndFocusSessionsM3.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/autoTrainGiaSu.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/avatarIdentityContract.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/avatarImmutabilityPrecedence.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Avatar Immutability & Precedence Specification (Bảo vệ Avatar Tùy Chỉnh Tuyệt Đối) 3. Kịch bản lỗi thực tế: Up Custom Avatar -> Đăng Xuất (Logout) -> Đăng Nhập Google -> Bảo Toàn 100% bảo toàn vĩnh viễn Custom Avatar sau khi Logout và đăng nhập lại bằng Google",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'https://supabase.co/storage/v1/object…' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/avatarResilienceAndFallbacks.test.ts",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Avatar Resilience & Pitch-Black Box Elimination Specification 1. Kịch bản tái hiện lỗi thực tế (Reproduction Steps Verification) chuỗi thao tác: Đăng nhập Google -> Đổi Avatar -> Logout -> F5 -> Đăng ký Email mới: Avatar có ngay lập tức, không bao giờ bị ô đen",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "status": "failed",
+      "passed": 2,
+      "failed": [
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 1. Chuẩn hóa cập nhật Avatar (3 trường: avatarUrl, customAvatarUrl, hasCustomAvatar) Cập nhật avatar qua updateProfile thiết lập đầy đủ 3 trường và đồng bộ",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 2. Quy tắc Avatar Precedence: Google không bao giờ đè lên Custom Avatar Đăng xuất sau khi đổi avatar, đăng nhập lại bằng Google giữ nguyên ảnh custom",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 3. Đồng nhất tài khoản Google & Email (Single Source of Truth) Cập nhật avatar qua ProfileView đồng bộ đồng thời cả bản ghi Google và Email",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/backendV5HyperScale.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/backgroundContrast.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/backgroundStore.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/betaEntitlement.test.ts",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Cập nhật tên hiển thị và avatar thành công",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Đổi mật khẩu thành công khi nhập đúng mật khẩu cũ",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challenger2EmpiricalAdversarial.test.tsx",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Challenger 2 — Empirical Contract Invariant & Adversarial Oracle Contract Invariant: Canonical Widget Title in WidgetContainer empirically verifies WidgetContainer displays \"Cài Đặt Hệ Thống\" when id is \"settings\"",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Cài Đặt Hệ Thống. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to m"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challenger2M1EmpiricalStress.test.tsx",
+      "status": "failed",
+      "passed": 15,
+      "failed": [
+        {
+          "title": "Challenger 2 Empirical Stress Test — Milestone 1 Invariants Requirement 4: APK Environment Detection & PiP Button Invariant shows PiP button in standard Web Browser environment",
+          "reason": "AssertionError: expected 'Đồng hồ nổi (picture-in-picture)' to contain 'Picture-in-Picture'"
+        },
+        {
+          "title": "Challenger 2 Empirical Stress Test — Milestone 1 Invariants Requirement 5: Reactive Audio Sound Dot renders pulsating emerald sound dot when an ambient track starts playing",
+          "reason": "AssertionError: expected 'absolute -top-0.5 -right-1 w-1.5 h-1.…' to contain 'bg-emerald-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challenger2Milestone2Stress.test.tsx",
+      "status": "failed",
+      "passed": 12,
+      "failed": [
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 1. computeDerivedPlanState Adversarial Stress & Matrix Testing identifies Founder VIP by role, email, badge or infinite credits",
+          "reason": "AssertionError: expected 'Free' to be 'Founder VIP' // Object.is equality"
+        },
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 2. PlatformHeader Polish & Edge Case Stress (1366x768 & Zoom 100%) consolidates PWA install button into user dropdown menu and prevents standalone header duplicate",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"header-user-install-pwa-btn\"]"
+        },
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 2. PlatformHeader Polish & Edge Case Stress (1366x768 & Zoom 100%) header AI button strictly adheres to Monochrome 90-10 styling",
+          "reason": "AssertionError: expected 'flex items-center gap-1.5 h-8 px-2 sm…' to contain 'bg-white/5'"
+        },
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 3. ProfileView Email Unmasking, Geometry & Jargon Eradication handles empty or missing email gracefully with placeholder",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Chưa cập nhật email. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher t"
+        },
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 5. StudyRoomView Pre-Join Selector & Monochrome Verification (Bug 11) pre-join badges are in Sentence Case (LadyBoss, Host, Member, Guest)",
+          "reason": "Error: Unable to find an element with the text: 👑 Nóc nhà Pro. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more f"
+        },
+        {
+          "title": "Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Room Stress Harness 6. AiCompanionWidget & App Drawer Layout Resilience renders drawer with responsive width classes and non-modal 2xl:hidden backdrop",
+          "reason": "AssertionError: expected 'fixed inset-0 z-30 bg-black/50 backdr…' to contain '2xl:hidden'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Adversarial.test.tsx",
+      "status": "failed",
+      "passed": 11,
+      "failed": [
+        {
+          "title": "Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Shell & Root Routing) Vector 3: 3-State Timer Indicator Dot 3.1 Running state: emerald color with breathing pulse animation and glow shadow",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Shell & Root Routing) Vector 3: 3-State Timer Indicator Dot 3.2 Paused state: amber color without pulse animation",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-amber-400'"
+        },
+        {
+          "title": "Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Shell & Root Routing) Vector 3: 3-State Timer Indicator Dot 3.4 Dynamic transitions: transitions smoothly between running -> paused -> idle in real time",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Challenger 2: Adversarial Stress Test Suite for Milestone 3 (Mobile Shell & Root Routing) Vector 4: Predictive Back Gesture & State Singularity 4.1 Multi-tab traversal: navigates through all 5 tabs and intercepts popstate",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/challenger2PolishM1Stress.test.tsx",
+      "status": "failed",
+      "passed": 27,
+      "failed": [
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 1. Spaces Widget Responsive Auto-Fill Grid (380px, 600px, 800px, 900px) renders correctly inside 380px container without max-w-[420px] clamp",
+          "reason": "AssertionError: expected undefined to be defined"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 1. Spaces Widget Responsive Auto-Fill Grid (380px, 600px, 800px, 900px) renders correctly inside 600px container without max-w-[420px] clamp",
+          "reason": "AssertionError: expected undefined to be defined"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 1. Spaces Widget Responsive Auto-Fill Grid (380px, 600px, 800px, 900px) renders correctly inside 800px container without max-w-[420px] clamp",
+          "reason": "AssertionError: expected undefined to be defined"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 1. Spaces Widget Responsive Auto-Fill Grid (380px, 600px, 800px, 900px) renders correctly inside 900px container without max-w-[420px] clamp",
+          "reason": "AssertionError: expected undefined to be defined"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 1. Spaces Widget Responsive Auto-Fill Grid (380px, 600px, 800px, 900px) retains responsive auto-fill grid when switching categories to video",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"filter-cat-video\"]"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 3. Zen Button zen-pure-black & setPureZenBlack() Verification renders zen-pure-black button with OLED #09090b background style",
+          "reason": "AssertionError: expected 'Đen tuyền' to contain '#09090b'"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 3. Zen Button zen-pure-black & setPureZenBlack() Verification clicking zen-pure-black selects zen-pure-black preset and highlights button with checkmark",
+          "reason": "AssertionError: expected 'h-7 rounded-lg border flex items-cent…' to contain 'ring-2 ring-cyan-400'"
+        },
+        {
+          "title": "Challenger 2 Polish M1 — Empirical Stress Test Suite 3. Zen Button zen-pure-black & setPureZenBlack() Verification alternating between zen-pure-black and other zen colors toggles active preset accurately",
+          "reason": "AssertionError: expected 'h-7 rounded-lg border flex items-cent…' to contain 'ring-2 ring-cyan-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challengerM1Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/challengerPolishM3Stress.test.tsx",
+      "status": "passed",
+      "passed": 21,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/challengerV642Stress.test.tsx",
+      "status": "failed",
+      "passed": 15,
+      "failed": [
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 3. LocalStorage Migration & Canonical Title Resilience migrates legacy payload with title \"Cài Đặt Không Gian\" to \"Cài Đặt Hệ Thống\"",
+          "reason": "AssertionError: expected 'Cài đặt hệ thống' to be 'Cài Đặt Hệ Thống' // Object.is equality"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 3. LocalStorage Migration & Canonical Title Resilience retains \"Cài Đặt Hệ Thống\" when layout is already migrated",
+          "reason": "AssertionError: expected 'Cài đặt hệ thống' to be 'Cài Đặt Hệ Thống' // Object.is equality"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 3. LocalStorage Migration & Canonical Title Resilience resiliently handles empty, missing, or corrupted localStorage data",
+          "reason": "AssertionError: expected 'Cài đặt hệ thống' to be 'Cài Đặt Hệ Thống' // Object.is equality"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 3. LocalStorage Migration & Canonical Title Resilience WidgetContainer renders CANONICAL title \"Cài Đặt Hệ Thống\" regardless of stale widget state title",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Cài Đặt Hệ Thống. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to m"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 4. Responsive & Touch Target Contracts guarantees >= 32px (w-8 h-8) Apple Liquid Glass touch targets on stepper buttons",
+          "reason": "AssertionError: expected 'w-9 h-9 min-w-[36px] min-h-[36px] rou…' to contain 'w-8'"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 4. Responsive & Touch Target Contracts guarantees >= 32px (w-8 h-8) Apple Liquid Glass touch targets on WidgetContainer window controls",
+          "reason": "AssertionError: expected 'w-6 h-6 sm:w-6 sm:h-6 rounded-lg text…' to contain 'w-8'"
+        },
+        {
+          "title": "Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient Migrations & Touch Targets 5. Checkbox Reactive Toggle & Label Invariant renders strict concise label \"Tự động chuyển hiệp mới\" and emerald glow styles",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'peer-checked:bg-gradient-to-tr peer-c…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/challengerV70M1Stress.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/cloud2FaAndSecurityEnhancements.test.ts",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Cloud 2FA, Security Enhancements & Owner Privileges Audit 2. Email OTP Password Reset Flow Gửi mã OTP 6 số và xác minh đặt lại mật khẩu mới thành công",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/cloudSyncRealtime.test.ts",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Supabase Cloud Persistence & Multi-Device Sync Specification 4. Đồng bộ số dư tia chớp ⚡ từ Supabase Cloud (Single Source of Truth)",
+          "reason": "AssertionError: expected '👑 PRO TRỌN ĐỜI' to be 'Founder VIP 👑' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/cookieConsentNativeSuppression.test.tsx",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/coreProductivityStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/couponSystemResilience.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/creditsTopupRemediation.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/customAvatarCloudSync.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime xử lý ảnh từ File, tải lên Storage và cập nhật tức thì vào useAuthStore & profiles cache",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime fallback an toàn khi Storage bucket chưa kích hoạt: lưu Base64 Data URI tối ưu và vẫn sync 100%",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/dashboardTrendChartAndCalendarTooltip.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/dataSyncAndDbFixes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/dataSyncAuditorStress.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/deepAuditValidation.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/dynamicCloudCouponEngine.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/empiricalChallengerV641.test.tsx",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 320px (Ultra-narrow Mobile)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 360px (Standard Compact Mobile)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 375px (iPhone SE / Small Screen)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 390px (iPhone 12/13/14 Standard)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 414px (Mobile Large / Phablet)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 768px (Tablet / iPad Split View)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 1024px (Laptop / Narrow Desktop)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants enforces strict non-wrapping layout at viewport 1920px (Full HD Desktop)",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 1: TimerWidget Button Group Anti-Wrap & Icon-Only Invariants verifies Pause and Resume button states also maintain shrink-0 and whitespace-nowrap",
+          "reason": "AssertionError: expected 'liquid-glow h-11 px-6 rounded-full bg…' to contain 'liquid-glass-btn'"
+        },
+        {
+          "title": "Empirical Challenger v6.4.1: Responsive Anti-Wrap & Liquid Glass Icon-Only Oracle Dimension 4: Parity & Static File Invariants guarantees TimerWidget.tsx and TimerTestInterface.tsx are 100% byte-for-byte identical",
+          "reason": "AssertionError: expected 'import React, { useEffect, useRef } f…' to be 'import React, { useEffect, useRef } f…' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/empiricalM2Challenger.test.ts",
+      "status": "failed",
+      "passed": 11,
+      "failed": [
+        {
+          "title": "CHALLENGER EMPIRICAL SUITE — Milestone 2 Resilience & Stress Testing 1. Sync Queue Exponential Backoff & Non-Destructive Failures empirically transitions to status \"failed\" at retry >= 5 without deleting the mutation",
+          "reason": "AssertionError: expected '__vite_ssr_import_1__.supabase.from(.…' to contain '500 Internal Server Error'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/founderEntitlementContract.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/googleAuth.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/googleAuthAndPwa.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Owner (namho03052k9@gmail.com) tự động kích hoạt Lifetime & Owner",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Nóc Nhà (huyentrantt09@gmail.com) tự động kích hoạt Lifetime & LadyBoss",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/googleOAuthNativeVerification.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/guestCreditsPersistence.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/guestHeaderAndGoogleGuidance.test.tsx",
+      "status": "failed",
+      "passed": 4,
+      "failed": [
+        {
+          "title": "Header Guest Quick Menu & Google OAuth Guidance Specifications 1. Cố Định Redirect URI & Hướng Dẫn Cảnh Báo Google OAuth googleAuthService.getGoogleOAuthRedirectUrl luôn khóa cứng redirectUri là origin gốc",
+          "reason": "AssertionError: expected 'https://pgsgmmtpunuttspqcgof.supabase…' to contain 'redirect_uri=https%3A%2F%2Fpomofocus-…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/layoutAndZen.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/loginOptions.test.ts",
+      "status": "failed",
+      "passed": 3,
+      "failed": [
+        {
+          "title": "Login Options & Founder VIP 1-Tap Unit Tests 3. useAuthStore.loginAsFounder cập nhật toàn bộ cờ đặc quyền chính chủ (isOwner, isLifetime, isPro)",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m1Challenger1.test.ts",
+      "status": "failed",
+      "passed": 10,
+      "failed": [
+        {
+          "title": "Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Integrity 2. Offline queue stress in syncQueueService simulates network drop after 15 mutations and completes recovery after reconnection",
+          "reason": "AssertionError: expected +0 to be 15 // Object.is equality"
+        },
+        {
+          "title": "Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Integrity 2. Offline queue stress in syncQueueService gracefully handles missing remote table (focus_sessions error 42P01) without jamming subsequent mutations",
+          "reason": "AssertionError: expected 4 to be +0 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m1Challenger2.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m1ChallengerDeepLinkAnd404Attack.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m1ChallengerIsolationAttack.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 12,
+      "failed": [
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 1: Mini Pill Timer under pointer events & drag interception Play, Pause, and Resume state transitions fire with 100% reliability on Mini Pill",
+          "reason": "AssertionError: expected 'w-2 h-2 rounded-full transition-all b…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 280px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 320px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 380px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 500px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 680px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Renders notes toolbar and tabs without broken wrapping at width 800px",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 3: Notes Widget width scaling (280px to 800px) and long titles Survives extreme note title of 150 characters at narrowest width (280px)",
+          "reason": "AssertionError: expected 'w-full min-w-0 rounded-lg border bord…' to contain 'flex-1'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite Challenger Stress 5: Spaces Widget width expansion & Pure Zen Black activation Preset grid uses CSS repeat(auto-fill, minmax(140px, 1fr)) responsive columns",
+          "reason": "AssertionError: expected null not to be null"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallengerStress.test.tsx",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 1: Mobile 390px CookieConsentBanner & Bottom Nav Collision preserves Vietnamese legal citations verbatim (Law 91/2025 & Decree 356/2025)",
+          "reason": "AssertionError: expected 'Bảo vệ dữ liệu & quyền riêng tưPomoFo…' to contain 'Luật Bảo vệ dữ liệu cá nhân 91/2025/Q…'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 1: Mobile 390px CookieConsentBanner & Bottom Nav Collision does not collide with Bottom Nav in full MobileAppShell render at 390px",
+          "reason": "AssertionError: expected 'h-[calc(56px+env(safe-area-inset-bott…' to contain 'h-14'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 2: Header Height Strict 48px Invariant strictly bounds mobile-top-header height to 48px regardless of timer status",
+          "reason": "AssertionError: expected 'min-h-[48px] h-[calc(48px+env(safe-ar…' to contain 'h-12'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 2: Header Height Strict 48px Invariant does not expand header height when credits number is massive or Infinity",
+          "reason": "AssertionError: expected 'min-h-[48px] h-[calc(48px+env(safe-ar…' to contain 'max-h-[48px]'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 4: Icon & Typography Standardization verifies bottom nav contains all 5 required navigation destinations with 3px dot",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite Vector 4: Icon & Typography Standardization verifies sound playing indicator dot appears when audio is active on spaces tab",
+          "reason": "AssertionError: expected 'absolute -top-0.5 -right-1 w-1.5 h-1.…' to contain 'bg-emerald-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m1WebIsolationAndNavigation.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Milestone M1: APK Navigation Shell & 100% Web Isolation 3. Secondary Views (LegalViews) Mobile Fix 3.1 Return button in LegalViews does not have hidden sm:flex class",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Vào Không Gian. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to mak"
+        },
+        {
+          "title": "Milestone M1: APK Navigation Shell & 100% Web Isolation 4. NotFoundPage (BUG-11): Back Button, PomoNativeBack & Emojis 4.4 Action buttons do not contain raw emojis ⏱ and 🏠",
+          "reason": "AssertionError: expected 'Quay về bàn học' to contain 'Quay Về Bàn Học Ngay'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m2BackStackInsetsAndSplash.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m2ChallengerBackStackAttack.test.tsx",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m2ChallengerInsetsAndOfflineAttack.test.tsx",
+      "status": "failed",
+      "passed": 13,
+      "failed": [
+        {
+          "title": "Adversarial Challenger M2: Insets, Splash Logo & KaTeX Offline Attack (BUG-04, 06, 07, 12) ATTACK 2: Splash Curtain SVG Logo & Zero-FOUT Preloader (BUG-04) STRESS-2.2: PomoFocus SVG logo strictly contains required vector elements and brand palette",
+          "reason": "AssertionError: expected '#a1a1aa' to be '#10b981' // Object.is equality"
+        },
+        {
+          "title": "Adversarial Challenger M2: Insets, Splash Logo & KaTeX Offline Attack (BUG-04, 06, 07, 12) ATTACK 2: Splash Curtain SVG Logo & Zero-FOUT Preloader (BUG-04) STRESS-2.5: Zero-FOUT dismissal script operates reliably across loading states",
+          "reason": "AssertionError: expected null not to be null"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m2ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressFocusTasks.test.tsx",
+      "status": "failed",
+      "passed": 15,
+      "failed": [
+        {
+          "title": "M2 Dedicated Empirical Adversarial Stress Suite — Focus & Tasks 1. Task Inline Title Editing, Stepper Boundaries & Blur Auto-Save 1.4 Enforces Pomodoro stepper boundaries: lower bound at 1 (cannot be 0 or negative)",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /1 🍅/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your m"
+        },
+        {
+          "title": "M2 Dedicated Empirical Adversarial Stress Suite — Focus & Tasks 1. Task Inline Title Editing, Stepper Boundaries & Blur Auto-Save 1.5 Enforces Pomodoro stepper boundaries: upper bound at 20 (cannot be 21 or higher)",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /20 🍅/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your "
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressSpacesMixer.test.tsx",
+      "status": "failed",
+      "passed": 9,
+      "failed": [
+        {
+          "title": "Milestone 2 Empirical Adversarial Stress Suite — Spaces, Background & Audio Mixer 1. Empirical Stress-Test: Pure Zen Black OLED (#09090b) 1.2 BackgroundCanvas renders pure #09090b OLED background with EXACTLY 0 img and 0 video elements",
+          "reason": "AssertionError: expected 'none' to contain 'blur(0px)'"
+        },
+        {
+          "title": "Milestone 2 Empirical Adversarial Stress Suite — Spaces, Background & Audio Mixer 1. Empirical Stress-Test: Pure Zen Black OLED (#09090b) 1.4 Mobile Spaces button \"Tắt nền (Pure Zen Black)\" triggers setPureZenBlack and highlights button",
+          "reason": "AssertionError: expected 'Tắt nền (màu đen sâu)Zen' to contain 'Tắt nền (Pure Zen Black)'"
+        },
+        {
+          "title": "Milestone 2 Empirical Adversarial Stress Suite — Spaces, Background & Audio Mixer 2. Empirical Stress-Test: Audio Mixer Track Muting & Volume Retention 2.1 Muting a track in AudioWidget disables the slider and dims text while retaining custom volume level",
+          "reason": "AssertionError: expected undefined to be '70%' // Object.is equality"
+        },
+        {
+          "title": "Milestone 2 Empirical Adversarial Stress Suite — Spaces, Background & Audio Mixer 2. Empirical Stress-Test: Audio Mixer Track Muting & Volume Retention 2.2 Mobile Mixer subview: slider is disabled when muted, with 3px track and preserves volume",
+          "reason": "AssertionError: expected undefined to be '45%' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m3ChallengerGoogleAuthAndIdentityAttack.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m3ChallengerIdentityAttack.test.tsx",
+      "status": "failed",
+      "passed": 18,
+      "failed": [
+        {
+          "title": "Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & VIP Whitelist ATTACK 3: Long Vietnamese Names & Special Text Stress-Testing in PlatformHeader 3.1 50+ character Vietnamese full name does not cause flex layout blowouts and adheres to max-w truncation",
+          "reason": "AssertionError: expected 'text-xs font-medium truncate hidden m…' to match /xl:max-w-\\[260px\\]/"
+        },
+        {
+          "title": "Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & VIP Whitelist ATTACK 3: Long Vietnamese Names & Special Text Stress-Testing in PlatformHeader 3.4 Emoji-laden name renders without crashing initials generator or header",
+          "reason": "AssertionError: expected ' [VIP PRO] Nguyễn Nam ' to be '👑 [VIP PRO] Nguyễn Nam 🚀⚡' // Object.is equality"
+        },
+        {
+          "title": "Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & VIP Whitelist ATTACK 4: Founder VIP Whitelist & Privilege Escalation Protection 4.1 Legitimate owner emails in OWNER_EMAILS receive 100% Founder VIP entitlement",
+          "reason": "AssertionError: expected 'text-zinc-300 border-zinc-400/40 bg-z…' to contain 'text-amber-300'"
+        },
+        {
+          "title": "Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & VIP Whitelist ATTACK 4: Founder VIP Whitelist & Privilege Escalation Protection 4.5 PlatformHeader renders Founder VIP badge and infinite credits for owner, but standard HUD for regular user",
+          "reason": "AssertionError: expected 'px-1.5 py-0.5 rounded-md text-[9px] f…' to contain 'text-amber-300'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m3ChallengerOAuthAttack.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m3GoogleAuthAndIdentitySync.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m4ChallengerFocusAttack.test.tsx",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots & Task Picker Attack Vector 1: Focus Cycle Dots State Transitions & Invariants (BUG-08, BUG-33) 1.1 Round 1 of 4 at various elapsed seconds (25:00, 24:58, 12:30, 00:01, 00:00) strictly enforces 0 completed, 1 active, 3 upcoming",
+          "reason": "AssertionError: expected 'w-2.5 h-2.5 rounded-full transition-a…' to contain 'animate-pulse'"
+        },
+        {
+          "title": "Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots & Task Picker Attack Vector 1: Focus Cycle Dots State Transitions & Invariants (BUG-08, BUG-33) 1.2 Round 2 of 4 across running, paused, and idle states: exactly 1 completed, 1 active, 2 upcoming",
+          "reason": "AssertionError: expected 'w-2.5 h-2.5 rounded-full transition-a…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots & Task Picker Attack Vector 1: Focus Cycle Dots State Transitions & Invariants (BUG-08, BUG-33) 1.3 Round 3 of 4: strictly 2 completed, 1 active, 1 upcoming",
+          "reason": "AssertionError: expected 'w-2.5 h-2.5 rounded-full transition-a…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Milestone M4 — Challenger Adversarial Attack Suite: Focus Cycle Dots & Task Picker Attack Vector 1: Focus Cycle Dots State Transitions & Invariants (BUG-08, BUG-33) 1.4 Round 4 of 4 (CRITICAL ATTACK): NEVER 4 solid green dots while timer is in progress",
+          "reason": "AssertionError: expected 'w-2.5 h-2.5 rounded-full transition-a…' to contain 'border-emerald-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m4ChallengerLayoutAttack.test.tsx",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 1: Viewport Stress & 3-Column Grid Enforcement enforces grid-cols-3 and denies grid-cols-5 on Ultra-narrow compact (iPhone SE / Galaxy Fold) (320px)",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 1: Viewport Stress & 3-Column Grid Enforcement enforces grid-cols-3 and denies grid-cols-5 on Standard compact Android (Galaxy A-series) (360px)",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 1: Viewport Stress & 3-Column Grid Enforcement enforces grid-cols-3 and denies grid-cols-5 on Modern standard mobile (iPhone 12/13/14) (390px)",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 1: Viewport Stress & 3-Column Grid Enforcement enforces grid-cols-3 and denies grid-cols-5 on Extreme fold screen stress (280px)",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 1: Viewport Stress & 3-Column Grid Enforcement denies single-row horizontal overflow by confirming 2-row multi-line wrapping",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 2: Shortcut Labels Truncation & Ellipsis Attack verifies all 5 shortcut buttons render complete Vietnamese labels without truncation",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-entry-rooms\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 2: Shortcut Labels Truncation & Ellipsis Attack verifies full navigation dispatch for all 5 shortcuts without routing regressions",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-entry-rooms\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 4: Founder VIP vs Free User Upgrade Banner Isolation Founder VIP user has strictly 0 upgrade banners while shortcuts grid remains 3-column",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        },
+        {
+          "title": "CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Attack Vector 4: Founder VIP vs Free User Upgrade Banner Isolation Free / Guest user renders upgrade banner without breaking shortcuts grid structure",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-settings-shortcuts-grid\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/m4LegalAndCookieConsent.test.tsx",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 1: CookieConsentBanner Decline & Dismiss Protocol 1.1 Renders banner after 800ms timer with valid PDPL citations and equal buttons",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /Luật Bảo vệ dữ liệu cá nhân 91\\/2025\\/QH15/. This could be because the text is broken up by multiple elements. In this case, you can provide a functio"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 2: SettingsView Privacy & Revoke Consent Protocol 2.1 Displays \"CHƯA THIẾT LẬP / ĐÃ RÚT LẠI\" when no consent was given",
+          "reason": "AssertionError: expected 'Chưa thiết lập / đã rút lại' to contain 'CHƯA THIẾT LẬP / ĐÃ RÚT LẠI'"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 2: SettingsView Privacy & Revoke Consent Protocol 2.2 Displays \"ĐÃ ĐỒNG Ý\" when consent is accepted in localStorage",
+          "reason": "AssertionError: expected 'Đã đồng ý' to contain 'ĐÃ ĐỒNG Ý'"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 2: SettingsView Privacy & Revoke Consent Protocol 2.3 Displays \"ĐÃ TỪ CHỐI\" when consent is declined in localStorage",
+          "reason": "AssertionError: expected 'Đã từ chối' to contain 'ĐÃ TỪ CHỐI'"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 2: SettingsView Privacy & Revoke Consent Protocol 2.4 Clicking \"Rút Lại Sự Đồng Ý\" resets consent in localStorage and updates UI status",
+          "reason": "AssertionError: expected 'Chưa thiết lập / đã rút lại' to contain 'CHƯA THIẾT LẬP / ĐÃ RÚT LẠI'"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 3: Statutory Legal Citations Compliance 3.1 LegalViews Terms of Service cites E-commerce Law 122/2025 and AI Law 134/2025 with decrees",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /Luật Thương mại điện tử 122\\/2025\\/QH15/. This could be because the text is broken up by multiple elements. In this case, you can provide a function f"
+        },
+        {
+          "title": "Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75) Vector 3: Statutory Legal Citations Compliance 3.2 LegalViews Privacy Policy cites PDPL 91/2025, Decree 356/2025, Articles 4 & 10",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /Luật Bảo vệ dữ liệu cá nhân 91\\/2025\\/QH15/. This could be because the text is broken up by multiple elements. In this case, you can provide a functio"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/m4MobileUiAndFocusLogic.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mediaAndAudioLifecycle.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/meetRealtime.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/meetRepository.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 29,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.tsx",
+      "status": "failed",
+      "passed": 17,
+      "failed": [
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite — Zero-Scroll & 120Hz Animations 1. Zero-Scroll-Chaining CSS Contract & Viewport Lock Verification 1.2 Verifies 120Hz micro-animation keyframes and classes in index.css",
+          "reason": "AssertionError: expected '@import \\'./styles/liquidDock.css\\';\\…' to contain 'rgba(52, 211, 153, 0.5)'"
+        },
+        {
+          "title": "Milestone 1 Empirical Challenger Stress Suite — Zero-Scroll & 120Hz Animations 5. Spring Physics Micro-Animations & Task Jade Burst Verification 5.1 MobileBottomNav active tab icon renders animate-spring-bounce",
+          "reason": "AssertionError: expected null not to be null"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone1EmpiricalChallenge.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz Micro-Animations) 2. Bottom Navigation Stress Harness handles 30 rapid alternating tab switches maintaining State Singularity and spring bounce",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz Micro-Animations) 2. Bottom Navigation Stress Harness verifies MobileBottomNav 5 tabs sync active indicator and spring bounce",
+          "reason": "AssertionError: expected 'lucide lucide-timer transition-colors…' to contain 'animate-spring-bounce'"
+        },
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz Micro-Animations) 3. Mode Switcher Stress Harness Under Timer Running endures 30 rapid phase transitions while timer status is running without NaN or state desync",
+          "reason": "AssertionError: expected 'w-full text-center py-1.5 rounded-ful…' to contain 'animate-spring-bounce'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone1_adversarial_challenge.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/milestone1_challenger_adversarial.test.tsx",
+      "status": "failed",
+      "passed": 10,
+      "failed": [
+        {
+          "title": "Adversarial Stress Test Suite — Milestone 1 Mobile Foundation 2. Safe Area Inset Evaluation Stress Test 2.3 MobileAppShell applies pt-safe and pb-safe on its root container",
+          "reason": "AssertionError: expected 'liquid-glass-screen  h-[100dvh] min-h…' to contain 'pt-safe'"
+        },
+        {
+          "title": "Adversarial Stress Test Suite — Milestone 1 Mobile Foundation 3. Global ErrorBoundary Isolation & Crash Prevention 3.1 Error in a routed view is trapped by ErrorBoundary without crashing the app",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: ⚠️ Phút nghỉ ngắn ngoài dự kiến.... This could be because the text is broken up by multiple elements. In this case, you can provide a function for your"
+        },
+        {
+          "title": "Adversarial Stress Test Suite — Milestone 1 Mobile Foundation 4. Font Scaling & Text Overflow Resilience (1.5x simulation) 4.1 MobileAppShell top header uses flexible min-height instead of rigid fixed height",
+          "reason": "AssertionError: expected 'min-h-[48px] h-[calc(48px+env(safe-ar…' to contain 'h-auto'"
+        },
+        {
+          "title": "Adversarial Stress Test Suite — Milestone 1 Mobile Foundation 4. Font Scaling & Text Overflow Resilience (1.5x simulation) 4.2 MobileAppShell bottom navigation uses min-height and break-words for tab labels",
+          "reason": "AssertionError: expected 'h-[calc(56px+env(safe-area-inset-bott…' to contain 'min-h-[64px]'"
+        },
+        {
+          "title": "Adversarial Stress Test Suite — Milestone 1 Mobile Foundation 4. Font Scaling & Text Overflow Resilience (1.5x simulation) 4.3 MobileFocusView phase selector pill supports wrapping under high font scale",
+          "reason": "AssertionError: expected 'pomo-glass grid grid-cols-3 w-full ma…' to contain 'flex-wrap'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 35,
+      "failed": [
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub & Smart Distribution Suite 4: Component Integration & Accessibility Stress 4.2 WebDownloadHub renders phone mockup and dynamic SVG QR code in desktop view",
+          "reason": "AssertionError: expected 'PomoFocusĐồng hồ tập trung50 · KKTập …' to contain 'Anchor 120Hz'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger2.test.tsx",
+      "status": "failed",
+      "passed": 28,
+      "failed": [
+        {
+          "title": "Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite 1. Android 1-Touch APK Download Button Empirical DOM Verification 1.2 verifies emerald breathing glow and 56px height styling invariants",
+          "reason": "AssertionError: expected 'w-full h-14 sm:h-16 min-h-[56px] px-6…' to contain 'shadow-[0_12px_32px_rgba(16,185,129,0…'"
+        },
+        {
+          "title": "Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite 1. Android 1-Touch APK Download Button Empirical DOM Verification 1.4 displays correct version label and platform name inside button",
+          "reason": "AssertionError: expected 'Tải PomoFocus APK (v8.1.4)' to contain 'Tải PomoFocus APK (v8.1)'"
+        },
+        {
+          "title": "Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite 2. Desktop View: 3D Phone Mockup, SVG QR Code & Clipboard Behavior 2.1 renders 3D phone mockup preview with internal clock and components",
+          "reason": "AssertionError: expected 'PomoFocusĐồng hồ tập trung50 · KKTập …' to contain 'Anchor 120Hz'"
+        },
+        {
+          "title": "Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite 2. Desktop View: 3D Phone Mockup, SVG QR Code & Clipboard Behavior 2.6 iOS device displays Safari PWA installation instruction hint",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /Thiết bị iOS hỗ trợ cài đặt PWA trực tiếp từ trình duyệt Safari/i. This could be because the text is broken up by multiple elements. In this case, you"
+        },
+        {
+          "title": "Milestone 2 Empirical Challenger 2: Adversarial & Stress Test Suite 4. State Singularity & UI/UX Playbook Compliance 4.3 renders all 6 deep-tech feature cards with correct titles and badges",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Thân thiện OLED. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to ma"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone2MobileInputAndOAuth.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Milestone 2 - Virtual Keyboard, Input Attributes, IME & Native Plugins Feature 7: Virtual Keyboard & Input attributes (14 Inputs) attaches inputMode=\"numeric\" and enterKeyHint to TimerWidget inputs",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"input-pomodoro-min\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone2TopClearanceAndAiCollision.test.ts",
+      "status": "failed",
+      "passed": 10,
+      "failed": [
+        {
+          "title": "Milestone 2: Top Clearance (y=8px), Compact Home Nav, and AI Collision Resolution Feature 5: Compact Home Navigation Tuck-In PlatformHeader chứa nút Home trên capsule nổi và trong user dropdown",
+          "reason": "AssertionError: expected 'import { UiLabel } from \\'./common/Ui…' to contain 'data-testid=\"header-user-home-btn\"'"
+        },
+        {
+          "title": "Milestone 2: Top Clearance (y=8px), Compact Home Nav, and AI Collision Resolution Feature 6: AI Companion Header Collision Resolution AiCompanionWidget có drawer tại z-[80] top-0 và backdrop tại z-[75]",
+          "reason": "AssertionError: expected 'import { UiSymbol } from \\'./common/U…' to contain 'z-[80]'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 19,
+      "failed": [
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 3: Capacitor Android & Standalone APK Suite 3: Cryptographic Integrity & Version Synchronization 3.3 validates version.json schema and required distribution properties",
+          "reason": "AssertionError: expected '8.1.4' to be '8.1.0' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger2.test.tsx",
+      "status": "failed",
+      "passed": 26,
+      "failed": [
+        {
+          "title": "Milestone 3 Empirical Challenger 2: Capacitor Android & Standalone APK Verification Suite 4: Physical APK Binary & version.json Parity Oracle 4.6 public/version.json conforms to all distribution manifest invariants",
+          "reason": "AssertionError: expected '8.1.4' to be '8.1.0' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone3MacOsLiquidDock.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/milestone3NotificationsAndAudio.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/milestone4DimensionAndZen.test.ts",
+      "status": "failed",
+      "passed": 12,
+      "failed": [
+        {
+          "title": "Milestone 4: Dimension Guardrails, Zen Minimalism & Cascade Logic 2. Zen Minimalism & Noise Cleanup tuân thủ Zen micro-indicator contract: status dots emerald, amber và zinc",
+          "reason": "AssertionError: expected 'import React, { useRef, useState } fr…' to contain 'bg-emerald-400 shadow-[0_0_8px_rgba(5…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/milestone4OfflineAndBuild.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mobileAppShellAndRoutingV70.test.tsx",
+      "status": "passed",
+      "passed": 24,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mobileAppShellStressChallenger.test.tsx",
+      "status": "failed",
+      "passed": 12,
+      "failed": [
+        {
+          "title": "CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard Stress Tests STRESS VECTOR 1: Rapid Tab Switching & State Singularity 1.1 Executes 50 rapid sequential tab switches across all 5 tabs without crashing",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard Stress Tests STRESS VECTOR 1: Rapid Tab Switching & State Singularity 1.2 Random spam clicking maintains strict 1:1 view rendering (never multi-view collision)",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard Stress Tests STRESS VECTOR 2: Predictive Back Gesture (popstate) & Loop Prevention 2.1 Simulating popstate from every secondary tab (tasks, spaces, ai, settings) always redirects to focus",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard Stress Tests STRESS VECTOR 2: Predictive Back Gesture (popstate) & Loop Prevention 2.4 Rapid back-and-forth between focus and settings with interleaved popstates",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileBottomNavAndHeaderFlow.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mobileCenteringAndSettingsStreamline.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Mobile Centering, Settings Streamline & Fluid Widget Resizing Invariants 2. Tinh giản bảng cài đặt trên mobile (SettingsWidget.tsx) Ẩn vị trí thanh công cụ DockBar trên mobile bằng hidden lg:block",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to match /<div[^>]*hidden lg:block[^>]*>[\\s\\S]*…/"
+        },
+        {
+          "title": "Mobile Centering, Settings Streamline & Fluid Widget Resizing Invariants 3. Tối ưu co dãn thẻ không để lại khoảng trống thừa NotesWidget: Container cha có class h-full w-full flex flex-col justify-between p-3 select-none",
+          "reason": "AssertionError: expected 'import React, { useEffect, useState }…' to contain 'h-full w-full flex flex-col justify-b…'"
+        },
+        {
+          "title": "Mobile Centering, Settings Streamline & Fluid Widget Resizing Invariants 3. Tối ưu co dãn thẻ không để lại khoảng trống thừa NotesWidget: Textarea có class flex-1 w-full h-full min-h-[140px] leading-relaxed overflow-y-auto",
+          "reason": "AssertionError: expected 'import React, { useEffect, useState }…' to contain 'flex-1 w-full h-full min-h-[140px]'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileLiquidZenTiers1to4.test.tsx",
+      "status": "failed",
+      "passed": 92,
+      "failed": [
+        {
+          "title": "Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 4) Tier 1: Feature Coverage (Isolation) Feature 2: Mobile Stepper Row Primitive (src/components/mobile/primitives/MobileStepperRow.tsx) 1. Render đúng chiều cao chuẩn 56px (h-14) với nhãn, giá trị và đơn vị phút",
+          "reason": "AssertionError: expected 'min-h-[56px] w-full flex items-center…' to contain 'h-14'"
+        },
+        {
+          "title": "Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 4) Tier 1: Feature Coverage (Isolation) Feature 6: Mobile App Shell & Top Header 2. Header cao đúng 48px với logo PomoFocus",
+          "reason": "AssertionError: expected 'min-h-[48px] h-[calc(48px+env(safe-ar…' to contain 'h-12'"
+        },
+        {
+          "title": "Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 4) Tier 1: Feature Coverage (Isolation) Feature 7: Material 3 Bottom Navigation Bar 1. Hiển thị đủ 5 tab chuẩn: focus, tasks, spaces, ai, settings",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 4) Tier 1: Feature Coverage (Isolation) Feature 7: Material 3 Bottom Navigation Bar 2. Chạm vào tab chuyển đổi màn hình và cập nhật activeMobileTab",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobilePrimitivesV70.test.tsx",
+      "status": "failed",
+      "passed": 22,
+      "failed": [
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 1 Primitives Suite 2. MobileStepperRow Component (56px Height & 48x48dp Touch Targets) renders with exact 56px height (h-14 / 56px) and horizontal layout",
+          "reason": "AssertionError: expected 'min-h-[56px] w-full flex items-center…' to contain 'h-14'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileSettingsAndFocusPolish.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 34,
+      "failed": [
+        {
+          "title": "TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Shell APIs) Vector 3: MobileFocusView Monumental Boundaries & Task Picker Machine 3.10 Breathing aura is strictly isolated to running state only",
+          "reason": "AssertionError: expected <div …(4)></div> to be null"
+        },
+        {
+          "title": "TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Shell APIs) Vector 4: MobileSettingsView Whitelist, Clamping & Audio Resilience 4.5 Alarm chime preview handles rejection gracefully without crashing",
+          "reason": "AssertionError: expected \"spy\" to be called at least once"
+        },
+        {
+          "title": "TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Shell APIs) Vector 5: MobileAppShell Normalization, Subviews & Fallback PiP 5.4 Tasks SubView: quick add, filter, link, and delete operations",
+          "reason": "TestingLibraryElementError: Unable to find an element with the placeholder text of: Thêm công việc mới cần làm..."
+        },
+        {
+          "title": "TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Shell APIs) Vector 5: MobileAppShell Normalization, Subviews & Fallback PiP 5.5 Spaces SubView: preset selection and ambient effect configuration",
+          "reason": "TypeError: Cannot read properties of null (reading 'luminance')"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger2.test.tsx",
+      "status": "failed",
+      "passed": 19,
+      "failed": [
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 1: Dynamic Viewport Transitions (Mobile <-> Desktop) with Active Timer 1.2 Dynamic transition back from Desktop to Mobile restores MobileAppShell seamlessly",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 1: Dynamic Viewport Transitions (Mobile <-> Desktop) with Active Timer 1.4 Dynamic viewport transition preserves paused timer state without restarting or clearing",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-amber-400'"
+        },
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 2: Rapid Popstate History Spamming & Subview Race Conditions 2.1 Interleaved tab transitions and 20 rapid popstate events safely converge to focus tab",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 2: Rapid Popstate History Spamming & Subview Race Conditions 2.2 Deep traversal across secondary subviews without returning to focus, followed by popstate",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        },
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 4: In-App Floating PiP Fallback State Transitions, Live Sync & Dismissals 4.3 In-app floating pill dynamically synchronizes countdown time and status dot",
+          "reason": "AssertionError: expected '<div class=\"flex items-center gap-1.5…' to contain 'bg-amber-400'"
+        },
+        {
+          "title": "Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifecycle & Boundaries Group 6: Boundary Resilience & Edge-Case Stress Testing 6.1 Rapid concurrent store mutations (credits + status + activeTab) render with zero race conditions",
+          "reason": "AssertionError: expected 'hidden w-2 h-2 rounded-full transitio…' to contain 'bg-emerald-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileTouchRegression.test.tsx",
+      "status": "passed",
+      "passed": 8,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/mobileViewsM2EmpiricalStress.test.tsx",
+      "status": "failed",
+      "passed": 11,
+      "failed": [
+        {
+          "title": "Empirical Adversarial Stress Suite — Milestone 2 Mobile Views Vector 3: Monumental Typography and Drop-Shadow 3.1 Timer element has tabular-nums, monumental 6xl/7xl size, drop-shadow, and tracking-tighter",
+          "reason": "AssertionError: expected 'font-tabular-nums tabular-nums text-6…' to contain 'drop-shadow-[0_4px_30px_rgba(52,211,1…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileViewsStressV70.test.tsx",
+      "status": "failed",
+      "passed": 22,
+      "failed": [
+        {
+          "title": "Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milestone 2) Vector 4: Reset & Skip Action Buttons & Ergonomics 4.2 Reset button while timer is running sets status to idle and restores full duration",
+          "reason": "AssertionError: expected <div …(4)></div> to be null"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/mobileViewsV70.test.tsx",
+      "status": "failed",
+      "passed": 20,
+      "failed": [
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Views Suite 1. MobileFocusView (v7.0 Liquid Zen Focus Canvas) 1.3 Breathing Aura: Smooth radial breathing aura is visible during status === \"running\" with GPU layer promotion",
+          "reason": "AssertionError: expected 'liquid-ambient absolute -inset-x-20 -…' to contain 'animate-pulse'"
+        },
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Views Suite 1. MobileFocusView (v7.0 Liquid Zen Focus Canvas) 1.4 Breathing Aura: Aura is NOT rendered when timer is idle or paused",
+          "reason": "AssertionError: expected <div …(4)></div> to be null"
+        },
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Views Suite 1. MobileFocusView (v7.0 Liquid Zen Focus Canvas) 1.5 Phase Selector: Sliding segmented pill selector renders 3 tabs (pomodoro, short_break, long_break)",
+          "reason": "AssertionError: expected 'w-full text-center py-1.5 rounded-ful…' to contain 'text-emerald-400'"
+        },
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Views Suite 1. MobileFocusView (v7.0 Liquid Zen Focus Canvas) 1.11 Progress Indicators: Renders 4px thin session progress bar reflecting elapsed percentage",
+          "reason": "AssertionError: expected 'w-48 sm:w-64 h-0.5 bg-white/[0.10] ro…' to contain 'h-1'"
+        },
+        {
+          "title": "v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Views Suite 2. MobileSettingsView (v7.0 Liquid Zen Settings & Ergonomics) 2.2 Renders 3 separate 56px steppers for Focus, Short break, and Long break",
+          "reason": "AssertionError: expected 'min-h-[56px] w-full flex items-center…' to contain 'h-14'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/momoPayment.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/multiChannelAudioEngine.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/multiProviderIdentityConflict.test.ts",
+      "status": "failed",
+      "passed": 1,
+      "failed": [
+        {
+          "title": "Multi-Provider Identity Conflict & Canonical ID Specification 1. Root Cause Scenario: Cùng Email đăng ký Email/Pass trước, sau đó đăng nhập Google OAuth phải bảo toàn Canonical ID",
+          "reason": "AssertionError: expected 0 to be greater than 0"
+        },
+        {
+          "title": "Multi-Provider Identity Conflict & Canonical ID Specification 2. Founder VIP Whitelist: Đăng nhập Google với Founder không bao giờ bị reset về 50⚡ hay mất quyền Founder",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/nativeGoogleSignIn.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/paymentOrderRlsSecurity.test.ts",
+      "status": "passed",
+      "passed": 38,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/paymentRemediationPhase1.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/paymentSecurity.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase3HardwareCleanup.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase3RealtimeAdapter.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase3SubmissionGuards.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase3WorkspaceRealtime.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase4aLogicAndCatalog.test.tsx",
+      "status": "failed",
+      "passed": 9,
+      "failed": [
+        {
+          "title": "Eco background removes video and blur on every background layer, then restores the saved blur",
+          "reason": "AssertionError: expected 'none' to contain 'blur(0px)'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/phase4aProfileIme.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/phase4bPresentation.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/pricingAndComparison.test.ts",
+      "status": "failed",
+      "passed": 2,
+      "failed": [
+        {
+          "title": "Pricing & Feature Comparison Specifications 1. Cấu hình gói Trọn Đời (Lifetime) sở hữu đầy đủ thông tin và quyền lợi Early Access",
+          "reason": "AssertionError: expected 'Truy cập sớm toàn bộ tính năng mới' to contain 'Truy cập sớm toàn bộ tính năng mới (E…'"
+        },
+        {
+          "title": "Pricing & Feature Comparison Specifications 3. Kiểm định phân bổ quyền lợi dòng \"Truy cập sớm tính năng mới (Early Access)\" chuẩn xác",
+          "reason": "AssertionError: expected 'Ưu tiên beta' to be 'Ưu tiên Beta' // Object.is equality"
+        },
+        {
+          "title": "Pricing & Feature Comparison Specifications 5. Kiểm định Huy hiệu hồ sơ mạ vàng cho gói Trọn Đời",
+          "reason": "AssertionError: expected 'Huy hiệu Pro tinh hoa' to contain 'PRO'"
+        },
+        {
+          "title": "Pricing & Feature Comparison Specifications 6. Kiểm định mảng 4 gói cước SaaS Freemium (SAAS_PRICING_TIERS) phân cấp chuẩn xác",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/profileCloudSync.test.ts",
+      "status": "failed",
+      "passed": 10,
+      "failed": [
+        {
+          "title": "Profile & AI Credits Cloud Synchronization (public.profiles) 1. ProfileService direct cloud operations ensureProfileForUser tự động cấp quyền Founder & 1.000⚡ cho namho03052k9@gmail.com",
+          "reason": "AssertionError: expected 'user' to be 'founder' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/qrCodeStability.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/real2FaAndAvatarLock.test.ts",
+      "status": "failed",
+      "passed": 4,
+      "failed": [
+        {
+          "title": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 1. Avatar Precedence Rule (Bảo Toàn Avatar Tự Tải Lên) Giữ nguyên custom_avatar_url khi đăng nhập lại bằng Google (không bị ảnh Google đè lên)",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 2. Real 2FA Security Gate (Trạm Gác Cổng TOTP & Backup Codes) Chặn đăng nhập và phát cờ requires2Fa khi tài khoản đã bật 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/roomCustomizationAndDelete.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/roomGovernanceAndHostControls.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Avatar bằng ảnh tải lên (base64) và chọn từ kho hình học tối giản",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Username/Handle duy nhất (@namho) và chuẩn hóa cú pháp",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Bio / Mục tiêu học tập (Focus Goal) hiển thị dưới Avatar",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Tùy chỉnh quyền riêng tư: Ẩn Email trong phòng và Chế độ tàng hình",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 2. Trung tâm bảo mật tài khoản (Account Security & GDPR Danger Zone) Đổi mật khẩu an toàn và kiểm tra bảo vệ mật khẩu cũ",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/safeStorage.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/safeStorageStress.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/securityPiiAndXssRemediation.test.ts",
+      "status": "failed",
+      "passed": 18,
+      "failed": [
+        {
+          "title": "Milestone 2 Security, PII & XSS Sanitization Test Suite 2. PII Phone Number Eradication ensures institutional support email support@pomofocus.vn is present in contact surfaces",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'support@pomofocus.vn'"
+        },
+        {
+          "title": "Milestone 2 Security, PII & XSS Sanitization Test Suite 3. Admin Role & JWT Claims Verification grants admin privileges to users with verified role: founder in profile",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/sepayWebhook.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 3. Xác thực mã OTP & Liên kết số điện thoại với tài khoản Xác thực đúng mã OTP: liên kết số điện thoại và tự động kích hoạt SMS 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Cho phép Bật / Tắt trạng thái 2FA khi đã xác minh số điện thoại",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Hủy liên kết số điện thoại: xóa phoneNumber, đặt phoneVerified = false và tắt 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/startupCurtainRegression.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/studyRoomService.test.ts",
+      "status": "passed",
+      "passed": 41,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/supabaseOAuthSync.test.ts",
+      "status": "failed",
+      "passed": 2,
+      "failed": [
+        {
+          "title": "Supabase OAuth State Change & syncUserFromSupabase Unit Tests 1. syncUserFromSupabase với tài khoản Founder (namho03052k9@gmail.com) kích hoạt đầy đủ đặc quyền",
+          "reason": "AssertionError: expected 'user' to be 'founder' // Object.is equality"
+        },
+        {
+          "title": "Supabase OAuth State Change & syncUserFromSupabase Unit Tests 2. syncUserFromSupabase với tài khoản học viên thông thường cấp gói Free và 50 credits",
+          "reason": "AssertionError: expected +0 to be 50 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/syncQueueConflictContract.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/tasksAndNotes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/timerChallengerAdversarial.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/timerChallengerM1.test.tsx",
+      "status": "failed",
+      "passed": 20,
+      "failed": [
+        {
+          "title": "Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle Adversarial Focus 2: Empty Dots Rendering in UI (TimerWidget.tsx) renders dot 0 pulsing (bg-rose-400 animate-pulse) and dots 1..3 empty when Round 1 is running",
+          "reason": "AssertionError: expected 'w-1.5 h-1.5 rounded-full transition-c…' to contain 'bg-rose-400'"
+        },
+        {
+          "title": "Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle Adversarial Focus 2: Empty Dots Rendering in UI (TimerWidget.tsx) renders dot 0 as completed (bg-rose-500) and dot 1 pulsing when Round 2 is running",
+          "reason": "AssertionError: expected 'w-1.5 h-1.5 rounded-full transition-c…' to contain 'bg-rose-500'"
+        },
+        {
+          "title": "Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle Adversarial Focus 2: Empty Dots Rendering in UI (TimerWidget.tsx) renders dots 0, 1, 2 as completed and dot 3 pulsing when Round 4 is running",
+          "reason": "AssertionError: expected 'w-1.5 h-1.5 rounded-full transition-c…' to contain 'bg-rose-500'"
+        },
+        {
+          "title": "Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle Adversarial Focus 2: Empty Dots Rendering in UI (TimerWidget.tsx) clicking \"Đặt lại\" (Level 1) at Round 3 only resets time, retaining completed dots 0 & 1",
+          "reason": "AssertionError: expected 'w-1.5 h-1.5 rounded-full transition-c…' to contain 'bg-rose-500'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/timerDocumentTitleLifecycle.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/timerEngine.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/timerStateMachineV64.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/totpSecurity.test.ts",
+      "status": "failed",
+      "passed": 13,
+      "failed": [
+        {
+          "title": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Kích hoạt thành công 2FA: Lưu trạng thái và secret vào User Profile",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Tắt 2FA: Xóa secret, backup codes và chuyển twoFactorEnabled = false",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/typographyZeroFout.test.ts",
+      "status": "failed",
+      "passed": 9,
+      "failed": [
+        {
+          "title": "Milestone 1: Zero-FOUT & Typography Foundation (Adversarial Challenger Suite) 1. Zero-FOUT Dark Mode Lock & Critical Inline Shell contains critical zero-dependency preloader CSS in inline <style> within <head>",
+          "reason": "AssertionError: expected '<!doctype html>\\r\\n<html lang=\"vi\" cl…' to contain 'border-top-color: #10b981;'"
+        },
+        {
+          "title": "Milestone 1: Zero-FOUT & Typography Foundation (Adversarial Challenger Suite) 1. Zero-FOUT Dark Mode Lock & Critical Inline Shell has an idempotent splash curtain dismissal script that gracefully handles fast/cached loads",
+          "reason": "AssertionError: expected '<!doctype html>\\r\\n<html lang=\"vi\" cl…' to contain 'curtain.classList.add(\\'loaded\\')'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/unifiedAuthAndAvatarSync.test.ts",
+      "status": "failed",
+      "passed": 1,
+      "failed": [
+        {
+          "title": "Unified Auth, Single Identity & Avatar Resilience Specification 1. Google Login Callback: syncUserFromSupabase thiết lập isAuthenticated = true và isLoggedIn = true",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Unified Auth, Single Identity & Avatar Resilience Specification 2. Đồng nhất tài khoản (Single Source of Truth): Cùng email đăng nhập bằng Google và Email hợp nhất chung 1 User ID",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Unified Auth, Single Identity & Avatar Resilience Specification 4. Quy tắc bất biến Avatar: Up ảnh đại diện tùy chỉnh không bao giờ bị Google Login ghi đè",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'data:image/jpeg;base64,CUSTOM_ARTWORK…' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/userAvatarChallengerStress.test.tsx",
+      "status": "failed",
+      "passed": 14,
+      "failed": [
+        {
+          "title": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 1: Nullability, Malformed Data & Zero-Black-Box Guarantee handles user = null gracefully with vibrant emerald gradient and K letter",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,<svg xmlns=\"h…' to contain '#10b981'"
+        },
+        {
+          "title": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 1: Nullability, Malformed Data & Zero-Black-Box Guarantee handles synthetic guest profile { id: \"guest\", isGuest: true }",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,<svg xmlns=\"h…' to contain '>K<'"
+        },
+        {
+          "title": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 3: Priority Hierarchy Invariants custom avatar via direct avatarUrl prop takes precedence over Google photo",
+          "reason": "AssertionError: expected 'https://lh3.googleusercontent.com/a/p…' to be 'data:image/png;base64,iVBORw0KGgoAAAA…' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/userAvatarUnified.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v61LiquidButtonsAndZen.test.ts",
+      "status": "failed",
+      "passed": 11,
+      "failed": [
+        {
+          "title": "PomoFocus v6.1 Ultimate Verification Suite 2. Zen Mode Zero-Scrollbar & Ambient Glow Invariants verifies ZenOverlay uses h-screen h-[100dvh] overflow-hidden and ambient glow",
+          "reason": "AssertionError: expected 'import React from \\'react\\';\\nimport …' to contain 'bg-emerald-500/15 blur-3xl rounded-fu…'"
+        },
+        {
+          "title": "PomoFocus v6.1 Ultimate Verification Suite 3. Typography & Micro-Interactions Invariants verifies NotesWidget textarea uses font-sans instead of font-mono",
+          "reason": "AssertionError: expected 'import React, { useEffect, useState }…' to contain 'font-sans resize-none'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v62MicroUxAndDirectRemote.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v62YoutubeMixAndJsonExport.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v63AudioDuckingAndTimerClean.test.ts",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX should remove whitish smudge shadow from start button in TimerWidget",
+          "reason": "AssertionError: expected 'import React, { useEffect, useRef } f…' to contain 'shadow-md'"
+        },
+        {
+          "title": "Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX should suppress browser spin buttons on all minute inputs in TimerWidget",
+          "reason": "AssertionError: expected 'import React, { useEffect, useRef } f…' to contain 'input-pomodoro-min'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v642SettingsWidgetOverhaul.test.ts",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 1. Store Title & LocalStorage Migration Invariants sets DEFAULT_WIDGETS.settings.title to \"Cài Đặt Hệ Thống\"",
+          "reason": "AssertionError: expected 'Cài đặt hệ thống' to be 'Cài Đặt Hệ Thống' // Object.is equality"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 1. Store Title & LocalStorage Migration Invariants contains migration in useLayoutStore.ts to upgrade stale \"Cài Đặt Không Gian\" from localStorage",
+          "reason": "AssertionError: expected 'import { create } from \\'zustand\\';\\n…' to contain 'mergedWidgets.settings.title = \\'Cài …'"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 1. Store Title & LocalStorage Migration Invariants executes rehydration migration when localStorage contains old cached title",
+          "reason": "AssertionError: expected 'Cài đặt hệ thống' to be 'Cài Đặt Hệ Thống' // Object.is equality"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 2. WidgetContainer.tsx Window Controls & Mobile Centering Polish uses Apple Liquid Glass button styling with >= 32px touch target for collapse and close",
+          "reason": "AssertionError: expected 'import React, { useRef, useState } fr…' to contain 'w-8 h-8 rounded-xl bg-white/5 hover:b…'"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 2. WidgetContainer.tsx Window Controls & Mobile Centering Polish displays canonical title \"Cài Đặt Hệ Thống\" resiliently",
+          "reason": "AssertionError: expected 'import React, { useRef, useState } fr…' to contain 'settings: \\'Cài Đặt Hệ Thống\\''"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 3. SettingsWidget.tsx Steppers, Checkbox, & Bloat Elimination structures each stepper with vertical Apple Liquid Glass pill containing \"phút\" label",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'flex items-center justify-between bg-…'"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 3. SettingsWidget.tsx Steppers, Checkbox, & Bloat Elimination shortens checkbox label to \"Tự động chuyển hiệp mới\" while preserving emerald-teal glass glow",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'peer-checked:bg-gradient-to-tr peer-c…'"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 3. SettingsWidget.tsx Steppers, Checkbox, & Bloat Elimination preserves hidden lg:block wrapper on desktop-only sections",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to match /<div[^>]*hidden lg:block[^>]*>[\\s\\S]*…/"
+        },
+        {
+          "title": "Directive v6.4.2 — Settings Widget Overhaul & Window Control Polish 4. Timer Parity Invariant Protection guarantees TimerWidget.tsx and TimerTestInterface.tsx remain 100% byte-for-byte identical",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64AiCompanion.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Milestone 3: AI Study Companion Upgrades (Features 7, 8, 9, 10) 3. Feature 9: Code Blocks with Language Badge & Isolated Copy Button AiCodeBlock render đúng badge ngôn ngữ chữ hoa và nút Sao chép code",
+          "reason": "AssertionError: expected 'normal-case text-[10px] font-bold tex…' to contain 'uppercase'"
+        },
+        {
+          "title": "Milestone 3: AI Study Companion Upgrades (Features 7, 8, 9, 10) 3. Feature 9: Code Blocks with Language Badge & Isolated Copy Button FormattedAiMessage phân tách chính xác khối mã markdown và render qua AiCodeBlock",
+          "reason": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64CalendarAndZenSpaces.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces 1. Feature 11: Cross-View Reactive Calendar Synchronization DedicatedCalendarView lắng nghe pomofocus_planner_sync và reload dữ liệu",
+          "reason": "Error: Unable to find an element with the text: Lịch Học & Kế Hoạch Time-Blocking. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make "
+        },
+        {
+          "title": "Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces 2. Feature 12: Clickable Empty Hour Slot Row in CalendarWidget nhấp vào bất kỳ vùng nào của dòng giờ trống đều kích hoạt form nhập với autofocus",
+          "reason": "AssertionError: expected 'Trống (nhấp để thêm)' to contain 'Trống (Nhấp để thêm)'"
+        },
+        {
+          "title": "Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces 4. Feature 13 UI: Quick Selector for Pure Zen Colors in SpacesWidget SpacesWidget hiển thị khu vực chọn nhanh Đơn Sắc Chuẩn Zen với 3 nút tùy chọn",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Đơn Sắc Chuẩn Zen (Pure Flat). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text"
+        },
+        {
+          "title": "Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces 4. Feature 13 UI: Quick Selector for Pure Zen Colors in SpacesWidget bấm chọn màu Đen Tuyền kích hoạt preset zen-pure-black và hiển thị dấu Check icon",
+          "reason": "AssertionError: expected 'h-7 rounded-lg border flex items-cent…' to contain 'ring-2 ring-cyan-400'"
+        },
+        {
+          "title": "Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces 4. Feature 13 UI: Quick Selector for Pure Zen Colors in SpacesWidget chuyển đổi giữa các màu Zen cập nhật activePresetId tức thì trong store",
+          "reason": "AssertionError: expected 'h-7 rounded-lg border flex items-cent…' to contain 'ring-2 ring-cyan-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64M2AdversarialChallenger.test.tsx",
+      "status": "passed",
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v64M3SessionChallenger.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v64M3UiChallenger.test.tsx",
+      "status": "failed",
+      "passed": 10,
+      "failed": [
+        {
+          "title": "Adversarial UI Challenger Suite — Milestone 3 AI Study Companion Adversarial Test 1: Multiple Code Blocks & Language Badges in Single Response Phân giải và kết xuất độc lập nhiều khối code (Python, SQL, TypeScript, Bash, Fallback)",
+          "reason": "AssertionError: expected 'normal-case text-[10px] font-bold tex…' to contain 'uppercase'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64M4CalendarChallenger.test.ts",
+      "status": "failed",
+      "passed": 11,
+      "failed": [
+        {
+          "title": "Empirical Adversarial Stress Suite: Calendar Reactive Sync & Boundaries (Milestone 4.1) Challenge 3: Empty Hour Row Click Target, Autofocus, Cancelling & Slot Switching 3.2 cancelling & switching slots resets dirty input and prevents phantom blocks",
+          "reason": "AssertionError: expected 'Trống (nhấp để thêm)' to contain 'Trống (Nhấp để thêm)'"
+        },
+        {
+          "title": "Empirical Adversarial Stress Suite: Calendar Reactive Sync & Boundaries (Milestone 4.1) Challenge 4: Listener Unmounting Hygiene & Zero Zombie Callbacks 4.2 cleanly unbinds pomofocus_planner_sync and resize listeners when DedicatedCalendarView unmounts",
+          "reason": "Error: Unable to find an element with the text: Lịch Học & Kế Hoạch Time-Blocking. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make "
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64M4SpacesChallenger.test.tsx",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "Empirical Adversarial Challenge: Pure Zen Spaces DOM & Media Invariants Challenge 2: Preset Transition Media Unmounting Stress rapid cyclical flipping between media and zen solid preserves zero-media invariant at every zen state",
+          "reason": "AssertionError: expected 0 to be greater than or equal to 1"
+        },
+        {
+          "title": "Empirical Adversarial Challenge: Pure Zen Spaces DOM & Media Invariants Challenge 3: SpacesWidget Quick-Select Clicks & Active Checkmark clicking each Zen button updates store activePresetId and renders active checkmark icon",
+          "reason": "AssertionError: expected 'h-7 rounded-lg border flex items-cent…' to contain 'ring-2 ring-cyan-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v64TasksAndWhiteboard.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v74EcosystemE2E.test.tsx",
+      "status": "failed",
+      "passed": 93,
+      "failed": [
+        {
+          "title": "Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite Tier 1: Feature Coverage (Core Features in Isolation) Feature 6: Web Download Hub Landing Page Showcase 6.4 renders feature cards for Anchor Timestamp, Screen Wake Lock, and Haptics",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: /Anchor Timestamp/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher t"
+        },
+        {
+          "title": "Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite Tier 3: Cross-Feature Combinations 3.2 active running timer countdown is preserved while switching bottom nav tabs",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 41,
+      "failed": [
+        {
+          "title": "Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 1) Module 5 White-Box Hardening: src/components/landing/WebDownloadHub.tsx 5.5 renders all 6 core feature showcase cards",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Anchor Timestamp Engine. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text match"
+        },
+        {
+          "title": "Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 1) Module 6 White-Box Hardening: capacitor.config.ts & scripts/buildApk.ts 6.4 public/version.json conforms to authoritative release schema",
+          "reason": "AssertionError: expected '8.1.4' to be '8.1.0' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger2.test.tsx",
+      "status": "failed",
+      "passed": 22,
+      "failed": [
+        {
+          "title": "Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Storage Persistence Suite 2: Standalone APK Disk Integrity & Attributes 2.5 WebDownloadHub download anchor enforces download attribute, exact URL, and touch target",
+          "reason": "AssertionError: expected 'w-full h-14 sm:h-16 min-h-[56px] px-6…' to contain 'emerald'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v753ComprehensiveFixes.test.tsx",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "V7.5.3 Comprehensive Android APK Fixes 2. MobileAppShell Background Canvas & Tab Không Gian 2.1 Renders BackgroundCanvas (z-0) behind main content (z-10) and updates wallpaper live across tabs",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-space-preset-gradient-forest\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v75DownloadShowcase.test.tsx",
+      "status": "failed",
+      "passed": 15,
+      "failed": [
+        {
+          "title": "PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manifest 5. Android Blind-Spot Hardening (Play Protect Micro-hint, Native Back, Capacitor Root, Visibility Sync) 5.2 MainActivity.java binds OnBackPressedCallback + PomoNativeBack JavascriptInterface and MobileAppShell syncs back eligibility",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"mobile-nav-tab-settings\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v80FocusHubAndMixer.test.tsx",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Soundscape Mixer 1. 1-Tap Quick Task Bar & Inline Picker 1.1 renders linked task title, x/y tomato badge, and completes task in 1 tap with jade burst",
+          "reason": "AssertionError: expected 'Hoàn thiện báo cáo V8.02/4 ' to contain '2/4 🍅'"
+        },
+        {
+          "title": "PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Soundscape Mixer 3. Bottom Daily Flow Strip (24h Vietnam Timeline) 3.1 renders 24 hour segments, lights up completed focus hours in Vietnam TZ, and displays daily total",
+          "reason": "AssertionError: expected 'h-1 flex-1 rounded-full transition-co…' to contain 'bg-emerald-400'"
+        },
+        {
+          "title": "PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Soundscape Mixer 5. Playbook Architecture & Safe Area Invariants 5.1 MobileFocusView retains monumental drop-shadow, 64px circle play CTA, and overflow-hidden",
+          "reason": "AssertionError: expected 'font-tabular-nums tabular-nums text-6…' to contain 'drop-shadow-[0_4px_30px_rgba(52,211,1…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM2.test.tsx",
+      "status": "failed",
+      "passed": 12,
+      "failed": [
+        {
+          "title": "Empirical Adversarial Stress Suite — Milestone 2 Verification 3. Pure Zen Black #09090b OLED Reset Stress Testing 3.3 Clicking Pure Zen Black button in Spaces subview triggers setPureZenBlack",
+          "reason": "AssertionError: expected 'Tắt nền (màu đen sâu)Zen' to contain 'Tắt nền (Pure Zen Black)'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_1.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_2.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v81DexieAndSyncQueue.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v81M2ChallengerAdversarial.test.tsx",
+      "status": "failed",
+      "passed": 14,
+      "failed": [
+        {
+          "title": "V8.1 Milestone 2 — Empirical Challenger Adversarial Stress Suite 2. Hold to Start (800ms) Boundary & Timing Tests 2.4 Browser Event Sequence Simulation: Hold between 300ms and 799ms does not start timer even if browser fires click",
+          "reason": "AssertionError: expected 'running' to be 'idle' // Object.is equality"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81MeetRoomsAndWhiteboard.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v81Milestone1WidgetPolish.test.tsx",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Milestone 1 — Interactive & Layout Widget Fixes (Bugs 1-5) Bug 2: Media Player Preset & Default Dimensions on Reset Media size presets have sufficient height to prevent clipping URL bar and playback controls",
+          "reason": "AssertionError: expected 320 to be 300 // Object.is equality"
+        },
+        {
+          "title": "Milestone 1 — Interactive & Layout Widget Fixes (Bugs 1-5) Bug 4: Notes Widget Constraints & Button Preservation NotesWidget save status, new note button, tabs, and delete button have shrink-0",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"note-save-status\"]"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx",
+      "status": "failed",
+      "passed": 13,
+      "failed": [
+        {
+          "title": "Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish 1. Single Source of Truth for Identity & Badge (computeDerivedPlanState) Correctly calculates effectiveBadge for Founder VIP accounts",
+          "reason": "AssertionError: expected 'Pro trọn đời' to be 'Founder VIP' // Object.is equality"
+        },
+        {
+          "title": "Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre-Join Polish 2. PlatformHeader Polish on 1366x768 & Duplicate Button Elimination (Bugs 6, 7) Renders monochrome styled AI header button",
+          "reason": "AssertionError: expected 'flex items-center gap-1.5 h-8 px-2 sm…' to contain 'bg-white/5'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81Milestone2StressChallenger.test.tsx",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "Milestone 2 Adversarial Stress Suite — Challenger 1 Adversarial Test 1: Null, Undefined, Malformed and Edge-case User Profiles Resiliently handles computeDerivedPlanState with null, undefined and partial objects",
+          "reason": "AssertionError: expected 'Pro hội viên' to be 'Founder VIP' // Object.is equality"
+        },
+        {
+          "title": "Milestone 2 Adversarial Stress Suite — Challenger 1 Adversarial Test 3: AI Companion Drawer States across Viewports Correctly enforces 2xl:hidden on backdrop so wide desktops are non-modal while small screens dim",
+          "reason": "AssertionError: expected 'fixed inset-0 z-30 bg-black/50 backdr…' to contain '2xl:hidden'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/v81MobileHubAndAuth.test.tsx",
+      "status": "failed",
+      "passed": 25,
+      "failed": [
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 1. MobileAuthBottomSheet (Liquid Glass Bottom Sheet Auth) 1.5 Magic Link form calls authService.sendMagicLink with normalized email and shows feedback",
+          "reason": "AssertionError: expected \"sendMagicLink\" to be called with arguments: [ 'user@example.com' ]"
+        },
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 1. MobileAuthBottomSheet (Liquid Glass Bottom Sheet Auth) 1.7 When authenticated: renders Bento Grid profile with 4 study metric cards",
+          "reason": "AssertionError: expected 'Năng lượng AI 50Số dư credits' to contain '⚡ 50'"
+        },
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 3. Hold to Start (800ms) & Accessible 1-Tap Toggle 3.1 Primary action button renders with >= 64x64px touch target",
+          "reason": "AssertionError: expected 'w-16 h-16 min-w-[64px] min-h-[64px] r…' to contain 'w-14'"
+        },
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 4. Quick Task Bar 1-Tap & Sliding Drawer Picker 4.1 Quick task chip renders below phase selector with task title and pomodoro count",
+          "reason": "AssertionError: expected 'Ôn tập Giải tích 11/4 ' to contain '1/4 🍅'"
+        },
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 5. Pure Zen Black 1-Tap (OLED #09090b Mode) 5.3 Spaces Tab renders Pure Zen Black button at the very top of picker",
+          "reason": "AssertionError: expected 'Tắt nền (màu đen sâu)Zen' to contain 'Tắt nền (Pure Zen Black)'"
+        },
+        {
+          "title": "PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite 7. Daily Flow Strip 24h & 7-Day Weekly Insights 7.3 7-Day Weekly Insights displays 7 daily columns with today in emerald",
+          "reason": "AssertionError: expected 'w-full rounded-t bg-zinc-700' to contain 'bg-emerald-400'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/vipAndCouponAndRoomLimits.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/wcagAccessibilityAudit.test.ts",
+      "status": "failed",
+      "passed": 3,
+      "failed": [
+        {
+          "title": "WCAG 2.1 AA Accessibility & Talos Compliance Specification 1. Icon-Only Buttons have valid accessible names (aria-label)",
+          "reason": "AssertionError: expected 'import { UiLabel } from \\'./common/Ui…' to contain 'aria-label=\"Tài khoản và Menu\"'"
+        },
+        {
+          "title": "WCAG 2.1 AA Accessibility & Talos Compliance Specification 3. High-Tech Emerald Focus Rings are configured in index.css for WCAG keyboard navigation",
+          "reason": "AssertionError: expected '@import \\'./styles/liquidDock.css\\';\\…' to contain 'focus-visible:ring-emerald-400/80'"
+        },
+        {
+          "title": "WCAG 2.1 AA Accessibility & Talos Compliance Specification 4. Text contrast in LandingPage and BillingView complies with WCAG AA (text-zinc-400/300 over zinc-500)",
+          "reason": "AssertionError: expected 'import { UiLabel } from \\'./common/Ui…' to contain '<div className=\"text-[11px] text-zinc…'"
+        },
+        {
+          "title": "WCAG 2.1 AA Accessibility & Talos Compliance Specification 5. Google PageSpeed Static Files: robots.txt, sitemap.xml, llms.txt, ai-catalog.json exist and are valid",
+          "reason": "AssertionError: expected '/api/payment/vcb-webhook' to contain 'robots\\.txt'"
+        },
+        {
+          "title": "WCAG 2.1 AA Accessibility & Talos Compliance Specification 7. Best Practices: Deprecated unload event listener is completely eliminated",
+          "reason": "AssertionError: expected 'import { create } from \\'zustand\\';\\n…' to contain 'addEventListener(\\'pagehide\\', cleanu…'"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/webrtcFullMesh.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/workspaceTwoDeviceContract.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": []
+    },
+    {
+      "file": "tests/unit/zenErrorPages.test.tsx",
+      "status": "failed",
+      "passed": 1,
+      "failed": [
+        {
+          "title": "Zen-First Error Pages & Error Boundary Specifications 1. Trang 404: Lạc Lối Giữa Vũ Trụ (NotFoundPage) Hiển thị đầy đủ số 404 lớn, thông điệp Zen tĩnh lặng và 2 nút hành động",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: Bạn Đang Lạc Lối Giữa Không Gian.... This could be because the text is broken up by multiple elements. In this case, you can provide a function for you"
+        },
+        {
+          "title": "Zen-First Error Pages & Error Boundary Specifications 2. Global Error Boundary 500 (ErrorBoundary) Bắt lỗi component con mà không bị White Screen of Death, hiển thị giao diện kính mờ Zen",
+          "reason": "TestingLibraryElementError: Unable to find an element with the text: ⚠️ Phút nghỉ ngắn ngoài dự kiến.... This could be because the text is broken up by multiple elements. In this case, you can provide a function for your"
+        }
+      ]
+    },
+    {
+      "file": "tests/unit/zeroFoutChallenger.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "file": "tests/e2e/tier1_feature_coverage.test.ts",
+      "status": "passed",
+      "passed": 24,
+      "failed": []
+    },
+    {
+      "file": "tests/e2e/tier2_boundary_corner_cases.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": []
+    },
+    {
+      "file": "tests/e2e/tier3_cross_feature_combinations.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": []
+    },
+    {
+      "file": "tests/e2e/tier4_real_world_scenarios.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": []
+    },
+    {
+      "file": "tests/e2e/tier5_adversarial_hardening.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": []
+    }
+  ]
+}

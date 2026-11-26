@@ -358,7 +358,7 @@ describe('Empirical Adversarial Stress Suite: Calendar Reactive Sync & Boundarie
 
       // Slot 7 is 100% empty
       const emptySlot7Final = screen.getByTestId('calendar-empty-slot-7');
-      expect(emptySlot7Final.textContent).toContain('Trống (Nhấp để thêm)');
+      expect(emptySlot7Final.textContent).toContain('Trống (nhấp để thêm)');
     });
 
     it('3.3a empty title input falls back to default hour title without crash', async () => {
@@ -455,7 +455,7 @@ describe('Empirical Adversarial Stress Suite: Calendar Reactive Sync & Boundarie
       const removeSpy = vi.spyOn(window, 'removeEventListener');
 
       const { unmount } = renderDedicatedCalendarView();
-      await screen.findByText('Lịch Học & Kế Hoạch Time-Blocking');
+      await screen.findByText('Lịch học & kế hoạch time-blocking');
 
       // Unmount
       unmount();

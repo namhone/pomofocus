@@ -129,7 +129,7 @@ describe('Empirical Adversarial Challenge: Pure Zen Spaces DOM & Media Invariant
         { id: 'zen-pure-black', expectVideo: false, expectImg: false },
         { id: 'deep-space', expectVideo: false, expectImg: true },
         { id: 'zen-night-blue', expectVideo: false, expectImg: false },
-        { id: 'rainy-window', expectVideo: true, expectImg: false },
+        { id: 'flower-timelapse', expectVideo: true, expectImg: false },
         { id: 'zen-deep-graphite', expectVideo: false, expectImg: false }
       ];
 
@@ -181,7 +181,7 @@ describe('Empirical Adversarial Challenge: Pure Zen Spaces DOM & Media Invariant
         expect(useBackgroundStore.getState().activePresetId).toBe(opt.id);
 
         // Selected button must have active ring class
-        expect(btn.className).toContain('ring-2 ring-cyan-400');
+        expect(btn.className).toContain('ring-2 ring-zinc-400');
 
         // Selected button must contain checkmark icon (svg element with lucide-check)
         const checkIcon = btn.querySelector('svg.lucide-check');
@@ -192,7 +192,7 @@ describe('Empirical Adversarial Challenge: Pure Zen Spaces DOM & Media Invariant
           if (other.id !== opt.id) {
             const otherBtn = screen.getByTestId(other.testId);
             expect(otherBtn.querySelector('svg.lucide-check')).toBeNull();
-            expect(otherBtn.className).not.toContain('ring-2 ring-cyan-400');
+            expect(otherBtn.className).not.toContain('ring-2 ring-zinc-400');
           }
         }
       }

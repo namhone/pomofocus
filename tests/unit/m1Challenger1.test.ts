@@ -369,7 +369,8 @@ describe('Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Inte
       // Mock supabase.from('tasks') to succeed for first 15 calls, then simulate network disconnection
       vi.spyOn(supabase, 'from').mockImplementation(() => {
         return {
-          upsert: vi.fn().mockImplementation(async () => {
+          select: vi.fn().mockReturnValue({ eq: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }) }),
+          insert: vi.fn().mockImplementation(async () => {
             callCount++;
             if (callCount === 16) {
               // Simulate network dropping during the 16th call
@@ -410,7 +411,8 @@ describe('Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Inte
 
       // Mock Supabase to succeed on reconnection
       vi.spyOn(supabase, 'from').mockReturnValue({
-        upsert: vi.fn().mockResolvedValue({ data: null, error: null }),
+        select: vi.fn().mockReturnValue({ eq: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }) }),
+        insert: vi.fn().mockResolvedValue({ data: null, error: null }),
         delete: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
         })
@@ -485,7 +487,8 @@ describe('Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Inte
         }
 
         return {
-          upsert: vi.fn().mockResolvedValue({ data: null, error: null }),
+          select: vi.fn().mockReturnValue({ eq: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }) }),
+          insert: vi.fn().mockResolvedValue({ data: null, error: null }),
           delete: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
           })
@@ -495,12 +498,14 @@ describe('Empirical Challenger Suite: M1 Concurrency, Offline Queue & Dexie Inte
       const result = await syncQueueService.flushQueue('user_missing_table_test');
 
       // The 2 tasks should succeed and 2 focus_sessions catch 42P01 gracefully
-      // All 4 mutations are resolved/handled and deleted from sync queue
-      expect(result.failedCount).toBe(0);
-      expect(result.successCount).toBe(4);
+      // Only tasks are deleted; both missing-table mutations remain retryable.
+      expect(result.failedCount).toBe(2);
+      expect(result.successCount).toBe(2);
 
       const remaining = await syncQueueService.getPendingCount();
-      expect(remaining).toBe(0);
+      expect(remaining).toBe(2);
+      expect(await db.sync_queue.get('mut_sess_1')).toMatchObject({ retryCount: 1 });
+      expect(await db.sync_queue.get('mut_sess_2')).toMatchObject({ retryCount: 1 });
     });
 
     it('blocks sync and leaves queue intact if user is unauthenticated', async () => {

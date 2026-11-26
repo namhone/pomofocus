@@ -73,7 +73,7 @@ describe('CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard 
   describe('STRESS VECTOR 1: Rapid Tab Switching & State Singularity', () => {
     it('1.1 Executes 50 rapid sequential tab switches across all 5 tabs without crashing', () => {
       render(<MobileAppShell />);
-      const allTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'settings', 'focus'];
+      const allTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'tools', 'focus'];
 
       act(() => {
         for (let i = 0; i < 50; i++) {
@@ -97,7 +97,7 @@ describe('CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard 
 
     it('1.2 Random spam clicking maintains strict 1:1 view rendering (never multi-view collision)', () => {
       render(<MobileAppShell />);
-      const tabs: MobileTab[] = ['focus', 'tasks', 'spaces', 'ai', 'settings'];
+      const tabs: MobileTab[] = ['focus', 'tasks', 'spaces', 'ai', 'tools'];
 
       // Perform 30 random jumps
       for (let i = 0; i < 30; i++) {
@@ -159,7 +159,7 @@ describe('CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard 
   describe('STRESS VECTOR 2: Predictive Back Gesture (popstate) & Loop Prevention', () => {
     it('2.1 Simulating popstate from every secondary tab (tasks, spaces, ai, settings) always redirects to focus', () => {
       render(<MobileAppShell />);
-      const secondaryTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'settings'];
+      const secondaryTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'tools'];
 
       for (const tab of secondaryTabs) {
         // Switch to secondary tab
@@ -225,7 +225,7 @@ describe('CHALLENGER HARNESS: Milestone 3 Mobile App Shell & Root Routing Guard 
       for (let i = 0; i < 5; i++) {
         // Go to settings
         act(() => {
-          fireEvent.click(screen.getByTestId('mobile-nav-tab-settings'));
+          fireEvent.click(screen.getByRole('button', { name: 'Cài đặt', exact: true }));
         });
         expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
 

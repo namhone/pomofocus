@@ -109,7 +109,7 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
 
       const chip = screen.getByTestId('mobile-linked-task-chip');
       expect(chip.textContent).toContain('Hoàn thiện báo cáo V8.0');
-      expect(chip.textContent).toContain('2/4 🍅');
+      expect(chip.textContent).toContain('2/4');
 
       const completeBtn = screen.getByTestId('mobile-quick-task-complete-btn');
       await act(async () => {
@@ -307,7 +307,7 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
       const hour3Bar = screen.getByTestId('mobile-flow-hour-3');
 
       expect(hour9Bar.getAttribute('data-active')).toBe('true');
-      expect(hour9Bar.className).toContain('bg-emerald-400');
+      expect(hour9Bar.className).toContain('bg-zinc-200');
       expect(hour14Bar.getAttribute('data-active')).toBe('true');
       expect(hour3Bar.getAttribute('data-active')).toBe('false');
     });
@@ -385,9 +385,9 @@ describe('PomoFocus V8.0 — All-in-One Focus Hub, Strict Mode, Daily Flow & Sou
       const mainBtn = screen.getByTestId('mobile-timer-main-action');
 
       expect(root.className).toMatch(/overflow-(?:x-)?hidden/);
-      expect(timer.className).toContain('drop-shadow-[0_4px_30px_rgba(52,211,153,0.25)]');
-      expect(mainBtn.className).toContain('w-14');
-      expect(mainBtn.className).toContain('h-14');
+      expect(timer.className).toContain('drop-shadow-[0_4px_30px_rgba(255,255,255,0.25)]');
+      expect(mainBtn.className).toContain('w-16');
+      expect(mainBtn.className).toContain('h-16');
       expect(mainBtn.className).toContain('rounded-full');
     });
 

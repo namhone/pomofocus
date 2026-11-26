@@ -89,6 +89,7 @@ describe('CHALLENGER EMPIRICAL SUITE — Milestone 2 Resilience & Stress Testing
 
       // Mock Supabase to simulate persistent server/network failure (500 Error)
       vi.spyOn(supabase, 'from').mockReturnValue({
+        select: () => ({ eq: () => ({ eq: () => ({ single: async () => ({ data: null, error: new Error('500 Internal Server Error') }) }) }) }),
         upsert: vi.fn().mockRejectedValue(new Error('500 Internal Server Error')),
         delete: vi.fn().mockRejectedValue(new Error('500 Internal Server Error'))
       } as any);
@@ -134,6 +135,8 @@ describe('CHALLENGER EMPIRICAL SUITE — Milestone 2 Resilience & Stress Testing
       // Test manual recovery: retryFailedMutations resets retryCount to 0 and re-queues
       // Now mock Supabase to succeed!
       vi.spyOn(supabase, 'from').mockReturnValue({
+        select: () => ({ eq: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }) }),
+        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
         upsert: vi.fn().mockResolvedValue({ data: {}, error: null }),
         delete: vi.fn().mockResolvedValue({ data: {}, error: null })
       } as any);

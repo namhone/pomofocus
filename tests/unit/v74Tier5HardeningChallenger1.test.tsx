@@ -462,7 +462,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
           downloadUrl: 'https://pomofocus.app/downloads/PomoFocus-v7.4.5.apk',
           changelog: [
             'Nâng cấp tần số quét 120Hz mượt mà',
-            'Tối ưu hóa Anchor Timestamp Engine',
+            'Tối ưu hóa Đếm giờ theo mốc thời gian',
             'Thêm phím tắt chỉnh giờ nhanh'
           ],
         }),
@@ -613,12 +613,12 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
         </RouterProvider>
       );
 
-      expect(screen.getByText('Anchor Timestamp Engine')).toBeDefined();
-      expect(screen.getByText('Screen Wake Lock API')).toBeDefined();
-      expect(screen.getByText('Haptics & Spring Physics')).toBeDefined();
-      expect(screen.getByText('Zero-Scroll-Chaining')).toBeDefined();
-      expect(screen.getByText('Offline First & Security')).toBeDefined();
-      expect(screen.getByText('Rolling Digit Morphing')).toBeDefined();
+      expect(screen.getByText('Đếm giờ theo mốc thời gian')).toBeDefined();
+      expect(screen.getByText('Giữ sáng khi tập trung')).toBeDefined();
+      expect(screen.getByText('Phản hồi khi chạm')).toBeDefined();
+      expect(screen.getByText('Không gian vừa màn hình')).toBeDefined();
+      expect(screen.getByText('Học tập khi ngoại tuyến')).toBeDefined();
+      expect(screen.getAllByText('Chuyển số nhẹ nhàng')).toHaveLength(2);
     });
   });
 
@@ -663,7 +663,7 @@ describe('Milestone 4: Tier 5 White-Box Adversarial Hardening Suite (Challenger 
       const raw = fs.readFileSync(versionJsonPath, 'utf-8');
       const data = JSON.parse(raw);
 
-      expect(data.version).toBe('8.1.0');
+      expect(data.version).toBe(JSON.parse(fs.readFileSync('src/config/apkRelease.json', 'utf8')).version);
       expect(data.minSupportedVersion).toBe('7.0.0');
       expect(data.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
       expect(typeof data.apkSizeMb).toBe('number');

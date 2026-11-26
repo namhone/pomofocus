@@ -31,7 +31,7 @@ describe('Mobile Centering, Settings Streamline & Fluid Widget Resizing Invarian
     const code = fs.readFileSync(settingsWidgetPath, 'utf8');
 
     it('Ẩn vị trí thanh công cụ DockBar trên mobile bằng hidden lg:block', () => {
-      expect(code).toMatch(/<div[^>]*hidden lg:block[^>]*>[\s\S]*?Vị trí thanh công cụ DockBar/);
+      expect(code).toMatch(/<div[^>]*hidden lg:block[^>]*>[\s\S]*?Vị trí thanh công cụ dockbar/);
     });
 
     it('Ẩn khối Snap lưới & cạnh 16px trên mobile bằng hidden lg:block', () => {
@@ -57,14 +57,14 @@ describe('Mobile Centering, Settings Streamline & Fluid Widget Resizing Invarian
     const containerCode = fs.readFileSync(widgetContainerPath, 'utf8');
     const storeCode = fs.readFileSync(layoutStorePath, 'utf8');
 
-    it('NotesWidget: Container cha có class h-full w-full flex flex-col justify-between p-3 select-none', () => {
-      expect(notesCode).toContain('h-full w-full flex flex-col justify-between p-3 select-none');
+    it('NotesWidget: Container cha có class h-full w-full min-w-0 flex-col p-2', () => {
+      expect(notesCode).toContain('h-full w-full min-w-0 flex-col p-2');
     });
 
-    it('NotesWidget: Textarea có class flex-1 w-full h-full min-h-[140px] leading-relaxed overflow-y-auto', () => {
-      expect(notesCode).toContain('flex-1 w-full h-full min-h-[140px]');
-      expect(notesCode).toContain('leading-relaxed overflow-y-auto');
-      expect(notesCode).toContain('bg-transparent text-sm text-zinc-100 placeholder-zinc-500');
+    it('NotesWidget: Textarea có class min-h-0 w-full flex-1 resize-none text-sm leading-relaxed placeholder-zinc-400', () => {
+      expect(notesCode).toContain('min-h-0 w-full flex-1 resize-none');
+      expect(notesCode).toContain('text-sm leading-relaxed placeholder-zinc-400');
+      expect(notesCode).toContain('bg-zinc-950 text-zinc-100');
     });
 
     it('TasksWidget: Danh sách nhiệm vụ có class flex-1 overflow-y-auto min-h-0', () => {

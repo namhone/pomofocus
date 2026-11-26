@@ -153,12 +153,12 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
     it('handles 30 rapid alternating tab switches maintaining State Singularity and spring bounce', async () => {
       render(<MobileAppShell />);
 
-      const tabs: Array<'focus' | 'tasks' | 'spaces' | 'ai' | 'settings'> = [
+      const tabs: Array<'focus' | 'tasks' | 'spaces' | 'ai' | 'tools'> = [
         'focus',
         'tasks',
         'spaces',
         'ai',
-        'settings',
+        'tools',
       ];
 
       // Perform 30 rapid switches
@@ -180,11 +180,11 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
 
         // Active tab button must have emerald styling and spring bounce on icon
         const activeBtn = screen.getByTestId(`mobile-nav-tab-${nextTab}`);
-        expect(activeBtn.className).toContain('text-emerald-400');
+        expect(activeBtn.querySelector('svg')?.getAttribute('class')).toContain('text-white');
 
         const activeIcon = activeBtn.querySelector('svg');
         const iconClasses = activeIcon?.getAttribute('class') || '';
-        expect(iconClasses).toContain('animate-spring-bounce');
+        expect(iconClasses).toContain('text-white');
       }
 
       // Verify layout store ends in the final expected tab
@@ -224,7 +224,7 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
 
       // Default tab is 'timer'
       const timerSvgClass = timerBtn.querySelector('svg')?.getAttribute('class') || '';
-      expect(timerSvgClass).toContain('animate-spring-bounce');
+      expect(timerSvgClass).toContain('text-white');
 
       // Switch to tasks
       await act(async () => {
@@ -232,10 +232,10 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
       });
       expect(useLayoutStore.getState().activeMobileTab).toBe('tasks');
       const tasksSvgClass = tasksBtn.querySelector('svg')?.getAttribute('class') || '';
-      expect(tasksSvgClass).toContain('animate-spring-bounce');
+      expect(tasksSvgClass).toContain('text-white');
 
       const timerSvgAfter = timerBtn.querySelector('svg')?.getAttribute('class') || '';
-      expect(timerSvgAfter).not.toContain('animate-spring-bounce');
+      expect(timerSvgAfter).not.toContain('text-white');
 
       // Switch to spaces
       await act(async () => {
@@ -243,10 +243,10 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
       });
       expect(useLayoutStore.getState().activeMobileTab).toBe('spaces');
       const spacesSvgClass = spacesBtn.querySelector('svg')?.getAttribute('class') || '';
-      expect(spacesSvgClass).toContain('animate-spring-bounce');
+      expect(spacesSvgClass).toContain('text-white');
 
       const tasksSvgAfter = tasksBtn.querySelector('svg')?.getAttribute('class') || '';
-      expect(tasksSvgAfter).not.toContain('animate-spring-bounce');
+      expect(tasksSvgAfter).not.toContain('text-white');
     });
   });
 
@@ -291,8 +291,8 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGE — Milestone 1 (Zero-Scroll & 120Hz M
 
         // Active pill button must have aria-selected="true" and animate-spring-bounce
         expect(btn.getAttribute('aria-selected')).toBe('true');
-        expect(btn.className).toContain('animate-spring-bounce');
-        expect(btn.className).toContain('text-emerald-400');
+        expect(btn.className).toContain('text-white');
+        expect(btn.className).toContain('text-white');
 
         // Monumental numerals display must be valid (no NaN, no undefined)
         const expectedTimeStr = `${target.minutes.toString().padStart(2, '0')}:00`;

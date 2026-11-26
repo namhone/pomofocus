@@ -207,7 +207,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
 
       // Verify timer indicator dot is pulsing emerald and time is preserved
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-emerald-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).toContain('animate-pulse');
       expect(useTimerStore.getState().remainingMs).toBe(18 * 60 * 1000);
       expect(useTimerStore.getState().phase).toBe('short_break');
@@ -292,7 +292,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
       });
 
       const dot = screen.getByTestId('mobile-header-timer-status-dot');
-      expect(dot.className).toContain('bg-amber-400');
+      expect(dot.className).toContain('bg-zinc-700');
       expect(dot.className).not.toContain('animate-pulse');
       expect(useTimerStore.getState().status).toBe('paused');
     });
@@ -305,7 +305,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
     it('2.1 Interleaved tab transitions and 20 rapid popstate events safely converge to focus tab', () => {
       render(<MobileAppShell />);
 
-      const secondaryTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'settings'];
+      const secondaryTabs: MobileTab[] = ['tasks', 'spaces', 'ai', 'tools'];
 
       secondaryTabs.forEach((tab) => {
         // Navigate from focus to secondary tab
@@ -365,7 +365,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
 
       // ai -> settings
       act(() => {
-        fireEvent.click(screen.getByTestId('mobile-nav-tab-settings'));
+        fireEvent.click(screen.getByRole('button', { name: 'Cài đặt', exact: true }));
       });
       expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
 
@@ -784,7 +784,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
         useTimerStore.setState({ status: 'paused' });
       });
       rerender(<MobileAppShell />);
-      expect(pill.innerHTML).toContain('bg-amber-400');
+      expect(pill.innerHTML).toContain('bg-zinc-700');
     });
 
     it('4.4 Document PiP rejection triggers graceful in-app floating pill fallback', async () => {
@@ -901,7 +901,7 @@ describe('Tier 5 Adversarial Coverage Hardening: Shell, Navigation, Device Lifec
       });
 
       expect(screen.getByTestId('mobile-header-credits-pill').textContent).toContain('50');
-      expect(screen.getByTestId('mobile-header-timer-status-dot').className).toContain('bg-emerald-400');
+      expect(screen.getByTestId('mobile-header-timer-status-dot').className).toContain('bg-zinc-700');
       expect(screen.getByTestId('mobile-view-tasks')).toBeDefined();
     });
 

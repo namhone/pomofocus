@@ -1,0 +1,1600 @@
+{
+  "sourceCommit": "7d430dc",
+  "mode": "Latest result per configured test file, merged from the unfiltered sweep and explicit focused reruns. This is NOT a single green full run.",
+  "files": 198,
+  "passedFiles": 182,
+  "failedFiles": 16,
+  "passed": 2800,
+  "failed": 32,
+  "nativeProbe": {
+    "passed": 2,
+    "failed": 2,
+    "realDevice": "unavailable; adb devices -l empty"
+  },
+  "runs": [
+    {
+      "file": "full-repo-after.json",
+      "sourceCommit": "7d430dc",
+      "run": "Unfiltered full sweep after primary test migration",
+      "files": 198,
+      "passedFiles": 164,
+      "failedFiles": 34,
+      "passed": 2773,
+      "failed": 59,
+      "skipped": 0,
+      "todo": 0,
+      "success": false
+    },
+    {
+      "file": "final-repairs.json",
+      "sourceCommit": "7d430dc",
+      "run": "18 files changed after the second full sweep",
+      "files": 18,
+      "passedFiles": 15,
+      "failedFiles": 3,
+      "passed": 161,
+      "failed": 4,
+      "skipped": 0,
+      "todo": 0,
+      "success": false
+    },
+    {
+      "file": "final-labels.json",
+      "sourceCommit": "7d430dc",
+      "run": "2 final label files",
+      "files": 2,
+      "passedFiles": 2,
+      "failedFiles": 0,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "success": true
+    },
+    {
+      "file": "android-smoke-recheck.json",
+      "sourceCommit": "7d430dc",
+      "run": "Unchanged Android script suite alone after host CLR crash",
+      "files": 1,
+      "passedFiles": 1,
+      "failedFiles": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "success": true
+    }
+  ],
+  "results": [
+    {
+      "file": "src/scaffold.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/e2e/tier1_feature_coverage.test.ts",
+      "status": "passed",
+      "passed": 24,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/e2e/tier2_boundary_corner_cases.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/e2e/tier3_cross_feature_combinations.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/e2e/tier4_real_world_scenarios.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/e2e/tier5_adversarial_hardening.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/adversarialChallengerM0.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/adversarialFailFastStress.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/adversarialPaymentChallenge.test.ts",
+      "status": "passed",
+      "passed": 52,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/adversarialRlsChallenge.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/adversarialTasksAndWhiteboardM2.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/aiAdvancedFeatures.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/aiGreetingIntent.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/aiStore.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/androidBackStackAndInsets.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/androidSmokeScript.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "android-smoke-recheck.json"
+    },
+    {
+      "file": "tests/unit/apiRooms.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/apkArchitectureSeparation.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/architectureGuards.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/audioEngine.test.ts",
+      "status": "passed",
+      "passed": 21,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/audioRemediationPhase3.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/auditorM1ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/auditorM2ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 26,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/auditorM3ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 20,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/authEpochContract.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/authSyncAndFocusSessionsM3.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/autoTrainGiaSu.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/avatarIdentityContract.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/avatarImmutabilityPrecedence.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Avatar Immutability & Precedence Specification (Bảo vệ Avatar Tùy Chỉnh Tuyệt Đối) 3. Kịch bản lỗi thực tế: Up Custom Avatar -> Đăng Xuất (Logout) -> Đăng Nhập Google -> Bảo Toàn 100% bảo toàn vĩnh viễn Custom Avatar sau khi Logout và đăng nhập lại bằng Google",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'https://supabase.co/storage/v1/object…' // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/avatarResilienceAndFallbacks.test.ts",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Avatar Resilience & Pitch-Black Box Elimination Specification 1. Kịch bản tái hiện lỗi thực tế (Reproduction Steps Verification) chuỗi thao tác: Đăng nhập Google -> Đổi Avatar -> Logout -> F5 -> Đăng ký Email mới: Avatar có ngay lập tức, không bao giờ bị ô đen",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "status": "failed",
+      "passed": 2,
+      "failed": [
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 1. Chuẩn hóa cập nhật Avatar (3 trường: avatarUrl, customAvatarUrl, hasCustomAvatar) Cập nhật avatar qua updateProfile thiết lập đầy đủ 3 trường và đồng bộ",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 2. Quy tắc Avatar Precedence: Google không bao giờ đè lên Custom Avatar Đăng xuất sau khi đổi avatar, đăng nhập lại bằng Google giữ nguyên ảnh custom",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Avatar Synchronization & Single Source of Truth Specification 3. Đồng nhất tài khoản Google & Email (Single Source of Truth) Cập nhật avatar qua ProfileView đồng bộ đồng thời cả bản ghi Google và Email",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/backendV5HyperScale.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/backgroundContrast.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/backgroundStore.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/betaEntitlement.test.ts",
+      "status": "failed",
+      "passed": 7,
+      "failed": [
+        {
+          "title": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Cập nhật tên hiển thị và avatar thành công",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Đổi mật khẩu thành công khi nhập đúng mật khẩu cũ",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challenger2EmpiricalAdversarial.test.tsx",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challenger2M1EmpiricalStress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challenger2Milestone2Stress.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Adversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challenger2PolishM1Stress.test.tsx",
+      "status": "passed",
+      "passed": 35,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challengerM1Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challengerPolishM3Stress.test.tsx",
+      "status": "passed",
+      "passed": 21,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challengerV642Stress.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/challengerV70M1Stress.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/cloud2FaAndSecurityEnhancements.test.ts",
+      "status": "failed",
+      "passed": 6,
+      "failed": [
+        {
+          "title": "Cloud 2FA, Security Enhancements & Owner Privileges Audit 2. Email OTP Password Reset Flow Gửi mã OTP 6 số và xác minh đặt lại mật khẩu mới thành công",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/cloudSyncRealtime.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/cookieConsentNativeSuppression.test.tsx",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/coreProductivityStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/couponSystemResilience.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/creditsTopupRemediation.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/customAvatarCloudSync.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime xử lý ảnh từ File, tải lên Storage và cập nhật tức thì vào useAuthStore & profiles cache",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime fallback an toàn khi Storage bucket chưa kích hoạt: lưu Base64 Data URI tối ưu và vẫn sync 100%",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/dashboardTrendChartAndCalendarTooltip.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/dataSyncAndDbFixes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/dataSyncAuditorStress.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/deepAuditValidation.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/dynamicCloudCouponEngine.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/empiricalChallengerV641.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/empiricalM2Challenger.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/founderEntitlementContract.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/googleAuth.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/googleAuthAndPwa.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Owner (namho03052k9@gmail.com) tự động kích hoạt Lifetime & Owner",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Nóc Nhà (huyentrantt09@gmail.com) tự động kích hoạt Lifetime & LadyBoss",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/googleOAuthNativeVerification.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/guestCreditsPersistence.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/guestHeaderAndGoogleGuidance.test.tsx",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/layoutAndZen.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/loginOptions.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/m1Challenger1.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m1Challenger2.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m1ChallengerDeepLinkAnd404Attack.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m1ChallengerIsolationAttack.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 21,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallengerStress.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "final-labels.json"
+    },
+    {
+      "file": "tests/unit/m1WebIsolationAndNavigation.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/m2BackStackInsetsAndSplash.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m2ChallengerBackStackAttack.test.tsx",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m2ChallengerInsetsAndOfflineAttack.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m2ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressFocusTasks.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressSpacesMixer.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/m3ChallengerGoogleAuthAndIdentityAttack.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m3ChallengerIdentityAttack.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m3ChallengerOAuthAttack.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m3GoogleAuthAndIdentitySync.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m4ChallengerFocusAttack.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m4ChallengerLayoutAttack.test.tsx",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m4LegalAndCookieConsent.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/m4MobileUiAndFocusLogic.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mediaAndAudioLifecycle.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/meetRealtime.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/meetRepository.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone1_adversarial_challenge.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone1_challenger_adversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 29,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone1EmpiricalChallenge.test.tsx",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger1.test.tsx",
+      "status": "failed",
+      "passed": 35,
+      "failed": [
+        {
+          "title": "EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub & Smart Distribution Suite 4: Component Integration & Accessibility Stress 4.2 WebDownloadHub renders phone mockup and dynamic SVG QR code in desktop view",
+          "reason": "AssertionError: expected null to be 'img' // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 33,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone2MobileInputAndOAuth.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/milestone2TopClearanceAndAiCollision.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 20,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 27,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone3MacOsLiquidDock.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone3NotificationsAndAudio.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/milestone4DimensionAndZen.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/milestone4OfflineAndBuild.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileAppShellAndRoutingV70.test.tsx",
+      "status": "passed",
+      "passed": 24,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileAppShellStressChallenger.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileBottomNavAndHeaderFlow.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileCenteringAndSettingsStreamline.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/mobileLiquidZenTiers1to4.test.tsx",
+      "status": "passed",
+      "passed": 96,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobilePrimitivesV70.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileSettingsAndFocusPolish.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 38,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 25,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileTouchRegression.test.tsx",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileViewsM2EmpiricalStress.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileViewsStressV70.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/mobileViewsV70.test.tsx",
+      "status": "passed",
+      "passed": 25,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/momoPayment.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/multiChannelAudioEngine.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/multiProviderIdentityConflict.test.ts",
+      "status": "failed",
+      "passed": 1,
+      "failed": [
+        {
+          "title": "Multi-Provider Identity Conflict & Canonical ID Specification 1. Root Cause Scenario: Cùng Email đăng ký Email/Pass trước, sau đó đăng nhập Google OAuth phải bảo toàn Canonical ID",
+          "reason": "AssertionError: expected 0 to be greater than 0"
+        },
+        {
+          "title": "Multi-Provider Identity Conflict & Canonical ID Specification 2. Founder VIP Whitelist: Đăng nhập Google với Founder không bao giờ bị reset về 50⚡ hay mất quyền Founder",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/nativeGoogleSignIn.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/paymentOrderRlsSecurity.test.ts",
+      "status": "passed",
+      "passed": 38,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/paymentRemediationPhase1.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/paymentSecurity.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase3HardwareCleanup.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase3RealtimeAdapter.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase3SubmissionGuards.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase3WorkspaceRealtime.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase4aLogicAndCatalog.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase4aProfileIme.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/phase4bPresentation.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/pricingAndComparison.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/profileCloudSync.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/qrCodeStability.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/real2FaAndAvatarLock.test.ts",
+      "status": "failed",
+      "passed": 4,
+      "failed": [
+        {
+          "title": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 1. Avatar Precedence Rule (Bảo Toàn Avatar Tự Tải Lên) Giữ nguyên custom_avatar_url khi đăng nhập lại bằng Google (không bị ảnh Google đè lên)",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 2. Real 2FA Security Gate (Trạm Gác Cổng TOTP & Backup Codes) Chặn đăng nhập và phát cờ requires2Fa khi tài khoản đã bật 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/roomCustomizationAndDelete.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/roomGovernanceAndHostControls.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "status": "failed",
+      "passed": 5,
+      "failed": [
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Avatar bằng ảnh tải lên (base64) và chọn từ kho hình học tối giản",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Username/Handle duy nhất (@namho) và chuẩn hóa cú pháp",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Bio / Mục tiêu học tập (Focus Goal) hiển thị dưới Avatar",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Tùy chỉnh quyền riêng tư: Ẩn Email trong phòng và Chế độ tàng hình",
+          "reason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại."
+        },
+        {
+          "title": "SaaS Profile, Security & Adaptive Billing Specifications 2. Trung tâm bảo mật tài khoản (Account Security & GDPR Danger Zone) Đổi mật khẩu an toàn và kiểm tra bảo vệ mật khẩu cũ",
+          "reason": "Error: Mật khẩu không chính xác. Vui lòng thử lại."
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/safeStorage.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/safeStorageStress.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/securityPiiAndXssRemediation.test.ts",
+      "status": "failed",
+      "passed": 19,
+      "failed": [
+        {
+          "title": "Milestone 2 Security, PII & XSS Sanitization Test Suite 2. PII Phone Number Eradication ensures institutional support email support@pomofocus.vn is present in contact surfaces",
+          "reason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'support@pomofocus.vn'"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/sepayWebhook.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "status": "failed",
+      "passed": 8,
+      "failed": [
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 3. Xác thực mã OTP & Liên kết số điện thoại với tài khoản Xác thực đúng mã OTP: liên kết số điện thoại và tự động kích hoạt SMS 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Cho phép Bật / Tắt trạng thái 2FA khi đã xác minh số điện thoại",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Hủy liên kết số điện thoại: xóa phoneNumber, đặt phoneVerified = false và tắt 2FA",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/startupCurtainRegression.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/studyRoomService.test.ts",
+      "status": "passed",
+      "passed": 41,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/supabaseOAuthSync.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/syncQueueConflictContract.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/tasksAndNotes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/timerChallengerAdversarial.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/timerChallengerM1.test.tsx",
+      "status": "passed",
+      "passed": 24,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/timerDocumentTitleLifecycle.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/timerEngine.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/timerStateMachineV64.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/totpSecurity.test.ts",
+      "status": "failed",
+      "passed": 13,
+      "failed": [
+        {
+          "title": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Kích hoạt thành công 2FA: Lưu trạng thái và secret vào User Profile",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Tắt 2FA: Xóa secret, backup codes và chuyển twoFactorEnabled = false",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/typographyZeroFout.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/unifiedAuthAndAvatarSync.test.ts",
+      "status": "failed",
+      "passed": 2,
+      "failed": [
+        {
+          "title": "Unified Auth, Single Identity & Avatar Resilience Specification 2. Đồng nhất tài khoản (Single Source of Truth): Cùng email đăng nhập bằng Google và Email hợp nhất chung 1 User ID",
+          "reason": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "title": "Unified Auth, Single Identity & Avatar Resilience Specification 4. Quy tắc bất biến Avatar: Up ảnh đại diện tùy chỉnh không bao giờ bị Google Login ghi đè",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'data:image/jpeg;base64,CUSTOM_ARTWORK…' // Object.is equality"
+        }
+      ],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/userAvatarChallengerStress.test.tsx",
+      "status": "failed",
+      "passed": 15,
+      "failed": [
+        {
+          "title": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 1: Nullability, Malformed Data & Zero-Black-Box Guarantee handles synthetic guest profile { id: \"guest\", isGuest: true }",
+          "reason": "AssertionError: expected 'data:image/svg+xml;utf8,<svg xmlns=\"h…' to contain '>K<'"
+        },
+        {
+          "title": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 3: Priority Hierarchy Invariants custom avatar via direct avatarUrl prop takes precedence over Google photo",
+          "reason": "AssertionError: expected 'https://lh3.googleusercontent.com/a/p…' to be 'data:image/png;base64,iVBORw0KGgoAAAA…' // Object.is equality"
+        }
+      ],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/userAvatarUnified.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v61LiquidButtonsAndZen.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/v62MicroUxAndDirectRemote.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v62YoutubeMixAndJsonExport.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v63AudioDuckingAndTimerClean.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/v642SettingsWidgetOverhaul.test.ts",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64AiCompanion.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64CalendarAndZenSpaces.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64M2AdversarialChallenger.test.tsx",
+      "status": "passed",
+      "passed": 6,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64M3SessionChallenger.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64M3UiChallenger.test.tsx",
+      "status": "passed",
+      "passed": 11,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64M4CalendarChallenger.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64M4SpacesChallenger.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v64TasksAndWhiteboard.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v74EcosystemE2E.test.tsx",
+      "status": "passed",
+      "passed": 95,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 43,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v753ComprehensiveFixes.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/v75DownloadShowcase.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v80FocusHubAndMixer.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM2.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_1.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_2.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81DexieAndSyncQueue.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81M2ChallengerAdversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81MeetRoomsAndWhiteboard.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81Milestone1WidgetPolish.test.tsx",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "final-repairs.json"
+    },
+    {
+      "file": "tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81Milestone2StressChallenger.test.tsx",
+      "status": "passed",
+      "passed": 7,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/v81MobileHubAndAuth.test.tsx",
+      "status": "passed",
+      "passed": 31,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/vipAndCouponAndRoomLimits.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/wcagAccessibilityAudit.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "final-labels.json"
+    },
+    {
+      "file": "tests/unit/webrtcFullMesh.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/workspaceTwoDeviceContract.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/zenErrorPages.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    },
+    {
+      "file": "tests/unit/zeroFoutChallenger.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": [],
+      "evidence": "full-repo-after.json"
+    }
+  ]
+}

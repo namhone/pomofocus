@@ -176,7 +176,7 @@ describe('Auditor Independent Forensic Suite: Milestone 3 (Capacitor Android & S
     it('verifies public/version.json schema, semver, and canonical download URL', () => {
       const versionContent = JSON.parse(fs.readFileSync(VERSION_JSON_PATH, 'utf-8'));
 
-      expect(versionContent.version).toBe('8.1.0');
+      expect(versionContent.version).toBe(JSON.parse(fs.readFileSync('src/config/apkRelease.json', 'utf8')).version);
       expect(versionContent.minVersion).toBe('7.0.0');
       expect(versionContent.minSupportedVersion).toBe('7.0.0');
       expect(versionContent.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
@@ -247,9 +247,9 @@ describe('Auditor Independent Forensic Suite: Milestone 3 (Capacitor Android & S
       expect(fs.existsSync(LOCAL_PROPERTIES_PATH)).toBe(true);
       const content = fs.readFileSync(LOCAL_PROPERTIES_PATH, 'utf-8');
       expect(content).toContain('sdk.dir=');
-      expect(content).toContain('AppData');
-      expect(content).toContain('Android');
-      expect(content).toContain('Sdk');
+      const sdkDir = content.match(/^sdk\.dir=(.+)$/m)?.[1].trim();
+      expect(sdkDir).toBeTruthy();
+      expect(fs.existsSync(sdkDir!)).toBe(true);
     });
 
     it('confirms android/build.gradle contains Java 17 compatibility subprojects hook', () => {

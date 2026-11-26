@@ -43,22 +43,22 @@ describe('AI Companion Advanced Upgrades: Streaming, 8192 Tokens, Multimodal & T
       expect(calc700.discountBadge).toBe('Tiết kiệm 15%');
     });
 
-    it('Gói chuẩn 3 (1.500⚡): Giá đúng 69.000đ, Tiết kiệm 28% 🔥 (Phổ biến)', () => {
+    it('Gói chuẩn 3 (1.500⚡): Giá đúng 69.000đ, Tiết kiệm 28% (Phổ biến)', () => {
       const calc1500 = calculateCreditPrice(1500);
       expect(calc1500.discountPercent).toBe(28);
       expect(calc1500.unitPrice).toBe(46);
       expect(calc1500.originalPrice).toBe(95000);
       expect(calc1500.finalPrice).toBe(69000);
-      expect(calc1500.discountBadge).toBe('Tiết kiệm 28% 🔥');
+      expect(calc1500.discountBadge).toBe('Tiết kiệm 28%');
     });
 
-    it('Gói chuẩn 4 (4.000⚡): Giá đúng 149.000đ, Tiết kiệm 40% 👑', () => {
+    it('Gói chuẩn 4 (4.000⚡): Giá đúng 149.000đ, Tiết kiệm 40%', () => {
       const calc4000 = calculateCreditPrice(4000);
       expect(calc4000.discountPercent).toBe(40);
       expect(calc4000.unitPrice).toBe(37);
       expect(calc4000.originalPrice).toBe(250000);
       expect(calc4000.finalPrice).toBe(149000);
-      expect(calc4000.discountBadge).toBe('Tiết kiệm 40% 👑');
+      expect(calc4000.discountBadge).toBe('Tiết kiệm 40%');
     });
 
     it('1-Click Presets Sync: openTopupModal(credits) chọn đúng số điểm và cập nhật state', () => {

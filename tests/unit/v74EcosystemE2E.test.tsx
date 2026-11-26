@@ -443,7 +443,7 @@ describe('Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite', () =
 
       it('3.6 switches seamlessly across all 5 tabs preserving application state', () => {
         render(<MobileAppShell />);
-        const tabs = ['tasks', 'spaces', 'ai', 'settings', 'focus'] as const;
+        const tabs = ['tasks', 'spaces', 'ai', 'tools', 'focus'] as const;
 
         for (const tab of tabs) {
           act(() => {
@@ -656,7 +656,7 @@ describe('Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite', () =
       it.skipIf(!isM2WebHubReady)('6.4 renders feature cards for Anchor Timestamp, Screen Wake Lock, and Haptics', () => {
         if (!WebDownloadHub) return;
         render(<WebDownloadHub />);
-        expect(screen.getByText(/Anchor Timestamp/i)).toBeDefined();
+        expect(screen.getByText(/Đếm giờ theo mốc thời gian/i)).toBeDefined();
       });
 
       it.skipIf(!isM2WebHubReady)('6.5 provides responsive layout adapting between mobile and desktop views', () => {
@@ -1219,7 +1219,7 @@ describe('Pomofocus v7.4 Ultimate Ecosystem — Dual Track E2E Test Suite', () =
       expect(useTimerStore.getState().status).toBe('running');
 
       // Switch to settings tab
-      const settingsTab = screen.getByTestId('mobile-nav-tab-settings');
+      const settingsTab = screen.getByRole('button', { name: 'Cài đặt', exact: true });
       fireEvent.click(settingsTab);
       expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
       expect(useTimerStore.getState().status).toBe('running');

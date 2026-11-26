@@ -20,8 +20,8 @@ describe('Empirical Challenger: UserAvatar Adversarial Stress Suite', () => {
       expect(img.src.startsWith('data:image/svg+xml')).toBe(true);
       const decoded = decodeURIComponent(img.src);
       expect(decoded).toContain('>K<');
-      expect(decoded).toContain('#10b981');
-      expect(decoded).toContain('#047857');
+      expect(decoded).toContain('#3f3f46');
+      expect(decoded).toContain('#3f3f46');
       expect(img.alt).toBe('Khách');
     });
 
@@ -40,7 +40,7 @@ describe('Empirical Challenger: UserAvatar Adversarial Stress Suite', () => {
       expect(img.src.startsWith('data:image/svg+xml')).toBe(true);
       const decoded = decodeURIComponent(img.src);
       expect(decoded).toContain('>K<');
-      expect(decoded).toContain('#10b981');
+      expect(decoded).toContain('#3f3f46');
     });
 
     it('handles empty user object {} without throwing and never produces broken image', () => {

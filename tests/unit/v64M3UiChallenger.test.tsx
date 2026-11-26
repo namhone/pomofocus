@@ -97,20 +97,20 @@ Chúc bạn ôn tập hiệu quả!
       // Kiểm tra các nhãn ngôn ngữ (uppercase)
       const pythonBadge = screen.getByText('python');
       expect(pythonBadge).toBeDefined();
-      expect(pythonBadge.className).toContain('uppercase');
+      expect(pythonBadge.className).toContain('normal-case');
 
       const sqlBadge = screen.getByText('sql');
       expect(sqlBadge).toBeDefined();
-      expect(sqlBadge.className).toContain('uppercase');
+      expect(sqlBadge.className).toContain('normal-case');
 
       const bashBadge = screen.getByText('bash');
       expect(bashBadge).toBeDefined();
-      expect(bashBadge.className).toContain('uppercase');
+      expect(bashBadge.className).toContain('normal-case');
 
       // Khối không có language tag thì fallback về 'code'
       const codeBadge = screen.getByText('code');
       expect(codeBadge).toBeDefined();
-      expect(codeBadge.className).toContain('uppercase');
+      expect(codeBadge.className).toContain('normal-case');
 
       // Kiểm tra nội dung mã trong từng khối không bị nuốt hoặc hòa lẫn
       expect(screen.getByText(/def extract_metrics/)).toBeDefined();

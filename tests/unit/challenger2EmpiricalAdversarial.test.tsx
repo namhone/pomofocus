@@ -172,7 +172,7 @@ describe('Challenger 2 — Empirical Contract Invariant & Adversarial Oracle', (
   });
 
   describe('Contract Invariant: Canonical Widget Title in WidgetContainer', () => {
-    it('empirically verifies WidgetContainer displays "Cài Đặt Hệ Thống" when id is "settings"', () => {
+    it('empirically verifies WidgetContainer displays "Cài đặt hệ thống" when id is "settings"', () => {
       useLayoutStore.getState().openWidget('settings');
 
       render(
@@ -181,8 +181,8 @@ describe('Challenger 2 — Empirical Contract Invariant & Adversarial Oracle', (
         </WidgetContainer>
       );
 
-      // Title should be "Cài Đặt Hệ Thống"
-      expect(screen.getByText('Cài Đặt Hệ Thống')).toBeDefined();
+      // Title should be "Cài đặt hệ thống"
+      expect(screen.getByText('Cài đặt hệ thống')).toBeDefined();
       expect(screen.queryByText('Cài Đặt Không Gian')).toBeNull();
 
       // Collapse and close buttons must exist

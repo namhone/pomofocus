@@ -30,7 +30,7 @@ describe('Zen-First Error Pages & Error Boundary Specifications', () => {
       expect(screen.getByText('404')).toBeDefined();
 
       // Kiểm tra thông điệp Zen
-      expect(screen.getByText('Bạn Đang Lạc Lối Giữa Không Gian...')).toBeDefined();
+      expect(screen.getByText('Bạn đang lạc lối giữa không gian...')).toBeDefined();
       expect(screen.getByText(/Đường dẫn này không tồn tại hoặc đã được di chuyển/i)).toBeDefined();
 
       // Kiểm tra nút điều hướng
@@ -65,14 +65,14 @@ describe('Zen-First Error Pages & Error Boundary Specifications', () => {
       expect(screen.getByTestId('error-boundary-fallback')).toBeDefined();
 
       // Thông điệp bảo chứng Cloud và Phút nghỉ Zen
-      expect(screen.getByText('⚠️ Phút nghỉ ngắn ngoài dự kiến...')).toBeDefined();
-      expect(screen.getByText('Không Gian Học Tập Đang Tạm Dừng')).toBeDefined();
+      expect(screen.getByText('Phút nghỉ ngắn ngoài dự kiến...')).toBeDefined();
+      expect(screen.getByText('Không gian học tập đang tạm dừng')).toBeDefined();
       expect(screen.getByText(/Dữ liệu học tập và số tia chớp của bạn trên Cloud vẫn an toàn/i)).toBeDefined();
-      expect(screen.getByText('Dữ liệu Cloud an toàn 100%')).toBeDefined();
+      expect(screen.getByText('Dữ liệu cloud an toàn 100%')).toBeDefined();
 
       // Nút hành động
       expect(screen.getByText(/Khởi Động Lại Không Gian/i)).toBeDefined();
-      expect(screen.getByText('Về Bàn Học Cá Nhân')).toBeDefined();
+      expect(screen.getByText('Về bàn học cá nhân')).toBeDefined();
 
       consoleSpy.mockRestore();
     });

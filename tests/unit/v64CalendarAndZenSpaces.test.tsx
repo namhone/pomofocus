@@ -166,7 +166,7 @@ describe('Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces', () => {
       );
 
       // Đợi render ban đầu và load dữ liệu khởi tạo hoàn tất
-      await screen.findByText('Lịch Học & Kế Hoạch Time-Blocking');
+      await screen.findByText('Lịch học & kế hoạch time-blocking');
       await new Promise((resolve) => setTimeout(resolve, 60));
 
       // Giả lập CalendarWidget thêm block mới
@@ -197,7 +197,7 @@ describe('Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces', () => {
 
       // Tìm container hàng 8:00
       const emptySlot8 = await screen.findByTestId('calendar-empty-slot-8');
-      expect(emptySlot8.textContent).toContain('Trống (Nhấp để thêm)');
+      expect(emptySlot8.textContent).toContain('Trống (nhấp để thêm)');
 
       // Nhấp vào nhãn trống
       fireEvent.click(emptySlot8);
@@ -309,7 +309,7 @@ describe('Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces', () => {
         </RouterProvider>
       );
 
-      expect(screen.getByText('Đơn Sắc Chuẩn Zen (Pure Flat)')).toBeDefined();
+      expect(screen.getByText('Đơn sắc chuẩn zen (pure flat)')).toBeDefined();
       expect(screen.getByText('100% không ảnh tĩnh tâm')).toBeDefined();
 
       expect(screen.getByTestId('zen-color-zen-pure-black')).toBeDefined();
@@ -328,7 +328,7 @@ describe('Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces', () => {
       fireEvent.click(btnBlack);
 
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-pure-black');
-      expect(btnBlack.className).toContain('ring-2 ring-cyan-400');
+      expect(btnBlack.className).toContain('ring-2 ring-zinc-400');
     });
 
     it('chuyển đổi giữa các màu Zen cập nhật activePresetId tức thì trong store', () => {
@@ -342,13 +342,13 @@ describe('Milestone 4: Calendar Reactive Sync & Pure Zen Solid Spaces', () => {
       fireEvent.click(btnNightBlue);
 
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-night-blue');
-      expect(btnNightBlue.className).toContain('ring-2 ring-cyan-400');
+      expect(btnNightBlue.className).toContain('ring-2 ring-zinc-400');
 
       const btnGraphite = screen.getByTestId('zen-color-zen-deep-graphite');
       fireEvent.click(btnGraphite);
 
       expect(useBackgroundStore.getState().activePresetId).toBe('zen-deep-graphite');
-      expect(btnGraphite.className).toContain('ring-2 ring-cyan-400');
+      expect(btnGraphite.className).toContain('ring-2 ring-zinc-400');
     });
   });
 });

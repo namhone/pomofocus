@@ -122,22 +122,22 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
 
       const aura = screen.getByTestId('mobile-breathing-aura');
       expect(aura).toBeDefined();
-      expect(aura.className).toContain('animate-pulse');
-      expect(aura.className).toContain('blur-3xl');
+      expect(aura.className).toContain('liquid-ambient');
+      expect(aura.className).toContain('radial-gradient');
       // GPU layer promotion
       expect(aura.style.transform).toBe('translateZ(0)');
     });
 
-    it('1.4 Breathing Aura: Aura is NOT rendered when timer is idle or paused', () => {
+    it('1.4 Breathing Aura: Ambient depth is rendered when timer is idle or paused', () => {
       useTimerStore.setState({ status: 'idle' });
       const { rerender } = render(<MobileFocusView />);
-      expect(screen.queryByTestId('mobile-breathing-aura')).toBeNull();
+      expect(screen.queryByTestId('mobile-breathing-aura')).not.toBeNull();
 
       act(() => {
         useTimerStore.setState({ status: 'paused' });
       });
       rerender(<MobileFocusView />);
-      expect(screen.queryByTestId('mobile-breathing-aura')).toBeNull();
+      expect(screen.queryByTestId('mobile-breathing-aura')).not.toBeNull();
     });
 
     it('1.5 Phase Selector: Sliding segmented pill selector renders 3 tabs (pomodoro, short_break, long_break)', () => {
@@ -152,7 +152,7 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
       expect(longTab).toBeDefined();
 
       // Pomodoro is initially selected with emerald active highlight
-      expect(pomodoroTab.className).toContain('text-emerald-400');
+      expect(pomodoroTab.className).toContain('pomo-glass-selected');
     });
 
     it('1.6 Phase Selector: Switching phase updates timer phase and remaining duration in useTimerStore', () => {
@@ -228,7 +228,7 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
       expect(skipSpy).toHaveBeenCalled();
     });
 
-    it('1.11 Progress Indicators: Renders 4px thin session progress bar reflecting elapsed percentage', () => {
+    it('1.11 Progress Indicators: Renders 2px thin session progress bar reflecting elapsed percentage', () => {
       // 25 min total, 10 min remaining -> 15 min elapsed (60% progress)
       useTimerStore.setState({
         remainingMs: 10 * 60 * 1000,
@@ -241,7 +241,7 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
 
       const progressBar = screen.getByTestId('mobile-session-progress-bar');
       expect(progressBar).toBeDefined();
-      expect(progressBar.className).toContain('h-1');
+      expect(progressBar.className).toContain('h-0.5');
 
       const innerBar = progressBar.firstElementChild as HTMLElement;
       expect(innerBar).toBeDefined();
@@ -309,9 +309,9 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 2 Mobile Vie
       expect(longStepper).toBeDefined();
 
       // Check 56px height on all rows
-      expect(focusStepper.className).toContain('h-14');
-      expect(shortStepper.className).toContain('h-14');
-      expect(longStepper.className).toContain('h-14');
+      expect(focusStepper.className).toContain('min-h-[56px]');
+      expect(shortStepper.className).toContain('min-h-[56px]');
+      expect(longStepper.className).toContain('min-h-[56px]');
     });
 
     it('2.3 Steppers: Incrementing and decrementing focus stepper updates timer settings in useTimerStore', () => {

@@ -225,7 +225,7 @@ describe('EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 3: Capacitor Android 
     it('3.3 validates version.json schema and required distribution properties', () => {
       const versionJson = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
 
-      expect(versionJson.version).toBe('8.1.0');
+      expect(versionJson.version).toBe(JSON.parse(fs.readFileSync('src/config/apkRelease.json', 'utf8')).version);
       expect(versionJson.minSupportedVersion).toBe('7.0.0');
       expect(versionJson.minVersion).toBe('7.0.0');
       expect(versionJson.downloadUrl).toBe(

@@ -44,15 +44,15 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       });
 
       expect(screen.getByTestId('cookie-consent-banner')).toBeDefined();
-      expect(screen.getByText(/Luật Bảo vệ dữ liệu cá nhân 91\/2025\/QH15/)).toBeDefined();
-      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP/)).toBeDefined();
+      expect(screen.getByText(/Luật Bảo vệ dữ liệu cá nhân 91\/2025\/QH15/i)).toBeDefined();
+      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP/i)).toBeDefined();
 
       const acceptBtn = screen.getByTestId('consent-accept-btn');
       const declineBtn = screen.getByTestId('consent-decline-btn');
       const closeBtn = screen.getByTestId('consent-close-btn');
 
       expect(acceptBtn).toBeDefined();
-      expect(acceptBtn.textContent).toContain('Đồng ý & Tiếp tục');
+      expect(acceptBtn.textContent).toContain('Đồng ý & tiếp tục');
       expect(declineBtn).toBeDefined();
       expect(declineBtn.textContent).toContain('Từ chối');
       expect(closeBtn).toBeDefined();
@@ -133,7 +133,7 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       expect(privacySection).toBeDefined();
 
       const statusBadge = screen.getByTestId('consent-status-badge');
-      expect(statusBadge.textContent).toContain('CHƯA THIẾT LẬP / ĐÃ RÚT LẠI');
+      expect(statusBadge.textContent).toContain('Chưa thiết lập / đã rút lại');
     });
 
     it('2.2 Displays "ĐÃ ĐỒNG Ý" when consent is accepted in localStorage', () => {
@@ -141,7 +141,7 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       render(<SettingsView />);
 
       const statusBadge = screen.getByTestId('consent-status-badge');
-      expect(statusBadge.textContent).toContain('ĐÃ ĐỒNG Ý');
+      expect(statusBadge.textContent).toContain('Đã đồng ý');
     });
 
     it('2.3 Displays "ĐÃ TỪ CHỐI" when consent is declined in localStorage', () => {
@@ -149,7 +149,7 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       render(<SettingsView />);
 
       const statusBadge = screen.getByTestId('consent-status-badge');
-      expect(statusBadge.textContent).toContain('ĐÃ TỪ CHỐI');
+      expect(statusBadge.textContent).toContain('Đã từ chối');
     });
 
     it('2.4 Clicking "Rút Lại Sự Đồng Ý" resets consent in localStorage and updates UI status', () => {
@@ -166,10 +166,10 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
 
       // UI status badge must immediately reflect the revoked status
       const statusBadge = screen.getByTestId('consent-status-badge');
-      expect(statusBadge.textContent).toContain('CHƯA THIẾT LẬP / ĐÃ RÚT LẠI');
+      expect(statusBadge.textContent).toContain('Chưa thiết lập / đã rút lại');
 
       // Toast must appear confirming revocation
-      expect(screen.getByText(/Đã rút lại sự đồng ý thu thập dữ liệu/)).toBeDefined();
+      expect(screen.getByText(/Đã rút lại sự đồng ý thu thập dữ liệu/i)).toBeDefined();
     });
   });
 
@@ -181,29 +181,29 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       render(<LegalViews initialTab="terms" />);
 
       // E-commerce Law 122/2025/QH15 & Decree 248/2026/NĐ-CP
-      expect(screen.getByText(/Luật Thương mại điện tử 122\/2025\/QH15/)).toBeDefined();
-      expect(screen.getByText(/Nghị định 248\/2026\/NĐ-CP/)).toBeDefined();
+      expect(screen.getByText(/Luật Thương mại điện tử 122\/2025\/QH15/i)).toBeDefined();
+      expect(screen.getByText(/Nghị định 248\/2026\/NĐ-CP/i)).toBeDefined();
 
       // Consumer Protection Law 19/2023/QH15
-      expect(screen.getByText(/Luật Bảo vệ quyền lợi người tiêu dùng số 19\/2023\/QH15/)).toBeDefined();
+      expect(screen.getByText(/Luật Bảo vệ quyền lợi người tiêu dùng số 19\/2023\/QH15/i)).toBeDefined();
 
       // AI Law 134/2025/QH15 and Decree 142/2026/NĐ-CP
-      expect(screen.getByText(/Luật Trí tuệ nhân tạo số 134\/2025\/QH15/)).toBeDefined();
-      expect(screen.getByText(/Nghị định 142\/2026\/NĐ-CP/)).toBeDefined();
+      expect(screen.getByText(/Luật Trí tuệ nhân tạo số 134\/2025\/QH15/i)).toBeDefined();
+      expect(screen.getByText(/Nghị định 142\/2026\/NĐ-CP/i)).toBeDefined();
     });
 
     it('3.2 LegalViews Privacy Policy cites PDPL 91/2025, Decree 356/2025, Articles 4 & 10', () => {
       render(<LegalViews initialTab="privacy" />);
 
       // PDPL 91/2025 & Decree 356/2025 replacing Decree 13/2023
-      expect(screen.getByText(/Luật Bảo vệ dữ liệu cá nhân 91\/2025\/QH15/)).toBeDefined();
-      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP \(thay thế Nghị định 13\/2023\)/)).toBeDefined();
+      expect(screen.getByText(/Luật Bảo vệ dữ liệu cá nhân 91\/2025\/QH15/i)).toBeDefined();
+      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP \(thay thế Nghị định 13\/2023\)/i)).toBeDefined();
 
       // Data subject rights: Articles 4 & 10 Law 91/2025/QH15
-      expect(screen.getByText(/Điều 4 & Điều 10 Luật 91\/2025\/QH15/)).toBeDefined();
+      expect(screen.getByText(/Điều 4 & Điều 10 Luật 91\/2025\/QH15/i)).toBeDefined();
 
       // Resolution timeframes: Article 5 Decree 356/2025/NĐ-CP
-      expect(screen.getByText(/Điều 5 Nghị định 356\/2025\/NĐ-CP/)).toBeDefined();
+      expect(screen.getByText(/Điều 5 Nghị định 356\/2025\/NĐ-CP/i)).toBeDefined();
     });
 
     it('3.3 AiCompanionWidget displays legal citation to AI Law 134/2025 in footer and assistant messages', () => {
@@ -223,10 +223,10 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       render(<AiCompanionWidget />);
 
       // Assistant message disclosure
-      expect(screen.getByText(/Nội dung do AI tạo \(Luật 134\/2025\/QH15\)/)).toBeDefined();
+      expect(screen.getByText(/Nội dung do AI tạo \(Luật 134\/2025\/QH15\)/i)).toBeDefined();
 
       // Footer disclaimer
-      expect(screen.getByText(/Phản hồi AI mang tính tham khảo học tập \(Luật 134\/2025\/QH15\)/)).toBeDefined();
+      expect(screen.getByText(/Phản hồi AI mang tính tham khảo học tập \(Luật 134\/2025\/QH15\)/i)).toBeDefined();
     });
   });
 });

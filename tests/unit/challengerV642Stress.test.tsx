@@ -325,7 +325,7 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
   // 3. LOCALSTORAGE MIGRATION RESILIENCE
   // =========================================================================
   describe('3. LocalStorage Migration & Canonical Title Resilience', () => {
-    it('migrates legacy payload with title "Cài Đặt Không Gian" to "Cài Đặt Hệ Thống"', () => {
+    it('migrates legacy payload with title "Cài Đặt Không Gian" to "Cài đặt hệ thống"', () => {
       const legacyPayload = {
         widgets: {
           settings: {
@@ -343,15 +343,15 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
       localStorage.setItem('pomofocus_layout_v2', JSON.stringify(legacyPayload));
 
       const loaded = loadStoredLayout();
-      expect(loaded.widgets.settings.title).toBe('Cài Đặt Hệ Thống');
+      expect(loaded.widgets.settings.title).toBe('Cài đặt hệ thống');
     });
 
-    it('retains "Cài Đặt Hệ Thống" when layout is already migrated', () => {
+    it('retains "Cài đặt hệ thống" when layout is already migrated', () => {
       const modernPayload = {
         widgets: {
           settings: {
             id: 'settings',
-            title: 'Cài Đặt Hệ Thống',
+            title: 'Cài đặt hệ thống',
             isOpen: true,
             isCollapsed: false,
             x: 250,
@@ -364,27 +364,27 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
       localStorage.setItem('pomofocus_layout_v2', JSON.stringify(modernPayload));
 
       const loaded = loadStoredLayout();
-      expect(loaded.widgets.settings.title).toBe('Cài Đặt Hệ Thống');
+      expect(loaded.widgets.settings.title).toBe('Cài đặt hệ thống');
     });
 
     it('resiliently handles empty, missing, or corrupted localStorage data', () => {
       // 1. Missing key
       localStorage.removeItem('pomofocus_layout_v2');
       let loaded = loadStoredLayout();
-      expect(loaded.widgets.settings.title).toBe('Cài Đặt Hệ Thống');
+      expect(loaded.widgets.settings.title).toBe('Cài đặt hệ thống');
 
       // 2. Corrupt JSON
       localStorage.setItem('pomofocus_layout_v2', '{"invalid_json:');
       loaded = loadStoredLayout();
-      expect(loaded.widgets.settings.title).toBe('Cài Đặt Hệ Thống');
+      expect(loaded.widgets.settings.title).toBe('Cài đặt hệ thống');
 
       // 3. Incomplete widgets dictionary missing settings
       localStorage.setItem('pomofocus_layout_v2', JSON.stringify({ widgets: { timer: { id: 'timer' } } }));
       loaded = loadStoredLayout();
-      expect(loaded.widgets.settings.title).toBe('Cài Đặt Hệ Thống');
+      expect(loaded.widgets.settings.title).toBe('Cài đặt hệ thống');
     });
 
-    it('WidgetContainer renders CANONICAL title "Cài Đặt Hệ Thống" regardless of stale widget state title', () => {
+    it('WidgetContainer renders CANONICAL title "Cài đặt hệ thống" regardless of stale widget state title', () => {
       // Intentionally tamper state to old title to stress-test CANONICAL_WIDGET_TITLES mapping
       act(() => {
         useLayoutStore.setState((s) => ({
@@ -405,7 +405,7 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
         </WidgetContainer>
       );
 
-      const headerTitle = screen.getByText('Cài Đặt Hệ Thống');
+      const headerTitle = screen.getByText('Cài đặt hệ thống');
       expect(headerTitle).not.toBeNull();
       expect(screen.queryByText('Cài Đặt Không Gian')).toBeNull();
     });
@@ -415,7 +415,7 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
   // 4. RESPONSIVE & TOUCH TARGET CONTRACTS (w-8 h-8 = 32px)
   // =========================================================================
   describe('4. Responsive & Touch Target Contracts', () => {
-    it('guarantees >= 32px (w-8 h-8) Apple Liquid Glass touch targets on stepper buttons', () => {
+    it('keeps 36px minimum targets on desktop Settings steppers', () => {
       render(<SettingsWidget />);
 
       const allStepperBtns = screen.getAllByRole('button', { name: /phút/i });
@@ -424,15 +424,15 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
       allStepperBtns.forEach((btn) => {
         const cls = btn.className;
         // Strict contract: w-8 h-8 (32px x 32px)
-        expect(cls).toContain('w-8');
-        expect(cls).toContain('h-8');
+        expect(cls).toContain('min-w-[36px]');
+        expect(cls).toContain('min-h-[36px]');
         expect(cls).toContain('rounded-xl');
         expect(cls).toContain('shrink-0');
         expect(cls).toContain('border-white/10');
       });
     });
 
-    it('guarantees >= 32px (w-8 h-8) Apple Liquid Glass touch targets on WidgetContainer window controls', () => {
+    it('keeps compact 24px desktop window controls', () => {
       act(() => {
         useLayoutStore.setState((s) => ({
           widgets: {
@@ -453,10 +453,10 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
 
       [collapseBtn, closeBtn].forEach((btn) => {
         const cls = btn.className;
-        expect(cls).toContain('w-8');
-        expect(cls).toContain('h-8');
-        expect(cls).toContain('rounded-xl');
-        expect(cls).toContain('bg-white/5');
+        expect(cls).toContain('w-6');
+        expect(cls).toContain('h-6');
+        expect(cls).toContain('rounded-lg');
+        expect(cls).toContain('text-zinc-400');
       });
     });
 
@@ -509,8 +509,8 @@ describe('Challenger 1 Adversarial Stress Suite (v6.4.2): Boundaries, Resilient 
       expect(screen.queryByText('Tự động chuyển tiếp giữa các hiệp')).toBeNull();
 
       const code = fs.readFileSync(settingsWidgetPath, 'utf8');
-      expect(code).toContain('peer-checked:bg-gradient-to-tr peer-checked:from-emerald-600 peer-checked:to-teal-400');
-      expect(code).toContain('peer-checked:shadow-[0_0_12px_rgba(52,211,153,0.45)]');
+      expect(code).toContain('bg-white border-white text-zinc-950 shadow-sm');
+      expect(code).not.toContain('peer-checked:from-emerald-600');
     });
   });
 

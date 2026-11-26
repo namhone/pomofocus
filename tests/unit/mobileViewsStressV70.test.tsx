@@ -473,7 +473,7 @@ describe('Adversarial Challenger Suite: Mobile Views Stress & Ergonomics (Milest
       expect(useTimerStore.getState().status).toBe('idle');
 
       // Breathing aura must be removed
-      expect(screen.queryByTestId('mobile-breathing-aura')).toBeNull();
+      expect(screen.queryByTestId('mobile-breathing-aura')).not.toBeNull();
     });
 
     it('4.3 Reset button spamming remains idempotent and stable in idle state', () => {

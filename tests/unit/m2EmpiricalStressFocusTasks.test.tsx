@@ -193,13 +193,13 @@ describe('M2 Dedicated Empirical Adversarial Stress Suite — Focus & Tasks', ()
 
       // Click minus once: 2 -> 1
       fireEvent.click(minusBtn);
-      expect(screen.getByText(/1 🍅/)).toBeDefined();
+      expect(screen.getByText(/^1$/)).toBeDefined();
 
       // Click minus multiple times: should remain strictly clamped at 1
       fireEvent.click(minusBtn);
       fireEvent.click(minusBtn);
       fireEvent.click(minusBtn);
-      expect(screen.getByText(/1 🍅/)).toBeDefined();
+      expect(screen.getByText(/^1$/)).toBeDefined();
 
       // Save via Save button
       const saveBtn = screen.getByRole('button', { name: 'Lưu' });
@@ -230,13 +230,13 @@ describe('M2 Dedicated Empirical Adversarial Stress Suite — Focus & Tasks', ()
 
       // Click plus once: 19 -> 20
       fireEvent.click(plusBtn);
-      expect(screen.getByText(/20 🍅/)).toBeDefined();
+      expect(screen.getByText(/^20$/)).toBeDefined();
 
       // Click plus 10 more times: must remain strictly clamped at 20 (never 21)
       for (let i = 0; i < 10; i++) {
         fireEvent.click(plusBtn);
       }
-      expect(screen.getByText(/20 🍅/)).toBeDefined();
+      expect(screen.getByText(/^20$/)).toBeDefined();
 
       // Save via Save button
       const saveBtn = screen.getByRole('button', { name: 'Lưu' });

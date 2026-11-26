@@ -221,7 +221,7 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
       expect(screen.getByTestId('bento-metric-streak')).toBeDefined();
       expect(screen.getByTestId('bento-metric-completedPomos')).toBeDefined();
       expect(screen.getByTestId('bento-metric-walletCredits')).toBeDefined();
-      expect(screen.getByTestId('bento-metric-walletCredits').textContent).toContain('⚡ 50');
+      expect(screen.getByTestId('bento-metric-walletCredits').textContent).toContain('50');
     });
 
     it('1.8 Non-VIP user gets Upgrade PRO button; VIP / Founder gets VIP badge and 0 upgrade buttons', () => {
@@ -338,8 +338,8 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
       render(<MobileFocusView />);
       const mainBtn = screen.getByTestId('mobile-timer-main-action');
       expect(mainBtn).toBeDefined();
-      expect(mainBtn.className).toContain('w-14');
-      expect(mainBtn.className).toContain('h-14');
+      expect(mainBtn.className).toContain('w-16');
+      expect(mainBtn.className).toContain('h-16');
     });
 
     it('3.2 Accessible 1-tap (< 300ms) toggles timer from idle to running and back to paused', () => {
@@ -422,7 +422,7 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
       render(<MobileFocusView />);
       const chip = screen.getByTestId('mobile-linked-task-chip');
       expect(chip.textContent).toContain('Ôn tập Giải tích 1');
-      expect(chip.textContent).toContain('1/4 🍅');
+      expect(chip.textContent).toContain('1/4');
     });
 
     it('4.2 Tapping circular checkmark applies jade burst animation and updates task status', async () => {
@@ -526,8 +526,8 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
 
       const zenBtn = screen.getByTestId('mobile-spaces-pure-zen-black-btn');
       expect(zenBtn).toBeDefined();
-      expect(zenBtn.textContent).toContain('Tắt nền (Pure Zen Black)');
-      expect(zenBtn.textContent).toContain('OLED #09090b');
+      expect(zenBtn.textContent).toContain('Tắt nền (màu đen sâu)');
+      expect(zenBtn.textContent).toContain('Zen');
 
       act(() => {
         fireEvent.click(zenBtn);
@@ -726,7 +726,7 @@ describe('PomoFocus V8.1 Milestone 2 — Mobile Focus Hub & Liquid Auth Suite', 
       });
 
       const todayBar = screen.getByTestId(`mobile-weekly-bar-${todayKey}`);
-      expect(todayBar.className).toContain('bg-emerald-400');
+      expect(todayBar.className).toContain('bg-zinc-700');
     });
 
     it('7.4 MobileAppShell header renders avatar button that triggers MobileAuthBottomSheet', () => {

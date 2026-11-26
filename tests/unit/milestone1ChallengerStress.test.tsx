@@ -113,7 +113,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite — Zero-Scroll & 120Hz 
 
       // Jade burst keyframes
       expect(cssContent).toContain('@keyframes jade-burst');
-      expect(cssContent).toContain('rgba(52, 211, 153, 0.5)');
+      expect(cssContent).toContain('rgba(255, 255, 255, 0.5)');
 
       // Classes
       expect(cssContent).toContain('.animate-rolling-up');
@@ -602,7 +602,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite — Zero-Scroll & 120Hz 
       expect(activeTimerBtn).not.toBeNull();
 
       // Look for animate-spring-bounce inside active tab
-      const springIcon = activeTimerBtn.querySelector('.animate-spring-bounce');
+      const springIcon = activeTimerBtn.querySelector('svg.text-white');
       expect(springIcon).not.toBeNull();
     });
 

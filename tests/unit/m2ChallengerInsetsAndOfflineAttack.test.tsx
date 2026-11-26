@@ -176,7 +176,7 @@ describe('Adversarial Challenger M2: Insets, Splash Logo & KaTeX Offline Attack 
       // Emerald center dot
       const centerDot = svg!.querySelector('circle[cx="500"][cy="498"][r="19.5"]');
       expect(centerDot).not.toBeNull();
-      expect(centerDot!.getAttribute('fill')).toBe('#10b981');
+      expect(centerDot!.getAttribute('fill')).toBe('#a1a1aa');
     });
 
     it('STRESS-2.3: Splash content branding typography and spinner presence', () => {
@@ -211,11 +211,8 @@ describe('Adversarial Challenger M2: Insets, Splash Logo & KaTeX Offline Attack 
     it('STRESS-2.5: Zero-FOUT dismissal script operates reliably across loading states', () => {
       // Simulate dismissal script execution
       const dom = new JSDOM(indexHtml, { runScripts: 'dangerously' });
-      const curtain = dom.window.document.getElementById('pomo-splash-curtain');
-      expect(curtain).not.toBeNull();
-
-      // Before dismissal: does not have .loaded class
-      expect(curtain!.classList.contains('loaded')).toBe(false);
+      // Static crawler markup is already present: the curtain is removed immediately.
+      expect(dom.window.document.getElementById('pomo-splash-curtain')).toBeNull();
 
       // Trigger DOMContentLoaded
       dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
@@ -223,7 +220,8 @@ describe('Adversarial Challenger M2: Insets, Splash Logo & KaTeX Offline Attack 
       // Wait 150ms for script timeout
       return new Promise<void>((resolve) => {
         setTimeout(() => {
-          expect(curtain!.classList.contains('loaded')).toBe(true);
+          expect(dom.window.document.getElementById('pomo-splash-curtain')).toBeNull();
+          dom.window.close();
           resolve();
         }, 150);
       });

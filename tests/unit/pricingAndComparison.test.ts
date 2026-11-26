@@ -9,7 +9,7 @@ describe('Pricing & Feature Comparison Specifications', () => {
     expect(lifetime.formatted).toBe('799.000 VNĐ');
     expect(lifetime.durationMonths).toBe(999);
     expect(lifetime.exclusiveFeature).toBeDefined();
-    expect(lifetime.exclusiveFeature?.title).toContain('Truy cập sớm toàn bộ tính năng mới (Early Access Labs)');
+    expect(lifetime.exclusiveFeature?.title).toContain('Truy cập sớm toàn bộ tính năng mới');
     expect(lifetime.exclusiveFeature?.description).toContain('Được trải nghiệm và dùng thử trước');
   });
 
@@ -41,8 +41,8 @@ describe('Pricing & Feature Comparison Specifications', () => {
     expect(earlyAccess).toBeDefined();
     expect(earlyAccess?.free).toBe('❌');
     expect(earlyAccess?.monthly).toBe('❌');
-    expect(earlyAccess?.yearly).toBe('Ưu tiên Beta');
-    expect(earlyAccess?.lifetime).toBe('🚀 Độc quyền truy cập sớm nhất');
+    expect(earlyAccess?.yearly).toBe('Ưu tiên beta');
+    expect(earlyAccess?.lifetime).toBe('Độc quyền truy cập sớm nhất');
   });
 
   it('4. Kiểm định sức chứa phòng học chuẩn SaaS Freemium: Free 6, Tháng 25, Năm 35, Trọn Đời 60 người', () => {
@@ -58,8 +58,8 @@ describe('Pricing & Feature Comparison Specifications', () => {
     const badge = COMPARISON_FEATURES.find((f) => f.id === 'badge');
     expect(badge).toBeDefined();
     expect(badge?.free).toContain('Học viên');
-    expect(badge?.monthly).toContain('PRO');
-    expect(badge?.lifetime).toContain('PRO TRỌN ĐỜI mạ vàng');
+    expect(badge?.monthly).toContain('Pro');
+    expect(badge?.lifetime).toContain('Pro trọn đời mạ vàng');
   });
 
   it('6. Kiểm định mảng 4 gói cước SaaS Freemium (SAAS_PRICING_TIERS) phân cấp chuẩn xác', () => {
@@ -68,29 +68,29 @@ describe('Pricing & Feature Comparison Specifications', () => {
 
     // Free
     expect(free.id).toBe('free');
-    expect(free.features.some((f) => f.includes('Tối đa 45 phút/phiên'))).toBe(true);
-    expect(free.features.some((f) => f.includes('Tối đa 6 người/phòng'))).toBe(true);
+    expect(free.features.some((f) => f.includes('tối đa 45 phút/phiên'))).toBe(true);
+    expect(free.features.some((f) => f.includes('tối đa 6 người/phòng'))).toBe(true);
     expect(free.features.some((f) => f.includes('5 âm thanh cơ bản & 3 hình nền tĩnh'))).toBe(true);
 
     // Monthly
     expect(monthly.id).toBe('monthly');
-    expect(monthly.features.some((f) => f.includes('Không giới hạn thời gian'))).toBe(true);
-    expect(monthly.features.some((f) => f.includes('Tối đa 25 người/phòng'))).toBe(true);
+    expect(monthly.features.some((f) => f.includes('không giới hạn thời gian'))).toBe(true);
+    expect(monthly.features.some((f) => f.includes('tối đa 25 người/phòng'))).toBe(true);
     expect(monthly.features.some((f) => f.includes('50 câu hỏi AI/tháng'))).toBe(true);
 
     // Yearly
     expect(yearly.id).toBe('yearly');
     expect(yearly.badge).toBe('Gói phổ biến nhất');
-    expect(yearly.features.some((f) => f.includes('Tối đa 35 người/phòng'))).toBe(true);
+    expect(yearly.features.some((f) => f.includes('tối đa 35 người/phòng'))).toBe(true);
     expect(yearly.features.some((f) => f.includes('300 câu hỏi AI tóm tắt tài liệu/tháng'))).toBe(true);
-    expect(yearly.features.some((f) => f.includes('Đặt URL cố định theo nickname cá nhân'))).toBe(true);
+    expect(yearly.features.some((f) => f.includes('đặt url cố định theo nickname cá nhân'))).toBe(true);
 
     // Lifetime
     expect(lifetime.id).toBe('lifetime');
     expect(lifetime.badge).toBe('Founder VIP');
-    expect(lifetime.features.some((f) => f.includes('Lên đến 60 người'))).toBe(true);
-    expect(lifetime.features.some((f) => f.includes('AI Study Companion không giới hạn'))).toBe(true);
-    expect(lifetime.features.some((f) => f.includes('Huy hiệu Nhà sáng lập (Founder VIP) mạ vàng vĩnh viễn'))).toBe(true);
-    expect(lifetime.features.some((f) => f.includes('Tặng 01 Giftcode PRO 3 tháng cho bạn cùng tiến'))).toBe(true);
+    expect(lifetime.features.some((f) => f.includes('lên đến 60 người'))).toBe(true);
+    expect(lifetime.features.some((f) => f.includes('AI study companion không giới hạn'))).toBe(true);
+    expect(lifetime.features.some((f) => f.includes('huy hiệu nhà sáng lập (Founder VIP) vĩnh viễn'))).toBe(true);
+    expect(lifetime.features.some((f) => f.includes('tặng 01 giftcode Pro 3 tháng cho bạn cùng tiến'))).toBe(true);
   });
 });

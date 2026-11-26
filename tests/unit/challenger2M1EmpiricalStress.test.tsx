@@ -142,7 +142,7 @@ describe('Challenger 2 Empirical Stress Test — Milestone 1 Invariants', () => 
       render(<MobileAppShell />);
       const pipBtn = screen.getByTestId('mobile-pip-btn');
       expect(pipBtn).toBeDefined();
-      expect(pipBtn.getAttribute('title')).toContain('Picture-in-Picture');
+      expect(pipBtn.getAttribute('title')).toContain('picture-in-picture');
     });
 
     it('hides PiP button when running in native Capacitor APK (window.Capacitor.isNativePlatform() === true)', () => {
@@ -246,7 +246,7 @@ describe('Challenger 2 Empirical Stress Test — Milestone 1 Invariants', () => 
       // Dot appears on Spaces tab
       const soundDot = screen.getByTestId('spaces-sound-playing-dot');
       expect(soundDot).toBeDefined();
-      expect(soundDot.className).toContain('bg-emerald-400');
+      expect(soundDot.className).toContain('bg-zinc-700');
       expect(soundDot.className).toContain('animate-pulse');
       expect(soundDot.getAttribute('title')).toContain('Đang phát âm thanh');
     });

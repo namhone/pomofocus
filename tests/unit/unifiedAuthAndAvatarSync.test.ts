@@ -13,6 +13,7 @@ describe('Unified Auth, Single Identity & Avatar Resilience Specification', () =
   it('1. Google Login Callback: syncUserFromSupabase thiết lập isAuthenticated = true và isLoggedIn = true', () => {
     const mockGoogleUser = {
       id: 'google_uuid_123',
+      app_metadata: { role: 'founder' },
       email: 'namho03052k9@gmail.com',
       user_metadata: {
         full_name: 'Hồ Ngọc Bảo Nam',
@@ -29,8 +30,8 @@ describe('Unified Auth, Single Identity & Avatar Resilience Specification', () =
     expect(auth.isLifetime).toBe(true);
     expect(auth.isOwner).toBe(true);
 
-    // AI Credits nạp đầy đủ
-    expect(useAiStore.getState().aiCreditsBalance).toBe(1000);
+    // Claim xác thực không tự tạo credits khi chưa tải ví server.
+    expect(useAiStore.getState().aiCreditsBalance).toBe(0);
   });
 
   it('2. Đồng nhất tài khoản (Single Source of Truth): Cùng email đăng nhập bằng Google và Email hợp nhất chung 1 User ID', async () => {

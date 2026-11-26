@@ -50,18 +50,19 @@ describe('Pomofocus v6.3 — Audio Ducking, Crisp Chimes & Timer Clean UX', () =
     const timerContent = fs.readFileSync(timerPath, 'utf-8');
     expect(timerContent).not.toContain('shadow-[0_6px_20px_rgba(255,255,255,0.18)');
     expect(timerContent).toContain('data-testid="timer-start-btn"');
-    expect(timerContent).toContain('shadow-md');
+    expect(timerContent).toContain('liquid-glow');
   });
 
-  it('should suppress browser spin buttons on all minute inputs in TimerWidget', () => {
-    const timerPath = path.resolve(__dirname, '../../src/components/TimerWidget.tsx');
+  it('should suppress browser spin buttons on duration inputs in SettingsWidget', () => {
+    const timerPath = path.resolve(__dirname, '../../src/components/SettingsWidget.tsx');
     const timerContent = fs.readFileSync(timerPath, 'utf-8');
-    expect(timerContent).toContain('input-pomodoro-min');
-    expect(timerContent).toContain('input-short-min');
-    expect(timerContent).toContain('input-long-min');
-    expect(timerContent).toContain('[appearance:textfield]');
-    expect(timerContent).toContain('[&::-webkit-inner-spin-button]:appearance-none');
-    expect(timerContent).toContain('[-moz-appearance:textfield]');
+    expect(timerContent).toContain('settings-input-pomodoro-min');
+    expect(timerContent).toContain('settings-input-short-min');
+    expect(timerContent).toContain('settings-input-long-min');
+    const css = fs.readFileSync(path.resolve('src/index.css'), 'utf8');
+    expect(css).toContain('input[type="number"]');
+    expect(css).toContain('input[type="number"]::-webkit-inner-spin-button');
+    expect(css).toContain('-moz-appearance: textfield');
   });
 
   it('should include global number spinner suppression rules in index.css', () => {

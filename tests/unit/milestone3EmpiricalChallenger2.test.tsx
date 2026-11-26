@@ -282,11 +282,11 @@ describe('Milestone 3 Empirical Challenger 2: Capacitor Android & Standalone APK
     it('4.6 public/version.json conforms to all distribution manifest invariants', () => {
       const manifest = JSON.parse(fs.readFileSync(versionJsonPath, 'utf-8'));
 
-      expect(manifest.version).toBe('8.1.0');
+      expect(manifest.version).toBe(JSON.parse(fs.readFileSync('src/config/apkRelease.json', 'utf8')).version);
       expect(manifest.minSupportedVersion).toBe('7.0.0');
       expect(manifest.minVersion).toBe('7.0.0');
       expect(manifest.downloadUrl).toBe('https://pomofocus-workspace.vercel.app/downloads/PomoFocus-v8.1.apk');
-      expect(manifest.releaseNotes).toContain('PomoFocus v8.1');
+      expect(manifest.releaseNotes).toContain('Nền rõ hơn');
       expect(Array.isArray(manifest.changelog)).toBe(true);
       expect(manifest.changelog.length).toBeGreaterThanOrEqual(3);
     });

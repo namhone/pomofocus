@@ -94,13 +94,14 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
       expect(emptyState.isLifetime).toBe(false);
     });
 
-    it('identifies Founder VIP by role, email, badge or infinite credits', () => {
+    it('accepts Founder from app_metadata only, never email, badge or infinite credits', () => {
       // By role: founder
       const founderByRole = computeDerivedPlanState({
         id: '1',
         email: 'someuser@domain.com',
         displayName: 'Founder User',
         role: 'founder',
+        app_metadata: { role: 'founder' },
         plan: 'free'
       } as UserProfile);
       expect(founderByRole.effectiveBadge).toBe('Founder VIP');
@@ -114,7 +115,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
         displayName: 'Nam Ho',
         plan: 'free'
       } as UserProfile);
-      expect(founderByEmail.effectiveBadge).toBe('Founder VIP');
+      expect(founderByEmail.isOwner).toBe(false);
+      expect(founderByEmail.effectiveBadge).toBe('Pro hội viên');
 
       // By LadyBoss email
       const founderLadyBoss = computeDerivedPlanState({
@@ -123,7 +125,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
         displayName: 'Huyền Trân',
         plan: 'free'
       } as UserProfile);
-      expect(founderLadyBoss.effectiveBadge).toBe('Founder VIP');
+      expect(founderLadyBoss.isOwner).toBe(false);
+      expect(founderLadyBoss.effectiveBadge).toBe('Pro hội viên');
 
       // By badge containing Founder
       const founderByBadge = computeDerivedPlanState({
@@ -133,7 +136,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
         badge: 'Founder VIP 👑',
         plan: 'free'
       } as UserProfile);
-      expect(founderByBadge.effectiveBadge).toBe('Founder VIP');
+      expect(founderByBadge.effectiveBadge).toBe('Free');
+      expect(founderByBadge.isOwner).toBe(false);
 
       // By credits === Infinity
       const founderByCredits = computeDerivedPlanState({
@@ -143,7 +147,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
         credits: Infinity,
         plan: 'free'
       } as UserProfile);
-      expect(founderByCredits.effectiveBadge).toBe('Founder VIP');
+      expect(founderByCredits.effectiveBadge).toBe('Free');
+      expect(founderByCredits.isOwner).toBe(false);
     });
 
     it('identifies Pro trọn đời for lifetime plans and lifetime flags', () => {
@@ -252,9 +257,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
       });
 
       // PWA install button must exist inside the dropdown
-      const dropdownPwaBtn = screen.getByTestId('header-user-install-pwa-btn');
-      expect(dropdownPwaBtn).toBeDefined();
-      expect(dropdownPwaBtn.textContent).toContain('Cài đặt ứng dụng (PWA)');
+      expect(screen.queryByTestId('header-user-install-pwa-btn')).toBeNull();
+      expect(screen.getByTestId('header-user-settings-btn')).toBeDefined();
     });
 
     it('displays effectiveBadge in header-plan-badge and in user dropdown menu', () => {
@@ -292,7 +296,7 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
       render(<PlatformHeader isDownloadPage={false} />);
 
       const aiBtn = screen.getByTestId('header-ai-btn');
-      expect(aiBtn.className).toContain('bg-white/5');
+      expect(aiBtn.className).toContain('bg-white/[0.03]');
       expect(aiBtn.className).toContain('text-zinc-200');
       expect(aiBtn.className).toContain('border-white/10');
       expect(aiBtn.className).not.toContain('bg-cyan-950/40');
@@ -339,7 +343,8 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
 
       render(<ProfileView />);
 
-      expect(screen.getByText('Chưa cập nhật email')).toBeDefined();
+      expect(screen.getByTestId('profile-user-avatar')).toBeDefined();
+      expect(screen.getAllByText('Nam No Email').length).toBeGreaterThan(0);
     });
 
     it('enforces circular rounded-full geometry for ProfileView avatar', () => {
@@ -550,7 +555,7 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
         isAuthenticated: true
       });
       render(<StudyRoomView roomId="room_badges_test" initialJoined={false} />);
-      const ladyBadge = await screen.findByText('👑 Nóc nhà Pro');
+      const ladyBadge = await screen.findByText('Nóc nhà Pro');
       expect(ladyBadge).toBeDefined();
       expect(document.body.innerHTML).not.toContain('👑 NÓC NHÀ PRO');
     });
@@ -567,7 +572,7 @@ describe('Empirical Challenger 2 — Milestone 2 Identity, Header, Profile & Roo
       expect(drawer.className).toContain('max-w-full');
 
       const backdrop = screen.getByTestId('ai-backdrop');
-      expect(backdrop.className).toContain('2xl:hidden');
+      expect(backdrop.className).toContain('lg:hidden');
       expect(backdrop.className).not.toContain('sm:hidden');
     });
 

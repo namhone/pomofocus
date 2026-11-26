@@ -88,7 +88,7 @@ describe('Eco background', () => {
     expect(screen.getByTestId('background-video-element').style.filter).toContain('blur(12px)');
     act(() => useLayoutStore.setState({ isEcoMode: true }));
     expect(screen.queryByTestId('background-video-element')).toBeNull();
-    expect(screen.getByTestId('background-gradient-element').style.filter).toContain('blur(0px)');
+    expect(screen.getByTestId('background-gradient-element').style.filter).toBe('none');
     expect(screen.getByTestId('background-gradient-element').style.transform).toBe('none');
     expect(useBackgroundStore.getState().blurLevel).toBe(12);
     act(() => useLayoutStore.setState({ isEcoMode: false }));

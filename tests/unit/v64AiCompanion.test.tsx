@@ -227,7 +227,7 @@ describe('Milestone 3: AI Study Companion Upgrades (Features 7, 8, 9, 10)', () =
       // Badge ngôn ngữ viết hoa
       const badge = screen.getByText('typescript');
       expect(badge).toBeDefined();
-      expect(badge.className).toContain('uppercase');
+      expect(badge.className).toContain('normal-case');
 
       // Nút copy code
       const copyBtn = screen.getByTestId('ai-copy-code-btn');
@@ -273,7 +273,7 @@ Và biến inline \`const x = 10\`.
       expect(screen.getByText('python')).toBeDefined();
 
       // Inline code vẫn giữ định dạng inline (không có nút copy riêng)
-      const inlineCode = container.querySelector('code.text-pink-300');
+      const inlineCode = container.querySelector('code.text-zinc-300');
       expect(inlineCode).toBeDefined();
       expect(inlineCode?.textContent).toContain('const x = 10');
     });

@@ -12,6 +12,7 @@ describe('Supabase OAuth State Change & syncUserFromSupabase Unit Tests', () => 
   it('1. syncUserFromSupabase với tài khoản Founder (namho03052k9@gmail.com) kích hoạt đầy đủ đặc quyền', () => {
     const mockSupabaseUser = {
       id: 'usr_founder_123',
+      app_metadata: { role: 'founder' },
       email: 'namho03052k9@gmail.com',
       user_metadata: {
         full_name: 'Hồ Ngọc Bảo Nam (Founder)',
@@ -32,13 +33,13 @@ describe('Supabase OAuth State Change & syncUserFromSupabase Unit Tests', () => 
     expect(state.isLifetime).toBe(true);
     expect(state.isPro).toBe(true);
 
-    // Kiểm tra ví AI Credits được nạp đầy 1.000 điểm
+    // Claim Founder không tự nạp ví: chờ số dư có thẩm quyền từ server.
     const aiState = useAiStore.getState();
-    expect(aiState.aiCreditsBalance).toBe(1000);
+    expect(aiState.aiCreditsBalance).toBe(0);
     expect(aiState.aiPlan).toBe('lifetime');
   });
 
-  it('2. syncUserFromSupabase với tài khoản học viên thông thường cấp gói Free và 50 credits', () => {
+  it('2. syncUserFromSupabase với tài khoản học viên thông thường giữ gói Free và chờ số dư server, không tự cấp50 credits', () => {
     const mockSupabaseUser = {
       id: 'usr_student_456',
       email: 'student.regular@school.edu.vn',
@@ -57,9 +58,9 @@ describe('Supabase OAuth State Change & syncUserFromSupabase Unit Tests', () => 
     expect(state.user?.plan).toBe('free');
     expect(state.isLifetime).toBe(false);
 
-    // Kiểm tra ví AI Credits của gói Free là 50 điểm
+    // Chưa có số dư server: không tự áp sàn50 điểm ở client.
     const aiState = useAiStore.getState();
-    expect(aiState.aiCreditsBalance).toBe(50);
+    expect(aiState.aiCreditsBalance).toBe(0);
     expect(aiState.aiPlan).toBe('free');
   });
 

@@ -132,14 +132,14 @@ describe('Milestone 4: Dimension Guardrails, Zen Minimalism & Cascade Logic', ()
     it('tuân thủ Zen micro-indicator contract: status dots emerald, amber và zinc', () => {
       const widgetContainerPath = path.resolve(__dirname, '../../src/components/WidgetContainer.tsx');
       const widgetContainerCode = fs.readFileSync(widgetContainerPath, 'utf-8');
-      expect(widgetContainerCode).toContain('bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]');
-      expect(widgetContainerCode).toContain('bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]');
+      expect(widgetContainerCode).toContain('bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.5)]');
+      expect(widgetContainerCode).toContain('bg-zinc-700 shadow-[0_0_8px_rgba(251,191,36,0.5)]');
       expect(widgetContainerCode).toContain('bg-zinc-500');
 
       const collapsedCardPath = path.resolve(__dirname, '../../src/components/CollapsedWidgetCard.tsx');
       const collapsedCardCode = fs.readFileSync(collapsedCardPath, 'utf-8');
-      expect(collapsedCardCode).toContain('bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]');
-      expect(collapsedCardCode).toContain('bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]');
+      expect(collapsedCardCode).toContain('bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.5)]');
+      expect(collapsedCardCode).toContain('bg-zinc-700 shadow-[0_0_8px_rgba(251,191,36,0.5)]');
       expect(collapsedCardCode).toContain('bg-zinc-500');
     });
   });

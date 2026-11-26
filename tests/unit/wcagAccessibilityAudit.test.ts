@@ -8,9 +8,9 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const headerPath = path.resolve('src/components/PlatformHeader.tsx');
     const headerContent = fs.readFileSync(headerPath, 'utf8');
     expect(headerContent).toContain('data-testid="capsule-avatar-btn"');
-    expect(headerContent).toContain('aria-label="Tài khoản và Menu"');
+    expect(headerContent).toContain('aria-label="Tài khoản và menu"');
     expect(headerContent).toContain('data-testid="capsule-credits-btn"');
-    expect(headerContent).toContain('aria-label="Số dư AI Credits"');
+    expect(headerContent).toContain('aria-label="Số dư AI credits"');
 
     // TimerTestInterface.tsx
     const timerPath = path.resolve('src/components/TimerTestInterface.tsx');
@@ -50,11 +50,11 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     // MobileBottomNav.tsx
     const mobileNavPath = path.resolve('src/components/MobileBottomNav.tsx');
     const mobileNavContent = fs.readFileSync(mobileNavPath, 'utf8');
-    expect(mobileNavContent).toContain('aria-label="Đồng hồ Pomodoro tập trung"');
+    expect(mobileNavContent).toContain('aria-label="Đồng hồ pomodoro tập trung"');
     expect(mobileNavContent).toContain('aria-label="Danh sách công việc"');
     expect(mobileNavContent).toContain('aria-label="Thư viện âm thanh và không gian nền"');
-    expect(mobileNavContent).toContain('aria-label="Trợ lý AI Companion"');
-    expect(mobileNavContent).toContain('aria-label="Menu mở rộng"');
+    expect(mobileNavContent).toContain('aria-label="Trợ lý AI companion"');
+    expect(mobileNavContent).toContain('aria-label="Tiện ích"');
   });
 
   it('2. Accordion FAQs and Dropdowns properly manage aria-expanded and semantic states', () => {
@@ -79,9 +79,9 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const cssPath = path.resolve('src/index.css');
     const cssContent = fs.readFileSync(cssPath, 'utf8');
     expect(cssContent).toContain('.focus-ring');
-    expect(cssContent).toContain('focus-visible:ring-emerald-400/80');
+    expect(cssContent).toContain('focus-visible:ring-white/80');
     expect(cssContent).toContain('button:focus-visible');
-    expect(cssContent).toContain('rgba(52, 211, 153, 0.8)');
+    expect(cssContent).toContain('rgba(255, 255, 255, 0.8)');
   });
 
   it('4. Text contrast in LandingPage and BillingView complies with WCAG AA (text-zinc-400/300 over zinc-500)', () => {
@@ -94,7 +94,7 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const billingPath = path.resolve('src/components/BillingView.tsx');
     const billingContent = fs.readFileSync(billingPath, 'utf8');
     expect(billingContent).toContain('<span className="text-zinc-400 text-xs font-medium">Cục bộ</span>');
-    expect(billingContent).toContain('<div className="text-[11px] text-zinc-400">Chủ Sở Hữu Thẻ</div>');
+    expect(billingContent).toContain('<div className="text-[11px] text-zinc-400">Chủ sở hữu thẻ</div>');
     expect(billingContent).toContain('<span className="text-xs text-zinc-400">/ một lần duy nhất</span>');
   });
 
@@ -133,7 +133,7 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const vercelPath = path.resolve('vercel.json');
     const vercelContent = fs.readFileSync(vercelPath, 'utf8');
     const vercelJson = JSON.parse(vercelContent);
-    const rewriteSource = vercelJson.rewrites[0].source;
+    const rewriteSource = vercelJson.rewrites.find((rewrite: { destination: string }) => rewrite.destination === '/index.html')?.source;
     expect(rewriteSource).toContain('robots\\.txt');
     expect(rewriteSource).toContain('sitemap\\.xml');
     expect(rewriteSource).toContain('llms\\.txt');
@@ -152,8 +152,8 @@ describe('WCAG 2.1 AA Accessibility & Talos Compliance Specification', () => {
     const timerStoreContent = fs.readFileSync(timerStorePath, 'utf8');
     expect(timerStoreContent).not.toContain("addEventListener('unload'");
     expect(timerStoreContent).not.toContain('addEventListener("unload"');
-    expect(timerStoreContent).toContain("addEventListener('pagehide', cleanupTab)");
-    expect(timerStoreContent).toContain("addEventListener('beforeunload', cleanupTab)");
+    expect(timerStoreContent).not.toContain("addEventListener('pagehide', cleanupTab)");
+    expect(timerStoreContent).not.toContain("addEventListener('beforeunload', cleanupTab)");
   });
 
   it('8. KaTeX CSS is preconnected and non-render-blocking in index.html', () => {

@@ -46,13 +46,13 @@ describe('Login Options & Founder VIP 1-Tap Unit Tests', () => {
     expect(aiState.aiCreditsBalance).toBeGreaterThanOrEqual(1000);
   });
 
-  it('3. useAuthStore.loginAsFounder cập nhật toàn bộ cờ đặc quyền chính chủ (isOwner, isLifetime, isPro)', async () => {
+  it('3. useAuthStore.loginAsFounder không cấp Owner từ phiên demo thiếu app_metadata', async () => {
     const ok = await useAuthStore.getState().loginAsFounder();
     expect(ok).toBe(true);
 
     const authState = useAuthStore.getState();
     expect(authState.isAuthenticated).toBe(true);
-    expect(authState.isOwner).toBe(true);
+    expect(authState.isOwner).toBe(false);
     expect(authState.isPro).toBe(true);
     expect(authState.isLifetime).toBe(true);
     expect(authState.user?.email).toBe('namho03052k9@gmail.com');

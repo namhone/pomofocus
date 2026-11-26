@@ -99,7 +99,7 @@ describe('V7.5.3 Comprehensive Android APK Fixes', () => {
 
       // Switch to Spaces tab & select gradient preset
       fireEvent.click(screen.getByTestId('mobile-nav-tab-spaces'));
-      const forestBtn = screen.getByTestId('mobile-space-preset-gradient-forest');
+      const forestBtn = screen.getByTestId('mobile-space-preset-gradient-space');
       fireEvent.click(forestBtn);
 
       const bgGrad = screen.getByTestId('background-gradient-element') as HTMLElement;

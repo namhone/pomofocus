@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { BACKGROUND_PRESETS } from '../../src/data/backgroundPresets';
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
@@ -129,10 +130,7 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
 
     // Reset useBackgroundStore
     useBackgroundStore.setState({
-      presets: [
-        { id: 'zen-garden', title: 'Zen Garden', category: 'nature', type: 'gradient', value: '#09090b' },
-        { id: 'rainy-kyoto', title: 'Rainy Kyoto', category: 'city', type: 'gradient', value: '#0a0a0f' },
-      ],
+      presets: BACKGROUND_PRESETS,
       activePresetId: 'zen-garden',
       ambientEffect: 'none',
     });
@@ -624,10 +622,10 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       expect(screen.queryByTestId('mobile-task-picker-dropdown')).toBeNull();
     });
 
-    it('3.10 Breathing aura is strictly isolated to running state only', () => {
+    it('3.10 Ambient depth remains visible across idle, running and paused states', () => {
       useTimerStore.setState({ status: 'idle' });
       const { rerender } = render(<MobileFocusView />);
-      expect(screen.queryByTestId('mobile-breathing-aura')).toBeNull();
+      expect(screen.queryByTestId('mobile-breathing-aura')).not.toBeNull();
 
       act(() => {
         useTimerStore.setState({ status: 'running' });
@@ -639,7 +637,7 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
         useTimerStore.setState({ status: 'paused' });
       });
       rerender(<MobileFocusView />);
-      expect(screen.queryByTestId('mobile-breathing-aura')).toBeNull();
+      expect(screen.queryByTestId('mobile-breathing-aura')).not.toBeNull();
     });
   });
 
@@ -754,7 +752,7 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
     it('4.5 Alarm chime preview handles rejection gracefully without crashing', () => {
       const mockPlayChime = vi.fn().mockRejectedValue(new Error('Autoplay blocked'));
       useAudioStore.setState({
-        playChime: mockPlayChime,
+        previewChime: mockPlayChime,
       });
 
       render(<MobileSettingsView />);
@@ -850,7 +848,7 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       expect(screen.getByTestId('mobile-view-tasks')).toBeDefined();
 
       // Quick add task
-      const input = screen.getByPlaceholderText('Thêm công việc mới cần làm...');
+      const input = screen.getByPlaceholderText('Việc cần làm...');
       const form = input.closest('form')!;
 
       await act(async () => {
@@ -888,9 +886,9 @@ describe('TIER 5 ADVERSARIAL COVERAGE HARDENING (Challenger 1: Focus, Views & Sh
       expect(screen.getByTestId('mobile-view-spaces')).toBeDefined();
 
       // Select preset
-      const kyotoBtn = screen.getByText('Rainy Kyoto');
+      const kyotoBtn = screen.getByText('Sóng biển');
       fireEvent.click(kyotoBtn);
-      expect(useBackgroundStore.getState().activePresetId).toBe('rainy-kyoto');
+      expect(useBackgroundStore.getState().activePresetId).toBe('oceans-wave');
 
       // Set ambient effect
       const rainBtn = screen.getByText('Mưa rơi');

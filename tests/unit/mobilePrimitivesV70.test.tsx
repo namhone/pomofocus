@@ -142,7 +142,7 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 1 Primitives
   // 2. MobileStepperRow Component Tests
   // =========================================================================
   describe('2. MobileStepperRow Component (56px Height & 48x48dp Touch Targets)', () => {
-    it('renders with exact 56px height (h-14 / 56px) and horizontal layout', () => {
+    it('renders with minimum 56px height and horizontal layout', () => {
       const handleChange = vi.fn();
       render(
         <MobileStepperRow
@@ -160,9 +160,9 @@ describe('v7.0 Native Android Liquid Zen Architecture — Milestone 1 Primitives
       const row = screen.getByTestId('mobile-stepper-focus');
       expect(row).not.toBeNull();
       // Verifies exact 56px height classes
-      expect(row.className).toContain('h-14');
       expect(row.className).toContain('min-h-[56px]');
-      expect(row.className).toContain('max-h-[56px]');
+      expect(row.className).toContain('min-h-[56px]');
+      expect(row.className).not.toContain('max-h-[56px]');
       expect(row.className).toContain('flex items-center justify-between px-4');
 
       // Verifies icon, label, and value

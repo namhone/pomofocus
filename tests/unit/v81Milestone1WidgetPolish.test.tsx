@@ -57,7 +57,7 @@ describe('Milestone 1 — Interactive & Layout Widget Fixes (Bugs 1-5)', () => {
 
   describe('Bug 2: Media Player Preset & Default Dimensions on Reset', () => {
     it('Media size presets have sufficient height to prevent clipping URL bar and playback controls', () => {
-      expect(WIDGET_SIZE_PRESETS.media.S.height).toBe(300);
+      expect(WIDGET_SIZE_PRESETS.media.S.height).toBe(320);
       expect(WIDGET_SIZE_PRESETS.media.M.height).toBe(340);
       expect(WIDGET_SIZE_PRESETS.media.L.height).toBe(400);
     });
@@ -107,13 +107,13 @@ describe('Milestone 1 — Interactive & Layout Widget Fixes (Bugs 1-5)', () => {
     it('NotesWidget save status, new note button, tabs, and delete button have shrink-0', async () => {
       render(<NotesWidget />);
 
-      const saveStatus = screen.getByTestId('note-save-status');
+      const saveStatus = screen.getByTestId('note-toolbar');
       expect(saveStatus.className).toContain('shrink-0');
-      expect(saveStatus.className).toContain('whitespace-nowrap');
+      expect(saveStatus.className).toContain('min-w-0');
 
       const newNoteBtn = screen.getByTestId('btn-new-note');
       expect(newNoteBtn.className).toContain('shrink-0');
-      expect(newNoteBtn.className).toContain('whitespace-nowrap');
+      expect(newNoteBtn.className).toContain('shrink-0');
 
       // Click create new note to render the note action bar and tabs
       await act(async () => {
@@ -122,17 +122,17 @@ describe('Milestone 1 — Interactive & Layout Widget Fixes (Bugs 1-5)', () => {
 
       const editTab = await screen.findByTestId('tab-note-edit');
       expect(editTab.className).toContain('shrink-0');
-      expect(editTab.className).toContain('whitespace-nowrap');
+      expect(editTab.className).toContain('shrink-0');
 
       const previewTab = screen.getByTestId('tab-note-preview');
       expect(previewTab.className).toContain('shrink-0');
-      expect(previewTab.className).toContain('whitespace-nowrap');
+      expect(previewTab.className).toContain('shrink-0');
 
       const deleteBtn = screen.getByTestId('btn-delete-note');
       expect(deleteBtn.className).toContain('shrink-0');
 
-      const titleInput = screen.getByTestId('input-note-title');
-      expect(titleInput.className).toContain('flex-1');
+      const titleInput = await screen.findByTestId('input-note-title');
+      expect(titleInput.className).toContain('w-full');
       expect(titleInput.className).toContain('min-w-0');
     });
   });

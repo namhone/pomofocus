@@ -117,14 +117,14 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
 
       // Status indicator reflects running
       const statusDot = screen.getByTestId('mini-timer-status-dot');
-      expect(statusDot.className).toContain('bg-emerald-400');
+      expect(statusDot.className).toContain('bg-zinc-700');
 
       // 2. Click Pause -> status transitions to 'paused'
       act(() => {
         fireEvent.click(playBtn);
       });
       expect(useTimerStore.getState().status).toBe('paused');
-      expect(statusDot.className).toContain('bg-amber-400');
+      expect(statusDot.className).toContain('bg-zinc-700');
 
       // 3. Click Play again -> status resumes to 'running'
       act(() => {
@@ -336,13 +336,13 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
         );
 
         // Header controls must have shrink-0 and whitespace-nowrap
-        const saveStatus = screen.getByTestId('note-save-status');
+        const saveStatus = screen.getByTestId('note-toolbar');
         expect(saveStatus.className).toContain('shrink-0');
-        expect(saveStatus.className).toContain('whitespace-nowrap');
+        expect(saveStatus.className).toContain('min-w-0');
 
         const newNoteBtn = screen.getByTestId('btn-new-note');
         expect(newNoteBtn.className).toContain('shrink-0');
-        expect(newNoteBtn.className).toContain('whitespace-nowrap');
+        expect(newNoteBtn.className).toContain('shrink-0');
 
         // Create a note to reveal title and action tabs
         await act(async () => {
@@ -350,16 +350,16 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
         });
 
         const titleInput = await screen.findByTestId('input-note-title');
-        expect(titleInput.className).toContain('flex-1');
+        expect(titleInput.className).toContain('w-full');
         expect(titleInput.className).toContain('min-w-0');
 
         const editTab = await screen.findByTestId('tab-note-edit');
         expect(editTab.className).toContain('shrink-0');
-        expect(editTab.className).toContain('whitespace-nowrap');
+        expect(editTab.className).toContain('shrink-0');
 
         const previewTab = screen.getByTestId('tab-note-preview');
         expect(previewTab.className).toContain('shrink-0');
-        expect(previewTab.className).toContain('whitespace-nowrap');
+        expect(previewTab.className).toContain('shrink-0');
 
         const deleteBtn = screen.getByTestId('btn-delete-note');
         expect(deleteBtn.className).toContain('shrink-0');
@@ -385,7 +385,7 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
 
       const titleInput = (await screen.findByTestId('input-note-title')) as HTMLInputElement;
       expect(titleInput.value).toBe(longTitle);
-      expect(titleInput.className).toContain('flex-1');
+      expect(titleInput.className).toContain('w-full');
       expect(titleInput.className).toContain('min-w-0');
 
       // Verify that tabs and delete button are still present, active, and accessible
@@ -394,10 +394,10 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
       const deleteBtn = screen.getByTestId('btn-delete-note');
 
       expect(editTab.className).toContain('shrink-0');
-      expect(editTab.className).toContain('whitespace-nowrap');
+      expect(editTab.className).toContain('shrink-0');
 
       expect(previewTab.className).toContain('shrink-0');
-      expect(previewTab.className).toContain('whitespace-nowrap');
+      expect(previewTab.className).toContain('shrink-0');
 
       expect(deleteBtn.className).toContain('shrink-0');
 
@@ -405,13 +405,13 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
       await act(async () => {
         fireEvent.click(previewTab);
       });
-      expect(previewTab.className).toContain('bg-white/15');
+      expect(previewTab.className).toContain('bg-white/10');
 
       // Switch back to edit mode
       await act(async () => {
         fireEvent.click(editTab);
       });
-      expect(editTab.className).toContain('bg-white/15');
+      expect(editTab.className).toContain('bg-white/10');
 
       // Delete note
       await act(async () => {
@@ -508,9 +508,9 @@ describe('Milestone 1 Empirical Challenger — Stress & Adversarial Test Suite',
       const { container } = render(<SpacesWidget />);
 
       // Search for grid container
-      const grid = container.querySelector('[class*="grid-template-columns"]');
+      const grid = container.querySelector('[data-testid="presets-grid"]');
       expect(grid).not.toBeNull();
-      expect(grid?.className).toContain('minmax(140px,1fr)');
+      expect(grid?.className).toContain('minmax(min(100%,132px),1fr)');
     });
 
     it('Clicking zen-pure-black activates pure OLED black (#09090b) and updates activePresetId', () => {

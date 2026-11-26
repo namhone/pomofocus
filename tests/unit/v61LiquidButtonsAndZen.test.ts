@@ -37,7 +37,7 @@ describe('PomoFocus v6.1 Ultimate Verification Suite', () => {
 
       expect(content).toContain('h-screen h-[100dvh]');
       expect(content).toContain('overflow-hidden');
-      expect(content).toContain('bg-emerald-500/15 blur-3xl rounded-full');
+      expect(content).toContain('bg-zinc-700/15 blur-3xl rounded-full');
       expect(content).not.toContain('overflow-y-auto');
     });
 
@@ -56,7 +56,7 @@ describe('PomoFocus v6.1 Ultimate Verification Suite', () => {
       const notesPath = path.resolve('src/components/NotesWidget.tsx');
       const content = fs.readFileSync(notesPath, 'utf8');
 
-      expect(content).toContain('font-sans resize-none');
+      expect(content).toContain('min-h-0 w-full flex-1 resize-none');
       expect(content).not.toContain('font-mono resize-none');
     });
 

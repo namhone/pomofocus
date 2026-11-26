@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 
 // Components under test
+import { MobileToolsView } from '../../src/components/mobile/views/MobileToolsView';
 import { MobileSettingsView } from '../../src/components/mobile/views/MobileSettingsView';
 import { MobileStepperRow } from '../../src/components/mobile/primitives/MobileStepperRow';
 
@@ -110,120 +111,41 @@ describe('CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Atta
   // =========================================================================
   // VECTOR 1: Viewport Stress Attack on MobileSettingsView (320px, 360px, 390px, 280px)
   // =========================================================================
-  describe('Vector 1: Viewport Stress & 3-Column Grid Enforcement', () => {
-    const viewports = [
-      { name: 'Ultra-narrow compact (iPhone SE / Galaxy Fold)', width: 320 },
-      { name: 'Standard compact Android (Galaxy A-series)', width: 360 },
-      { name: 'Modern standard mobile (iPhone 12/13/14)', width: 390 },
-      { name: 'Extreme fold screen stress', width: 280 },
-    ];
-
-    viewports.forEach(({ name, width }) => {
-      it(`enforces grid-cols-3 and denies grid-cols-5 on ${name} (${width}px)`, () => {
-        setViewport(width);
-        render(<MobileSettingsView />);
-
-        const grid = screen.getByTestId('mobile-settings-shortcuts-grid');
-        expect(grid).toBeDefined();
-
-        // Must enforce 3 columns
-        expect(grid.className).toContain('grid-cols-3');
-        expect(grid.className).toContain('gap-2');
-
-        // Strictly forbidden classes that would cause single-row squishing or overflow
-        expect(grid.className).not.toContain('grid-cols-5');
-        expect(grid.className).not.toContain('grid-cols-4');
-        expect(grid.className).not.toContain('overflow-x-auto');
-        expect(grid.className).not.toContain('overflow-x-scroll');
-        expect(grid.className).not.toContain('flex-nowrap');
-
-        // Exactly 5 shortcut items must exist as direct button children
-        const buttons = grid.querySelectorAll('button');
-        expect(buttons.length).toBe(5);
-      });
+  describe('Vector 1: Tools grid replaces the removed Settings shortcuts', () => {
+    it.each([280, 320, 360, 390])('keeps four tools in two columns at %ipx', width => {
+      setViewport(width);
+      render(<MobileToolsView onOpenNotes={() => {}} />);
+      const section = screen.getByRole('heading', { name: 'Tiện ích' }).closest('section')!;
+      const grid = section.querySelector('.grid')!;
+      expect(grid.className).toContain('grid-cols-2');
+      expect(grid.className).not.toContain('overflow-x-auto');
+      expect(grid.querySelectorAll('button')).toHaveLength(4);
+      for (const label of ['Meet', 'Ghi chú', 'Lịch', 'Thống kê']) {
+        const button = screen.getByRole('button', { name: new RegExp(label) });
+        expect(button.textContent).toContain(label);
+        expect(button.querySelector('span')?.className).not.toContain('truncate');
+      }
     });
-
-    it('denies single-row horizontal overflow by confirming 2-row multi-line wrapping', () => {
-      setViewport(320);
-      render(<MobileSettingsView />);
-
-      const grid = screen.getByTestId('mobile-settings-shortcuts-grid');
-      // Grid class must contain 'grid' (CSS grid handles the 2-row wrapping automatically with 3 cols)
-      expect(grid.classList.contains('grid')).toBe(true);
-      expect(grid.classList.contains('grid-cols-3')).toBe(true);
+    it('routes Meet, Calendar and Stats; Notes opens locally', () => {
+      const push = vi.spyOn(window.history, 'pushState');
+      const openNotes = vi.fn();
+      render(<MobileToolsView onOpenNotes={openNotes} />);
+      for (const [label, path] of [['Meet', '/rooms'], ['Lịch', '/calendar'], ['Thống kê', '/dashboard']]) {
+        fireEvent.click(screen.getByRole('button', { name: new RegExp(label) }));
+        expect(push).toHaveBeenCalledWith({}, '', path);
+      }
+      const calls = push.mock.calls.length;
+      fireEvent.click(screen.getByRole('button', { name: /Ghi chú/ }));
+      expect(openNotes).toHaveBeenCalledOnce();
+      expect(push).toHaveBeenCalledTimes(calls);
     });
-  });
-
-  // =========================================================================
-  // VECTOR 2: Shortcut Label Truncation & Ellipsis Adversarial Attack
-  // =========================================================================
-  describe('Vector 2: Shortcut Labels Truncation & Ellipsis Attack', () => {
-    it('verifies all 5 shortcut buttons render complete Vietnamese labels without truncation', () => {
+    it('keeps study tools out of Settings, with billing still reachable', () => {
+      const push = vi.spyOn(window.history, 'pushState');
       render(<MobileSettingsView />);
-
-      const expectedShortcuts = [
-        { testId: 'mobile-settings-entry-rooms', expectedText: 'Meet' },
-        { testId: 'mobile-settings-entry-notes', expectedText: 'Ghi chú' },
-        { testId: 'mobile-settings-entry-calendar', expectedText: 'Lịch' },
-        { testId: 'mobile-settings-entry-dashboard', expectedText: 'Thống kê' },
-        { testId: 'mobile-settings-entry-billing', expectedText: 'Gói cước' },
-      ];
-
-      expectedShortcuts.forEach(({ testId, expectedText }) => {
-        const btn = screen.getByTestId(testId);
-        expect(btn).toBeDefined();
-
-        // Exact text match
-        expect(btn.textContent).toContain(expectedText);
-
-        // Find label text span
-        const labelSpan = btn.querySelector('span');
-        expect(labelSpan).not.toBeNull();
-        expect(labelSpan!.textContent?.trim()).toBe(expectedText);
-
-        // Adversarial check: span MUST NOT contain truncate or text-ellipsis
-        expect(labelSpan!.className).not.toContain('truncate');
-        expect(labelSpan!.className).not.toContain('text-ellipsis');
-        expect(labelSpan!.className).not.toContain('overflow-hidden');
-
-        // MUST have classes supporting clean wrapping if needed
-        expect(labelSpan!.className).toContain('leading-tight');
-        expect(labelSpan!.className).toContain('text-center');
-        expect(labelSpan!.className).toContain('w-full');
-
-        // Adversarial check: text must not contain ellipsis characters
-        expect(labelSpan!.textContent).not.toContain('…');
-        expect(labelSpan!.textContent).not.toContain('...');
-      });
-    });
-
-    it('verifies full navigation dispatch for all 5 shortcuts without routing regressions', () => {
-      const pushStateSpy = vi.spyOn(window.history, 'pushState');
-      const mockNavigateWidget = vi.fn();
-      useLayoutStore.setState({ navigateMobileWidget: mockNavigateWidget });
-
-      render(<MobileSettingsView />);
-
-      // 1. Rooms -> /rooms
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-rooms'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/rooms');
-
-      // 2. Notes -> widget navigation + /app
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-notes'));
-      expect(mockNavigateWidget).toHaveBeenCalledWith('notes');
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/app');
-
-      // 3. Calendar -> /calendar
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-calendar'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/calendar');
-
-      // 4. Dashboard -> /dashboard
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-dashboard'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/dashboard');
-
-      // 5. Billing -> /billing
-      fireEvent.click(screen.getByTestId('mobile-settings-entry-billing'));
-      expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/billing');
+      expect(screen.queryByTestId('mobile-settings-shortcuts-grid')).toBeNull();
+      expect(screen.queryByRole('button', { name: /^Meet$/ })).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: /Gói cước/ }));
+      expect(push).toHaveBeenCalledWith({}, '', '/billing');
     });
   });
 
@@ -419,7 +341,7 @@ describe('CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Atta
   // VECTOR 4: Founder VIP vs Free User Upgrade Banner Isolation & Layout Integrity
   // =========================================================================
   describe('Vector 4: Founder VIP vs Free User Upgrade Banner Isolation', () => {
-    it('Founder VIP user has strictly 0 upgrade banners while shortcuts grid remains 3-column', () => {
+    it('Founder VIP user has strictly 0 upgrade banners while four tools remain available', () => {
       useAuthStore.setState({
         user: {
           id: 'founder-001',
@@ -439,11 +361,12 @@ describe('CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Atta
       expect(screen.queryByText('Nâng cấp')).toBeNull();
 
       // Shortcuts grid intact
-      const grid = screen.getByTestId('mobile-settings-shortcuts-grid');
-      expect(grid.className).toContain('grid-cols-3');
+      render(<MobileToolsView onOpenNotes={() => {}} />);
+      const grid = screen.getByRole('heading', { name: 'Tiện ích' }).closest('section')!.querySelector('.grid')!;
+      expect(grid.className).toContain('grid-cols-2');
     });
 
-    it('Free / Guest user renders upgrade banner without breaking shortcuts grid structure', () => {
+    it('Free / Guest user renders upgrade banner without breaking four tools layout', () => {
       useAuthStore.setState({
         user: null,
         role: 'guest',
@@ -457,9 +380,10 @@ describe('CHALLENGER ADVERSARIAL SUITE: M4 Mobile UI Layout & Text Wrapping Atta
       expect(screen.getByText(/Nâng cấp để mở khóa tính năng Pro/i)).toBeDefined();
 
       // Shortcuts grid remains 3-column
-      const grid = screen.getByTestId('mobile-settings-shortcuts-grid');
-      expect(grid.className).toContain('grid-cols-3');
-      expect(grid.querySelectorAll('button').length).toBe(5);
+      render(<MobileToolsView onOpenNotes={() => {}} />);
+      const grid = screen.getByRole('heading', { name: 'Tiện ích' }).closest('section')!.querySelector('.grid')!;
+      expect(grid.className).toContain('grid-cols-2');
+      expect(grid.querySelectorAll('button').length).toBe(4);
     });
   });
 });

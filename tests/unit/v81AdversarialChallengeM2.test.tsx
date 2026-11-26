@@ -560,8 +560,8 @@ describe('Empirical Adversarial Stress Suite — Milestone 2 Verification', () =
 
       const zenBtn = screen.getByTestId('mobile-spaces-pure-zen-black-btn');
       expect(zenBtn).toBeDefined();
-      expect(zenBtn.textContent).toContain('Tắt nền (Pure Zen Black)');
-      expect(zenBtn.textContent).toContain('OLED #09090b');
+      expect(zenBtn.textContent).toContain('Tắt nền (màu đen sâu)');
+      expect(zenBtn.textContent).toContain('Zen');
 
       await act(async () => {
         fireEvent.click(zenBtn);
@@ -569,7 +569,7 @@ describe('Empirical Adversarial Stress Suite — Milestone 2 Verification', () =
 
       expect(useBackgroundStore.getState().pure_zen_black).toBe(true);
       expect(useBackgroundStore.getState().activePresetId).toBe('pure-black');
-      expect(zenBtn.className).toContain('border-emerald-400');
+      expect(zenBtn.className).toContain('border-zinc-400');
     });
   });
 });

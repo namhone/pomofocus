@@ -31,7 +31,7 @@ describe('Profile & AI Credits Cloud Synchronization (public.profiles)', () => {
       expect(resNotFound).toBeNull();
     });
 
-    it('ensureProfileForUser tự động cấp quyền Founder & 1.000⚡ cho namho03052k9@gmail.com', async () => {
+    it('ensureProfileForUser honors server app_metadata Founder and its initial profile', async () => {
       let insertedRecord: any = null;
       vi.spyOn(supabase, 'from').mockImplementation((table: string) => {
         if (table === 'profiles') {
@@ -53,7 +53,8 @@ describe('Profile & AI Credits Cloud Synchronization (public.profiles)', () => {
       const profile = await ProfileService.ensureProfileForUser({
         id: 'founder_123',
         email: 'namho03052k9@gmail.com',
-        displayName: 'Nam Founder'
+        displayName: 'Nam Founder',
+        app_metadata: { role: 'founder' }
       });
 
       expect(profile.role).toBe('founder');

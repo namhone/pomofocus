@@ -410,7 +410,7 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(setCanGoBackInApp).toHaveBeenCalledWith(false);
 
       // Navigate to secondary tab -> native back interception enabled
-      fireEvent.click(screen.getByTestId('mobile-nav-tab-settings'));
+      fireEvent.click(screen.getByRole('button', { name: 'Cài đặt', exact: true }));
       expect(setCanGoBackInApp).toHaveBeenLastCalledWith(true);
 
       // System fires native-back -> returns smoothly to focus and disables native interception so next swipe exits to launcher

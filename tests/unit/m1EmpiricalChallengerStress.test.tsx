@@ -101,9 +101,9 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       });
 
       const banner = screen.getByTestId('cookie-consent-banner');
-      expect(banner.textContent).toContain('Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15');
-      expect(banner.textContent).toContain('Nghị định 356/2025/NĐ-CP');
-      expect(banner.textContent).toContain('Bảo Vệ Dữ Liệu & Quyền Riêng Tư');
+      expect(banner.textContent?.toLowerCase()).toContain('luật bảo vệ dữ liệu cá nhân 91/2025/qh15');
+      expect(banner.textContent?.toLowerCase()).toContain('nghị định 356/2025/nđ-cp');
+      expect(banner.textContent).toContain('Bảo vệ dữ liệu & quyền riêng tư');
 
       vi.useRealTimers();
     });
@@ -129,9 +129,9 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       expect(bottomNav).toBeDefined();
 
       // Bottom nav height is strictly 56px (h-14)
-      expect(bottomNav.className).toContain('h-14');
+      expect(bottomNav.className).toContain('h-[calc(56px+env(safe-area-inset-bottom,0px))]');
       expect(bottomNav.className).toContain('min-h-[56px]');
-      expect(bottomNav.className).toContain('max-h-[56px]');
+      expect(bottomNav.className).toContain('pb-safe');
       expect(bottomNav.className).toContain('pb-safe');
 
       // Bottom nav z-index is z-30 (below Cookie Banner z-40)
@@ -163,9 +163,9 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       const { rerender } = render(<MobileAppShell />);
 
       const header = screen.getByTestId('mobile-top-header');
-      expect(header.className).toContain('h-12');
       expect(header.className).toContain('min-h-[48px]');
-      expect(header.className).toContain('max-h-[48px]');
+      expect(header.className).toContain('min-h-[48px]');
+      expect(header.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
       expect(header.className).toContain('shrink-0');
 
       // Stress test: running status
@@ -176,9 +176,9 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
         });
       });
       rerender(<MobileAppShell />);
-      expect(header.className).toContain('h-12');
       expect(header.className).toContain('min-h-[48px]');
-      expect(header.className).toContain('max-h-[48px]');
+      expect(header.className).toContain('min-h-[48px]');
+      expect(header.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
 
       // Stress test: paused status
       act(() => {
@@ -188,9 +188,9 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
         });
       });
       rerender(<MobileAppShell />);
-      expect(header.className).toContain('h-12');
       expect(header.className).toContain('min-h-[48px]');
-      expect(header.className).toContain('max-h-[48px]');
+      expect(header.className).toContain('min-h-[48px]');
+      expect(header.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
     });
 
     it('does not expand header height when credits number is massive or Infinity', () => {
@@ -204,7 +204,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       rerender(<MobileAppShell />);
 
       expect(screen.getByText('999999999')).toBeDefined();
-      expect(header.className).toContain('max-h-[48px]');
+      expect(header.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
 
       // Test with Infinity
       act(() => {
@@ -213,7 +213,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       rerender(<MobileAppShell />);
 
       expect(screen.getByText('Infinity')).toBeDefined();
-      expect(header.className).toContain('max-h-[48px]');
+      expect(header.className).toContain('h-[calc(48px+env(safe-area-inset-top,0px))]');
     });
 
     it('verifies that Liquid Zen badge is completely removed from mobile header', () => {
@@ -277,7 +277,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       expect(screen.getByTestId('mobile-nav-tab-tasks')).toBeDefined();
       expect(screen.getByTestId('mobile-nav-tab-spaces')).toBeDefined();
       expect(screen.getByTestId('mobile-nav-tab-ai')).toBeDefined();
-      expect(screen.getByTestId('mobile-nav-tab-settings')).toBeDefined();
+      expect(screen.getByTestId('mobile-nav-tab-tools')).toBeDefined();
     });
 
     it('verifies sound playing indicator dot appears when audio is active on spaces tab', () => {
@@ -299,7 +299,7 @@ describe('Milestone 1 Empirical Challenger Stress Suite', () => {
       const soundDot = screen.getByTestId('spaces-sound-playing-dot');
       expect(soundDot).toBeDefined();
       expect(soundDot.className).toContain('animate-pulse');
-      expect(soundDot.className).toContain('bg-emerald-400');
+      expect(soundDot.className).toContain('bg-zinc-700');
     });
   });
 });

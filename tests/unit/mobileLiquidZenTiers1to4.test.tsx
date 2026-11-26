@@ -231,7 +231,7 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
     // Feature 2: Mobile Stepper Row Primitive (src/components/mobile/primitives/MobileStepperRow.tsx)
     // -----------------------------------------------------------------------
     describe('Feature 2: Mobile Stepper Row Primitive (src/components/mobile/primitives/MobileStepperRow.tsx)', () => {
-      it('1. Render đúng chiều cao chuẩn 56px (h-14) với nhãn, giá trị và đơn vị phút', () => {
+      it('1. Render chiều cao tối thiểu56px với nhãn, giá trị và đơn vị phút', () => {
         render(
           <MobileStepperRow
             label="Thời gian Tập trung"
@@ -245,7 +245,7 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
         );
 
         const row = screen.getByTestId('stepper-focus');
-        expect(row.className).toContain('h-14');
+        expect(row.className).toContain('min-h-[56px]');
         expect(row.textContent).toContain('Thời gian Tập trung');
         expect(row.textContent).toContain('25');
         expect(row.textContent).toContain('phút');
@@ -627,7 +627,7 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
       it.skipIf(!isM3Ready)('2. Header cao đúng 48px với logo PomoFocus', () => {
         render(<MobileAppShell />);
         const header = screen.getByTestId('mobile-top-header');
-        expect(header.className).toContain('h-12');
+        expect(header.className).toContain('min-h-[48px]');
         expect(header.textContent).toContain('PomoFocus');
       });
 
@@ -655,18 +655,18 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
     // Feature 7: Material 3 Bottom Navigation Bar
     // -----------------------------------------------------------------------
     describe('Feature 7: Material 3 Bottom Navigation Bar', () => {
-      it.skipIf(!isM3Ready)('1. Hiển thị đủ 5 tab chuẩn: focus, tasks, spaces, ai, settings', () => {
+      it.skipIf(!isM3Ready)('1. Hiển thị đủ5 tab: focus, tasks, spaces, ai, tools', () => {
         render(<MobileAppShell />);
         expect(screen.getByTestId('mobile-nav-tab-focus')).toBeDefined();
         expect(screen.getByTestId('mobile-nav-tab-tasks')).toBeDefined();
         expect(screen.getByTestId('mobile-nav-tab-spaces')).toBeDefined();
         expect(screen.getByTestId('mobile-nav-tab-ai')).toBeDefined();
-        expect(screen.getByTestId('mobile-nav-tab-settings')).toBeDefined();
+        expect(screen.getByTestId('mobile-nav-tab-tools')).toBeDefined();
       });
 
       it.skipIf(!isM3Ready)('2. Chạm vào tab chuyển đổi màn hình và cập nhật activeMobileTab', () => {
         render(<MobileAppShell />);
-        const settingsTab = screen.getByTestId('mobile-nav-tab-settings');
+        const settingsTab = screen.getByRole('button', { name: 'Cài đặt', exact: true });
         fireEvent.click(settingsTab);
         expect(useLayoutStore.getState().activeMobileTab).toBe('settings');
       });
@@ -902,9 +902,9 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
     });
 
     // -----------------------------------------------------------------------
-    // Feature 11: Anchor Timestamp Engine & 120Hz GPU Promotion
+    // Feature 11: Đếm giờ theo mốc thời gian & 120Hz GPU Promotion
     // -----------------------------------------------------------------------
-    describe('Feature 11: Anchor Timestamp Engine & 120Hz GPU Promotion', () => {
+    describe('Feature 11: Đếm giờ theo mốc thời gian & 120Hz GPU Promotion', () => {
       it('1. Đồng hồ tính toán chính xác dựa trên deadline targetEndTimeMs - Date.now() chống trôi thời gian', () => {
         const engine = new TimerEngine({ pomodoroMinutes: 25 });
         const now = 1700000000000;
@@ -1365,11 +1365,11 @@ describe('Pomofocus v7.0 Native Android — Liquid Zen Architecture (Tiers 1 to 
     it('6. Điều hướng 5 tab dưới đáy BottomNav bảo toàn chu trình đồng hồ không bị reset', () => {
       useTimerStore.getState().start();
 
-      const tabs: Array<'focus' | 'tasks' | 'spaces' | 'ai' | 'settings'> = [
+      const tabs: Array<'focus' | 'tasks' | 'spaces' | 'ai' | 'tools'> = [
         'tasks',
         'spaces',
         'ai',
-        'settings',
+        'tools',
         'focus',
       ];
 

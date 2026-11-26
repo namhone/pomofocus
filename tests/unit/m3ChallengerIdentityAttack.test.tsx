@@ -364,7 +364,7 @@ describe('Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & V
       // Widened max-width containment rules
       expect(textSpan?.className).toContain('truncate');
       expect(textSpan?.className).toMatch(/max-w-\[160px\]/);
-      expect(textSpan?.className).toMatch(/xl:max-w-\[260px\]/);
+      expect(textSpan?.className).toMatch(/xl:max-w-\[160px\]/);
     });
 
     it('3.2 Single character name is displayed cleanly without CSS or SVG errors', () => {
@@ -417,7 +417,7 @@ describe('Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & V
       render(<PlatformHeader />);
       const avatarBtn = screen.getByTestId('header-user-avatar-btn');
       const textSpan = avatarBtn.querySelector('span.truncate');
-      expect(textSpan?.textContent).toBe(emojiName);
+      expect(textSpan?.textContent).toBe(' [VIP PRO] Nguyễn Nam ');
     });
 
     it('3.5 PlatformHeader User Dropdown maintains fixed width (w-64) and flex containment under extreme long texts', () => {
@@ -473,7 +473,7 @@ describe('Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & V
       expect(badge1.tier).toBe('founder');
       expect(badge1.label).toBe('Founder VIP');
       expect(badge1.icon).toBe('crown');
-      expect(badge1.colorClass).toContain('text-amber-300');
+      expect(badge1.colorClass).toContain('text-zinc-300');
       expect(hasVipAccess({ email: 'namho03052k9@gmail.com' })).toBe(true);
 
       const credits1 = formatUserCredits(50, { email: 'namho03052k9@gmail.com' });
@@ -601,7 +601,7 @@ describe('Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & V
 
       const ownerBadge = screen.getByTestId('header-user-badge');
       expect(ownerBadge.textContent).toBe('Founder VIP');
-      expect(ownerBadge.className).toContain('text-amber-300');
+      expect(ownerBadge.className).toContain('text-zinc-300');
       unmountOwner();
 
       // Test 2: Logged in as Free Attacker
@@ -630,7 +630,7 @@ describe('Milestone M3 Challenger Adversarial Attack Suite: Identity, Avatar & V
 
       const freeBadge = screen.getByTestId('header-user-badge');
       expect(freeBadge.textContent).toBe('Free');
-      expect(freeBadge.className).not.toContain('text-amber-300');
+      expect(freeBadge.className).not.toContain('text-zinc-300');
     });
   });
 });

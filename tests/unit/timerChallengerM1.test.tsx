@@ -123,12 +123,12 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       for (let i = 0; i < 4; i++) {
         const dot = screen.getByTestId(`round-dot-${i}`);
         expect(dot.className).toContain('bg-white/15');
-        expect(dot.className).not.toContain('bg-rose-500');
+        expect(dot.className).not.toContain('bg-zinc-500');
         expect(dot.className).not.toContain('animate-pulse');
       }
     });
 
-    it('renders dot 0 pulsing (bg-rose-400 animate-pulse) and dots 1..3 empty when Round 1 is running', () => {
+    it('renders dot 0 pulsing (bg-zinc-400 animate-pulse) and dots 1..3 empty when Round 1 is running', () => {
       useTimerStore.setState({
         currentRound: 1,
         status: 'running',
@@ -138,7 +138,7 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       render(<TimerWidget />);
 
       const dot0 = screen.getByTestId('round-dot-0');
-      expect(dot0.className).toContain('bg-rose-400');
+      expect(dot0.className).toContain('bg-zinc-400');
       expect(dot0.className).toContain('animate-pulse');
 
       for (let i = 1; i < 4; i++) {
@@ -148,7 +148,7 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       }
     });
 
-    it('renders dot 0 as completed (bg-rose-500) and dot 1 pulsing when Round 2 is running', () => {
+    it('renders dot 0 as completed (bg-zinc-500) and dot 1 pulsing when Round 2 is running', () => {
       useTimerStore.setState({
         currentRound: 2,
         status: 'running',
@@ -158,11 +158,11 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       render(<TimerWidget />);
 
       const dot0 = screen.getByTestId('round-dot-0');
-      expect(dot0.className).toContain('bg-rose-500');
+      expect(dot0.className).toContain('bg-zinc-500');
       expect(dot0.className).not.toContain('animate-pulse');
 
       const dot1 = screen.getByTestId('round-dot-1');
-      expect(dot1.className).toContain('bg-rose-400');
+      expect(dot1.className).toContain('bg-zinc-400');
       expect(dot1.className).toContain('animate-pulse');
 
       expect(screen.getByTestId('round-dot-2').className).toContain('bg-white/15');
@@ -178,12 +178,12 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
 
       render(<TimerWidget />);
 
-      expect(screen.getByTestId('round-dot-0').className).toContain('bg-rose-500');
-      expect(screen.getByTestId('round-dot-1').className).toContain('bg-rose-500');
-      expect(screen.getByTestId('round-dot-2').className).toContain('bg-rose-500');
+      expect(screen.getByTestId('round-dot-0').className).toContain('bg-zinc-500');
+      expect(screen.getByTestId('round-dot-1').className).toContain('bg-zinc-500');
+      expect(screen.getByTestId('round-dot-2').className).toContain('bg-zinc-500');
 
       const dot3 = screen.getByTestId('round-dot-3');
-      expect(dot3.className).toContain('bg-rose-400');
+      expect(dot3.className).toContain('bg-zinc-400');
       expect(dot3.className).toContain('animate-pulse');
     });
 
@@ -209,7 +209,7 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       for (let i = 0; i < 4; i++) {
         const dot = screen.getByTestId(`round-dot-${i}`);
         expect(dot.className).toContain('bg-white/15');
-        expect(dot.className).not.toContain('bg-rose-500');
+        expect(dot.className).not.toContain('bg-zinc-500');
         expect(dot.className).not.toContain('animate-pulse');
       }
     });
@@ -232,9 +232,9 @@ describe('Challenger 2 — Milestone 1 Empirical Stress Test & Boundary Oracle',
       expect(useTimerStore.getState().currentRound).toBe(3);
       expect(useTimerStore.getState().status).toBe('idle');
 
-      // Chấm 0, 1 đã xong vẫn phải là bg-rose-500
-      expect(screen.getByTestId('round-dot-0').className).toContain('bg-rose-500');
-      expect(screen.getByTestId('round-dot-1').className).toContain('bg-rose-500');
+      // Chấm 0, 1 đã xong vẫn phải là bg-zinc-500
+      expect(screen.getByTestId('round-dot-0').className).toContain('bg-zinc-500');
+      expect(screen.getByTestId('round-dot-1').className).toContain('bg-zinc-500');
       // Chấm 2 (hiệp 3 idle) và 3 là bg-white/15
       expect(screen.getByTestId('round-dot-2').className).toContain('bg-white/15');
       expect(screen.getByTestId('round-dot-3').className).toContain('bg-white/15');

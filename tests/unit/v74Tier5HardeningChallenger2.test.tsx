@@ -376,7 +376,7 @@ describe('Milestone 4 Tier 5 Hardening: Viewport, Routing, Standalone APK & Stor
       // Check that the class includes min-height of 56px and emerald styling
       const className = downloadAnchor.className;
       expect(className).toContain('min-h-[56px]');
-      expect(className).toContain('emerald');
+      expect(className).toContain('bg-zinc-100');
     });
 
     it('2.6 WebDownloadHub clipboard copy button generates user feedback and copies URL', async () => {

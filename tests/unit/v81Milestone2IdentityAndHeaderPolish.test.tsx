@@ -59,6 +59,7 @@ describe('Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre
         displayName: 'Hồ Bảo Nam',
         plan: 'pro_lifetime',
         role: 'founder',
+        app_metadata: { role: 'founder' },
         isLifetime: true,
         credits: Infinity
       };
@@ -184,7 +185,7 @@ describe('Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre
 
       const aiBtn = screen.getByTestId('header-ai-btn');
       expect(aiBtn).toBeDefined();
-      expect(aiBtn.className).toContain('bg-white/5');
+      expect(aiBtn.className).toContain('bg-white/[0.03]');
       expect(aiBtn.className).toContain('text-zinc-200');
       expect(aiBtn.className).toContain('border-white/10');
       expect(aiBtn.className).not.toContain('bg-cyan-950/40');
@@ -199,6 +200,7 @@ describe('Milestone 2 — Identity Sync, Header 1366x768, AI Drawer & /rooms Pre
         displayName: 'Hồ Bảo Nam',
         plan: 'pro_lifetime',
         role: 'founder',
+        app_metadata: { role: 'founder' },
         isLifetime: true,
         credits: Infinity
       };

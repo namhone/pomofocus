@@ -111,7 +111,7 @@ describe('Milestone M1: APK Navigation Shell & 100% Web Isolation', () => {
   describe('3. Secondary Views (LegalViews) Mobile Fix', () => {
     it('3.1 Return button in LegalViews does not have hidden sm:flex class', () => {
       render(<LegalViews initialTab="terms" />);
-      const backButton = screen.getByText('Vào Không Gian').closest('button');
+      const backButton = screen.getByText('Vào không gian').closest('button');
       expect(backButton).toBeDefined();
       expect(backButton?.className).not.toContain('hidden sm:flex');
     });
@@ -166,8 +166,8 @@ describe('Milestone M1: APK Navigation Shell & 100% Web Isolation', () => {
 
       expect(backAppBtn.textContent).not.toContain('⏱');
       expect(homeBtn.textContent).not.toContain('🏠');
-      expect(backAppBtn.textContent).toContain('Quay Về Bàn Học Ngay');
-      expect(homeBtn.textContent).toContain('Về Trang Chủ');
+      expect(backAppBtn.textContent).toContain('Quay về bàn học');
+      expect(homeBtn.textContent).toContain('Về trang chủ');
     });
   });
 });
