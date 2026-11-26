@@ -1,0 +1,74 @@
+
+ RUN  v2.1.8 D:/FileCuaNam/Web'/Pomodoro
+      Coverage enabled with v8
+
+stderr | tests/unit/workspaceTwoDeviceContract.test.ts > Two-device workspace contract through the real Realtime adapter > opens independent sockets with all four scoped bindings and waits for real join acknowledgments
+[NoteCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+[TaskCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+
+stderr | tests/unit/workspaceTwoDeviceContract.test.ts > Two-device workspace contract through the real Realtime adapter > opens independent sockets with all four scoped bindings and waits for real join acknowledgments
+[TaskCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+
+stderr | tests/unit/workspaceTwoDeviceContract.test.ts > Two-device workspace contract through the real Realtime adapter > reconnect pulls focus sessions missed offline after a fresh server join
+[NoteCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+[TaskCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+
+stderr | tests/unit/workspaceTwoDeviceContract.test.ts > Two-device workspace contract through the real Realtime adapter > preserves a newer pending local focus session while reconciling an older cloud snapshot
+[NoteCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+[TaskCloudService] Lỗi đồng bộ đám mây, sử dụng bộ nhớ đệm cục bộ: [DexieError [DatabaseClosedError]: DatabaseClosedError Database has been closed] {
+  inner: [DexieError [DatabaseClosedError]: Database has been closed] {
+    inner: null
+  }
+}
+
+ ✓ tests/unit/workspaceTwoDeviceContract.test.ts (11 tests) 4490ms
+   ✓ Two-device workspace contract through the real Realtime adapter > opens independent sockets with all four scoped bindings and waits for real join acknowledgments 1376ms
+   ✓ Two-device workspace contract through the real Realtime adapter > device A writes tasks and both isolated caches converge 407ms
+   ✓ Two-device workspace contract through the real Realtime adapter > device A writes notes and both isolated caches converge 348ms
+   ✓ Two-device workspace contract through the real Realtime adapter > a newer local tasks edit wins an older cloud snapshot and reaches the second device 302ms
+   ✓ Two-device workspace contract through the real Realtime adapter > rejects cross-account frames and reads wallet balance from HTTP rather than the socket value 422ms
+   ✓ Two-device workspace contract through the real Realtime adapter > preserves a newer pending local focus session while reconciling an older cloud snapshot 314ms
+   ✓ Two-device workspace contract through the real Realtime adapter > removes an owned focus session on DELETE without changing another account cache 383ms
+stderr | tests/unit/syncQueueConflictContract.test.ts > Offline queue timestamp and account contracts through the real REST adapter > retains a focus session mutation when the remote table is unavailable instead of claiming sync success
+[SyncQueue] Bảng focus_sessions chưa được tạo trên Supabase Cloud
+
+ ✓ tests/unit/syncQueueConflictContract.test.ts (7 tests) 1098ms
+   ✓ Offline queue timestamp and account contracts through the real REST adapter > never overwrites a newer tasks record when replaying a stale offline edit 676ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  13:49:13
+   Duration  39.75s (transform 1.94s, setup 0ms, collect 2.35s, tests 5.59s, environment 20.59s, prepare 1.52s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   70.54 |    48.07 |   68.42 |   70.54 |
+ ...ueueService.ts |    64.8 |    36.66 |   57.14 |    64.8 | ...05-430,437-439
+ ...timeService.ts |      95 |    63.63 |     100 |      95 | 52-53,55-56
+-------------------|---------|----------|---------|---------|-------------------

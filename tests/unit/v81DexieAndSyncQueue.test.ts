@@ -298,8 +298,10 @@ describe('V8.1 Milestone 1: Dexie.js v2 Storage, Local AI Message Persistence & 
 
     it('flushQueue processes task mutations and marks local records as synced: true', async () => {
       const taskId = 'task_sync_test_99';
+      const updatedAt = Date.now();
       await db.tasks.add({
         id: taskId,
+        userId: 'user_test_authenticated_id',
         title: 'Task cần đồng bộ',
         estimatedPomodoros: 3,
         completedPomodoros: 1,
@@ -309,7 +311,7 @@ describe('V8.1 Milestone 1: Dexie.js v2 Storage, Local AI Message Persistence & 
         orderIndex: 0,
         tagIds: [],
         createdAt: Date.now(),
-        updatedAt: Date.now(),
+        updatedAt,
         synced: false
       });
 
@@ -318,6 +320,7 @@ describe('V8.1 Milestone 1: Dexie.js v2 Storage, Local AI Message Persistence & 
         recordId: taskId,
         action: 'UPDATE',
         payload: {
+          updatedAt,
           title: 'Task cần đồng bộ (updated)',
           estimatedPomodoros: 3,
           completedPomodoros: 1,
@@ -328,10 +331,13 @@ describe('V8.1 Milestone 1: Dexie.js v2 Storage, Local AI Message Persistence & 
         }
       });
 
-      // Mock Supabase upsert success
+      // Mock a missing remote record followed by a successful conditional-path insert.
       const upsertSpy = vi.fn().mockResolvedValue({ data: null, error: null });
+      const readQuery = { eq: () => readQuery, single: async () => ({ data: null, error: null }) };
       vi.spyOn(supabase, 'from').mockReturnValue({
         upsert: upsertSpy,
+        insert: upsertSpy,
+        select: () => readQuery,
         delete: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }) })
       } as any);
 

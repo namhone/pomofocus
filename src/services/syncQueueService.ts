@@ -147,6 +147,7 @@ export class SyncQueueService {
     }
 
     this.isFlushing = true;
+    const startingAccount = getStoredUserId();
     let successCount = 0;
     let failedCount = 0;
     const errors: Array<{ mutationId: string; error: string }> = [];
@@ -155,6 +156,8 @@ export class SyncQueueService {
       const pending = await this.getPendingMutations(effectiveUserId);
 
       for (const mutation of pending) {
+        // A logout/account switch must not send the remaining batch with a new token.
+        if (getStoredUserId() !== startingAccount) break;
         try {
           await db.sync_queue.update(mutation.id, { status: 'processing' });
           await this.processMutation(mutation, effectiveUserId);
@@ -208,6 +211,27 @@ export class SyncQueueService {
   /**
    * Xử lý từng đột biến cụ thể theo loại bảng
    */
+  private async writeVersioned(table: SyncMutation['tableName'], payload: Record<string, any>, userId: string): Promise<boolean> {
+    const { data: current, error: readError } = await supabase.from(table)
+      .select('id,user_id,updated_at').eq('id', payload.id).eq('user_id', userId).single();
+    if (readError) throw readError;
+    if (!current) {
+      // INSERT rejects a concurrent create instead of blindly merging over it.
+      const { error } = await supabase.from(table).insert(payload);
+      if (error) throw error;
+      return true;
+    }
+    const cloudVersion = Date.parse(current.updated_at);
+    const localVersion = Date.parse(payload.updated_at);
+    if (!Number.isFinite(cloudVersion) || !Number.isFinite(localVersion)) throw new Error('Missing sync version; preserving mutation');
+    if (cloudVersion >= localVersion) return false;
+    const { data, error } = await supabase.from(table).update(payload)
+      .eq('id', payload.id).eq('user_id', userId).eq('updated_at', current.updated_at);
+    if (error) throw error;
+    if (!Array.isArray(data) || data.length !== 1) throw new Error('Sync conflict: remote version changed; retry required');
+    return true;
+  }
+
   private async processMutation(mutation: SyncMutation, userId: string): Promise<void> {
     const { tableName, recordId, action, payload } = mutation;
 
@@ -245,12 +269,14 @@ export class SyncQueueService {
             deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
-          const { error } = await supabase.from('tasks').upsert(taskPayload, { onConflict: 'id' });
-          if (error) throw error;
+          const written = await this.writeVersioned('tasks', taskPayload, userId);
 
           // Cập nhật trạng thái synced cục bộ
           try {
-            await db.tasks.update(recordId, { synced: true });
+            const current = await db.tasks.get(recordId);
+            if (written && current?.userId === userId && current.updatedAt === payload.updatedAt) {
+              await db.tasks.update(recordId, { synced: true });
+            }
           } catch {}
         }
         break;
@@ -281,8 +307,7 @@ export class SyncQueueService {
             deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
-          const { error } = await supabase.from('notes').upsert(notePayload, { onConflict: 'id' });
-          if (error) throw error;
+          await this.writeVersioned('notes', notePayload, userId);
         }
         break;
       }
@@ -310,10 +335,7 @@ export class SyncQueueService {
             deleted_at: payload.deletedAt ? new Date(payload.deletedAt).toISOString() : null
           };
 
-          const { error } = await supabase
-            .from('projects')
-            .upsert(projectPayload, { onConflict: 'id' });
-          if (error) throw error;
+          await this.writeVersioned('projects', projectPayload, userId);
         }
         break;
       }
@@ -328,10 +350,10 @@ export class SyncQueueService {
               .eq('user_id', userId);
             if (error) throw error;
           } catch (e: any) {
-            // Nếu bảng chưa có trên cloud, bắt lỗi nhẹ nhàng không chặn queue
+            // Bảng chưa có: giữ mutation để retry, không báo đồng bộ thành công.
             if (e?.code === '42P01' || e?.message?.includes('does not exist')) {
               console.warn('[SyncQueue] Bảng focus_sessions chưa được tạo trên Supabase Cloud');
-              return;
+              throw e;
             }
             throw e;
           }
@@ -346,22 +368,23 @@ export class SyncQueueService {
             completed_at: payload.completedAt
               ? new Date(payload.completedAt).toISOString()
               : new Date().toISOString(),
-            date_string: payload.dateString || new Date().toISOString().split('T')[0]
+            date_string: payload.dateString || new Date().toISOString().split('T')[0],
+            updated_at: new Date(payload.updatedAt || payload.completedAt || mutation.createdAt).toISOString()
           };
 
           try {
-            const { error } = await supabase
-              .from('focus_sessions')
-              .upsert(sessionPayload, { onConflict: 'id' });
-            if (error) throw error;
+            const written = await this.writeVersioned('focus_sessions', sessionPayload, userId);
 
             try {
-              await db.focus_sessions.update(recordId, { synced: true });
+              const current = await db.focus_sessions.get(recordId);
+              if (written && current?.userId === userId && current.completedAt === payload.completedAt) {
+                await db.focus_sessions.update(recordId, { synced: true });
+              }
             } catch {}
           } catch (e: any) {
             if (e?.code === '42P01' || e?.message?.includes('does not exist')) {
               console.warn('[SyncQueue] Bảng focus_sessions chưa được tạo trên Supabase Cloud');
-              return;
+              throw e;
             }
             throw e;
           }
@@ -370,7 +393,7 @@ export class SyncQueueService {
       }
 
       default:
-        console.warn(`[SyncQueue] Loại bảng không được hỗ trợ: ${tableName}`);
+        throw new Error(`[SyncQueue] Loại bảng không được hỗ trợ: ${tableName}`);
     }
   }
 

@@ -4,6 +4,7 @@ const m = vi.hoisted(() => ({ user: { id: 'user-a' }, bindings: [] as any[], sta
   tasks: vi.fn(), notes: vi.fn(), profile: vi.fn(), auth: vi.fn(), credits: vi.fn(), remove: vi.fn(),
   get: vi.fn(), delete: vi.fn(), setTasks: vi.fn(), setNotes: vi.fn(), unlink: vi.fn() }));
 vi.mock('../../src/lib/supabase', () => ({ supabase: {
+  from: () => ({ select: () => ({ eq: async () => ({ data: [], error: null }) }) }),
   channel: () => { const c = { on: (_type: string, binding: any, callback: any) => { m.bindings.push({ ...binding, callback }); return c; }, subscribe: (cb: any) => { m.status = cb; return c; } }; return c; }, removeChannel: (...args: any[]) => m.remove(...args)
 } }));
 vi.mock('../../src/stores/useAuthStore', () => ({ useAuthStore: { getState: () => ({ user: m.user, loadUserFromCloud: m.auth }) } }));
@@ -11,16 +12,16 @@ vi.mock('../../src/stores/useTaskStore', () => ({ useTaskStore: { getState: () =
 vi.mock('../../src/stores/useNoteStore', () => ({ useNoteStore: { getState: () => ({ loadNotes: m.notes }), setState: (...a: any[]) => m.setNotes(...a) } }));
 vi.mock('../../src/stores/useAiStore', () => ({ useAiStore: { getState: () => ({ refreshCreditsFromCloud: m.credits }) } }));
 vi.mock('../../src/services/profileService', () => ({ ProfileService: { fetchProfile: (...a: any[]) => m.profile(...a) } }));
-vi.mock('../../src/db', () => ({ db: { tasks: { get: (...a: any[]) => m.get(...a), delete: (...a: any[]) => m.delete(...a) }, notes: { get: (...a: any[]) => m.get(...a), delete: (...a: any[]) => m.delete(...a) } } }));
+vi.mock('../../src/db', () => ({ db: { sync_queue: { toArray: async () => [] }, tasks: { get: (...a: any[]) => m.get(...a), delete: (...a: any[]) => m.delete(...a) }, notes: { get: (...a: any[]) => m.get(...a), delete: (...a: any[]) => m.delete(...a) } } }));
 const emit = (table: string, eventType: string, row: any) => m.bindings.find(b => b.table === table).callback({ eventType, new: row, old: row });
 beforeEach(() => {
   vi.clearAllMocks(); m.user = { id: 'user-a' }; m.bindings = []; m.status = null;
   for (const fn of [m.tasks, m.notes, m.profile, m.auth, m.credits, m.delete]) fn.mockResolvedValue(undefined);
 });
 describe('Phase 3 workspace subscription ownership', () => {
-  it('registers the three account-scoped tables and reconciles after a real join', async () => {
+  it('registers the four account-scoped tables and reconciles after a real join', async () => {
     const stop = subscribeWorkspaceRealtime('user-a');
-    expect(m.bindings.map(({ table, filter }) => ({ table, filter }))).toEqual(['tasks', 'notes', 'user_wallets'].map(table => ({ table, filter: 'user_id=eq.user-a' })));
+    expect(m.bindings.map(({ table, filter }) => ({ table, filter }))).toEqual(['tasks', 'notes', 'focus_sessions', 'user_wallets'].map(table => ({ table, filter: 'user_id=eq.user-a' })));
     expect(m.tasks).not.toHaveBeenCalled();
     m.status('SUBSCRIBED');
     await vi.waitFor(() => expect(m.credits).toHaveBeenCalledOnce());
