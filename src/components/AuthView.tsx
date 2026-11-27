@@ -188,37 +188,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     }
   }, []);
 
-  // Khởi tạo Google One Tap khi mở màn hình AuthView (bỏ qua trên localhost/127.0.0.1 preview để tránh lỗi GSI 403)
-  useEffect(() => {
-    let isMounted = true;
-    const isLocalPreview =
-      typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
-    if (!isLocalPreview && typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
-      googleAuthService
-        .initializeGsi({
-          onSuccess: async (payload) => {
-            if (!isMounted) return;
-            const ok = await loginWithGoogle(payload);
-            if (ok) {
-              setSuccessMsg('Đăng nhập Google thành công! Đang chuyển hướng...');
-              setTimeout(() => router.navigate('/app'), 400);
-            }
-          },
-          onError: (err) => {
-            console.warn('[Google One Tap] Thông báo:', err?.message);
-          }
-        })
-        .then((ready) => {
-          if (ready && isMounted) {
-            googleAuthService.promptOneTap();
-          }
-        })
-        .catch(console.warn);
-    }
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Không tự động bật Google One Tap / FedCM khi mount để tránh lỗi console GSI_LOGGER / CORS trên trình duyệt chưa đăng nhập Google;
+  // Luồng đăng nhập Google chính thức sử dụng nút "Tiếp tục với Google" (handleGoogleSignIn -> Supabase OAuth).
 
   // Đăng nhập Google OAuth (Redirect trên Mobile, Popup trên Desktop)
   const handleGoogleSignIn = async () => {

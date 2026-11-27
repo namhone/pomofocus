@@ -2243,7 +2243,9 @@ export const StudyRoomView: React.FC<StudyRoomViewProps> = ({
       }
       rtcManagerRef.current = null;
       channelRef.current = null;
-      supabase.removeChannel(`room:${roomId}`);
+      if (channel && supabase && typeof supabase.removeChannel === 'function') {
+        void supabase.removeChannel(channel);
+      }
     };
   }, [hasJoined, roomId, participantId]);
 

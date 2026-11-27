@@ -7,6 +7,8 @@ import { resolveApiUrl } from '../utils/apiConfig';
 import { generateUUID } from '../utils/uuid';
 import { safeParseJson } from '../utils/safeFetch';
 import { db } from '../db';
+import { OWNER_EMAILS, isOwnerEmail, isVipFriend } from '../services/authService';
+export { OWNER_EMAILS };
 
 export type AiPlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
 export type AiActionType = 'chat' | 'summarize' | 'quiz' | 'multimodal';
@@ -103,12 +105,6 @@ export const AI_CREDIT_PACKS: AiCreditPack[] = [
   }
 ];
 
-export const OWNER_EMAILS = [
-  'namho03052k9@gmail.com',
-  'huyentrantt09@gmail.com',
-  'tony31082009@gmail.com'
-];
-
 export const GUEST_CREDITS_STORAGE_KEY = 'pomofocus_guest_ai_credits_v5';
 export const GUEST_DEFAULT_CREDITS = 50;
 
@@ -168,7 +164,7 @@ export function isOwnerAiUser(): boolean {
         }
         const email = authState.user.email;
         if (email) {
-          return OWNER_EMAILS.includes(email.toLowerCase().trim());
+          return isOwnerEmail(email) || isVipFriend(email);
         }
       }
     }
