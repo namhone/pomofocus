@@ -5,6 +5,7 @@ import { useAiStore, AI_CREDIT_PACKS } from '../stores/useAiStore';
 import { resolveApiUrl } from '../utils/apiConfig';
 import { useAuthStore } from '../stores/useAuthStore';
 import { supabase } from '../lib/supabase';
+import { useRouter } from '../services/router';
 
 interface AiCreditsTopupModalProps {
   isOpen: boolean;
@@ -226,6 +227,7 @@ VietQrDisplay.displayName = 'VietQrDisplay';
 // MAIN COMPONENT: AiCreditsTopupModal
 // =============================================================================
 export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen, onClose }) => {
+  const router = useRouter();
   const { aiCreditsBalance, refreshCreditsFromCloud, topupModalInitialCredits } = useAiStore();
   const { user } = useAuthStore();
 
@@ -580,10 +582,14 @@ export const AiCreditsTopupModal: React.FC<AiCreditsTopupModalProps> = ({ isOpen
               data-testid="btn-login-to-topup"
               onClick={() => {
                 onClose();
-                const authBtn = document.querySelector('[data-testid="mobile-header-avatar-btn"]');
-                if (authBtn) (authBtn as HTMLElement).click();
+                const authBtn = document.querySelector('[data-testid="mobile-header-avatar-btn"]') as HTMLElement | null;
+                if (authBtn && authBtn.offsetParent !== null) {
+                  authBtn.click();
+                } else {
+                  router.navigate('/login');
+                }
               }}
-              className="w-full py-3 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs tracking-wide transition shadow-lg shadow-zinc-500/20 active:scale-98 cursor-pointer"
+              className="w-full min-h-[44px] py-3 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs tracking-wide transition shadow-lg active:scale-98 cursor-pointer"
             >
               Đăng nhập ngay
             </button>

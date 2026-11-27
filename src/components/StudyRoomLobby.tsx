@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import { UiSymbol } from './common/UiSymbol';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../services/router';
@@ -306,7 +307,7 @@ export const StudyRoomLobby: React.FC = () => {
       onBack={() => router.navigate('/app')}
       className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} bg-zinc-950 text-zinc-100 selection:bg-zinc-800 selection:text-white`}
     >
-      <div className="w-full max-w-5xl mx-auto px-4 py-5 sm:py-10 flex flex-col justify-start">
+      <div className="satellite-content w-full max-w-5xl mx-auto px-4 py-5 sm:py-10 flex flex-col justify-start">
         {/* Hero Header (Monochrome Stealth) */}
         <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/15 border-t-white/25 text-zinc-300 text-[11px] font-medium mb-3 whitespace-nowrap shadow-sm">
@@ -670,7 +671,7 @@ export const StudyRoomLobby: React.FC = () => {
                   <div className="mt-2">
                     {isFull ? (
                       <div className="space-y-1.5">
-                        <button
+                        <button aria-label="Phòng đã đạt giới hạn 10 người. vui lòng chọn pod khác còn chỗ."
                           type="button"
                           disabled
                           data-testid={`btn-join-${pod.roomId}`}
@@ -685,7 +686,7 @@ export const StudyRoomLobby: React.FC = () => {
                         type="button"
                         data-testid={`btn-join-${pod.roomId}`}
                         onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
-                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5"
+                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-[#1F242D]/80 backdrop-blur-md border border-[#5F697A] text-[#ECEFF4] hover:bg-[#29303D] font-bold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <LogIn size={14} className="-translate-y-[0.5px]" />
                         <span>Vào học (1 chạm)</span>
@@ -772,7 +773,7 @@ export const StudyRoomLobby: React.FC = () => {
                         <code className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-950 text-zinc-300 border border-zinc-800">
                           #{r.roomId}
                         </code>
-                        <button
+                        <button aria-label="Sao chép mã phòng"
                           type="button"
                           onClick={(e) => handleCopyCode(r.roomId, e)}
                           className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition"
@@ -790,7 +791,7 @@ export const StudyRoomLobby: React.FC = () => {
                       {/* Hành động của Chủ phòng */}
                       {isMyRoom && (
                         <div className="flex items-center gap-1">
-                          <button
+                          <button aria-label="Tùy chỉnh & đổi tên phòng"
                             type="button"
                             data-testid={`btn-edit-room-${r.roomId}`}
                             onClick={(e) => openEditRoomModal(r, e)}
@@ -799,7 +800,7 @@ export const StudyRoomLobby: React.FC = () => {
                           >
                             <Pencil size={12} />
                           </button>
-                          <button
+                          <button aria-label="Xóa phòng này"
                             type="button"
                             data-testid={`btn-delete-room-${r.roomId}`}
                             onClick={(e) => {
@@ -880,7 +881,7 @@ export const StudyRoomLobby: React.FC = () => {
                 <Sliders size={18} className="text-zinc-300" />
                 <h3 className="font-bold text-sm">Tùy chỉnh &amp; đổi tên phòng học</h3>
               </div>
-              <button
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => setEditingRoom(null)}
                 className="p-1 rounded text-zinc-400 hover:text-white transition"

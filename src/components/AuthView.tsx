@@ -562,7 +562,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                       required
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Ví dụ: hoàng nam"
+                      placeholder="Ví dụ: Hoàng Nam"
                       className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2 pl-10 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
                     />
                   </div>

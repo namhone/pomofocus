@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import React, { useEffect, useState, useMemo } from 'react';
 import { db } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
@@ -251,7 +252,7 @@ export const DashboardView: React.FC = () => {
     >
       <div
         data-testid="dashboard-view"
-        className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
+        className="satellite-content w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
       >
         {/* Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -332,10 +333,10 @@ export const DashboardView: React.FC = () => {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm sm:text-base font-semibold text-zinc-100 flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-semibold text-zinc-100 flex items-center gap-2">
                 <TrendingUp size={16} className="text-zinc-300 shrink-0" />
                 <span>Xu hướng tập trung</span>
-              </h3>
+              </h2>
               <p className="text-xs text-zinc-400 mt-0.5">
                 {activeFilter === 'month'
                   ? 'Tổng số phút học tập theo từng tuần trong tháng'

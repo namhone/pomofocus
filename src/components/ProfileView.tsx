@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import { UiLabel } from './common/UiSymbol';
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -218,7 +219,7 @@ export const ProfileView: React.FC = () => {
 
   const handleSaveProfile = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!displayName.trim()) return;
+    if (!displayName.trim()) { setSaveStatus('Vui lòng nhập tên hiển thị.'); return; }
 
     setIsSaving(true);
     setSaveStatus(null);
@@ -282,7 +283,7 @@ export const ProfileView: React.FC = () => {
     >
       <div
         data-testid="profile-view"
-        className="w-full max-w-3xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
+        className="satellite-content w-full max-w-3xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
       >
         {/* Nút Quay Lại Bàn Học & User Email cho Desktop Web */}
         {!isMobileOrNative && (
@@ -348,7 +349,7 @@ export const ProfileView: React.FC = () => {
 
         {/* Status Toast */}
         {saveStatus && (
-          <div className="p-3.5 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in">
+          <div role="status" aria-live="polite" className="p-3.5 rounded-xl border border-zinc-500/30 bg-zinc-950/40 text-zinc-300 text-xs flex items-center gap-2 shadow-lg animate-in fade-in">
             <CheckCircle2 size={16} className="shrink-0 text-zinc-300" />
             <span className="font-medium">{saveStatus}</span>
           </div>
@@ -459,7 +460,7 @@ export const ProfileView: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    data-testid="input-edit-display-name"
+                    aria-label="Tên hiển thị" data-testid="input-edit-display-name"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
@@ -475,7 +476,7 @@ export const ProfileView: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    data-testid="input-edit-username"
+                    aria-label="Tên người dùng" data-testid="input-edit-username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs font-mono focus:outline-none focus:border-white transition"
@@ -492,7 +493,7 @@ export const ProfileView: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  data-testid="input-edit-focus-goal"
+                  aria-label="Mục tiêu tập trung" data-testid="input-edit-focus-goal"
                   value={focusGoal}
                   onChange={(e) => setFocusGoal(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:outline-none focus:border-white transition"
@@ -599,7 +600,7 @@ export const ProfileView: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <input
                         type="url"
-                        data-testid="input-edit-avatar-url"
+                        aria-label="URL ảnh đại diện" data-testid="input-edit-avatar-url"
                         value={urlInput}
                         onChange={(e) => setUrlInput(e.target.value)}
                         onKeyDown={(e) => {

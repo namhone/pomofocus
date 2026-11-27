@@ -1,0 +1,12 @@
+/* Satellite pages only; never changes the shared header/footer or workspace. */
+.satellite-content :is(button, a[href]) { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+.satellite-content h1 { color: #ECEFF4; }
+.satellite-content :is(input:not([type="range"]):not([type="checkbox"]):not([type="file"]), textarea, select) {
+  min-height: 44px;
+  min-width: 0;
+  color: #ECEFF4;
+  border-color: #5F697A;
+}
+.satellite-content :is(input, textarea)::placeholder { color: #A1A9B8; opacity: 1; }
+.satellite-content :is(.text-zinc-500, .text-neutral-500) { color: #A1A9B8; }
+.satellite-content [role="dialog"] { max-height: calc(100dvh - 32px); overflow-y: auto; }

@@ -1,3 +1,5 @@
+import { useSatelliteDialog } from '../hooks/useSatelliteDialog';
+import '../styles/satellitePages.css';
 import React, { useState } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useRouter } from '../services/router';
@@ -90,6 +92,11 @@ export const AccountSecurityView: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const setupDialog = useSatelliteDialog(showTotpSetupModal, () => setShowTotpSetupModal(false));
+  const backupDialog = useSatelliteDialog(showBackupCodesModal, () => setShowBackupCodesModal(false));
+  const disableDialog = useSatelliteDialog(showDisable2FaModal, () => setShowDisable2FaModal(false));
+  const deleteDialog = useSatelliteDialog(showDeleteModal, () => setShowDeleteModal(false));
 
   if (!isAuthenticated || !user) {
     return (
@@ -328,7 +335,7 @@ export const AccountSecurityView: React.FC = () => {
     >
       <div
         data-testid="account-security-view"
-        className="w-full max-w-3xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
+        className="satellite-content w-full max-w-3xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
       >
         {/* Nút Quay Lại Bàn Học & User ID cho Desktop Web */}
         {!isMobileOrNative && (
@@ -401,7 +408,7 @@ export const AccountSecurityView: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Quản lý phương thức đăng nhập và bảo mật 2 lớp (2fa).
+            Quản lý phương thức đăng nhập và bảo mật 2 lớp (2FA).
           </p>
         </div>
 
@@ -432,9 +439,9 @@ export const AccountSecurityView: React.FC = () => {
                 <QrCode size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-white">Xác thực 2 bước (authenticator app / totp 2fa)</h2>
+                <h2 className="text-sm font-semibold text-white">Xác thực 2 bước (Authenticator / TOTP 2FA)</h2>
                 <div className="text-[11px] text-zinc-400">
-                  Chuẩn bảo mật quốc tế tương thích Google authenticator, microsoft authenticator, authy, apple keychain.
+                  Chuẩn bảo mật quốc tế tương thích Google Authenticator, Microsoft Authenticator, Authy, Apple Keychain.
                 </div>
               </div>
             </div>
@@ -507,7 +514,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div>
                   <div className="font-semibold text-white">Chưa thiết lập ứng dụng xác thực 2 bước</div>
                   <div className="text-[11px] text-zinc-400 mt-0.5">
-                    Quét mã QR bằng ứng dụng Google authenticator trên điện thoại để bảo vệ tài khoản khỏi đánh cắp mật khẩu.
+                    Quét mã QR bằng ứng dụng Google Authenticator trên điện thoại để bảo vệ tài khoản khỏi đánh cắp mật khẩu.
                   </div>
                 </div>
               </div>
@@ -516,10 +523,10 @@ export const AccountSecurityView: React.FC = () => {
                 type="button"
                 data-testid="btn-open-totp-setup"
                 onClick={handleOpenTotpSetup}
-                className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition cursor-pointer shrink-0 shadow-sm whitespace-nowrap flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-medium text-xs transition cursor-pointer shrink-0 shadow-sm whitespace-nowrap flex items-center gap-1.5"
               >
                 <QrCode size={14} />
-                <span>Bật 2fa bằng ứng dụng</span>
+                <span>Bật 2FA bằng ứng dụng</span>
               </button>
             </div>
           )}
@@ -593,7 +600,7 @@ export const AccountSecurityView: React.FC = () => {
           <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-2 leading-relaxed">
             <Info size={14} className="text-zinc-400 shrink-0 mt-0.5" />
             <span>
-              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu an toàn kết hợp với mã xác thực 2 bước totp để bảo vệ dữ liệu tối đa.
+              <strong>Bảo mật tài khoản đa nền tảng:</strong> Bạn có thể sử dụng phương thức đăng nhập Google một chạm, mật khẩu an toàn kết hợp với mã xác thực 2 bước TOTP để bảo vệ dữ liệu tối đa.
             </span>
           </div>
         </div>
@@ -627,7 +634,7 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    data-testid="input-google-secondary-password"
+                    aria-label="Mật khẩu phụ mới" data-testid="input-google-secondary-password"
                     value={googleSecondaryPassword}
                     onChange={(e) => setGoogleSecondaryPassword(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
@@ -641,7 +648,7 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    data-testid="input-google-confirm-password"
+                    aria-label="Xác nhận mật khẩu phụ" data-testid="input-google-confirm-password"
                     value={googleConfirmPassword}
                     onChange={(e) => setGoogleConfirmPassword(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
@@ -656,13 +663,13 @@ export const AccountSecurityView: React.FC = () => {
                   type="submit"
                   disabled={isSettingGooglePassword}
                   data-testid="btn-submit-google-secondary-password"
-                  className="px-5 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
                 >
                   {isSettingGooglePassword
                     ? 'Đang lưu...'
                     : hasGooglePasswordSet
                     ? 'Cập Nhật Mật Khẩu Phụ'
-                    : 'Thiết Lập Mật Khẩu Phụ'}
+                    : 'Thiết lập mật khẩu phụ'}
                 </button>
               </div>
             </form>
@@ -709,7 +716,7 @@ export const AccountSecurityView: React.FC = () => {
                   <input
                     type="text"
                     maxLength={6}
-                    data-testid="input-email-otp"
+                    aria-label="Mã xác thực email" data-testid="input-email-otp"
                     value={emailOtpCode}
                     onChange={(e) => setEmailOtpCode(e.target.value.replace(/\s+/g, ''))}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-500/40 bg-zinc-950 text-white font-mono text-center tracking-widest text-base font-bold focus:outline-none focus:border-zinc-400 transition"
@@ -725,7 +732,7 @@ export const AccountSecurityView: React.FC = () => {
                     </label>
                     <input
                       type="password"
-                      data-testid="input-new-password"
+                      aria-label="Mật khẩu mới" data-testid="input-new-password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
@@ -739,7 +746,7 @@ export const AccountSecurityView: React.FC = () => {
                     </label>
                     <input
                       type="password"
-                      data-testid="input-confirm-password"
+                      aria-label="Xác nhận mật khẩu mới" data-testid="input-confirm-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
@@ -769,7 +776,7 @@ export const AccountSecurityView: React.FC = () => {
                   </label>
                   <input
                     type="password"
-                    data-testid="input-old-password"
+                    aria-label="Mật khẩu hiện tại" data-testid="input-old-password"
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white focus:outline-none focus:border-zinc-400 transition"
@@ -783,7 +790,7 @@ export const AccountSecurityView: React.FC = () => {
                     <label className="block text-zinc-300 font-medium mb-1.5">
                       Mật khẩu mới (tối thiểu 6 ký tự)
                     </label>
-                    <input
+                    <input aria-label="Mật khẩu mới"
                       type="password"
                       data-testid="input-new-password"
                       value={newPassword}
@@ -797,7 +804,7 @@ export const AccountSecurityView: React.FC = () => {
                     <label className="block text-zinc-300 font-medium mb-1.5">
                       Xác nhận mật khẩu mới
                     </label>
-                    <input
+                    <input aria-label="Xác nhận mật khẩu mới"
                       type="password"
                       data-testid="input-confirm-password"
                       value={confirmPassword}
@@ -879,7 +886,7 @@ export const AccountSecurityView: React.FC = () => {
               onClick={handleSignOutOtherDevices}
               className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer shrink-0 whitespace-nowrap"
             >
-              {isSigningOutOthers ? 'Đang xử lý...' : 'Đăng Xuất Thiết Bị Khác'}
+              {isSigningOutOthers ? 'Đang xử lý...' : 'Đăng xuất thiết bị khác'}
             </button>
           </div>
         </div>
@@ -894,7 +901,7 @@ export const AccountSecurityView: React.FC = () => {
           </div>
 
           <p className="text-xs text-zinc-400 leading-relaxed">
-            Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống theo chuẩn quyền riêng tư gdpr.
+            Sau khi xóa tài khoản, toàn bộ thông tin cá nhân, hồ sơ học tập, ghi chú, danh sách nhiệm vụ và quyền lợi gói cước sẽ bị xóa sạch vĩnh viễn khỏi hệ thống.
           </p>
 
           <div className="pt-1 flex items-center justify-between flex-wrap gap-3">
@@ -918,14 +925,14 @@ export const AccountSecurityView: React.FC = () => {
       {/* MODAL 1: THIẾT LẬP GOOGLE AUTHENTICATOR (TOTP 2FA) THẬT 100%             */}
       {/* ========================================================================= */}
       {showTotpSetupModal && totpSetupData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+        <div ref={setupDialog} role="dialog" aria-modal="true" aria-label="Thiết lập xác thực hai bước" tabIndex={-1} className="satellite-content fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-100">
                 <QrCode size={18} />
-                <span>Thiết lập xác thực 2 bước (Google authenticator)</span>
+                <span>Thiết lập xác thực 2 bước (Google Authenticator)</span>
               </div>
-              <button
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => {
                   setShowTotpSetupModal(false);
@@ -956,7 +963,7 @@ export const AccountSecurityView: React.FC = () => {
                 <div className="bg-white p-3 rounded-2xl inline-block shadow-md">
                   <img
                     src={totpSetupData.qrCodeUrl}
-                    alt="Mã QR totp"
+                    alt="Mã QR TOTP"
                     className="w-48 h-48 block"
                   />
                 </div>
@@ -1020,7 +1027,7 @@ export const AccountSecurityView: React.FC = () => {
                   type="text"
                   maxLength={6}
                   autoFocus
-                  data-testid="input-totp-verify-code"
+                  aria-label="Mã xác thực hai bước" data-testid="input-totp-verify-code"
                   value={totpInputCode}
                   onChange={(e) => setTotpInputCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="000000"
@@ -1041,9 +1048,9 @@ export const AccountSecurityView: React.FC = () => {
                   type="submit"
                   data-testid="btn-confirm-enable-totp"
                   disabled={totpInputCode.length !== 6 || isVerifyingTotp}
-                  className="px-5 py-2 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 text-xs font-semibold transition cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] disabled:opacity-40 disabled:cursor-not-allowed text-[#0B1120] text-xs font-semibold transition cursor-pointer shadow-sm"
                 >
-                  {isVerifyingTotp ? 'Đang xác minh...' : 'Kích Hoạt 2FA Ngay'}
+                  {isVerifyingTotp ? 'Đang xác minh...' : 'Kích hoạt 2FA'}
                 </button>
               </div>
             </form>
@@ -1055,14 +1062,14 @@ export const AccountSecurityView: React.FC = () => {
       {/* MODAL 2: XEM LẠI MÃ DỰ PHÒNG KHÔI PHỤC (BACKUP CODES MODAL)               */}
       {/* ========================================================================= */}
       {showBackupCodesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+        <div ref={backupDialog} role="dialog" aria-modal="true" aria-label="Mã dự phòng" tabIndex={-1} className="satellite-content fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
                 <Key size={16} />
                 <span>Mã dự phòng khôi phục</span>
               </div>
-              <button
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => setShowBackupCodesModal(false)}
                 className="p-1 rounded-lg text-zinc-400 hover:text-white"
@@ -1109,7 +1116,7 @@ export const AccountSecurityView: React.FC = () => {
       {/* MODAL 3: XÁC NHẬN TẮT 2FA                                                */}
       {/* ========================================================================= */}
       {showDisable2FaModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+        <div ref={disableDialog} role="dialog" aria-modal="true" aria-label="Tắt xác thực hai bước" tabIndex={-1} className="satellite-content fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
               <AlertTriangle size={16} className="text-zinc-400" />
@@ -1135,7 +1142,7 @@ export const AccountSecurityView: React.FC = () => {
                 onClick={handleConfirmDisable2Fa}
                 className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer"
               >
-                {isDisabling2Fa ? 'Đang tắt...' : 'Xác Nhận Tắt'}
+                {isDisabling2Fa ? 'Đang tắt...' : 'Xác nhận tắt'}
               </button>
             </div>
           </div>
@@ -1146,14 +1153,14 @@ export const AccountSecurityView: React.FC = () => {
       {/* MODAL 4: XÁC NHẬN XÓA TÀI KHOẢN VĨNH VIỄN (GDPR)                         */}
       {/* ========================================================================= */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+        <div ref={deleteDialog} role="dialog" aria-modal="true" aria-label="Xóa tài khoản" tabIndex={-1} className="satellite-content fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 text-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-200">
                 <AlertTriangle size={16} className="text-rose-400" />
                 <span>Cảnh báo: xóa tài khoản vĩnh viễn</span>
               </div>
-              <button
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => {
                   setShowDeleteModal(false);
@@ -1177,7 +1184,7 @@ export const AccountSecurityView: React.FC = () => {
               <input
                 type="text"
                 autoFocus
-                data-testid="input-confirm-delete-phrase"
+                aria-label="Cụm từ xác nhận xóa tài khoản" data-testid="input-confirm-delete-phrase"
                 value={deleteConfirmationText}
                 onChange={(e) => setDeleteConfirmationText(e.target.value)}
                 placeholder="Gõ 'xoa tai khoan' vào đây..."
@@ -1203,7 +1210,7 @@ export const AccountSecurityView: React.FC = () => {
                 onClick={handleConfirmDeleteAccount}
                 className="px-5 py-2 rounded-xl border border-zinc-800 hover:border-rose-900/50 bg-zinc-900/60 hover:bg-rose-950/20 disabled:opacity-40 disabled:cursor-not-allowed text-rose-300 text-xs font-medium transition flex items-center gap-1.5 cursor-pointer"
               >
-                {isDeletingAccount ? 'Đang xóa...' : 'Xác Nhận Xóa Vĩnh Viễn'}
+                {isDeletingAccount ? 'Đang xóa...' : 'Xác nhận xóa vĩnh viễn'}
               </button>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
 import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
@@ -51,7 +52,7 @@ export const ContactView: React.FC = () => {
     >
       <div
         data-testid="contact-view"
-        className="w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16 space-y-10"
+        className="satellite-content w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12 md:py-16 space-y-10"
       >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 text-xs font-medium">
@@ -74,7 +75,7 @@ export const ContactView: React.FC = () => {
                 <Mail size={20} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white mb-1">Hòm thư hỗ trợ kỹ thuật</h3>
+                <h2 className="text-base font-bold text-white mb-1">Hòm thư hỗ trợ kỹ thuật</h2>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   Phản hồi trong vòng 24 giờ cho mọi yêu cầu, góp ý hoặc báo cáo bảo mật.
                 </p>
@@ -82,7 +83,7 @@ export const ContactView: React.FC = () => {
               <div className="p-3 rounded-xl bg-black/60 border border-zinc-800 flex items-center justify-between gap-2 font-mono text-xs text-zinc-200">
                 <a
                   href={`mailto:${emailContact}`}
-                  className="inline-flex items-center min-h-[44px] min-w-[44px] min-w-0 hover:text-zinc-300 transition break-all"
+                  className="inline-flex items-center min-h-[44px] min-w-[44px] hover:text-zinc-300 transition break-all"
                   title="Nhấn để gửi email"
                 >
                   {emailContact}
@@ -111,7 +112,7 @@ export const ContactView: React.FC = () => {
                 <HelpCircle size={20} className="text-zinc-300" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white mb-1">Cổng trợ giúp & cộng đồng</h3>
+                <h2 className="text-base font-bold text-white mb-1">Cổng trợ giúp & cộng đồng</h2>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   Soạn yêu cầu bằng biểu mẫu bên dưới, sau đó gửi từ ứng dụng email của bạn.
                 </p>
@@ -142,7 +143,7 @@ export const ContactView: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-zinc-700/20 text-zinc-300 flex items-center justify-center mx-auto">
                 <CheckCircle2 size={24} />
               </div>
-              <h3 className="text-base font-bold text-white">Nội dung email đã sẵn sàng</h3>
+              <h2 className="text-base font-bold text-white">Nội dung email đã sẵn sàng</h2>
               <p className="text-xs text-zinc-300 max-w-md mx-auto">
                 Hãy hoàn tất gửi trong ứng dụng email. Nếu ứng dụng email chưa mở, bạn có thể gửi trực tiếp tới support@pomofocus.vn; trang này chưa xác nhận thư đã được gửi.
               </p>

@@ -1,0 +1,1457 @@
+{
+  "generatedAt": "2026-11-27T15:52:44.739Z",
+  "totalInteractions": 64,
+  "totalScreenshots": 27,
+  "defectsBySeverity": {
+    "CRITICAL": 0,
+    "MAJOR": 0,
+    "MINOR": 0,
+    "NONE": 64
+  },
+  "interactions": [
+    {
+      "id": "ACT-001",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer\"]",
+      "text": "timer SE resize -> MIN",
+      "bbox": {
+        "x": 219,
+        "y": 76,
+        "w": 300,
+        "h": 386
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=320x386 -> min=300x386, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "21",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 2
+    },
+    {
+      "id": "ACT-002",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer\"]",
+      "text": "timer SE resize -> MAX",
+      "bbox": {
+        "x": 219,
+        "y": 76,
+        "w": 460,
+        "h": 520
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=300x386 -> max=460x520",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "22",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 3
+    },
+    {
+      "id": "ACT-003",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-tasks\"]",
+      "text": "tasks SE resize -> MIN",
+      "bbox": {
+        "x": 555,
+        "y": 76,
+        "w": 320,
+        "h": 480
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=320x480 -> min=320x480, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "11",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 4
+    },
+    {
+      "id": "ACT-004",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-tasks\"]",
+      "text": "tasks SE resize -> MAX",
+      "bbox": {
+        "x": 555,
+        "y": 76,
+        "w": 320,
+        "h": 480
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=320x480 -> max=320x480",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "11",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 5
+    },
+    {
+      "id": "ACT-005",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-notes\"]",
+      "text": "notes SE resize -> MIN",
+      "bbox": {
+        "x": 891,
+        "y": 76,
+        "w": 330,
+        "h": 400
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=330x400 -> min=330x400, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "12",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 6
+    },
+    {
+      "id": "ACT-006",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-notes\"]",
+      "text": "notes SE resize -> MAX",
+      "bbox": {
+        "x": 891,
+        "y": 76,
+        "w": 330,
+        "h": 400
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=330x400 -> max=330x400",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "12",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 7
+    },
+    {
+      "id": "ACT-007",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-calendar\"]",
+      "text": "calendar SE resize -> MIN",
+      "bbox": {
+        "x": 520,
+        "y": 75,
+        "w": 380,
+        "h": 460
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=380x460 -> min=380x460, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "25",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 8
+    },
+    {
+      "id": "ACT-008",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-calendar\"]",
+      "text": "calendar SE resize -> MAX",
+      "bbox": {
+        "x": 520,
+        "y": 75,
+        "w": 380,
+        "h": 460
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=380x460 -> max=380x460",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "25",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 9
+    },
+    {
+      "id": "ACT-009",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-spaces\"]",
+      "text": "spaces SE resize -> MIN",
+      "bbox": {
+        "x": 500,
+        "y": 75,
+        "w": 340,
+        "h": 480
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=340x480 -> min=340x480, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "27",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 10
+    },
+    {
+      "id": "ACT-010",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-spaces\"]",
+      "text": "spaces SE resize -> MAX",
+      "bbox": {
+        "x": 500,
+        "y": 75,
+        "w": 340,
+        "h": 480
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=340x480 -> max=340x480",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "27",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 11
+    },
+    {
+      "id": "ACT-011",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-sounds\"]",
+      "text": "sounds SE resize -> MIN",
+      "bbox": {
+        "x": 460,
+        "y": 70,
+        "w": 400,
+        "h": 500
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=400x500 -> min=400x500, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "29",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 12
+    },
+    {
+      "id": "ACT-012",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-sounds\"]",
+      "text": "sounds SE resize -> MAX",
+      "bbox": {
+        "x": 460,
+        "y": 70,
+        "w": 400,
+        "h": 500
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=400x500 -> max=400x500",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "29",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 13
+    },
+    {
+      "id": "ACT-013",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-media\"]",
+      "text": "media SE resize -> MIN",
+      "bbox": {
+        "x": 480,
+        "y": 120,
+        "w": 384,
+        "h": 340
+      },
+      "triggerAction": "drag(-420,-360)",
+      "actualOutcome": "before=384x340 -> min=384x340, closeBtn=true, horizClip=false",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "31",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 14
+    },
+    {
+      "id": "ACT-014",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-media\"]",
+      "text": "media SE resize -> MAX",
+      "bbox": {
+        "x": 480,
+        "y": 120,
+        "w": 384,
+        "h": 340
+      },
+      "triggerAction": "drag(+520,+420)",
+      "actualOutcome": "min=384x340 -> max=384x340",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "box-shadow, border-color 0.15s",
+        "zIndex": "31",
+        "opacity": "1",
+        "backdropFilter": "blur(28px) saturate(1.8)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 15
+    },
+    {
+      "id": "ACT-015",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-n\"]",
+      "text": "Timer resize handle n",
+      "bbox": {
+        "x": 240,
+        "y": 73,
+        "w": 326,
+        "h": 8
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-016",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-s\"]",
+      "text": "Timer resize handle s",
+      "bbox": {
+        "x": 240,
+        "y": 591,
+        "w": 418,
+        "h": 8
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-017",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-e\"]",
+      "text": "Timer resize handle e",
+      "bbox": {
+        "x": 674,
+        "y": 117,
+        "w": 8,
+        "h": 458
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-018",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-w\"]",
+      "text": "Timer resize handle w",
+      "bbox": {
+        "x": 216,
+        "y": 97,
+        "w": 8,
+        "h": 478
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-019",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-ne\"]",
+      "text": "Timer resize handle ne",
+      "bbox": {
+        "x": 670,
+        "y": 73,
+        "w": 12,
+        "h": 12
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-020",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-nw\"]",
+      "text": "Timer resize handle nw",
+      "bbox": {
+        "x": 216,
+        "y": 73,
+        "w": 12,
+        "h": 12
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-021",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"resize-handle-timer-sw\"]",
+      "text": "Timer resize handle sw",
+      "bbox": {
+        "x": 216,
+        "y": 583,
+        "w": 16,
+        "h": 16
+      },
+      "triggerAction": "presence-check",
+      "actualOutcome": "Handle mounted & interactive",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-022",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"widget-container-*\"]",
+      "text": "Z-index click stacking (Timer -> Tasks -> Notes)",
+      "bbox": {
+        "x": 887,
+        "y": 76,
+        "w": 330,
+        "h": 400
+      },
+      "triggerAction": "click each overlapping widget",
+      "actualOutcome": "zTimer=36, zTasks=33, zNotes=39",
+      "cssEffects": {
+        "zTimer": "36",
+        "zTasks": "33",
+        "zNotes": "39"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-023",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"tasks-widget\"]",
+      "text": "Add 5 tasks + priority + filter All/Todo/Completed",
+      "bbox": {
+        "x": 572,
+        "y": 129,
+        "w": 286,
+        "h": 410
+      },
+      "triggerAction": "fill + click priority + add + filter",
+      "actualOutcome": "5 tasks added & filters toggled without error",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 16
+    },
+    {
+      "id": "ACT-024",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"widget-container-notes\"] textarea",
+      "text": "Notes long-text input & scroll",
+      "bbox": {
+        "x": 887,
+        "y": 76,
+        "w": 330,
+        "h": 400
+      },
+      "triggerAction": "fill 6-line text",
+      "actualOutcome": "Text entered & scrollable",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-025",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"ai-companion-drawer\"]",
+      "text": "Open AI Drawer & Submit Prompt",
+      "bbox": {
+        "x": 1020,
+        "y": 0,
+        "w": 420,
+        "h": 900
+      },
+      "triggerAction": "click dock-btn-ai + fill + submit",
+      "actualOutcome": "Drawer opened & prompt handled (guest/auth prompt or response)",
+      "cssEffects": {
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "all 0.15s",
+        "zIndex": "80",
+        "opacity": "1",
+        "backdropFilter": "blur(40px)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 17
+    },
+    {
+      "id": "ACT-026",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"dock-btn-timer\"]",
+      "text": "Dock Item Hover",
+      "bbox": {
+        "x": 462,
+        "y": 830,
+        "w": 36,
+        "h": 36
+      },
+      "triggerAction": "hover",
+      "actualOutcome": "Hover effect applied",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "all 0.15s",
+        "zIndex": "18",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-027",
+      "viewport": "1440x900",
+      "route": "/app",
+      "selector": "[data-testid=\"capsule-expand-btn\"]",
+      "text": "Expand Capsule -> Full Header",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 56
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Full header slid down cleanly",
+      "cssEffects": {
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "all 0.3s",
+        "zIndex": "50",
+        "opacity": "1",
+        "backdropFilter": "blur(24px)",
+        "outline": "rgb(241, 245, 249) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 18
+    },
+    {
+      "id": "ACT-028",
+      "viewport": "360x800",
+      "route": "/",
+      "selector": "[data-testid=\"consent-close-btn\"]",
+      "text": "Close Cookie Banner via X",
+      "bbox": {
+        "x": 12,
+        "y": 562,
+        "w": 336,
+        "h": 226
+      },
+      "triggerAction": "click X",
+      "actualOutcome": "afterBanner=null, localStorage=null",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-029",
+      "viewport": "360x800",
+      "route": "/",
+      "selector": "[data-testid=\"mobile-navigation-drawer\"]",
+      "text": "Open Drawer -> Close via ESC & Backdrop",
+      "bbox": {
+        "x": 98,
+        "y": 56,
+        "w": 243,
+        "h": 309
+      },
+      "triggerAction": "click menu -> ESC -> click menu -> backdrop",
+      "actualOutcome": "afterClose opacity=0, backdropOpacity=0",
+      "cssEffects": {
+        "transform": "matrix(0.95, 0, 0, 0.95, 0, -8)",
+        "transition": "all 0.2s",
+        "zIndex": "60",
+        "opacity": "0",
+        "backdropFilter": "blur(40px)",
+        "outline": "rgb(236, 239, 244) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 19
+    },
+    {
+      "id": "ACT-030",
+      "viewport": "360x800",
+      "route": "/download",
+      "selector": "button:has-text(\"Sao chép liên kết tải APK\")",
+      "text": "Copy APK Link",
+      "bbox": null,
+      "triggerAction": "click",
+      "actualOutcome": "toastVisible=true",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-031",
+      "viewport": "360x800",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-monthly\"]",
+      "text": "Billing cycle billing-cycle-monthly",
+      "bbox": {
+        "x": 21,
+        "y": 125,
+        "w": 128,
+        "h": 50
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-032",
+      "viewport": "360x800",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-yearly\"]",
+      "text": "Billing cycle billing-cycle-yearly",
+      "bbox": {
+        "x": 149,
+        "y": 123,
+        "w": 190,
+        "h": 54
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-033",
+      "viewport": "360x800",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-lifetime\"]",
+      "text": "Billing cycle billing-cycle-lifetime",
+      "bbox": {
+        "x": 99,
+        "y": 128,
+        "w": 162,
+        "h": 44
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "matrix(1, 0, 0, 1, -80.7891, 0)",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(147, 197, 253) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-034",
+      "viewport": "360x800",
+      "route": "/login",
+      "selector": "form button[type=\"submit\"]",
+      "text": "Empty submit & invalid email validation",
+      "bbox": {
+        "x": 45,
+        "y": 63,
+        "w": 270,
+        "h": 211
+      },
+      "triggerAction": "submit empty -> fill invalid-email -> submit",
+      "actualOutcome": "Validation prevented invalid submission cleanly",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 20
+    },
+    {
+      "id": "ACT-035",
+      "viewport": "360x800",
+      "route": "/contact",
+      "selector": "form button[type=\"submit\"]",
+      "text": "/contact empty submit",
+      "bbox": {
+        "x": 41,
+        "y": 62,
+        "w": 278,
+        "h": 404
+      },
+      "triggerAction": "click submit",
+      "actualOutcome": "Validation handled",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 21
+    },
+    {
+      "id": "ACT-036",
+      "viewport": "1024x768",
+      "route": "/",
+      "selector": "[data-testid=\"consent-close-btn\"]",
+      "text": "Close Cookie Banner via X",
+      "bbox": {
+        "x": 552,
+        "y": 544,
+        "w": 448,
+        "h": 208
+      },
+      "triggerAction": "click X",
+      "actualOutcome": "afterBanner=null, localStorage=null",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-037",
+      "viewport": "1024x768",
+      "route": "/",
+      "selector": "[data-testid=\"mobile-navigation-drawer\"]",
+      "text": "Open Drawer -> Close via ESC & Backdrop",
+      "bbox": {
+        "x": 750,
+        "y": 56,
+        "w": 243,
+        "h": 309
+      },
+      "triggerAction": "click menu -> ESC -> click menu -> backdrop",
+      "actualOutcome": "afterClose opacity=0, backdropOpacity=0",
+      "cssEffects": {
+        "transform": "matrix(0.95, 0, 0, 0.95, 0, -8)",
+        "transition": "all 0.2s",
+        "zIndex": "60",
+        "opacity": "0",
+        "backdropFilter": "blur(40px)",
+        "outline": "rgb(236, 239, 244) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 22
+    },
+    {
+      "id": "ACT-038",
+      "viewport": "1024x768",
+      "route": "/download",
+      "selector": "[data-testid=\"copy-download-url-btn\"]",
+      "text": "Copy APK Link",
+      "bbox": {
+        "x": 72,
+        "y": 130,
+        "w": 470,
+        "h": 44
+      },
+      "triggerAction": "click",
+      "actualOutcome": "toastVisible=true",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-039",
+      "viewport": "1024x768",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-monthly\"]",
+      "text": "Billing cycle billing-cycle-monthly",
+      "bbox": {
+        "x": 313,
+        "y": 135,
+        "w": 159,
+        "h": 34
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-040",
+      "viewport": "1024x768",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-yearly\"]",
+      "text": "Billing cycle billing-cycle-yearly",
+      "bbox": {
+        "x": 472,
+        "y": 133,
+        "w": 240,
+        "h": 38
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-041",
+      "viewport": "1024x768",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-lifetime\"]",
+      "text": "Billing cycle billing-cycle-lifetime",
+      "bbox": {
+        "x": 749,
+        "y": 206,
+        "w": 162,
+        "h": 44
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "matrix(1, 0, 0, 1, -80.7891, 0)",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(147, 197, 253) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-042",
+      "viewport": "1024x768",
+      "route": "/login",
+      "selector": "form button[type=\"submit\"]",
+      "text": "Empty submit & invalid email validation",
+      "bbox": {
+        "x": 317,
+        "y": 64,
+        "w": 390,
+        "h": 183
+      },
+      "triggerAction": "submit empty -> fill invalid-email -> submit",
+      "actualOutcome": "Validation prevented invalid submission cleanly",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 23
+    },
+    {
+      "id": "ACT-043",
+      "viewport": "1024x768",
+      "route": "/contact",
+      "selector": "form button[type=\"submit\"]",
+      "text": "/contact empty submit",
+      "bbox": {
+        "x": 121,
+        "y": 62,
+        "w": 782,
+        "h": 328
+      },
+      "triggerAction": "click submit",
+      "actualOutcome": "Validation handled",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 24
+    },
+    {
+      "id": "ACT-044",
+      "viewport": "1440x900",
+      "route": "/",
+      "selector": "[data-testid=\"consent-close-btn\"]",
+      "text": "Close Cookie Banner via X",
+      "bbox": {
+        "x": 968,
+        "y": 676,
+        "w": 448,
+        "h": 208
+      },
+      "triggerAction": "click X",
+      "actualOutcome": "afterBanner=null, localStorage=null",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-045",
+      "viewport": "1440x900",
+      "route": "/download",
+      "selector": "[data-testid=\"copy-download-url-btn\"]",
+      "text": "Copy APK Link",
+      "bbox": {
+        "x": 542,
+        "y": 196,
+        "w": 229,
+        "h": 44
+      },
+      "triggerAction": "click",
+      "actualOutcome": "toastVisible=true",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-046",
+      "viewport": "1440x900",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-monthly\"]",
+      "text": "Billing cycle billing-cycle-monthly",
+      "bbox": {
+        "x": 521,
+        "y": 384,
+        "w": 159,
+        "h": 34
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-047",
+      "viewport": "1440x900",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-yearly\"]",
+      "text": "Billing cycle billing-cycle-yearly",
+      "bbox": {
+        "x": 680,
+        "y": 382,
+        "w": 240,
+        "h": 38
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "none",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(255, 255, 255) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-048",
+      "viewport": "1440x900",
+      "route": "/billing",
+      "selector": "[data-testid=\"billing-cycle-lifetime\"]",
+      "text": "Billing cycle billing-cycle-lifetime",
+      "bbox": {
+        "x": 957,
+        "y": 196,
+        "w": 162,
+        "h": 44
+      },
+      "triggerAction": "click",
+      "actualOutcome": "Cycle switched cleanly",
+      "cssEffects": {
+        "transform": "matrix(1, 0, 0, 1, -80.7891, 0)",
+        "transition": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 0.15s",
+        "zIndex": "auto",
+        "opacity": "1",
+        "backdropFilter": "none",
+        "outline": "rgb(147, 197, 253) none 3px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-049",
+      "viewport": "1440x900",
+      "route": "/login",
+      "selector": "form button[type=\"submit\"]",
+      "text": "Empty submit & invalid email validation",
+      "bbox": {
+        "x": 525,
+        "y": 64,
+        "w": 390,
+        "h": 183
+      },
+      "triggerAction": "submit empty -> fill invalid-email -> submit",
+      "actualOutcome": "Validation prevented invalid submission cleanly",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 25
+    },
+    {
+      "id": "ACT-050",
+      "viewport": "1440x900",
+      "route": "/contact",
+      "selector": "form button[type=\"submit\"]",
+      "text": "/contact empty submit",
+      "bbox": {
+        "x": 329,
+        "y": 62,
+        "w": 782,
+        "h": 328
+      },
+      "triggerAction": "click submit",
+      "actualOutcome": "Validation handled",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 26
+    },
+    {
+      "id": "ACT-051",
+      "viewport": "1440x900",
+      "route": "/",
+      "selector": "BUTTON",
+      "text": "Keyboard Tab Focus Ring",
+      "bbox": null,
+      "triggerAction": "press Tab x4",
+      "actualOutcome": "outline=rgb(147, 197, 253) solid 2px, offset=2px",
+      "cssEffects": {
+        "tag": "BUTTON",
+        "outline": "rgb(147, 197, 253) solid 2px",
+        "outlineOffset": "2px"
+      },
+      "consoleErrors": [],
+      "defectSeverity": "NONE",
+      "screenIndex": 27
+    },
+    {
+      "id": "ACT-052",
+      "viewport": "1440x900",
+      "route": "/rooms",
+      "selector": "main / root",
+      "text": "Route reachability /rooms",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-053",
+      "viewport": "1440x900",
+      "route": "/calendar",
+      "selector": "main / root",
+      "text": "Route reachability /calendar",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-054",
+      "viewport": "1440x900",
+      "route": "/dashboard",
+      "selector": "main / root",
+      "text": "Route reachability /dashboard",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-055",
+      "viewport": "1440x900",
+      "route": "/profile",
+      "selector": "main / root",
+      "text": "Route reachability /profile",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-056",
+      "viewport": "1440x900",
+      "route": "/account/security",
+      "selector": "main / root",
+      "text": "Route reachability /account/security",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-057",
+      "viewport": "1440x900",
+      "route": "/settings",
+      "selector": "main / root",
+      "text": "Route reachability /settings",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-058",
+      "viewport": "1440x900",
+      "route": "/signup",
+      "selector": "main / root",
+      "text": "Route reachability /signup",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-059",
+      "viewport": "1440x900",
+      "route": "/help",
+      "selector": "main / root",
+      "text": "Route reachability /help",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-060",
+      "viewport": "1440x900",
+      "route": "/terms",
+      "selector": "main / root",
+      "text": "Route reachability /terms",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-061",
+      "viewport": "1440x900",
+      "route": "/privacy",
+      "selector": "main / root",
+      "text": "Route reachability /privacy",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-062",
+      "viewport": "1440x900",
+      "route": "/about",
+      "selector": "main / root",
+      "text": "Route reachability /about",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-063",
+      "viewport": "1440x900",
+      "route": "/privacy-data",
+      "selector": "main / root",
+      "text": "Route reachability /privacy-data",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    },
+    {
+      "id": "ACT-064",
+      "viewport": "1440x900",
+      "route": "/not-found-404",
+      "selector": "main / root",
+      "text": "Route reachability /not-found-404",
+      "bbox": null,
+      "triggerAction": "goto",
+      "actualOutcome": "loaded, overflow=false",
+      "cssEffects": null,
+      "consoleErrors": [],
+      "defectSeverity": "NONE"
+    }
+  ],
+  "screenshots": [
+    {
+      "index": 1,
+      "category": "Desktop /app",
+      "title": "Initial Workspace"
+    },
+    {
+      "index": 2,
+      "category": "Desktop /app Resize",
+      "title": "timer Min-Size (300x386)"
+    },
+    {
+      "index": 3,
+      "category": "Desktop /app Resize",
+      "title": "timer Max-Size (460x520)"
+    },
+    {
+      "index": 4,
+      "category": "Desktop /app Resize",
+      "title": "tasks Min-Size (320x480)"
+    },
+    {
+      "index": 5,
+      "category": "Desktop /app Resize",
+      "title": "tasks Max-Size (320x480)"
+    },
+    {
+      "index": 6,
+      "category": "Desktop /app Resize",
+      "title": "notes Min-Size (330x400)"
+    },
+    {
+      "index": 7,
+      "category": "Desktop /app Resize",
+      "title": "notes Max-Size (330x400)"
+    },
+    {
+      "index": 8,
+      "category": "Desktop /app Resize",
+      "title": "calendar Min-Size (380x460)"
+    },
+    {
+      "index": 9,
+      "category": "Desktop /app Resize",
+      "title": "calendar Max-Size (380x460)"
+    },
+    {
+      "index": 10,
+      "category": "Desktop /app Resize",
+      "title": "spaces Min-Size (340x480)"
+    },
+    {
+      "index": 11,
+      "category": "Desktop /app Resize",
+      "title": "spaces Max-Size (340x480)"
+    },
+    {
+      "index": 12,
+      "category": "Desktop /app Resize",
+      "title": "sounds Min-Size (400x500)"
+    },
+    {
+      "index": 13,
+      "category": "Desktop /app Resize",
+      "title": "sounds Max-Size (400x500)"
+    },
+    {
+      "index": 14,
+      "category": "Desktop /app Resize",
+      "title": "media Min-Size (384x340)"
+    },
+    {
+      "index": 15,
+      "category": "Desktop /app Resize",
+      "title": "media Max-Size (384x340)"
+    },
+    {
+      "index": 16,
+      "category": "Desktop /app State",
+      "title": "Tasks Populated (5 items + Priority)"
+    },
+    {
+      "index": 17,
+      "category": "Desktop /app State",
+      "title": "AI Companion Drawer Open & Prompt Submitted"
+    },
+    {
+      "index": 18,
+      "category": "Desktop /app State",
+      "title": "Floating Capsule Expanded to Full Header"
+    },
+    {
+      "index": 19,
+      "category": "Mobile 360px",
+      "title": "Mobile Drawer Open"
+    },
+    {
+      "index": 20,
+      "category": "Mobile 360px",
+      "title": "/login Validation State"
+    },
+    {
+      "index": 21,
+      "category": "Mobile 360px",
+      "title": "/contact Empty Submit Validation"
+    },
+    {
+      "index": 22,
+      "category": "Tablet 1024px",
+      "title": "Mobile Drawer Open"
+    },
+    {
+      "index": 23,
+      "category": "Tablet 1024px",
+      "title": "/login Validation State"
+    },
+    {
+      "index": 24,
+      "category": "Tablet 1024px",
+      "title": "/contact Empty Submit Validation"
+    },
+    {
+      "index": 25,
+      "category": "Desktop 1440px",
+      "title": "/login Validation State"
+    },
+    {
+      "index": 26,
+      "category": "Desktop 1440px",
+      "title": "/contact Empty Submit Validation"
+    },
+    {
+      "index": 27,
+      "category": "Desktop 1440px",
+      "title": "Tab Focus Ring Visible"
+    }
+  ]
+}

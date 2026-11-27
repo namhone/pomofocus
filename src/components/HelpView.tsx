@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
 import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
@@ -55,7 +56,7 @@ export const HelpView: React.FC = () => {
     >
       <div
         data-testid="help-view"
-        className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
+        className="satellite-content w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8"
       >
         {/* Title */}
         <div className="space-y-1.5">

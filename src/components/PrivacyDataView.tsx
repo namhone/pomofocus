@@ -1,3 +1,5 @@
+import { useSatelliteDialog } from '../hooks/useSatelliteDialog';
+import '../styles/satellitePages.css';
 import React, { useEffect, useState } from 'react';
 import { db } from '../db';
 import { useRouter } from '../services/router';
@@ -39,6 +41,7 @@ export const PrivacyDataView: React.FC = () => {
 
   const [isExporting, setIsExporting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const deleteDialog = useSatelliteDialog(showDeleteModal, () => setShowDeleteModal(false));
   const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -175,7 +178,7 @@ export const PrivacyDataView: React.FC = () => {
     >
       <div
         data-testid="privacy-data-view"
-        className="w-full max-w-4xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
+        className="satellite-content w-full max-w-4xl mx-auto pt-4 sm:pt-6 pb-16 px-4 space-y-6"
       >
         {/* Nút Quay Lại Bàn Học & Privacy Status cho Desktop Web */}
         {!isMobileOrNative && (
@@ -389,8 +392,8 @@ export const PrivacyDataView: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div
-          data-testid="clear-data-confirm-modal"
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          ref={deleteDialog} role="dialog" aria-modal="true" aria-label="Xác nhận xóa dữ liệu" tabIndex={-1} data-testid="clear-data-confirm-modal"
+          className="satellite-content fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
         >
           <div className="max-w-md w-full p-6 rounded-2xl border border-rose-900 bg-zinc-950 space-y-4 text-xs shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
@@ -398,7 +401,7 @@ export const PrivacyDataView: React.FC = () => {
                 <AlertTriangle size={16} />
                 <span>Xác nhận xóa dữ liệu</span>
               </div>
-              <button
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 className="text-zinc-400 hover:text-white cursor-pointer"
@@ -417,7 +420,7 @@ export const PrivacyDataView: React.FC = () => {
               </label>
               <input
                 type="text"
-                data-testid="input-confirm-delete"
+                aria-label="Nhập XOA để xác nhận" data-testid="input-confirm-delete"
                 value={deleteConfirmationInput}
                 onChange={(e) => setDeleteConfirmationInput(e.target.value)}
                 placeholder="XOA"

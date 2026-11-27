@@ -1,3 +1,5 @@
+import '../styles/satellitePages.css';
+import { useSatelliteDialog } from '../hooks/useSatelliteDialog';
 import React, { useEffect, useState } from 'react';
 import { db, PlannerBlockRecord } from '../db';
 import { getVietnamTodayDateKey } from '../utils/timezone';
@@ -37,6 +39,15 @@ export const DedicatedCalendarView: React.FC = () => {
   );
   const [newTitle, setNewTitle] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string>('');
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState('');
+  const dialogRef = useSatelliteDialog(isAddModalOpen, () => setIsAddModalOpen(false));
+  const editBlock = (block: PlannerBlockRecord) => {
+    setEditingId(block.id); setNewTitle(block.title); setSelectedDateStr(block.dateString);
+    setSelectedHour(block.startHour); setSelectedTaskId(block.taskId || '');
+    setFormError(''); setIsAddModalOpen(true);
+  };
 
   // Load blocks & tasks
   const reloadData = async () => {
@@ -118,25 +129,29 @@ export const DedicatedCalendarView: React.FC = () => {
 
   const handleCreateBlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) { setFormError('Vui lòng nhập nội dung phiên học.'); return; }
+    const parsedDate = new Date(selectedDateStr + 'T00:00:00');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(selectedDateStr) || Number.isNaN(parsedDate.getTime()) || formatDateYMD(parsedDate) !== selectedDateStr || !Number.isInteger(selectedHour) || selectedHour < 6 || selectedHour > 23) {
+      setFormError('Chọn ngày hợp lệ và giờ bắt đầu từ 6:00 đến 23:00.'); return;
+    }
 
     try {
       const newBlock: PlannerBlockRecord = {
-        id: generateUUID(),
+        id: editingId || generateUUID(),
         dateString: selectedDateStr,
         startHour: selectedHour,
         title: newTitle.trim(),
         taskId: selectedTaskId || null,
-        completed: false
+        completed: editingId ? Boolean(blocks.find(block => block.id === editingId)?.completed) : false
       };
-      await db.planner_blocks.add(newBlock);
+      await db.planner_blocks.put(newBlock);
       window.dispatchEvent(new CustomEvent('pomofocus_planner_sync'));
       setNewTitle('');
       setSelectedTaskId('');
       setIsAddModalOpen(false);
       await reloadData();
-    } catch (err) {
-      console.warn('Lỗi thêm block:', err);
+    } catch {
+      setFormError('Không thể lưu lịch học. Vui lòng thử lại.');
     }
   };
 
@@ -166,7 +181,7 @@ export const DedicatedCalendarView: React.FC = () => {
       onBack={() => router.navigate('/app')}
       className="bg-[#0b0e14] text-neutral-100"
     >
-      <div className="w-full max-w-7xl mx-auto pt-4 sm:pt-6 pb-12 px-3 sm:px-6 flex flex-col space-y-4">
+      <div className="satellite-content w-full min-w-0 max-w-7xl mx-auto pt-4 sm:pt-6 pb-12 px-3 sm:px-6 flex flex-col space-y-4">
         <div className="rounded-2xl border border-white/10 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 backdrop-blur-md shrink-0 shadow-lg">
           <div className="flex items-center gap-2">
             <CalendarIcon size={18} className="text-zinc-300 shrink-0" />
@@ -176,7 +191,7 @@ export const DedicatedCalendarView: React.FC = () => {
           </div>
 
           {/* View Switch & Navigation Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap min-w-0 items-center gap-3">
             <div className="flex rounded-lg bg-white/5 p-0.5 border border-white/10 text-xs">
               <button
                 type="button"
@@ -201,7 +216,7 @@ export const DedicatedCalendarView: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-1 bg-white/5 rounded-lg border border-white/10 p-0.5">
-              <button
+              <button aria-label="Kỳ trước"
                 type="button"
                 data-testid="calendar-prev-btn"
                 onClick={handlePrev}
@@ -218,7 +233,7 @@ export const DedicatedCalendarView: React.FC = () => {
               >
                 Hôm nay
               </button>
-              <button
+              <button aria-label="Kỳ sau"
                 type="button"
                 data-testid="calendar-next-btn"
                 onClick={handleNext}
@@ -235,7 +250,7 @@ export const DedicatedCalendarView: React.FC = () => {
               onClick={() => {
                 setSelectedDateStr(formatDateYMD(new Date()));
                 setSelectedHour(Math.min(23, Math.max(6, new Date().getHours())));
-                setIsAddModalOpen(true);
+                setEditingId(null); setNewTitle(''); setFormError(''); setIsAddModalOpen(true);
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition active:scale-95 cursor-pointer"
             >
@@ -292,7 +307,7 @@ export const DedicatedCalendarView: React.FC = () => {
                           onClick={() => {
                             setSelectedDateStr(dateStr);
                             setSelectedHour(hour);
-                            setIsAddModalOpen(true);
+                            setEditingId(null); setNewTitle(''); setFormError(''); setIsAddModalOpen(true);
                           }}
                           className="p-1 hover:bg-white/[0.03] transition-colors relative group cursor-pointer"
                         >
@@ -308,7 +323,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 key={blk.id}
                                 onClick={(e) => e.stopPropagation()}
                                 title={fullTitle}
-                                className={`group relative p-2 rounded-lg text-xs border mb-1 flex items-start justify-between gap-1 shadow-sm transition-all cursor-pointer ${
+                                className={`group relative p-2 rounded-lg text-xs border mb-1 flex flex-col items-stretch gap-1 shadow-sm transition-all cursor-pointer ${
                                   blk.completed
                                     ? 'bg-neutral-800/60 border-white/5 text-zinc-400 line-through'
                                     : 'bg-zinc-950/60 border-zinc-500/30 text-zinc-200'
@@ -321,7 +336,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 </div>
 
                                 <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-1.5 font-medium truncate">
+                                  <div className="flex flex-col items-stretch gap-1.5 font-medium min-w-0">
                                     <button
                                       type="button"
                                       onClick={() => handleToggleBlock(blk.id, blk.completed)}
@@ -334,10 +349,10 @@ export const DedicatedCalendarView: React.FC = () => {
                                         <Circle size={13} className="text-zinc-300" />
                                       )}
                                     </button>
-                                    <span className="font-medium truncate block">{blk.title}</span>
+                                    <button type="button" onClick={() => editBlock(blk)} aria-label={`Sửa lịch học ${blk.title}`} className="font-medium text-left break-words w-full">{blk.title}</button>
                                   </div>
                                   {/* Nhãn khung giờ nhỏ bên dưới tên sự kiện */}
-                                  <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 truncate">
+                                  <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 break-words">
                                     {timeRange}
                                   </span>
                                   {linkedTask && (
@@ -347,10 +362,10 @@ export const DedicatedCalendarView: React.FC = () => {
                                     </div>
                                   )}
                                 </div>
-                                <button
+                                <button aria-label="Xóa block này"
                                   type="button"
                                   onClick={() => handleDeleteBlock(blk.id)}
-                                  className="text-zinc-400 hover:text-rose-400 p-0.5 transition opacity-0 group-hover:opacity-100 cursor-pointer shrink-0"
+                                  className="text-zinc-400 hover:text-rose-400 p-0.5 transition opacity-100 focus-visible:opacity-100 cursor-pointer shrink-0"
                                   title="Xóa block này"
                                 >
                                   <X size={12} />
@@ -370,7 +385,7 @@ export const DedicatedCalendarView: React.FC = () => {
 
           {/* Day View Mode */}
           {viewMode === 'day' && (
-            <div className="max-w-3xl mx-auto rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-xl shadow-2xl">
+            <div className="w-full min-w-0 max-w-3xl mx-auto rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-xl shadow-2xl">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Clock size={18} className="text-zinc-300" />
                 <span>Kế hoạch ngày: {formatDateYMD(currentDate)}</span>
@@ -387,12 +402,12 @@ export const DedicatedCalendarView: React.FC = () => {
                       onClick={() => {
                         setSelectedDateStr(dateStr);
                         setSelectedHour(hour);
-                        setIsAddModalOpen(true);
+                        setEditingId(null); setNewTitle(''); setFormError(''); setIsAddModalOpen(true);
                       }}
-                      className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-between transition cursor-pointer"
+                      className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between transition cursor-pointer"
                     >
                       <div className="w-16 text-xs font-mono text-neutral-400">{hour}:00</div>
-                      <div className="flex-1 flex flex-wrap gap-2">
+                      <div className="min-w-0 flex-1 flex flex-wrap gap-2">
                         {matching.length === 0 ? (
                           <span className="text-xs text-zinc-400 italic">Trống</span>
                         ) : (
@@ -407,7 +422,7 @@ export const DedicatedCalendarView: React.FC = () => {
                                 key={blk.id}
                                 onClick={(e) => e.stopPropagation()}
                                 title={fullTitle}
-                                className={`min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] cursor-pointer group relative ${
+                                className={`w-full min-w-0 min-h-[44px] px-3 py-2 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] cursor-pointer group relative ${
                                   blk.completed
                                     ? 'bg-neutral-800/80 border-white/5 text-zinc-400 line-through'
                                     : 'bg-zinc-950/70 border-zinc-500/30 text-zinc-200'
@@ -423,13 +438,13 @@ export const DedicatedCalendarView: React.FC = () => {
                                     {blk.completed ? <CheckCircle2 size={15} /> : <Circle size={15} />}
                                   </button>
                                   <div className="min-w-0 flex-1">
-                                    <span className="font-medium truncate block">{blk.title}</span>
-                                    <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 truncate">
+                                    <button type="button" onClick={() => editBlock(blk)} aria-label={`Sửa lịch học ${blk.title}`} className="font-medium text-left break-words w-full">{blk.title}</button>
+                                    <span className="text-[10px] text-zinc-400 block opacity-80 font-mono mt-0.5 break-words">
                                       {timeRange}
                                     </span>
                                   </div>
                                 </div>
-                                <button
+                                <button aria-label="Xóa lịch học này"
                                   type="button"
                                   data-testid="btn-delete-schedule"
                                   onClick={() => handleDeleteBlock(blk.id)}
@@ -456,11 +471,11 @@ export const DedicatedCalendarView: React.FC = () => {
 
       {/* Add Study Block Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-neutral-900 p-6 shadow-2xl">
+        <div className="satellite-content fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="schedule-dialog-title" tabIndex={-1} className="w-full max-w-md rounded-2xl border border-white/15 bg-neutral-900 p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-white">Thêm khung giờ học (time-block)</h3>
-              <button
+              <h2 id="schedule-dialog-title" className="text-base font-bold text-[#ECEFF4]">{editingId ? 'Sửa lịch học' : 'Thêm khung giờ học'}</h2>
+              <button aria-label="Đóng hộp thoại"
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
                 className="text-neutral-400 hover:text-white"
@@ -470,15 +485,15 @@ export const DedicatedCalendarView: React.FC = () => {
             </div>
 
             <form onSubmit={handleCreateBlock} className="space-y-4">
+              {formError && <p role="alert" className="text-sm text-rose-300">{formError}</p>}
               <div>
                 <label className="block text-xs font-medium text-neutral-300 mb-1">
                   Nội dung phiên học / sự kiện
                 </label>
                 <input
                   type="text"
-                  data-testid="input-schedule-title"
+                  aria-label="Nội dung phiên học" data-testid="input-schedule-title"
                   required
-                  autoFocus
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Ví dụ: ôn thi đại số tuyến tính chương 3"
@@ -490,7 +505,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 <div>
                   <label className="block text-xs font-medium text-neutral-300 mb-1">Ngày học</label>
                   <input
-                    type="date"
+                    aria-label="Ngày học" type="date"
                     required
                     value={selectedDateStr}
                     onChange={(e) => setSelectedDateStr(e.target.value)}
@@ -500,7 +515,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 <div>
                   <label className="block text-xs font-medium text-neutral-300 mb-1">Giờ bắt đầu</label>
                   <select
-                    value={selectedHour}
+                    aria-label="Giờ bắt đầu" value={selectedHour}
                     onChange={(e) => setSelectedHour(Number(e.target.value))}
                     className="w-full rounded-xl bg-neutral-900 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-400"
                   >
@@ -518,7 +533,7 @@ export const DedicatedCalendarView: React.FC = () => {
                   Liên kết với công việc pomodoro (tùy chọn)
                 </label>
                 <select
-                  value={selectedTaskId}
+                  aria-label="Công việc liên kết" value={selectedTaskId}
                   onChange={(e) => setSelectedTaskId(e.target.value)}
                   className="w-full rounded-xl bg-neutral-900 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-400"
                 >
@@ -542,7 +557,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 <button
                   type="submit"
                   data-testid="btn-submit-schedule"
-                  className="px-5 py-2 rounded-xl bg-zinc-700 hover:bg-zinc-700 text-white font-semibold text-xs transition"
+                  className="px-5 py-2 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition"
                 >
                   Lưu khung giờ
                 </button>

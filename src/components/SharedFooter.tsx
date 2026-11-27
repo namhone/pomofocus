@@ -125,7 +125,7 @@ export const SharedFooter: React.FC = () => {
               <PomoFocusLogo size={26} showWordmark={true} wordmarkClassName="text-sm font-bold text-white" />
             </button>
             <p className="text-[11px] text-zinc-400 leading-relaxed text-pretty">
-              Không gian học tập &amp; làm việc sâu theo chu kỳ pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
+              Không gian học tập &amp; làm việc sâu theo chu kỳ Pomodoro khoa học kết hợp âm thanh thiên nhiên, quản lý nhiệm vụ và phòng học nhóm trực&nbsp;tuyến.
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export const SharedFooter: React.FC = () => {
               <span className="whitespace-nowrap">Liên hệ trực tiếp</span>
             </div>
             <p className="text-[11px] text-zinc-400 text-pretty">
-              Phát triển bởi <strong className="text-zinc-200 font-medium whitespace-nowrap">Hồ ngọc bảo nam</strong>. Sẵn sàng lắng nghe phản hồi &amp; hỗ trợ kỹ&nbsp;thuật:
+              Phát triển bởi <strong className="text-zinc-200 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam</strong>. Sẵn sàng lắng nghe phản hồi &amp; hỗ trợ kỹ&nbsp;thuật:
             </p>
 
             {/* Email quick item - Compact & Balanced */}
@@ -152,7 +152,7 @@ export const SharedFooter: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="w-7 h-7 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
+                className="min-h-[44px] min-w-[44px] w-11 h-11 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
                 title="Sao chép email"
                 aria-label="Sao chép vào bộ nhớ tạm"
               >
@@ -230,7 +230,7 @@ export const SharedFooter: React.FC = () => {
         <div className="pt-4 sm:pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-zinc-400">
           <div className="flex items-center gap-1 text-center sm:text-left flex-wrap justify-center sm:justify-start">
             <span>© 2026 PomoFocus. Bản quyền phát triển bởi</span>
-            <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ ngọc bảo nam.</span>
+            <span className="text-zinc-400 font-medium whitespace-nowrap">Hồ Ngọc Bảo Nam.</span>
           </div>
           <div className="flex items-center gap-2.5 text-[10px] text-zinc-400 whitespace-nowrap">
             <span className="text-zinc-400">Bản quyền thuộc PomoFocus</span>

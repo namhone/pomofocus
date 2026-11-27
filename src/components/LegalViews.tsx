@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
 import { MobileSubViewLayout } from './mobile/MobileSubViewLayout';
@@ -33,7 +34,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
       onBack={() => router.navigate('/app')}
       className="selection:bg-white selection:text-black"
     >
-      <div data-testid="legal-views" className="w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
+      <div data-testid="legal-views" className="satellite-content w-full max-w-4xl mx-auto p-4 sm:p-8 md:p-12 space-y-8">
         {/* Sub-nav Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800 [&_button]:min-h-[44px]">
           <div className="flex flex-wrap min-w-0 items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
@@ -196,6 +197,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
                 <li><strong className="text-zinc-200">POST_NOTIFICATIONS:</strong> Phát thông báo đẩy để nhắc nhở khi hết hiệp tập trung hoặc hết giờ nghỉ giải lao.</li>
                 <li><strong className="text-zinc-200">SCHEDULE_EXACT_ALARM:</strong> Đặt lịch thông báo và chuông báo khi kết thúc phiên Pomodoro, thời điểm thực tế còn phụ thuộc quyền đã cấp và cơ chế tiết kiệm pin của Android.</li>
                 <li><strong className="text-zinc-200">WAKE_LOCK:</strong> Hỗ trợ duy trì hoạt động phiên học; việc giữ sáng màn hình phụ thuộc cài đặt và khả năng thiết bị.</li>
+                <li><strong className="text-zinc-200">INTERNET & MODIFY_AUDIO_SETTINGS:</strong> Kết nối tài khoản, đồng bộ và điều chỉnh âm thanh phục vụ phiên học hoặc phòng nhóm.</li>
                 <li><strong className="text-zinc-200">VIBRATE:</strong> Rung phản hồi xúc giác nhẹ khi bấm nút và khi kết thúc hiệp đếm ngược.</li>
               </ul>
             </section>
@@ -213,7 +215,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
                   <strong className="text-zinc-200">Quy trình & thời hạn giải quyết (Điều 5 Nghị định 356/2025/NĐ-CP):</strong>
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>Tự phục vụ tức thì:</strong> Bạn có thể xuất bản sao JSON hoặc xóa dữ liệu trên thiết bị sau khi xác nhận tại trang <button type="button" onClick={() => router.navigate('/privacy-data')} className="text-white underline hover:text-zinc-300">Dữ liệu cá nhân</button>, Việc xóa trên thiết bị không thay thế yêu cầu xóa tài khoản hoặc bản sao trên Cloud. Bạn có thể chủ động rút lại sự đồng ý thu thập cookie bất kỳ lúc nào tại trang <button type="button" onClick={() => router.navigate('/settings')} className="text-white underline hover:text-zinc-300">Cài đặt</button>.</li>
+                  <li><strong>Tự phục vụ tức thì:</strong> Bạn có thể xuất bản sao JSON hoặc xóa dữ liệu trên thiết bị sau khi xác nhận tại trang <button type="button" onClick={() => router.navigate('/privacy-data')} className="text-white underline hover:text-zinc-300">Dữ liệu cá nhân</button>. Việc xóa trên thiết bị không thay thế yêu cầu xóa tài khoản hoặc bản sao trên Cloud. Bạn có thể chủ động rút lại sự đồng ý thu thập cookie bất kỳ lúc nào tại trang <button type="button" onClick={() => router.navigate('/settings')} className="text-white underline hover:text-zinc-300">Cài đặt</button>.</li>
                   <li><strong>Yêu cầu qua email:</strong> Khi nhận được yêu cầu của chủ thể dữ liệu gửi tới <code className="text-zinc-300">support@pomofocus.vn</code>, chúng tôi cam kết phản hồi hướng dẫn trong vòng <strong>02 ngày làm việc</strong> và hoàn tất xử lý xóa bỏ thông tin trong <strong>20 ngày</strong>; trường hợp cần phối hợp bên xử lý hoặc bên thứ ba là <strong>30 ngày</strong>. Nếu cần gia hạn, thời gian kéo dài tối đa một lần không quá <strong>20 ngày</strong> và phải thông báo lý do theo khoản 4 Điều 5 Nghị định 356/2025/NĐ-CP. Dữ liệu phải lưu theo quy định pháp luật được xử lý theo căn cứ áp dụng và thông báo cho bạn.</li>
                 </ul>
               </div>
@@ -260,7 +262,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
                 <div className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/60 space-y-1">
                   <div className="font-semibold text-white flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-zinc-300" />
-                    <span>Riêng tư tuyệt đối</span>
+                    <span>Kiểm soát dữ liệu</span>
                   </div>
                   <p className="text-[11px] text-zinc-400">
                     Bạn quản lý dữ liệu trên thiết bị và dữ liệu đồng bộ cùng tài khoản.

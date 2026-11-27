@@ -181,7 +181,7 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
       render(<LegalViews initialTab="terms" />);
 
       // E-commerce Law 122/2025/QH15 & Decree 248/2026/NĐ-CP
-      expect(screen.getByText(/Luật Thương mại điện tử 122\/2025\/QH15/i)).toBeDefined();
+      expect(screen.getAllByText(/Luật Thương mại điện tử số 122\/2025\/QH15/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Nghị định 248\/2026\/NĐ-CP/i)).toBeDefined();
 
       // Consumer Protection Law 19/2023/QH15
@@ -197,13 +197,13 @@ describe('Milestone M4: Legal Compliance & Cookie Consent (BUG-74, BUG-75)', () 
 
       // PDPL 91/2025 & Decree 356/2025 replacing Decree 13/2023
       expect(screen.getByText(/Luật Bảo vệ dữ liệu cá nhân 91\/2025\/QH15/i)).toBeDefined();
-      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP \(thay thế Nghị định 13\/2023\)/i)).toBeDefined();
+      expect(screen.getByText(/Nghị định 356\/2025\/NĐ-CP \(thay thế nghị định 13\/2023\)/i)).toBeDefined();
 
       // Data subject rights: Articles 4 & 10 Law 91/2025/QH15
       expect(screen.getByText(/Điều 4 & Điều 10 Luật 91\/2025\/QH15/i)).toBeDefined();
 
       // Resolution timeframes: Article 5 Decree 356/2025/NĐ-CP
-      expect(screen.getByText(/Điều 5 Nghị định 356\/2025\/NĐ-CP/i)).toBeDefined();
+      expect(screen.getAllByText(/Điều 5 Nghị định 356\/2025\/NĐ-CP/i).length).toBeGreaterThan(0);
     });
 
     it('3.3 AiCompanionWidget displays legal citation to AI Law 134/2025 in footer and assistant messages', () => {

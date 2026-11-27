@@ -1,3 +1,4 @@
+import '../styles/satellitePages.css';
 import React, { useState } from 'react';
 import { useRouter } from '../services/router';
 import { useTimerStore } from '../stores/useTimerStore';
@@ -132,7 +133,7 @@ export const SettingsView: React.FC = () => {
   return (
     <div
       data-testid="settings-view"
-      className="min-h-screen w-full bg-[#0B1120] text-[#ECEFF4] font-sans antialiased flex flex-col selection:bg-[#60A5FA]/30 selection:text-[#ECEFF4] select-none"
+      className="satellite-content min-h-screen w-full bg-[#0B1120] text-[#ECEFF4] font-sans antialiased flex flex-col selection:bg-[#60A5FA]/30 selection:text-[#ECEFF4] select-none"
     >
       <PlatformHeader />
 
@@ -219,7 +220,7 @@ export const SettingsView: React.FC = () => {
                 type="number"
                 inputMode="numeric"
                 enterKeyHint="next"
-                data-testid="input-setting-pomodoro"
+                aria-label="Thời lượng tập trung (phút)" data-testid="input-setting-pomodoro"
                 min={1}
                 max={120}
                 value={timerSettings.pomodoroMinutes}
@@ -234,7 +235,7 @@ export const SettingsView: React.FC = () => {
                 type="number"
                 inputMode="numeric"
                 enterKeyHint="next"
-                data-testid="input-setting-short-break"
+                aria-label="Thời lượng nghỉ ngắn (phút)" data-testid="input-setting-short-break"
                 min={1}
                 max={60}
                 value={timerSettings.shortBreakMinutes}
@@ -249,7 +250,7 @@ export const SettingsView: React.FC = () => {
                 type="number"
                 inputMode="numeric"
                 enterKeyHint="next"
-                data-testid="input-setting-long-break"
+                aria-label="Thời lượng nghỉ dài (phút)" data-testid="input-setting-long-break"
                 min={1}
                 max={90}
                 value={timerSettings.longBreakMinutes}
@@ -264,7 +265,7 @@ export const SettingsView: React.FC = () => {
                 type="number"
                 inputMode="numeric"
                 enterKeyHint="done"
-                data-testid="input-setting-rounds"
+                aria-label="Số hiệp trước nghỉ dài" data-testid="input-setting-rounds"
                 min={1}
                 max={12}
                 value={timerSettings.roundsBeforeLongBreak}
@@ -283,7 +284,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <button
               type="button"
-              data-testid="toggle-auto-transition"
+              aria-label="Tự động chuyển hiệp mới" aria-pressed={timerSettings.autoTransition} data-testid="toggle-auto-transition"
               onClick={handleToggleAutoTransition}
               className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
                 timerSettings.autoTransition ? 'bg-zinc-700' : 'bg-zinc-700'
@@ -312,7 +313,7 @@ export const SettingsView: React.FC = () => {
                 <span className="font-mono text-white">{Math.round(masterVolume * 100)}%</span>
               </div>
               <input
-                type="range"
+                aria-label="Âm lượng tổng" type="range"
                 min={0}
                 max={1}
                 step={0.05}
