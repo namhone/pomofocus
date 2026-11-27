@@ -243,10 +243,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Bắt đầu phiên tập trung"
               aria-label="Bắt đầu phiên tập trung"
-              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
+              className="liquid-glow h-11 min-h-[44px] px-6 rounded-full bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_24px_rgba(96,165,250,0.22)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Bắt đầu</span>
+              <span className="font-bold text-sm tracking-wide text-[#0B1120] whitespace-nowrap">Bắt đầu</span>
             </button>
           )}
 
@@ -260,10 +260,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tạm dừng phiên tập trung"
               aria-label="Tạm dừng phiên tập trung"
-              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
+              className="liquid-glow h-11 min-h-[44px] px-6 rounded-full bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_24px_rgba(96,165,250,0.22)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Pause size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Tạm dừng</span>
+              <span className="font-bold text-sm tracking-wide text-[#0B1120] whitespace-nowrap">Tạm dừng</span>
             </button>
           )}
 
@@ -277,10 +277,10 @@ export const TimerWidget: React.FC<TimerWidgetProps> = ({
               }}
               title="Tiếp tục phiên tập trung"
               aria-label="Tiếp tục phiên tập trung"
-              className="liquid-glow h-11 px-6 rounded-full bg-white text-zinc-950 hover:bg-zinc-100 border border-white/20 shadow-[0_4px_24px_rgba(255,255,255,0.12)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
+              className="liquid-glow h-11 min-h-[44px] px-6 rounded-full bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_24px_rgba(96,165,250,0.22)] transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-[0.96]"
             >
               <Play size={16} fill="currentColor" className="-translate-y-[0.5px]" />
-              <span className="font-semibold text-sm tracking-wide text-zinc-950 whitespace-nowrap">Tiếp tục</span>
+              <span className="font-bold text-sm tracking-wide text-[#0B1120] whitespace-nowrap">Tiếp tục</span>
             </button>
           )}
 

@@ -314,7 +314,7 @@ export const StudyRoomLobby: React.FC = () => {
             <span>Phòng học trực tuyến</span>
             <span className="border-l border-white/10 pl-2 text-[10px] text-zinc-400">Beta</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#ECEFF4] mb-2">
             <span>Học cùng bạn bè tại <span className="text-zinc-100">PomoFocus Meet</span></span>
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
@@ -343,7 +343,7 @@ export const StudyRoomLobby: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => router.navigate('/billing')}
-                      className="self-start px-3 py-1 rounded-lg bg-white text-black font-semibold text-[11px] hover:bg-zinc-200 transition cursor-pointer"
+                      className="self-start min-h-[44px] px-3 py-1 rounded-xl bg-[#60A5FA] text-[#0B1120] font-semibold text-[11px] hover:bg-[#93C5FD] transition cursor-pointer"
                     >
                       Nâng cấp gói PRO ngay
                     </button>
@@ -394,7 +394,7 @@ export const StudyRoomLobby: React.FC = () => {
                         data-testid="input-room-slug"
                         value={roomSlug}
                         onChange={(e) => setRoomSlug(e.target.value)}
-                        placeholder="vd: namho-focus-room (để trống tạo ngẫu nhiên)"
+                        placeholder="VD: namho-focus-room (để trống tạo ngẫu nhiên)"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 font-mono focus:outline-none focus:border-zinc-500/50"
                       />
                     </div>
@@ -405,7 +405,7 @@ export const StudyRoomLobby: React.FC = () => {
                         type="text"
                         value={createGoal}
                         onChange={(e) => setCreateGoal(e.target.value)}
-                        placeholder="vd: cùng ôn thi IELTS Reading, sprint đồ án..."
+                        placeholder="VD: cùng ôn thi IELTS Reading, sprint đồ án..."
                         className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                       />
                     </div>
@@ -500,7 +500,7 @@ export const StudyRoomLobby: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => router.navigate('/login')}
-                    className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <LogIn size={15} />
                     <span>Đăng nhập để tạo phòng</span>
@@ -511,7 +511,7 @@ export const StudyRoomLobby: React.FC = () => {
                       type="submit"
                       data-testid="btn-create-room"
                       disabled={isSubmitting}
-                      className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                      className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer active:scale-98"
                     >
                       <Video size={15} />
                       <span>Tạo phòng học Free (45 phút)</span>
@@ -525,7 +525,7 @@ export const StudyRoomLobby: React.FC = () => {
                     type="submit"
                     data-testid="btn-create-room"
                       disabled={isSubmitting}
-                    className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                    className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer active:scale-98"
                   >
                     <Video size={15} />
                     <span>Tạo phòng PRO không giới hạn &amp; lấy mã</span>
@@ -568,7 +568,7 @@ export const StudyRoomLobby: React.FC = () => {
                       setInputCode(e.target.value);
                       setErrorMsg(null);
                     }}
-                    placeholder="vd: pomo-a1b2-c3d4 hoặc dán toàn bộ link..."
+                    placeholder="VD: pomo-a1b2-c3d4 hoặc dán toàn bộ link..."
                     className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-600"
                   />
                   {errorMsg && (
@@ -578,7 +578,7 @@ export const StudyRoomLobby: React.FC = () => {
                 <button
                   type="submit"
                   data-testid="btn-join-room-code"
-                  className="w-full py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow active:scale-98"
+                  className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer active:scale-98"
                 >
                   <ArrowRight size={15} />
                   <span>Vào phòng học ngay</span>
@@ -685,7 +685,7 @@ export const StudyRoomLobby: React.FC = () => {
                         type="button"
                         data-testid={`btn-join-${pod.roomId}`}
                         onClick={() => router.navigate(`/rooms/${pod.roomId}`)}
-                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 liquid-glow shadow-[0_4px_20px_rgba(255,255,255,0.10)] font-semibold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5 shadow"
+                        className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-[#60A5FA] text-[#0B1120] hover:bg-[#93C5FD] shadow-[0_4px_20px_rgba(96,165,250,0.22)] font-bold text-xs transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] active:opacity-90 cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <LogIn size={14} className="-translate-y-[0.5px]" />
                         <span>Vào học (1 chạm)</span>
@@ -919,7 +919,7 @@ export const StudyRoomLobby: React.FC = () => {
                   data-testid="edit-room-goal-input"
                   value={editGoal}
                   onChange={(e) => setEditGoal(e.target.value)}
-                  placeholder="vd: cùng ôn tập đề thi jlpt n2, 25m học / 5m nghỉ..."
+                  placeholder="VD: cùng ôn tập đề thi jlpt n2, 25m học / 5m nghỉ..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                 />
               </div>
@@ -956,7 +956,7 @@ export const StudyRoomLobby: React.FC = () => {
                     data-testid="edit-room-passcode-input"
                     value={editPasscode}
                     onChange={(e) => setEditPasscode(e.target.value)}
-                    placeholder="vd: 1234"
+                    placeholder="VD: 1234"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 font-mono"
                   />
                 </div>

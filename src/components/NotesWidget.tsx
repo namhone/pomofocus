@@ -14,14 +14,14 @@ export const NotesWidget: React.FC = () => {
   const tones = ['bg-zinc-950 text-zinc-100', 'bg-zinc-900 text-zinc-100', 'bg-zinc-800 text-white'];
   const statusLabel = saveStatus === 'saved' ? 'Đã lưu' : saveStatus === 'saving' ? 'Đang lưu' : 'Lỗi lưu';
   const StatusIcon = saveStatus === 'saved' ? Check : saveStatus === 'saving' ? Clock : AlertCircle;
-  const control = 'shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white disabled:opacity-40';
+  const control = 'shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white disabled:opacity-40';
 
   return (
     <div className="flex h-full w-full min-w-0 flex-col p-2 text-zinc-100">
       {/* One toolbar owns note selection, editing modes and note actions. */}
-      <div data-testid="note-toolbar" className="flex min-w-0 shrink-0 items-center gap-1 border-b border-white/[0.06] pb-2">
-        <FileText size={14} strokeWidth={1.5} className="shrink-0 text-zinc-300" aria-hidden="true" />
-        <select aria-label="Chọn ghi chú" value={activeNoteId || ''} onChange={event => setActiveNoteId(event.target.value)} className="min-w-0 flex-1 truncate rounded-lg border border-white/[0.06] bg-zinc-900 px-1 py-1.5 text-xs text-zinc-100">
+      <div data-testid="note-toolbar" className="flex min-w-0 shrink-0 items-center gap-0.5 border-b border-white/[0.06] pb-2">
+        <FileText size={13} strokeWidth={1.5} className="shrink-0 text-zinc-300 hidden sm:block" aria-hidden="true" />
+        <select aria-label="Chọn ghi chú" value={activeNoteId || ''} onChange={event => setActiveNoteId(event.target.value)} className="min-w-0 flex-1 truncate rounded-lg border border-white/[0.06] bg-zinc-900 px-1 py-1 text-xs text-zinc-100">
           {!activeNoteId && <option value="">Ghi chú</option>}
           {notes.map(note => <option key={note.id} value={note.id}>{note.title || 'Không tiêu đề'}</option>)}
         </select>
@@ -29,7 +29,7 @@ export const NotesWidget: React.FC = () => {
         <button type="button" data-testid="tab-note-preview" aria-label="Xem trước" title="Xem trước" aria-pressed={activeTab === 'preview'} onClick={() => setActiveTab('preview')} className={`${control} ${activeTab === 'preview' ? 'bg-white/10 text-white' : ''}`}><Eye size={14} strokeWidth={1.5} /></button>
         <button type="button" aria-label="Đổi sắc độ ghi chú" title="Đổi sắc độ ghi chú" onClick={() => setTone(current => (current + 1) % tones.length)} className={control}><Circle size={14} strokeWidth={1.5} className={tone === 0 ? '' : 'fill-zinc-500'} /></button>
         <button type="button" data-testid="btn-delete-note" aria-label="Xóa ghi chú" title="Xóa ghi chú" disabled={!activeNote} onClick={() => activeNote && deleteNote(activeNote.id)} className={control}><Trash2 size={14} strokeWidth={1.5} /></button>
-        <button type="button" data-testid="btn-new-note" aria-label="Thêm ghi chú" title="Thêm ghi chú" onClick={() => createNote('Ghi chú mới')} className={`${control} !w-auto gap-1 bg-white/10 px-2 text-xs text-white`}><Plus size={14} strokeWidth={1.5} /><span>Thêm</span></button>
+        <button type="button" data-testid="btn-new-note" aria-label="Thêm ghi chú" title="Thêm ghi chú" onClick={() => createNote('Ghi chú mới')} className={`${control} !w-auto gap-1 bg-white/10 px-1.5 text-[11px] text-white shrink-0`}><Plus size={13} strokeWidth={1.5} /><span className="hidden sm:inline">Thêm</span></button>
       </div>
       {activeNote ? (
         <div className="flex min-h-0 flex-1 flex-col gap-1.5 pt-1.5">

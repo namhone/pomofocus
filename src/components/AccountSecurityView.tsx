@@ -101,9 +101,9 @@ export const AccountSecurityView: React.FC = () => {
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Yêu cầu đăng nhập</h1>
+            <h1 className="text-xl font-bold text-white">Bảo mật & 2FA</h1>
             <p className="text-xs text-zinc-400">
-              Vui lòng đăng nhập để xem và quản lý thiết lập bảo mật tài khoản.
+              Đăng nhập để quản lý mật khẩu, phiên đăng nhập và xác thực hai bước (2FA).
             </p>
             <button
               type="button"

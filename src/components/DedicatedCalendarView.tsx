@@ -170,7 +170,7 @@ export const DedicatedCalendarView: React.FC = () => {
         <div className="rounded-2xl border border-white/10 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 backdrop-blur-md shrink-0 shadow-lg">
           <div className="flex items-center gap-2">
             <CalendarIcon size={18} className="text-zinc-300 shrink-0" />
-            <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#ECEFF4] tracking-tight">
               Lịch học & kế hoạch time-blocking
             </h1>
           </div>
@@ -237,7 +237,7 @@ export const DedicatedCalendarView: React.FC = () => {
                 setSelectedHour(Math.min(23, Math.max(6, new Date().getHours())));
                 setIsAddModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-700 text-white font-semibold text-xs transition shadow-md shadow-zinc-500/20 active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition active:scale-95 cursor-pointer"
             >
               <Plus size={15} />
               <span>Thêm lịch học</span>

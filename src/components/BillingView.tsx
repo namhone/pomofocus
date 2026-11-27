@@ -831,9 +831,9 @@ export const BillingView: React.FC = () => {
                   type="button"
                   data-testid="billing-cycle-lifetime"
                   onClick={() => setCycle('lifetime')}
-                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 text-black text-[10px] font-black shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:brightness-110 active:scale-95 transition"
+                  className="absolute -top-5 left-1/2 -translate-x-1/2 min-h-[44px] px-4 py-1.5 rounded-full bg-[#1D2B44] border border-[#60A5FA] text-[#93C5FD] text-[10px] font-bold shadow-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer hover:bg-[#29303D] active:scale-95 transition"
                 >
-                  <Crown size={12} className="fill-black" />
+                  <Crown size={12} className="text-[#60A5FA]" />
                   <span>Founder VIP độc quyền</span>
                 </button>
 

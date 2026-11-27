@@ -272,8 +272,8 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       const maxW = id === 'timer' ? 460 : (currentWidget.maxWidth ?? 900);
       const maxH = id === 'timer' ? 520 : (currentWidget.maxHeight ?? 900);
 
-      const screenMaxW = Math.max(minW, window.innerWidth - (west ? 10 : start.startX) - 12);
-      const screenMaxH = Math.max(minH, window.innerHeight - (north ? 8 : start.startY) - 12);
+      const screenMaxW = Math.max(minW, window.innerWidth - (west ? 16 : start.startX) - 16);
+      const screenMaxH = Math.max(minH, window.innerHeight - (north ? 72 : start.startY) - 88);
 
       const effectiveMaxW = Math.min(maxW, screenMaxW);
       const effectiveMaxH = Math.min(maxH, screenMaxH);
@@ -734,14 +734,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       {!isCollapsed && widget.resizable && !widget.isLocked && (
         <>
           {[
-            { direction: 'n', classes: 'left-5 right-5 top-0 h-2 cursor-n-resize' },
-            { direction: 's', classes: 'bottom-0 left-5 right-5 h-2 cursor-s-resize' },
-            { direction: 'e', classes: 'right-0 top-5 bottom-5 w-2 cursor-e-resize' },
-            { direction: 'w', classes: 'left-0 top-5 bottom-5 w-2 cursor-w-resize' },
-            { direction: 'ne', classes: 'right-0 top-0 h-5 w-5 cursor-ne-resize' },
-            { direction: 'nw', classes: 'left-0 top-0 h-5 w-5 cursor-nw-resize' },
-            { direction: 'se', classes: 'bottom-0 right-0 h-5 w-5 cursor-se-resize' },
-            { direction: 'sw', classes: 'bottom-0 left-0 h-5 w-5 cursor-sw-resize' }
+            { direction: 'n', classes: 'left-5 right-28 -top-1 h-2 cursor-n-resize' },
+            { direction: 's', classes: '-bottom-1 left-5 right-5 h-2 cursor-s-resize' },
+            { direction: 'e', classes: '-right-1 top-10 bottom-5 w-2 cursor-e-resize' },
+            { direction: 'w', classes: '-left-1 top-5 bottom-5 w-2 cursor-w-resize' },
+            { direction: 'ne', classes: '-right-1 -top-1 h-3 w-3 cursor-ne-resize' },
+            { direction: 'nw', classes: '-left-1 -top-1 h-3 w-3 cursor-nw-resize' },
+            { direction: 'se', classes: '-bottom-1 -right-1 h-4 w-4 cursor-se-resize' },
+            { direction: 'sw', classes: '-bottom-1 -left-1 h-4 w-4 cursor-sw-resize' }
           ].map(({ direction, classes }) => (
             <button
               key={direction}

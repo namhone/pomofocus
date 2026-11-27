@@ -170,7 +170,7 @@ export const App: React.FC = () => {
   const currentPath = router.currentRoute.path;
   const isZenMode = useLayoutStore((state) => state.isZenMode);
   const { isNativeCapacitor } = useDeviceDetection();
-  const isMobileMediaQuery = useMediaQuery('(max-width: 767px)');
+  const isMobileMediaQuery = useMediaQuery('(max-width: 639px)');
   const environment = getAppEnvironment(isNativeCapacitor, isMobileMediaQuery, router.currentRoute.search);
   const isMobile = environment !== 'desktop-web';
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);

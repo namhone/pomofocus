@@ -399,7 +399,7 @@ export const TasksWidget: React.FC = () => {
             data-testid="add-task-btn"
             type="submit"
             disabled={isSubmitting}
-            className="liquid-glass-btn px-3.5 py-1 text-xs font-semibold text-zinc-950 bg-white hover:bg-zinc-200 transition cursor-pointer h-7 gap-1 shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            className="liquid-glass-btn px-3.5 py-1 text-xs font-bold text-[#0B1120] bg-[#60A5FA] hover:bg-[#93C5FD] transition cursor-pointer min-h-[36px] gap-1 shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93C5FD]"
           >
             + Thêm
           </button>

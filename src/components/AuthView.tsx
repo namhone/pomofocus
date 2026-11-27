@@ -188,10 +188,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
     }
   }, []);
 
-  // Khởi tạo Google One Tap khi mở màn hình AuthView
+  // Khởi tạo Google One Tap khi mở màn hình AuthView (bỏ qua trên localhost/127.0.0.1 preview để tránh lỗi GSI 403)
   useEffect(() => {
     let isMounted = true;
-    if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
+    const isLocalPreview =
+      typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+    if (!isLocalPreview && typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
       googleAuthService
         .initializeGsi({
           onSuccess: async (payload) => {
@@ -314,25 +316,32 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-neutral-950 via-[#0d111a] to-neutral-950 text-neutral-100 select-none">
-      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-neutral-900/80 p-7 shadow-2xl backdrop-blur-2xl">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#0B1120] text-[#ECEFF4] select-none">
+      <div className="w-full max-w-md rounded-3xl border border-[#2A303C] bg-[#171A21] p-7 shadow-2xl">
         {/* Header navigation */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-5 gap-2">
+          <button
+            type="button"
+            data-testid="auth-back-home-btn"
+            onClick={() => router.navigate('/')}
+            className="min-h-[44px] px-2 flex items-center gap-1.5 text-xs text-[#A1A9B8] hover:text-[#ECEFF4] transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={14} />
+            <span>Trang chủ</span>
+          </button>
           <button
             type="button"
             onClick={() => router.navigate('/app')}
-            className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="min-h-[44px] px-2 flex items-center gap-1.5 text-xs text-[#93C5FD] hover:underline transition-colors cursor-pointer"
           >
-            <ArrowLeft size={14} />
             <span>Vào không gian</span>
           </button>
-          
         </div>
 
         {/* Brand title */}
         <div className="text-center mb-6 flex flex-col items-center">
           <PomoFocusLogo size={42} showWordmark={true} showSubtitle={false} wordmarkClassName="text-xl font-bold" className="mb-2" />
-          <h1 className="text-xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-[#ECEFF4]">
             {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản mới'}
           </h1>
         </div>
@@ -426,7 +435,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 type="submit"
                 data-testid="btn-submit-2fa-login"
                 disabled={isVerifying2Fa || !totpCode.trim()}
-                className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-1"
+                className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-1"
               >
                 {isVerifying2Fa ? (
                   <>
@@ -466,7 +475,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 data-testid="btn-google-signin"
                 onClick={handleGoogleSignIn}
                 disabled={isGoogleLoading || isGoogleLoadingLocal || isLoading}
-                className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200 text-xs font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
+                className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-[#1F242D] hover:bg-[#29303D] text-[#ECEFF4] border-[1.5px] border-[#5F697A] text-xs font-semibold flex items-center justify-center gap-3 transition-all shadow-sm active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {isGoogleLoading || isGoogleLoadingLocal ? (
                   <Loader2 size={16} className="animate-spin text-neutral-700" />
@@ -617,7 +626,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'login' }) => 
                 type="submit"
                 data-testid="btn-auth-submit"
                 disabled={isLoading || isGoogleLoading || isGoogleLoadingLocal}
-                className="mt-1.5 w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
+                className="mt-1.5 w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs tracking-wide transition-all shadow-md active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {isLoading
                   ? 'Đang xử lý...'

@@ -34,7 +34,7 @@ export const NotFoundPage: React.FC = () => {
   return (
     <div
       data-testid="not-found-page"
-      className="relative min-h-screen w-full bg-[#09090b] text-zinc-100 font-sans antialiased flex flex-col justify-between selection:bg-zinc-500/30 selection:text-zinc-200 select-none overflow-hidden"
+      className="relative min-h-screen w-full bg-[#0B1120] text-[#ECEFF4] font-sans antialiased flex flex-col justify-between selection:bg-[#60A5FA]/30 selection:text-[#ECEFF4] select-none overflow-hidden"
     >
       {/* 1. Hình nền Không Gian Sâu / Anime Đêm Sao */}
       <div
@@ -58,14 +58,14 @@ export const NotFoundPage: React.FC = () => {
             data-testid="not-found-back-btn"
             onClick={handleGoBack}
             aria-label="Quay lại"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-[#1F242D] border border-[#2A303C] hover:bg-[#29303D] text-[#A1A9B8] hover:text-[#ECEFF4] flex items-center justify-center transition active:scale-95 cursor-pointer"
           >
             <ArrowLeft size={16} />
           </button>
           <button
             type="button"
             onClick={() => router.navigate('/')}
-            className="flex items-center gap-2 hover:opacity-90 transition cursor-pointer"
+            className="min-h-[44px] flex items-center gap-2 hover:opacity-90 transition cursor-pointer"
             title="Trang chủ PomoFocus"
           >
             <PomoFocusLogo size={24} showWordmark={true} wordmarkClassName="text-sm font-bold text-white tracking-tight" />
@@ -99,10 +99,10 @@ export const NotFoundPage: React.FC = () => {
 
           {/* Thông điệp Zen tĩnh lặng */}
           <div className="space-y-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-[#ECEFF4] tracking-tight">
               Bạn đang lạc lối giữa không gian...
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-[#A1A9B8] leading-relaxed max-w-md mx-auto">
               Đường dẫn này không tồn tại hoặc đã được di chuyển sang một vũ trụ khác.
               Hãy hít một hơi thật sâu và quay lại bàn học nhé.
             </p>
@@ -114,7 +114,7 @@ export const NotFoundPage: React.FC = () => {
               type="button"
               data-testid="404-btn-back-workspace"
               onClick={() => router.navigate('/app')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-lg shadow-zinc-500/20 transition-all duration-200 active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-[0_8px_24px_rgba(96,165,250,0.22)] transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Clock size={16} />
               <span>Quay về bàn học</span>
@@ -124,7 +124,7 @@ export const NotFoundPage: React.FC = () => {
               type="button"
               data-testid="404-btn-home"
               onClick={() => router.navigate('/')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white font-medium text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-sm"
+              className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-[#1F242D]/80 backdrop-blur-md border border-[#5F697A] text-[#ECEFF4] font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-[#29303D] transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Home size={16} />
               <span>Về trang chủ</span>

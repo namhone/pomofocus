@@ -198,8 +198,8 @@ export const PrivacyDataView: React.FC = () => {
         )}
 
         {/* Sub-nav Tabs: Hồ sơ | Bảo mật | Gói cước | Dữ liệu (Full Width Scrollable) */}
-        <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs w-max sm:w-auto">
+        <div className="w-full pb-3 border-b border-zinc-800 [&_button]:min-h-[44px]">
+          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs">
             <button
               type="button"
               onClick={() => router.navigate('/profile')}
@@ -339,7 +339,7 @@ export const PrivacyDataView: React.FC = () => {
           <div>
             <h2 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
               <Download size={16} className="text-zinc-300 shrink-0" />
-              <span>Xuất dữ liệu cá nhân (data portability)</span>
+              <span>Xuất dữ liệu cá nhân (Data Portability)</span>
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
               Tải xuống toàn bộ dữ liệu của bạn dưới định dạng tệp tin JSON tiêu chuẩn. Bạn hoàn toàn làm chủ dữ liệu của mình.
@@ -355,7 +355,7 @@ export const PrivacyDataView: React.FC = () => {
               className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md whitespace-nowrap"
             >
               <Download size={14} />
-              <span>{isExporting ? 'Đang tạo bản sao lưu...' : 'Xuất File JSON'}</span>
+              <span>{isExporting ? 'Đang tạo bản sao lưu...' : 'Xuất tệp JSON'}</span>
             </button>
           </div>
         </div>

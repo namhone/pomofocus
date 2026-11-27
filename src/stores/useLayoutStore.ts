@@ -75,8 +75,8 @@ export function computeBalancedDefaultLayout(
   winWidth: number = 1440,
   _winHeight: number = 900
 ): Record<WidgetId, WidgetState> {
-  // Mobile: Mặc định chỉ mở duy nhất Timer, tự động đóng tasks và notes để lộ hình nền Trái Đất thoáng đãng
-  if (winWidth < 768) {
+  // Mobile (<640px): Mặc định chỉ mở duy nhất Timer
+  if (winWidth < 640) {
     return {
       ...DEFAULT_WIDGETS,
       timer: {
@@ -105,19 +105,47 @@ export function computeBalancedDefaultLayout(
       }
     };
   }
-  const topY = 76;
-  const timerW = 320;
-  const tasksW = 320;
-  const notesW = 330;
-  const gap = 16;
-  const totalRowWidth = timerW + gap + tasksW + gap + notesW;
-  
-  let startX = 24;
-  if (winWidth >= 1100) {
-    startX = Math.max(24, Math.round((winWidth - totalRowWidth) / 2));
-  } else {
-    startX = 24;
+  // Split-screen (640px - 959px): Không gian học 1 cột (Timer + Tasks) dùng ngay trên web
+  if (winWidth < 960) {
+    const colW = Math.min(winWidth - 32, 420);
+    const colX = Math.max(16, Math.round((winWidth - colW) / 2));
+    return {
+      ...DEFAULT_WIDGETS,
+      timer: {
+        ...DEFAULT_WIDGETS.timer,
+        isOpen: true,
+        x: colX,
+        y: 72,
+        width: colW,
+        height: 320,
+      },
+      tasks: {
+        ...DEFAULT_WIDGETS.tasks,
+        isOpen: true,
+        x: colX,
+        y: 412,
+        width: colW,
+        height: 360,
+      },
+      notes: {
+        ...DEFAULT_WIDGETS.notes,
+        isOpen: false,
+        x: colX,
+        y: 72,
+        width: colW,
+        height: 360,
+      }
+    };
   }
+  const topY = 76;
+  const isCompactDesktop = winWidth < 1160;
+  const timerW = isCompactDesktop ? 300 : 320;
+  const tasksW = isCompactDesktop ? 310 : 320;
+  const notesW = isCompactDesktop ? 310 : 330;
+  const gap = isCompactDesktop ? 14 : 16;
+  const totalRowWidth = timerW + gap + tasksW + gap + notesW;
+
+  const startX = Math.max(16, Math.round((winWidth - totalRowWidth) / 2));
 
   const timerX = startX;
   const tasksX = timerX + timerW + gap;
@@ -161,8 +189,8 @@ export const DEFAULT_WIDGETS: Record<WidgetId, WidgetState> = {
     height: 320,
     minWidth: 300,
     minHeight: 220,
-    maxWidth: 440,
-    maxHeight: 340,
+    maxWidth: 460,
+    maxHeight: 520,
     resizable: true,
     zIndex: 10
   },
@@ -703,16 +731,33 @@ export const useLayoutStore = create<LayoutStoreState>((set, get) => ({
     const maxX = Math.max(0, winW - current.width);
     const maxY = Math.max(8, winH - current.height);
 
-    let nextX = Math.max(0, Math.min(current.x, maxX));
-    let nextY = Math.max(8, Math.min(current.y, maxY));
+    let nextX = Math.max(16, Math.min(current.x, maxX));
+    let nextY = Math.max(72, Math.min(current.y, maxY));
 
-    // 24px Cascade Staggering: If another open widget collides at the same (x, y) within 16px
-    const colliding = Object.values(widgets).find(
-      (w) => w.id !== id && w.isOpen && Math.abs(w.x - nextX) < 16 && Math.abs(w.y - nextY) < 16
-    );
-    if (colliding) {
-      nextX = nextX + 24 > maxX ? 24 : nextX + 24;
-      nextY = Math.max(8, nextY + 24 > maxY ? 24 : nextY + 24);
+    const overlapsAnyOpen = (cx: number, cy: number) =>
+      Object.values(widgets).some((w) => {
+        if (w.id === id || !w.isOpen) return false;
+        const ox = Math.min(cx + current.width, w.x + w.width) - Math.max(cx, w.x);
+        const oy = Math.min(cy + current.height, w.y + w.height) - Math.max(cy, w.y);
+        return ox > 12 && oy > 12;
+      });
+
+    if (overlapsAnyOpen(nextX, nextY)) {
+      const candidateSlots = [
+        { x: Math.max(16, winW - current.width - 24), y: 76 },
+        { x: 24, y: Math.min(maxY, 420) },
+        { x: Math.min(maxX, 368), y: Math.min(maxY, 420) },
+        { x: Math.min(maxX, 712), y: Math.min(maxY, 420) },
+        { x: Math.max(16, Math.round((winW - current.width) / 2)), y: Math.min(maxY, 420) },
+      ];
+      const freeSlot = candidateSlots.find((s) => !overlapsAnyOpen(s.x, s.y));
+      if (freeSlot) {
+        nextX = freeSlot.x;
+        nextY = freeSlot.y;
+      } else {
+        nextX = nextX + 32 > maxX ? 24 : nextX + 32;
+        nextY = Math.max(72, nextY + 32 > maxY ? 72 : nextY + 32);
+      }
     }
 
     widgets[id] = {

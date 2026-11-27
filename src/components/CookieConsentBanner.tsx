@@ -43,18 +43,24 @@ export const CookieConsentBanner: React.FC = () => {
       document.documentElement.style.removeProperty('padding-bottom');
       document.body.style.removeProperty('padding-bottom');
       const rootEl = document.getElementById('root');
-      if (rootEl) rootEl.style.removeProperty('scroll-padding-bottom');
+      if (rootEl) {
+        rootEl.style.removeProperty('scroll-padding-bottom');
+        rootEl.style.removeProperty('padding-bottom');
+      }
       return;
     }
 
     const applyPadding = () => {
       const h = bannerRef.current?.offsetHeight || 168;
-      const safePad = `${h + 20}px`;
+      const safePad = `${h + 24}px`;
       document.documentElement.style.scrollPaddingBottom = safePad;
       document.documentElement.style.paddingBottom = safePad;
       document.body.style.paddingBottom = safePad;
       const rootEl = document.getElementById('root');
-      if (rootEl) rootEl.style.scrollPaddingBottom = safePad;
+      if (rootEl) {
+        rootEl.style.scrollPaddingBottom = safePad;
+        rootEl.style.paddingBottom = safePad;
+      }
     };
 
     applyPadding();
@@ -67,7 +73,10 @@ export const CookieConsentBanner: React.FC = () => {
       document.documentElement.style.removeProperty('padding-bottom');
       document.body.style.removeProperty('padding-bottom');
       const rootEl = document.getElementById('root');
-      if (rootEl) rootEl.style.removeProperty('scroll-padding-bottom');
+      if (rootEl) {
+        rootEl.style.removeProperty('scroll-padding-bottom');
+        rootEl.style.removeProperty('padding-bottom');
+      }
     };
   }, [shouldRender]);
 
@@ -131,7 +140,7 @@ export const CookieConsentBanner: React.FC = () => {
             type="button"
             data-testid="consent-details-btn"
             onClick={handleOpenPrivacy}
-            className="inline-flex items-center gap-0.5 text-[11px] font-medium text-[#93C5FD] hover:underline whitespace-nowrap shrink-0 cursor-pointer align-baseline"
+            className="inline-flex items-center min-h-[44px] px-1 gap-0.5 text-[11px] font-medium text-[#93C5FD] hover:underline whitespace-nowrap shrink-0 cursor-pointer align-baseline"
           >
             <span>Xem chính sách</span>
             <ChevronRight size={12} className="shrink-0" />

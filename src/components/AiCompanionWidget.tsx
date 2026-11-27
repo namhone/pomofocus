@@ -238,8 +238,8 @@ export const AiCompanionWidget: React.FC = () => {
       {/* Lớp nền mờ tối khi mở AI trên màn hình nhỏ (Backdrop cho < 2xl) */}
       <div
         data-testid="ai-backdrop"
-        className={`fixed inset-0 z-30 bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 z-[75] bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none invisible'
         }`}
         onClick={() => toggleOpen(false)}
         aria-hidden="true"
@@ -249,7 +249,7 @@ export const AiCompanionWidget: React.FC = () => {
       <div
         data-testid="ai-companion-drawer"
         aria-hidden={!isOpen}
-        className={`fixed ${isHeaderExpanded ? 'top-14 sm:top-16' : 'top-0'} bottom-0 right-0 z-40 w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        className={`fixed ${isHeaderExpanded ? 'top-14 sm:top-16' : 'top-0'} bottom-0 right-0 z-[80] w-full sm:w-[360px] lg:w-[380px] xl:w-[420px] sm:min-w-[340px] sm:max-w-[460px] max-w-full bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800 shadow-[-20px_0_50px_rgba(0,0,0,0.6)] flex flex-col will-change-transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
           isOpen
             ? 'translate-x-0 opacity-100 pointer-events-auto'
             : 'translate-x-full opacity-0 pointer-events-none invisible'

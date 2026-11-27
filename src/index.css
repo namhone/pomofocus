@@ -4,6 +4,10 @@
 @tailwind utilities;
 
 @layer base {
+  input, textarea, select {
+    scroll-margin-top: 84px;
+  }
+
   :root {
     color-scheme: dark;
     /* Cool-Slate 3-Tier Design Tokens */

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 const SHORTCUTS = [
-  { key: 'Space', desc: 'Bắt đầu / tạm dừng pomodoro' },
+  { key: 'Space', desc: 'Bắt đầu / tạm dừng Pomodoro' },
   { key: 'R', desc: 'Đặt lại đồng hồ về ban đầu' },
   { key: 'S', desc: 'Bỏ qua và chuyển sang hiệp tiếp theo' },
   { key: 'Z', desc: 'Bật / tắt chế độ zen mode toàn màn hình' },
@@ -25,20 +25,20 @@ const FAQS = [
     a: 'Dữ liệu học tập của bạn được lưu an toàn trên máy và tự động đồng bộ khi có mạng.'
   },
   {
-    q: 'Gói PRO Beta được miễn phí trong bao lâu?',
-    a: 'Trong giai đoạn thử nghiệm cộng đồng, mọi tài khoản đăng ký mới đều được tự động cấp quyền PRO Beta miễn phí 3 năm với đầy đủ 100% tính năng cao cấp (101+ cảnh nền HD, phòng học nhóm trực tuyến, âm thanh thiên nhiên, đồng bộ đám mây).'
+    q: 'Gói Free và PRO khác nhau như thế nào?',
+    a: 'Bạn có thể bắt đầu với gói Free. Gói PRO có các lựa chọn tháng, năm hoặc trọn đời; giá và quyền lợi hiện hành được công bố tại trang /billing. Đăng ký tài khoản không tự động cấp PRO miễn phí.'
   },
   {
     q: 'Tôi có thể tải lên video hoặc hình nền cá nhân không?',
-    a: 'Có. Khi kích hoạt gói PRO (hoặc PRO Beta), bạn có thể mở widget "Không Gian", chọn thẻ "Cá Nhân" và tải lên video MP4/WebM hoặc ảnh nền yêu thích của riêng bạn.'
+    a: 'Có. Khi kích hoạt gói PRO hoặc gói trọn đời, bạn có thể mở widget "Không gian", chọn thẻ "Cá nhân" và tải lên video MP4/WebM hoặc ảnh nền yêu thích của riêng bạn.'
   },
   {
     q: 'Làm sao để học nhóm cùng bạn bè?',
-    a: 'Bạn nhấn vào mục "Phòng Học" trên thanh tiêu đề, sau đó sao chép đường link phòng (ví dụ: /rooms/a1b2-c3d4-e5f6) gửi cho bạn bè để cùng vào phòng và đồng bộ nhịp tập trung.'
+    a: 'Bạn nhấn vào mục "Phòng học" trên thanh tiêu đề, sau đó sao chép đường link phòng (ví dụ: /rooms/a1b2-c3d4-e5f6) gửi cho bạn bè để cùng vào phòng và đồng bộ nhịp tập trung.'
   },
   {
     q: 'Làm thế nào để xuất dữ liệu sao lưu?',
-    a: 'Vào trang "Hồ Sơ" -> chọn "Dữ Liệu" (hoặc truy cập /privacy-data) và nhấn "Xuất File JSON". Tệp tin JSON chuẩn sẽ được tải trực tiếp về máy tính của bạn.'
+    a: 'Vào trang "Hồ sơ" -> chọn "Dữ liệu" (hoặc truy cập /privacy-data) và nhấn "Xuất tệp JSON". Tệp tin JSON chuẩn sẽ được tải trực tiếp về máy tính của bạn.'
   }
 ];
 
@@ -51,7 +51,7 @@ export const HelpView: React.FC = () => {
       title="Trung tâm trợ giúp"
       subtitle="Phương pháp Pomodoro & phím tắt"
       onBack={() => router.navigate('/app')}
-      className="selection:bg-white selection:text-black"
+      className="selection:bg-white selection:text-black max-md:[&_button]:min-h-[44px] max-md:[&_a]:min-h-[44px] max-md:[&_a]:inline-flex max-md:[&_a]:items-center"
     >
       <div
         data-testid="help-view"
@@ -61,12 +61,12 @@ export const HelpView: React.FC = () => {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2.5">
             <BookOpen size={24} className="text-white shrink-0" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#ECEFF4] tracking-tight">
               Trung tâm trợ giúp PomoFocus
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
-            Nắm vững phương pháp pomodoro, phím tắt thao tác nhanh và cách khai thác tối đa không gian học tập.
+            Nắm vững phương pháp Pomodoro, phím tắt thao tác nhanh và cách khai thác tối đa không gian học tập.
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export const HelpView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <Keyboard size={16} className="text-zinc-300 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Bảng phím tắt tiện lợi (global shortcuts)</h2>
+            <h2 className="text-sm font-semibold text-white">Bảng phím tắt tiện lợi (Global Shortcuts)</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
@@ -96,7 +96,7 @@ export const HelpView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <Clock size={16} className="text-rose-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Quy trình pomodoro chuẩn khoa học</h2>
+            <h2 className="text-sm font-semibold text-white">Quy trình Pomodoro chuẩn khoa học</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
@@ -136,7 +136,7 @@ export const HelpView: React.FC = () => {
               </span>
               <div className="font-semibold text-white">Nghỉ dài 15-30 phút</div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Sau mỗi 4 hiệp pomodoro liên tiếp, dành 15-30 phút nghỉ ngơi sâu thư giãn.
+                Sau mỗi 4 hiệp Pomodoro liên tiếp, dành 15-30 phút nghỉ ngơi sâu thư giãn.
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ export const HelpView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <HelpCircle size={16} className="text-zinc-300 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Câu hỏi thường gặp (faq)</h2>
+            <h2 className="text-sm font-semibold text-white">Câu hỏi thường gặp (FAQ)</h2>
           </div>
 
           <div className="space-y-2.5">

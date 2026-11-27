@@ -132,7 +132,7 @@ export const SettingsView: React.FC = () => {
   return (
     <div
       data-testid="settings-view"
-      className="min-h-screen w-full bg-[#09090b] text-[#f4f4f5] font-sans antialiased flex flex-col selection:bg-white selection:text-black select-none"
+      className="min-h-screen w-full bg-[#0B1120] text-[#ECEFF4] font-sans antialiased flex flex-col selection:bg-[#60A5FA]/30 selection:text-[#ECEFF4] select-none"
     >
       <PlatformHeader />
 
@@ -177,7 +177,7 @@ export const SettingsView: React.FC = () => {
           <button
             type="button"
             onClick={() => router.navigate('/app')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-medium transition cursor-pointer shrink-0"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] text-xs font-medium transition cursor-pointer shrink-0"
           >
             <ArrowLeft size={13} />
             <span className="hidden sm:inline">Vào không gian</span>
@@ -188,12 +188,12 @@ export const SettingsView: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <Settings size={24} className="text-white shrink-0" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl font-bold text-[#ECEFF4] tracking-tight">
               Cài đặt hệ thống & trải nghiệm
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400">
-            Tùy biến thời lượng chu kỳ pomodoro, âm thanh thông báo và phong cách giao diện của bạn.
+            Tùy biến thời lượng chu kỳ Pomodoro, âm thanh thông báo và phong cách giao diện của bạn.
           </p>
         </div>
 
@@ -209,7 +209,7 @@ export const SettingsView: React.FC = () => {
         <div className="p-5 sm:p-7 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-5">
           <div className="flex items-center gap-2 pb-2 border-b border-zinc-800">
             <Clock size={16} className="text-rose-400 shrink-0" />
-            <h2 className="text-sm font-semibold text-white">Chu kỳ thời gian pomodoro</h2>
+            <h2 className="text-sm font-semibold text-white">Chu kỳ thời gian Pomodoro</h2>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">

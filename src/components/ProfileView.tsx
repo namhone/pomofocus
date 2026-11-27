@@ -88,9 +88,9 @@ export const ProfileView: React.FC = () => {
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Yêu cầu đăng nhập</h1>
+            <h1 className="text-xl font-bold text-white">Hồ sơ cá nhân</h1>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Bạn cần đăng nhập tài khoản để xem và quản lý hồ sơ cá nhân cũng như cập nhật ảnh đại diện.
+              Đăng nhập để quản lý tên hiển thị, thông tin cá nhân và ảnh đại diện của bạn.
             </p>
             <div className="pt-2 flex flex-col gap-2">
               <button

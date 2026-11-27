@@ -258,19 +258,19 @@ export const DashboardView: React.FC = () => {
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
               <BarChart3 size={24} className="text-white shrink-0" />
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-3xl font-bold text-[#ECEFF4] tracking-tight">
                 Thống kê năng suất học tập
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-400">
-              Tổng quan thời gian tập trung và chuỗi ngày rèn luyện thói quen pomodoro của bạn.
+            <p className="text-xs sm:text-sm text-[#A1A9B8]">
+              Tổng quan thời gian tập trung và chuỗi ngày rèn luyện thói quen Pomodoro của bạn.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => router.navigate('/app')}
-            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shadow whitespace-nowrap"
+            className="self-start sm:self-auto min-h-[44px] px-4 py-2 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow whitespace-nowrap"
           >
             <Layout size={13} />
             <span>Mở không gian học</span>
@@ -357,7 +357,7 @@ export const DashboardView: React.FC = () => {
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
-                  {filter === '7days' ? '7 Ngày Qua' : filter === 'week' ? 'Tuần Này' : 'Tháng Này'}
+                  {filter === '7days' ? '7 ngày qua' : filter === 'week' ? 'Tuần này' : 'Tháng này'}
                 </button>
               ))}
             </div>
@@ -469,13 +469,13 @@ export const DashboardView: React.FC = () => {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-zinc-300">Chưa có phiên tập trung nào</p>
                 <p className="text-xs text-zinc-400">
-                  Hãy bắt đầu phiên pomodoro đầu tiên để lưu nhật ký và theo dõi tiến độ.
+                  Hãy bắt đầu phiên Pomodoro đầu tiên để lưu nhật ký và theo dõi tiến độ.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => router.navigate('/app')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-xl bg-[#60A5FA] text-[#0B1120] font-bold text-xs hover:bg-[#93C5FD] transition cursor-pointer"
               >
                 <Play size={12} fill="currentColor" />
                 <span>Bắt đầu ngay</span>

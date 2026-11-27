@@ -392,7 +392,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           <button
             type="button"
             onClick={() => handleNavigate('/')}
-            className="flex items-center gap-1.5 sm:gap-2 text-white hover:opacity-90 transition cursor-pointer"
+            className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 text-[#ECEFF4] hover:opacity-90 transition cursor-pointer"
             title="Về trang chủ PomoFocus"
           >
             <PomoFocusLogo size={isWorkspace ? 18 : 24} showWordmark={true} wordmarkClassName="inline-block text-xs font-bold text-white tracking-tight" />
@@ -714,7 +714,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
       <div
         data-testid="mobile-drawer-backdrop"
         className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-md transition-opacity duration-200 ${
-          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none invisible'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
         aria-hidden="true"
@@ -726,11 +726,12 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         data-testid="mobile-navigation-drawer"
         role="dialog"
         aria-modal="true"
+        aria-hidden={!isMobileMenuOpen}
         aria-label="Menu điều hướng"
         className={`xl:hidden fixed top-16 right-3 sm:right-6 w-64 z-[60] bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
-            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none invisible'
         }`}
       >
         {/* Danh sách các trang Web Mobile Portal */}
