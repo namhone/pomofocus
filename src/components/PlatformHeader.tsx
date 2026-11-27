@@ -30,7 +30,6 @@ import {
   CheckCircle2,
   Menu,
   Download,
-  Sparkles,
   Gem,
   Lock,
   Pin
@@ -317,8 +316,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 : `Số dư AI: ${safeCreditsNum.toLocaleString('vi-VN')}⚡ · Bấm xem chi tiết AI Credits`
             }
           >
-            <Zap size={11} className="fill-zinc-400 text-zinc-300 shrink-0" />
-            <span>{capsuleCreditsLabel}</span>
+            <Zap size={11} className="fill-[#60A5FA] text-[#60A5FA] shrink-0" />
+            <span className="tabular-nums">{capsuleCreditsLabel}</span>
           </button>
 
           {/* 🏠 Về Trang Chủ (Home) */}
@@ -377,14 +376,14 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         className={`liquid-glass-screen ${isEcoMode ? 'liquid-eco' : ''} ${
           isWorkspace
             ? `fixed top-0 left-0 right-0 w-full min-h-14 h-auto pt-safe z-50 ${
-                isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
-              } border-b border-white/[0.08] px-3 sm:px-4 xl:px-5 flex items-center justify-between gap-2 select-none text-xs transition-all duration-300 ease-out ${
+                isEcoMode ? 'bg-[#171A21]' : 'bg-[#171A21]/95 backdrop-blur-xl'
+              } border-b border-[#2A303C] px-3 sm:px-4 xl:px-5 flex items-center justify-between gap-2 select-none text-xs transition-all duration-300 ease-out ${
                 isHeaderExpanded
                   ? 'translate-y-0 opacity-100 pointer-events-auto'
                   : '-translate-y-full opacity-0 pointer-events-none invisible'
               } ${isFocusDimmed && isHeaderExpanded ? 'opacity-30 hover:opacity-100' : ''}`
-            : `sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-white/[0.08] ${
-                isEcoMode ? 'bg-[#09090b]' : 'bg-[#09090b]/95 backdrop-blur-xl'
+            : `sticky top-0 left-0 right-0 z-50 min-h-14 h-auto pt-safe w-full border-b border-[#2A303C] ${
+                isEcoMode ? 'bg-[#171A21]' : 'bg-[#171A21]/95 backdrop-blur-xl'
               } px-3 sm:px-4 xl:px-5 flex items-center justify-between gap-2 select-none text-xs`
         }`}
       >
@@ -494,16 +493,16 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 e.stopPropagation();
                 useAiStore.getState().toggleOpen();
               }}
-              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 font-semibold text-[11px] border border-white/12 border-t-white/20 backdrop-blur-xl transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 min-h-[44px] h-11 px-3 rounded-full bg-[#1F242D] hover:bg-[#29303D] text-[#ECEFF4] font-semibold text-[11px] border border-[#2A303C] transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap"
               title={
                 isVipOrOwner
                   ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
                   : `Mở Trợ lý AI Companion (${safeCreditsNum.toLocaleString()}⚡)`
               }
             >
-              <Sparkles size={13} className="text-zinc-300 shrink-0 stroke-[1.5]" />
-              <span className="font-medium text-zinc-200 sm:hidden tabular-nums">{capsuleCreditsLabel}</span>
-              <span className="font-medium text-zinc-200 hidden sm:inline tabular-nums">{displayCredits}</span>
+              <Zap size={13} className="text-[#60A5FA] fill-[#60A5FA]/20 shrink-0 stroke-[1.75]" />
+              <span className="font-medium text-[#ECEFF4] sm:hidden tabular-nums">{capsuleCreditsLabel}</span>
+              <span className="font-medium text-[#ECEFF4] hidden sm:inline tabular-nums">{displayCredits}</span>
             </button>
           )}
 
@@ -513,7 +512,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="hidden sm:flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap border border-white/20"
+              className="hidden sm:flex items-center gap-1.5 min-h-[44px] h-11 px-4 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             >
               <Layout size={13} className="shrink-0" />
               <span className="inline">Mở bản web</span>
@@ -528,10 +527,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 type="button"
                 data-testid="header-user-avatar-btn"
                 onClick={handleAvatarClick}
-                className={`h-8 flex items-center gap-1.5 px-2.5 rounded-full transition cursor-pointer shrink-0 border text-[11px] ${
+                className={`min-h-[44px] h-11 flex items-center gap-1.5 px-2.5 rounded-full transition cursor-pointer shrink-0 border text-[11px] ${
                   isUserDropdownOpen
-                    ? 'bg-zinc-800/80 border-zinc-600 text-white ring-1 ring-zinc-500'
-                    : 'bg-zinc-900/80 hover:bg-zinc-800/80 border-white/10 text-zinc-300'
+                    ? 'bg-[#29303D] border-[#687385] text-[#ECEFF4]'
+                    : 'bg-[#1F242D] hover:bg-[#29303D] border-[#2A303C] text-[#ECEFF4]'
                 }`}
                 title="Tài khoản & cài đặt"
                 aria-label="Tài khoản và menu"
@@ -683,10 +682,10 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               id="header-login-btn"
               data-testid="header-login-btn"
               onClick={handleHeaderLoginClick}
-              className="h-8 flex items-center gap-1.5 px-2 sm:px-3.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-neutral-200 hover:text-white text-xs transition cursor-pointer whitespace-nowrap border border-white/10 shadow-sm active:scale-95"
+              className="min-h-[44px] h-11 flex items-center gap-1.5 px-3 sm:px-4 rounded-full bg-transparent hover:bg-[#29303D] text-[#ECEFF4] text-xs font-semibold transition cursor-pointer whitespace-nowrap border-[1.5px] border-[#5F697A] active:scale-95"
               title="Đăng nhập tài khoản hoặc mở menu tiện ích"
             >
-              <User size={13} className="text-zinc-300 shrink-0" />
+              <User size={13} className="text-[#A1A9B8] shrink-0" />
               <span>Đăng nhập</span>
             </button>
           )}

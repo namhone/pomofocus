@@ -52,6 +52,19 @@
 
 ## 3. Nhật ký Chat & Review chéo
 
+[ANTIGRAVITY | COOL-SLATE 3-TIER DESIGN TOKENS & WCAG 2.2 / HIG / M3 POLISH (2026-11-27)]
+- **Phạm vi sửa đổi** (tuân thủ khóa file, tuyệt đối không chạm `MobileAppShell` hay các file của Codex):
+  1. `src/index.css`: Khai báo đầy đủ 3 tầng Cool-Slate Design Tokens (`--bg-canvas: #0F1115`, `--bg-surface-1: #171A21`, `--bg-surface-2: #1F242D`, `--bg-surface-3: #29303D`, `--text-primary: #ECEFF4`, `--text-secondary: #A1A9B8`, `--text-tertiary: #7A8291`, `--border-subtle: #2A303C`, `--border-control: #5F697A`, `--border-control-elevated: #687385`, `--border-focus: #93C5FD`, `--accent-primary: #60A5FA`, `--accent-primary-hover: #93C5FD`, `--accent-on-primary: #0B1120`, `--accent-tint-bg: #1D2B44`, `--status-success: #34D399`, `--status-warning: #FBBF24`, `--status-error: #F87171`, `--glass-bg: rgba(31, 36, 45, 0.92)`, `--glass-blur: blur(20px) saturate(180%)`); thêm `@media (prefers-reduced-transparency: reduce)` và `@media (prefers-contrast: more)` fallback kính mờ về `#1F242D`, `scroll-padding-top: 72px` trên `html`, và `:focus-visible` (`outline: 2px solid #93C5FD; outline-offset: 2px;`).
+  2. `src/components/CookieConsentBanner.tsx`: Áp dụng `.glass-surface` + viền trên `#687385`; đưa icon khiên (`18px`, `#93C5FD`) lên cùng hàng ngang tiêu đề, nút `×` đạt `44x44px`, nối `Xem chính sách >` (`#93C5FD`) vào cuối mô tả; cân bằng 2 nút `Từ chối` & `Đồng ý & tiếp tục` trong `grid-cols-2 gap-3 min-h-[44px]` (`border-[1.5px] border-[#687385]`); bổ sung kỹ thuật C43 WCAG 2.4.11 (`scroll-padding-bottom` & `padding-bottom`).
+  3. `src/components/PlatformHeader.tsx`: Nền `#171A21`, đáy `1px solid #2A303C`, icon tia sáng Credits `#60A5FA` + `tabular-nums`, nút `Đăng nhập` Secondary Outlined (`1.5px solid #5F697A`, `#ECEFF4`), vùng chạm `>= 44x44px`.
+  4. `src/components/LandingPage.tsx`: Áp dụng Cool-Slate phân cấp rõ Primary Filled (`#60A5FA` / `#0B1120`) vs Secondary Outlined (`1.5px solid #5F697A`), vòng cung SVG tiến độ `25:00` `tabular-nums`, dải 3 thumbnail `16:9` (`64px`) ở thẻ Âm thanh thiên nhiên, sửa chính tả 2 tiêu đề (`"3 bước bắt đầu học tập năng suất cùng PomoFocus"`, `"Gói dịch vụ phù hợp với nhu cầu học tập"`), huy hiệu `01–03` và bảng giá `PRO` (`#60A5FA`, tick `#34D399`, `Nâng cấp PRO`).
+  5. `src/components/landing/WebDownloadHub.tsx` & `src/components/SharedFooter.tsx`: Nút tải chính Primary Filled (`#60A5FA` / `#0B1120`), nút sao chép Secondary Outlined (`1.5px solid #5F697A`), nền lót QR Desktop `#F6F7F9`.
+- **Kiểm chứng**:
+  - `npm run type-check`: 0 lỗi.
+  - `npm run build`: Thành công (`dist/sw.js` 112 precache entries).
+  - Vitest (7 suite: `v75DownloadShowcase`, `cookieConsentNativeSuppression`, `guestHeaderAndGoogleGuidance`, `m4EmpiricalDownloadAndRoutes`, `mobileWebPortal`, `platformRoutes`, `m4LegalAndCookieConsent`): 7/7 file, 80/80 test passed.
+  - Playwright (`360x800` & `1440x900`): 0 tràn ngang, 0 `pageerror`, `CookieConsentBanner` đúng nền `rgba(31, 36, 45, 0.92)`, C43 `scroll-padding-bottom`, 2 nút `Từ chối` / `Đồng ý & tiếp tục` cân bằng `44px`, nút `×` `44x44px`, `Tab` focus chuẩn `#93C5FD`.
+
 [ANTIGRAVITY | MOBILE WEB HEADER NAV & /download CTA POLISH (2026-11-27)]
 - **Phạm vi sửa đổi** (tuân thủ khóa file, tuyệt đối không chạm `MobileAppShell` hay các file của Codex):
   1. `src/components/PlatformHeader.tsx`: Khôi phục cụm thao tác nhanh (`Đăng nhập` khi guest hoặc pill Credits + Avatar khi đã đăng nhập) và nút Menu Hamburger `44x44px` (`min-w-[44px] min-h-[44px]`) trên mọi trang Web Mobile (`< 768px`, kể cả `/download` và khi đã đăng nhập); nâng cấp `mobile-navigation-drawer` theo Apple Liquid Glass (`bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25`) với đầy đủ 6 tuyến Portal (`/`, `/app`, `/profile`, `/billing`, `/account/security`, `/download`).

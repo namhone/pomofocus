@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Shield, ChevronRight, X } from 'lucide-react';
 import { useRouter } from '../services/router';
 import { Capacitor } from '@capacitor/core';
@@ -10,6 +10,14 @@ export const CookieConsentBanner: React.FC = () => {
   const router = useRouter();
   const { isNativeCapacitor } = useDeviceDetection();
   const [isVisible, setIsVisible] = useState(false);
+  const bannerRef = useRef<HTMLElement | null>(null);
+
+  const isNative =
+    isNativeCapacitor ||
+    Capacitor.isNativePlatform() ||
+    (typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.()));
+  const isRoomRoute = router.currentRoute.pathname.startsWith('/rooms/');
+  const shouldRender = !isNative && isVisible && !isRoomRoute;
 
   useEffect(() => {
     try {
@@ -26,6 +34,42 @@ export const CookieConsentBanner: React.FC = () => {
       // LocalStorage không khả dụng (Private browsing)
     }
   }, []);
+
+  // Kỹ thuật C43 WCAG 2.4.11: Đảm bảo banner ở đáy không che phần tử đang focus bàn phím
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!shouldRender) {
+      document.documentElement.style.removeProperty('scroll-padding-bottom');
+      document.documentElement.style.removeProperty('padding-bottom');
+      document.body.style.removeProperty('padding-bottom');
+      const rootEl = document.getElementById('root');
+      if (rootEl) rootEl.style.removeProperty('scroll-padding-bottom');
+      return;
+    }
+
+    const applyPadding = () => {
+      const h = bannerRef.current?.offsetHeight || 168;
+      const safePad = `${h + 20}px`;
+      document.documentElement.style.scrollPaddingBottom = safePad;
+      document.documentElement.style.paddingBottom = safePad;
+      document.body.style.paddingBottom = safePad;
+      const rootEl = document.getElementById('root');
+      if (rootEl) rootEl.style.scrollPaddingBottom = safePad;
+    };
+
+    applyPadding();
+    const ro = typeof ResizeObserver !== 'undefined' && bannerRef.current ? new ResizeObserver(applyPadding) : null;
+    if (ro && bannerRef.current) ro.observe(bannerRef.current);
+
+    return () => {
+      ro?.disconnect();
+      document.documentElement.style.removeProperty('scroll-padding-bottom');
+      document.documentElement.style.removeProperty('padding-bottom');
+      document.body.style.removeProperty('padding-bottom');
+      const rootEl = document.getElementById('root');
+      if (rootEl) rootEl.style.removeProperty('scroll-padding-bottom');
+    };
+  }, [shouldRender]);
 
   const handleAccept = () => {
     try {
@@ -54,71 +98,63 @@ export const CookieConsentBanner: React.FC = () => {
     router.navigate('/privacy');
   };
 
-  if (isNativeCapacitor || Capacitor.isNativePlatform() || (typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.()))) return null;
-  if (!isVisible) return null;
-  // Không làm phiền hoặc chặn thao tác khi người dùng đang trong phòng học Meet
-  if (router.currentRoute.pathname.startsWith('/rooms/')) return null;
+  if (!shouldRender) return null;
 
   return (
     <aside
+      ref={bannerRef}
       data-testid="cookie-consent-banner"
       role="region"
       aria-label="Thông báo bảo vệ dữ liệu và cookie"
-      className="fixed bottom-2.5 left-2.5 right-2.5 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-2.5 sm:p-4 rounded-2xl bg-zinc-950/85 border border-white/15 border-t-white/25 shadow-2xl backdrop-blur-2xl text-zinc-100 select-none animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="glass-surface fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-4 rounded-2xl border border-[#2A303C] border-t-[#687385] shadow-2xl text-[#ECEFF4] select-none animate-in fade-in slide-in-from-bottom-2 duration-300"
     >
-      <div className="flex items-start gap-2.5 sm:gap-3">
-        <div className="hidden sm:flex w-8 h-8 rounded-xl bg-white/10 border border-white/15 items-center justify-center shrink-0 text-white mt-0.5">
-          <Shield size={16} className="text-zinc-300 stroke-[1.5]" />
+      <div className="space-y-2.5 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <h4 className="text-xs font-semibold text-[#ECEFF4] tracking-wide flex items-center gap-2 min-w-0">
+            <Shield size={18} className="text-[#93C5FD] stroke-[1.75] shrink-0" />
+            <span className="truncate">Bảo vệ dữ liệu &amp; quyền riêng tư</span>
+          </h4>
+          <button
+            type="button"
+            data-testid="consent-close-btn"
+            onClick={handleClose}
+            aria-label="Đóng thông báo (không đồng ý)"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] -mr-2.5 -mt-2.5 -mb-2 flex items-center justify-center rounded-xl text-[#A1A9B8] hover:text-[#ECEFF4] hover:bg-[#29303D] transition cursor-pointer shrink-0"
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        <div className="flex-1 space-y-1 sm:space-y-1.5 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <h4 className="text-[11px] sm:text-xs font-semibold text-white tracking-wide flex items-center gap-1.5">
-              <Shield size={13} className="sm:hidden text-zinc-300 stroke-[1.5] shrink-0" />
-              <span>Bảo vệ dữ liệu &amp; quyền riêng tư</span>
-            </h4>
-            <button
-              type="button"
-              data-testid="consent-close-btn"
-              onClick={handleClose}
-              aria-label="Đóng thông báo (không đồng ý)"
-              className="text-zinc-400 hover:text-white p-0.5 transition cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          </div>
+        <p className="text-[11px] text-[#A1A9B8] leading-relaxed text-pretty">
+          PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (bộ nhớ trên thiết bị) để bạn có thể tiếp tục làm việc khi mất mạng, tuân thủ luật bảo vệ dữ liệu cá nhân 91/2025/QH15 và nghị định 356/2025/nđ-cp.{' '}
+          <button
+            type="button"
+            data-testid="consent-details-btn"
+            onClick={handleOpenPrivacy}
+            className="inline-flex items-center gap-0.5 text-[11px] font-medium text-[#93C5FD] hover:underline whitespace-nowrap shrink-0 cursor-pointer align-baseline"
+          >
+            <span>Xem chính sách</span>
+            <ChevronRight size={12} className="shrink-0" />
+          </button>
+        </p>
 
-          <p className="text-[10px] sm:text-[11px] text-zinc-400 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none">
-            PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (bộ nhớ trên thiết bị) để bạn có thể tiếp tục làm việc khi mất mạng, tuân thủ luật bảo vệ dữ liệu cá nhân 91/2025/QH15 và nghị định 356/2025/nđ-cp.
-          </p>
-
-          <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
-            <button
-              type="button"
-              data-testid="consent-accept-btn"
-              onClick={handleAccept}
-              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
-            >
-              Đồng ý &amp; tiếp tục
-            </button>
-            <button
-              type="button"
-              data-testid="consent-decline-btn"
-              onClick={handleDecline}
-              className="px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
-            >
-              Từ chối
-            </button>
-            <button
-              type="button"
-              data-testid="consent-details-btn"
-              onClick={handleOpenPrivacy}
-              className="px-2 sm:px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0 cursor-pointer"
-            >
-              <span>Xem chính sách</span>
-              <ChevronRight size={12} />
-            </button>
-          </div>
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <button
+            type="button"
+            data-testid="consent-decline-btn"
+            onClick={handleDecline}
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-transparent border-[1.5px] border-[#687385] hover:bg-[#29303D] text-[#ECEFF4] text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition cursor-pointer flex items-center justify-center"
+          >
+            Từ chối
+          </button>
+          <button
+            type="button"
+            data-testid="consent-accept-btn"
+            onClick={handleAccept}
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-transparent border-[1.5px] border-[#687385] hover:bg-[#29303D] text-[#ECEFF4] text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition cursor-pointer flex items-center justify-center"
+          >
+            Đồng ý &amp; tiếp tục
+          </button>
         </div>
       </div>
     </aside>

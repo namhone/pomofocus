@@ -203,7 +203,7 @@ export const WebDownloadHub: React.FC = () => {
   return (
     <div
       data-testid="download-hub-container"
-      className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-zinc-500/30 selection:text-zinc-300 flex flex-col relative overflow-x-hidden"
+      className="min-h-screen bg-[#0F1115] text-[#ECEFF4] selection:bg-[#60A5FA]/30 selection:text-[#ECEFF4] flex flex-col relative overflow-x-hidden"
     >
       {/* Background Zen Glow Accents */}
       <div
@@ -277,7 +277,7 @@ export const WebDownloadHub: React.FC = () => {
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
                     download="PomoFocus-v8.1.apk"
-                    className="w-full h-14 sm:h-15 min-h-[54px] px-4 sm:px-5 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_28px_rgba(255,255,255,0.22)] hover:scale-[1.01] active:scale-95 cursor-pointer"
+                    className="w-full h-14 sm:h-15 min-h-[54px] px-4 sm:px-5 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_28px_rgba(96,165,250,0.25)] hover:scale-[1.01] active:scale-95 cursor-pointer"
                   >
                     <Download className="w-4 h-4 sm:w-5 sm:h-5 text-current stroke-[1.75] shrink-0" />
                     <span className="md:hidden whitespace-nowrap">Tải APK {CURRENT_APK_VERSION}</span>
@@ -288,7 +288,7 @@ export const WebDownloadHub: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="md:hidden w-full h-10 flex items-center justify-center gap-1.5 px-4 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 border-t-white/25 text-zinc-200 text-xs font-medium transition active:scale-95 cursor-pointer"
+                    className="md:hidden w-full min-h-[44px] h-11 flex items-center justify-center gap-1.5 px-4 rounded-full bg-transparent hover:bg-[#29303D] border-[1.5px] border-[#5F697A] text-[#ECEFF4] text-xs font-semibold transition active:scale-95 cursor-pointer"
                   >
                     {copied ? (
                       <>
@@ -338,13 +338,13 @@ export const WebDownloadHub: React.FC = () => {
                 </div>
 
                 {/* Right: Integrated Dynamic ISO QR Code (Desktop / Tablet only; hidden on 390px phones) */}
-                <div className="hidden md:flex md:col-span-5 flex-col items-center justify-center p-3.5 rounded-2xl bg-zinc-950/65 backdrop-blur-xl border border-white/12 border-t-white/20 text-center shadow-lg">
+                <div className="hidden md:flex md:col-span-5 flex-col items-center justify-center p-3.5 rounded-2xl bg-[#171A21] border border-[#2A303C] text-center shadow-lg">
                   <div
                     data-testid="dynamic-qr-code"
-                    className="p-1.5 rounded-xl bg-white border border-white/20 shadow-md shrink-0"
+                    className="p-2 rounded-xl bg-[#F6F7F9] border border-[#2A303C] shadow-md shrink-0"
                     dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrSvg) }}
                   />
-                  <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 mt-2 tracking-wider">
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#A1A9B8] mt-2 tracking-wider">
                     <QrCode className="w-3.5 h-3.5" />
                     <span>Quét mã cài ngay</span>
                   </div>
@@ -352,7 +352,7 @@ export const WebDownloadHub: React.FC = () => {
                     type="button"
                     data-testid="copy-download-url-btn"
                     onClick={handleCopy}
-                    className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] font-medium transition active:scale-95 border border-white/10 cursor-pointer"
+                    className="mt-2 w-full min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-transparent hover:bg-[#29303D] text-[#ECEFF4] text-[11px] font-semibold transition active:scale-95 border-[1.5px] border-[#5F697A] cursor-pointer"
                   >
                     {copied ? (
                       <>

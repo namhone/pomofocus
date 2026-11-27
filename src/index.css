@@ -6,6 +6,28 @@
 @layer base {
   :root {
     color-scheme: dark;
+    /* Cool-Slate 3-Tier Design Tokens */
+    --bg-canvas: #0F1115;
+    --bg-surface-1: #171A21;
+    --bg-surface-2: #1F242D;
+    --bg-surface-3: #29303D;
+    --text-primary: #ECEFF4;
+    --text-secondary: #A1A9B8;
+    --text-tertiary: #7A8291;
+    --border-subtle: #2A303C;
+    --border-control: #5F697A;
+    --border-control-elevated: #687385;
+    --border-focus: #93C5FD;
+    --accent-primary: #60A5FA;
+    --accent-primary-hover: #93C5FD;
+    --accent-on-primary: #0B1120;
+    --accent-tint-bg: #1D2B44;
+    --status-success: #34D399;
+    --status-warning: #FBBF24;
+    --status-error: #F87171;
+    --glass-bg: rgba(31, 36, 45, 0.92);
+    --glass-blur: blur(20px) saturate(180%);
+
     --sat-native: 0px;
     --sab-native: 0px;
     --sal-native: 0px;
@@ -14,6 +36,10 @@
     --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--sab-native, 0px));
     --safe-left: max(env(safe-area-inset-left, 0px), var(--sal-native, 0px));
     --safe-right: max(env(safe-area-inset-right, 0px), var(--sar-native, 0px));
+  }
+
+  html {
+    scroll-padding-top: 72px;
   }
 
   * {
@@ -138,14 +164,14 @@
     appearance: textfield !important;
   }
 
-  /* Hiệu ứng viền tiêu điểm bàn phím toàn cục chuẩn WCAG 2.1 AA */
+  /* Hiệu ứng viền tiêu điểm bàn phím toàn cục chuẩn WCAG 2.2 */
   button:focus-visible,
   a:focus-visible,
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid transparent !important;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px #09090b !important;
+    outline: 2px solid #93C5FD !important;
+    outline-offset: 2px;
   }
 
   /* Miễn trừ focus-ring toàn cục cho các input/textarea trong Liquid Glass Capsule có class no-focus-ring */
@@ -368,7 +394,36 @@
 
 
 /* Phase 4B: consistent focus, quiet scrollbars and a two-row Meet header on phones. */
-:where(button, a, input, textarea, select, [tabindex]):focus-visible { outline: 2px solid #e4e4e7 !important; outline-offset: 3px; }
+:where(button, a, input, textarea, select, [tabindex]):focus-visible { outline: 2px solid #93C5FD !important; outline-offset: 2px; }
+.glass-surface {
+  background-color: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: #1F242D;
+    --glass-blur: none;
+  }
+  .glass-surface {
+    background-color: #1F242D !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --glass-bg: #1F242D;
+    --glass-blur: none;
+    --border-subtle: #5F697A;
+    --border-control: #93C5FD;
+  }
+  .glass-surface {
+    background-color: #1F242D !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
 .lucide { stroke-width: 1.5; }
 /* Static surface depth; expensive effects stay on the few floating controls. */
 :root {
