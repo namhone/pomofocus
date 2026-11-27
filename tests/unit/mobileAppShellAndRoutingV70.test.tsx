@@ -1,7 +1,14 @@
 import 'fake-indexeddb/auto';
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { supabase } from '../../src/lib/supabase';
+
+const nativeLifecycle = vi.hoisted(() => ({ listener: null as any, remove: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('@capacitor/app', () => ({ App: { addListener: vi.fn(async (_event: string, callback: any) => {
+  nativeLifecycle.listener = callback;
+  return { remove: nativeLifecycle.remove };
+}) } }));
 
 // Components under test
 import { MobileAppShell } from '../../src/components/mobile/MobileAppShell';
@@ -335,6 +342,35 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
   // 5. App.tsx Routing Guard & Karpathy Invariant
   // =========================================================================
   describe('5. App.tsx Mobile Routing Guard & Karpathy Invariant', () => {
+    it('refreshes on native foreground and web visibility, coalesces focus, and removes listeners', async () => {
+      window.history.replaceState({}, '', '/login');
+      (window as any).Capacitor = { isNativePlatform: () => true };
+      const lookup = vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({ data: { session: null }, error: null });
+      const credits = vi.spyOn(useAiStore.getState(), 'refreshCreditsFromCloud').mockResolvedValue(undefined);
+      const view = render(<RouterProvider><App /></RouterProvider>);
+      await waitFor(() => expect(nativeLifecycle.listener).toBeTypeOf('function'));
+      await act(async () => {});
+      lookup.mockClear(); credits.mockClear();
+      let finish!: (value: any) => void;
+      lookup.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+      await act(async () => {
+        nativeLifecycle.listener({ isActive: true });
+        window.dispatchEvent(new Event('focus'));
+      });
+      expect(lookup).toHaveBeenCalledOnce();
+      expect(credits).not.toHaveBeenCalled();
+      await act(async () => { finish({ data: { session: null }, error: null }); });
+      expect(credits).toHaveBeenCalledOnce();
+      await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+      expect(lookup).toHaveBeenCalledTimes(2);
+      nativeLifecycle.listener({ isActive: false });
+      expect(lookup).toHaveBeenCalledTimes(2);
+      view.unmount();
+      expect(nativeLifecycle.remove).toHaveBeenCalledOnce();
+      window.dispatchEvent(new Event('focus'));
+      expect(lookup).toHaveBeenCalledTimes(2);
+      delete (window as any).Capacitor;
+    });
     it('5.1 Renders MobileAppShell on mobile viewports (<= 768px)', () => {
       // Set path to /app
       window.history.pushState({}, '', '/app');

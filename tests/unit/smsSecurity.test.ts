@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   smsSecurityService,
@@ -10,6 +11,7 @@ describe('SMS Security & Two-Factor Authentication (2FA) Specifications', () => 
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
+    installProfileCloud();
   });
 
   describe('1. Chuẩn hóa và làm mờ số điện thoại (Normalization & Privacy Masking)', () => {

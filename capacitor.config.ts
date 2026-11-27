@@ -12,6 +12,10 @@ const config: CapacitorConfig = {
     backgroundColor: '#09090b',
   },
   plugins: {
+    App: {
+      // MainActivity owns the existing native-back navigation contract.
+      disableBackButtonHandler: true,
+    },
     Keyboard: {
       resize: 'body',
       resizeOnFullScreen: true,

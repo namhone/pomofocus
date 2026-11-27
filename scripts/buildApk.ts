@@ -15,7 +15,7 @@ export const ANDROID_DIR = path.join(PROJECT_ROOT, 'android');
 export const LOCAL_PROPERTIES_PATH = path.join(ANDROID_DIR, 'local.properties');
 export const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
 export const DOWNLOADS_DIR = path.join(PUBLIC_DIR, 'downloads');
-export const APP_VERSION = '8.1.4';
+export const APP_VERSION = '8.1.5';
 export const APK_FILENAME = 'PomoFocus-v8.1.apk';
 export const TARGET_APK_PATH = path.join(DOWNLOADS_DIR, APK_FILENAME);
 export const VERSION_JSON_PATH = path.join(PUBLIC_DIR, 'version.json');
@@ -107,7 +107,7 @@ export function copyAndHashApk() {
   }
 
   versionData.version = APP_VERSION;
-  versionData.versionCode = 85;
+  versionData.versionCode = 86;
   versionData.minSupportedVersion = versionData.minSupportedVersion || '7.0.0';
   versionData.minVersion = versionData.minVersion || '7.0.0';
   versionData.releaseDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
@@ -115,11 +115,11 @@ export function copyAndHashApk() {
   versionData.apkSizeMb = sizeMb;
   versionData.checksumSha256 = sha256;
   versionData.releaseNotes =
-    'Nền rõ hơn, mặt kính thống nhất và tiện ích dễ mở hơn.';
+    'Đăng nhập ổn định hơn, tự làm mới phiên và giữ đúng ảnh đại diện.';
   versionData.changelog = [
-    'Cài đặt trên thanh đầu, Meet và ghi chú trong Tiện ích',
-    'Nền tối giữ rõ chi tiết, chữ dễ đọc trên nền sáng',
-    'Giữ bản sửa cảm ứng phát/tạm dừng và khôi phục hiển thị',
+    'Hủy chọn Google không còn hiện thông báo lỗi',
+    'Tự làm mới đăng nhập khi quay lại ứng dụng',
+    'Giữ đúng ảnh đại diện và cải thiện mã QR',
   ];
 
   fs.writeFileSync(VERSION_JSON_PATH, JSON.stringify(versionData, null, 2) + '\n', 'utf-8');

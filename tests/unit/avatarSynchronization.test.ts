@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { authService } from '../../src/services/authService';
 import { ProfileService, CloudProfile } from '../../src/services/profileService';
@@ -9,6 +10,7 @@ describe('Avatar Synchronization & Single Source of Truth Specification', () => 
     localStorage.clear();
     sessionStorage.clear();
     vi.restoreAllMocks();
+    installProfileCloud();
   });
 
   describe('1. Chuẩn hóa cập nhật Avatar (3 trường: avatarUrl, customAvatarUrl, hasCustomAvatar)', () => {
@@ -128,8 +130,9 @@ describe('Avatar Synchronization & Single Source of Truth Specification', () => 
       const email = 'cloud.sync@study.io';
       const cloudAvatarUrl = 'https://supabase.co/storage/v1/user_avatar_cloud.png';
 
-      // Mock ProfileService.fetchProfileByEmail trả về dữ liệu Supabase Cloud
-      vi.spyOn(ProfileService, 'fetchProfileByEmail').mockResolvedValue({
+      // Seed the external server with the same canonical identity used by Auth.
+      const cloud = installProfileCloud();
+      cloud.tables.set('profiles', new Map([['usr_cloud_123', {
         id: 'usr_cloud_123',
         email,
         full_name: 'Cloud Student',
@@ -139,7 +142,7 @@ describe('Avatar Synchronization & Single Source of Truth Specification', () => 
         role: 'user',
         plan: 'pro_beta',
         ai_credits_balance: 50
-      } as CloudProfile);
+      } as CloudProfile]]));
 
       // Đăng nhập tại tab ẩn danh (localStorage hoàn toàn rỗng)
       const user = await authService.login(email, 'somePass123');

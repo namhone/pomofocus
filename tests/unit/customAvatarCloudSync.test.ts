@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   cropAndCompressImage,
@@ -21,6 +22,7 @@ describe('Custom Avatar Cloud Sync & Compression Specification (All-in-One Avata
     localProfileCache.clear();
     useAuthStore.getState().logout();
     vi.restoreAllMocks();
+    installProfileCloud();
   });
 
   describe('1. Cắt vuông 1:1 và nén ảnh (Client-Side Cropping & Compression)', () => {

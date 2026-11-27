@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAuthStore } from '../../src/stores/useAuthStore';
 import { authService } from '../../src/services/authService';
@@ -8,6 +9,7 @@ describe('Unified Auth, Single Identity & Avatar Resilience Specification', () =
   beforeEach(() => {
     localStorage.clear();
     useAuthStore.getState().logout();
+    installProfileCloud();
   });
 
   it('1. Google Login Callback: syncUserFromSupabase thiết lập isAuthenticated = true và isLoggedIn = true', () => {

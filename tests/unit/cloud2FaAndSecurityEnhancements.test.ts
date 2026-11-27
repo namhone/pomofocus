@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { authService } from '../../src/services/authService';
 import { totpService, generateTotpSecret } from '../../src/services/totpService';
@@ -11,31 +12,22 @@ describe('Cloud 2FA, Security Enhancements & Owner Privileges Audit', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    installProfileCloud();
   });
 
   describe('1. 2FA Cloud Persistence & Fresh Device Enforcement', () => {
     it('Chặn đăng nhập trên thiết bị mới (localStorage rỗng) nếu Supabase Cloud profile có 2FA', async () => {
       const email = 'secure_user@example.com';
       const password = 'StrongPassword123!';
-      const userId = 'usr_secure_device_b';
+      const account = await authService.signup(email, password, 'Secure Student');
+      const userId = account.id;
 
-      // 1. Tạo tài khoản cục bộ
-      await authService.signup(email, password, 'Secure Student');
-
-      // 2. Mock Cloud Profile có 2FA bật trên Supabase
+      // Enable 2FA for the authenticated server ID, then discard all device cache.
       const secret = generateTotpSecret();
-      vi.spyOn(ProfileService, 'fetchProfileByEmail').mockResolvedValue({
-        id: userId,
-        email,
-        display_name: 'Secure Student',
-        role: 'user',
-        plan: 'free',
-        two_factor_enabled: true,
-        totp_secret: secret,
-        backup_codes: ['112233', '445566'],
-        ai_credits_balance: 50,
-        settings: {}
-      } as any);
+      await ProfileService.updateFields(userId, {
+        two_factor_enabled: true, totp_secret: secret, backup_codes: ['112233', '445566']
+      });
+      authService.logout();
 
       // 3. Giả lập thiết bị mới: Xóa sạch 2FA local storage
       localStorage.removeItem(`pomodoro_totp_secret_${userId}`);

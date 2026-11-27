@@ -127,7 +127,7 @@ describe('Milestone M3: Real Google OAuth on APK & User Identity Sync', () => {
 
       expect(nativeLoginSpy).toHaveBeenCalledTimes(1);
       const feedback = await screen.findByTestId('mobile-auth-feedback');
-      expect(feedback.textContent).toContain('Đang mở trình duyệt xác thực Google');
+      expect(feedback.textContent).toContain('Đăng nhập Google thành công!');
     });
 
     it('2.2 Displays clean error feedback banner if native OAuth fails, without crashing', async () => {

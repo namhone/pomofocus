@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useAuthStore } from '../../src/stores/useAuthStore';
@@ -16,6 +17,7 @@ describe('Multi-Provider Identity Conflict & Canonical ID Specification', () => 
     await db.tasks.clear();
     await db.projects.clear();
     await db.notes.clear();
+    installProfileCloud();
   });
 
   it('1. Root Cause Scenario: Cùng Email đăng ký Email/Pass trước, sau đó đăng nhập Google OAuth phải bảo toàn Canonical ID', async () => {
@@ -25,6 +27,7 @@ describe('Multi-Provider Identity Conflict & Canonical ID Specification', () => 
     // BƯỚC 1: Người dùng đăng ký bằng Email & Mật khẩu
     const emailUser = await authService.signup(testEmail, testPassword, 'Founder Test');
     expect(emailUser.email).toBe(testEmail);
+    useAuthStore.setState({ user: emailUser, isAuthenticated: true });
     const canonicalId = emailUser.id;
     expect(canonicalId).toBeDefined();
 
@@ -64,7 +67,7 @@ describe('Multi-Provider Identity Conflict & Canonical ID Specification', () => 
     expect(currentTasks.length).toBeGreaterThan(0);
   });
 
-  it('2. Founder VIP Whitelist: Đăng nhập Google với Founder không bao giờ bị reset về 50⚡ hay mất quyền Founder', async () => {
+  it('2. Verified Founder claims preserve the real Cloud wallet balance', async () => {
     const ownerEmail = 'namho03052k9@gmail.com';
     const googleSubId = 'google_owner_uuid_001';
 
@@ -72,13 +75,18 @@ describe('Multi-Provider Identity Conflict & Canonical ID Specification', () => 
     const mockSupabaseGoogleUser = {
       id: googleSubId,
       email: ownerEmail,
+      app_metadata: { role: 'founder' },
       user_metadata: {
         full_name: 'Hồ Ngọc Bảo Nam',
         avatar_url: 'https://lh3.googleusercontent.com/google_photo.jpg'
       }
     };
 
+    const cloud = installProfileCloud();
+    cloud.tables.set('profiles', new Map([[googleSubId, { id: googleSubId, email: ownerEmail,
+      full_name: 'Founder', plan: 'lifetime', ai_credits_balance: 23 }]]));
     useAuthStore.getState().syncUserFromSupabase(mockSupabaseGoogleUser);
+    await useAuthStore.getState().loadUserFromCloud(googleSubId);
 
     const auth = useAuthStore.getState();
     expect(auth.isAuthenticated).toBe(true);
@@ -91,7 +99,7 @@ describe('Multi-Provider Identity Conflict & Canonical ID Specification', () => 
 
     // Ví AI Credits phải là 1.000⚡ (hoặc Infinity), TUYỆT ĐỐI không bị reset về 50⚡
     const aiBalance = useAiStore.getState().aiCreditsBalance;
-    expect(aiBalance).toBe(1000);
+    expect(aiBalance).toBe(23);
     expect(useAiStore.getState().aiPlan).toBe('lifetime');
   });
 

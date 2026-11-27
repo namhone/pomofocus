@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { supabase } from '../../src/lib/supabase';
 import { usePwaInstallStore, BeforeInstallPromptEvent } from '../../src/stores/usePwaInstallStore';
@@ -22,6 +23,7 @@ describe('Google OAuth Supabase & PWA Install Store Unit Tests', () => {
       isInstalled: false,
       deferredPrompt: null,
     });
+    installProfileCloud();
   });
 
   describe('1. Supabase OAuth Client (Google Sign-In URL & Methods)', () => {
@@ -121,7 +123,10 @@ describe('Google OAuth Supabase & PWA Install Store Unit Tests', () => {
   });
 
   describe('3. Google Login kết hợp VIP Email & Cloud Entitlements', () => {
-    it('Đăng nhập Google với Owner (namho03052k9@gmail.com) tự động kích hoạt Lifetime & Owner', async () => {
+    it('Email Owner không tự cấp quyền quản trị; gói Lifetime đến từ Cloud', async () => {
+      const cloud = installProfileCloud();
+      cloud.tables.set('profiles', new Map([['cloud-vip', { id: 'cloud-vip', email: 'namho03052k9@gmail.com',
+        full_name: 'VIP', plan: 'lifetime', ai_credits_balance: 23 }]]));
       const success = await useAuthStore.getState().loginWithGoogle({
         email: 'namho03052k9@gmail.com',
         name: 'Hồ Bảo Nam (Owner)',
@@ -129,15 +134,19 @@ describe('Google OAuth Supabase & PWA Install Store Unit Tests', () => {
       });
 
       expect(success).toBe(true);
+      await useAuthStore.getState().loadUserFromCloud(useAuthStore.getState().user!.id);
       const state = useAuthStore.getState();
       expect(state.isAuthenticated).toBe(true);
-      expect(state.isOwner).toBe(true);
+      expect(state.isOwner).toBe(false);
       expect(state.isLifetime).toBe(true);
       expect(state.isPro).toBe(true);
       expect(state.user?.avatarUrl).toBe('https://lh3.googleusercontent.com/owner.jpg');
     });
 
-    it('Đăng nhập Google với Nóc Nhà (huyentrantt09@gmail.com) tự động kích hoạt Lifetime & LadyBoss', async () => {
+    it('Gói Lifetime của tài khoản VIP được khôi phục từ Cloud', async () => {
+      const cloud = installProfileCloud();
+      cloud.tables.set('profiles', new Map([['cloud-vip', { id: 'cloud-vip', email: 'huyentrantt09@gmail.com',
+        full_name: 'VIP', plan: 'lifetime', ai_credits_balance: 23 }]]));
       const success = await useAuthStore.getState().loginWithGoogle({
         email: 'huyentrantt09@gmail.com',
         name: 'Huyền Trần',
@@ -145,6 +154,7 @@ describe('Google OAuth Supabase & PWA Install Store Unit Tests', () => {
       });
 
       expect(success).toBe(true);
+      await useAuthStore.getState().loadUserFromCloud(useAuthStore.getState().user!.id);
       const state = useAuthStore.getState();
       expect(state.isAuthenticated).toBe(true);
       expect(state.isLadyBoss).toBe(true);

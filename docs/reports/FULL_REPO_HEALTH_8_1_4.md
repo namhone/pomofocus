@@ -1,5 +1,7 @@
 # Full-repo health check — 8.1.4/code85
 
+> Đây là kết quả lịch sử trước sửa. Kết quả8.1.5/code86 và giới hạn2FA Cloud thật: [Auth health resolution](AUTH_HEALTH_RESOLUTION_8_1_5.md).
+
 Ngày kiểm tra: 27/11/2026. Baseline: `7d430dc`, đã đồng bộ origin/master khi bắt đầu. Antigravity làm Supabase Dashboard; lượt này không thay cấu hình Cloud, UI hoặc logic sản phẩm.
 
 ## Gates

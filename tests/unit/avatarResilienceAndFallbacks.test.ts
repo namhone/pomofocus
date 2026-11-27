@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { authService, isValidAvatarUrl, generateInitialsAvatarSvg, getEffectiveAvatarUrl, getDisplayAvatar } from '../../src/services/authService';
 import { useAuthStore } from '../../src/stores/useAuthStore';
@@ -8,6 +9,7 @@ describe('Avatar Resilience & Pitch-Black Box Elimination Specification', () => 
     localStorage.clear();
     localProfileCache.clear();
     useAuthStore.getState().logout();
+    installProfileCloud();
   });
 
   describe('1. Kịch bản tái hiện lỗi thực tế (Reproduction Steps Verification)', () => {

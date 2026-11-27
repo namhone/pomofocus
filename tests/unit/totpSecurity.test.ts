@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { installProfileCloud } from '../fixtures/profileCloud';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   totpService,
   base32Encode,
@@ -14,8 +15,10 @@ import {
 import { authService } from '../../src/services/authService';
 
 describe('Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications', () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     localStorage.clear();
+    installProfileCloud();
   });
 
   describe('1. Mã hóa & Chuẩn hóa Base32 RFC 4648', () => {
@@ -112,6 +115,29 @@ describe('Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications
   });
 
   describe('5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service', () => {
+    it('failed Cloud enable leaves the session and secret cache unchanged', async () => {
+      const cloud = installProfileCloud();
+      const user = await authService.signup('failed-enable@pomo.app', 'pass123456', 'User');
+      const setup = totpService.startSetup(user.email);
+      cloud.request.mockImplementation(async () => new Response('{}', { status: 503 }));
+      const result = await totpService.confirmAndEnable(user.id, setup.secret,
+        await calculateTotpCode(setup.secret), setup.backupCodes);
+      expect(result.success).toBe(false);
+      expect(totpService.getSecret(user.id)).toBeNull();
+      expect(authService.getCurrentSession()?.twoFactorEnabled).not.toBe(true);
+    });
+
+    it('failed Cloud disable retains the existing second factor', async () => {
+      const cloud = installProfileCloud();
+      const user = await authService.signup('failed-disable@pomo.app', 'pass123456', 'User');
+      const setup = totpService.startSetup(user.email);
+      await totpService.confirmAndEnable(user.id, setup.secret,
+        await calculateTotpCode(setup.secret), setup.backupCodes);
+      cloud.request.mockImplementation(async () => new Response('{}', { status: 503 }));
+      expect((await totpService.disable(user.id)).success).toBe(false);
+      expect(totpService.getSecret(user.id)).toBe(setup.secret);
+      expect(authService.getCurrentSession()?.twoFactorEnabled).toBe(true);
+    });
     it('Kích hoạt thành công 2FA: Lưu trạng thái và secret vào User Profile', async () => {
       const user = await authService.signup('totp.user@pomo.app', 'pass123456', 'Totp User');
       const setup = totpService.startSetup(user.email);

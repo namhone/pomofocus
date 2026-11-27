@@ -11,6 +11,13 @@ describe('Milestone 2 Security, PII & XSS Sanitization Test Suite', () => {
   // 1. DOMPurify XSS Sanitization Tests (BUG-73)
   // =========================================================================
   describe('1. DOMPurify HTML & SVG Sanitization', () => {
+    it('preserves the QR accessible name while stripping SVG event handlers', () => {
+      const clean = sanitizeSvg('<svg role="img" aria-label="Mã QR" onload="alert(1)"><script>alert(2)</script><path d="M0 0" /></svg>');
+      expect(clean).toContain('role="img"');
+      expect(clean).toContain('aria-label="Mã QR"');
+      expect(clean).not.toContain('onload');
+      expect(clean).not.toContain('<script');
+    });
     it('strips <script>alert(1)</script> tags completely', () => {
       const payload = '<div>Hello <script>alert("xss")</script>world</div>';
       const clean = sanitizeHtml(payload);

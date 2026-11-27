@@ -254,30 +254,18 @@ export const totpService = {
       };
     }
 
-    // Lưu secret và backup codes vào storage bảo mật cục bộ
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(`${TOTP_STORAGE_KEY_PREFIX}${userId}`, secret);
-      localStorage.setItem(`${BACKUP_CODES_KEY_PREFIX}${userId}`, JSON.stringify(backupCodes));
-    }
-
     // Cập nhật trạng thái người dùng trong Profile
     try {
       const updatedUser = await authService.updateProfile(userId, {
         twoFactorEnabled: true,
         twoFactorMethod: 'totp',
-        totpVerifiedAt: Date.now()
+        totpVerifiedAt: Date.now(),
+        totp: { secret, backupCodes }
       });
 
-      // Đồng bộ trạng thái 2FA và Secret vào public.profiles Supabase
-      try {
-        ProfileService.updateFields(userId, {
-          is_2fa_enabled: true,
-          totp_secret: secret,
-          backup_codes: backupCodes
-        });
-      } catch (err) {
-        console.warn('[totpService] Lỗi đồng bộ 2FA lên Supabase Cloud:', err);
-      }
+      // Commit the device cache only after the single Cloud update succeeds.
+      localStorage.setItem(TOTP_STORAGE_KEY_PREFIX + userId, secret);
+      localStorage.setItem(BACKUP_CODES_KEY_PREFIX + userId, JSON.stringify(backupCodes));
 
       return {
         success: true,
@@ -296,28 +284,16 @@ export const totpService = {
   async disable(
     userId: string
   ): Promise<{ success: boolean; message: string; user?: UserProfile }> {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(`${TOTP_STORAGE_KEY_PREFIX}${userId}`);
-      localStorage.removeItem(`${BACKUP_CODES_KEY_PREFIX}${userId}`);
-    }
-
     try {
       const updatedUser = await authService.updateProfile(userId, {
         twoFactorEnabled: false,
         twoFactorMethod: undefined,
-        totpVerifiedAt: undefined
+        totpVerifiedAt: undefined,
+        totp: { secret: '', backupCodes: [] }
       });
 
-      // Xóa cờ 2FA trên Supabase Cloud
-      try {
-        ProfileService.updateFields(userId, {
-          is_2fa_enabled: false,
-          totp_secret: '',
-          backup_codes: []
-        });
-      } catch (err) {
-        console.warn('[totpService] Lỗi xóa 2FA trên Supabase Cloud:', err);
-      }
+      localStorage.removeItem(TOTP_STORAGE_KEY_PREFIX + userId);
+      localStorage.removeItem(BACKUP_CODES_KEY_PREFIX + userId);
 
       return {
         success: true,

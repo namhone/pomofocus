@@ -1,0 +1,295 @@
+{
+  "baseline": "8f9e931",
+  "count": 32,
+  "entries": [
+    {
+      "file": "tests/unit/avatarImmutabilityPrecedence.test.ts",
+      "test": "Avatar Immutability & Precedence Specification (Bảo vệ Avatar Tùy Chỉnh Tuyệt Đối) 3. Kịch bản lỗi thực tế: Up Custom Avatar -> Đăng Xuất (Logout) -> Đăng Nhập Google -> Bảo Toàn 100% bảo toàn vĩnh viễn Custom Avatar sau khi Logout và đăng nhập lại bằng Google",
+      "baselineReason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'https://supabase.co/storage/v1/object…' // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration. Fresh login asserted synchronously before Cloud profile hydration after logout cleared the cache.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real. Await Cloud hydration rather than retaining business data in localStorage.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/avatarResilienceAndFallbacks.test.ts",
+      "test": "Avatar Resilience & Pitch-Black Box Elimination Specification 1. Kịch bản tái hiện lỗi thực tế (Reproduction Steps Verification) chuỗi thao tác: Đăng nhập Google -> Đổi Avatar -> Logout -> F5 -> Đăng ký Email mới: Avatar có ngay lập tức, không bao giờ bị ô đen",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "test": "Avatar Synchronization & Single Source of Truth Specification 1. Chuẩn hóa cập nhật Avatar (3 trường: avatarUrl, customAvatarUrl, hasCustomAvatar) Cập nhật avatar qua updateProfile thiết lập đầy đủ 3 trường và đồng bộ",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "test": "Avatar Synchronization & Single Source of Truth Specification 2. Quy tắc Avatar Precedence: Google không bao giờ đè lên Custom Avatar Đăng xuất sau khi đổi avatar, đăng nhập lại bằng Google giữ nguyên ảnh custom",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "test": "Avatar Synchronization & Single Source of Truth Specification 3. Đồng nhất tài khoản Google & Email (Single Source of Truth) Cập nhật avatar qua ProfileView đồng bộ đồng thời cả bản ghi Google và Email",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/betaEntitlement.test.ts",
+      "test": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Cập nhật tên hiển thị và avatar thành công",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/betaEntitlement.test.ts",
+      "test": "PomoFocus Demo Beta — Account & Entitlement Integrity 3. Profile Management & Password Security Đổi mật khẩu thành công khi nhập đúng mật khẩu cũ",
+      "baselineReason": "Error: Mật khẩu không chính xác. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/cloud2FaAndSecurityEnhancements.test.ts",
+      "test": "Cloud 2FA, Security Enhancements & Owner Privileges Audit 2. Email OTP Password Reset Flow Gửi mã OTP 6 số và xác minh đặt lại mật khẩu mới thành công",
+      "baselineReason": "Error: Mật khẩu không chính xác. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/customAvatarCloudSync.test.ts",
+      "test": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime xử lý ảnh từ File, tải lên Storage và cập nhật tức thì vào useAuthStore & profiles cache",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/customAvatarCloudSync.test.ts",
+      "test": "Custom Avatar Cloud Sync & Compression Specification (All-in-One Avatar) 4. Quy trình toàn diện processAndSaveCustomAvatar & Đồng bộ Realtime fallback an toàn khi Storage bucket chưa kích hoạt: lưu Base64 Data URI tối ưu và vẫn sync 100%",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/googleAuthAndPwa.test.ts",
+      "test": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Owner (namho03052k9@gmail.com) tự động kích hoạt Lifetime & Owner",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Obsolete expectation granting ownership or a wallet floor from email alone.",
+      "fix": "Use verified app_metadata for role, seed lifetime plan and a real balance on the server; never restore email-based Admin access.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/googleAuthAndPwa.test.ts",
+      "test": "Google OAuth Supabase & PWA Install Store Unit Tests 3. Google Login kết hợp VIP Email & Cloud Entitlements Đăng nhập Google với Nóc Nhà (huyentrantt09@gmail.com) tự động kích hoạt Lifetime & LadyBoss",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Obsolete expectation granting ownership or a wallet floor from email alone.",
+      "fix": "Use verified app_metadata for role, seed lifetime plan and a real balance on the server; never restore email-based Admin access.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger1.test.tsx",
+      "test": "EMPIRICAL ADVERSARIAL CHALLENGER 1 — Milestone 2: Web Download Hub & Smart Distribution Suite 4: Component Integration & Accessibility Stress 4.2 WebDownloadHub renders phone mockup and dynamic SVG QR code in desktop view",
+      "baselineReason": "AssertionError: expected null to be 'img' // Object.is equality",
+      "category": "product",
+      "cause": "DOMPurify removed the QR SVG role.",
+      "fix": "Allow role and aria-label while continuing to remove SVG scripts and event handlers.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/multiProviderIdentityConflict.test.ts",
+      "test": "Multi-Provider Identity Conflict & Canonical ID Specification 1. Root Cause Scenario: Cùng Email đăng ký Email/Pass trước, sau đó đăng nhập Google OAuth phải bảo toàn Canonical ID",
+      "baselineReason": "AssertionError: expected 0 to be greater than 0",
+      "category": "fixture",
+      "cause": "The test authenticated the low-level service but never populated the store identity needed by task/note creation.",
+      "fix": "Arrange the authenticated store identity and exercise the real canonical account linking.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/multiProviderIdentityConflict.test.ts",
+      "test": "Multi-Provider Identity Conflict & Canonical ID Specification 2. Founder VIP Whitelist: Đăng nhập Google với Founder không bao giờ bị reset về 50⚡ hay mất quyền Founder",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Obsolete expectation granting ownership or a wallet floor from email alone.",
+      "fix": "Use verified app_metadata for role, seed lifetime plan and a real balance on the server; never restore email-based Admin access.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/real2FaAndAvatarLock.test.ts",
+      "test": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 1. Avatar Precedence Rule (Bảo Toàn Avatar Tự Tải Lên) Giữ nguyên custom_avatar_url khi đăng nhập lại bằng Google (không bị ảnh Google đè lên)",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/real2FaAndAvatarLock.test.ts",
+      "test": "Real 2FA Security Gate, Avatar Precedence & Settings Persistence 2. Real 2FA Security Gate (Trạm Gác Cổng TOTP & Backup Codes) Chặn đăng nhập và phát cờ requires2Fa khi tài khoản đã bật 2FA",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "test": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Avatar bằng ảnh tải lên (base64) và chọn từ kho hình học tối giản",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "test": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Username/Handle duy nhất (@namho) và chuẩn hóa cú pháp",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "test": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Cập nhật Bio / Mục tiêu học tập (Focus Goal) hiển thị dưới Avatar",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "test": "SaaS Profile, Security & Adaptive Billing Specifications 1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management) Tùy chỉnh quyền riêng tư: Ẩn Email trong phòng và Chế độ tàng hình",
+      "baselineReason": "Error: Không thể lưu hồ sơ. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "test": "SaaS Profile, Security & Adaptive Billing Specifications 2. Trung tâm bảo mật tài khoản (Account Security & GDPR Danger Zone) Đổi mật khẩu an toàn và kiểm tra bảo vệ mật khẩu cũ",
+      "baselineReason": "Error: Mật khẩu không chính xác. Vui lòng thử lại.",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/securityPiiAndXssRemediation.test.ts",
+      "test": "Milestone 2 Security, PII & XSS Sanitization Test Suite 2. PII Phone Number Eradication ensures institutional support email support@pomofocus.vn is present in contact surfaces",
+      "baselineReason": "AssertionError: expected 'import React, { useState } from \\'rea…' to contain 'support@pomofocus.vn'",
+      "category": "product",
+      "cause": "Legal contact surfaces used support@PomoFocus.vn.",
+      "fix": "Normalize to support@pomofocus.vn.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "test": "SMS Security & Two-Factor Authentication (2FA) Specifications 3. Xác thực mã OTP & Liên kết số điện thoại với tài khoản Xác thực đúng mã OTP: liên kết số điện thoại và tự động kích hoạt SMS 2FA",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "test": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Cho phép Bật / Tắt trạng thái 2FA khi đã xác minh số điện thoại",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "test": "SMS Security & Two-Factor Authentication (2FA) Specifications 4. Bật/Tắt 2FA và Hủy liên kết số điện thoại (Unlink Phone) Hủy liên kết số điện thoại: xóa phoneNumber, đặt phoneVerified = false và tắt 2FA",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/totpSecurity.test.ts",
+      "test": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Kích hoạt thành công 2FA: Lưu trạng thái và secret vào User Profile",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture + product",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration. TOTP state/cache changed before Cloud persistence and ignored the asynchronous result.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real. Persist flags/secret/codes in the existing single profile update before changing session/cache; fail closed on server rejection.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/totpSecurity.test.ts",
+      "test": "Real TOTP 2FA (RFC 6238 / RFC 4226) & Authenticator App Specifications 5. Kích hoạt, Đăng nhập & Vô hiệu hóa TOTP 2FA Service Tắt 2FA: Xóa secret, backup codes và chuyển twoFactorEnabled = false",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture + product",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration. TOTP state/cache changed before Cloud persistence and ignored the asynchronous result.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real. Persist flags/secret/codes in the existing single profile update before changing session/cache; fail closed on server rejection.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/unifiedAuthAndAvatarSync.test.ts",
+      "test": "Unified Auth, Single Identity & Avatar Resilience Specification 2. Đồng nhất tài khoản (Single Source of Truth): Cùng email đăng nhập bằng Google và Email hợp nhất chung 1 User ID",
+      "baselineReason": "AssertionError: expected false to be true // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/unifiedAuthAndAvatarSync.test.ts",
+      "test": "Unified Auth, Single Identity & Avatar Resilience Specification 4. Quy tắc bất biến Avatar: Up ảnh đại diện tùy chỉnh không bao giờ bị Google Login ghi đè",
+      "baselineReason": "AssertionError: expected 'data:image/svg+xml;utf8,%3Csvg%20xmln…' to be 'data:image/jpeg;base64,CUSTOM_ARTWORK…' // Object.is equality",
+      "category": "fixture",
+      "cause": "Missing deterministic server Auth/PostgREST transport after Cloud-First migration.",
+      "fix": "Arrange an isolated external Cloud transport; keep product services and persistence logic real.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/userAvatarChallengerStress.test.tsx",
+      "test": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 1: Nullability, Malformed Data & Zero-Black-Box Guarantee handles synthetic guest profile { id: \"guest\", isGuest: true }",
+      "baselineReason": "AssertionError: expected 'data:image/svg+xml;utf8,<svg xmlns=\"h…' to contain '>K<'",
+      "category": "product",
+      "cause": "Synthetic guest was rendered from a generated multi-letter name instead of the guest fallback.",
+      "fix": "Resolve explicit avatar props first and retain the guest K fallback.",
+      "finalSuiteStatus": "passed"
+    },
+    {
+      "file": "tests/unit/userAvatarChallengerStress.test.tsx",
+      "test": "Empirical Challenger: UserAvatar Adversarial Stress Suite Adversarial Matrix 3: Priority Hierarchy Invariants custom avatar via direct avatarUrl prop takes precedence over Google photo",
+      "baselineReason": "AssertionError: expected 'https://lh3.googleusercontent.com/a/p…' to be 'data:image/png;base64,iVBORw0KGgoAAAA…' // Object.is equality",
+      "category": "product",
+      "cause": "Explicit avatarUrl was ignored when a user object also supplied a Google photo.",
+      "fix": "Resolve explicit avatar props first and retain the guest K fallback.",
+      "finalSuiteStatus": "passed"
+    }
+  ],
+  "finalEvidence": "full-repo-green-86.json"
+}

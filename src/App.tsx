@@ -175,21 +175,42 @@ export const App: React.FC = () => {
 
   // V8.1 (Feature 17): Auto-refresh AI energy balance (⚡) & PRO entitlement when returning from banking app
   useEffect(() => {
-    const handleAppVisibilityOrFocus = () => {
-      if (document.visibilityState === 'visible' || !document.hidden) {
-        useAiStore.getState().refreshCreditsFromCloud();
-        const user = useAuthStore.getState().user;
-        if (user?.id) {
-          useAuthStore.getState().loadUserFromCloud(user.id);
-        }
+    let disposed = false;
+    let refreshing = false;
+    let nativeListener: { remove: () => Promise<void> } | undefined;
+    const handleAppVisibilityOrFocus = async () => {
+      if (!disposed && !refreshing && (document.visibilityState === 'visible' || !document.hidden)) {
+        refreshing = true;
+        try {
+          // Refresh expired credentials before any protected profile/wallet requests.
+          const { error } = await supabase.auth.getSession();
+          if (disposed || error) return;
+          useAiStore.getState().refreshCreditsFromCloud();
+          const user = useAuthStore.getState().user;
+          if (user?.id) {
+            useAuthStore.getState().loadUserFromCloud(user.id);
+          }
+        } catch (error) {
+          console.warn('[Auth] Foreground refresh failed:', error);
+        } finally { refreshing = false; }
       }
     };
 
     document.addEventListener('visibilitychange', handleAppVisibilityOrFocus);
     window.addEventListener('pageshow', handleAppVisibilityOrFocus);
     window.addEventListener('focus', handleAppVisibilityOrFocus);
+    if ((window as any).Capacitor?.isNativePlatform?.()) {
+      void import('@capacitor/app').then(({ App: NativeApp }) => NativeApp.addListener('appStateChange', state => {
+        if (state.isActive) void handleAppVisibilityOrFocus();
+      })).then(listener => {
+        if (disposed) void listener.remove();
+        else nativeListener = listener;
+      }).catch(() => {});
+    }
 
     return () => {
+      disposed = true;
+      void nativeListener?.remove();
       document.removeEventListener('visibilitychange', handleAppVisibilityOrFocus);
       window.removeEventListener('pageshow', handleAppVisibilityOrFocus);
       window.removeEventListener('focus', handleAppVisibilityOrFocus);

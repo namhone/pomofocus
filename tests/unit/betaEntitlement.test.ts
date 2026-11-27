@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
@@ -11,6 +12,7 @@ import {
 describe('PomoFocus Demo Beta — Account & Entitlement Integrity', () => {
   beforeEach(() => {
     localStorage.clear();
+    installProfileCloud();
   });
 
   describe('1. Beta Pro Policy (3-Year Free Access)', () => {

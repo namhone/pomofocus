@@ -70,7 +70,11 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // Peer props must never borrow the signed-in account's photo.
   const avatarUser = effectiveUser || { displayName: name, avatarUrl };
-  const candidateUrl = getEffectiveAvatarUrl(avatarUser);
+  const candidateUrl = isGuest && !name && avatarUrl === undefined
+    ? null
+    : getEffectiveAvatarUrl(avatarUrl !== undefined
+      ? { displayName: name, avatarUrl }
+      : avatarUser);
   const effectiveDisplayName = getAvatarDisplayName(name ? { ...avatarUser, displayName: name } : avatarUser);
 
   const fallbackSvg = useMemo(() => {

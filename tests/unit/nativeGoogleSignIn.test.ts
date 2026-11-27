@@ -1,3 +1,7 @@
+import React from 'react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MobileAuthBottomSheet } from '../../src/components/mobile/auth/MobileAuthBottomSheet';
+import { useAuthStore } from '../../src/stores/useAuthStore';
 import { webcrypto } from 'node:crypto';
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 const plugin = vi.hoisted(() => ({ signIn: vi.fn(), clearCredentialState: vi.fn() }));
@@ -9,13 +13,15 @@ import { signInNativeGoogle } from '../../src/services/nativeGoogleAuth';
 import { supabase } from '../../src/lib/supabase';
 import { googleAuthService, OFFICIAL_GOOGLE_CLIENT_ID, OFFICIAL_GOOGLE_ANDROID_CLIENT_ID } from '../../src/services/googleAuthService';
 
-beforeEach(() => {
+beforeEach(async () => {
+  await supabase.auth.signOut();
+  useAuthStore.setState({ user: null, isAuthenticated: false });
   localStorage.clear(); vi.clearAllMocks(); vi.stubGlobal('crypto', webcrypto);
   platform.value = 'android'; delete (window as any).Capacitor;
   plugin.signIn.mockResolvedValue({ idToken: 'google-token-for-server-verification' });
   plugin.clearCredentialState.mockResolvedValue(undefined);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 const session = { access_token: 'supabase-access', refresh_token: 'supabase-refresh', expires_in: 3600,
   user: { id: 'verified-google-user', email: 'identity@example.test', app_metadata: { provider: 'google' } } };
 
@@ -89,5 +95,91 @@ describe('Native Google account picker and Supabase token exchange', () => {
     const before = window.location.href;
     const response = await supabase.auth.signInWithOAuth({ provider: 'google', options: { skipBrowserRedirect: true } });
     expect(response.error).toBeNull(); expect(window.location.href).toBe(before);
+  });
+});
+
+describe('Four native Auth edge probes', () => {
+  async function openPicker() {
+    (window as any).Capacitor = { isNativePlatform: () => true, getPlatform: () => 'android' };
+    render(React.createElement(MobileAuthBottomSheet, { isOpen: true, onClose: () => {} }));
+    await act(async () => { fireEvent.click(screen.getByTestId('mobile-auth-google-btn')); });
+    await waitFor(() => expect((screen.getByTestId('mobile-auth-google-btn') as HTMLButtonElement).disabled).toBe(false));
+  }
+  it('cancelled Gmail picker clears loading without an error banner', async () => {
+    plugin.signIn.mockRejectedValueOnce({ code: 'SIGN_IN_CANCELLED', message: 'Đã hủy đăng nhập Google.' });
+    vi.stubGlobal('fetch', vi.fn()); await openPicker();
+    expect(screen.queryByTestId('mobile-auth-feedback')).toBeNull();
+    expect(localStorage.getItem('sb_auth_session')).toBeNull();
+  });
+  it('no Google account offers Vietnamese guidance and clears loading', async () => {
+    plugin.signIn.mockRejectedValueOnce({ code: 'GOOGLE_SIGN_IN_FAILED', message: 'Không thể đăng nhập Google. Vui lòng thử lại hoặc dùng email.' });
+    vi.stubGlobal('fetch', vi.fn()); await openPicker();
+    expect(screen.getByTestId('mobile-auth-feedback').textContent).toContain('dùng email');
+  });
+  it('network loss during token exchange clears loading without a session', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline'))); await openPicker();
+    expect(screen.getByTestId('mobile-auth-feedback').textContent).toContain('dùng email');
+    expect(localStorage.getItem('sb_auth_session')).toBeNull();
+  });
+  it('foreground lookup refreshes an expired session with the server token', async () => {
+    localStorage.setItem('sb_auth_session', JSON.stringify({ ...session, expires_at: 1 }));
+    const request = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ...session, access_token: 'fresh-access' })));
+    vi.stubGlobal('fetch', request);
+    expect((await supabase.auth.getSession()).data.session.access_token).toBe('fresh-access');
+    expect(request.mock.calls[0][0]).toMatch(/grant_type=refresh_token$/);
+    expect(JSON.parse(request.mock.calls[0][1].body)).toEqual({ refresh_token: session.refresh_token });
+  });
+});
+
+describe('Refresh concurrency and logout ownership', () => {
+  const expired = () => localStorage.setItem('sb_auth_session', JSON.stringify({ ...session, expires_at: 1 }));
+  it('coalesces parallel calls and emits TOKEN_REFRESHED once', async () => {
+    expired(); let finish!: (value: Response) => void;
+    const request = vi.fn((url: string) => url.includes('grant_type=refresh_token')
+      ? new Promise<Response>(resolve => { finish = resolve; })
+      : Promise.resolve(new Response('[]')));
+    vi.stubGlobal('fetch', request);
+    const events: string[] = [];
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(event => events.push(event));
+    const first = supabase.auth.getSession(); const second = supabase.auth.getSession();
+    finish(new Response(JSON.stringify(session))); await Promise.all([first, second]);
+    expect(request.mock.calls.filter(call => String(call[0]).includes('grant_type=refresh_token'))).toHaveLength(1);
+    expect(events.filter(event => event === 'TOKEN_REFRESHED')).toHaveLength(1);
+    subscription.unsubscribe();
+  });
+  it('logout invalidates a refresh response that arrives late', async () => {
+    expired(); let finish!: (value: Response) => void;
+    vi.stubGlobal('fetch', vi.fn((url: string) => url.includes('grant_type=refresh_token')
+      ? new Promise<Response>(resolve => { finish = resolve; })
+      : Promise.resolve(new Response('[]'))));
+    const pending = supabase.auth.getSession(); await supabase.auth.signOut();
+    finish(new Response(JSON.stringify(session)));
+    expect((await pending).data.session).toBeNull();
+    expect(localStorage.getItem('sb_auth_session')).toBeNull();
+  });
+  it('preserves the session on network loss and allows the next lookup to retry', async () => {
+    expired(); const raw = localStorage.getItem('sb_auth_session');
+    const request = vi.fn().mockRejectedValueOnce(new TypeError('offline')).mockResolvedValueOnce(new Response(JSON.stringify(session)));
+    vi.stubGlobal('fetch', request);
+    expect((await supabase.auth.getSession()).error).not.toBeNull();
+    expect(localStorage.getItem('sb_auth_session')).toBe(raw);
+    expect((await supabase.auth.getSession()).error).toBeNull();
+    expect(request.mock.calls.filter(call => String(call[0]).includes('grant_type=refresh_token'))).toHaveLength(2);
+  });
+  it('clears a rejected refresh token instead of retrying indefinitely', async () => {
+    expired(); vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 400 })));
+    expect((await supabase.auth.getSession()).data.session).toBeNull();
+    expect(localStorage.getItem('sb_auth_session')).toBeNull();
+  });
+  it('never overwrites a newer account with an older refresh response', async () => {
+    expired(); let finish!: (value: Response) => void;
+    vi.stubGlobal('fetch', vi.fn((url: string) => url.includes('grant_type=refresh_token')
+      ? new Promise<Response>(resolve => { finish = resolve; })
+      : Promise.resolve(new Response('[]'))));
+    const pending = supabase.auth.getSession();
+    supabase.auth.saveSession({ ...session, user: { ...session.user, id: 'new-account' } });
+    finish(new Response(JSON.stringify(session)));
+    expect((await pending).data.session).toBeNull();
+    expect(JSON.parse(localStorage.getItem('sb_auth_session')!).user.id).toBe('new-account');
   });
 });

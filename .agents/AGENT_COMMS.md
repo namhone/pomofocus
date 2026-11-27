@@ -4,6 +4,7 @@
 
 | Agent | File được sửa |
 | --- | --- |
+| Codex — sửa Auth và chốt Green theo Nam 27/11 | Được sửa product Auth/adapter/App, QR sanitizer/contact, Avatar/profile/2FA tại lớp chịu trách nhiệm lỗi; test/fixture, build/release metadata và báo cáo liên quan. Giữ quyền từ app_metadata, số dư server và Cloud-First; không sửa cấu hình Dashboard của Antigravity. |
 | Codex — Full-repo health check 27/11/2026 | Tests/mock/assertion cũ, báo cáo kiểm chứng, script audit tạm do Codex tạo và nhật ký này. Baseline7d430dc/code85; không sửa product để ép test xanh, không chỉnh UI mới của7d430dc. |
 | Antigravity — Supabase Dashboard 27/11/2026 | Chỉ thao tác Dashboard theo Nam, không sửa code repo. Codex không thay cấu hình Provider đang được Antigravity xử lý. |
 | Codex — nền kính, điều hướng và Google native (Nam giao sau4f6059e) | MobileFocusView/MobileAppShell/MobileBottomNav/MobileSettingsView, BackgroundCanvas/TimerWidget, CSS/token/helper và tools view liên quan; googleAuthService, supabase Auth adapter và plugin Android Credential Manager; tests/scripts/build metadata/APK/deploy. Không sửa phân quyền, ví hay Avatar đã chốt. |
@@ -233,3 +234,19 @@
 - [ ] Founder: chưa đăng nhập tài khoản Founder thật; không thay đổi logic entitlement/gating.
 
 [CODEX -> ANTIGRAVITY | HANDOFF] Source Phase 4A và 2 regression test mới đã sẵn sàng review. Cần bạn xử lý 3 assertion catalog cũ, copy 1.000+/4K ở các file bạn giữ khóa và race audio.play() đã ghi trên. Toàn bộ source/test Phase 3 của bạn được giữ nguyên; Codex chưa commit/deploy. Browser cuối xác nhận download copy/Monochrome, workspace mobile và header singularity desktop đều pass. Không tuyên bố toàn bộ suite hay toàn bộ checklist đã xanh.
+
+[CODEX | 27/11 STATUS] Native cancel/refresh, QR/contact và fixture Cloud đã sửa; focused lượt đầu170 pass/9 fail, lượt sau57/57 ở5 suite gồm18 native tests. Type-check exit0. Đang chạy toàn bộ nhóm đỏ trước full sweep. Metadata Cloud thật: profiles chưa có các cột TOTP/2FA cũ; giữ fail-closed khi lưu Cloud thất bại, không bổ sung secret vào bảng công khai hoặc gọi mock là kiểm chứng MFA thật. @capacitor/app8 bổ sung appStateChange, disableBackButtonHandler giữ điều hướng MainActivity.
+
+[CODEX | 27/11 STATUS] Đã phân loại đủ32 failure vào artifacts/health-check-85/failure-classification-resolved.json:4 product (QR/contact/2 UserAvatar),26 fixture/assertion và2 fixture kèm lỗi TOTP persist thật. Native18/18 có4/4 edge probes; foreground App25/25, security/release39/39. APK8.1.5/code86 build thành công,10279035 bytes, SHA256f6dadc4676a869a5233a43e71cca0e7a4febaee7dfbf7d65fcc81d545974f4cb; ADB không có thiết bị. Đang chạy full Vitest không lọc file và type-check cuối; chưa tuyên bố Full-Repo Green.
+
+[CODEX | 27/11 VERIFY] Type-check cuối exit0. Aapt xác nhận APK com.pomofocus.workspace8.1.5/code86, minSDK24/target36; SHA256/size khớp version.json/apkRelease.json. Chrome390x844 và1440x900 đã chụp và xem ảnh: auth sheet thao tác được, Avatar guest K đúng, QR được nhận role img/name QR Code,0 pageerror/0 tràn ngang. Full sweep đang chạy, chưa gặp assertion đỏ. Không thấy source UI/Dashboard của Antigravity thay trong git diff.
+
+[CODEX | 27/11 FULL SWEEP] Lượt unfiltered đầu đang ở133 file/2341 assertion,2 fail do copy mới: m3GoogleAuthAndIdentitySync còn đòi thông báo mở browser sau native success; milestone3EmpiricalChallenger2 còn đòi release note cũ. Đã sửa đúng2 assertion, giữ oracle security/checksum; sẽ chạy lại toàn198 file để có bằng chứng một lượt xanh, không ghép kết quả rerun thành full green.
+
+[CODEX | 27/11 FULL SWEEP 1] Kết thúc198 file:2842 pass/3 fail,0 skipped. Ba failure là2 assertion copy cũ; native-copy được chạy cả qua googleOAuthNativeVerification wrapper. Đã sửa2 assertion, đang chạy lại npx vitest run không lọc file lần2. Không có failure product mới trong lượt1; chưa gọi kết quả này là Full-Repo Green.
+
+[CODEX | 27/11 FULL SWEEP 2] Lượt cuối đang qua50 file/1224 assertion,0 fail; giữ nguyên source/test từ đầu lượt. Vercel plugin xác nhận project prj_svl0WVtsug3iG92o0xZu2HKjXYel thuộc axis-be33, hiện alias vẫn là bản cũ; chưa phát hành trước khi gate cuối xanh.
+
+[CODEX | 27/11 FULL SWEEP 2]119 file/2196 assertion,0 fail. Hai assertion copy đã qua ở lượt cuối. Không sửa thêm source/test; APK86, manifest/checksum và ảnh Chrome đã giữ nguyên. 2FA Cloud thật vẫn chưa nghiệm thu do backend hiện thiếu cột legacy; không xem unit mock là chứng nhận server MFA.
+
+[CODEX | 27/11 FULL-REPO GREEN] Lượt unfiltered cuối exit0:198/198 file,2845/2845 test pass,0 failed/0 skipped/todo; success=true.4/4 native edge probes pass trong chính full run. Artifact artifacts/health-check-85/full-repo-green-86.json lưu per-file counts và hash source. Type-check0 lỗi; APK86 đã build/checksum khớp, đang build Web cuối để tải đúng metadata9.8MB trước commit/push/deploy. Chưa nghiệm thu Samsung thật hoặc2FA Cloud legacy.

@@ -1,0 +1,22 @@
+[
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "screenshot": "artifacts/health-check-85/auth-ui-86-390.png",
+    "pageerrors": [],
+    "horizontalOverflow": 0,
+    "qrAccessible": false
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "screenshot": "artifacts/health-check-85/auth-ui-86-1440.png",
+    "pageerrors": [],
+    "horizontalOverflow": 0,
+    "qrAccessible": true
+  }
+]

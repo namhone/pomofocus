@@ -156,7 +156,7 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
         await googleAuthService.loginWithGoogleNative();
         setFeedback({
           type: 'success',
-          message: 'Đang mở trình duyệt xác thực Google...',
+          message: 'Đăng nhập Google thành công!',
         });
         return;
       }
@@ -178,6 +178,10 @@ export const MobileAuthBottomSheet: React.FC<MobileAuthBottomSheetProps> = ({
       }
       setFeedback({ type: 'success', message: 'Đăng nhập Google thành công!' });
     } catch (err: any) {
+      if (err?.code === 'SIGN_IN_CANCELLED' || err?.message === 'SIGN_IN_CANCELLED') {
+        setFeedback(null);
+        return;
+      }
       setFeedback({
         type: 'error',
         message: err?.message || 'Đăng nhập Google không thành công. Vui lòng thử lại.',

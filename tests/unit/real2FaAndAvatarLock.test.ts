@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { authService, UserProfile } from '../../src/services/authService';
 import { totpService, calculateTotpCode } from '../../src/services/totpService';
@@ -11,6 +12,7 @@ describe('Real 2FA Security Gate, Avatar Precedence & Settings Persistence', () 
     localStorage.clear();
     sessionStorage.clear();
     vi.restoreAllMocks();
+    installProfileCloud();
   });
 
   describe('1. Avatar Precedence Rule (Bảo Toàn Avatar Tự Tải Lên)', () => {

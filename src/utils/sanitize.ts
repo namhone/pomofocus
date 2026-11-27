@@ -53,6 +53,7 @@ export function sanitizeSvg(dirtySvg: string, options?: DOMPurify.Config): strin
 
   const config: DOMPurify.Config = {
     USE_PROFILES: { svg: true, svgFilters: true },
+    ADD_ATTR: ['role', 'aria-label'],
     ...options
   };
 

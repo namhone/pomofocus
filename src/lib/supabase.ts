@@ -579,6 +579,61 @@ const activeChannels = new Map<string, RealtimeChannel>();
 
 const authSubscribers = new Set<(event: string, session: any) => void>();
 let idTokenAuthEpoch = 0;
+let refreshFlight: { raw: string; epoch: number; promise: Promise<any> } | null = null;
+
+function sessionExpiresSoon(session: any): boolean {
+  let expiresAt = session.expires_at;
+  if (!expiresAt && session.access_token?.split('.').length === 3) {
+    try {
+      const payload = session.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      expiresAt = JSON.parse(atob(payload)).exp;
+    } catch { /* Opaque legacy tokens have no expiry hint. */ }
+  }
+  return Number.isFinite(Number(expiresAt)) && Number(expiresAt) <= Date.now() / 1000 + 30;
+}
+
+async function refreshStoredSession(session: any, raw: string): Promise<any> {
+  const epoch = idTokenAuthEpoch;
+  if (refreshFlight?.raw === raw && refreshFlight.epoch === epoch) return refreshFlight.promise;
+  const currentRaw = () => localStorage.getItem('sb_auth_session') || localStorage.getItem('pomodoro_study_auth_session');
+  const stillCurrent = () => epoch === idTokenAuthEpoch && currentRaw() === raw;
+  const flight = { raw, epoch, promise: Promise.resolve<any>(null) };
+  refreshFlight = flight;
+  flight.promise = (async () => {
+    try {
+      const response = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: session.refresh_token }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const refreshed = await response.json();
+      if (!stillCurrent()) return { data: { session: null }, error: { message: 'Phiên đăng nhập đã thay đổi.' } };
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 401) {
+          ++idTokenAuthEpoch;
+          localStorage.removeItem('sb_auth_session');
+          localStorage.removeItem('pomodoro_study_auth_session');
+          authSubscribers.forEach(callback => { try { callback('SIGNED_OUT', null); } catch {} });
+        }
+        return { data: { session: response.status >= 500 ? session : null }, error: { message: 'Không thể làm mới phiên đăng nhập.' } };
+      }
+      if (!refreshed.access_token || !refreshed.refresh_token || !refreshed.user?.id ||
+          (session.user?.id && refreshed.user.id !== session.user.id)) {
+        return { data: { session: null }, error: { message: 'Phản hồi phiên đăng nhập không hợp lệ.' } };
+      }
+      refreshed.expires_at ||= Math.floor(Date.now() / 1000) + (refreshed.expires_in || 3600);
+      localStorage.setItem('sb_auth_session', JSON.stringify(refreshed));
+      authSubscribers.forEach(callback => { try { callback('TOKEN_REFRESHED', refreshed); } catch {} });
+      return { data: { session: refreshed }, error: null };
+    } catch {
+      return { data: { session: stillCurrent() ? session : null }, error: { message: 'Chưa thể kết nối để làm mới phiên đăng nhập.' } };
+    } finally {
+      if (refreshFlight === flight) refreshFlight = null;
+    }
+  })();
+  return flight.promise;
+}
 
 let pendingOAuthUserInfoPromise: Promise<any> | null = null;
 
@@ -801,6 +856,7 @@ export const supabase = {
       }
     },
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+      const epoch = ++idTokenAuthEpoch;
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
         const res = await fetch(`${baseUrl}/auth/v1/token?grant_type=password`, {
@@ -812,6 +868,7 @@ export const supabase = {
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
+        if (epoch !== idTokenAuthEpoch) return { data: { user: null, session: null }, error: { message: 'Đăng nhập đã được hủy.' } };
         if (!res.ok) {
           return {
             data: { user: null, session: null },
@@ -831,6 +888,7 @@ export const supabase = {
     },
 
     signUp: async ({ email, password, options }: { email: string; password: string; options?: { data?: Record<string, any> } }) => {
+      const epoch = ++idTokenAuthEpoch;
       try {
         const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
         const res = await fetch(`${baseUrl}/auth/v1/signup`, {
@@ -842,6 +900,7 @@ export const supabase = {
           body: JSON.stringify({ email, password, data: options?.data || {} })
         });
         const data = await res.json();
+        if (epoch !== idTokenAuthEpoch) return { data: { user: null, session: null }, error: { message: 'Đăng nhập đã được hủy.' } };
         if (!res.ok) {
           return {
             data: { user: null, session: null },
@@ -861,6 +920,7 @@ export const supabase = {
     },
 
     saveSession: (session: any) => {
+      ++idTokenAuthEpoch;
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('sb_auth_session', JSON.stringify(session));
       }
@@ -972,6 +1032,7 @@ export const supabase = {
             ...parsed,
           }
         };
+        if (session.refresh_token && sessionExpiresSoon(session)) return refreshStoredSession(session, raw);
         return { data: { session }, error: null };
       } catch {
         return { data: { session: null }, error: null };

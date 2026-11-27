@@ -117,7 +117,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <ul className="list-disc pl-5 space-y-1 text-zinc-400">
                 <li><strong className="text-zinc-200">Niêm yết giá:</strong> Toàn bộ giá gói cước (tháng, năm, trọn đời Founder) và gói nạp AI credits được niêm yết rõ ràng bằng việt nam đồng (vnd), đã bao gồm toàn bộ phí dịch vụ và thuế áp dụng.</li>
                 <li><strong className="text-zinc-200">Phương thức thanh toán:</strong> Người dùng thanh toán qua cổng điện tử hợp pháp (chuyển khoản QR ngân hàng VietQR/SePay hoặc ví momo). Hệ thống kích hoạt gói hoặc cộng điểm tự động sau khi đối soát thành công.</li>
-                <li><strong className="text-zinc-200">Chính sách hoàn tiền (refund policy):</strong> Khách hàng được quyền yêu cầu hoàn tiền 100% trong vòng <strong>07 ngày</strong> kể từ thời điểm giao dịch nếu xảy ra lỗi kỹ thuật từ phía hệ thống khiến tài khoản không nhận được dịch vụ hoặc điểm credits như cam kết. Yêu cầu gửi về email <code className="text-zinc-300">support@PomoFocus.vn</code> kèm mã đơn hàng.</li>
+                <li><strong className="text-zinc-200">Chính sách hoàn tiền (refund policy):</strong> Khách hàng được quyền yêu cầu hoàn tiền 100% trong vòng <strong>07 ngày</strong> kể từ thời điểm giao dịch nếu xảy ra lỗi kỹ thuật từ phía hệ thống khiến tài khoản không nhận được dịch vụ hoặc điểm credits như cam kết. Yêu cầu gửi về email <code className="text-zinc-300">support@pomofocus.vn</code> kèm mã đơn hàng.</li>
               </ul>
             </section>
 
@@ -132,7 +132,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <h2 className="text-sm font-semibold text-white">5. Đơn vị vận hành & hỗ trợ khách hàng</h2>
               <p>
                 Đại diện quản trị: <strong>Hồ ngọc bảo nam</strong><br />
-                Email tiếp nhận: <code className="text-zinc-300">support@PomoFocus.vn</code> • Cổng hỗ trợ trực tuyến: <code className="text-zinc-300">PomoFocus-workspace.vercel.app/contact</code><br />
+                Email tiếp nhận: <code className="text-zinc-300">support@pomofocus.vn</code> • Cổng hỗ trợ trực tuyến: <code className="text-zinc-300">PomoFocus-workspace.vercel.app/contact</code><br />
                 Địa chỉ: đà nẵng, việt nam.
               </p>
             </section>
@@ -160,7 +160,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
               <p>
                 <strong>Bên kiểm soát và xử lý dữ liệu:</strong> PomoFocus Workspace.<br />
                 <strong>Cán bộ phụ trách bảo vệ dữ liệu (dpo):</strong> Hồ ngọc bảo nam.<br />
-                <strong>Kênh tiếp nhận khiếu nại & yêu cầu:</strong> Email <code className="text-zinc-300">support@PomoFocus.vn</code> | Biểu mẫu liên hệ trực tuyến.
+                <strong>Kênh tiếp nhận khiếu nại & yêu cầu:</strong> Email <code className="text-zinc-300">support@pomofocus.vn</code> | Biểu mẫu liên hệ trực tuyến.
               </p>
             </section>
 
@@ -213,7 +213,7 @@ export const LegalViews: React.FC<LegalViewsProps> = ({ initialTab = 'terms' }) 
                 </p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li><strong>Tự phục vụ tức thì:</strong> Bạn có thể xuất bản sao JSON hoặc xóa sạch toàn bộ dữ liệu chỉ với 1 click tại trang <button type="button" onClick={() => router.navigate('/privacy-data')} className="text-white underline hover:text-zinc-300">Dữ liệu cá nhân</button>, hoặc chủ động rút lại sự đồng ý thu thập cookie bất kỳ lúc nào tại trang <button type="button" onClick={() => router.navigate('/settings')} className="text-white underline hover:text-zinc-300">Cài đặt</button>.</li>
-                  <li><strong>Yêu cầu qua email:</strong> Khi nhận được yêu cầu của chủ thể dữ liệu gửi tới <code className="text-zinc-300">support@PomoFocus.vn</code>, chúng tôi cam kết phản hồi hướng dẫn trong vòng <strong>02 ngày làm việc</strong> và hoàn tất xử lý xóa bỏ thông tin trong tối đa <strong>20 ngày</strong> theo đúng quy định pháp luật.</li>
+                  <li><strong>Yêu cầu qua email:</strong> Khi nhận được yêu cầu của chủ thể dữ liệu gửi tới <code className="text-zinc-300">support@pomofocus.vn</code>, chúng tôi cam kết phản hồi hướng dẫn trong vòng <strong>02 ngày làm việc</strong> và hoàn tất xử lý xóa bỏ thông tin trong tối đa <strong>20 ngày</strong> theo đúng quy định pháp luật.</li>
                 </ul>
               </div>
             </section>

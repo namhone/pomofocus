@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { authService, UserProfile, OWNER_EMAIL } from '../../src/services/authService';
 import { MONOCHROME_GEOMETRIC_AVATARS } from '../../src/utils/monochromeAvatars';
@@ -6,6 +7,7 @@ describe('SaaS Profile, Security & Adaptive Billing Specifications', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
+    installProfileCloud();
   });
 
   describe('1. Quản lý Avatar & Hồ sơ cá nhân chuyên sâu (Profile Management)', () => {

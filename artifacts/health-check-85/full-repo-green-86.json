@@ -1,0 +1,1212 @@
+{
+  "baseline": "8f9e931",
+  "release": "8.1.5/code86",
+  "command": "npx vitest run --maxWorkers=1 --minWorkers=1 --reporter=verbose --reporter=json --outputFile=tests/results/android-smoke/full-repo-green-86-final.json",
+  "startTime": "2026-11-27T00:48:45.311Z",
+  "durationSeconds": 855.2290393066406,
+  "files": 198,
+  "passed": 2845,
+  "failed": 0,
+  "skipped": 0,
+  "todo": 0,
+  "success": true,
+  "sourceHashes": {
+    "src/lib/supabase.ts": "579b940ed42864f357b7f8074839396d7ef997f2c590ba7cde23b902e7c9d980",
+    "src/App.tsx": "50b2c76e3f5a84c897162abe6113b0faddf6386dd1a2810535c2d6d85fd5de06",
+    "src/services/authService.ts": "653db0fb52c789e81557f1e89c487e3ab0d8ef8db0a896478c8f2f4b236c4318",
+    "src/services/totpService.ts": "13348f22dc30a1b8d28aa188a2d46197556f8fa191cdcb386031022aa3a6f895",
+    "src/components/mobile/auth/MobileAuthBottomSheet.tsx": "637745058c92742619ae411107e761e4fbc4698c4b1aa5a2f11ff0d83ca90d06",
+    "src/components/common/UserAvatar.tsx": "07bd52eb70159750aaa4166da3409cf4355cbaaa7448d6bc05b9697a2db2baee",
+    "src/utils/sanitize.ts": "6c863f81b80297f6fa6009a74ef7c64349c9cd663d0354c83098543ae214b0f7"
+  },
+  "results": [
+    {
+      "file": "src/scaffold.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/adversarialChallengerM0.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/adversarialFailFastStress.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/adversarialPaymentChallenge.test.ts",
+      "status": "passed",
+      "passed": 52,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/adversarialRlsChallenge.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/adversarialTasksAndWhiteboardM2.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/aiAdvancedFeatures.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/aiGreetingIntent.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/aiStore.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/androidBackStackAndInsets.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/androidSmokeScript.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/apiRooms.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/apkArchitectureSeparation.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/architectureGuards.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/audioEngine.test.ts",
+      "status": "passed",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/audioRemediationPhase3.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/auditorM1ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/auditorM2ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/auditorM3ForensicEmpirical.test.tsx",
+      "status": "passed",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/authEpochContract.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/authSyncAndFocusSessionsM3.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/autoTrainGiaSu.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/avatarIdentityContract.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/avatarImmutabilityPrecedence.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/avatarResilienceAndFallbacks.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/avatarSynchronization.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/backendV5HyperScale.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/backgroundContrast.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/backgroundStore.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/betaEntitlement.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2EmpiricalAdversarial.test.tsx",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2M1EmpiricalStress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2Milestone2Stress.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Adversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2Milestone3Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challenger2PolishM1Stress.test.tsx",
+      "status": "passed",
+      "passed": 35,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challengerM1Stress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challengerPolishM3Stress.test.tsx",
+      "status": "passed",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challengerV642Stress.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/challengerV70M1Stress.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/cloud2FaAndSecurityEnhancements.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/cloudSyncRealtime.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/cookieConsentNativeSuppression.test.tsx",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/coreProductivityStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/couponSystemResilience.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/creditsTopupRemediation.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/customAvatarCloudSync.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/dashboardTrendChartAndCalendarTooltip.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/dataSyncAndDbFixes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/dataSyncAuditorStress.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/deepAuditValidation.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/dynamicCloudCouponEngine.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/empiricalChallengerV641.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/empiricalM2Challenger.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/founderEntitlementContract.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/googleAuth.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/googleAuthAndPwa.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/googleOAuthNativeVerification.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/guestCreditsPersistence.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/guestHeaderAndGoogleGuidance.test.tsx",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/layoutAndZen.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/loginOptions.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1Challenger1.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1Challenger2.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1ChallengerDeepLinkAnd404Attack.test.tsx",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1ChallengerIsolationAttack.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1EmpiricalChallengerStress.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m1WebIsolationAndNavigation.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2BackStackInsetsAndSplash.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2ChallengerBackStackAttack.test.tsx",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2ChallengerInsetsAndOfflineAttack.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressFocusTasks.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m2EmpiricalStressSpacesMixer.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m3ChallengerGoogleAuthAndIdentityAttack.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m3ChallengerIdentityAttack.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m3ChallengerOAuthAttack.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m3EmpiricalStressAiSettingsAuth.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m3GoogleAuthAndIdentitySync.test.tsx",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m4ChallengerFocusAttack.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m4ChallengerLayoutAttack.test.tsx",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m4LegalAndCookieConsent.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/m4MobileUiAndFocusLogic.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mediaAndAudioLifecycle.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/meetRealtime.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/meetRepository.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.ts",
+      "status": "passed",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone1ChallengerStress.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone1EmpiricalChallenge.test.tsx",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone1_adversarial_challenge.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone1_challenger_adversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone2EmpiricalChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 33,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone2MobileInputAndOAuth.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone2TopClearanceAndAiCollision.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone3EmpiricalChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone3MacOsLiquidDock.test.ts",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone3NotificationsAndAudio.test.tsx",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone4DimensionAndZen.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/milestone4OfflineAndBuild.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileAppShellAndRoutingV70.test.tsx",
+      "status": "passed",
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileAppShellStressChallenger.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileBottomNavAndHeaderFlow.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileCenteringAndSettingsStreamline.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileLiquidZenTiers1to4.test.tsx",
+      "status": "passed",
+      "passed": 96,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobilePrimitivesV70.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileSettingsAndFocusPolish.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 38,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileTier5HardeningChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileTouchRegression.test.tsx",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileViewsM2EmpiricalStress.test.tsx",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileViewsStressV70.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/mobileViewsV70.test.tsx",
+      "status": "passed",
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/momoPayment.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/multiChannelAudioEngine.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/multiProviderIdentityConflict.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/nativeGoogleSignIn.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/paymentOrderRlsSecurity.test.ts",
+      "status": "passed",
+      "passed": 38,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/paymentRemediationPhase1.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/paymentSecurity.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase3HardwareCleanup.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase3RealtimeAdapter.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase3SubmissionGuards.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase3WorkspaceRealtime.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase4aLogicAndCatalog.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase4aProfileIme.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/phase4bPresentation.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/pricingAndComparison.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/profileCloudSync.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/qrCodeStability.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/real2FaAndAvatarLock.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/roomCustomizationAndDelete.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/roomGovernanceAndHostControls.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/saasProfileAndSecurity.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/safeStorage.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/safeStorageStress.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/securityPiiAndXssRemediation.test.ts",
+      "status": "passed",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/sepayWebhook.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/smsSecurity.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/startupCurtainRegression.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/studyRoomService.test.ts",
+      "status": "passed",
+      "passed": 41,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/supabaseOAuthSync.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/syncQueueConflictContract.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/tasksAndNotes.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/timerChallengerAdversarial.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/timerChallengerM1.test.tsx",
+      "status": "passed",
+      "passed": 24,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/timerDocumentTitleLifecycle.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/timerEngine.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/timerStateMachineV64.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/totpSecurity.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/typographyZeroFout.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/unifiedAuthAndAvatarSync.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/userAvatarChallengerStress.test.tsx",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/userAvatarUnified.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v61LiquidButtonsAndZen.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v62MicroUxAndDirectRemote.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v62YoutubeMixAndJsonExport.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v63AudioDuckingAndTimerClean.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v642SettingsWidgetOverhaul.test.ts",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64AiCompanion.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64CalendarAndZenSpaces.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64M2AdversarialChallenger.test.tsx",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64M3SessionChallenger.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64M3UiChallenger.test.tsx",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64M4CalendarChallenger.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64M4SpacesChallenger.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v64TasksAndWhiteboard.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v74EcosystemE2E.test.tsx",
+      "status": "passed",
+      "passed": 95,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger1.test.tsx",
+      "status": "passed",
+      "passed": 43,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v74Tier5HardeningChallenger2.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v753ComprehensiveFixes.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v75DownloadShowcase.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v80FocusHubAndMixer.test.tsx",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM2.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_1.test.tsx",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81AdversarialChallengeM3_2.test.tsx",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81DexieAndSyncQueue.test.ts",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81M2ChallengerAdversarial.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81MeetRoomsAndWhiteboard.test.tsx",
+      "status": "passed",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81Milestone1WidgetPolish.test.tsx",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81Milestone2IdentityAndHeaderPolish.test.tsx",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81Milestone2StressChallenger.test.tsx",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81Milestone3SpacesAndCopyPolish.test.tsx",
+      "status": "passed",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/v81MobileHubAndAuth.test.tsx",
+      "status": "passed",
+      "passed": 31,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/vipAndCouponAndRoomLimits.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/wcagAccessibilityAudit.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/webrtcFullMesh.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/workspaceTwoDeviceContract.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/zenErrorPages.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "tests/unit/zeroFoutChallenger.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "file": "tests/e2e/tier1_feature_coverage.test.ts",
+      "status": "passed",
+      "passed": 24,
+      "failed": 0
+    },
+    {
+      "file": "tests/e2e/tier2_boundary_corner_cases.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "tests/e2e/tier3_cross_feature_combinations.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/e2e/tier4_real_world_scenarios.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "tests/e2e/tier5_adversarial_hardening.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0
+    }
+  ]
+}

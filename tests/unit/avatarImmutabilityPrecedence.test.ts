@@ -1,3 +1,4 @@
+import { installProfileCloud } from '../fixtures/profileCloud';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useAuthStore } from '../../src/stores/useAuthStore';
 import { authService, isCustomAvatarUrl, getEffectiveAvatarUrl } from '../../src/services/authService';
@@ -9,6 +10,7 @@ describe('Avatar Immutability & Precedence Specification (Bảo vệ Avatar Tùy
     localStorage.clear();
     localProfileCache.clear();
     useAuthStore.getState().logout();
+    installProfileCloud();
   });
 
   describe('1. Nhận diện Avatar Tùy Chỉnh (isCustomAvatarUrl)', () => {
@@ -134,7 +136,9 @@ describe('Avatar Immutability & Precedence Specification (Bảo vệ Avatar Tùy
         }
       });
 
-      // Bước 5: Kiểm tra trạng thái Store ngay sau khi đăng nhập Google
+      // A fresh device must await the Cloud profile; logout deliberately clears its cache.
+      await useAuthStore.getState().loadUserFromCloud(currentUser.id);
+      // Bước 5: Kiểm tra trạng thái sau Cloud hydration
       const sessionAfterGoogle = useAuthStore.getState().user!;
       expect(sessionAfterGoogle).toBeDefined();
       expect(sessionAfterGoogle.isAuthenticated || useAuthStore.getState().isAuthenticated).toBe(true);

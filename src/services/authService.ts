@@ -241,6 +241,7 @@ export interface UserProfile {
 }
 
 export interface ProfileUpdates {
+  totp?: { secret: string; backupCodes: string[] };
   displayName?: string;
   avatarUrl?: string;
   customAvatarUrl?: string;
@@ -862,6 +863,12 @@ export const authService = {
       fieldsToSync.bio = updatedProfile.bio || updatedProfile.focusGoal;
     }
     if (updates.settings !== undefined) fieldsToSync.settings = updatedProfile.settings;
+    if (updates.totp) {
+      fieldsToSync.two_factor_enabled = updatedProfile.twoFactorEnabled;
+      fieldsToSync.is_2fa_enabled = updatedProfile.twoFactorEnabled;
+      fieldsToSync.totp_secret = updates.totp.secret;
+      fieldsToSync.backup_codes = updates.totp.backupCodes;
+    }
 
     const saved = await ProfileService.updateFields(userId, fieldsToSync);
     if (!saved) throw new Error('Không thể lưu hồ sơ. Vui lòng thử lại.');
