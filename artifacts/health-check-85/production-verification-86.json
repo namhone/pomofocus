@@ -1,0 +1,58 @@
+{
+  "verifiedAt": "2026-11-27T01:07:48.791Z",
+  "local": {
+    "version": "8.1.5",
+    "versionCode": 86,
+    "bytes": 10279035,
+    "sha256": "f6dadc4676a869a5233a43e71cca0e7a4febaee7dfbf7d65fcc81d545974f4cb",
+    "apkSizeMb": 9.8
+  },
+  "production": [
+    {
+      "domain": "pomofocus-workspace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.5",
+      "versionCode": 86,
+      "apkBytes": 10279035,
+      "apkSha256": "f6dadc4676a869a5233a43e71cca0e7a4febaee7dfbf7d65fcc81d545974f4cb",
+      "deployedEntry": "/assets/index-Cjl_CPJj.js",
+      "entryMatches": true,
+      "entryStatus": 200,
+      "entrySha256": "41bd6de664e2d1d8ac82ae7f4819afdc94da1005f18a11d2b89ef47f82cdbd15",
+      "matches": true
+    },
+    {
+      "domain": "pomofocus-workplace.vercel.app",
+      "homeStatus": 200,
+      "versionStatus": 200,
+      "apkStatus": 200,
+      "version": "8.1.5",
+      "versionCode": 86,
+      "apkBytes": 10279035,
+      "apkSha256": "f6dadc4676a869a5233a43e71cca0e7a4febaee7dfbf7d65fcc81d545974f4cb",
+      "deployedEntry": "/assets/index-Cjl_CPJj.js",
+      "entryMatches": true,
+      "entryStatus": 200,
+      "entrySha256": "41bd6de664e2d1d8ac82ae7f4819afdc94da1005f18a11d2b89ef47f82cdbd15",
+      "matches": true
+    }
+  ],
+  "deployment": {
+    "id": "dpl_4Uvxx58EQwUZxEMYRTwrY9pfoNpq",
+    "url": "https://pomodoro-workspace-csxdqqrgy-axis-be33.vercel.app",
+    "project": "pomodoro-workspace",
+    "team": "axis-be33",
+    "state": "READY",
+    "target": "production",
+    "commit": "bb3eaa90fbd4cd2990a05ca4b8569814cd0875f6",
+    "framework": "Vite",
+    "remoteBuildSeconds": 35
+  },
+  "observability": {
+    "errorFatalLogs": "No matching records in the deployment-scoped 15 minute query",
+    "drains": 0,
+    "limits": "No authenticated production API or physical-device proof"
+  }
+}

@@ -36,7 +36,11 @@ Transport test không gọi mạng thật, không mock logic Auth/Avatar/TOTP. C
 - Chrome UI390x844/1440x900:0 pageerror,0 tràn ngang; QR role/name đúng trên desktop. Đã xem cả2 ảnh. Đây là guest UI, không đăng nhập tài khoản Founder thật.
 - Full sweep còn bắt thêm2 assertion cũ ở m3GoogleAuthAndIdentitySync: thành công native vẫn đòi copy mở browser; sửa assertion sang thông báo thành công, không đổi logic native để theo copy cũ. milestone3EmpiricalChallenger2 vẫn đòi release note cũ “Nền rõ hơn”; cập nhật theo nội dung Auth8.1.5, giữ các oracle manifest/checksum.
 - npm run build sau cập nhật metadata APK cuối: exit0. Founder17/17, workspaceTwoDevice12/12, syncQueueConflict7/7, phase4bPresentation9/9, nativeGoogleSignIn18/18, androidSmokeScript11/11 trong full run cuối.
-- Deploy/both aliases: CHƯA THỰC HIỆN trong lượt này.
+- Deploy production READY: https://pomodoro-workspace-csxdqqrgy-axis-be33.vercel.app, deployment dpl_4Uvxx58EQwUZxEMYRTwrY9pfoNpq, project pomodoro-workspace/axis-be33. Commit source bb3eaa90fbd4cd2990a05ca4b8569814cd0875f6 đã push origin/master. Vercel remote build35 giây.
+- Cả pomofocus-workspace.vercel.app và pomofocus-workplace.vercel.app: trang chủ/version.json/APK/entry JavaScript đều HTTP200. Cùng entry /assets/index-Cjl_CPJj.js, SHA25641bd6de664e2d1d8ac82ae7f4819afdc94da1005f18a11d2b89ef47f82cdbd15. APK tải lại từ cả2 domain đúng10279035 bytes và checksumf6dadc4676a869a5233a43e71cca0e7a4febaee7dfbf7d65fcc81d545974f4cb. Artifact production-verification-86.json ghi chi tiết.
+- Oracle production lượt đầu chọn nhầm index chunk phụ do plugin mới tạo thêm chunk. Đã sửa script kiểm chứng để lấy script module chính trong HTML và bắt buộc tên đó có trong asset list của chính build Vercel; chạy lại exit0. Không thay product để ép kiểm chứng.
+- Vercel framework: Vite;0 drains cấu hình cho project.
+- Quét Vercel runtime error/fatal của đúng deployment trong15 phút: không tìm thấy log phù hợp. Đây không phải kiểm thử các API bằng tài khoản thật hoặc chứng nhận mọi lỗi production đều vắng mặt.
 
 ## Giới hạn thực tế
 
