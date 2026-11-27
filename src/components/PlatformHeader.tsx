@@ -416,9 +416,9 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         )}
         </div>
 
-        {/* Desktop Navigation Links (>= lg) */}
+        {/* Desktop Navigation Links (>= xl) */}
         {!isDownloadPage && (
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 py-1">
+          <nav className="hidden xl:flex items-center gap-1 xl:gap-1.5 py-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -512,7 +512,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               type="button"
               data-testid="header-enter-workspace-btn"
               onClick={() => handleNavigate('/app')}
-              className="hidden sm:flex items-center gap-1.5 min-h-[44px] h-11 px-4 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
+              className="hidden md:flex items-center gap-1.5 min-h-[44px] h-11 px-4 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-semibold text-xs transition active:scale-95 cursor-pointer shadow-sm shrink-0 whitespace-nowrap"
             >
               <Layout size={13} className="shrink-0" />
               <span className="inline">Mở bản web</span>
@@ -696,7 +696,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             id="header-mobile-menu-btn"
             data-testid="header-mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white border border-white/15 border-t-white/25 backdrop-blur-xl transition cursor-pointer shrink-0 active:scale-95"
+            className="xl:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white border border-white/15 border-t-white/25 backdrop-blur-xl transition cursor-pointer shrink-0 active:scale-95"
             title="Menu điều hướng"
             aria-label="Menu điều hướng"
             aria-expanded={isMobileMenuOpen}
@@ -727,7 +727,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         role="dialog"
         aria-modal="true"
         aria-label="Menu điều hướng"
-        className={`lg:hidden fixed top-16 right-3 sm:right-6 w-64 z-[60] bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`xl:hidden fixed top-16 right-3 sm:right-6 w-64 z-[60] bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'

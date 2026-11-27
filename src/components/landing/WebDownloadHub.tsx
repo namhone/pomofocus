@@ -269,10 +269,10 @@ export const WebDownloadHub: React.FC = () => {
                 </p>
               </div>
 
-              {/* Integrated 2-Col Action Row: APK Button (Left) + Desktop-Only Scannable QR Code (Right) */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center pt-0.5">
+              {/* Integrated 2-Col Action Row: Stacks vertically below xl so QR never overlaps APK CTA */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-center pt-0.5">
                 {/* Left: 1-Touch Download Button & Details */}
-                <div className="md:col-span-7 space-y-2.5">
+                <div className="xl:col-span-7 min-w-0 space-y-2.5">
                   <a
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
@@ -337,8 +337,8 @@ export const WebDownloadHub: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: Integrated Dynamic ISO QR Code (Desktop / Tablet only; hidden on 390px phones) */}
-                <div className="hidden md:flex md:col-span-5 flex-col items-center justify-center p-3.5 rounded-2xl bg-[#171A21] border border-[#2A303C] text-center shadow-lg">
+                {/* Right: Integrated Dynamic ISO QR Code (Desktop / Tablet only; hidden on phones) */}
+                <div className="hidden md:flex xl:col-span-5 min-w-0 flex-col items-center justify-center p-3.5 rounded-2xl bg-[#171A21] border border-[#2A303C] text-center shadow-lg">
                   <div
                     data-testid="dynamic-qr-code"
                     className="p-2 rounded-xl bg-[#F6F7F9] border border-[#2A303C] shadow-md shrink-0"
@@ -586,7 +586,7 @@ export const WebDownloadHub: React.FC = () => {
 
               <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
                 <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Rê chuột hoặc chạm nghiêng khung máy để trải nghiệm 3d titanium glass</span>
+                <span>Rê chuột hoặc chạm nghiêng khung máy để trải nghiệm 3D Titanium Glass</span>
               </div>
             </div>
           </div>

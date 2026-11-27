@@ -813,7 +813,7 @@ export const BillingView: React.FC = () => {
                     type="button"
                     data-testid="btn-pay-momo"
                     onClick={() => handleSelectPlanAndCheckout(cycle === 'lifetime' ? 'lifetime' : cycle === 'monthly' ? 'monthly' : 'yearly')}
-                    className="w-full py-3 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xl active:scale-98"
+                    className="w-full min-h-[48px] py-3 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-[0_8px_24px_rgba(96,165,250,0.22)] active:scale-98"
                   >
                     <span>
                       {cycle === 'lifetime'
@@ -932,7 +932,7 @@ export const BillingView: React.FC = () => {
                     type="button"
                     data-testid="btn-upgrade-lifetime"
                     onClick={() => handleSelectPlanAndCheckout('lifetime')}
-                    className="w-full py-3 rounded-full bg-gradient-to-r from-zinc-700 via-zinc-700 to-zinc-700 hover:from-zinc-700 hover:to-zinc-300 text-black text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-zinc-500/20 active:scale-98"
+                    className="w-full min-h-[48px] py-3 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-[0_8px_24px_rgba(96,165,250,0.22)] active:scale-98"
                   >
                     <Crown size={14} className="fill-black" />
                     <span>Sở hữu trọn đời Founder (799k)</span>
@@ -1204,7 +1204,7 @@ export const BillingView: React.FC = () => {
                           onClick={() => {
                             useAiStore.getState().openTopupModal(pack.credits);
                           }}
-                          className="mt-3 w-full py-2 rounded-full bg-zinc-700 hover:bg-zinc-700 text-white font-bold text-[11px] transition cursor-pointer shadow-xs"
+                          className="mt-3 w-full min-h-[44px] py-2 rounded-full bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >
                           Nạp <UiSymbol name="⚡" />
                         </button>

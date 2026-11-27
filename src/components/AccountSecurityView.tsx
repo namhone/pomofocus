@@ -108,7 +108,7 @@ export const AccountSecurityView: React.FC = () => {
             <button
               type="button"
               onClick={() => router.navigate('/login')}
-              className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-xs cursor-pointer"
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition cursor-pointer"
             >
               Đăng nhập ngay
             </button>
@@ -814,7 +814,7 @@ export const AccountSecurityView: React.FC = () => {
                     type="submit"
                     disabled={isChangingPass}
                     data-testid="btn-submit-change-password"
-                    className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
+                    className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition cursor-pointer shadow-sm active:scale-98 disabled:opacity-50"
                   >
                     {isChangingPass ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
                   </button>

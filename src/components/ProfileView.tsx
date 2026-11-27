@@ -96,7 +96,7 @@ export const ProfileView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => router.navigate('/login')}
-                className="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-xs transition hover:bg-zinc-200 cursor-pointer"
+                className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition cursor-pointer"
               >
                 Đăng nhập ngay
               </button>
@@ -731,7 +731,7 @@ export const ProfileView: React.FC = () => {
                   data-testid="btn-save-profile"
                   disabled={isSaving}
                   onClick={() => handleSaveProfile()}
-                  className="px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                  className="min-h-[44px] px-5 py-2 rounded-xl bg-[#60A5FA] hover:bg-[#93C5FD] text-[#0B1120] font-bold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
                 >
                   {isSaving ? (
                     <span>Đang lưu...</span>
