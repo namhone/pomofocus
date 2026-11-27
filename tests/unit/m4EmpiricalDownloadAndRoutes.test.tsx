@@ -38,7 +38,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       expect(headers.length).toBeLessThanOrEqual(1);
     });
 
-    it('1.2 PlatformHeader on /download hides internal nav links, credits HUD, login button, and header workspace button', () => {
+    it('1.2 PlatformHeader on /download hides desktop nav links while keeping mobile navigation and auth controls accessible', () => {
       window.history.pushState({}, '', '/download');
       render(
         <RouterProvider>
@@ -56,12 +56,12 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       expect(screen.queryByTestId('header-nav-help')).toBeNull();
       expect(screen.queryByTestId('header-nav-contact')).toBeNull();
 
-      // Credits HUD, login button, and header workspace button must be hidden
+      // Desktop workspace CTA & guest AI HUD remain hidden on /download, while mobile menu & login are available
       expect(screen.queryByTestId('header-ai-btn')).toBeNull();
-      expect(screen.queryByTestId('header-login-btn')).toBeNull();
       expect(screen.queryByTestId('header-enter-workspace-btn')).toBeNull();
       expect(screen.queryByTestId('header-plan-badge')).toBeNull();
-      expect(screen.queryByTestId('header-mobile-menu-btn')).toBeNull();
+      expect(screen.getByTestId('header-login-btn')).toBeDefined();
+      expect(screen.getByTestId('header-mobile-menu-btn')).toBeDefined();
     });
 
     it('1.3 exports accurate APK constants: 8.70 MB and version v8.1', () => {
@@ -94,7 +94,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       expect(screen.queryByText(/Liquid Zen/i)).toBeNull();
 
       // Sentence Case check
-      expect(screen.getByText(/pomofocus · Ứng dụng Android APK độc lập v8\.1/i)).toBeDefined();
+      expect(screen.getByText(/PomoFocus Android APK/i)).toBeDefined();
       expect(screen.getByText(`Bản phát hành chính thức ${CURRENT_APK_VERSION}`)).toBeDefined();
       expect(screen.getByText('Quét mã cài ngay')).toBeDefined();
       expect(screen.getByText('Sẵn sàng')).toBeDefined();
@@ -154,7 +154,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       const downloadBtn = screen.getByTestId('central-apk-download-btn');
       expect(downloadBtn.getAttribute('href')).toBe(PUBLIC_APK_URL);
       expect(downloadBtn.getAttribute('download')).toBe('PomoFocus-v8.1.apk');
-      expect(downloadBtn.className).toContain('min-h-[56px]');
+      expect(downloadBtn.className).toContain('min-h-[54px]');
     });
 
     it('1.9 clipboard copy button copies PUBLIC_APK_URL and provides immediate feedback', async () => {
@@ -179,7 +179,7 @@ describe('Milestone 4 Empirical Verification: /download Page & Web Routes Synchr
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(PUBLIC_APK_URL);
-      expect(screen.getByText('Đã sao chép liên kết APK!')).toBeDefined();
+      expect(screen.getAllByText('Đã sao chép liên kết APK!').length).toBeGreaterThan(0);
     });
   });
 

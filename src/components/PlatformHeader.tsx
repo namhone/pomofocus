@@ -486,7 +486,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           )}
 
           {/* AI Study Companion Quick HUD */}
-          {!isDownloadPage && (
+          {(!isDownloadPage || isAuthenticated) && (
             <button
               type="button"
               data-testid="header-ai-btn"
@@ -494,7 +494,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
                 e.stopPropagation();
                 useAiStore.getState().toggleOpen();
               }}
-              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.03] hover:bg-white/[0.06] text-zinc-200 font-semibold text-[11px] border border-white/10 transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 h-8 px-2 sm:px-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 font-semibold text-[11px] border border-white/12 border-t-white/20 backdrop-blur-xl transition active:scale-95 cursor-pointer shadow-none shrink-0 whitespace-nowrap"
               title={
                 isVipOrOwner
                   ? 'Đặc quyền Chủ sở hữu: ⚡ ∞ / Vô Hạn'
@@ -521,7 +521,7 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
           )}
 
           {/* User state: Avatar Dropdown when logged in, or Login button when guest */}
-          {!isDownloadPage && (isAuthenticated && user ? (
+          {isAuthenticated && user ? (
             <div className="relative" ref={dropdownRef}>
               {/* Circular Avatar Trigger */}
               <button
@@ -689,23 +689,21 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               <User size={13} className="text-zinc-300 shrink-0" />
               <span>Đăng nhập</span>
             </button>
-          ))}
-
-          {/* Nút Hamburger Menu ☰ trên mobile */}
-          {!isDownloadPage && !isAuthenticated && (
-            <button
-              type="button"
-              id="header-mobile-menu-btn"
-              data-testid="header-mobile-menu-btn"
-              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-              className="lg:hidden h-8 w-8 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition cursor-pointer shrink-0 active:scale-95"
-              title="Menu điều hướng"
-              aria-label="Menu điều hướng"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
           )}
+
+          {/* Nút Hamburger Menu ☰ trên Web Mobile (44x44px chuẩn HIG, luôn hiện ở mọi route kể cả /download và khi đã đăng nhập) */}
+          <button
+            type="button"
+            id="header-mobile-menu-btn"
+            data-testid="header-mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white border border-white/15 border-t-white/25 backdrop-blur-xl transition cursor-pointer shrink-0 active:scale-95"
+            title="Menu điều hướng"
+            aria-label="Menu điều hướng"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </header>
 
@@ -723,21 +721,41 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
         aria-hidden="true"
       />
 
-      {/* 2. Menu Header dạng Thả Xuống (Slide-down Dropdown) định vị tại top-14 right-3 w-64 */}
+      {/* 2. Menu Header dạng Thả Xuống (Apple Liquid Glass Drawer) định vị tại top-16 right-3 w-64 */}
       <div
         id="mobile-slidedown-menu"
         data-testid="mobile-navigation-drawer"
         role="dialog"
         aria-modal="true"
         aria-label="Menu điều hướng"
-        className={`lg:hidden fixed top-14 right-3 sm:right-6 w-64 z-[60] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
+        className={`lg:hidden fixed top-16 right-3 sm:right-6 w-64 z-[60] bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 transition-all duration-200 ease-out origin-top select-none ${
           isMobileMenuOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
         }`}
       >
-        {/* Danh sách các trang */}
+        {/* Danh sách các trang Web Mobile Portal */}
         <nav className="flex flex-col space-y-0.5">
+          <button
+            type="button"
+            data-testid="mobile-drawer-link-home"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleNavigate('/');
+            }}
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+              currentPath === '/'
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Home size={16} className={currentPath === '/' ? 'text-white' : 'text-zinc-400'} />
+              <span>Trang chủ</span>
+            </div>
+            {currentPath === '/' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+          </button>
+
           <button
             type="button"
             data-testid="mobile-drawer-link-app"
@@ -747,55 +765,35 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/app'
-                ? 'bg-zinc-800 text-white font-semibold'
-                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Home size={16} className={currentPath === '/app' ? 'text-zinc-300' : 'text-zinc-400'} />
-              <span>Không gian học</span>
+              <Layout size={16} className={currentPath === '/app' ? 'text-white' : 'text-zinc-400'} />
+              <span>Tổng quan Portal</span>
             </div>
-            {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
+            {currentPath === '/app' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 
           <button
             type="button"
-            data-testid="mobile-drawer-link-rooms"
+            data-testid="mobile-drawer-link-profile"
             onClick={() => {
               setIsMobileMenuOpen(false);
-              handleNavigate('/rooms');
+              handleNavigate('/profile');
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
-              currentPath.startsWith('/rooms')
-                ? 'bg-zinc-800 text-white font-semibold'
-                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
+              currentPath === '/profile'
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Users size={16} className={currentPath.startsWith('/rooms') ? 'text-zinc-300' : 'text-zinc-400'} />
-              <span>Phòng học nhóm live</span>
+              <User size={16} className={currentPath === '/profile' ? 'text-white' : 'text-zinc-400'} />
+              <span>Tài khoản</span>
             </div>
-            {currentPath.startsWith('/rooms') && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
-          </button>
-
-          <button
-            type="button"
-            data-testid="mobile-drawer-link-calendar"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              handleNavigate('/calendar');
-            }}
-            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
-              currentPath === '/calendar'
-                ? 'bg-zinc-800 text-white font-semibold'
-                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Calendar size={16} className={currentPath === '/calendar' ? 'text-zinc-300' : 'text-zinc-400'} />
-              <span>Lịch biểu pomodoro</span>
-            </div>
-            {currentPath === '/calendar' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
+            {currentPath === '/profile' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 
           <button
@@ -807,15 +805,15 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
               currentPath === '/billing'
-                ? 'bg-zinc-800 text-white font-semibold'
-                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Gem size={16} className={currentPath === '/billing' ? 'text-zinc-300' : 'text-zinc-400'} />
-              <span>Bảng giá & nâng cấp</span>
+              <Gem size={16} className={currentPath === '/billing' ? 'text-white' : 'text-zinc-400'} />
+              <span>Gói &amp; Credits</span>
             </div>
-            {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
+            {currentPath === '/billing' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 
           <button
@@ -826,16 +824,36 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               handleNavigate('/account/security');
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
-              currentPath === '/account/security'
-                ? 'bg-zinc-800 text-white font-semibold'
-                : 'text-zinc-100 hover:text-white hover:bg-zinc-800/60'
+              currentPath === '/account/security' || currentPath === '/security'
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Lock size={16} className={currentPath === '/account/security' ? 'text-zinc-300' : 'text-zinc-400'} />
-              <span>Trung tâm bảo mật</span>
+              <Lock size={16} className={currentPath === '/account/security' || currentPath === '/security' ? 'text-white' : 'text-zinc-400'} />
+              <span>Bảo mật</span>
             </div>
-            {currentPath === '/account/security' && <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />}
+            {(currentPath === '/account/security' || currentPath === '/security') && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+          </button>
+
+          <button
+            type="button"
+            data-testid="mobile-drawer-link-download"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleNavigate('/download');
+            }}
+            className={`w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-medium transition cursor-pointer text-left ${
+              isDownloadPage
+                ? 'bg-white/10 text-white font-semibold'
+                : 'text-zinc-100 hover:text-white hover:bg-white/[0.06]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Download size={16} className={isDownloadPage ? 'text-white' : 'text-zinc-400'} />
+              <span>Tải APK</span>
+            </div>
+            {isDownloadPage && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
         </nav>
 

@@ -65,7 +65,7 @@ describe('Header Guest Quick Menu & Google OAuth Guidance Specifications', () =>
     it('Mobile slide-down menu dùng thẻ đặc z-[60] bg-zinc-950 border-zinc-800 shadow-2xl và backdrop mờ sâu z-40', () => {
       const headerCode = fs.readFileSync('src/components/PlatformHeader.tsx', 'utf8');
       expect(headerCode).toContain('id="mobile-slidedown-menu"');
-      expect(headerCode).toContain('bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl');
+      expect(headerCode).toContain('bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25 rounded-2xl shadow-2xl');
       expect(headerCode).toContain('z-[60]');
       expect(headerCode).toContain('z-40 bg-black/50 backdrop-blur-md');
       expect(headerCode).toContain('data-testid="mobile-drawer-backdrop"');

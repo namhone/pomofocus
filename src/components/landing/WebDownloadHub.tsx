@@ -277,10 +277,11 @@ export const WebDownloadHub: React.FC = () => {
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
                     download="PomoFocus-v8.1.apk"
-                    className="w-full h-14 sm:h-15 min-h-[54px] px-4 sm:px-5 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-[13px] sm:text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_28px_rgba(255,255,255,0.22)] hover:scale-[1.01] active:scale-95 cursor-pointer"
+                    className="w-full h-14 sm:h-15 min-h-[54px] px-4 sm:px-5 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_28px_rgba(255,255,255,0.22)] hover:scale-[1.01] active:scale-95 cursor-pointer"
                   >
                     <Download className="w-4 h-4 sm:w-5 sm:h-5 text-current stroke-[1.75] shrink-0" />
-                    <span className="whitespace-nowrap">Tải PomoFocus Android ({CURRENT_APK_VERSION} · {APK_SIZE_LABEL})</span>
+                    <span className="md:hidden whitespace-nowrap">Tải APK {CURRENT_APK_VERSION}</span>
+                    <span className="hidden md:inline whitespace-nowrap">Tải PomoFocus Android ({CURRENT_APK_VERSION} · {APK_SIZE_LABEL})</span>
                   </a>
 
                   {/* Mobile-only compact Copy Link button (since QR is hidden on phones) */}
@@ -322,7 +323,7 @@ export const WebDownloadHub: React.FC = () => {
                         Đang dùng Android · chạm nút trên để tải và cài đặt ngay
                       </span>
                     ) : isDesktop ? (
-                      <span className="inline-flex items-center gap-1.5 text-zinc-400">
+                      <span className="hidden md:inline-flex items-center gap-1.5 text-zinc-400">
                         <QrCode className="w-4 h-4 text-zinc-400 shrink-0" />
                         Bạn đang ở desktop · quét mã QR bên cạnh để cài ngay trên điện thoại
                       </span>

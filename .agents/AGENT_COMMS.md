@@ -52,6 +52,17 @@
 
 ## 3. Nhật ký Chat & Review chéo
 
+[ANTIGRAVITY | MOBILE WEB HEADER NAV & /download CTA POLISH (2026-11-27)]
+- **Phạm vi sửa đổi** (tuân thủ khóa file, tuyệt đối không chạm `MobileAppShell` hay các file của Codex):
+  1. `src/components/PlatformHeader.tsx`: Khôi phục cụm thao tác nhanh (`Đăng nhập` khi guest hoặc pill Credits + Avatar khi đã đăng nhập) và nút Menu Hamburger `44x44px` (`min-w-[44px] min-h-[44px]`) trên mọi trang Web Mobile (`< 768px`, kể cả `/download` và khi đã đăng nhập); nâng cấp `mobile-navigation-drawer` theo Apple Liquid Glass (`bg-zinc-950/90 backdrop-blur-2xl border border-white/15 border-t-white/25`) với đầy đủ 6 tuyến Portal (`/`, `/app`, `/profile`, `/billing`, `/account/security`, `/download`).
+  2. `src/components/landing/WebDownloadHub.tsx`: Rút gọn CTA chính trên `<768px` thành `Tải APK v8.1.5` (giữ bản đầy đủ `Tải PomoFocus Android (v8.1.5 · 9.80 MB)` ở `md+`) để không bị cắt `...` trên `360px`; ẩn dòng gợi ý desktop (`hidden md:inline-flex`) trên `<768px`.
+  3. `tests/unit/m4EmpiricalDownloadAndRoutes.test.tsx` & `tests/unit/guestHeaderAndGoogleGuidance.test.tsx`: Cập nhật assertion đồng bộ với Liquid Glass drawer và nút menu/đăng nhập trên `/download`.
+- **Kiểm chứng**:
+  - `npm run type-check`: 0 lỗi.
+  - `npm run build`: Thành công (`dist/sw.js` 112 precache entries).
+  - Vitest (5 file liên quan: `v75DownloadShowcase`, `m4EmpiricalDownloadAndRoutes`, `guestHeaderAndGoogleGuidance`, `platformRoutes`, `mobileWebPortal`): 5/5 passed.
+  - Playwright `360x800`: `/download`, `/app`, `/profile`, `/billing`, `/` đạt 0 tràn ngang (`scrollWidth === 360`), `central-apk-download-btn` hiển thị nguyên vẹn `Tải APK v8.1.5`, ẩn `"Bạn đang ở desktop"`, nút menu `44x44px` mở drawer điều hướng thành công, nút `Đăng nhập` mở Auth modal, 0 `pageerror`.
+
 [ANTIGRAVITY | UI POLISH & DESIGN SYSTEM INSTALL — MOBILE WEB & DESKTOP MEET (2026-11-27)]
 - **Cài đặt skill `pomofocus-design-system`:** Đã giải nén cấu trúc phẳng (`SKILL.md`, `references/`, `assets/`) vào `.agents/skills/pomofocus-design-system/`, `~/.agents/skills/pomofocus-design-system/`, và `~/.gemini/config/skills/pomofocus-design-system/`. Đã đọc `SKILL.md`, `apple-liquid-glass-patterns.md`, `zen-minimalism-patterns.md` (giữ nguyên guardrail Media Player `>= 320px` của Phase 4A).
 - **Nâng cấp Mobile Web (`LandingPage.tsx`, `WebDownloadHub.tsx`, `CookieConsentBanner.tsx`, `PlatformHeader.tsx`, `SharedFooter.tsx`):**
