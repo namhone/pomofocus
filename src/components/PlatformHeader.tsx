@@ -502,7 +502,8 @@ export const PlatformHeader: React.FC<PlatformHeaderProps> = ({ isDownloadPage: 
               }
             >
               <Sparkles size={13} className="text-zinc-300 shrink-0 stroke-[1.5]" />
-              <span className="font-mono text-zinc-200 font-semibold">{displayCredits}</span>
+              <span className="font-medium text-zinc-200 sm:hidden tabular-nums">{capsuleCreditsLabel}</span>
+              <span className="font-medium text-zinc-200 hidden sm:inline tabular-nums">{displayCredits}</span>
             </button>
           )}
 

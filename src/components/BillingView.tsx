@@ -190,7 +190,7 @@ export const BillingView: React.FC = () => {
       subtitle="Bảng giá nâng cấp PomoFocus"
       backTestId="billing-back-btn"
       onBack={() => router.navigate('/app')}
-      className="selection:bg-white selection:text-black overflow-x-clip"
+      className="max-md:[&_button]:min-h-[44px] max-md:[&_button]:min-w-[44px] max-md:[&_button]:touch-manipulation selection:bg-white selection:text-black overflow-x-clip"
     >
       <div
         data-testid="billing-view"

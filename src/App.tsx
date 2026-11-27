@@ -44,6 +44,8 @@ import { useDeviceDetection } from './hooks/useDeviceDetection';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
 import { MobileSubViewLayout } from './components/mobile/MobileSubViewLayout';
 import { MobileSettingsView } from './components/mobile/views/MobileSettingsView';
+import { MobileWebPortal } from './components/MobileWebPortal';
+import { getAppEnvironment, isLearningRoute } from './services/platformRoutes';
 import { runStorageSchemaMigration } from './utils/safeStorage';
 import { syncQueueService } from './services/syncQueueService';
 import { subscribeWorkspaceRealtime } from './services/workspaceRealtimeService';
@@ -139,26 +141,56 @@ const AiCompanionWidget = lazy(() =>
   import('./components/AiCompanionWidget').then((m) => ({ default: m.AiCompanionWidget }))
 );
 
-export const App: React.FC = () => {
+const WorkspaceRuntime: React.FC = () => {
+  const initTimer = useTimerStore((state) => state.init);
+  const destroyTimer = useTimerStore((state) => state.destroy);
+  const timerLifecycleGeneration = useRef(0);
+  // Khởi tạo vòng đời Timer duy nhất ở cấp độ App
+  useEffect(() => {
+    timerLifecycleGeneration.current += 1;
+    initTimer();
+    return () => {
+      const cleanupGeneration = ++timerLifecycleGeneration.current;
+      queueMicrotask(() => {
+        if (timerLifecycleGeneration.current === cleanupGeneration) {
+          destroyTimer();
+        }
+      });
+    };
+  }, [initTimer, destroyTimer]);
+
   useFocusAutoDim();
+  // Kích hoạt lắng nghe phím tắt toàn cục (Space, R, S, Z, Esc)
+  useGlobalShortcuts();
+  return null;
+};
+
+export const App: React.FC = () => {
+  const router = useRouter();
+  const currentPath = router.currentRoute.path;
   const isZenMode = useLayoutStore((state) => state.isZenMode);
   const { isNativeCapacitor } = useDeviceDetection();
-  const isMobileMediaQuery = useMediaQuery('(max-width: 768px)');
-  const isMobile =
-    isMobileMediaQuery || isNativeCapacitor ||
-    (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  const isMobileMediaQuery = useMediaQuery('(max-width: 767px)');
+  const environment = getAppEnvironment(isNativeCapacitor, isMobileMediaQuery, router.currentRoute.search);
+  const isMobile = environment !== 'desktop-web';
   const setIsMobile = useLayoutStore((state) => state.setIsMobile);
   const clampWidgetsToViewport = useLayoutStore((state) => state.clampWidgetsToViewport);
   const isTopupModalOpen = useAiStore((state) => state.isTopupModalOpen);
   const closeTopupModal = useAiStore((state) => state.closeTopupModal);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAiOpen = useAiStore((state) => state.isOpen);
-  const initTimer = useTimerStore((state) => state.init);
-  const destroyTimer = useTimerStore((state) => state.destroy);
-  const timerLifecycleGeneration = useRef(0);
   const realtimeUserId = useAuthStore(state => state.isAuthenticated ? state.user?.id : undefined);
   useEffect(() => {
     if (realtimeUserId) return subscribeWorkspaceRealtime(realtimeUserId);
   }, [realtimeUserId]);
+
+  // Mobile Web has no native avatar sheet; guests continue through the Web login route.
+  useEffect(() => {
+    if (environment === 'mobile-web' && isTopupModalOpen && !isAuthenticated) {
+      closeTopupModal();
+      router.navigate('/login');
+    }
+  }, [environment, isTopupModalOpen, isAuthenticated, closeTopupModal, router]);
 
   // V8.1: Run storage schema migration on app startup to purge obsolete keys and heavy data
   useEffect(() => {
@@ -217,23 +249,6 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Khởi tạo vòng đời Timer duy nhất ở cấp độ App
-  useEffect(() => {
-    timerLifecycleGeneration.current += 1;
-    initTimer();
-    return () => {
-      const cleanupGeneration = ++timerLifecycleGeneration.current;
-      queueMicrotask(() => {
-        if (timerLifecycleGeneration.current === cleanupGeneration) {
-          destroyTimer();
-        }
-      });
-    };
-  }, [initTimer, destroyTimer]);
-
-  // Kích hoạt lắng nghe phím tắt toàn cục (Space, R, S, Z, Esc)
-  useGlobalShortcuts();
-
   // Đồng bộ trạng thái isMobile vào layoutStore
   useEffect(() => {
     setIsMobile(isMobile);
@@ -280,9 +295,6 @@ export const App: React.FC = () => {
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [isNativeCapacitor]);
-
-  const router = useRouter();
-  const currentPath = router.currentRoute.path;
 
   // 1. Bổ sung useEffect lắng nghe sự kiện thay đổi trạng thái đăng nhập của Supabase
   useEffect(() => {
@@ -350,6 +362,10 @@ export const App: React.FC = () => {
       router.navigate('/app', { replace: true });
       return;
     }
+    if (environment === 'mobile-web' && isLearningRoute(currentPath)) {
+      document.title = 'PomoFocus — Chọn trải nghiệm';
+      return;
+    }
     const isWorkspace = currentPath === '/app' || currentPath.startsWith('/app/');
     if (!isWorkspace) {
       document.title = getStaticRouteTitle(currentPath);
@@ -357,7 +373,7 @@ export const App: React.FC = () => {
       const timerState = useTimerStore.getState();
       updateDocumentTitle(timerState.remainingMs, timerState.phase, timerState.status, timerState.linkedTaskTitle);
     }
-  }, [currentPath, isNativeCapacitor, router]);
+  }, [currentPath, isNativeCapacitor, environment, router]);
 
   // V8.1 (Feature 9 & 10): Deep Link Listener (Google OAuth callback pomofocus://oauth/callback & App Links /rooms)
   useEffect(() => {
@@ -529,11 +545,16 @@ export const App: React.FC = () => {
   }, [isNativeCapacitor, router]);
 
   const renderRoutedView = () => {
-    if (currentPath === '/login') {
-      return <AuthView initialMode="login" />;
+    if (environment === 'mobile-web' && isLearningRoute(currentPath)) {
+      return <MobileWebPortal />;
     }
-    if (currentPath === '/signup') {
-      return <AuthView initialMode="signup" />;
+    if (currentPath === '/login' || currentPath === '/signup') {
+      const authView = <AuthView initialMode={currentPath === '/signup' ? 'signup' : 'login'} />;
+      return environment === 'mobile-web' ? (
+        <main className="[&_button]:min-h-[44px] [&_button]:min-w-[44px] [&_button]:touch-manipulation">
+          {authView}
+        </main>
+      ) : authView;
     }
     if (currentPath === '/billing' || currentPath === '/subscription') {
       return <BillingView />;
@@ -544,7 +565,7 @@ export const App: React.FC = () => {
     if (currentPath === '/rooms' || currentPath === '/rooms/' || currentPath === '/meet') {
       return <StudyRoomLobby />;
     }
-    if (currentPath.startsWith('/rooms') || currentPath.startsWith('/room')) {
+    if (currentPath === '/room' || currentPath.startsWith('/rooms/') || currentPath.startsWith('/room/')) {
       return <StudyRoomView />;
     }
     if (currentPath === '/' || currentPath === '/landing') {
@@ -560,7 +581,7 @@ export const App: React.FC = () => {
     if (currentPath === '/profile') {
       return <ProfileView />;
     }
-    if (currentPath === '/account/security' || currentPath === '/security') {
+    if (currentPath === '/account/security' || currentPath === '/account-security' || currentPath === '/security') {
       return <AccountSecurityView />;
     }
     if (currentPath === '/dashboard' || currentPath === '/history' || currentPath === '/stats') {
@@ -614,8 +635,8 @@ export const App: React.FC = () => {
     }
 
     // Karpathy Invariant: Tuyến đường workspace (/app) phân nhánh rõ rệt
-    // Thiết bị di động render duy nhất MobileAppShell (Liquid Zen Architecture)
-    if (isMobile) {
+    // Native APK keeps its complete MobileAppShell, independently of viewport or Web overrides.
+    if (isNativeCapacitor) {
       return (
         <ErrorBoundary>
           <MobileAppShell />
@@ -724,8 +745,13 @@ export const App: React.FC = () => {
 
   return (
     <>
+      {environment !== 'mobile-web' && <WorkspaceRuntime />}
       <TwoFactorGateModal />
-      <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />
+      {environment === 'mobile-web' ? (
+        <div className="[&_button]:min-h-[44px] [&_button]:min-w-[44px] [&_button]:touch-manipulation">
+          <AiCreditsTopupModal isOpen={isTopupModalOpen && isAuthenticated} onClose={closeTopupModal} />
+        </div>
+      ) : <AiCreditsTopupModal isOpen={isTopupModalOpen} onClose={closeTopupModal} />}
       <LiquidUpdateBanner />
       <CookieConsentBanner />
       <ErrorBoundary>

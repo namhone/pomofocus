@@ -77,20 +77,28 @@ export const LandingPage: React.FC = () => {
             <ArrowRight size={15} className="shrink-0" />
           </button>
           
-          <div className="flex items-center gap-4 text-xs text-zinc-400 pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-zinc-400 pt-1">
             <button
               type="button"
               data-testid="landing-cta-upgrade-hero"
               onClick={() => router.navigate('/billing')}
-              className="text-zinc-400 hover:text-white transition underline-offset-4 hover:underline cursor-pointer"
+              className="text-zinc-300 hover:text-white transition underline-offset-4 hover:underline cursor-pointer"
             >
               Xem gói cước
             </button>
-            <span className="text-zinc-400 select-none">•</span>
+            <span className="text-zinc-600 select-none">•</span>
+            <button
+              type="button"
+              onClick={() => router.navigate('/download')}
+              className="text-zinc-300 hover:text-white transition underline-offset-4 hover:underline cursor-pointer"
+            >
+              Tải app Android
+            </button>
+            <span className="text-zinc-600 select-none">•</span>
             <button
               type="button"
               onClick={() => router.navigate('/rooms')}
-              className="text-zinc-400 hover:text-white transition underline-offset-4 hover:underline cursor-pointer flex items-center gap-1"
+              className="text-zinc-300 hover:text-white transition underline-offset-4 hover:underline cursor-pointer flex items-center gap-1"
             >
               <Users size={12} className="shrink-0 text-zinc-400" />
               <span>Phòng học nhóm</span>
@@ -180,7 +188,7 @@ export const LandingPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Card 1: Atomic Timer */}
-          <div className="p-6 sm:p-8 rounded-xl border border-zinc-800 bg-zinc-900/30 flex flex-col justify-between">
+          <div className="p-6 sm:p-8 rounded-2xl border border-white/10 border-t-white/20 bg-white/[0.03] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] flex flex-col justify-between">
             <div>
               <div className="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800/50 flex items-center justify-center text-white mb-6">
                 <Clock size={18} strokeWidth={1.5} />
@@ -199,7 +207,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 2: Audio & PiP */}
-          <div className="p-6 sm:p-8 rounded-xl border border-zinc-800 bg-zinc-900/30 flex flex-col justify-between">
+          <div className="p-6 sm:p-8 rounded-2xl border border-white/10 border-t-white/20 bg-white/[0.03] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] flex flex-col justify-between">
             <div>
               <div className="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800/50 flex items-center justify-center text-white mb-6">
                 <Volume2 size={18} strokeWidth={1.5} />

@@ -94,6 +94,7 @@ export const AccountSecurityView: React.FC = () => {
   if (!isAuthenticated || !user) {
     return (
       <MobileSubViewLayout
+        className="max-md:[&_button]:min-h-[44px] max-md:[&_button]:min-w-[44px] max-md:[&_button]:touch-manipulation"
         title="Bảo mật tài khoản"
         subtitle="Yêu cầu đăng nhập"
         onBack={() => router.navigate('/app')}
@@ -323,7 +324,7 @@ export const AccountSecurityView: React.FC = () => {
       subtitle={user?.email}
       backTestId="back-to-workspace-btn"
       onBack={() => router.navigate('/app')}
-      className="selection:bg-white selection:text-black"
+      className="max-md:[&_button]:min-h-[44px] max-md:[&_button]:min-w-[44px] max-md:[&_button]:touch-manipulation selection:bg-white selection:text-black"
     >
       <div
         data-testid="account-security-view"
@@ -352,8 +353,8 @@ export const AccountSecurityView: React.FC = () => {
         )}
 
         {/* Sub-nav Tabs: Hồ sơ | Bảo mật | Gói cước | Dữ liệu (Full Width Scrollable) */}
-        <div className="w-full pb-3 border-b border-zinc-800 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs w-max sm:w-auto">
+        <div className="w-full pb-3 border-b border-zinc-800">
+          <div className="grid grid-cols-2 min-[380px]:grid-cols-4 sm:flex sm:items-center gap-1.5 p-1 bg-zinc-900/80 rounded-xl border border-zinc-800 text-xs [&_button]:justify-center max-sm:[&_svg]:hidden">
             <button
               type="button"
               data-testid="nav-tab-profile"

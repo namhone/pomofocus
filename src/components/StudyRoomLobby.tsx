@@ -308,9 +308,9 @@ export const StudyRoomLobby: React.FC = () => {
     >
       <div className="w-full max-w-5xl mx-auto px-4 py-5 sm:py-10 flex flex-col justify-start">
         {/* Hero Header (Monochrome Stealth) */}
-        <div className="text-center max-w-2xl mx-auto mb-5 sm:mb-9">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium mb-3 whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/15 border-t-white/25 text-zinc-300 text-[11px] font-medium mb-3 whitespace-nowrap shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>Phòng học trực tuyến</span>
             <span className="border-l border-white/10 pl-2 text-[10px] text-zinc-400">Beta</span>
           </div>
@@ -323,10 +323,10 @@ export const StudyRoomLobby: React.FC = () => {
           </p>
         </div>
 
-        {/* Action Grid: Tạo phòng & Tham gia phòng (Monochrome Stealth) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
+        {/* Action Grid: Tạo phòng & Tham gia phòng (Apple Liquid Glass Monochrome) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 mb-8 sm:mb-10">
           {/* Box 1: Tạo phòng mới */}
-          <div className="liquid-elevated p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] border-t-white/[0.16] flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
+          <div className="pomo-glass p-5 sm:p-6 rounded-3xl bg-zinc-950/50 backdrop-blur-2xl border border-white/12 border-t-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col justify-between relative overflow-hidden group hover:border-white/20 transition">
             <div>
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <PlusCircle size={18} strokeWidth={1.5} className="shrink-0 text-zinc-200" />
@@ -405,7 +405,7 @@ export const StudyRoomLobby: React.FC = () => {
                         type="text"
                         value={createGoal}
                         onChange={(e) => setCreateGoal(e.target.value)}
-                        placeholder="vd: cùng ôn thi ielts reading, sprint đồ án..."
+                        placeholder="vd: cùng ôn thi IELTS Reading, sprint đồ án..."
                         className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                       />
                     </div>
@@ -540,14 +540,14 @@ export const StudyRoomLobby: React.FC = () => {
           </div>
 
           {/* Box 2: Tham gia bằng mã hoặc link */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-zinc-700 transition">
+          <div className="pomo-glass p-5 sm:p-6 rounded-3xl bg-zinc-950/50 backdrop-blur-2xl border border-white/12 border-t-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col justify-between relative overflow-hidden group hover:border-white/20 transition">
             <div>
-              <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 mb-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/15 flex items-center justify-center text-zinc-200 mb-3">
                 <LogIn size={18} />
               </div>
               <h2 className="text-sm sm:text-base font-bold text-white mb-1 flex items-center gap-2">
                 <span>Tham gia phòng có sẵn</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-semibold">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 border border-white/15 font-medium">
                   Mã hoặc link
                 </span>
               </h2>
@@ -599,7 +599,7 @@ export const StudyRoomLobby: React.FC = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 <Sparkles size={16} className="text-zinc-300" />
                 <h3 className="font-bold text-sm text-white">Phòng học công khai</h3>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 border border-white/15 font-medium">
                   Miễn phí • 10 người
                 </span>
               </div>
@@ -608,7 +608,7 @@ export const StudyRoomLobby: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span>Đồng bộ sĩ số trực tiếp</span>
             </div>
           </div>
@@ -626,10 +626,10 @@ export const StudyRoomLobby: React.FC = () => {
                 <div
                   key={pod.roomId}
                   data-testid={`pod-card-${pod.roomId}`}
-                  className={`p-5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
+                  className={`p-5 rounded-2xl border transition-all duration-150 flex flex-col justify-between backdrop-blur-xl ${
                     isFull
-                      ? 'bg-zinc-900/40 border-rose-500/30 opacity-80'
-                      : 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700/80 hover:bg-zinc-900/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.35)]'
+                      ? 'bg-zinc-950/40 border-rose-500/30 opacity-80'
+                      : 'bg-zinc-950/50 border-white/10 border-t-white/20 hover:border-white/25 hover:bg-zinc-900/60 shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
                   }`}
                 >
                   <div>
@@ -638,12 +638,12 @@ export const StudyRoomLobby: React.FC = () => {
                         {pod.title}
                       </span>
                       {isFull ? (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium">
+                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium">
                           Đầy
                         </span>
                       ) : (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse" />
+                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 border border-white/15 font-medium flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                           Sẵn sàng
                         </span>
                       )}

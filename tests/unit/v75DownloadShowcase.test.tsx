@@ -343,7 +343,7 @@ describe('PomoFocus v7.5 Final — 3D Download Showcase, ISO QR & Android Manife
       expect(screen.getByText(/Trôi chảy từng khoảnh khắc\./i)).toBeDefined();
       expect(screen.getByText(/Theo dõi phiên tập trung bằng mốc thời gian/i)).toBeDefined();
       expect(screen.queryByText(/đếm giờ bất tử/i)).toBeNull();
-      expect(screen.getByTestId('central-apk-download-btn').textContent).toContain(`Tải PomoFocus APK (${CURRENT_APK_VERSION})`);
+      expect(screen.getByTestId('central-apk-download-btn').textContent).toContain(`Tải PomoFocus Android (${CURRENT_APK_VERSION} · ${APK_SIZE_LABEL})`);
       expect(screen.getByText(new RegExp(`Dung lượng: ${APK_SIZE_LABEL.replace('.', '\\.')} · Android 9\\.0\\+ · miễn phí tải xuống`, 'i'))).toBeDefined();
       expect(screen.getAllByText('Mở bản web →').length).toBeGreaterThanOrEqual(1);
     });

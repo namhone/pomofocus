@@ -25,6 +25,13 @@ import { useBackgroundStore } from '../../src/stores/useBackgroundStore';
 describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Android Liquid Zen)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('[]')));
+    vi.stubGlobal('WebSocket', class {
+      static OPEN = 1;
+      readyState = 0;
+      close() { this.readyState = 3; }
+      send() {}
+    });
     useTimerStore.setState({
       status: 'idle',
       remainingMs: 25 * 60 * 1000,
@@ -61,6 +68,7 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   // =========================================================================
@@ -371,13 +379,13 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
       expect(lookup).toHaveBeenCalledTimes(2);
       delete (window as any).Capacitor;
     });
-    it('5.1 Renders MobileAppShell on mobile viewports (<= 768px)', () => {
+    it('5.1 Renders the Web portal below 768px without mounting the native shell', () => {
       // Set path to /app
       window.history.pushState({}, '', '/app');
 
-      // Mock media query matching <= 768px
+      // Mobile Web is compact below 768px.
       window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-        matches: query.includes('768px'),
+        matches: query.includes('767px'),
         media: query,
         onchange: null,
         addListener: vi.fn(),
@@ -387,14 +395,92 @@ describe('Milestone 3: Mobile App Shell & Root Routing Guard (v7.0 Native Androi
         dispatchEvent: vi.fn()
       }));
 
+      const init = vi.spyOn(useTimerStore.getState(), 'init');
       render(
         <RouterProvider>
           <App />
         </RouterProvider>
       );
 
-      expect(screen.getByTestId('mobile-app-shell')).toBeDefined();
+      expect(screen.getByTestId('mobile-web-portal')).toBeDefined();
+      expect(screen.queryByTestId('mobile-app-shell')).toBeNull();
       expect(screen.queryByTestId('workspace-root')).toBeNull();
+      expect(init).not.toHaveBeenCalled();
+      expect(document.title).toBe('PomoFocus — Chọn trải nghiệm');
+      const start = vi.spyOn(useTimerStore.getState(), 'start');
+      fireEvent.keyDown(window, { key: ' ', code: 'Space' });
+      expect(start).not.toHaveBeenCalled();
+    });
+
+    it.each([390, 1440])('Native APK keeps MobileAppShell at %ipx even with desktop override', width => {
+      window.history.replaceState({}, '', '/app?desktop=1');
+      (window as any).Capacitor = { isNativePlatform: () => true };
+      window.matchMedia = vi.fn((query: string) => ({ matches: width < 768 && query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      const view = render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.getByTestId('mobile-app-shell')).toBeDefined();
+      expect(screen.queryByTestId('mobile-web-portal')).toBeNull();
+      view.unmount(); delete (window as any).Capacitor;
+    });
+
+    it('explicit desktop override opens full workspace on a compact browser', () => {
+      window.history.replaceState({}, '', '/app?desktop=1');
+      window.matchMedia = vi.fn((query: string) => ({ matches: query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.getByTestId('workspace-root')).toBeDefined();
+      expect(screen.queryByTestId('mobile-web-portal')).toBeNull();
+    });
+
+    it.each(['/rooms', '/rooms/room-invite', '/calendar', '/dashboard'])('compact Web guards %s before study components mount', path => {
+      window.history.replaceState({}, '', path);
+      window.matchMedia = vi.fn((query: string) => ({ matches: query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.getByTestId('mobile-web-portal')).toBeDefined();
+      expect(screen.queryByTestId('mobile-app-shell')).toBeNull();
+    });
+
+    it('an unknown room prefix cannot bypass the Mobile Web guard into Meet', () => {
+      window.history.replaceState({}, '', '/rooms-other');
+      window.matchMedia = vi.fn((query: string) => ({ matches: query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.getByText('404')).toBeDefined();
+      expect(screen.queryByTestId('mobile-web-portal')).toBeNull();
+    });
+
+    it.each([768, 1440])('Desktop/tablet at %ipx opens the complete Meet lobby despite Android UA', width => {
+      window.history.replaceState({}, '', '/rooms');
+      const previousUa = navigator.userAgent;
+      Object.defineProperty(navigator, 'userAgent', { configurable: true, value: 'Mozilla/5.0 (Linux; Android 15; Tablet)' });
+      window.matchMedia = vi.fn((query: string) => ({ matches: width < 768 && query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      const view = render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.getByRole('heading', { name: /Học cùng bạn bè tại/ })).toBeDefined();
+      expect(screen.queryByTestId('mobile-web-portal')).toBeNull();
+      view.unmount(); Object.defineProperty(navigator, 'userAgent', { configurable: true, value: previousUa });
+    });
+
+    it.each(['/profile', '/account-security', '/login', '/signup', '/billing'])('compact Web keeps %s reachable', path => {
+      window.history.replaceState({}, '', path);
+      window.matchMedia = vi.fn((query: string) => ({ matches: query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      render(<RouterProvider><App /></RouterProvider>);
+      expect(screen.queryByTestId('mobile-web-portal')).toBeNull();
+      expect(screen.queryByTestId('mobile-app-shell')).toBeNull();
+      expect(screen.queryByText('404')).toBeNull();
+      expect(screen.getAllByRole('heading').length).toBeGreaterThan(0);
+    });
+
+    it('guest top-up intent on Mobile Web opens Web login instead of a missing native avatar sheet', async () => {
+      window.history.replaceState({}, '', '/billing');
+      window.matchMedia = vi.fn((query: string) => ({ matches: query.includes('767px'),
+        addEventListener: vi.fn(), removeEventListener: vi.fn(), media: query })) as any;
+      useAiStore.setState({ isTopupModalOpen: true });
+      render(<RouterProvider><App /></RouterProvider>);
+      await waitFor(() => expect(window.location.pathname).toBe('/login'));
+      expect(screen.queryByTestId('ai-credits-topup-modal')).toBeNull();
     });
 
     it('5.2 Renders 100% desktop layout on desktop viewports (> 768px)', () => {

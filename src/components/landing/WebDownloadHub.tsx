@@ -156,11 +156,11 @@ export const WebDownloadHub: React.FC = () => {
     {
       title: 'Giữ sáng khi tập trung',
       subtitle: 'Giữ sáng khi thiết bị hỗ trợ',
-      desc: 'Tùy chọn giữ màn hình sáng trong lúc tập trung trên thiết bị hỗ trợ. tắt khi không cần để giảm sử dụng pin.',
+      desc: 'Tùy chọn giữ màn hình sáng trong lúc tập trung trên thiết bị hỗ trợ. Tắt khi không cần để tiết kiệm pin.',
       icon: BatteryCharging,
       gradient: 'from-zinc-500/20 to-zinc-500/10',
       border: 'border-zinc-500/30',
-      badge: 'Thân thiện oled',
+      badge: 'Thân thiện OLED',
     },
     {
       title: 'Phản hồi khi chạm',
@@ -183,7 +183,7 @@ export const WebDownloadHub: React.FC = () => {
     {
       title: 'Học tập khi ngoại tuyến',
       subtitle: 'Hoạt động offline & riêng tư',
-      desc: 'Đếm giờ và xem dữ liệu đã lưu khi ngoại tuyến. cần kết nối mạng để đồng bộ và dùng các tính năng trực tuyến.',
+      desc: 'Đếm giờ và xem dữ liệu đã lưu khi ngoại tuyến. Cần kết nối mạng để đồng bộ và dùng các tính năng trực tuyến.',
       icon: ShieldCheck,
       gradient: 'from-zinc-500/20 to-zinc-500/10',
       border: 'border-zinc-500/30',
@@ -219,24 +219,24 @@ export const WebDownloadHub: React.FC = () => {
       <PlatformHeader isDownloadPage={true} />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2.5 sm:pt-4 pb-8">
         {/* Compact Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-2.5 sm:mb-3">
-          <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/30 text-zinc-400 text-xs font-semibold mb-2.5 shadow-[0_0_20px_rgba(255,255,255,0.15)] animate-fade-in">
-            <PomoFocusLogo size={16} withContainer={false} />
-            <span>PomoFocus · ứng dụng Android APK độc lập {CURRENT_APK_VERSION}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-ping" />
+        <div className="text-center max-w-3xl mx-auto mb-3 sm:mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/15 border-t-white/25 text-zinc-300 text-[11px] sm:text-xs font-medium mb-2 shadow-[0_4px_16px_rgba(0,0,0,0.25)]">
+            <PomoFocusLogo size={15} withContainer={false} />
+            <span>PomoFocus Android APK {CURRENT_APK_VERSION}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-2 leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-1.5 sm:mb-2 leading-tight">
             Tập trung sâu.{' '}
-            <span className="bg-gradient-to-r from-zinc-400 via-zinc-300 to-zinc-400 bg-clip-text text-transparent block sm:inline">
+            <span className="text-zinc-300 block sm:inline">
               Trôi chảy từng khoảnh khắc.
             </span>
           </h1>
 
           <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Ứng dụng pomodoro dành cho Android. Theo dõi phiên tập trung bằng mốc thời gian, quản lý công việc và đồng bộ khi có kết nối mạng.
+            Ứng dụng Pomodoro dành cho Android. Theo dõi phiên tập trung bằng mốc thời gian, quản lý công việc và đồng bộ khi có kết nối mạng.
           </p>
         </div>
 
@@ -244,45 +244,63 @@ export const WebDownloadHub: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start mb-6">
           {/* Left Column: Direct Action & Download Highlights */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-4">
-            <div className="rounded-3xl bg-zinc-900/60 backdrop-blur-2xl border border-white/10 border-t-white/20 p-5 sm:p-6 shadow-2xl relative overflow-hidden space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="rounded-3xl bg-zinc-950/55 backdrop-blur-2xl border border-white/12 border-t-white/25 p-4 sm:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.45)] relative overflow-hidden space-y-3.5 sm:space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2.5">
                   <PomoFocusLogo size={28} />
                   <div className="flex flex-col">
                     <span className="text-sm font-bold tracking-tight text-white">PomoFocus</span>
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-400">
+                    <span className="text-[11px] font-medium text-zinc-400">
                       Bản phát hành chính thức {CURRENT_APK_VERSION}
                     </span>
                   </div>
                 </div>
-                <span className="text-xs font-mono text-zinc-300 bg-zinc-800/80 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-xs font-medium text-zinc-200 bg-white/[0.06] backdrop-blur-xl px-3 py-1 rounded-full border border-white/15 border-t-white/25">
                   Dung lượng: {APK_SIZE_LABEL}
                 </span>
               </div>
 
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1.5">
+                <h2 className="text-lg sm:text-2xl font-bold text-white mb-1">
                   Tải ứng dụng PomoFocus Android
                 </h2>
                 <p className="text-xs text-zinc-300 leading-relaxed">
-                  Cài đặt trực tiếp file APK sạch, nguyên bản. Đồng bộ dữ liệu tức thì qua đám mây
-                  với tài khoản PomoFocus web của bạn.
+                  Cài đặt trực tiếp file APK sạch, nguyên bản. Đồng bộ dữ liệu tức thì qua đám mây với tài khoản PomoFocus web của bạn.
                 </p>
               </div>
 
-              {/* Integrated 2-Col Action Row: APK Button (Left) + Scannable QR Code (Right) */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center pt-1">
+              {/* Integrated 2-Col Action Row: APK Button (Left) + Desktop-Only Scannable QR Code (Right) */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center pt-0.5">
                 {/* Left: 1-Touch Download Button & Details */}
-                <div className="md:col-span-7 space-y-3">
+                <div className="md:col-span-7 space-y-2.5">
                   <a
                     data-testid="central-apk-download-btn"
                     href={PUBLIC_APK_URL}
                     download="PomoFocus-v8.1.apk"
-                    className="w-full h-14 sm:h-16 min-h-[56px] px-6 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-300 shadow-[0_12px_32px_rgba(255,255,255,0.45)] animate-pulse hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    className="w-full h-14 sm:h-15 min-h-[54px] px-4 sm:px-5 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-[13px] sm:text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_8px_28px_rgba(255,255,255,0.22)] hover:scale-[1.01] active:scale-95 cursor-pointer"
                   >
-                    <Download className="w-5 h-5 text-current stroke-[1.5]" />
-                    <span>Tải PomoFocus APK ({CURRENT_APK_VERSION})</span>
+                    <Download className="w-4 h-4 sm:w-5 sm:h-5 text-current stroke-[1.75] shrink-0" />
+                    <span className="whitespace-nowrap">Tải PomoFocus Android ({CURRENT_APK_VERSION} · {APK_SIZE_LABEL})</span>
                   </a>
+
+                  {/* Mobile-only compact Copy Link button (since QR is hidden on phones) */}
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="md:hidden w-full h-10 flex items-center justify-center gap-1.5 px-4 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 border-t-white/25 text-zinc-200 text-xs font-medium transition active:scale-95 cursor-pointer"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-300 font-semibold">Đã sao chép liên kết APK!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-zinc-300" />
+                        <span>Sao chép liên kết tải APK</span>
+                      </>
+                    )}
+                  </button>
 
                   <div className="text-center md:text-left text-[11px] text-zinc-400 font-medium">
                     Dung lượng: {APK_SIZE_LABEL} · Android 9.0+ · miễn phí tải xuống
@@ -291,21 +309,21 @@ export const WebDownloadHub: React.FC = () => {
                   {/* Play Protect micro-hint */}
                   <p
                     data-testid="play-protect-micro-hint"
-                    className="text-left text-[11px] text-zinc-400/90 leading-relaxed"
+                    className="text-center md:text-left text-[11px] text-zinc-400/90 leading-relaxed"
                   >
                     Nếu máy hiện cảnh báo nguồn ngoài, chọn &apos;Vẫn cài đặt&apos; để trải nghiệm bản thử nghiệm nội bộ.
                   </p>
 
                   {/* Device Detection Hint */}
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-400 pt-0.5">
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-xs text-zinc-400 pt-0.5">
                     {isAndroid ? (
-                      <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Phát hiện bạn đang dùng Android · chạm nút trên để tải và cài đặt ngay
+                      <span className="inline-flex items-center gap-1.5 text-zinc-300 font-medium">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        Đang dùng Android · chạm nút trên để tải và cài đặt ngay
                       </span>
                     ) : isDesktop ? (
                       <span className="inline-flex items-center gap-1.5 text-zinc-400">
-                        <QrCode className="w-4 h-4 text-zinc-400" />
+                        <QrCode className="w-4 h-4 text-zinc-400 shrink-0" />
                         Bạn đang ở desktop · quét mã QR bên cạnh để cài ngay trên điện thoại
                       </span>
                     ) : isIOS ? (
@@ -318,8 +336,8 @@ export const WebDownloadHub: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: Integrated Dynamic ISO QR Code */}
-                <div className="md:col-span-5 flex flex-col items-center justify-center p-3.5 rounded-2xl bg-zinc-950/70 border border-white/10 text-center shadow-lg">
+                {/* Right: Integrated Dynamic ISO QR Code (Desktop / Tablet only; hidden on 390px phones) */}
+                <div className="hidden md:flex md:col-span-5 flex-col items-center justify-center p-3.5 rounded-2xl bg-zinc-950/65 backdrop-blur-xl border border-white/12 border-t-white/20 text-center shadow-lg">
                   <div
                     data-testid="dynamic-qr-code"
                     className="p-1.5 rounded-xl bg-white border border-white/20 shadow-md shrink-0"

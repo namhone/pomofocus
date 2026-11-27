@@ -64,17 +64,18 @@ export const CookieConsentBanner: React.FC = () => {
       data-testid="cookie-consent-banner"
       role="region"
       aria-label="Thông báo bảo vệ dữ liệu và cookie"
-      className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-4 rounded-2xl bg-zinc-950/95 border border-white/10 shadow-2xl backdrop-blur-2xl text-zinc-100 select-none animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="fixed bottom-2.5 left-2.5 right-2.5 sm:bottom-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-2.5 sm:p-4 rounded-2xl bg-zinc-950/85 border border-white/15 border-t-white/25 shadow-2xl backdrop-blur-2xl text-zinc-100 select-none animate-in fade-in slide-in-from-bottom-2 duration-300"
     >
-      <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0 text-white mt-0.5">
+      <div className="flex items-start gap-2.5 sm:gap-3">
+        <div className="hidden sm:flex w-8 h-8 rounded-xl bg-white/10 border border-white/15 items-center justify-center shrink-0 text-white mt-0.5">
           <Shield size={16} className="text-zinc-300 stroke-[1.5]" />
         </div>
 
-        <div className="flex-1 space-y-1.5 min-w-0">
+        <div className="flex-1 space-y-1 sm:space-y-1.5 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h4 className="text-xs font-semibold text-white tracking-wide">
-              Bảo vệ dữ liệu & quyền riêng tư
+            <h4 className="text-[11px] sm:text-xs font-semibold text-white tracking-wide flex items-center gap-1.5">
+              <Shield size={13} className="sm:hidden text-zinc-300 stroke-[1.5] shrink-0" />
+              <span>Bảo vệ dữ liệu &amp; quyền riêng tư</span>
             </h4>
             <button
               type="button"
@@ -87,24 +88,24 @@ export const CookieConsentBanner: React.FC = () => {
             </button>
           </div>
 
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none">
             PomoFocus lưu trữ dữ liệu tác vụ và cài đặt cục bộ (bộ nhớ trên thiết bị) để bạn có thể tiếp tục làm việc khi mất mạng, tuân thủ luật bảo vệ dữ liệu cá nhân 91/2025/QH15 và nghị định 356/2025/nđ-cp.
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 pt-1.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
             <button
               type="button"
               data-testid="consent-accept-btn"
               onClick={handleAccept}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
             >
-              Đồng ý & tiếp tục
+              Đồng ý &amp; tiếp tục
             </button>
             <button
               type="button"
               data-testid="consent-decline-btn"
               onClick={handleDecline}
-              className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-[11px] sm:text-xs font-semibold whitespace-nowrap shrink-0 active:scale-95 transition shadow-sm cursor-pointer"
             >
               Từ chối
             </button>
@@ -112,7 +113,7 @@ export const CookieConsentBanner: React.FC = () => {
               type="button"
               data-testid="consent-details-btn"
               onClick={handleOpenPrivacy}
-              className="px-2.5 py-1.5 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1 whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-2 sm:px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0 cursor-pointer"
             >
               <span>Xem chính sách</span>
               <ChevronRight size={12} />

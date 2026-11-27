@@ -60,7 +60,7 @@ export const SharedFooter: React.FC = () => {
     {
       label: 'Thống kê tập trung',
       path: '/dashboard',
-      icon: <BarChart3 size={13} className="text-rose-400 shrink-0" />
+      icon: <BarChart3 size={13} className="text-zinc-300 shrink-0" />
     },
     {
       label: 'Tải app Android (APK)',
@@ -103,7 +103,7 @@ export const SharedFooter: React.FC = () => {
     {
       label: 'Chính sách bảo mật',
       path: '/privacy',
-      icon: <Shield size={13} className="text-rose-400 shrink-0" />
+      icon: <Shield size={13} className="text-zinc-300 shrink-0" />
     }
   ];
 
