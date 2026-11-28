@@ -342,7 +342,10 @@ export const App: React.FC = () => {
         useAuthStore.getState().syncUserFromSupabase(session.user);
         checkAndRedirectOAuth();
       } else if (event === 'SIGNED_OUT') {
-        useAuthStore.getState().logout();
+        const authState = useAuthStore.getState();
+        if (authState.isAuthenticated || authState.user !== null) {
+          authState.logout();
+        }
       }
     });
 

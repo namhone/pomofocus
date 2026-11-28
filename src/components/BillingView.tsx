@@ -268,7 +268,7 @@ export const BillingView: React.FC = () => {
                         <UiSymbol name="🟢" /> Đang kích hoạt vĩnh viễn
                       </span>
                     </div>
-                    <h1 className="text-base sm:text-xl md:text-2xl font-extrabold text-white tracking-tight mt-1 break-words">
+                    <h1 className="text-base sm:text-xl md:text-2xl font-extrabold text-[#ECEFF4] tracking-tight mt-1 break-words">
                       Thành viên PRO trọn đời (lifetime Founder)
                     </h1>
                   </div>
@@ -411,7 +411,7 @@ export const BillingView: React.FC = () => {
               <span className="text-[11px] font-mono text-zinc-300 bg-zinc-700/10 border border-zinc-500/20 px-3 py-1 rounded-full inline-block">
                 Gói đang hoạt động
               </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#ECEFF4] tracking-tight">
                 Quản lý thuê bao PRO của bạn
               </h1>
               <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
@@ -578,7 +578,7 @@ export const BillingView: React.FC = () => {
               <span className="text-[11px] font-mono text-zinc-400 block">
                 Đầu tư cho sự tập trung
               </span>
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-[#ECEFF4] tracking-tight">
                 Bảng giá dịch vụ PomoFocus PRO
               </h1>
               <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">

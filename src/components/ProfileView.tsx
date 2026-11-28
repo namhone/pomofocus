@@ -89,7 +89,7 @@ export const ProfileView: React.FC = () => {
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Hồ sơ cá nhân</h1>
+            <h1 className="text-xl font-bold text-[#ECEFF4]">Hồ sơ cá nhân</h1>
             <p className="text-xs text-zinc-400 leading-relaxed">
               Đăng nhập để quản lý tên hiển thị, thông tin cá nhân và ảnh đại diện của bạn.
             </p>
@@ -397,7 +397,7 @@ export const ProfileView: React.FC = () => {
               {/* Text Info */}
               <div className="min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight truncate" data-testid="profile-display-name">
+                  <h1 className="text-lg sm:text-xl font-bold text-[#ECEFF4] tracking-tight truncate" data-testid="profile-display-name">
                     <UiLabel text={user.displayName} />
                   </h1>
                   {user.username && (

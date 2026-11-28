@@ -604,6 +604,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     logout: async () => {
+      if (!get().isAuthenticated && !get().user) {
+        return;
+      }
       ++authEpoch;
       const currentUser = get().user;
       const currentUserId = currentUser?.id || 'guest';
@@ -614,10 +617,6 @@ export const useAuthStore = create<AuthState>((set, get) => {
         });
       }
 
-      authService.logout();
-      try {
-        localProfileCache.clear();
-      } catch {}
       set({
         user: null,
         isAuthenticated: false,
@@ -634,6 +633,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
         pending2FaUser: null,
         ...computeDerivedPlanState(null)
       });
+      authService.logout();
+      try {
+        localProfileCache.clear();
+      } catch {}
       // Đặt lại AI store về chế độ khách với số credits đọc từ pomofocus_guest_ai_credits_v5
       try {
         const guestCredits = getInitialGuestCredits();

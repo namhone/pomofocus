@@ -263,8 +263,8 @@ export const AdminCouponManager: React.FC = () => {
               }}
               className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950/80 border border-zinc-700/80 text-zinc-200 focus:outline-none focus:border-zinc-500 transition"
             >
-              <option value="lifetime">Trọn đời (PRO lifetime <UiSymbol name="👑" />)</option>
-              <option value="credits">Nạp điểm (AI credits <UiSymbol name="⚡" />)</option>
+              <option value="lifetime">Trọn đời (PRO lifetime)</option>
+              <option value="credits">Nạp điểm (AI credits)</option>
               <option value="free_days">Ngày PRO (Free days)</option>
               <option value="discount_percent">Giảm % giá (discount)</option>
             </select>

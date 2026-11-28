@@ -269,8 +269,24 @@ export class AiChatService {
     try {
       const { data, error } = await supabase.from('ai_messages').insert(payload);
       if (error) {
-        console.warn('[AiChatService] Lỗi lưu tin nhắn Supabase:', error.message);
-        return payload;
+        const msg = String(error.message || '').toLowerCase();
+        if (msg.includes('schema cache') || msg.includes('column')) {
+          const corePayload = {
+            id: payload.id,
+            conversation_id: payload.conversation_id,
+            role: payload.role,
+            content: payload.content,
+            created_at: payload.created_at,
+          };
+          const { error: fallbackErr } = await supabase.from('ai_messages').insert(corePayload);
+          if (fallbackErr) {
+            console.warn('[AiChatService] Lỗi lưu tin nhắn Supabase (fallback):', fallbackErr.message);
+            return payload;
+          }
+        } else {
+          console.warn('[AiChatService] Lỗi lưu tin nhắn Supabase:', error.message);
+          return payload;
+        }
       }
 
       // Cập nhật updated_at và tự động đặt tiêu đề gợi nhớ nếu là câu hỏi đầu tiên

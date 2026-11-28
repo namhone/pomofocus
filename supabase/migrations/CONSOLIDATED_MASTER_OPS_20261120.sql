@@ -418,10 +418,22 @@ CREATE POLICY "ai_conv_service_role" ON public.ai_conversations
 CREATE TABLE IF NOT EXISTS public.ai_messages (
   id TEXT PRIMARY KEY,
   conversation_id TEXT REFERENCES public.ai_conversations(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
   content TEXT NOT NULL DEFAULT '',
+  action_type TEXT DEFAULT 'chat',
+  credits_used INT DEFAULT 0,
+  attachment_url TEXT,
+  attachment_name TEXT,
+  is_truncated BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS action_type TEXT DEFAULT 'chat';
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS credits_used INT DEFAULT 0;
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS attachment_url TEXT;
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS attachment_name TEXT;
+ALTER TABLE public.ai_messages ADD COLUMN IF NOT EXISTS is_truncated BOOLEAN DEFAULT FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_ai_messages_conv ON public.ai_messages(conversation_id);
 ALTER TABLE public.ai_messages ENABLE ROW LEVEL SECURITY;

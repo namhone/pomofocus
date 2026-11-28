@@ -108,7 +108,7 @@ export const AccountSecurityView: React.FC = () => {
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full p-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-center space-y-5">
-            <h1 className="text-xl font-bold text-white">Bảo mật & 2FA</h1>
+            <h1 className="text-xl font-bold text-[#ECEFF4]">Bảo mật & 2FA</h1>
             <p className="text-xs text-zinc-400">
               Đăng nhập để quản lý mật khẩu, phiên đăng nhập và xác thực hai bước (2FA).
             </p>
@@ -403,7 +403,7 @@ export const AccountSecurityView: React.FC = () => {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2.5">
             <Shield size={20} className="text-zinc-200 shrink-0" />
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#ECEFF4] tracking-tight">
               Trung tâm bảo mật tài khoản
             </h1>
           </div>
